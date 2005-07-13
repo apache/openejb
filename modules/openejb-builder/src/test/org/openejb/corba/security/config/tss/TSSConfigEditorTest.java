@@ -132,7 +132,6 @@ public class TSSConfigEditorTest extends TestCase {
                                              "\n" +
                                              "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer\n" +
                                              "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer\n" +
-                                             "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer\n" +
                                              "\n" +
                                              "            Xopenorb.debug.level=HIGH\n" +
                                              "            Xopenorb.debug.trace=DEBUG\n" +

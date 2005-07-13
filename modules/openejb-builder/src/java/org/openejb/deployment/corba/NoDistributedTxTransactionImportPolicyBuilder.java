@@ -17,15 +17,16 @@
 package org.openejb.deployment.corba;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.openejb.corba.transaction.MappedServerTransactionPolicyConfig;
 import org.openejb.corba.transaction.OperationTxPolicy;
 import org.openejb.corba.transaction.ServerTransactionPolicyConfig;
 import org.openejb.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
-import org.openejb.corba.compiler.IiopOperation;
-import org.openejb.corba.compiler.PortableStubCompiler;
+import org.openejb.corba.util.Util;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
@@ -37,14 +38,17 @@ public class NoDistributedTxTransactionImportPolicyBuilder implements Transactio
 
     public Serializable buildTransactionImportPolicy(String methodIntf, Class intf, boolean isHomeMethod, TransactionPolicySource transactionPolicySource, ClassLoader classLoader) {
         Map policies = new HashMap();
-        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(intf);
-        for (int i = 0; i < iiopOperations.length; i++) {
-            IiopOperation iiopOperation = iiopOperations[i];
-            InterfaceMethodSignature interfaceMethodSignature = new InterfaceMethodSignature(iiopOperation.getMethod(), isHomeMethod);
+
+        Map methodToOperation = Util.mapMethodToOperation(intf);
+        for (Iterator iterator = methodToOperation.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Method method = (Method) entry.getKey();
+            String operation = (String) entry.getValue();
+
+            InterfaceMethodSignature interfaceMethodSignature = new InterfaceMethodSignature(method, isHomeMethod);
             TransactionPolicyType transactionPolicyType = transactionPolicySource.getTransactionPolicy(methodIntf, interfaceMethodSignature);
             OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getTransactionPolicy(transactionPolicyType);
-            String IDLOperationName = iiopOperation.getName();
-            policies.put(IDLOperationName, operationTxPolicy);
+            policies.put(operation, operationTxPolicy);
         }
         ServerTransactionPolicyConfig serverTransactionPolicyConfig = new MappedServerTransactionPolicyConfig(policies);
 

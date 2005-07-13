@@ -48,29 +48,24 @@ import java.lang.reflect.Method;
 import java.rmi.AccessException;
 import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.RemoveException;
+import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
-import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -90,8 +85,6 @@ import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
-import org.openejb.corba.compiler.IiopOperation;
-import org.openejb.corba.compiler.PortableStubCompiler;
 import org.openejb.corba.util.Util;
 
 /**
@@ -138,23 +131,10 @@ public class StandardServant extends Servant implements InvokeHandler {
         }
 
         // build the operations index
-        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(type);
-        Map operations = new HashMap(iiopOperations.length);
-        for (int i = 0; i < iiopOperations.length; i++) {
-            IiopOperation iiopOperation = iiopOperations[i];
-            operations.put(iiopOperation.getName(), iiopOperation.getMethod());
-        }
-        this.operations = Collections.unmodifiableMap(operations);
+        this.operations = Util.mapOperationToMethod(type);
 
         // creat the corba ids array
-        List ids = new LinkedList();
-        for (Iterator iterator = PortableStubCompiler.getAllInterfaces(type).iterator(); iterator.hasNext();) {
-            Class superInterface = (Class) iterator.next();
-            if (Remote.class.isAssignableFrom(superInterface) && superInterface != Remote.class) {
-                ids.add("RMI:" + superInterface.getName() + ":0000000000000000");
-            }
-        }
-        typeIds = (String[]) ids.toArray(new String[ids.size()]);
+        typeIds = Util.createCorbaIds(type);
 
         // create ReadOnlyContext
         Map componentContext = new HashMap(2);

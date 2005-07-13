@@ -74,7 +74,6 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
-import org.openejb.corba.compiler.OpenORBSkeletonGenerator;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -152,8 +151,6 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
         try {
             ObjectName listener = null;
-            OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
-            skeletonGenerator.doStart();
             OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, null);
 
             tempDir = DeploymentUtil.createTempDir();

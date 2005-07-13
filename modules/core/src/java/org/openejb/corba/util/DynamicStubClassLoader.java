@@ -46,10 +46,6 @@ package org.openejb.corba.util;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.rmi.Remote;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
@@ -65,7 +61,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.openejb.corba.compiler.PortableStubCompiler;
 
 
 /**
@@ -79,7 +74,7 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     public synchronized Class loadClass(final String name) throws ClassNotFoundException {
         if (stopped) {
-            throw new ClassNotFoundException("OpenORBStubClassLoader is stopped");
+            throw new ClassNotFoundException("DynamicStubClassLoader is stopped");
         }
 
         if (log.isDebugEnabled()) {
@@ -195,14 +190,7 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
         private final String[] typeIds;
 
         public Ids(Class type) {
-            List ids = new LinkedList();
-            for (Iterator iterator = PortableStubCompiler.getAllInterfaces(type).iterator(); iterator.hasNext();) {
-                Class superInterface = (Class) iterator.next();
-                if (Remote.class.isAssignableFrom(superInterface) && superInterface != Remote.class) {
-                    ids.add("RMI:" + superInterface.getName() + ":0000000000000000");
-                }
-            }
-            typeIds = (String[]) ids.toArray(new String[ids.size()]);
+            typeIds = Util.createCorbaIds(type);
         }
 
         public Object loadObject() throws Exception {

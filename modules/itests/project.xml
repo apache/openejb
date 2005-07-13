@@ -163,42 +163,6 @@
         </dependency>
 
         <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb-tools</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-tools</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>avalon</groupId>
-            <artifactId>avalon-framework</artifactId>
-            <version>${avalon_framework_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>avalon</groupId>
-            <artifactId>avalon-logkit</artifactId>
-            <version>${avalon_logkit_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>incubator-derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby_version}</version>

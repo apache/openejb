@@ -62,9 +62,7 @@ import org.omg.PortableServer.ServantRetentionPolicyValue;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
-import org.openejb.corba.util.TieLoader;
 import org.openejb.proxy.ProxyInfo;
-
 
 /**
  * @version $Revision$ $Date$
@@ -73,13 +71,11 @@ public abstract class Adapter implements RefGenerator {
     private final EJBContainer container;
     protected final POA homePOA;
     private final NamingContextExt initialContext;
-    private final TieLoader tieLoader;
     private final byte[] home_id;
     private final org.omg.CORBA.Object homeReference;
 
-    protected Adapter(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
+    protected Adapter(EJBContainer container, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
         this.container = container;
-        this.tieLoader = tieLoader;
         this.home_id = container.getContainerID().toString().getBytes();
 
         Any any = orb.create_any();
@@ -135,10 +131,6 @@ public abstract class Adapter implements RefGenerator {
 
     public NamingContextExt getInitialContext() {
         return initialContext;
-    }
-
-    public TieLoader getTieLoader() {
-        return tieLoader;
     }
 
     public org.omg.CORBA.Object getHomeReference() {

@@ -54,8 +54,6 @@ import org.omg.PortableServer.POA;
 
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
-import org.openejb.corba.util.TieLoader;
-
 
 /**
  * @version $Revision$ $Date$
@@ -74,17 +72,17 @@ public final class AdapterWrapper {
         return container;
     }
 
-    public void start(ORB orb, POA poa, NamingContextExt initialContext, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
+    public void start(ORB orb, POA poa, NamingContextExt initialContext, Policy securityPolicy) throws CORBAException {
         switch (container.getProxyInfo().getComponentType()) {
             case EJBComponentType.STATELESS:
-                generator = new AdapterStateless(container, orb, poa, tieLoader, securityPolicy);
+                generator = new AdapterStateless(container, orb, poa, securityPolicy);
                 break;
             case EJBComponentType.STATEFUL:
-                generator = new AdapterStateful(container, orb, poa, tieLoader, securityPolicy);
+                generator = new AdapterStateful(container, orb, poa, securityPolicy);
                 break;
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
-                generator = new AdapterEntity(container, orb, poa, tieLoader, securityPolicy);
+                generator = new AdapterEntity(container, orb, poa, securityPolicy);
                 break;
             default:
                 throw new CORBAException("CORBA Adapter does not handle MDB containers");

@@ -50,36 +50,11 @@
 <!--dependencies for openejb core-->
 <service xmlns="http://geronimo.apache.org/xml/ns/deployment">
 
-    <!-- CORBA -->
-    <dependency>
-        <uri>tmporb/jars/tmporb-orb-${tmporb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tmporb/jars/tmporb-orb-omg-${tmporb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tmporb/jars/tmporb-orb-tools-${tmporb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tmporb/jars/tmporb-tools-${tmporb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tmporb/jars/tmporb-ins-${tmporb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tmporb/jars/tmporb-pss-${tmporb_version}.jar</uri>
-    </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-corba-${geronimo_spec_corba_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>avalon/jars/avalon-framework-${avalon_framework_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>avalon/jars/avalon-logkit-${avalon_logkit_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>ant/jars/ant-${ant_version}.jar</uri>
