@@ -588,7 +588,7 @@
 
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
+            <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
             <properties>
                 <repository>true</repository>
@@ -739,6 +739,10 @@
             <artifactId>stax</artifactId>
             <version>${stax_version}</version>
             <properties>
+                <!--todo remove server, its an xmlbean problem -->
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <server>true</server>
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -748,9 +752,14 @@
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
             <properties>
+                <!--todo remove server, its an xmlbean problem -->
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <server>true</server>
                 <repository>true</repository>
             </properties>
         </dependency>
+
 
         <!-- service-ref builder -->
         <dependency>
