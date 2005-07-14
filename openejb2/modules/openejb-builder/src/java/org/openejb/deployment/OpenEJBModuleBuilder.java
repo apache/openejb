@@ -59,6 +59,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -90,6 +92,9 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
+import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
+import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
@@ -449,25 +454,66 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
         }
         
+        EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
+        Set beans = new HashSet();
+        EntityBeanType[] ebs = enterpriseBeans.getEntityArray();
+        for (int i = 0; i < ebs.length; i++) {
+            beans.add(ebs[i].getEjbName().getStringValue());
+        }
+        SessionBeanType[] sbs = enterpriseBeans.getSessionArray();
+        for (int i = 0; i < sbs.length; i++) {
+            beans.add(sbs[i].getEjbName().getStringValue());
+        }
+        MessageDrivenBeanType[] mbs = enterpriseBeans.getMessageDrivenArray();
+        for (int i = 0; i < mbs.length; i++) {
+            beans.add(mbs[i].getEjbName().getStringValue());
+        }
+
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
+        List badBeans = new ArrayList();
         //TODO NPE if enterprise-beans or session is missing
         OpenejbSessionBeanType[] openejbSessionBeans = openejbEjbJar.getEnterpriseBeans().getSessionArray();
         for (int i = 0; i < openejbSessionBeans.length; i++) {
             OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
-            openejbBeans.put(sessionBean.getEjbName(), sessionBean);
+            if(beans.contains(sessionBean.getEjbName())) {
+                openejbBeans.put(sessionBean.getEjbName(), sessionBean);
+            } else {
+                badBeans.add(sessionBean.getEjbName());
+            }
         }
         //TODO NPE as above
         OpenejbEntityBeanType[] openejbEntityBeans = openejbEjbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < openejbEntityBeans.length; i++) {
             OpenejbEntityBeanType entityBean = openejbEntityBeans[i];
-            openejbBeans.put(entityBean.getEjbName(), entityBean);
+            if(beans.contains(entityBean.getEjbName())) {
+                openejbBeans.put(entityBean.getEjbName(), entityBean);
+            } else {
+                badBeans.add(entityBean.getEjbName());
+            }
         }
         //TODO NPE as above
         OpenejbMessageDrivenBeanType[] openejbMessageDrivenBeans = openejbEjbJar.getEnterpriseBeans().getMessageDrivenArray();
         for (int i = 0; i < openejbMessageDrivenBeans.length; i++) {
             OpenejbMessageDrivenBeanType messageDrivenBean = openejbMessageDrivenBeans[i];
-            openejbBeans.put(messageDrivenBean.getEjbName(), messageDrivenBean);
+            if(beans.contains(messageDrivenBean.getEjbName())) {
+                openejbBeans.put(messageDrivenBean.getEjbName(), messageDrivenBean);
+            } else {
+                badBeans.add(messageDrivenBean.getEjbName());
+            }
+        }
+
+        if(badBeans.size() > 0) {
+            if(badBeans.size() == 1) {
+                throw new DeploymentException("EJB '"+badBeans.get(0)+"' is described in OpenEJB deployment plan but does not exist in META-INF/ejb-jar.xml");
+            }
+            StringBuffer buf = new StringBuffer();
+            buf.append("The following EJBs are described in the OpenEJB deployment plan but do not exist in META-INF/ejb-jar.xml: ");
+            for (int i = 0; i < badBeans.size(); i++) {
+                if(i>0) buf.append(", ");
+                buf.append(badBeans.get(i));
+            }
+            throw new DeploymentException(buf.toString());
         }
 
         TransactionPolicyHelper transactionPolicyHelper;
@@ -485,7 +531,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             earContext.setSecurityConfiguration(securityConfiguration);
         }
 
-        EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
         ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap());
         //TODO go back to the commented version when possible
