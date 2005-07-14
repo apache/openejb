@@ -94,7 +94,7 @@ by the server.
         <uri>geronimo/jars/geronimo-service-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tranql/jars/tranql-${geronimo_version}.jar</uri>
+        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
