@@ -51,7 +51,7 @@ import javax.naming.InitialContext;
 import org.openejb.test.TestManager;
 
 /**
- * 
+ * @version $Revision$ $Date$
  */
 public class Cmp2TestSuite extends org.openejb.test.TestSuite {
 
@@ -69,6 +69,7 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
         this.addTest(new Cmp2JndiEncTests());
         this.addTest(new Cmp2RmiIiopTests());
         this.addTest(new PrefetchTests());
+        this.addTest(new PetstoreTests());
     }
 
     public static junit.framework.Test suite() {
