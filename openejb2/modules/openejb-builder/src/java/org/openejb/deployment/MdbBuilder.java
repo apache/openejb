@@ -123,7 +123,7 @@ class MdbBuilder extends BeanBuilder {
                     openejbMessageDrivenBean.isSetActivationConfig() ? openejbMessageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : null,
                     messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
                     openejbMessageDrivenBean.getResourceAdapter(),
-                    messageDrivenBean.getMessagingType().getStringValue().trim(),
+                    messageDrivenBean.getMessagingType() == null? javax.jms.MessageListener.class.getName(): messageDrivenBean.getMessagingType().getStringValue().trim(),
                     containerId);
             GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
             messageDrivenGBean.setName(messageDrivenObjectName);
