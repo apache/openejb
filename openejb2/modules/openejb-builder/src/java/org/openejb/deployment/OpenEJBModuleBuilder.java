@@ -453,7 +453,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         if (null == connectionFactoryLocator && false == ejbSchema.getEntities().isEmpty()) {
             throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
         }
-        
+
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
         Set beans = new HashSet();
         EntityBeanType[] ebs = enterpriseBeans.getEntityArray();
@@ -553,7 +553,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         J2eeContext j2eeContext = earContext.getJ2eeContext();
         try {
             if (resourceLocator.isSetResourceLink()) {
-                String containerId = refContext.getConnectionFactoryContainerId(uri, resourceLocator.getResourceLink(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext, earContext);
+                String containerId = refContext.getConnectionFactoryContainerId(uri, resourceLocator.getResourceLink(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, earContext);
                 return ObjectName.getInstance(containerId);
             } else if (resourceLocator.isSetTargetName()) {
                 String containerId = resourceLocator.getTargetName();

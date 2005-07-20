@@ -88,19 +88,19 @@ public interface DeploymentTestContants {
             return DeploymentHelper.RESOURCE_ADAPTER_NAME;
         }
 
-        public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterModuleName, String messageListenerInterface) {
+        public GBeanData locateActivationSpecInfo(GBeanData resourceAdapterModuleName, String messageListenerInterface) {
             return DeploymentHelper.ACTIVATION_SPEC_INFO;
         }
 
-        public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) {
+        public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) {
             return null;
         }
 
-        public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) {
+        public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) {
             return null;
         }
 
-        public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) {
+        public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) {
             return null;
         }
     };
