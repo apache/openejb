@@ -123,7 +123,7 @@ class MdbBuilder extends BeanBuilder {
                     openejbMessageDrivenBean.isSetActivationConfig() ? openejbMessageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : null,
                     messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
                     openejbMessageDrivenBean.getResourceAdapter(),
-                    messageDrivenBean.getMessagingType().getStringValue().trim(),
+                    messageDrivenBean.getMessagingType() == null? javax.jms.MessageListener.class.getName(): messageDrivenBean.getMessagingType().getStringValue().trim(),
                     containerId);
             GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
             messageDrivenGBean.setName(messageDrivenObjectName);
@@ -224,7 +224,7 @@ class MdbBuilder extends BeanBuilder {
             String messageListenerInterfaceName,
             String containerId) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
-        ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, refContext, moduleJ2eeContext);
+        ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, earContext);
         J2eeContext resourceAdapterJ2eeContext = J2eeContextImpl.newContext(resourceAdapterObjectName, NameFactory.JCA_RESOURCE);
         ObjectName resourceModuleObjectName = null;
         try {
@@ -233,7 +233,7 @@ class MdbBuilder extends BeanBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource module name", e);
         }
-        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceModuleObjectName, messageListenerInterfaceName);
+        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceModuleObjectName, messageListenerInterfaceName, earContext);
 
         if (activationSpecInfo == null) {
             throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterObjectName + " and message listener type: " + messageListenerInterfaceName);
@@ -269,10 +269,10 @@ class MdbBuilder extends BeanBuilder {
             earContext.addGBean(activationSpecInfo);
     }
 
-    private static ObjectName getResourceAdapterId(URI uri, GerResourceLocatorType resourceLocator, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
+    private static ObjectName getResourceAdapterId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
         try {
             if (resourceLocator.isSetResourceLink()) {
-                String containerId = refContext.getResourceAdapterContainerId(uri, resourceLocator.getResourceLink(), j2eeContext);
+                String containerId = earContext.getRefContext().getResourceAdapterContainerId(uri, resourceLocator.getResourceLink(), earContext);
                 return ObjectName.getInstance(containerId);
             } else if (resourceLocator.isSetTargetName()) {
                 String containerId = resourceLocator.getTargetName();
@@ -290,7 +290,7 @@ class MdbBuilder extends BeanBuilder {
                     resourceLocator.getModule(),
                     resourceLocator.getName(),
                     NameFactory.JCA_RESOURCE_ADAPTER,
-                    j2eeContext);
+                    earContext.getJ2eeContext());
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource adapter object name", e);
         }
