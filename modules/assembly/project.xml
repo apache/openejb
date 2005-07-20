@@ -623,6 +623,7 @@
             </properties>
         </dependency>
 
+<!--
         <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire</artifactId>
@@ -640,6 +641,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
+-->
 
         <dependency>
             <groupId>wsdl4j</groupId>

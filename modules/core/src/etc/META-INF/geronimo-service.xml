@@ -58,17 +58,7 @@
     </dependency>
 
     <!-- HTTP/SOAP -->
-<!--
-    <dependency>
-        <uri>xfire/jars/xfire-${xfire_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>xfire/jars/xfire-java-${xfire_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
-    </dependency>
--->
+
     <dependency>
         <uri>stax/jars/stax-${stax_version}.jar</uri>
     </dependency>

@@ -65,7 +65,7 @@ public class AxisWebServiceContainerBuilder {
 
 
     /*
-     * The ultimate goal of this method is to create an XFireService GBean that wraps the EJBContainer with
+     * The ultimate goal of this method is to create an GBean that wraps the EJBContainer with
      * the corresponding sessionObjectname and is capable of being indexed by its WSDL address location.
      */
     public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, OpenejbWebServiceSecurityType webServiceSecurity) throws DeploymentException {
