@@ -9,10 +9,7 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourcedir="${basedir}/src/schema"
-            sourceschema="openejb-jar.xsd,corba-tss-config_1_0.xsd,corba-css-config_1_0.xsd"
-            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"/>
+            maven.xmlbeans2.sourceschema="schema/openejb-jar.xsd,schema/corba-tss-config_1_0.xsd,schema/corba-css-config_1_0.xsd"/>
     </preGoal>
 
     <preGoal name="test:compile">

@@ -66,12 +66,6 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>geronimo</groupId>-->
-<!--            <artifactId>geronimo-j2ee-builder</artifactId>-->
-<!--            <version>${geronimo_version}</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -198,12 +192,6 @@
             <version>${geronimo_spec_qname_version}</version>
         </dependency>
 
-<!--       <dependency>-->
-<!--            <groupId>geronimo</groupId>-->
-<!--            <artifactId>geronimo-j2ee-schema</artifactId>-->
-<!--            <version>${geronimo_version}</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
@@ -305,41 +293,17 @@
             <version>${bouncycastle_version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>ant</groupId>-->
-<!--            <artifactId>ant</artifactId>-->
-<!--            <version>${ant_version}</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>${asm_version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>stax</groupId>-->
-<!--            <artifactId>stax</artifactId>-->
-<!--            <version>${stax_version}</version>-->
-<!--        </dependency>-->
-<!---->
-<!--        <dependency>-->
-<!--            <groupId>stax</groupId>-->
-<!--            <artifactId>stax-api</artifactId>-->
-<!--            <version>${stax_api_version}</version>-->
-<!--        </dependency>-->
-<!---->
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>${axis_version}</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>commons-discovery</groupId>-->
-<!--            <artifactId>commons-discovery</artifactId>-->
-<!--            <version>${commons_discovery_version}</version>-->
-<!--        </dependency>-->
 
         <!-- needed for unit tests-->
         <dependency>

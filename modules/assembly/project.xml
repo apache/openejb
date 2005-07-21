@@ -654,26 +654,9 @@
 
         <dependency>
             <groupId>stax</groupId>
-            <artifactId>stax</artifactId>
-            <version>${stax_version}</version>
-            <properties>
-                <!--todo remove server, its an xmlbean problem -->
-                <lib>true</lib>
-                <deploy>true</deploy>
-                <server>true</server>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
             <properties>
-                <!--todo remove server, its an xmlbean problem -->
-                <lib>true</lib>
-                <deploy>true</deploy>
-                <server>true</server>
                 <repository>true</repository>
             </properties>
         </dependency>
