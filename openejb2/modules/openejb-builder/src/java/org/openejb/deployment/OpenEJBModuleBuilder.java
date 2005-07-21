@@ -80,6 +80,7 @@ import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -142,12 +143,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, Repository repository) {
+    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, WebServiceBuilder webServiceBuilder, Repository repository) {
         this.defaultParentId = defaultParentId;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
-        this.sessionBuilder = new SessionBuilder(this);
+        this.sessionBuilder = new SessionBuilder(this, webServiceBuilder);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.repository = repository;
@@ -612,11 +613,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
+        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "Repository"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "WebServiceBuilder", "Repository"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
