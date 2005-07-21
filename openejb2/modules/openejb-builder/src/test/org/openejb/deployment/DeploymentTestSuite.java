@@ -76,6 +76,7 @@ import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.openejb.ContainerIndex;
+import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -154,7 +155,8 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         try {
             ObjectName listener = null;
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, webServiceBuilder, null);
+            GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, linkData, webServiceBuilder, null);
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,
