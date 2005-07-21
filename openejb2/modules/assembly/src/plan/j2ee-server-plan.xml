@@ -59,9 +59,6 @@ by the server.
         <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>stax/jars/stax-${stax_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
     </dependency>
 
