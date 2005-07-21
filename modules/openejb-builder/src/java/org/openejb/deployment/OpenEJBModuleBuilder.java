@@ -85,6 +85,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -143,15 +145,25 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, WebServiceBuilder webServiceBuilder, Repository repository) {
+    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
+        this(defaultParentId, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository);
+    }
+
+    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository) {
         this.defaultParentId = defaultParentId;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
-        this.sessionBuilder = new SessionBuilder(this, webServiceBuilder);
+        this.sessionBuilder = new SessionBuilder(this, linkTemplate, webServiceBuilder);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.repository = repository;
+    }
+
+    private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
+        ObjectName webServiceLinkTemplateName = kernel.getProxyManager().getProxyTarget(webServiceLinkTemplate);
+        GBeanData linkTemplate = kernel.getGBeanData(webServiceLinkTemplateName);
+        return linkTemplate;
     }
 
     public TransactionImportPolicyBuilder getTransactionImportPolicyBuilder() {
@@ -613,12 +625,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
+        infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "WebServiceBuilder", "Repository"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "WebServiceLinkTemplate", "WebServiceBuilder", "Repository", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

@@ -11,9 +11,8 @@ import org.apache.geronimo.kernel.repository.Repository;
  */
 public class PlanParsingTest extends TestCase {
     private Repository repository = null;
-    private Kernel kernel = null;
 
-    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null, null, null, repository);
+    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null, null, null, null, repository);
     File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

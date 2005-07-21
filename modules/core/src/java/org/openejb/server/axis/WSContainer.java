@@ -77,7 +77,10 @@ public class WSContainer implements GBeanLifecycle {
 
         this.soapHandler = soapHandler;
         this.location = location;
-
+        //for use as a template
+        if (ejbContainer == null) {
+            return;
+        }
         RPCProvider provider = new EJBContainerProvider(ejbContainer);
         SOAPService service = new SOAPService(null, provider, null);
 
@@ -101,7 +104,9 @@ public class WSContainer implements GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
-        soapHandler.removeWebService(location.getPath());
+        if (soapHandler != null) {
+            soapHandler.removeWebService(location.getPath());
+        }
     }
 
     public void doFail() {

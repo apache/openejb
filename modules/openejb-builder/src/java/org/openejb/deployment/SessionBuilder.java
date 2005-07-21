@@ -47,14 +47,14 @@
  */
 package org.openejb.deployment;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.security.Permissions;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -102,15 +102,16 @@ import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbTssType;
 import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
-import org.openejb.server.axis.WSContainerGBean;
 
 
 class SessionBuilder extends BeanBuilder {
 
     private final WebServiceBuilder webServiceBuilder;
+    private final GBeanData linkDataTemplate;
 
-    public SessionBuilder(OpenEJBModuleBuilder builder, WebServiceBuilder webServiceBuilder) {
+    public SessionBuilder(OpenEJBModuleBuilder builder, GBeanData linkDataTemplate, WebServiceBuilder webServiceBuilder) {
         super(builder);
+        this.linkDataTemplate = linkDataTemplate;
         this.webServiceBuilder = webServiceBuilder;
     }
 
@@ -222,12 +223,13 @@ class SessionBuilder extends BeanBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct web service link name", e);
         }
-        //TODO get this from configuration object name
-        GBeanData linkData = new GBeanData(linkName, WSContainerGBean.GBEAN_INFO);
 
+        GBeanData linkData = new GBeanData(linkDataTemplate);
+        linkData.setName(linkName);
         Object portInfo = portInfoMap.get(ejbName);
+        //let the webServiceBuilder configure its part
         webServiceBuilder.configureEJB(linkData, jarFile, portInfo, cl);
-
+        //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
             linkData.setAttribute("realmName", webServiceSecurity.getRealmName().trim());

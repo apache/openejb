@@ -45,16 +45,11 @@
 package org.openejb.server.axis;
 
 import java.net.URI;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.server.ServiceInfo;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.openejb.EJBContainer;
 
@@ -63,7 +58,7 @@ public class WSContainerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WSContainer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WSContainer.class, NameFactory.WEB_SERVICE_LINK);
 
 //        infoFactory.addOperation("invoke", new Class[]{WebServiceContainer.Request.class, WebServiceContainer.Response.class});
 
