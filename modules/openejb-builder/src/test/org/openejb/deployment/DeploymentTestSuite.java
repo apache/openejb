@@ -66,6 +66,7 @@ import junit.framework.TestSuite;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -73,6 +74,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.openejb.ContainerIndex;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -151,7 +153,8 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
         try {
             ObjectName listener = null;
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, null);
+            WebServiceBuilder webServiceBuilder = new AxisBuilder();
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, webServiceBuilder, null);
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,
@@ -219,7 +222,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 statement.execute("CREATE TABLE PKGENCMP4(ID INTEGER DEFAULT PKGENCMP4_SEQ.NEXTVAL, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
                 statement.execute("CREATE TABLE PKGENCMP5(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
                 // First two sequence rows initialized by OpenEJB wrappers around PK generators
-                statement.execute("CREATE TABLE PKGENCMP_SEQ(NAME VARCHAR(50), VALUE INTEGER)"); 
+                statement.execute("CREATE TABLE PKGENCMP_SEQ(NAME VARCHAR(50), VALUE INTEGER)");
                 statement.execute("INSERT INTO PKGENCMP_SEQ VALUES('PKGENCMP3', 100)");
             } finally {
                 JDBCUtil.close(statement);

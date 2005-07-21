@@ -97,30 +97,30 @@ public class WSContainerGBean {
     }
 
     //TODO why is a test method in runtime code?
-    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, ObjectName listener, URI location, URI wsdlURI, ServiceInfo serviceInfo) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name, ejbContainer, listener, location, wsdlURI, serviceInfo, null, null, null, null);
-        kernel.loadGBean(gbean, WSContainer.class.getClassLoader());
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-
-    public static GBeanData createGBean(String name, ObjectName ejbContainer, ObjectName listener, URI location, URI wsdlURI, ServiceInfo serviceInfo, String securityRealmName, String realmName, String transportGuarantee, String authMethod) {
-        assert ejbContainer != null : "EJBContainer objectname is null";
-
-        ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=WSContainer,name=" + name);
-
-        GBeanData gbean = new GBeanData(gbeanName, WSContainerGBean.GBEAN_INFO);
-        gbean.setReferencePattern("EJBContainer", ejbContainer);
-        gbean.setAttribute("location", location);
-        gbean.setAttribute("wsdlURI", wsdlURI);
-        gbean.setAttribute("serviceInfo", serviceInfo);
-        gbean.setAttribute("securityRealmName", securityRealmName);
-        gbean.setAttribute("realmName", realmName);
-        gbean.setAttribute("transportGuarantee", transportGuarantee);
-        gbean.setAttribute("authMethod", authMethod);
-
-        gbean.setReferencePattern("WebServiceContainer", listener);
-
-        return gbean;
-    }
+//    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, ObjectName listener, URI location, URI wsdlURI, ServiceInfo serviceInfo) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+//        GBeanData gbean = createGBean(name, ejbContainer, listener, location, wsdlURI, serviceInfo, null, null, null, null);
+//        kernel.loadGBean(gbean, WSContainer.class.getClassLoader());
+//        kernel.startGBean(gbean.getName());
+//        return gbean.getName();
+//    }
+//
+//    private static GBeanData createGBean(String name, ObjectName ejbContainer, ObjectName listener, URI location, URI wsdlURI, ServiceInfo serviceInfo, String securityRealmName, String realmName, String transportGuarantee, String authMethod) {
+//        assert ejbContainer != null : "EJBContainer objectname is null";
+//
+//        ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=WSContainer,name=" + name);
+//
+//        GBeanData gbean = new GBeanData(gbeanName, WSContainerGBean.GBEAN_INFO);
+//        gbean.setReferencePattern("EJBContainer", ejbContainer);
+//        gbean.setAttribute("location", location);
+//        gbean.setAttribute("wsdlURI", wsdlURI);
+//        gbean.setAttribute("serviceInfo", serviceInfo);
+//        gbean.setAttribute("securityRealmName", securityRealmName);
+//        gbean.setAttribute("realmName", realmName);
+//        gbean.setAttribute("transportGuarantee", transportGuarantee);
+//        gbean.setAttribute("authMethod", authMethod);
+//
+//        gbean.setReferencePattern("WebServiceContainer", listener);
+//
+//        return gbean;
+//    }
 }

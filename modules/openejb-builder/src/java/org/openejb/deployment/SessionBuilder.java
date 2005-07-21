@@ -49,10 +49,12 @@ package org.openejb.deployment;
 
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.security.Permissions;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -65,6 +67,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -98,11 +101,17 @@ import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbTssType;
+import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
+import org.openejb.server.axis.WSContainerGBean;
 
 
 class SessionBuilder extends BeanBuilder {
-    public SessionBuilder(OpenEJBModuleBuilder builder) {
+
+    private final WebServiceBuilder webServiceBuilder;
+
+    public SessionBuilder(OpenEJBModuleBuilder builder, WebServiceBuilder webServiceBuilder) {
         super(builder);
+        this.webServiceBuilder = webServiceBuilder;
     }
 
     private ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, SessionBeanType sessionBean) throws DeploymentException {
@@ -170,20 +179,72 @@ class SessionBuilder extends BeanBuilder {
             ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
             assert sessionObjectName != null: "StatelesSessionBean object name is null";
             addEJBContainerGBean(earContext, ejbModule, componentPermissions, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, policyContextID);
-            addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, listener);
 
+            boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim());
+            boolean isServiceEndpoint = sessionBean.isSetServiceEndpoint();
+//            String serviceEndpointName = OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());
+
+            if (isStateless && isServiceEndpoint) {
+                addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, listener);
+            }
         }
     }
 
-    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, ObjectName listener) throws DeploymentException {
-        AxisWebServiceContainerBuilder axisWebServiceContainerBuilder = new AxisWebServiceContainerBuilder();
-        axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, openejbSessionBean == null? null: openejbSessionBean.getWebServiceSecurity());
+    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ObjectName listener) throws DeploymentException {
+
+        String ejbName = sessionBean.getEjbName().getStringValue().trim();
+        J2eeContext j2eeContext = earContext.getJ2eeContext();
+        OpenejbWebServiceSecurityType webServiceSecurity = openejbSessionBean == null ? null : openejbSessionBean.getWebServiceSecurity();
+
+        //todo this should be done all at once, and put in the corrected port locations map.
+        String location = null;
+        if (openejbSessionBean != null && openejbSessionBean.isSetWebServiceAddress()) {
+            location = openejbSessionBean.getWebServiceAddress().trim();
+        }
+
+        JarFile jarFile = ejbModule.getModuleFile();
+        //these should be parameters or fields
+        Map correctedPortLocations = new HashMap();
+        //umm, put them all in
+        correctedPortLocations.put(ejbName, location);
+        URL wsDDUrl = null;
+        try {
+            wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Could not locate webservices descriptor", e);
+        }
+        Map portInfoMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
+
+        //this code belongs here
+        ObjectName linkName = null;
+        try {
+            linkName = NameFactory.getComponentName(null, null, null, null, null, ejbName, NameFactory.WEB_SERVICE_LINK, j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct web service link name", e);
+        }
+        //TODO get this from configuration object name
+        GBeanData linkData = new GBeanData(linkName, WSContainerGBean.GBEAN_INFO);
+
+        Object portInfo = portInfoMap.get(ejbName);
+        webServiceBuilder.configureEJB(linkData, jarFile, portInfo, cl);
+
+        if (webServiceSecurity != null) {
+            linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
+            linkData.setAttribute("realmName", webServiceSecurity.getRealmName().trim());
+            linkData.setAttribute("transportGuarantee", webServiceSecurity.getTransportGuarantee().toString());
+            linkData.setAttribute("authMethod", webServiceSecurity.getAuthMethod().toString());
+        }
+        linkData.setReferencePattern("WebServiceContainer", listener);
+        linkData.setReferencePattern("EJBContainer", sessionObjectName);
+
+        GBeanData gBean = linkData;
+
+        earContext.addGBean(gBean);
     }
 
     private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
-        GBeanData result;
         ContainerBuilder builder = null;
         ContainerSecurityBuilder containerSecurityBuilder = new ContainerSecurityBuilder();
         Permissions toBeChecked = new Permissions();
@@ -262,12 +323,12 @@ class SessionBuilder extends BeanBuilder {
                 OpenejbTssType tss = openejbSessionBean.getTss();
                 try {
                     tssBeanObjectName = NameFactory.getComponentName(getStringValue(tss.getDomain()),
-                        getStringValue(tss.getServer()),
-                        getStringValue(tss.getApplication()),
-                        getStringValue(tss.getModule()),
-                        getStringValue(tss.getName()),
-                        NameFactory.CORBA_TSS,
-                        earContext.getJ2eeContext());
+                            getStringValue(tss.getServer()),
+                            getStringValue(tss.getApplication()),
+                            getStringValue(tss.getModule()),
+                            getStringValue(tss.getName()),
+                            NameFactory.CORBA_TSS,
+                            earContext.getJ2eeContext());
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Invalid object name for tss bean", e);
                 }
@@ -308,19 +369,19 @@ class SessionBuilder extends BeanBuilder {
         }
 
         WebserviceDescriptionType[] webserviceDescriptions = webservicesDocument.getWebservices().getWebserviceDescriptionArray();
-            for (int i = 0; i < webserviceDescriptions.length && handlers == null; i++) {
+        for (int i = 0; i < webserviceDescriptions.length && handlers == null; i++) {
 
-                PortComponentType[] portComponents = webserviceDescriptions[i].getPortComponentArray();
-                for (int j = 0; j < portComponents.length && handlers == null; j++) {
+            PortComponentType[] portComponents = webserviceDescriptions[i].getPortComponentArray();
+            for (int j = 0; j < portComponents.length && handlers == null; j++) {
 
-                    EjbLinkType ejbLink = portComponents[j].getServiceImplBean().getEjbLink();
-                    if (ejbLink != null && ejbLink.getStringValue().trim().equals(ejbName)) {
-                        handlers = portComponents[j].getHandlerArray();
-                    }
+                EjbLinkType ejbLink = portComponents[j].getServiceImplBean().getEjbLink();
+                if (ejbLink != null && ejbLink.getStringValue().trim().equals(ejbName)) {
+                    handlers = portComponents[j].getHandlerArray();
                 }
             }
+        }
 
-        if (handlers != null){
+        if (handlers != null) {
             List handlerInfos = WSDescriptorParser.createHandlerInfoList(handlers, cl);
             return new HandlerChainConfiguration(handlerInfos, new String[]{});
         } else {

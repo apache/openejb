@@ -74,31 +74,26 @@ public class WSContainer implements GBeanLifecycle {
                        String realmName,
                        String transportGuarantee,
                        String authMethod) throws Exception {
-        try {
 
-            this.soapHandler = soapHandler;
-            this.location = location;
+        this.soapHandler = soapHandler;
+        this.location = location;
 
-            RPCProvider provider = new EJBContainerProvider(ejbContainer);
-            SOAPService service = new SOAPService(null, provider, null);
+        RPCProvider provider = new EJBContainerProvider(ejbContainer);
+        SOAPService service = new SOAPService(null, provider, null);
 
-            JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
-            service.setServiceDescription(serviceDesc);
-            Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
+        JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
+        service.setServiceDescription(serviceDesc);
+        Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
 
-            service.setOption("className", serviceEndpointInterface.getName());
-            serviceDesc.setImplClass(serviceEndpointInterface);
+        service.setOption("className", serviceEndpointInterface.getName());
+        serviceDesc.setImplClass(serviceEndpointInterface);
 
-            ClassLoader classLoader = ejbContainer.getClassLoader();
-            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
-            if (soapHandler != null) {
-                soapHandler.addWebService(location.getPath(), axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        ClassLoader classLoader = ejbContainer.getClassLoader();
+        AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
+        if (soapHandler != null) {
+            soapHandler.addWebService(location.getPath(), axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
         }
+
     }
 
     public void doStart() throws Exception {
