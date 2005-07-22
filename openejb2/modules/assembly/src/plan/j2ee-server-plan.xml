@@ -407,9 +407,18 @@ by the server.
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">openejb:type=SoapHttpListener</attribute>
+        <reference name="WebServiceLinkTemplate">
+            <name>WebServiceEJBLinkTemplate</name>
+        </reference>
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+    </gbean>
+
+    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean">
     </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">

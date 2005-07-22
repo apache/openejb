@@ -111,6 +111,12 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>axis/jars/axis-${axis_version}.jar</uri>
+    </dependency>
 
 
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
@@ -150,7 +156,18 @@ Configuration for the Geronimo deployer
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">openejb:type=SoapHttpListener</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="WebServiceLinkTemplate">
+            <name>WebServiceEJBLinkTemplate</name>
+        </reference>
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean">
     </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
