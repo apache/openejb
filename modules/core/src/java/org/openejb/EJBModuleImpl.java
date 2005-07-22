@@ -56,6 +56,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.EJBModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -64,6 +65,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openejb.entity.cmp.ConnectionProxyFactory;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.query.ConnectionFactoryDelegate;
@@ -71,7 +74,8 @@ import org.tranql.query.ConnectionFactoryDelegate;
 /**
  * @version $Revision$ $Date$
  */
-public class EJBModuleImpl implements GBeanLifecycle {
+public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
+    private final static Log log = LogFactory.getLog(EJBModuleImpl.class);
     private final Kernel kernel;
     private final J2eeContext moduleContext;
     private final J2EEServer server;
@@ -82,8 +86,10 @@ public class EJBModuleImpl implements GBeanLifecycle {
     private final TransactionManagerDelegate tmDelegate;
     private final TransactionContextManager transactionContextManager;
     private final String[] J2EE_TYPES = {NameFactory.ENTITY_BEAN, NameFactory.STATELESS_SESSION_BEAN, NameFactory.STATEFUL_SESSION_BEAN, NameFactory.MESSAGE_DRIVEN_BEAN};
+    private final String objectName;
 
     public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory, TransactionManagerDelegate tmDelegate, TransactionContextManager transactionContextManager) {
+        this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
         moduleContext = J2eeContextImpl.newContext(myObjectName, NameFactory.EJB_MODULE);
@@ -96,6 +102,22 @@ public class EJBModuleImpl implements GBeanLifecycle {
         this.connectionFactory = connectionFactory;
         this.tmDelegate = tmDelegate;
         this.transactionContextManager = transactionContextManager;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     public String getDeploymentDescriptor() {
@@ -117,10 +139,15 @@ public class EJBModuleImpl implements GBeanLifecycle {
         return server.getJavaVMs();
     }
 
-    public String[] getEJBs() throws MalformedObjectNameException {
-        return Util.getObjectNames(kernel,
-                moduleContext,
-                J2EE_TYPES);
+    public String[] getEJBs() {
+        try {
+            return Util.getObjectNames(kernel,
+                    moduleContext,
+                    J2EE_TYPES);
+        } catch (MalformedObjectNameException e) {
+            log.error(e);
+            return null;
+        }
     }
 
     /**
@@ -196,6 +223,8 @@ public class EJBModuleImpl implements GBeanLifecycle {
         infoBuilder.addAttribute("application", String.class, false);
         infoBuilder.addAttribute("javaVMs", String[].class, false);
         infoBuilder.addAttribute("ejbs", String[].class, false);
+
+        infoBuilder.addInterface(EJBModule.class);
 
         infoBuilder.setConstructor(new String[]{
             "kernel",
