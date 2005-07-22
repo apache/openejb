@@ -381,7 +381,7 @@ public class EndpointHandler implements MethodInterceptor {
                 try {
                     adapterTransaction.resume();
                 } catch (Throwable resumeException) {
-                    // if we alreayd have encountered a problem, just log this one
+                    // if we already have encountered a problem, just log this one
                     if (throwable != null) {
                         log.warn("Could not resume adapter transaction", resumeException);
                     } else {
