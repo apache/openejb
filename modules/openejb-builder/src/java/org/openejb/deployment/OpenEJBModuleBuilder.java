@@ -54,6 +54,7 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -142,6 +144,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
+    private final WebServiceBuilder webServiceBuilder;
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
 
@@ -157,6 +160,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.sessionBuilder = new SessionBuilder(this, linkTemplate, webServiceBuilder);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
+        this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
     }
 
@@ -236,8 +240,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             try {
                 if (plan instanceof XmlObject) {
                     openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                                                                                                     "openejb-jar",
-                                                                                                     OpenejbOpenejbJarType.type);
+                            "openejb-jar",
+                            OpenejbOpenejbJarType.type);
                 } else {
                     OpenejbOpenejbJarDocument openejbJarDoc = null;
                     if (plan != null) {
@@ -485,49 +489,64 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
         List badBeans = new ArrayList();
-        //TODO NPE if enterprise-beans or session is missing
+        //overridden web service locations
+        Map correctedPortLocations = new HashMap();
+
         OpenejbSessionBeanType[] openejbSessionBeans = openejbEjbJar.getEnterpriseBeans().getSessionArray();
         for (int i = 0; i < openejbSessionBeans.length; i++) {
             OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
-            if(beans.contains(sessionBean.getEjbName())) {
+            if (beans.contains(sessionBean.getEjbName())) {
                 openejbBeans.put(sessionBean.getEjbName(), sessionBean);
+                if (sessionBean.isSetWebServiceAddress()) {
+                    String location = sessionBean.getWebServiceAddress().trim();
+                    correctedPortLocations.put(sessionBean.getEjbName(), location);
+                }
             } else {
                 badBeans.add(sessionBean.getEjbName());
             }
         }
-        //TODO NPE as above
         OpenejbEntityBeanType[] openejbEntityBeans = openejbEjbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < openejbEntityBeans.length; i++) {
             OpenejbEntityBeanType entityBean = openejbEntityBeans[i];
-            if(beans.contains(entityBean.getEjbName())) {
+            if (beans.contains(entityBean.getEjbName())) {
                 openejbBeans.put(entityBean.getEjbName(), entityBean);
             } else {
                 badBeans.add(entityBean.getEjbName());
             }
         }
-        //TODO NPE as above
         OpenejbMessageDrivenBeanType[] openejbMessageDrivenBeans = openejbEjbJar.getEnterpriseBeans().getMessageDrivenArray();
         for (int i = 0; i < openejbMessageDrivenBeans.length; i++) {
             OpenejbMessageDrivenBeanType messageDrivenBean = openejbMessageDrivenBeans[i];
-            if(beans.contains(messageDrivenBean.getEjbName())) {
+            if (beans.contains(messageDrivenBean.getEjbName())) {
                 openejbBeans.put(messageDrivenBean.getEjbName(), messageDrivenBean);
             } else {
                 badBeans.add(messageDrivenBean.getEjbName());
             }
         }
 
-        if(badBeans.size() > 0) {
-            if(badBeans.size() == 1) {
-                throw new DeploymentException("EJB '"+badBeans.get(0)+"' is described in OpenEJB deployment plan but does not exist in META-INF/ejb-jar.xml");
+        if (badBeans.size() > 0) {
+            if (badBeans.size() == 1) {
+                throw new DeploymentException("EJB '" + badBeans.get(0) + "' is described in OpenEJB deployment plan but does not exist in META-INF/ejb-jar.xml");
             }
             StringBuffer buf = new StringBuffer();
             buf.append("The following EJBs are described in the OpenEJB deployment plan but do not exist in META-INF/ejb-jar.xml: ");
             for (int i = 0; i < badBeans.size(); i++) {
-                if(i>0) buf.append(", ");
+                if (i > 0) buf.append(", ");
                 buf.append(badBeans.get(i));
             }
             throw new DeploymentException(buf.toString());
         }
+
+        Map portInfoMap = Collections.EMPTY_MAP;
+        JarFile jarFile = ejbModule.getModuleFile();
+        URL wsDDUrl = null;
+        try {
+            wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
+            portInfoMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
+        } catch (MalformedURLException e) {
+            //there is no webservices file
+        }
+
 
         TransactionPolicyHelper transactionPolicyHelper;
         if (ejbJar.isSetAssemblyDescriptor()) {
@@ -550,7 +569,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 //          String contextID = ejbModuleObjectName.getCanonicalName();
         String policyContextID = ejbModuleObjectName.getCanonicalName().replaceAll("[,: ]", "_");
 
-        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID);
+        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID, portInfoMap);
 
         entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, componentPermissions, transactionPolicyHelper, enterpriseBeans, policyContextID);
 
@@ -578,15 +597,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         //construct name from components
         try {
             return NameFactory.getComponentName(resourceLocator.getDomain(),
-                                                resourceLocator.getServer(),
-                                                resourceLocator.getApplication(),
-                                                NameFactory.JCA_RESOURCE,
-                                                resourceLocator.getModule(),
-                                                resourceLocator.getName(),
-                                                //todo determine type from iface class
+                    resourceLocator.getServer(),
+                    resourceLocator.getApplication(),
+                    NameFactory.JCA_RESOURCE,
+                    resourceLocator.getModule(),
+                    resourceLocator.getName(),
+                    //todo determine type from iface class
 //                        resourceLocator.getType(),
-                                                NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
-                                                j2eeContext);
+                    NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
+                    j2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct cmp datasource object name", e);
         }

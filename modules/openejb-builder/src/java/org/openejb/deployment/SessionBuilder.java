@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -170,7 +171,7 @@ class SessionBuilder extends BeanBuilder {
 
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, ComponentPermissions componentPermissions, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ObjectName listener, String policyContextID) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, ComponentPermissions componentPermissions, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ObjectName listener, String policyContextID, Map portInfoMap) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
@@ -183,38 +184,19 @@ class SessionBuilder extends BeanBuilder {
 
             boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim());
             boolean isServiceEndpoint = sessionBean.isSetServiceEndpoint();
-//            String serviceEndpointName = OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());
-
             if (isStateless && isServiceEndpoint) {
-                addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, listener);
+                addWSContainerGBean(earContext, ejbModule, cl, portInfoMap, sessionObjectName, sessionBean, openejbSessionBean, listener);
             }
         }
     }
 
-    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ObjectName listener) throws DeploymentException {
+    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, Map portInfoMap, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ObjectName listener) throws DeploymentException {
 
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
         J2eeContext j2eeContext = earContext.getJ2eeContext();
         OpenejbWebServiceSecurityType webServiceSecurity = openejbSessionBean == null ? null : openejbSessionBean.getWebServiceSecurity();
 
-        //todo this should be done all at once, and put in the corrected port locations map.
-        String location = null;
-        if (openejbSessionBean != null && openejbSessionBean.isSetWebServiceAddress()) {
-            location = openejbSessionBean.getWebServiceAddress().trim();
-        }
 
-        JarFile jarFile = ejbModule.getModuleFile();
-        //these should be parameters or fields
-        Map correctedPortLocations = new HashMap();
-        //umm, put them all in
-        correctedPortLocations.put(ejbName, location);
-        URL wsDDUrl = null;
-        try {
-            wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Could not locate webservices descriptor", e);
-        }
-        Map portInfoMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
 
         //this code belongs here
         ObjectName linkName = null;
@@ -228,7 +210,7 @@ class SessionBuilder extends BeanBuilder {
         linkData.setName(linkName);
         Object portInfo = portInfoMap.get(ejbName);
         //let the webServiceBuilder configure its part
-        webServiceBuilder.configureEJB(linkData, jarFile, portInfo, cl);
+        webServiceBuilder.configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
         //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
