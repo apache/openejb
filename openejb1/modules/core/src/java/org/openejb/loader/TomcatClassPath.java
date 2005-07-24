@@ -46,11 +46,11 @@
 package org.openejb.loader;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.lang.reflect.Method;
 
 /**
  * @version $Revision$ $Date$
@@ -63,17 +63,31 @@ public class TomcatClassPath extends BasicURLClassPath {
     /**
      * The Tomcat Common ClassLoader
      */
-    private ClassLoader tomcatLoader;
+    private final ClassLoader tomcatLoader;
 
     /**
      * The addRepository(String jar) method of the Tomcat Common ClassLoader
      */
-    private java.lang.reflect.Method addRepositoryMethod;
+    private Method addRepositoryMethod;
+    private Method addURLMethod;
+
+    public TomcatClassPath() {
+        tomcatLoader = getCommonLoader(getContextClassLoader()).getParent();
+        try {
+            addRepositoryMethod = getAddRepositoryMethod();
+        } catch (Exception tomcat4Exception) {
+            // Must be tomcat 5
+            try {
+                addURLMethod = getAddURLMethod();
+            } catch (Exception tomcat5Exception) {
+                throw new RuntimeException("Failed accessing classloader for Tomcat 4 or 5", tomcat5Exception);
+            }
+        }
+    }
 
     public void addJarsToPath(File dir) throws Exception {
         String[] jarNames = dir.list(new java.io.FilenameFilter() {
             public boolean accept(File dir, String name) {
-                //System.out.println("FILE "+name);
                 return (name.endsWith(".jar") || name.endsWith(".zip"));
             }
         });
@@ -89,11 +103,10 @@ public class TomcatClassPath extends BasicURLClassPath {
     }
 
     public ClassLoader getClassLoader() {
-        return getCommonLoader();
+        return tomcatLoader;
     }
 
     public void addJarToPath(URL jar) throws Exception {
-        //System.out.println("[|] TOMCAT "+jar.toExternalForm());
         this._addJarToPath(jar);
         rebuild();
     }
@@ -104,12 +117,16 @@ public class TomcatClassPath extends BasicURLClassPath {
     }
 
     public void addRepository(String path) throws Exception {
-        this.getAddRepositoryMethod().invoke(getCommonLoader(), new Object[] { path });
+        if (addRepositoryMethod != null){
+            addRepositoryMethod.invoke(getClassLoader(), new Object[]{path});
+        } else {
+            addURLMethod.invoke(getClassLoader(), new Object[]{new File(path).toURL()});
+        }
     }
 
-    private void rebuild() {
+    protected void rebuild() {
         try {
-            sun.misc.URLClassPath cp = getURLClassPath((URLClassLoader) getCommonLoader());
+            sun.misc.URLClassPath cp = getURLClassPath((URLClassLoader) getClassLoader());
             URL[] urls = cp.getURLs();
             //for (int i=0; i < urls.length; i++){
             //    System.out.println(urls[i].toExternalForm());
@@ -136,13 +153,6 @@ public class TomcatClassPath extends BasicURLClassPath {
 
     }
 
-    protected ClassLoader getCommonLoader() {
-        if (tomcatLoader == null) {
-            tomcatLoader = this.getCommonLoader(getContextClassLoader()).getParent();
-        }
-        return tomcatLoader;
-    }
-
     private ClassLoader getCommonLoader(ClassLoader loader) {
         if (loader.getClass().getName().equals("org.apache.catalina.loader.StandardClassLoader")) {
             return loader;
@@ -159,30 +169,24 @@ public class TomcatClassPath extends BasicURLClassPath {
      *
      * @return URLClassLoader.addURL method instance
      */
-    private java.lang.reflect.Method _getAddRepositoryMethod() throws Exception {
-        if (addRepositoryMethod == null) {
-
-            final Class clazz = URLClassLoader.class;
-
-            this.addRepositoryMethod = (java.lang.reflect.Method) AccessController
-                    .doPrivileged(new PrivilegedAction() {
-                        public Object run() {
-                            java.lang.reflect.Method method = null;
-                            try {
-                                method = clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
-                                method.setAccessible(true);
-                            } catch (Exception e2) {
-                                e2.printStackTrace();
-                            }
-                            return method;
-                        }
-                    });
-        }
-
-        return addRepositoryMethod;
+    private java.lang.reflect.Method getAddURLMethod() throws Exception {
+        return (java.lang.reflect.Method) AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                java.lang.reflect.Method method = null;
+                try {
+                    Class clazz = URLClassLoader.class;
+                    method = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
+                    method.setAccessible(true);
+                    return method;
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
+                return method;
+            }
+        });
     }
 
-    protected Method getAddRepositoryMethod() throws Exception {
+    private Method getAddRepositoryMethod() throws Exception {
         return (Method) AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
                 Method method = null;

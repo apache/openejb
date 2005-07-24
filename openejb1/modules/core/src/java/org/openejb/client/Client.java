@@ -74,9 +74,9 @@ public class Client {
             try{
                 conn = ConnectionManager.getConnection( server );
             } catch (IOException e){
-                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" Exception: ", e );
+                throw new RemoteException("Cannot access server: "+server.getAddress()+":"+server.getPort()+" Exception: ", e );
             } catch (Throwable e){
-                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to an unkown exception in the OpenEJB client: ", e );
+                throw new RemoteException("Cannot access server: "+server.getAddress()+":"+server.getPort()+" due to an unkown exception in the OpenEJB client: ", e );
             }
 
             /*----------------------------------*/
