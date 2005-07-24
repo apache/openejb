@@ -60,22 +60,22 @@ import java.net.UnknownHostException;
 public class ServerMetaData implements Externalizable{
 
     
-    transient int port;
+    private transient int port;
 
     /**
      * Stores the server's IP as an InetAddress instead of a String. Creating a 
      * socket with a string creates a new InetAddress object anyway.  Storing it
      * here save us from having to do it more than once
      */
-    transient InetAddress address;
+    private transient InetAddress address;
 
     public ServerMetaData(){
 
     }
     
     public ServerMetaData(String host, int port) throws UnknownHostException{
-        this.address = InetAddress.getByName( host );
-        this.port = port;
+        this.setAddress(InetAddress.getByName( host ));
+        this.setPort(port);
     }
 
     public int getPort(){
@@ -132,12 +132,12 @@ public class ServerMetaData implements Externalizable{
      ///IP += in.readUnsignedByte();
 //        System.out.println(IP.toString());        
         try{
-            address = InetAddress.getByName( IP.toString() );
+            setAddress(InetAddress.getByName( IP.toString() ));
         } catch (java.net.UnknownHostException e){
             throw new IOException("Cannot read in the host address "+IP+": The host is unknown");
         }
         
-        port    = in.readInt();
+        setPort(in.readInt());
         
     }
     
@@ -157,14 +157,14 @@ public class ServerMetaData implements Externalizable{
      * @exception IOException Includes any I/O exceptions that may occur
      */
     public void writeExternal(ObjectOutput out) throws IOException {
-        byte[] addr = address.getAddress();
+        byte[] addr = getAddress().getAddress();
         
         out.writeByte(addr[0]);
         out.writeByte(addr[1]);
         out.writeByte(addr[2]);
         out.writeByte(addr[3]);
         
-        out.writeInt(port);
+        out.writeInt(getPort());
     }
 
 }

@@ -184,8 +184,8 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         
         try {
             server = new ServerMetaData();
-            server.address = InetAddress.getByName( url.getHost() );
-            server.port    = url.getPort();
+            server.setAddress(InetAddress.getByName( url.getHost() ));
+            server.setPort(url.getPort());
         } catch (UnknownHostException  e){
             throw new ConfigurationException("Invalid provider URL:"+serverURL+": host unkown: "+e.getMessage());
         }
