@@ -382,11 +382,11 @@ class CMPEntityBuilder extends EntityBuilder {
             for (Iterator iter = cmpFieldToMapping.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 CmpFieldMapping mapping = (CmpFieldMapping) entry.getValue();
-                String fieldName = mapping.getCmpFieldName();
+                String fieldName = mapping.getCmpFieldName().trim();
                 if ( false == mapping.isSetCmpFieldClass() ) {
                     throw new DeploymentException("Class must be defined for an automatic primary key field: ejbName=" + ejbName + " field=" + fieldName);
                 }
-                String fieldClass = mapping.getCmpFieldClass();
+                String fieldClass = mapping.getCmpFieldClass().trim();
                 Class fieldType;
                 try {
                     fieldType = cl.loadClass(fieldClass);
@@ -396,7 +396,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 boolean isPKField = pkFieldNames.contains(fieldName);
                 CMPField cmpField = new CMPField(fieldName, fieldName, fieldType, isPKField);
                 ejb.addVirtualCMPField(cmpField);
-                table.addColumn(new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField));
+                table.addColumn(new Column(fieldName, mapping.getTableColumn().trim(), fieldType, isPKField));
                 if (isPKField) {
                     pkFieldNames.remove(fieldName);
                 }
