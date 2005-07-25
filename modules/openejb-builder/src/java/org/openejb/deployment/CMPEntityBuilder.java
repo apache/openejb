@@ -279,7 +279,7 @@ class CMPEntityBuilder extends EntityBuilder {
             CmpFieldMapping mappings[] = openEjbEntity.getCmpFieldMappingArray();
             for (int j = 0; j < mappings.length; j++) {
                 CmpFieldMapping mapping = mappings[j];
-                cmpFieldToMapping.put(mapping.getCmpFieldName(), mapping);
+                cmpFieldToMapping.put(mapping.getCmpFieldName().trim(), mapping);
             }
 
             // Handle "Unknown Primary Key Type" -- try to identify the PK class
@@ -332,7 +332,7 @@ class CMPEntityBuilder extends EntityBuilder {
             Set pkFieldNames;
             if ( unknownPK && openEjbEntity.isSetPrimkeyField() ) {
                 pkFieldNames = new HashSet(1);
-                pkFieldNames.add(openEjbEntity.getPrimkeyField());
+                pkFieldNames.add(openEjbEntity.getPrimkeyField().trim());
             } else if ( false == entityBean.isSetPrimkeyField() ) {
                 // no field name specified, must be a compound pk so get the field names from the public fields
                 Field[] fields = pkClass.getFields();
@@ -359,14 +359,14 @@ class CMPEntityBuilder extends EntityBuilder {
                 boolean isPKField = pkFieldNames.contains(fieldName);
                 CMPField cmpField = new CMPField(fieldName, fieldName, fieldType, isPKField); 
                 ejb.addCMPField(cmpField);
-                Column column = new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField);
+                Column column = new Column(fieldName, mapping.getTableColumn().trim(), fieldType, isPKField);
                 if (mapping.isSetSqlType()) {
-                    column.setSQLType(SQLTypeLoader.getSQLType(mapping.getSqlType()));
+                    column.setSQLType(SQLTypeLoader.getSQLType(mapping.getSqlType().trim()));
                 }
                 if (mapping.isSetTypeConverter()) {
                     TypeConverter typeConverter;
                     try {
-                        Class typeConverterClass = cl.loadClass(mapping.getTypeConverter());
+                        Class typeConverterClass = cl.loadClass(mapping.getTypeConverter().trim());
                         typeConverter = (TypeConverter) typeConverterClass.newInstance();
                     } catch (Exception e) {
                         throw new DeploymentException("Cannot create type converter " + mapping.getTypeConverter(), e);
@@ -863,13 +863,13 @@ class CMPEntityBuilder extends EntityBuilder {
         if (value == null) {
             return null;
         }
-        return value.getStringValue();
+        return value.getStringValue().trim();
     }
 
     private String getString(EjbNameType value) {
         if (value == null) {
             return null;
         }
-        return value.getStringValue();
+        return value.getStringValue().trim();
     }
 }

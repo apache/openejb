@@ -20,7 +20,9 @@
                 <table-column>a1</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
-                <cmp-field-name>field2</cmp-field-name>
+                <cmp-field-name>
+                  field2
+                </cmp-field-name>
                 <table-column>a2</table-column>
             </cmp-field-mapping>
         </entity>
@@ -28,7 +30,9 @@
             <ejb-name>B</ejb-name>
             <table-name>B</table-name>
             <cmp-field-mapping>
-                <cmp-field-name>field1</cmp-field-name>
+                <cmp-field-name>
+                  field1
+                </cmp-field-name>
                 <table-column>b1</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
@@ -36,7 +40,9 @@
                 <table-column>b2</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
-                <cmp-field-name>field3</cmp-field-name>
+                <cmp-field-name>
+                  field3
+                </cmp-field-name>
                 <table-column>fka1</table-column>
             </cmp-field-mapping>
         </entity>
