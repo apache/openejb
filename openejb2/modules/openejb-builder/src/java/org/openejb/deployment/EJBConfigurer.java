@@ -64,7 +64,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public class EJBConfigurer implements ModuleConfigurer {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
-        if (ModuleType.WAR.equals(deployable.getType())) {
+        if (ModuleType.EJB.equals(deployable.getType())) {
             return new EJBConfiguration(deployable);
         } else {
             return null;
