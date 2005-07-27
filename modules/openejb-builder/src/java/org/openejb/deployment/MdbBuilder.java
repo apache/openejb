@@ -170,7 +170,13 @@ class MdbBuilder extends BeanBuilder {
         builder.setContainerId(containerId);
         builder.setEJBName(ejbName);
         builder.setBeanClassName(messageDrivenBean.getEjbClass().getStringValue());
-        builder.setEndpointInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(messageDrivenBean.getMessagingType()));
+        String messageInterfaceType = null;
+        if (messageDrivenBean.isSetMessagingType()) {
+            messageInterfaceType = messageDrivenBean.getMessagingType().getStringValue().trim();
+        } else {
+            messageInterfaceType = "javax.jms.MessageListener";
+        }        
+        builder.setEndpointInterfaceName(messageInterfaceType);
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
