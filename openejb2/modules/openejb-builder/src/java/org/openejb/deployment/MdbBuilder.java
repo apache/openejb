@@ -101,11 +101,11 @@ class MdbBuilder extends BeanBuilder {
         for (int i = 0; i < messageDrivenBeans.length; i++) {
             MessageDrivenBeanType messageDrivenBean = messageDrivenBeans[i];
 
-            OpenejbMessageDrivenBeanType openejbMessageDrivenBean = (OpenejbMessageDrivenBeanType) openejbBeans.get(messageDrivenBean.getEjbName().getStringValue());
+            OpenejbMessageDrivenBeanType openejbMessageDrivenBean = (OpenejbMessageDrivenBeanType) openejbBeans.get(messageDrivenBean.getEjbName().getStringValue().trim());
             if (openejbMessageDrivenBean == null) {
                 throw new DeploymentException("No openejb deployment descriptor for mdb: " + messageDrivenBean.getEjbName().getStringValue() + ". Known beans: " + openejbBeans.keySet().toArray());
             }
-            String ejbName = messageDrivenBean.getEjbName().getStringValue();
+            String ejbName = messageDrivenBean.getEjbName().getStringValue().trim();
             ObjectName messageDrivenObjectName = null;
             ObjectName activationSpecName = null;
             try {
@@ -117,13 +117,12 @@ class MdbBuilder extends BeanBuilder {
 
             String containerId = messageDrivenObjectName.getCanonicalName();
             addActivationSpecWrapperGBean(earContext,
-                    moduleJ2eeContext,
                     ejbModule.getModuleURI(),
                     activationSpecName,
                     openejbMessageDrivenBean.isSetActivationConfig() ? openejbMessageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : null,
                     messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
                     openejbMessageDrivenBean.getResourceAdapter(),
-                    messageDrivenBean.getMessagingType() == null? javax.jms.MessageListener.class.getName(): messageDrivenBean.getMessagingType().getStringValue().trim(),
+                    getMessagingType(messageDrivenBean),
                     containerId);
             GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
             messageDrivenGBean.setName(messageDrivenObjectName);
@@ -163,20 +162,14 @@ class MdbBuilder extends BeanBuilder {
             throw new DeploymentException("openejb-jar.xml required to deploy an mdb");
         }
 
-        String ejbName = messageDrivenBean.getEjbName().getStringValue();
+        String ejbName = messageDrivenBean.getEjbName().getStringValue().trim();
 
         MDBContainerBuilder builder = new MDBContainerBuilder();
         builder.setClassLoader(cl);
         builder.setContainerId(containerId);
         builder.setEJBName(ejbName);
-        builder.setBeanClassName(messageDrivenBean.getEjbClass().getStringValue());
-        String messageInterfaceType = null;
-        if (messageDrivenBean.isSetMessagingType()) {
-            messageInterfaceType = messageDrivenBean.getMessagingType().getStringValue().trim();
-        } else {
-            messageInterfaceType = "javax.jms.MessageListener";
-        }        
-        builder.setEndpointInterfaceName(messageInterfaceType);
+        builder.setBeanClassName(messageDrivenBean.getEjbClass().getStringValue().trim());
+        builder.setEndpointInterfaceName(getMessagingType(messageDrivenBean));
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
@@ -197,7 +190,7 @@ class MdbBuilder extends BeanBuilder {
         UserTransactionImpl userTransaction;
         //TODO this is probably wrong???
 
-        if ("Bean".equals(messageDrivenBean.getTransactionType().getStringValue())) {
+        if ("Bean".equals(messageDrivenBean.getTransactionType().getStringValue().trim())) {
             userTransaction = new UserTransactionImpl();
             builder.setUserTransaction(userTransaction);
             builder.setTransactionPolicySource(TransactionPolicyHelper.BMTPolicySource);
@@ -220,15 +213,24 @@ class MdbBuilder extends BeanBuilder {
         }
     }
 
+    private String getMessagingType(MessageDrivenBeanType messageDrivenBean) {
+        String messageInterfaceType = null;
+        if (messageDrivenBean.isSetMessagingType()) {
+            messageInterfaceType = messageDrivenBean.getMessagingType().getStringValue().trim();
+        } else {
+            messageInterfaceType = "javax.jms.MessageListener";
+        }
+        return messageInterfaceType;
+    }
+
     private void addActivationSpecWrapperGBean(EARContext earContext,
-            J2eeContext moduleJ2eeContext,
-            URI uri,
-            ObjectName activationSpecName,
-            OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
-            ActivationConfigPropertyType[] activationConfigProperties,
-            GerResourceLocatorType resourceAdapter,
-            String messageListenerInterfaceName,
-            String containerId) throws DeploymentException {
+                                               URI uri,
+                                               ObjectName activationSpecName,
+                                               OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
+                                               ActivationConfigPropertyType[] activationConfigProperties,
+                                               GerResourceLocatorType resourceAdapter,
+                                               String messageListenerInterfaceName,
+                                               String containerId) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
         ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, earContext);
         J2eeContext resourceAdapterJ2eeContext = J2eeContextImpl.newContext(resourceAdapterObjectName, NameFactory.JCA_RESOURCE);
@@ -262,8 +264,8 @@ class MdbBuilder extends BeanBuilder {
         } else {
             for (int i = 0; i < activationConfigProperties.length; i++) {
                 ActivationConfigPropertyType activationConfigProperty = activationConfigProperties[i];
-                String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue();
-                String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
+                String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue().trim();
+                String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue().trim();
                 try {
                     activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
                 } catch (Exception e) {
