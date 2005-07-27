@@ -95,7 +95,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
                 contextClassLoader = thread.getContextClassLoader();
                 try {
                     ObjectName objectName = new ObjectName(req.getClientModuleID());
-                    ClassLoader classLoader = (ClassLoader)KernelRegistry.getSingleKernel().getAttribute(objectName, "classLoader");
+                    ClassLoader classLoader = KernelRegistry.getSingleKernel().getClassLoaderFor(objectName);
                     thread.setContextClassLoader(classLoader);
                 } catch (Throwable e) {
                     replyWithFatalError(out, e, "Failed to set the correct classloader");
