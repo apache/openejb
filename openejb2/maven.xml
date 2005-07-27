@@ -13,6 +13,7 @@
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
     <j:set var="distDir" value="target/${pom.groupId}-${pom.currentVersion}"/>
 
+
     <!-- ======= -->
     <!-- Modules -->
     <!-- ======= -->
