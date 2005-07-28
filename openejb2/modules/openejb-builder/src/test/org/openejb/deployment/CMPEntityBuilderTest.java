@@ -386,6 +386,7 @@ public class CMPEntityBuilderTest extends TestCase {
         assertNotNull(mtmEntity);
         assertEquals("MTM", mtmEntity.getName());
         JoinDefinition joinDefinition = association.getLeftJoinDefinition();
+        boolean isMappedToFKA1 = false, isMappedToFKB1 = false; // we must be able to map both entities to the MTM table
         if ( leftEntity == joinDefinition.getPKEntity() ) {
             LinkedHashMap linkedHashMap = joinDefinition.getPKToFKMapping();
             for (Iterator iter = linkedHashMap.entrySet().iterator(); iter.hasNext();) {
@@ -396,6 +397,7 @@ public class CMPEntityBuilderTest extends TestCase {
                     assertEquals("field1", ((Attribute) entry.getKey()).getPhysicalName());
                 }
                 assertEquals("fka1", ((FKAttribute) entry.getValue()).getPhysicalName());
+                isMappedToFKA1 = true;
             }
         } else if ( rightEntity == joinDefinition.getPKEntity() ) {
             LinkedHashMap linkedHashMap = joinDefinition.getPKToFKMapping();
@@ -407,9 +409,44 @@ public class CMPEntityBuilderTest extends TestCase {
                     assertEquals("field1", ((Attribute) entry.getKey()).getPhysicalName());
                 }
                 assertEquals("fkb1", ((FKAttribute) entry.getValue()).getPhysicalName());
+                isMappedToFKB1 = true;
             }
         } else {
             fail("JoinDefinitions are misconfigured.");
+        }
+        joinDefinition = association.getRightJoinDefinition();
+        if ( leftEntity == joinDefinition.getPKEntity() ) {
+            LinkedHashMap linkedHashMap = joinDefinition.getPKToFKMapping();
+            for (Iterator iter = linkedHashMap.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                if ( leftEntity instanceof Table ) {
+                    assertEquals("a1", ((Attribute) entry.getKey()).getPhysicalName());
+                } else {
+                    assertEquals("field1", ((Attribute) entry.getKey()).getPhysicalName());
+                }
+                assertEquals("fka1", ((FKAttribute) entry.getValue()).getPhysicalName());
+                isMappedToFKA1 = true;
+            }
+        } else if ( rightEntity == joinDefinition.getPKEntity() ) {
+            LinkedHashMap linkedHashMap = joinDefinition.getPKToFKMapping();
+            for (Iterator iter = linkedHashMap.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                if ( rightEntity instanceof Table ) {
+                    assertEquals("b1", ((Attribute) entry.getKey()).getPhysicalName());
+                } else {
+                    assertEquals("field1", ((Attribute) entry.getKey()).getPhysicalName());
+                }
+                assertEquals("fkb1", ((FKAttribute) entry.getValue()).getPhysicalName());
+                isMappedToFKB1 = true;
+            }
+        } else {
+            fail("JoinDefinitions are misconfigured.");
+        }
+        if(!isMappedToFKA1) {
+            fail("No mapping present from A.a1 to MTM.fka1");
+        }
+        if(!isMappedToFKB1) {
+            fail("No mapping present from B.b1 to MTM.fkb1");
         }
     }
 }
