@@ -84,10 +84,12 @@ public class WSContainer implements GBeanLifecycle {
 
             JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
             service.setServiceDescription(serviceDesc);
-            Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
 
+            Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
             service.setOption("className", serviceEndpointInterface.getName());
-            serviceDesc.setImplClass(serviceEndpointInterface);
+            if (serviceDesc.getImplClass() != null){
+                serviceDesc.setImplClass(serviceEndpointInterface);
+            }
 
             ClassLoader classLoader = ejbContainer.getClassLoader();
             AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
