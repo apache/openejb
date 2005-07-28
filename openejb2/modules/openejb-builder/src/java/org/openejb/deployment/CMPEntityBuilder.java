@@ -555,6 +555,9 @@ class CMPEntityBuilder extends EntityBuilder {
                 String ejbName = role.getRelationshipRoleSource().getEjbName();
                 String cmrFieldName = role.getCmrField().getCmrFieldName();
                 RoleInfo roleInfo = new RoleInfo(ejbName, cmrFieldName);
+                // Note: we're putting the whole relation into the map, not just the relationship-role that we found
+                // Later, we'll dig out both roles for a many-to-many relationship, even if only one of them
+                //   had a cmr-field and got past the isSetCmrField test above
                 openEjbRelations.put(roleInfo, relation);
             }
         }
