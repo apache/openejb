@@ -81,6 +81,10 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
 
     private static final String DROP_PRODUCT = "DROP TABLE product";
 
+    private static final String CREATE_STORAGE = "CREATE TABLE storage (id INTEGER, blob_column BLOB(2M))";
+
+    private static final String DROP_STORAGE = "DROP TABLE storage";
+
     private static final String CREATE_SEQUENCE_TABLE = "CREATE TABLE SEQUENCE_TABLE (ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), DUMMY INT)";
 
     private static final String DROP_SEQUENCE_TABLE = "DROP TABLE SEQUENCE_TABLE";
@@ -128,6 +132,9 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
 
         executeStatementIgnoreErrors(DROP_PRODUCT);
         executeStatement(CREATE_PRODUCT);
+
+        executeStatementIgnoreErrors(DROP_STORAGE);
+        executeStatement(CREATE_STORAGE);
 
         executeStatementIgnoreErrors(DROP_SEQUENCE_TABLE);
         executeStatement(CREATE_SEQUENCE_TABLE);
