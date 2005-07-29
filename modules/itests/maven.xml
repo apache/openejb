@@ -151,6 +151,8 @@
             username="system"
             password="manager"
             id="org/openejb/scenario003"/>
+            
+        <!-- Prefetch Tests  -->
         <ant:jar destfile="${basedir}/target/openejb-cmp2-prefetch.jar">
             <fileset dir="${basedir}/target/classes">
                 <include name="**/cmp2/model/*.class"/>
@@ -170,6 +172,8 @@
             username="system"
             password="manager"
             id="org/openejb/cmp2/Prefetch"/>
+            
+        <!-- PK Generator Tests  -->
         <ant:jar destfile="${basedir}/target/openejb-cmp2-petstore.jar">
             <fileset dir="${basedir}/target/classes">
                 <include name="**/cmp2/petstore/*.class"/>
@@ -188,9 +192,50 @@
             username="system"
             password="manager"
             id="org/openejb/cmp2/petstore"/>
+
+        <!-- Storage Tests  -->
+        <ant:jar destfile="${basedir}/target/openejb-cmp2-storage.jar">
+            <fileset dir="${basedir}/target/classes">
+                <include name="**/cmp2/model/Storage*.class"/>
+            </fileset>
+            <metainf dir="${basedir}/src/cmp2/storage" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-cmp2-storage.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/Storage"/>
     </preGoal>
 
     <preGoal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/Storage"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/Storage"/>
+
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/petstore"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/petstore"/>
+
         <deploy:stop
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
