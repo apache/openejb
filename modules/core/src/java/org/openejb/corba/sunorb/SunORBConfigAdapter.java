@@ -137,6 +137,10 @@ public class SunORBConfigAdapter implements ConfigAdapter {
                         }
                     }
 
+                } else {
+                    //no protection
+                    supProp = "NoProtection";
+                    reqProp = "NoProtection";
                 }
             }
         }
@@ -147,7 +151,11 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         result.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
-        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+        if ("NoProtection".equals(reqProp)) {
+            result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializerNoSSL", "");
+        } else {
+            result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+        }
         result.put("com.sun.CORBA.ORBAllowLocalOptimization", "");
 
         if (log.isDebugEnabled()) {
