@@ -49,6 +49,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 import com.sun.corba.se.interceptor.RequestInfoExt;
+import com.sun.corba.se.connection.Connection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
@@ -77,12 +78,15 @@ final class ServiceContextInterceptor extends LocalObject implements ServerReque
         if (log.isDebugEnabled()) log.debug("Looking for SSL Session");
 
         RequestInfoExt riExt = (RequestInfoExt) ri;
-        Socket socket = riExt.connection().getSocket();
-        if (socket instanceof SSLSocket) {
-            if (log.isDebugEnabled()) log.debug("Found SSL Session");
-            SSLSocket sslSocket = (SSLSocket) socket;
+        Connection connection = riExt.connection();
+        if (connection != null) {
+            Socket socket = connection.getSocket();
+            if (socket instanceof SSLSocket) {
+                if (log.isDebugEnabled()) log.debug("Found SSL Session");
+                SSLSocket sslSocket = (SSLSocket) socket;
 
-            SSLSessionManager.setSSLSession(ri.request_id(), sslSocket.getSession());
+                SSLSessionManager.setSSLSession(ri.request_id(), sslSocket.getSession());
+            }
         }
     }
 
