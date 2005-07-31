@@ -48,7 +48,7 @@
 package org.openejb.test.entity.cmp2;
 
 import java.util.Properties;
-
+import java.util.Arrays;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
@@ -64,27 +64,30 @@ import org.openejb.test.entity.cmp2.model.StorageRemote;
 public class StorageTests extends NamedTestCase {
     private InitialContext initialContext;
     private StorageHome ejbHome;
+    private StorageRemote storage;
+    private byte[] testdata;
 
     public StorageTests() {
         super("StorageTests.");
     }
 
-    public void testStorageBlob() {
-        try {
-            byte[] blob = "this is a test".getBytes();
-            
-            ejbHome = (StorageHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Storage"), StorageHome.class);
-            StorageRemote storage = ejbHome.create(new Integer(1));
-            storage.setBlob(blob);
+    public void testStorageBlob() throws Exception {
 
-            byte[] readBlob = storage.getBlob();
-            assertEquals(blob.length, readBlob.length);
-            for (int i = 0; i < readBlob.length; i++) {
-                assertEquals(blob[i], readBlob[i]);
-            }
-        } catch (Exception e) {
-            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
-        }
+        storage.setBlob(testdata);
+        byte[] readBlob = storage.getBlob();
+        assertTrue(Arrays.equals(testdata, readBlob));
+    }
+
+    public void testReadBlob() throws Exception {
+        storage.setBlob(testdata);
+        byte[] readbytes = storage.getBytes();
+        assertTrue(Arrays.equals(testdata, readbytes));
+    }
+
+    public void testWriteBlob() throws Exception {
+        storage.setBytes(testdata);
+        byte[] readblob = storage.getBlob();
+        assertTrue(Arrays.equals(testdata, readblob));
     }
 
     protected void setUp() throws Exception {
@@ -93,8 +96,14 @@ public class StorageTests extends NamedTestCase {
         properties.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
 
         initialContext = new InitialContext(properties);
+
+        ejbHome = (StorageHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Storage"), StorageHome.class);
+        storage = ejbHome.create(new Integer(1));
+
+        testdata = "this is a test".getBytes();
     }
 
     protected void tearDown() throws Exception {
+        storage.remove();
     }
 }

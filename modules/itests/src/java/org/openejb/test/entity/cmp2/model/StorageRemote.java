@@ -47,6 +47,7 @@
  */
 package org.openejb.test.entity.cmp2.model;
 
+import java.rmi.RemoteException;
 import javax.ejb.EJBObject;
 
 /**
@@ -54,8 +55,11 @@ import javax.ejb.EJBObject;
  */
 public interface StorageRemote extends EJBObject {
     // CMP
-    public Integer getId();
+    public Integer getId() throws RemoteException;
 
-    public byte[] getBlob();
-    public void setBlob(byte[] blob);
+    public byte[] getBlob() throws RemoteException;
+    public void setBlob(byte[] blob) throws RemoteException;
+
+    public void setBytes(byte[] bytes) throws RemoteException;
+    public byte[] getBytes() throws RemoteException;
 }
