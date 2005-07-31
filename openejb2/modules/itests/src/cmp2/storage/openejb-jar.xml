@@ -28,6 +28,12 @@
                 <cmp-field-name>blob</cmp-field-name>
                 <table-column>blob_column</table-column>
             </cmp-field-mapping>
+            <resource-ref>
+                <ref-name>jdbc/DefaultDatabase</ref-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
         </entity>
     </enterprise-beans>
 

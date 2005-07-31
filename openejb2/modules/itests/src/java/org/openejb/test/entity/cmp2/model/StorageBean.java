@@ -47,14 +47,26 @@
  */
 package org.openejb.test.entity.cmp2.model;
 
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
+import javax.ejb.EJBException;
+import javax.sql.DataSource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 /**
  * @version $Revision$ $Date$
  */
 public abstract class StorageBean implements EntityBean {
+    private EntityContext ctx;
 
     // CMP
     public abstract Integer getId();
@@ -62,6 +74,47 @@ public abstract class StorageBean implements EntityBean {
 
     public abstract byte[] getBlob();
     public abstract void setBlob(byte[] blob);
+
+    public void setBytes(byte[] bytes) {
+        try {
+            DataSource ds = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/DefaultDatabase");
+            Connection c = ds.getConnection();
+            PreparedStatement ps = c.prepareStatement("UPDATE storage SET blob_column = ? WHERE id = ?");
+            ps.setBinaryStream(1, new ByteArrayInputStream(bytes), bytes.length);
+            ps.setInt(2, ((Integer)ctx.getPrimaryKey()).intValue());
+            ps.executeUpdate();
+            ps.close();
+            c.close();
+        } catch (Exception e) {
+            throw new EJBException(e);
+        }
+    }
+
+    public byte[] getBytes() {
+        try {
+            DataSource ds = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/DefaultDatabase");
+            Connection c = ds.getConnection();
+            PreparedStatement ps = c.prepareStatement("SELECT blob_column FROM storage WHERE id = ?");
+            ps.setInt(1, ((Integer)ctx.getPrimaryKey()).intValue());
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            InputStream is = rs.getBinaryStream(1);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int count;
+            while ((count = is.read(buffer)) > 0) {
+                os.write(buffer, 0, count);
+            }
+            is.close();
+            os.close();
+            rs.close();
+            ps.close();
+            c.close();
+            return os.toByteArray();
+        } catch (Exception e) {
+            throw new EJBException(e);
+        }
+    }
 
     public Integer ejbCreate(Integer id) throws CreateException {
         setId(id);
@@ -75,9 +128,11 @@ public abstract class StorageBean implements EntityBean {
     }
 
     public void setEntityContext(EntityContext ctx) {
+        this.ctx = ctx;
     }
 
     public void unsetEntityContext() {
+        this.ctx = null;
     }
 
     public void ejbStore() {
