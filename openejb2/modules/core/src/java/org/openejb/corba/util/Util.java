@@ -449,11 +449,13 @@ public final class Util {
 
                 // copy the result to force replacement
                 // corba does not call writeReplace on remote proxies
-                try {
-                    object = SerializationHandler.copyObj(Thread.currentThread().getContextClassLoader(), object);
-                } catch (Exception e) {
-                    log.debug("Exception in result copy", e);
-                    throw new UnknownException(e);
+                if (object instanceof Serializable) {
+                    try {
+                        object = SerializationHandler.copyObj(Thread.currentThread().getContextClassLoader(), object);
+                    } catch (Exception e) {
+                        log.debug("Exception in result copy", e);
+                        throw new UnknownException(e);
+                    }
                 }
 
                 if (type == Object.class || type == Serializable.class) {
