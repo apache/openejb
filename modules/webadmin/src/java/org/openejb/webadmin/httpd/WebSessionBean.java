@@ -71,6 +71,16 @@ public class WebSessionBean implements SessionBean {
         return handler.getRegistryId() + "";
     }
 
+//    private void uberHack() throws Exception {
+//        org.apache.catalina.core.StandardWrapperFacade standardWrapperFacade = (org.apache.catalina.core.StandardWrapperFacade)config;
+//        org.apache.catalina.core.ContainerBase containerBase = (org.apache.catalina.core.ContainerBase)standardWrapperFacade.config;
+//        org.apache.catalina.core.ContainerBase containerBase2 = (org.apache.catalina.core.ContainerBase)containerBase.parent;
+//        java.util.HashMap children = (java.util.HashMap)containerBase2.children;
+//        org.apache.catalina.core.StandardWrapper standardWrapper = (org.apache.catalina.core.StandardWrapper) children.get("jsp");
+//        org.apache.jasper.servlet.JspServlet jspServlet = (org.apache.jasper.servlet.JspServlet)standardWrapper.instance;
+//        jspServlet.rctxt;
+//    }
+
     public Object getAttribute(String name) {
         return attributes.get(name);
     }

@@ -91,39 +91,17 @@ public class EjbValidator {
         return ejbSets;
     }
 
-
-    public EjbSet validateJar(String jarLocation){
-        EjbSet set = new EjbSet(jarLocation);
+    public EjbSet validateJar(EjbJarUtils ejbJarUtils){
+        EjbSet set = null;
 
         try {
-            set.setEjbJar( EjbJarUtils.readEjbJar(jarLocation) );
-            validateJar( set );
-        } catch ( Throwable e ) {
-        	e.printStackTrace(System.out);
-            ValidationError err = new ValidationError( "cannot.validate" );
-            err.setDetails( e.getMessage() );
-            set.addError( err );
-        }
-        return set;
-    }
-
-    public EjbSet validateJar(EjbJar ejbJar, String jarLocation) {
-        // Create the EjbSet
-        EjbSet set = new EjbSet(jarLocation);
-        set.setEjbJar(ejbJar);
-        return validateJar( set );
-    }
-
-    public EjbSet validateJar(EjbSet set) {
-        try {
-            //System.out.println("[] validating "+ set.getJarPath());
-            // Run the validation rules
+            set = new EjbSet(ejbJarUtils.getJarLocation(), ejbJarUtils.getEjbJar(), ejbJarUtils.getBeans());
             ValidationRule[] rules = getValidationRules();
             for (int i=0; i < rules.length; i++){
                 rules[i].validate( set );
             }
         } catch ( Throwable e ) {
-        	e.printStackTrace();
+        	e.printStackTrace(System.out);
             ValidationError err = new ValidationError( "cannot.validate" );
             err.setDetails( e.getMessage() );
             set.addError( err );
@@ -363,8 +341,9 @@ public class EjbValidator {
                     // We must have reached the jar list
                     for (; i < args.length; i++){
                         try{
-                           EjbSet set = v.validateJar( args[i] );
-                           v.addEjbSet( set );
+                            EjbJarUtils ejbJarUtils = new EjbJarUtils(args[i]);
+                            EjbSet set = v.validateJar( ejbJarUtils );
+                            v.addEjbSet( set );
                        } catch (Exception e){
                            e.printStackTrace();
                        }

@@ -1261,15 +1261,21 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
             String jarLocation = jarsToLoad[i];
             try {
-                EjbJar ejbJar = EjbJarUtils.readEjbJar(jarLocation);
+                EjbJarUtils ejbJarUtils = new EjbJarUtils(jarLocation);
+                EjbJar ejbJar = ejbJarUtils.getEjbJar();
 
                 /* If there is no openejb-jar.xml attempt to auto deploy it.
                  */
                 OpenejbJar openejbJar = ConfigUtils.readOpenejbJar(jarLocation);
                 if (openejbJar == null) {
-                    openejbJar = deployer.deploy(ejbJar, jarLocation);
+                    openejbJar = deployer.deploy(ejbJarUtils, jarLocation);
                 }
-                validateJar(ejbJar, jarLocation);
+
+                EjbSet set = validator.validateJar( ejbJarUtils );
+                if (set.hasErrors() || set.hasFailures()) {
+                    //System.out.println("[] INVALID "+ jarLocation);
+                    throw new OpenEJBException("Jar failed validation.  Use the validation tool for more details");
+                }
 
                 /* Add it to the Vector ***************/
                 jarsVect.add(new DeployedJar(jarLocation, ejbJar, openejbJar));
@@ -1282,17 +1288,6 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         DeployedJar[] jars = new DeployedJar[jarsVect.size()];
         jarsVect.copyInto(jars);
         return jars;
-    }
-
-    private void validateJar(EjbJar ejbJar, String jarLocation) throws OpenEJBException {
-
-        EjbValidator validator = new EjbValidator();
-        EjbSet set = validator.validateJar(ejbJar, jarLocation);
-        if (set.hasErrors() || set.hasFailures()) {
-            //System.out.println("[] INVALID "+ jarLocation);
-            throw new OpenEJBException("Jar failed validation.  Use the validation tool for more details");
-        }
-
     }
 
     public Service initService(Service service, String defaultName) throws OpenEJBException {

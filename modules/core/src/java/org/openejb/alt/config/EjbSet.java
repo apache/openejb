@@ -53,21 +53,18 @@ import org.openejb.alt.config.ejb11.EjbJar;
  */
 public class EjbSet {
 
-    protected Vector failures = new Vector();
-    protected Vector warnings = new Vector();
-    protected Vector errors = new Vector();
+    private final Vector failures = new Vector();
+    private final Vector warnings = new Vector();
+    private final Vector errors = new Vector();
 
-    protected Bean[] beans;
-    protected EjbJar jar;
-    protected String jarPath;
+    private final String jarPath;
+    private final EjbJar jar;
+    private final Bean[] beans;
 
-    public EjbSet(String jarPath) {
+    public EjbSet(String jarPath, EjbJar jar, Bean[] beans) {
         this.jarPath = jarPath;
-    }
-
-    public void setEjbJar(EjbJar jar) {
         this.jar = jar;
-        this.beans = EjbJarUtils.getBeans(jar);
+        this.beans = beans;
     }
 
     public void addWarning(ValidationWarning warning) {
