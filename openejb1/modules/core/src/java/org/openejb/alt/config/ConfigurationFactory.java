@@ -250,7 +250,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 initEnterpriseBeanInfos(jars[i]);
             } catch (Exception e) {
                 e.printStackTrace();
-                ConfigUtils.logWarning("conf.0004", jars[i].jarURI, e.getMessage());
+                ConfigUtils.logger.i18n.warning("conf.0004", jars[i].jarURI, e.getMessage());
             }
         }
 
@@ -618,7 +618,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         int beansInEjbJar = jar.ejbJar.getEnterpriseBeans().getEnterpriseBeansItemCount();
 
         if (beansInEjbJar != beansDeployed) {
-            ConfigUtils.logWarning("conf.0008", jar.jarURI, "" + beansInEjbJar, "" + beansDeployed);
+            ConfigUtils.logger.i18n.warning("conf.0008", jar.jarURI, "" + beansInEjbJar, "" + beansDeployed);
             // Not all ejb in this jar have been deployed.
             // This jar cannot be loaded into the system and must
             // be skipped.
@@ -644,10 +644,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
             // Check For Duplicate Deployment IDs
             if (deploymentIds.contains(beans[i].ejbDeploymentId)) {
-                ConfigUtils.logWarning("conf.0100",
-                        beans[i].ejbDeploymentId,
-                        jar.jarURI,
-                        beans[i].ejbName);
+                ConfigUtils.logger.i18n.warning("conf.0100", beans[i].ejbDeploymentId, jar.jarURI, beans[i].ejbName);
                 // No two deployments can have the same deployment ID
                 // the entire ejb jar is invalid and must be redeployed.
                 // This jar cannot be loaded into the system and must
@@ -868,7 +865,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
             // Check For Duplicate Container IDs
             if (securityRoles.contains(sr[i].getRoleName())) {
-                ConfigUtils.logWarning("conf.0102", jar.jarURI, sr[i].getRoleName());
+                ConfigUtils.logger.i18n.warning("conf.0102", jar.jarURI, sr[i].getRoleName());
             } else {
                 securityRoles.add(sr[i].getRoleName());
             }
@@ -927,7 +924,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             sr[i].roleName = refs[i].getRoleName();
 
             if (sr[i].roleLink == null) {
-                ConfigUtils.logWarning("conf.0009", sr[i].roleName, bean.ejbName, jar.jarURI);
+                ConfigUtils.logger.i18n.warning("conf.0009", sr[i].roleName, bean.ejbName, jar.jarURI);
                 sr[i].roleLink = DEFAULT_SECURITY_ROLE;
             }
         }
@@ -1266,7 +1263,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                 /* If there is no openejb-jar.xml attempt to auto deploy it.
                  */
-                OpenejbJar openejbJar = ConfigUtils.readOpenejbJar(jarLocation);
+                OpenejbJar openejbJar = ejbJarUtils.getOpenejbJar();
                 if (openejbJar == null) {
                     openejbJar = deployer.deploy(ejbJarUtils, jarLocation);
                 }
@@ -1280,7 +1277,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 /* Add it to the Vector ***************/
                 jarsVect.add(new DeployedJar(jarLocation, ejbJar, openejbJar));
             } catch (OpenEJBException e) {
-                ConfigUtils.logWarning("conf.0004", jarLocation, e.getMessage());
+                ConfigUtils.logger.i18n.warning("conf.0004", jarLocation, e.getMessage());
             }
         }
 

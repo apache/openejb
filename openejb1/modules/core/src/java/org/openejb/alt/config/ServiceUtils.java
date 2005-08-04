@@ -122,8 +122,8 @@ public class ServiceUtils {
 
     public static final String defaultProviderURL = "org.openejb";
     private static Map loadedServiceJars = new HashMap();
-    private static Messages messages = new Messages("org.openejb.util.resources");
-    private static Logger _logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
+    public static Messages messages = new Messages("org.openejb.util.resources");
+    public static Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
 
 
     public static ServiceProvider getServiceProvider(Service service) throws OpenEJBException {
@@ -175,7 +175,7 @@ public class ServiceUtils {
         }
 
         if (service == null) {
-            handleException("conf.4901", serviceName, providerName);
+            throw new OpenEJBException(messages.format("conf.4901", serviceName, providerName));
         }
 
         return service;
@@ -203,7 +203,7 @@ public class ServiceUtils {
             stream = new URL(servicejarPath).openConnection().getInputStream();
             reader = new InputStreamReader(stream);
         } catch (Exception e) {
-            handleException("conf.4110", servicejarPath, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.4110", servicejarPath, e.getLocalizedMessage()));
         }
 
         /*[1.4]  Get the ServicesJar from the service-jar.xml ***************/
@@ -215,14 +215,14 @@ public class ServiceUtils {
             obj = (ServicesJar) unmarshaller.unmarshal(reader);
         } catch (MarshalException e) {
             if (e.getException() instanceof IOException) {
-                handleException("conf.4110", servicejarPath, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.4110", servicejarPath, e.getLocalizedMessage()));
             } else if (e.getException() instanceof UnknownHostException) {
-                handleException("conf.4121", servicejarPath, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.4121", servicejarPath, e.getLocalizedMessage()));
             } else {
-                handleException("conf.4120", providerName, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.4120", providerName, e.getLocalizedMessage()));
             }
         } catch (ValidationException e) {
-            handleException("conf.4130", providerName, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.4130", providerName, e.getLocalizedMessage()));
         }
 
         /*[1.5]  Clean up ***************/
@@ -230,7 +230,7 @@ public class ServiceUtils {
             stream.close();
             reader.close();
         } catch (Exception e) {
-            handleException("file.0010", servicejarPath, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("file.0010", servicejarPath, e.getLocalizedMessage()));
         }
 
         return obj;
@@ -251,12 +251,12 @@ public class ServiceUtils {
             writer = new FileWriter(file);
             servicesJarObject.marshal(writer);
         } catch (IOException e) {
-            handleException("conf.4040", xmlFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.4040", xmlFile, e.getLocalizedMessage()));
         } catch (MarshalException e) {
             if (e.getException() instanceof IOException) {
-                handleException("conf.4040", xmlFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.4040", xmlFile, e.getLocalizedMessage()));
             } else {
-                handleException("conf.4050", xmlFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.4050", xmlFile, e.getLocalizedMessage()));
             }
         } catch (ValidationException e) {
 
@@ -273,13 +273,13 @@ public class ServiceUtils {
              * would think.
              */
 
-            handleException("conf.4060", xmlFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.4060", xmlFile, e.getLocalizedMessage()));
         }
 
         try {
             writer.close();
         } catch (Exception e) {
-            handleException("file.0020", xmlFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("file.0020", xmlFile, e.getLocalizedMessage()));
         }
     }
 
@@ -307,10 +307,7 @@ public class ServiceUtils {
                 props = loadProperties(in, props);
             }
         } catch (OpenEJBException ex) {
-            ConfigUtils.handleException("conf.0013",
-                    service.getId(),
-                    null,
-                    ex.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.0013", service.getId(), null, ex.getLocalizedMessage()));
         }
 
         /* 3. Load properties from the content in the Container
@@ -322,7 +319,7 @@ public class ServiceUtils {
                 props = loadProperties(in, props);
             }
         } catch (OpenEJBException ex) {
-            ConfigUtils.handleException("conf.0014", confItem, itemId, confFile, ex.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.0014", confItem, itemId, confFile, ex.getLocalizedMessage()));
         }
 
         return props;
@@ -338,14 +335,12 @@ public class ServiceUtils {
             InputStream in = new FileInputStream(pfile);
             return loadProperties(in, defaults);
         } catch (FileNotFoundException ex) {
-            ConfigUtils.handleException("conf.0006", propertiesFile, ex.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.0006", propertiesFile, ex.getLocalizedMessage()));
         } catch (IOException ex) {
-            ConfigUtils.handleException("conf.0007", propertiesFile, ex.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.0007", propertiesFile, ex.getLocalizedMessage()));
         } catch (SecurityException ex) {
-            ConfigUtils.handleException("conf.0005", propertiesFile, ex.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.0005", propertiesFile, ex.getLocalizedMessage()));
         }
-
-        return defaults;
     }
 
     public static Properties loadProperties(InputStream in, Properties defaults)
@@ -360,56 +355,10 @@ public class ServiceUtils {
             */
             defaults.load(in);
         } catch (IOException ex) {
-            ConfigUtils.handleException("conf.0012", ex.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.0012", ex.getLocalizedMessage()));
         }
 
         return defaults;
     }
 
-    /*------------------------------------------------------*/
-    /*    Methods for easy exception handling               */
-    /*------------------------------------------------------*/
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0, arg1, arg2, arg3));
-    }
-
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0, arg1, arg2));
-    }
-
-    public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0, arg1));
-    }
-
-    public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0));
-    }
-
-    public static void handleException(String errorCode) throws OpenEJBException {
-        throw new OpenEJBException(messages.message(errorCode));
-    }
-
-    /*------------------------------------------------------*/
-    /*  Methods for logging exceptions that are noteworthy  */
-    /*  but not bad enough to stop the container system.    */
-    /*------------------------------------------------------*/
-    public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) {
-        _logger.i18n.warning(errorCode, arg0, arg1, arg2, arg3);
-    }
-
-    public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2) {
-        _logger.i18n.warning(errorCode, arg0, arg1, arg2);
-    }
-
-    public static void logWarning(String errorCode, Object arg0, Object arg1) {
-        _logger.i18n.warning(errorCode, arg0, arg1);
-    }
-
-    public static void logWarning(String errorCode, Object arg0) {
-        _logger.i18n.warning(errorCode, arg0);
-    }
-
-    public static void logWarning(String errorCode) {
-        _logger.i18n.warning(errorCode);
-    }
 }
