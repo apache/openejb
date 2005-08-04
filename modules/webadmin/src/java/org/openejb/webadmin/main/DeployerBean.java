@@ -212,8 +212,8 @@ public class DeployerBean implements SessionBean {
             jar = ejbJarUtils.getEjbJar();
 
 			//check for an openejb-jar.xml file
-			if (ConfigUtils.checkForOpenejbJar(this.jarFile)) {
-				initialOpenejbJar = ConfigUtils.readOpenejbJar(this.jarFile);
+			if (EjbJarUtils.checkForOpenejbJar(this.jarFile)) {
+				initialOpenejbJar = ejbJarUtils.getOpenejbJar();
 			}
 		} catch (OpenEJBException oe) {
 			throw new OpenEJBException(this.jarFile + " is not a valid jar file. ");
@@ -441,7 +441,7 @@ public class DeployerBean implements SessionBean {
 	 * @return the the best container for this bean
 	 */
 	private void saveChanges(String jarFile, OpenejbJar openejbJar) throws OpenEJBException {
-		ConfigUtils.writeOpenejbJar("META-INF/openejb-jar.xml", openejbJar);
+		EjbJarUtils.writeOpenejbJar("META-INF/openejb-jar.xml", openejbJar);
 		JarUtils.addFileToJar(jarFile, "META-INF/openejb-jar.xml");
 
 		if (configChanged) {

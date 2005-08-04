@@ -78,7 +78,7 @@ import org.openejb.OpenEJBException;
  * @version $Revision$ $Date$
  */
 public class Logger {
-
+    // Make interface and make an i18n logger
     protected static final HashMap _loggers = new HashMap();
     protected Category       _logger  = null;
     public    I18N           i18n     = null;

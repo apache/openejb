@@ -712,7 +712,7 @@ public class Deploy {
         out.println("Done collecting deployment information!");
 
         out.print("Creating the openejb-jar.xml file...");
-        ConfigUtils.writeOpenejbJar("META-INF/openejb-jar.xml", openejbJar);
+        EjbJarUtils.writeOpenejbJar("META-INF/openejb-jar.xml", openejbJar);
 
         out.println("done");
 

@@ -82,16 +82,16 @@ import org.openejb.util.Messages;
  */
 public class ConfigUtils {
 
-    private static Messages messages = new Messages("org.openejb.util.resources");
-    private static Logger _logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
+    public static Messages messages = new Messages("org.openejb.util.resources");
+    public static Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
 
     public static Openejb readConfig() throws OpenEJBException {
         return readConfig(searchForConfiguration());
     }
 
     /*
-        TODO: Use the java.net.URL instead of java.io.File so configs
-        and jars can be located remotely in the network
+     * TODO: Use the java.net.URL instead of java.io.File so configs
+     * and jars can be located remotely in the network
      */
     public static Openejb readConfig(String confFile) throws OpenEJBException {
         Openejb obj = null;
@@ -102,14 +102,14 @@ public class ConfigUtils {
             unmarshaller.setWhitespacePreserve(true);
             obj = (Openejb) unmarshaller.unmarshal(reader);
         } catch (FileNotFoundException e) {
-            handleException("conf.1900", confFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.1900", confFile, e.getLocalizedMessage()));
         } catch (MarshalException e) {
             if (e.getException() instanceof IOException) {
-                handleException("conf.1110", confFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.1110", confFile, e.getLocalizedMessage()));
             } else if (e.getException() instanceof UnknownHostException) {
-                handleException("conf.1121", confFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.1121", confFile, e.getLocalizedMessage()));
             } else {
-                handleException("conf.1120", confFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.1120", confFile, e.getLocalizedMessage()));
             }
         } catch (ValidationException e) {
             /* TODO: Implement informative error handling here. 
@@ -122,12 +122,12 @@ public class ConfigUtils {
             /*
             NOTE: This doesn't seem to ever happen, anyone know why?
             */
-            handleException("conf.1130", confFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.1130", confFile, e.getLocalizedMessage()));
         }
         try {
             reader.close();
         } catch (Exception e) {
-            handleException("file.0020", confFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("file.0020", confFile, e.getLocalizedMessage()));
         }
         return obj;
     }
@@ -146,12 +146,12 @@ public class ConfigUtils {
             writer = new FileWriter(file);
             confObject.marshal(writer);
         } catch (IOException e) {
-            handleException("conf.1040", confFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.1040", confFile, e.getLocalizedMessage()));
         } catch (MarshalException e) {
             if (e.getException() instanceof IOException) {
-                handleException("conf.1040", confFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.1040", confFile, e.getLocalizedMessage()));
             } else {
-                handleException("conf.1050", confFile, e.getLocalizedMessage());
+                throw new OpenEJBException(messages.format("conf.1050", confFile, e.getLocalizedMessage()));
             }
         } catch (ValidationException e) {
             /* TODO: Implement informative error handling here. 
@@ -165,129 +165,12 @@ public class ConfigUtils {
              * is invalid, the MarshalException is thrown, not this one as you
              * would think.
              */
-            handleException("conf.1060", confFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("conf.1060", confFile, e.getLocalizedMessage()));
         }
         try {
             writer.close();
         } catch (Exception e) {
-            handleException("file.0020", confFile, e.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * Opens the specified jar file, locates the openejb-jar.xml file,
-     * unmarshals it to a java object and returns it. If there is no
-     * openejb-jar.xml in the jar an exception will be thrown.
-     *
-     * @param jarFile
-     * @return OpenejbJar
-     * @throws OpenEJBException
-     */
-    public static OpenejbJar readOpenejbJar(String jarFile) throws OpenEJBException {
-
-        /*[1.1]  Get the jar ***************/
-        JarFile jar = JarUtils.getJarFile(jarFile);
-
-        /*[1.2]  Find the openejb-jar.xml from the jar ***************/
-        JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
-        if (entry == null) entry = jar.getJarEntry("openejb-jar.xml");
-//        if (entry == null) handleException("conf.2900", jarFile, "no message");
-        if (entry == null) return null;
-
-        /*[1.3]  Get the openejb-jar.xml from the jar ***************/
-        Reader reader = null;
-        InputStream stream = null;
-        try {
-            stream = jar.getInputStream(entry);
-            reader = new InputStreamReader(stream);
-        } catch (Exception e) {
-            handleException("conf.2110", jarFile, e.getLocalizedMessage());
-        }
-
-        /*[1.4]  Get the OpenejbJar from the openejb-jar.xml ***************/
-        OpenejbJar obj = null;
-        try {
-            Unmarshaller unmarshaller = new Unmarshaller(OpenejbJar.class);
-            unmarshaller.setWhitespacePreserve(true);
-            obj = (OpenejbJar) unmarshaller.unmarshal(reader);
-        } catch (MarshalException e) {
-            if (e.getException() instanceof IOException) {
-                handleException("conf.2110", jarFile, e.getLocalizedMessage());
-            } else if (e.getException() instanceof UnknownHostException) {
-                handleException("conf.2121", jarFile, e.getLocalizedMessage());
-            } else {
-                handleException("conf.2120", jarFile, e.getLocalizedMessage());
-            }
-        } catch (ValidationException e) {
-            handleException("conf.2130", jarFile, e.getLocalizedMessage());
-        }
-        
-        /*[1.5]  Clean up ***************/
-        try {
-            stream.close();
-            reader.close();
-            jar.close();
-        } catch (Exception e) {
-            handleException("file.0020", jarFile, e.getLocalizedMessage());
-        }
-
-        return obj;
-    }
-
-    public static boolean checkForOpenejbJar(String jarFile) throws OpenEJBException {
-        /*[1.1]  Get the jar ***************/
-        JarFile jar = JarUtils.getJarFile(jarFile);
-
-        /*[1.2]  Find the openejb-jar.xml from the jar ***************/
-        JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
-        if (entry == null) entry = jar.getJarEntry("openejb-jar.xml");
-        if (entry == null) return false;
-
-        return true;
-    }
-
-    public static void writeOpenejbJar(String xmlFile, OpenejbJar openejbJarObject) throws OpenEJBException {
-        /* TODO:  Just to be picky, the xml file created by
-        Castor is really hard to read -- it is all on one line.
-        People might want to edit this in the future by hand, so if Castor can 
-        make the output look better that would be great!  Otherwise we could
-        just spruce the output up by adding a few new lines and tabs.
-        */
-        Writer writer = null;
-        try {
-            File file = new File(xmlFile);
-            File dirs = file.getParentFile();
-            if (dirs != null) dirs.mkdirs();
-            writer = new FileWriter(file);
-            openejbJarObject.marshal(writer);
-        } catch (SecurityException e) {
-            handleException("conf.2040", xmlFile, e.getLocalizedMessage());
-        } catch (IOException e) {
-            handleException("conf.2040", xmlFile, e.getLocalizedMessage());
-        } catch (MarshalException e) {
-            if (e.getException() instanceof IOException) {
-                handleException("conf.2040", xmlFile, e.getLocalizedMessage());
-            } else {
-                handleException("conf.2050", xmlFile, e.getLocalizedMessage());
-            }
-        } catch (ValidationException e) {
-            /* TODO: Implement informative error handling here. 
-               The exception will say "X doesn't match the regular 
-               expression Y" 
-               This should be checked and more relevant information
-               should be given -- not everyone understands regular 
-               expressions. 
-             */
-            /* NOTE: This doesn't seem to ever happen. When the object graph
-             * is invalid, the MarshalException is thrown, not this one as you
-             * would think.
-             */
-            handleException("conf.2060", xmlFile, e.getLocalizedMessage());
-        }
-        try {
-            writer.close();
-        } catch (Exception e) {
-            handleException("file.0020", xmlFile, e.getLocalizedMessage());
+            throw new OpenEJBException(messages.format("file.0020", confFile, e.getLocalizedMessage()));
         }
     }
 
@@ -345,7 +228,7 @@ public class ConfigUtils {
 
         }
 
-        _logger.warning("Cannot find the configuration file [" + path + "], Trying conf/openejb.conf instead.");
+        logger.warning("Cannot find the configuration file [" + path + "], Trying conf/openejb.conf instead.");
 
         try {
             /*
@@ -372,7 +255,7 @@ public class ConfigUtils {
             } catch (java.io.FileNotFoundException e) {
             }
 
-            _logger.warning("Cannot find the configuration file [conf/openejb.conf], Creating one.");
+            logger.warning("Cannot find the configuration file [conf/openejb.conf], Creating one.");
 
             /* [6] No config found! Create a config for them
              *     using the default.openejb.conf file from 
@@ -472,53 +355,4 @@ public class ConfigUtils {
         config.addDeployments(dep);
         return true;
     }
-
-    /*------------------------------------------------------*/
-    /*    Methods for easy exception handling               */
-    /*------------------------------------------------------*/
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0, arg1, arg2, arg3));
-    }
-
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0, arg1, arg2));
-    }
-
-    public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0, arg1));
-    }
-
-    public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
-        throw new OpenEJBException(messages.format(errorCode, arg0));
-    }
-
-    public static void handleException(String errorCode) throws OpenEJBException {
-        throw new OpenEJBException(messages.message(errorCode));
-    }
-
-    /*------------------------------------------------------*/
-    /*  Methods for logging exceptions that are noteworthy  */
-    /*  but not bad enough to stop the container system.    */
-    /*------------------------------------------------------*/
-    public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) {
-        _logger.i18n.warning(errorCode, arg0, arg1, arg2, arg3);
-    }
-
-    public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2) {
-        _logger.i18n.warning(errorCode, arg0, arg1, arg2);
-    }
-
-    public static void logWarning(String errorCode, Object arg0, Object arg1) {
-        _logger.i18n.warning(errorCode, arg0, arg1);
-    }
-
-    public static void logWarning(String errorCode, Object arg0) {
-        _logger.i18n.warning(errorCode, arg0);
-    }
-
-    public static void logWarning(String errorCode) {
-        _logger.i18n.warning(errorCode);
-    }
-
-
 }
