@@ -205,10 +205,11 @@ public class DeployerBean implements SessionBean {
 	 * @throws OpenEJBException if something goes wrong
 	 */
 	public void startDeployment() throws OpenEJBException {
+        EjbJarUtils ejbJarUtils = new EjbJarUtils(this.jarFile);
 		EjbJar jar = null;
 		OpenejbJar initialOpenejbJar = null;
 		try { //test for invalid file
-			jar = EjbJarUtils.readEjbJar(this.jarFile);
+            jar = ejbJarUtils.getEjbJar();
 
 			//check for an openejb-jar.xml file
 			if (ConfigUtils.checkForOpenejbJar(this.jarFile)) {
@@ -246,7 +247,7 @@ public class DeployerBean implements SessionBean {
 		}
 
 		openejbJar = new OpenejbJar();
-		deployerBeans = getBeans(jar);
+        deployerBeans = ejbJarUtils.getBeans();
 	}
 
 	/**
@@ -803,14 +804,7 @@ public class DeployerBean implements SessionBean {
 		}
 	}
 
-	/*------------------------------------------------------*/
-	/*    Refactored Methods                                */
-	/*------------------------------------------------------*/
-	private Bean[] getBeans(EjbJar jar) {
-		return EjbJarUtils.getBeans(jar);
-	}
-
-	private Container[] getUsableContainers(Bean bean) {
+    private Container[] getUsableContainers(Bean bean) {
 		return EjbJarUtils.getUsableContainers(containers, bean);
 	}
 

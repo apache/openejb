@@ -107,16 +107,10 @@ public class AutoDeployer {
     public void init() throws OpenEJBException {
     }
 
-    public OpenejbJar deploy(String jarLocation) throws OpenEJBException {
-        EjbJar jar = EjbJarUtils.readEjbJar(jarLocation);
-
-        return deploy(jar, jarLocation);
-    }
-
-    public OpenejbJar deploy(EjbJar jar,String jarLocation) throws OpenEJBException {
+    public OpenejbJar deploy(EjbJarUtils ejbJarUtils, String jarLocation) throws OpenEJBException {
         OpenejbJar openejbJar = new OpenejbJar();
 
-        Bean[] beans = getBeans(jar);
+        Bean[] beans = ejbJarUtils.getBeans();
 
         for (int i = 0; i < beans.length; i++) {
             openejbJar.addEjbDeployment(deployBean(beans[i], jarLocation));
@@ -201,13 +195,6 @@ public class AutoDeployer {
         link.setResId(resources[0].getId());
         return link;
 	}
-
-    /*------------------------------------------------------*/
-    /*    Refactored Methods                                */
-    /*------------------------------------------------------*/
-    private Bean[] getBeans(EjbJar jar) {
-        return EjbJarUtils.getBeans(jar);
-    }
 
     private Container[] getUsableContainers(Bean bean) {
         return EjbJarUtils.getUsableContainers(containers, bean);

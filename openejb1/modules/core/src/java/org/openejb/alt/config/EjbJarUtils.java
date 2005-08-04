@@ -71,21 +71,28 @@ import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 
 /**
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class EjbJarUtils {
 
     protected static final Messages _messages = new Messages("org.openejb.util.resources");
 
-    public static EjbJar readEjbJar(String jarFile) throws OpenEJBException {
+    private final EjbJar ejbJar;
+    private String jarLocation;
+
+    // TODO Make this a plain EjbJar instance with String jarFile as constructor
+    // TODO Add support for unpacked jars (jarFile is a directory)
+    public EjbJarUtils(String jarLocation) throws OpenEJBException {
         /*[1.1]  Get the jar ***************/
-        JarFile jar = JarUtils.getJarFile(jarFile);
+        this.jarLocation = jarLocation;
+        JarFile jar = JarUtils.getJarFile(jarLocation);
 
         /*[1.2]  Find the ejb-jar.xml from the jar ***************/
         JarEntry entry = jar.getJarEntry("META-INF/ejb-jar.xml");
         if (entry == null) entry = jar.getJarEntry("ejb-jar.xml");
 
-        if (entry == null) handleException("conf.3900", jarFile, "no message");
+        if (entry == null) handleException("conf.3900", jarLocation, "no message");
 
         /*[1.3]  Get the ejb-jar.xml from the jar ***************/
         Reader reader = null;
@@ -94,7 +101,7 @@ public class EjbJarUtils {
             stream = jar.getInputStream(entry);
             reader = new InputStreamReader(stream);
         } catch (Exception e) {
-            handleException("conf.3110", jarFile, e.getLocalizedMessage());
+            handleException("conf.3110", jarLocation, e.getLocalizedMessage());
         }
 
         /*[1.4]  Get the OpenejbJar from the openejb-jar.xml ***************/
@@ -103,16 +110,16 @@ public class EjbJarUtils {
             obj = unmarshalEjbJar(reader);
         } catch (MarshalException e) {
             if (e.getException() instanceof UnknownHostException) {
-                handleException("conf.3121", jarFile, e.getLocalizedMessage());
+                handleException("conf.3121", jarLocation, e.getLocalizedMessage());
             } else if (e.getException() instanceof org.xml.sax.SAXException) {
-                handleException("conf.3140", jarFile, e.getLocalizedMessage());
+                handleException("conf.3140", jarLocation, e.getLocalizedMessage());
             } else if (e.getException() instanceof IOException) {
-                handleException("conf.3110", jarFile, e.getLocalizedMessage());
+                handleException("conf.3110", jarLocation, e.getLocalizedMessage());
             } else {
-                handleException("conf.3120", jarFile, e.getLocalizedMessage());
+                handleException("conf.3120", jarLocation, e.getLocalizedMessage());
             }
         } catch (ValidationException e) {
-            handleException("conf.3130", jarFile, e.getLocalizedMessage());
+            handleException("conf.3130", jarLocation, e.getLocalizedMessage());
         }
 
         /*[1.5]  Clean up ***************/
@@ -121,15 +128,23 @@ public class EjbJarUtils {
             reader.close();
             jar.close();
         } catch (Exception e) {
-            handleException("file.0020", jarFile, e.getLocalizedMessage());
+            handleException("file.0020", jarLocation, e.getLocalizedMessage());
         }
 
-        return obj;
+        this.ejbJar = obj;
+    }
+
+    public String getJarLocation() {
+        return jarLocation;
+    }
+
+    public EjbJar getEjbJar() {
+        return ejbJar;
     }
 
     private static DTDResolver resolver = new DTDResolver();
 
-    private static EjbJar unmarshalEjbJar(java.io.Reader reader)
+    private EjbJar unmarshalEjbJar(java.io.Reader reader)
             throws MarshalException, ValidationException {
         Unmarshaller unmarshaller = new Unmarshaller(org.openejb.alt.config.ejb11.EjbJar.class);
         unmarshaller.setEntityResolver(resolver);
@@ -137,7 +152,7 @@ public class EjbJarUtils {
         return (org.openejb.alt.config.ejb11.EjbJar) unmarshaller.unmarshal(reader);
     }
 
-    public static void writeEjbJar(String xmlFile, EjbJar ejbJarObject) throws OpenEJBException {
+    public void writeEjbJar(String xmlFile) throws OpenEJBException {
         /* TODO:  Just to be picky, the xml file created by
         Castor is really hard to read -- it is all on one line.
         People might want to edit this in the future by hand, so if Castor can
@@ -148,7 +163,7 @@ public class EjbJarUtils {
         try {
             File file = new File(xmlFile);
             writer = new FileWriter(file);
-            ejbJarObject.marshal(writer);
+            ejbJar.marshal(writer);
         } catch (IOException e) {
             handleException("conf.3040", xmlFile, e.getLocalizedMessage());
         } catch (MarshalException e) {
@@ -301,11 +316,8 @@ public class EjbJarUtils {
         return useableContainers;
     }
 
-    /*------------------------------------------------------*/
-    /*    Methods for collecting beans                      */
-    /*------------------------------------------------------*/
-    public static Bean[] getBeans(EjbJar jar) {
-        EnterpriseBeansItem[] items = jar.getEnterpriseBeans().getEnterpriseBeansItem();
+    public Bean[] getBeans() {
+        EnterpriseBeansItem[] items = ejbJar.getEnterpriseBeans().getEnterpriseBeansItem();
         Bean[] beans = new Bean[items.length];
         for (int i = 0; i < items.length; i++) {
             if (items[i].getEntity() == null) {

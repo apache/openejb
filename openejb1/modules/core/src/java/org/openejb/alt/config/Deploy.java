@@ -271,9 +271,10 @@ public class Deploy {
     /*------------------------------------------------------*/
 
     private void deploy(String jarLocation) throws OpenEJBException {
-        EjbValidator validator = new EjbValidator();
+        EjbJarUtils ejbJarUtils = new EjbJarUtils(jarLocation);
 
-        EjbSet set = validator.validateJar(jarLocation);
+        EjbValidator validator = new EjbValidator();
+        EjbSet set = validator.validateJar(ejbJarUtils);
 
         if (set.hasErrors() || set.hasFailures()) {
             validator.printResults(set);
@@ -284,11 +285,10 @@ public class Deploy {
             System.out.println("See http://www.openejb.org/validate.html for usage." );
             return;
         }
-        EjbJar jar = set.getEjbJar();
 
         OpenejbJar openejbJar = new OpenejbJar();
 
-        Bean[] beans = getBeans(jar);
+        Bean[] beans = ejbJarUtils.getBeans();
 
         listBeanNames(beans);
 
@@ -919,13 +919,6 @@ public class Deploy {
     // Print error message to stderr
     private static void error(String msg) {
         System.err.println("\nERROR: " + msg + "\n");
-    }
-
-    /*------------------------------------------------------*/
-    /*    Refactored Methods                                */
-    /*------------------------------------------------------*/
-    private Bean[] getBeans(EjbJar jar) {
-        return EjbJarUtils.getBeans(jar);
     }
 
     private String moveJar(String jar) throws OpenEJBException {
