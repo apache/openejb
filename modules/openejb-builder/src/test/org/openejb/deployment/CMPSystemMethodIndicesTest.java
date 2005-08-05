@@ -60,6 +60,10 @@ import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.EJBInstanceContext;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
+import org.tranql.cache.GlobalSchema;
+import org.tranql.ejb.EJB;
+import org.tranql.ejb.EJBSchema;
+import org.tranql.identity.IdentityDefinerBuilder;
 
 /**
  *
@@ -72,7 +76,16 @@ public class CMPSystemMethodIndicesTest extends TestCase {
     public void testSystemMethodIndices() throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(MockCMPEJB.class.getClassLoader());
-        Map vopMap = builder.buildVopMap(MockCMPEJB.class, new CacheTable("mock", new CacheSlot[0], null, null, null, null), Collections.EMPTY_MAP, null, null, null, null, null, null, new HashMap());
+        EJB ejb = new EJB("mock", "mock");
+        EJBSchema ejbSchema = new EJBSchema("schema");
+        ejbSchema.addEJB(ejb);
+        CacheTable cacheTable = new CacheTable("mock", new CacheSlot[0], null, null, null, null);
+        GlobalSchema globalSchema = new GlobalSchema("schema");
+        globalSchema.addCacheTable(cacheTable);
+        builder.setEJBName("mock");
+        builder.setEJBSchema(ejbSchema);
+        builder.initialize();
+        Map vopMap = builder.buildVopMap(MockCMPEJB.class, cacheTable, Collections.EMPTY_MAP, null, new IdentityDefinerBuilder(ejbSchema, globalSchema), null, null, null, null, new HashMap());
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", new String(EntityContext.class.getName()), "unsetEntityContext");
         EJBInstanceContext ctx = MockEJBInstanceContext.INSTANCE;
