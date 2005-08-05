@@ -212,12 +212,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         interceptorBuilder.setReentrant(reentrant);
         return interceptorBuilder;
     }
-    
-    protected Object buildIt(boolean buildContainer) throws Exception {
+
+    protected void initialize() throws Exception {
         ejb = ejbSchema.getEJB(getEJBName());
         if (ejb == null) {
             throw new DeploymentException("Schema does not contain EJB: " + getEJBName());
         }
+    }
+    
+    protected Object buildIt(boolean buildContainer) throws Exception {
+        initialize();
 
         // get the bean classes
         ClassLoader classLoader = getClassLoader();
@@ -288,13 +292,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                     iter.remove();
                 }
             }
-            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors, existingCMRFieldAccessors, selects);
+            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors, existingCMRFieldAccessors, selects, identityDefinerBuilder);
         } else {
             cmp1Bridge = new CMP1Bridge(beanClass, cmpFieldAccessors);
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGenerator(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefinerBuilder, ejb.getPrimaryKeyGenerator(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -465,7 +469,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 new ReferenceAccessor(relatedIdentityDefiner));
     }
 
-    private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields, Map selects) {
+    private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields, Map selects, IdentityDefinerBuilder identityDefinerBuilder) {
         Map instanceMap;
         instanceMap = new HashMap();
 
@@ -476,7 +480,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         addFieldOperations(instanceMap, beanClass, cmrFields);
 
         // add the select methods
-        addSelects(instanceMap, beanClass, selects);
+        addSelects(instanceMap, beanClass, selects, identityDefinerBuilder);
 
         return instanceMap;
     }
@@ -500,7 +504,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private void addSelects(Map instanceMap, Class beanClass, Map selects) throws IllegalArgumentException {
+    private void addSelects(Map instanceMap, Class beanClass, Map selects, IdentityDefinerBuilder idDefinerBuilder) throws IllegalArgumentException {
         for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             SelectEJBQLQuery query = (SelectEJBQLQuery) entry.getKey();
@@ -514,13 +518,20 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
             MethodSignature methodSignature = new MethodSignature(method);
             
+            IdentityDefiner idDefiner = null;
+            IdentityDefiner idInjector = null;
+            if (null != query.getSelectedEJB()) {
+                idDefiner = idDefinerBuilder.getIdentityDefiner(query.getSelectedEJB(), 0);
+                idInjector = idDefinerBuilder.getIdentityDefiner(query.getSelectedEJB());
+            }
+            
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                instanceMap.put(methodSignature, new CollectionValuedSelect(command, query.isFlushCacheBeforeQuery()));
+                instanceMap.put(methodSignature, new CollectionValuedSelect(command, query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             } else if (returnType.equals("java.util.Set")) {
-                instanceMap.put(methodSignature, new SetValuedSelect(command, query.isFlushCacheBeforeQuery()));
+                instanceMap.put(methodSignature, new SetValuedSelect(command, query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             } else {
-                instanceMap.put(methodSignature, new SingleValuedSelect(command, query.isFlushCacheBeforeQuery()));
+                instanceMap.put(methodSignature, new SingleValuedSelect(command, query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             }
         }
     }
@@ -529,7 +540,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             CacheTable cacheTable,
             Map cmrFieldAccessors,
             CMP1Bridge cmp1Bridge,
-            IdentityDefiner identityDefiner,
+            IdentityDefinerBuilder identityDefinerBuilder,
             PrimaryKeyGenerator keyGenerator,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
@@ -539,7 +550,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         ProxyInfo proxyInfo = createProxyInfo();
 
         LinkedHashMap vopMap = new LinkedHashMap();
-
+        
         // get the context set unset method objects
         Method setEntityContext;
         Method unsetEntityContext;
@@ -576,6 +587,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 // ejbCreate vop needs a reference to the ejbPostCreate method
                 MethodSignature postCreateSignature = new MethodSignature("ejbPostCreate" + name.substring(9),
                         beanMethod.getParameterTypes());
+                IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb); 
                 vopMap.put(MethodHelper.translateToInterface(signature),
                         new CMPCreateMethod(beanClass,
                                 cmp1Bridge,
@@ -634,6 +646,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
         }
 
+        IdentityDefiner idDefiner = identityDefinerBuilder.getIdentityDefiner(ejb, 0);
+        IdentityDefiner idInjector = identityDefinerBuilder.getIdentityDefiner(ejb);
         Class homeInterface = proxyInfo.getHomeInterface();
         Class localHomeInterface = proxyInfo.getLocalHomeInterface();
         for (Iterator iterator = finders.entrySet().iterator(); iterator.hasNext();) {
@@ -653,13 +667,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CollectionValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new CollectionValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             } else if (returnType.equals("java.util.Set")) {
-                vopMap.put(signature, new SetValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new SetValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             } else if (returnType.equals("java.util.Enumeration")) {
-                vopMap.put(signature, new EnumerationValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new EnumerationValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             } else {
-                vopMap.put(signature, new SingleValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new SingleValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery(), idDefiner, idInjector));
             }
         }
         
