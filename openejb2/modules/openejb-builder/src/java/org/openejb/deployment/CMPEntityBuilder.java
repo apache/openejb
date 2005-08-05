@@ -546,15 +546,14 @@ class CMPEntityBuilder extends EntityBuilder {
         OpenejbEjbRelationType[] openEJBRelations = openejbEjbJar.getRelationships().getEjbRelationArray();
         for (int i = 0; i < openEJBRelations.length; i++) {
             OpenejbEjbRelationType relation = openEJBRelations[i];
+            String relationName = relation.isSetEjbRelationName() ? relation.getEjbRelationName() : null;
             OpenejbEjbRelationshipRoleType[] roles = relation.getEjbRelationshipRoleArray();
             for (int j = 0; j < roles.length; j++) {
                 OpenejbEjbRelationshipRoleType role = roles[j];
-                if ( !role.isSetCmrField() ) {
-                    continue;
-                }
+                String roleName = role.isSetEjbRelationshipRoleName() ? role.getEjbRelationshipRoleName() : null;
                 String ejbName = role.getRelationshipRoleSource().getEjbName();
-                String cmrFieldName = role.getCmrField().getCmrFieldName();
-                RoleInfo roleInfo = new RoleInfo(ejbName, cmrFieldName);
+                String cmrFieldName = role.isSetCmrField() ? role.getCmrField().getCmrFieldName() : null;
+                RoleInfo roleInfo = new RoleInfo(relationName, roleName, ejbName, cmrFieldName);
                 // Note: we're putting the whole relation into the map, not just the relationship-role that we found
                 // Later, we'll dig out both roles for a many-to-many relationship, even if only one of them
                 //   had a cmr-field and got past the isSetCmrField test above
@@ -565,16 +564,23 @@ class CMPEntityBuilder extends EntityBuilder {
         EjbRelationType[] relations = ejbJar.getRelationships().getEjbRelationArray();
         for (int i = 0; i < relations.length; i++) {
             EjbRelationshipRoleType[] roles = relations[i].getEjbRelationshipRoleArray();
+            String relationName = relations[i].isSetEjbRelationName() ? relations[i].getEjbRelationName().getStringValue() : null; 
             RoleInfo[] roleInfo = new RoleInfo[2];
-            roleInfo[0] = extractRoleInfo(ejbSchema, sqlSchema, roles[0]);
-            roleInfo[1] = extractRoleInfo(ejbSchema, sqlSchema, roles[1]);
+            roleInfo[0] = extractRoleInfo(ejbSchema, sqlSchema, roles[0], relationName);
+            roleInfo[1] = extractRoleInfo(ejbSchema, sqlSchema, roles[1], relationName);
 
-            OpenejbEjbRelationType openEjbRelation = (OpenejbEjbRelationType) openEjbRelations.get(roleInfo[0]);
-            if (null == openEjbRelation) {
-                openEjbRelation = (OpenejbEjbRelationType) openEjbRelations.get(roleInfo[1]);
-                if ( null == openEjbRelation ) {
-                    throw new DeploymentException("No CMR mapping defined by OpenEJB DD for roles " + roleInfo[0] + " or " + roleInfo[1]);
+            OpenejbEjbRelationType openEjbRelation = null; 
+            for (Iterator iter = openEjbRelations.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                RoleInfo currRoleInfo = (RoleInfo) entry.getKey();
+                if (currRoleInfo.implies(roleInfo[0]) || currRoleInfo.implies(roleInfo[1])) {
+                    openEjbRelation = (OpenejbEjbRelationType) entry.getValue();
+                    break;
                 }
+            }
+            
+            if (null == openEjbRelation) {
+                throw new DeploymentException("No CMR mapping defined by OpenEJB DD for roles " + roleInfo[0] + " or " + roleInfo[1]);
             }
 
             String mtmTableName = null;
@@ -588,20 +594,18 @@ class CMPEntityBuilder extends EntityBuilder {
 
             OpenejbEjbRelationshipRoleType[] openEjbRoles = openEjbRelation.getEjbRelationshipRoleArray();
             for (int j = 0; j < openEjbRoles.length; j++) {
-                extractJoinInfo(roleInfo, mtmTableName, ejbSchema, sqlSchema, openEjbRoles[j]);
+                extractJoinInfo(roleInfo, mtmTableName, ejbSchema, sqlSchema, openEjbRoles[j], relationName);
             }
 
             buildSchemaForJoin(roleInfo, mtmTableName, ejbSchema, sqlSchema, i);
         }
     }
 
-    private RoleInfo extractRoleInfo(EJBSchema ejbSchema, SQLSchema sqlSchema, EjbRelationshipRoleType role) {
+    private RoleInfo extractRoleInfo(EJBSchema ejbSchema, SQLSchema sqlSchema, EjbRelationshipRoleType role, String relationName) {
         String entityName = role.getRelationshipRoleSource().getEjbName().getStringValue();
-        String cmrFieldName = null;
-        if ( role.isSetCmrField() ) {
-            cmrFieldName = role.getCmrField().getCmrFieldName().getStringValue();
-        }
-        RoleInfo roleInfo = new RoleInfo(entityName, cmrFieldName);
+        String roleName = role.isSetEjbRelationshipRoleName() ? role.getEjbRelationshipRoleName().getStringValue() : null;
+        String cmrFieldName = role.isSetCmrField() ? role.getCmrField().getCmrFieldName().getStringValue() : null;
+        RoleInfo roleInfo = new RoleInfo(relationName, roleName, entityName, cmrFieldName);
         roleInfo.ejb = ejbSchema.getEJB(entityName);
         roleInfo.table = sqlSchema.getTable(entityName);
         if ("One".equals(role.getMultiplicity().getStringValue())) {
@@ -613,16 +617,13 @@ class CMPEntityBuilder extends EntityBuilder {
         return roleInfo;
     }
 
-    private void extractJoinInfo(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQLSchema sqlSchema, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
+    private void extractJoinInfo(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQLSchema sqlSchema, OpenejbEjbRelationshipRoleType role, String relationName) throws DeploymentException {
         String ejbName = role.getRelationshipRoleSource().getEjbName();
-        String cmrFieldName = null;
-        String groupName = null;
-        if ( role.isSetCmrField() ) {
-            cmrFieldName = role.getCmrField().getCmrFieldName();
-        }
-        RoleInfo sourceRoleInfo = new RoleInfo(ejbName, cmrFieldName);
+        String roleName = role.isSetEjbRelationshipRoleName() ? role.getEjbRelationshipRoleName() : null;
+        String cmrFieldName = role.isSetCmrField() ? role.getCmrField().getCmrFieldName() : null;
+        RoleInfo sourceRoleInfo = new RoleInfo(relationName, roleName, ejbName, cmrFieldName);
         RoleInfo[] mappedRoleInfo = new RoleInfo[2];
-        if (roleInfo[0].equals(sourceRoleInfo)) {
+        if (roleInfo[0].implies(sourceRoleInfo)) {
             mappedRoleInfo = roleInfo;
             roleInfo[0].isOnPKSide |= true;
         } else {
@@ -830,6 +831,8 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
     private static class RoleInfo {
+        private final String relationName;
+        private final String roleName;
         private final String entityName;
         private final String cmrFieldName;
         private EJB ejb;
@@ -839,26 +842,63 @@ class CMPEntityBuilder extends EntityBuilder {
         private boolean isOnPKSide;
         private JoinDefinition ejbJDef;
         private JoinDefinition tableJDef;
-        private RoleInfo(String entityName, String cmrFieldName) {
+        private RoleInfo(String relationName, String roleName, String entityName, String cmrFieldName) {
+            this.relationName = relationName;
+            this.roleName = roleName;
             this.entityName = entityName;
             this.cmrFieldName = cmrFieldName;
         }
-        public int hashCode() {
-            if ( null == cmrFieldName ) {
-                return entityName.hashCode();
+        public boolean implies(RoleInfo other) {
+            if (false == entityName.equals(other.entityName)) {
+                return false;
             }
-            return entityName.hashCode() ^ cmrFieldName.hashCode();
+            if (null != relationName && relationName.equals(other.relationName)) {
+                if (null != roleName && null != other.roleName) {
+                    if (false == roleName.equals(other.roleName)) {
+                        return false;
+                    }
+                    if (null != cmrFieldName && null != other.cmrFieldName && false == cmrFieldName.equals(other.cmrFieldName)) {
+                        throw new IllegalArgumentException("ejb-relation-name [" + relationName +
+                                "]/ejb-relationship-role-name [" + roleName +"] is invalid: CMR field [" +
+                                other.cmrFieldName + "] is expected for this role. Found [" + cmrFieldName + "].");
+                    }
+                    return true;
+                }
+            }
+            return null != cmrFieldName && null != other.cmrFieldName && cmrFieldName.equals(other.cmrFieldName);
+        }
+        public int hashCode() {
+            int code = entityName.hashCode();
+            if (null != relationName) {
+                code ^= relationName.hashCode();
+            }
+            if (null != roleName) {
+                code ^= roleName.hashCode();
+            }
+            if (null != cmrFieldName) {
+                code ^= cmrFieldName.hashCode();
+            }
+            return code;
         }
         public boolean equals(Object obj) {
             if ( false == obj instanceof RoleInfo ) {
                 return false;
             }
             RoleInfo other = (RoleInfo) obj;
-            return entityName.equals(other.entityName) &&
-                    null == cmrFieldName?null == other.cmrFieldName:cmrFieldName.equals(other.cmrFieldName);
+            if (null != relationName && false == relationName.equals(other.relationName)) {
+                return false;
+            }
+            if (null != roleName && false == roleName.equals(other.roleName)) {
+                return false;
+            }
+            if (null != cmrFieldName && false == cmrFieldName.equals(other.cmrFieldName)) {
+                return false;
+            }
+            return entityName.equals(other.entityName);
         }
         public String toString() {
-            return "EJB [" + entityName + "]; CMR field [" + cmrFieldName + "]";
+            return "Relation Name [" + relationName + "]; Role Name [" + roleName + 
+                "]; EJB [" + entityName + "]; CMR field [" + cmrFieldName + "]";
         }
     }
 

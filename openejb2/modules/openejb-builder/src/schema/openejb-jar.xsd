@@ -105,7 +105,12 @@
                 </xs:complexType>
             </xs:element>
 
-            <xs:element name="relationships" type="openejb:relationshipsType" minOccurs="0"/>
+            <xs:element name="relationships" type="openejb:relationshipsType" minOccurs="0">
+                <xs:unique name="relationship-name-uniqueness">
+                    <xs:selector xpath="openejb:ejb-relation"/>
+                    <xs:field xpath="openejb:ejb-relation-name"/>
+                </xs:unique>
+            </xs:element>
 
             <xs:element ref="security:security" minOccurs="0"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
@@ -113,7 +118,6 @@
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
-
 
     <!-- session bean section-->
     <xs:complexType name="session-beanType">
@@ -286,7 +290,12 @@
 
     <xs:complexType name="relationshipsType">
         <xs:sequence>
-            <xs:element name="ejb-relation" type="openejb:ejb-relationType" maxOccurs="unbounded"/>
+            <xs:element name="ejb-relation" type="openejb:ejb-relationType" maxOccurs="unbounded">
+                <xs:unique name="role-name-uniqueness">
+                    <xs:selector xpath=".//openejb:ejb-relationship-role-name"/>
+                    <xs:field xpath="."/>
+                </xs:unique>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
