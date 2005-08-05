@@ -52,11 +52,7 @@ import java.util.Collection;
 
 import javax.ejb.FinderException;
 
-import org.tranql.cache.InTxCache;
-import org.tranql.sql.prefetch.PrefetchGroupHandler;
-import org.tranql.field.FieldTransform;
-import org.tranql.field.Row;
-import org.tranql.ql.Query;
+import org.tranql.identity.IdentityDefiner;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommand;
@@ -68,36 +64,17 @@ import org.tranql.query.ResultHandler;
  * 
  * @version $Revision$ $Date$
  */
-public class CollectionValuedSelect implements InstanceOperation {
-    private final QueryCommand command;
-    private final FieldTransform resultAccessor;
-    private final PrefetchGroupHandler groupHandler;
-    private final boolean flushCache;
+public class CollectionValuedSelect extends CMPSelectMethod {
 
-    public CollectionValuedSelect(QueryCommand command, boolean flushCache) {
-        this.command = command;
-        this.flushCache = flushCache;
-        
-        Query query = command.getQuery();
-        resultAccessor = query.getResultAccessors()[0];
-        groupHandler = query.getPrefetchGroupHandler();
+    public CollectionValuedSelect(QueryCommand command, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
+        super(command, flushCache, idDefiner, idInjector);
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
-        InTxCache cache = ctx.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
-        }
-
         Collection results = new ArrayList();
         try {
             ResultHandler handler = new CollectionResultHandler(resultAccessor);
-            if (null != groupHandler) {
-                PrefetchGroupHandler newHandler = new PrefetchGroupHandler(groupHandler, handler);
-                newHandler.execute(cache, command, new Row(args), results);
-            } else {
-                command.execute(handler, new Row(args), results);
-            }
+            execute(ctx, handler, args, results);
         } catch (QueryException e) {
             throw (FinderException) new FinderException(e.getMessage()).initCause(e);
         }

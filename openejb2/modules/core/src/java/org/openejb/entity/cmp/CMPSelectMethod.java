@@ -55,7 +55,15 @@
  */
 package org.openejb.entity.cmp;
 
+import org.tranql.cache.InTxCache;
+import org.tranql.field.FieldTransform;
+import org.tranql.field.Row;
+import org.tranql.identity.IdentityDefiner;
+import org.tranql.ql.Query;
+import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
+import org.tranql.query.ResultHandler;
+import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 /**
  *
@@ -63,26 +71,38 @@ import org.tranql.query.QueryCommand;
  *
  * @version $Revision$ $Date$
  */
-public class CMPSelectMethod implements InstanceOperation {
-    private final QueryCommand query;
+public abstract class CMPSelectMethod implements InstanceOperation {
+    protected final QueryCommand command;
+    protected final FieldTransform resultAccessor;
+    private final PrefetchGroupHandler groupHandler;
+    private final boolean flushCache;
+    private final IdentityDefiner idDefiner;
+    private final IdentityDefiner idInjector;
 
-    public CMPSelectMethod(QueryCommand query) {
-        this.query = query;
+    public CMPSelectMethod(QueryCommand command, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
+        this.command = command;
+        this.flushCache = flushCache;
+        this.idDefiner = idDefiner;
+        this.idInjector = idInjector;
+     
+        Query query = command.getQuery();
+        resultAccessor = query.getResultAccessors()[0];
+        groupHandler = query.getPrefetchGroupHandler();
     }
-
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
-        throw new UnsupportedOperationException();
-/*
-        try {
-            InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
-            return query.execute(inTxCache, new Row(args));
-        } catch (QueryException e) {
-            throw (FinderException) new FinderException().initCause(e);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new EJBException(e);
+    
+    protected Object execute(CMPInstanceContext instCtx, ResultHandler handler, Object[] args, Object ctx) throws QueryException {
+        InTxCache cache = instCtx.getTransactionContext().getInTxCache();
+        if (flushCache) {
+            cache.flush();
         }
-*/
+
+        if (null != groupHandler) {
+            PrefetchGroupHandler newHandler = new PrefetchGroupHandler(groupHandler, handler);
+            return newHandler.execute(cache, command, new Row(args), ctx);
+        }
+        if (null != idDefiner) {
+            handler = new CacheFiller(handler, idDefiner, idInjector, cache);
+        }
+        return command.execute(handler, new Row(args), ctx);
     }
 }

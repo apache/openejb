@@ -55,13 +55,12 @@ import javax.ejb.FinderException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.EJBInvocation;
-import org.tranql.cache.InTxCache;
 import org.tranql.field.FieldTransform;
-import org.tranql.field.Row;
+import org.tranql.identity.IdentityDefiner;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommand;
-import org.tranql.sql.prefetch.PrefetchGroupHandler;
+import org.tranql.query.ResultHandler;
 
 /**
  * 
@@ -70,26 +69,17 @@ import org.tranql.sql.prefetch.PrefetchGroupHandler;
  */
 public class EnumerationValuedFinder extends CMPFinder {
 
-    public EnumerationValuedFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        super(localCommand, remoteCommand, flushCache);
+    public EnumerationValuedFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
+        super(localCommand, remoteCommand, flushCache, idDefiner, idInjector);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        InTxCache cache = flushCache(invocation);
-        
         try {
             QueryCommand command = getCommand(invocation);
             List results = new ArrayList();
             FieldTransform resultAccessor = command.getQuery().getResultAccessors()[0];
-            CollectionResultHandler handler = new CollectionResultHandler(resultAccessor);
-            Row arguments = new Row(invocation.getArguments());
-            PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();
-            if (null != groupHandler) {
-                groupHandler = new PrefetchGroupHandler(groupHandler, handler);
-                groupHandler.execute(cache, command, arguments, results);
-            } else {
-                command.execute(handler, arguments, results);
-            }
+            ResultHandler handler = new CollectionResultHandler(resultAccessor);
+            execute(invocation, handler, results);
             return invocation.createResult(Collections.enumeration(results));
         } catch (QueryException e) {
             return invocation.createExceptionResult((Exception)new FinderException(e.getMessage()).initCause(e));
