@@ -58,28 +58,30 @@ import java.util.Map;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.xmlbeans.XmlObject;
+import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.schema.Association;
-import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
 import org.tranql.schema.Entity;
 import org.tranql.schema.FKAttribute;
+import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Table;
 import org.tranql.sql.sql92.SQL92Schema;
 
@@ -110,6 +112,26 @@ public class CMPEntityBuilderTest extends TestCase {
 
     public void testOneToOneUnidirectional() throws Exception {
         executeOneToOne("src/test-cmp/onetoone/simplepk/ejb-jar.xml", "src/test-cmp/onetoone/simplepk/unidirectional-openejb-jar.xml");
+    }
+
+    public void testOneToOneRoleNameMappingOK() throws Exception {
+        executeOneToOne("src/test-cmp/cmr-mapping/ejb-jar.xml", "src/test-cmp/cmr-mapping/names-ok-openejb-jar.xml");
+    }
+
+    public void testOneToOneRoleNameMappingWrongCMRName() throws Exception {
+        try {
+            executeOneToOne("src/test-cmp/cmr-mapping/ejb-jar.xml", "src/test-cmp/cmr-mapping/cmr-name-nok-openejb-jar.xml");
+            fail();
+        } catch (DeploymentException e) {
+        }
+    }
+
+    public void testOneToOneRoleNameMappingWrongSourceName() throws Exception {
+        try {
+            executeOneToOne("src/test-cmp/cmr-mapping/ejb-jar.xml", "src/test-cmp/cmr-mapping/source-name-nok-openejb-jar.xml");
+            fail();
+        } catch (DeploymentException e) {
+        }
     }
 
     private void executeOneToOne(String ejbJarFileName, String openejbJarFileName) throws Exception {

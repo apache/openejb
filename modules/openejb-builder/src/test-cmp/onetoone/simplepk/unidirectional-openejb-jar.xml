@@ -46,7 +46,7 @@
         <ejb-relation>
             <ejb-relation-name>relation</ejb-relation-name>
             <ejb-relationship-role>
-                <ejb-relationship-role-name>ASide</ejb-relationship-role-name>
+                <ejb-relationship-role-name>BSide</ejb-relationship-role-name>
                 <relationship-role-source>
                     <ejb-name>B</ejb-name>
                 </relationship-role-source>
