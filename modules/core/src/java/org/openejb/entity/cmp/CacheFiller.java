@@ -47,15 +47,14 @@
  */
 package org.openejb.entity.cmp;
 
-import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
-
-import org.tranql.field.FieldTransform;
-import org.tranql.field.FieldTransformException;
+import org.tranql.cache.AlreadyAssociatedException;
+import org.tranql.cache.CacheRow;
+import org.tranql.cache.InTxCache;
 import org.tranql.field.Row;
+import org.tranql.identity.GlobalIdentity;
 import org.tranql.identity.IdentityDefiner;
+import org.tranql.identity.UndefinedIdentityException;
 import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
 
 /**
@@ -63,46 +62,37 @@ import org.tranql.query.ResultHandler;
  * 
  * @version $Revision$ $Date$
  */
-public class SingleValuedSelect extends CMPSelectMethod {
-    private static final Object NODATA = new Object();
-
-    public SingleValuedSelect(QueryCommand command, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
-        super(command, flushCache, idDefiner, idInjector);
+class CacheFiller implements ResultHandler {
+    private final ResultHandler delegate;
+    private final IdentityDefiner idDefiner;
+    private final IdentityDefiner idInjector;
+    private final InTxCache cache;
+    
+    public CacheFiller(ResultHandler delegate, IdentityDefiner idDefiner, IdentityDefiner idInjector, InTxCache cache) {
+        this.delegate = delegate;
+        this.idDefiner = idDefiner;
+        this.idInjector = idInjector;
+        this.cache = cache;
     }
 
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
-        Object o;
+    public Object fetched(Row row, Object arg) throws QueryException {
         try {
-            ResultHandler handler = new SingleValuedResultHandler(resultAccessor);
-            o = execute(ctx, handler, args, NODATA);
-        } catch (QueryException e) {
-            throw (FinderException) new FinderException(e.getMessage()).initCause(e);
-        }
-        if (NODATA == o) {
-            throw new ObjectNotFoundException();
-        }
-        return o;
-    }
-
-    private class SingleValuedResultHandler implements ResultHandler {
-        private final FieldTransform accessor;
-        public SingleValuedResultHandler(FieldTransform accessor) {
-            this.accessor = accessor;
-        }
-
-        public Object fetched(Row row, Object arg) throws QueryException {
-            if (arg == NODATA) {
-                try {
-                    return accessor.get(row);
-                } catch (FieldTransformException e) {
-                    throw new QueryException(e);
-                }
+            GlobalIdentity id = idDefiner.defineIdentity(row);
+            if (null == cache.get(id)) {
+                CacheRow cacheRow = id.getTable().emptyRow(id);
+                idInjector.injectIdentity(cacheRow);
+                cache.add(cacheRow);
             }
-            throw new QueryException("More than one row returned from single valued select.");
+        } catch (UndefinedIdentityException e) {
+            throw new QueryException(e);
+        } catch (AlreadyAssociatedException e) {
+            throw new QueryException(e);
         }
-        
-        public Object endFetched(Object arg0) throws QueryException {
-            return arg0;
-        }
+        return delegate.fetched(row, arg);
     }
+
+    public Object endFetched(Object arg) throws QueryException {
+        return delegate.endFetched(arg);
+    }
+
 }

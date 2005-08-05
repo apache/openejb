@@ -52,14 +52,13 @@ import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.EJBInvocation;
-import org.tranql.cache.InTxCache;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.FieldTransformException;
 import org.tranql.field.Row;
+import org.tranql.identity.IdentityDefiner;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
-import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 /**
  * 
@@ -69,27 +68,17 @@ import org.tranql.sql.prefetch.PrefetchGroupHandler;
 public class SingleValuedFinder extends CMPFinder {
     private static final Object NODATA = new Object();
 
-    public SingleValuedFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        super(localCommand, remoteCommand, flushCache);
+    public SingleValuedFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
+        super(localCommand, remoteCommand, flushCache, idDefiner, idInjector);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        InTxCache cache = flushCache(invocation);
-        
         try {
             QueryCommand command = getCommand(invocation);
             FieldTransform resultAccessor = command.getQuery().getResultAccessors()[0];
-            SingleValuedResultHandler handler =new SingleValuedResultHandler(resultAccessor, invocation);
-            Row arguments = new Row(invocation.getArguments());
-            PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();
-            Object o;
-            if (null != groupHandler) {
-                groupHandler = new PrefetchGroupHandler(groupHandler, handler);
-                o = groupHandler.execute(cache, command, arguments, NODATA);
-            } else {
-                o = command.execute(handler, arguments, NODATA);
-            }
-            return o == NODATA ? invocation.createExceptionResult((Exception)new ObjectNotFoundException()) : (InvocationResult) o;
+            SingleValuedResultHandler handler = new SingleValuedResultHandler(resultAccessor, invocation);
+            Object o = execute(invocation, handler, NODATA);
+            return o == NODATA ? invocation.createExceptionResult(new ObjectNotFoundException()) : (InvocationResult) o;
         } catch (QueryException e) {
             return invocation.createExceptionResult((Exception)new FinderException(e.getMessage()).initCause(e));
         }
@@ -112,7 +101,7 @@ public class SingleValuedFinder extends CMPFinder {
                     throw new QueryException(e);
                 }
             }
-            return invocation.createExceptionResult((Exception)new FinderException("More than one row returned from single valued finder"));
+            return invocation.createExceptionResult(new FinderException("More than one row returned from single valued finder"));
         }
         
         public Object endFetched(Object arg0) throws QueryException {

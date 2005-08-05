@@ -52,8 +52,12 @@ import java.io.Serializable;
 import org.openejb.EJBInvocation;
 import org.openejb.dispatch.VirtualOperation;
 import org.tranql.cache.InTxCache;
+import org.tranql.field.Row;
+import org.tranql.identity.IdentityDefiner;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
+import org.tranql.query.ResultHandler;
+import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 /**
  * @version $Revision$ $Date$
@@ -62,22 +66,35 @@ public abstract class CMPFinder implements VirtualOperation, Serializable {
     private final QueryCommand localCommand;
     private final QueryCommand remoteCommand;
     private final boolean flushCache;
-
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
+    private final IdentityDefiner idDefiner;
+    private final IdentityDefiner idInjector;
+    
+    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
         this.localCommand = localCommand;
         this.remoteCommand = remoteCommand;
         this.flushCache = flushCache;
+        this.idDefiner = idDefiner;
+        this.idInjector = idInjector;
     }
 
     protected QueryCommand getCommand(EJBInvocation invocation) {
         return invocation.getType().isLocal() ? localCommand : remoteCommand;
     }
-    
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
+
+    protected Object execute(EJBInvocation invocation, ResultHandler handler, Object ctx) throws QueryException {
         InTxCache cache = invocation.getTransactionContext().getInTxCache();
         if (flushCache) {
             cache.flush();
         }
-        return cache;
+        
+        QueryCommand command = getCommand(invocation);
+        Row arguments = new Row(invocation.getArguments());
+        PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();
+        if (null != groupHandler) {
+            groupHandler = new PrefetchGroupHandler(groupHandler, handler);
+            return groupHandler.execute(cache, command, arguments, ctx);
+        }
+        handler = new CacheFiller(handler, idDefiner, idInjector, cache);
+        return command.execute(handler, arguments, ctx);
     }
 }
