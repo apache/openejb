@@ -122,9 +122,9 @@ public class HttpServerTest extends TestCase {
     public void testServiceStack() throws Exception {
         ServerService service = new HttpServer(new TestHttpListener());
 
-        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader());
+        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader(), "openejb:type=ThreadPool,name=Test");
         
-        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, null, null, threadPool, service);
+        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, threadPool, service);
         HttpURLConnection connection = null;
 
         try {
@@ -151,9 +151,9 @@ public class HttpServerTest extends TestCase {
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
         ServerService service = (ServerService) kernel.getProxyManager().createProxy(server, ServerService.class);
 
-        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader());
+        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader(), "openejb:type=ThreadPool,name=Test");
 
-        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, null, null, threadPool, service);
+        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, threadPool, service);
         HttpURLConnection connection = null;
 
         try {
@@ -190,7 +190,7 @@ public class HttpServerTest extends TestCase {
         kernel.loadGBean(gbean, cl);
         kernel.startGBean(executor);
 
-        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);
+        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTP", 0, "localhost", null, null, null, executor, server);
 
         assertRunning(kernel, listener);
         assertRunning(kernel, server);

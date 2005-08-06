@@ -70,7 +70,7 @@ public class StandardServiceStackGBean {
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addAttribute("soTimeout", int.class, true);
-        infoFactory.addAttribute("address", InetAddress.class, true);
+        infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("fullAddress", InetSocketAddress.class, false);
         infoFactory.addAttribute("allowHosts", ServiceAccessController.IPAddressPermission[].class, true);
         infoFactory.addAttribute("logOnSuccess", String[].class, true);
@@ -82,7 +82,7 @@ public class StandardServiceStackGBean {
         infoFactory.setConstructor(new String[]{
             "name",
             "port",
-            "address",
+            "host",
             "allowHosts",
             "logOnSuccess",
             "logOnFailure",
@@ -96,7 +96,7 @@ public class StandardServiceStackGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name, int port, InetAddress address, InetAddress[] allowHosts, String[] logOnSuccess, String[] logOnFailure, ObjectName executor, ObjectName server) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+    public static ObjectName addGBean(Kernel kernel, String name, int port, String host, InetAddress[] allowHosts, String[] logOnSuccess, String[] logOnFailure, ObjectName executor, ObjectName server) throws GBeanAlreadyExistsException, GBeanNotFoundException {
         ClassLoader classLoader = StandardServiceStack.class.getClassLoader();
         ObjectName SERVICE_NAME = JMXUtil.getObjectName("openejb:type=StandardServiceStack,name=" + name);
 
@@ -104,7 +104,7 @@ public class StandardServiceStackGBean {
 
         gbean.setAttribute("name", name);
         gbean.setAttribute("port", new Integer(port));
-        gbean.setAttribute("address", address);
+        gbean.setAttribute("host", host);
         gbean.setAttribute("allowHosts", allowHosts);
         gbean.setAttribute("logOnSuccess", logOnSuccess);
         gbean.setAttribute("logOnFailure", logOnFailure);

@@ -47,6 +47,7 @@ package org.openejb.server;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.io.IOException;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -62,10 +63,13 @@ public class StandardServiceStack implements GBeanLifecycle {
     private ServiceAccessController hba;
     private ServicePool pool;
     private ServerService server;
+    private String host;
 
-    public StandardServiceStack(String name, int port, InetAddress address, ServiceAccessController.IPAddressPermission[] allowHosts, String[] logOnSuccess, String[] logOnFailure, Executor executor, ServerService server) {
+    public StandardServiceStack(String name, int port, String host, ServiceAccessController.IPAddressPermission[] allowHosts, String[] logOnSuccess, String[] logOnFailure, Executor executor, ServerService server) throws UnknownHostException {
         this.server = server;
         this.name = name;
+        this.host = host;
+        InetAddress address = InetAddress.getByName(host);
         this.pool = new ServicePool(server, executor);
         this.hba = new ServiceAccessController(name, pool, allowHosts);
         this.logger = new ServiceLogger(name, hba, logOnSuccess, logOnFailure);
@@ -83,6 +87,10 @@ public class StandardServiceStack implements GBeanLifecycle {
 
     public InetSocketAddress getFullAddress() {
         return new InetSocketAddress(getAddress(), getPort());
+    }
+
+    public String getHost() {
+        return host;
     }
 
     public int getPort() {

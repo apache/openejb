@@ -67,7 +67,6 @@ import org.apache.geronimo.timer.TransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkerPersistence;
 import org.apache.geronimo.timer.vm.VMWorkerPersistence;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.openejb.EJBInterfaceType;
@@ -107,7 +106,7 @@ public class TimerServiceImplTest extends TestCase {
         TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);
-        threadPool = new ThreadPool(5, "TestPool", 10000, this.getClass().getClassLoader());
+        threadPool = new ThreadPool(5, "TestPool", 10000, this.getClass().getClassLoader(), "test:type=ThreadPool");
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
         threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
         threadPooledTimer.doStart();
