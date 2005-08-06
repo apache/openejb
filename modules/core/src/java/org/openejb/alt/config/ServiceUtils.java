@@ -88,30 +88,20 @@
 
 package org.openejb.alt.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringBufferInputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import org.exolab.castor.xml.MarshalException;
-import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.sys.ServiceProvider;
 import org.openejb.alt.config.sys.ServicesJar;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Utility methods for reading, writing, and  configuring services
@@ -193,47 +183,13 @@ public class ServiceUtils {
      * @throws OpenEJBException
      */
     public static ServicesJar readServicesJar(String providerName) throws OpenEJBException {
-
-        String servicejarPath = providerName.replace('.', '/');
-        servicejarPath = "resource:/" + servicejarPath + "/service-jar.xml";
-        Reader reader = null;
-        InputStream stream = null;
-
         try {
-            stream = new URL(servicejarPath).openConnection().getInputStream();
-            reader = new InputStreamReader(stream);
-        } catch (Exception e) {
-            throw new OpenEJBException(messages.format("conf.4110", servicejarPath, e.getLocalizedMessage()));
+            Unmarshaller unmarshaller = new Unmarshaller(ServicesJar.class, "service-jar.xml");
+            URL serviceURL = new URL("resource:/" + providerName.replace('.', '/')+"/");
+            return (ServicesJar) unmarshaller.unmarshal(serviceURL);
+        } catch (MalformedURLException e) {
+            throw new OpenEJBException(e);
         }
-
-        /*[1.4]  Get the ServicesJar from the service-jar.xml ***************/
-        ServicesJar obj = null;
-
-        try {
-            Unmarshaller unmarshaller = new Unmarshaller(ServicesJar.class);
-            unmarshaller.setWhitespacePreserve(true);
-            obj = (ServicesJar) unmarshaller.unmarshal(reader);
-        } catch (MarshalException e) {
-            if (e.getException() instanceof IOException) {
-                throw new OpenEJBException(messages.format("conf.4110", servicejarPath, e.getLocalizedMessage()));
-            } else if (e.getException() instanceof UnknownHostException) {
-                throw new OpenEJBException(messages.format("conf.4121", servicejarPath, e.getLocalizedMessage()));
-            } else {
-                throw new OpenEJBException(messages.format("conf.4120", providerName, e.getLocalizedMessage()));
-            }
-        } catch (ValidationException e) {
-            throw new OpenEJBException(messages.format("conf.4130", providerName, e.getLocalizedMessage()));
-        }
-
-        /*[1.5]  Clean up ***************/
-        try {
-            stream.close();
-            reader.close();
-        } catch (Exception e) {
-            throw new OpenEJBException(messages.format("file.0010", servicejarPath, e.getLocalizedMessage()));
-        }
-
-        return obj;
     }
 
     public static void writeServicesJar(String xmlFile, ServicesJar servicesJarObject) throws OpenEJBException {

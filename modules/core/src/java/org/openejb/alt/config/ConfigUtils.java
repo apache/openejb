@@ -44,6 +44,15 @@
  */
 package org.openejb.alt.config;
 
+import org.exolab.castor.xml.MarshalException;
+import org.exolab.castor.xml.ValidationException;
+import org.openejb.OpenEJBException;
+import org.openejb.alt.config.sys.Deployments;
+import org.openejb.alt.config.sys.Openejb;
+import org.openejb.loader.SystemInstance;
+import org.openejb.util.Logger;
+import org.openejb.util.Messages;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -51,7 +60,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -59,21 +67,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import org.exolab.castor.xml.MarshalException;
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.ValidationException;
-import org.openejb.OpenEJBException;
-import org.openejb.loader.SystemInstance;
-import org.openejb.alt.config.ejb11.OpenejbJar;
-import org.openejb.alt.config.sys.Deployments;
-import org.openejb.alt.config.sys.Openejb;
-import org.openejb.util.FileUtils;
-import org.openejb.util.JarUtils;
-import org.openejb.util.Logger;
-import org.openejb.util.Messages;
 
 /**
  * Utility methods for reading and writing config files
@@ -89,16 +82,20 @@ public class ConfigUtils {
         return readConfig(searchForConfiguration());
     }
 
+    public static Openejb readConfig(String confFile) throws OpenEJBException {
+        File file = new File(confFile);
+        return (Openejb) Unmarshaller.unmarshal(Openejb.class, file.getName(), file.getParent());
+    }
     /*
      * TODO: Use the java.net.URL instead of java.io.File so configs
      * and jars can be located remotely in the network
      */
-    public static Openejb readConfig(String confFile) throws OpenEJBException {
+    public static Openejb _readConfig(String confFile) throws OpenEJBException {
         Openejb obj = null;
         Reader reader = null;
         try {
             reader = new FileReader(confFile);
-            Unmarshaller unmarshaller = new Unmarshaller(Openejb.class);
+            org.exolab.castor.xml.Unmarshaller unmarshaller = new org.exolab.castor.xml.Unmarshaller(Openejb.class);
             unmarshaller.setWhitespacePreserve(true);
             obj = (Openejb) unmarshaller.unmarshal(reader);
         } catch (FileNotFoundException e) {
