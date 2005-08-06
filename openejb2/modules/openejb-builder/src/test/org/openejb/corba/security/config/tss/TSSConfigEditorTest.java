@@ -159,7 +159,7 @@ public class TSSConfigEditorTest extends TestCase {
 
     public void testCORBABean() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
-        ThreadPool threadPool = new ThreadPool(10, "foo", 1000, classLoader);
+        ThreadPool threadPool = new ThreadPool(10, "foo", 1000, classLoader, "test:type=ThreadPool");
         String configAdapter = "org.openejb.corba.sunorb.SunORBConfigAdapter";
         CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool, null, null);
         ArrayList args = new ArrayList();
