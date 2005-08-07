@@ -31,6 +31,11 @@
                             org/openejb/test/entity/cmp/*Test*.class,
                             org/openejb/test/stateful/*Test*.class,
                             org/openejb/test/stateless/*Test*.class"/>
+
+      <ant:jar destfile="${basedir}/target/openejb-itests-client.jar"
+              basedir="${basedir}/target/classes"
+              includes="org/openejb/test/**"
+              excludes="**/*Bean.class,META-INF/*.xml"/>
   </postGoal>
 
 <!--
