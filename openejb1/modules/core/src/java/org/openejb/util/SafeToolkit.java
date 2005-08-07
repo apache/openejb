@@ -44,16 +44,16 @@
  */
 package org.openejb.util;
 
+import org.openejb.OpenEJBException;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
 
-import org.openejb.OpenEJBException;
-
-public class SafeToolkit{
+public class SafeToolkit {
 
     private String systemLocation;
-    protected static final Messages messages = new Messages( "org.openejb.util.resources" );
+    protected static final Messages messages = new Messages("org.openejb.util.resources");
     protected static final HashMap codebases = new HashMap();
     protected static final HashMap _tempcodebases = new HashMap();
 
@@ -67,7 +67,7 @@ public class SafeToolkit{
     /**
      * Returns an instance of a SafeToolkit dedicated to the specified system location.
      */
-    public static SafeToolkit getToolkit(String systemLocation){
+    public static SafeToolkit getToolkit(String systemLocation) {
         return new SafeToolkit(systemLocation);
     }
 
@@ -80,10 +80,9 @@ public class SafeToolkit{
      */
     public Class forName(String className) throws OpenEJBException {
         Class clazz = null;
-        try{
+        try {
             clazz = Class.forName(className);
-        }
-        catch(ClassNotFoundException cnfe){
+        } catch (ClassNotFoundException cnfe) {
             OpenEJBErrorHandler.classNotFound(systemLocation, className);
         }
         return clazz;
@@ -95,11 +94,11 @@ public class SafeToolkit{
      * If the codebase is null, the bootstrap classloader is used.
      *
      * @param className the name of the class to be loaded.
-     * @param codebase the codebase to load the class from.
+     * @param codebase  the codebase to load the class from.
      * @return the specified class.
      * @throws OpenEJBException if the class cannot be found.
      */
-    public Class forName(String className, String codebase) throws OpenEJBException{
+    public Class forName(String className, String codebase) throws OpenEJBException {
         //ClassLoader cl = Class.class.getClassLoader();
         ClassLoader cl = getContextClassLoader();
 
@@ -107,22 +106,21 @@ public class SafeToolkit{
         // is replaced by a URLClassLoader that can load the class
         // from a jar or url.
         if (codebase != null) {
-            try{
+            try {
                 java.net.URL[] urlCodebase = new java.net.URL[1];
                 urlCodebase[0] = new java.net.URL(codebase);
                 cl = new java.net.URLClassLoader(urlCodebase, cl);
-            } catch (java.net.MalformedURLException mue){
+            } catch (java.net.MalformedURLException mue) {
                 OpenEJBErrorHandler.classCodebaseNotFound(systemLocation, className, codebase, mue);
-            } catch (SecurityException se){
+            } catch (SecurityException se) {
                 OpenEJBErrorHandler.classCodebaseNotFound(systemLocation, className, codebase, se);
             }
         }
 
         Class clazz = null;
-        try{
+        try {
             clazz = Class.forName(className, true, cl);
-        }
-        catch(ClassNotFoundException cnfe){
+        } catch (ClassNotFoundException cnfe) {
             OpenEJBErrorHandler.classNotFound(systemLocation, className);
         }
         return clazz;
@@ -135,7 +133,7 @@ public class SafeToolkit{
      * @return an instance of the specified class.
      * @throws OpenEJBException if the class cannot be found or is not accessible .
      */
-    public Object newInstance(String className) throws OpenEJBException{
+    public Object newInstance(String className) throws OpenEJBException {
         return newInstance(forName(className));
     }
 
@@ -146,7 +144,7 @@ public class SafeToolkit{
      * @return an instance of the specified class.
      * @throws OpenEJBException if the class cannot be found or is not accessible .
      */
-    public Object newInstance(String className, String codebase) throws OpenEJBException{
+    public Object newInstance(String className, String codebase) throws OpenEJBException {
         return newInstance(forName(className, codebase));
     }
 
@@ -157,28 +155,25 @@ public class SafeToolkit{
      * @return an instance of the specified class.
      * @throws OpenEJBException if the class is not accessible .
      */
-    public Object newInstance(Class clazz) throws OpenEJBException{
+    public Object newInstance(Class clazz) throws OpenEJBException {
         Object instance = null;
-        try{
+        try {
             instance = clazz.newInstance();
-        }
-        catch(InstantiationException ie){
+        } catch (InstantiationException ie) {
             OpenEJBErrorHandler.classNotIntantiateable(systemLocation, clazz.getName());
-        }
-        catch(IllegalAccessException iae){
+        } catch (IllegalAccessException iae) {
             OpenEJBErrorHandler.classNotAccessible(systemLocation, clazz.getName());
         }
-	// mjb - Exceptions thrown here can lead to some hard to find bugs, so I've added some rigorous error handling.
-        catch(Throwable exception) {
-	    exception.printStackTrace();
-	    ClassLoader classLoader = clazz.getClassLoader();
-	    if( classLoader instanceof java.net.URLClassLoader) {
-		OpenEJBErrorHandler.classNotIntantiateableFromCodebaseForUnknownReason(systemLocation, clazz.getName(), getCodebase( (java.net.URLClassLoader)classLoader),
-										       exception.getClass().getName(), exception.getMessage());
-	    }
-	    else {
-		OpenEJBErrorHandler.classNotIntantiateableForUnknownReason(systemLocation, clazz.getName(), exception.getClass().getName(), exception.getMessage());
-	    }
+                // mjb - Exceptions thrown here can lead to some hard to find bugs, so I've added some rigorous error handling.
+        catch (Throwable exception) {
+            exception.printStackTrace();
+            ClassLoader classLoader = clazz.getClassLoader();
+            if (classLoader instanceof java.net.URLClassLoader) {
+                OpenEJBErrorHandler.classNotIntantiateableFromCodebaseForUnknownReason(systemLocation, clazz.getName(), getCodebase((java.net.URLClassLoader) classLoader),
+                        exception.getClass().getName(), exception.getMessage());
+            } else {
+                OpenEJBErrorHandler.classNotIntantiateableForUnknownReason(systemLocation, clazz.getName(), exception.getClass().getName(), exception.getMessage());
+            }
         }
         return instance;
 
@@ -191,7 +186,7 @@ public class SafeToolkit{
      * @return a new SafeProperties instance.
      * @throws OpenEJBException the properties object passed in is null.
      */
-    public SafeProperties getSafeProperties(Properties props) throws OpenEJBException{
+    public SafeProperties getSafeProperties(Properties props) throws OpenEJBException {
         return new SafeProperties(props, systemLocation);
     }
 
@@ -203,7 +198,7 @@ public class SafeToolkit{
      * @param className class name
      * @param codebase
      * @return class object
-     * @exception OpenEJBException
+     * @throws OpenEJBException
      */
     public static Class loadClass(String className, String codebase) throws OpenEJBException {
         return loadClass(className, codebase, true);
@@ -211,15 +206,14 @@ public class SafeToolkit{
 
     public static Class loadClass(String className, String codebase, boolean cache) throws OpenEJBException {
 
-        ClassLoader cl = (cache)?getCodebaseClassLoader(codebase):getClassLoader(codebase);
+        ClassLoader cl = (cache) ? getCodebaseClassLoader(codebase) : getClassLoader(codebase);
         Class clazz = null;
-        try{
+        try {
             clazz = cl.loadClass(className);
+        } catch (ClassNotFoundException cnfe) {
+            throw new OpenEJBException(messages.format("cl0007", className, codebase));
         }
-	catch (ClassNotFoundException cnfe){
-            throw new OpenEJBException( messages.format( "cl0007", className, codebase ) );
-        }
-	return clazz;
+        return clazz;
     }
 
     /**
@@ -229,30 +223,30 @@ public class SafeToolkit{
      *
      * @param codebase
      * @return ClassLoader
-     * @exception OpenEJBException
+     * @throws OpenEJBException
      */
-    protected static ClassLoader getCodebaseClassLoader(String codebase) throws OpenEJBException{
+    protected static ClassLoader getCodebaseClassLoader(String codebase) throws OpenEJBException {
         if (codebase == null) codebase = "CLASSPATH";
 
         ClassLoader cl = (ClassLoader) codebases.get(codebase);
         if (cl == null) {
-	    synchronized (codebases) {
-		cl = (ClassLoader) codebases.get(codebase);
-		if (cl == null) {
-		    try {
-			java.net.URL[] urlCodebase = new java.net.URL[1];
-			urlCodebase[0] = new java.net.URL("file",null,codebase);
-                        // make sure everything works if we were not loaded by the system class loader
-			cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader() );
-                        //cl = SafeToolkit.class.getClassLoader();
-			codebases.put(codebase, cl);
-		    } catch (java.net.MalformedURLException mue) {
-			throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
-		    } catch (SecurityException se) {
-			throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
-		    }
-		}
-	    }
+            synchronized (codebases) {
+                cl = (ClassLoader) codebases.get(codebase);
+                if (cl == null) {
+                    try {
+                        java.net.URL[] urlCodebase = new java.net.URL[1];
+                        urlCodebase[0] = new java.net.URL("file", null, codebase);
+// make sure everything works if we were not loaded by the system class loader
+                        cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader());
+//cl = SafeToolkit.class.getClassLoader();
+                        codebases.put(codebase, cl);
+                    } catch (java.net.MalformedURLException mue) {
+                        throw new OpenEJBException(messages.format("cl0001", codebase, mue.getMessage()));
+                    } catch (SecurityException se) {
+                        throw new OpenEJBException(messages.format("cl0002", codebase, se.getMessage()));
+                    }
+                }
+            }
         }
         return cl;
     }
@@ -264,19 +258,19 @@ public class SafeToolkit{
      *
      * @param codebase
      * @return ClassLoader
-     * @exception OpenEJBException
+     * @throws OpenEJBException
      */
-    protected static ClassLoader getClassLoader(String codebase) throws OpenEJBException{
+    protected static ClassLoader getClassLoader(String codebase) throws OpenEJBException {
         ClassLoader cl = null;
         try {
             java.net.URL[] urlCodebase = new java.net.URL[1];
-            urlCodebase[0] = new java.net.URL("file",null,codebase);
+            urlCodebase[0] = new java.net.URL("file", null, codebase);
             // make sure everything works if we were not loaded by the system class loader
-            cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader() );
+            cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader());
         } catch (java.net.MalformedURLException mue) {
-            throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
+            throw new OpenEJBException(messages.format("cl0001", codebase, mue.getMessage()));
         } catch (SecurityException se) {
-            throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
+            throw new OpenEJBException(messages.format("cl0002", codebase, se.getMessage()));
         }
         return cl;
     }
@@ -284,25 +278,23 @@ public class SafeToolkit{
     /**
      * Returns the search path used by the given URLClassLoader as a ';' delimited list of URLs.
      */
-    private static String getCodebase( java.net.URLClassLoader urlClassLoader) {
-	StringBuffer codebase = new StringBuffer();
-	java.net.URL urlList[] = urlClassLoader.getURLs();
-	codebase.append( urlList[0].toString());
-	for( int i = 1; i < urlList.length; ++i) {
-	    codebase.append(';');
-	    codebase.append( urlList[i].toString());
-	}
-	return codebase.toString();
+    private static String getCodebase(java.net.URLClassLoader urlClassLoader) {
+        StringBuffer codebase = new StringBuffer();
+        java.net.URL urlList[] = urlClassLoader.getURLs();
+        codebase.append(urlList[0].toString());
+        for (int i = 1; i < urlList.length; ++i) {
+            codebase.append(';');
+            codebase.append(urlList[i].toString());
+        }
+        return codebase.toString();
     }
 
     public static ClassLoader getContextClassLoader() {
-        return (ClassLoader) java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction() {
-                public Object run() {
-                    return Thread.currentThread().getContextClassLoader();
-                }
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
             }
-        );
+        });
     }
 
 
@@ -314,27 +306,27 @@ public class SafeToolkit{
      * @param className
      * @param codebase
      * @return Class
-     * @exception OpenEJBException
+     * @throws OpenEJBException
      */
-    public static Class loadTempClass( String className, String codebase ) throws OpenEJBException {
-        return loadTempClass( className, codebase, true );
+    public static Class loadTempClass(String className, String codebase) throws OpenEJBException {
+        return loadTempClass(className, codebase, true);
     }
 
     public static Class loadTempClass(String className, String codebase, boolean cache) throws OpenEJBException {
 
-        ClassLoader cl = (cache) ? getCodebaseTempClassLoader( codebase ) : getTempClassLoader( codebase );
+        ClassLoader cl = (cache) ? getCodebaseTempClassLoader(codebase) : getTempClassLoader(codebase);
         Class clazz = null;
         try {
             clazz = cl.loadClass(className);
-        } catch ( ClassNotFoundException cnfe ) {
-            throw new OpenEJBException( messages.format( "cl0007", className, codebase ) );
+        } catch (ClassNotFoundException cnfe) {
+            throw new OpenEJBException(messages.format("cl0007", className, codebase));
         }
-	return clazz;
+        return clazz;
     }
 
-    public static void unloadTempCodebase( String codebase ) {
+    public static void unloadTempCodebase(String codebase) {
         //TODO Delete temp jar
-	_tempcodebases.remove( codebase );
+        _tempcodebases.remove(codebase);
     }
 
     /**
@@ -344,31 +336,31 @@ public class SafeToolkit{
      *
      * @param codebase
      * @return ClassLoader
-     * @exception OpenEJBException
+     * @throws OpenEJBException
      */
-    protected static ClassLoader getCodebaseTempClassLoader( String codebase ) throws OpenEJBException {
+    protected static ClassLoader getCodebaseTempClassLoader(String codebase) throws OpenEJBException {
         if (codebase == null) codebase = "CLASSPATH";
 
-        ClassLoader cl = (ClassLoader) _tempcodebases.get( codebase );
-        if ( cl == null ) {
-	    synchronized ( codebases ) {
-		cl = (ClassLoader) codebases.get( codebase );
-		if ( cl == null ) {
-		    try {
-			java.net.URL[] urlCodebase = new java.net.URL[1];
-			urlCodebase[0] = createTempCopy( codebase ).toURL();
+        ClassLoader cl = (ClassLoader) _tempcodebases.get(codebase);
+        if (cl == null) {
+            synchronized (codebases) {
+                cl = (ClassLoader) codebases.get(codebase);
+                if (cl == null) {
+                    try {
+                        java.net.URL[] urlCodebase = new java.net.URL[1];
+                        urlCodebase[0] = createTempCopy(codebase).toURL();
 
-                        // make sure everything works if we were not loaded by the system class loader
-			cl = new java.net.URLClassLoader( urlCodebase, SafeToolkit.class.getClassLoader() );
+// make sure everything works if we were not loaded by the system class loader
+                        cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader());
 
-			_tempcodebases.put( codebase, cl );
-		    } catch ( java.net.MalformedURLException mue ) {
-			throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
-		    } catch ( SecurityException se ) {
-			throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
-		    }
-		}
-	    }
+                        _tempcodebases.put(codebase, cl);
+                    } catch (java.net.MalformedURLException mue) {
+                        throw new OpenEJBException(messages.format("cl0001", codebase, mue.getMessage()));
+                    } catch (SecurityException se) {
+                        throw new OpenEJBException(messages.format("cl0002", codebase, se.getMessage()));
+                    }
+                }
+            }
         }
         return cl;
     }
@@ -380,36 +372,38 @@ public class SafeToolkit{
      *
      * @param codebase
      * @return ClassLoader
-     * @exception OpenEJBException
+     * @throws OpenEJBException
      */
-    protected static ClassLoader getTempClassLoader( String codebase ) throws OpenEJBException {
+    protected static ClassLoader getTempClassLoader(String codebase) throws OpenEJBException {
         ClassLoader cl = null;
         try {
             java.net.URL[] urlCodebase = new java.net.URL[1];
-            urlCodebase[0] = createTempCopy( codebase ).toURL();
+            urlCodebase[0] = createTempCopy(codebase).toURL();
 
             // make sure everything works if we were not loaded by the system class loader
-            cl = new java.net.URLClassLoader( urlCodebase, SafeToolkit.class.getClassLoader() );
-        } catch ( java.net.MalformedURLException mue ) {
-            throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
-        } catch ( SecurityException se ) {
-            throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
+            cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader());
+        } catch (java.net.MalformedURLException mue) {
+            throw new OpenEJBException(messages.format("cl0001", codebase, mue.getMessage()));
+        } catch (SecurityException se) {
+            throw new OpenEJBException(messages.format("cl0002", codebase, se.getMessage()));
         }
         return cl;
     }
 
-    protected static File createTempCopy( String codebase )  throws OpenEJBException {
-	File file = null;
+    protected static File createTempCopy(String codebase) throws OpenEJBException {
+        File file = null;
 
-	try {
-	    File codebaseFile = new File( codebase );
-	    file = File.createTempFile( "openejb_validate", ".jar", null );
-        file.deleteOnExit();
+        try {
+            File codebaseFile = new File(codebase);
+//            if (codebaseFile.isDirectory()) return codebaseFile;
 
-	    FileUtils.copyFile( file, codebaseFile );
-	} catch ( Exception e ) {
-            throw new OpenEJBException( messages.format ( "cl0002", codebase, e.getMessage() ) );
-	}
-	return file;
+            file = File.createTempFile("openejb_validate", ".jar", null);
+            file.deleteOnExit();
+
+            FileUtils.copyFile(file, codebaseFile);
+        } catch (Exception e) {
+            throw new OpenEJBException(messages.format("cl0002", codebase, e.getMessage()));
+        }
+        return file;
     }
 }
