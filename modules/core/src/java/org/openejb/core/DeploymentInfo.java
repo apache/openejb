@@ -96,7 +96,6 @@ import org.openejb.util.proxy.ProxyManager;
  */
 public class DeploymentInfo implements org.openejb.DeploymentInfo{
 
-    private Object    deploymentId;
     private Class     homeInterface;
     private Class     remoteInterface;
     private Class     localHomeInterface;
@@ -109,10 +108,9 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private Container container;
     
     private EJBHome   ejbHomeRef;
-    
-    private Context   jndiContextRoot;
-    
-    
+
+    private final DeploymentContext context;
+
     /**
      * Stateless session beans only have one create method. The getCreateMethod is
      * used by instance manager of the core.stateless.StatelessContainer as a 
@@ -140,12 +138,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private HashMap securityRoleReferenceMap     = new HashMap();
     private HashSet methodsWithRemoteReturnTypes = null;
 	private EJBLocalHome ejbLocalHomeRef;
-    
-    /**
-     * Creates an empty DeploymentInfo instance.
-     */
-    public DeploymentInfo( ){}
-
 
     /**
      * Constructs a DeploymentInfo object to represent the specified bean's 
@@ -166,11 +158,10 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
      * @see org.openejb.DeploymentInfo#CMP_ENTITY
      */
-    public DeploymentInfo(Object did, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, Class beanClass, Class pkClass, byte componentType)
+    public DeploymentInfo(DeploymentContext context, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, Class beanClass, Class pkClass, byte componentType)
     throws org.openejb.SystemException{
+        this.context = context;
         this.pkClass = pkClass;
-
-        deploymentId = did;
 
         this.homeInterface = homeClass;
         this.remoteInterface = remoteClass;
@@ -317,7 +308,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @return the id of of this bean deployment
      */
     public Object getDeploymentID( ){
-        return deploymentId;
+        return context.getId();
     }
 
     /**
@@ -404,7 +395,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      */
     public EJBHome getEJBHome() {
     	if (getHomeInterface() == null) {
-    		throw new IllegalStateException("This component has no home interface: "+this.deploymentId);
+    		throw new IllegalStateException("This component has no home interface: "+getDeploymentID());
     	}
         if(ejbHomeRef == null){
         	ejbHomeRef = createEJBHomeRef();
@@ -414,7 +405,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     
     public EJBLocalHome getEJBLocalHome() {
     	if (getLocalHomeInterface() == null) {
-    		throw new IllegalStateException("This component has no local home interface: "+this.deploymentId);
+    		throw new IllegalStateException("This component has no local home interface: "+getDeploymentID());
     	}
         if(ejbLocalHomeRef == null) {
         	ejbLocalHomeRef = createEJBLocalHomeRef();
@@ -433,17 +424,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     }
 
     /**
-     * Sets the JNDI namespace for the bean's environment.  This will be the ony
-     * namespace that the bean will be able to access using the java: URL in the JNDI.
-     *
-     * @param ctx the Context of the bean's JNDI environment
-     * @see javax.naming.Context
-     */
-    public void setJndiEnc(Context ctx){
-        jndiContextRoot = ctx;
-    }
-
-    /**
      * Gets the JNDI namespace for the bean's environment.  This will be the ony
      * namespace that the bean will be able to access using the java: URL in the JNDI.
      *
@@ -452,7 +432,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @see javax.naming.Context
      */
     public javax.naming.Context getJndiEnc( ){
-        return jndiContextRoot;
+        return context.getJndiContext();
     }
 
     /**
