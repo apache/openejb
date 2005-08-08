@@ -465,7 +465,7 @@
         <aggregate:copy
             source="${module.root}/target"
             target="${aggregate.dir}/lib"
-            include="*.jar"
+            include="*client.jar"
             exclude="openejb-itests-beans.jar"/>
 
         <aggregate:copy
