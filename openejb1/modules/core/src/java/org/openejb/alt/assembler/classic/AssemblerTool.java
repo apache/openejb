@@ -418,9 +418,8 @@ public class AssemblerTool {
      * @param localClass TODO
      */
     protected org.openejb.core.DeploymentInfo createDeploymentInfoObject(javax.naming.Context root, Object did, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, Class beanClass, Class pkClass, byte componentType) throws org.openejb.SystemException {
-        org.openejb.core.DeploymentInfo info = new org.openejb.core.DeploymentInfo(did, homeClass, remoteClass,localHomeClass, localClass, beanClass, pkClass, componentType);
-        info.setJndiEnc(root);
-        return info;
+        org.openejb.core.DeploymentContext deploymentContext = new org.openejb.core.DeploymentContext(did, beanClass.getClassLoader(), root);
+        return new org.openejb.core.DeploymentInfo(deploymentContext, homeClass, remoteClass,localHomeClass, localClass, beanClass, pkClass, componentType);
     }
 
     /**
