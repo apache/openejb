@@ -391,7 +391,7 @@ by the server.
             <name>EJBBuilder</name>
         </reference>
         <reference name="EJBReferenceBuilder">
-            <name>EJBBuilder</name>
+            <name>ServerEJBReferenceBuilder</name>
         </reference>
         <reference name="ConnectorConfigBuilder">
             <name>ConnectorBuilder</name>
@@ -402,6 +402,9 @@ by the server.
         <reference name="ServiceReferenceBuilder">
             <name>WebServiceBuilder</name>
         </reference>
+    </gbean>
+
+    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder">
     </gbean>
 
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
