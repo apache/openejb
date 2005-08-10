@@ -62,7 +62,6 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.GenericEJBContainer;
@@ -495,20 +494,20 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                                             ObjectName timerName) throws Exception {
 
         GBeanData gbean = new GBeanData(GenericEJBContainer.GBEAN_INFO);
-        gbean.setAttribute("ContainerID", getContainerId());
-        gbean.setAttribute("EJBName", getEJBName());
-        gbean.setAttribute("ProxyInfo", createProxyInfo());
-        gbean.setAttribute("Signatures", signatures);
-        gbean.setAttribute("ContextFactory", contextFactory);
-        gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
-        gbean.setAttribute("Pool", pool);
+        gbean.setAttribute("containerID", getContainerId());
+        gbean.setAttribute("ejbName", getEJBName());
+        gbean.setAttribute("proxyInfo", createProxyInfo());
+        gbean.setAttribute("signatures", signatures);
+        gbean.setAttribute("contextFactory", contextFactory);
+        gbean.setAttribute("interceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("pool", pool);
         gbean.setAttribute("componentContext", getComponentContext());
-        gbean.setAttribute("UserTransaction", getUserTransaction());
-        gbean.setAttribute("JndiNames", getJndiNames());
-        gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
+        gbean.setAttribute("userTransaction", getUserTransaction());
+        gbean.setAttribute("jndiNames", getJndiNames());
+        gbean.setAttribute("localJndiNames", getLocalJndiNames());
         gbean.setReferencePattern("Timer", timerName);
-        gbean.setAttribute("DefaultPrincipal", getDefaultPrincipal());
-        gbean.setAttribute("RunAsSubject", getRunAs());
+        gbean.setAttribute("defaultPrincipal", getDefaultPrincipal());
+        gbean.setAttribute("runAsSubject", getRunAs());
         gbean.setAttribute("homeTxPolicyConfig", getHomeTxPolicyConfig());
         gbean.setAttribute("remoteTxPolicyConfig", getRemoteTxPolicyConfig());
 

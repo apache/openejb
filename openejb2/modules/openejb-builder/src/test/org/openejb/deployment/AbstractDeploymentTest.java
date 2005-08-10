@@ -106,8 +106,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         Object stateless;
         EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
                         true,
-                        "org.openejb.test.simple.slsb.SimpleStatelessSession",
-                        "org.openejb.test.simple.slsb.SimpleStatelessSessionHome");
+                "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
         proxyReference.setClassLoader(getApplicationClassLoader());
         statelessHome = proxyReference.getContent();
@@ -121,8 +120,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         Object stateless;
         EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
                         true,
-                        "org.openejb.test.simple.slsb.SimpleStatelessSession",
-                        "org.openejb.test.simple.slsb.SimpleStatelessSessionHome");
+                "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
         proxyReference.setClassLoader(new URLClassLoader(new URL[] {new File("target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader()));
         statelessHome = proxyReference.getContent();

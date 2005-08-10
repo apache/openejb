@@ -157,6 +157,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
             OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, linkData, webServiceBuilder, null);
+            OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,
@@ -167,7 +168,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     null,
                     null, // repository
                     moduleBuilder,
-                    moduleBuilder,
+                    ejbReferenceBuilder,
                     null,// web
                     null, resourceReferenceBuilder, // connector
                     null, // app client

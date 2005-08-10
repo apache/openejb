@@ -74,8 +74,7 @@ public class BasicStatelessContainerTest extends TestCase {
     public void testCrossClInvocation() throws Throwable {
         EJBProxyReference proxyReference = EJBProxyReference.createRemote(CONTAINER_NAME.getCanonicalName(),
                         true,
-                        MockRemote.class.getName(),
-                        MockHome.class.getName());
+                MockHome.class.getName(), MockRemote.class.getName());
         proxyReference.setKernel(kernel);
         proxyReference.setClassLoader(this.getClass().getClassLoader());
         MockHome home = (MockHome) proxyReference.getContent();
