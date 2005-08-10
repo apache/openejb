@@ -429,19 +429,19 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericEJBContainer.class); //we don't know the j2eeType
 
-        infoFactory.addAttribute("ContainerID", Object.class, true);
-        infoFactory.addAttribute("EJBName", String.class, true);
-        infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
-        infoFactory.addAttribute("Signatures", InterfaceMethodSignature[].class, true);
-        infoFactory.addAttribute("ContextFactory", InstanceContextFactory.class, true);
-        infoFactory.addAttribute("InterceptorBuilder", InterceptorBuilder.class, true);
-        infoFactory.addAttribute("Pool", InstancePool.class, true);
+        infoFactory.addAttribute("containerID", Object.class, true);
+        infoFactory.addAttribute("ejbName", String.class, true);
+        infoFactory.addAttribute("proxyInfo", ProxyInfo.class, true);
+        infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
+        infoFactory.addAttribute("contextFactory", InstanceContextFactory.class, true);
+        infoFactory.addAttribute("interceptorBuilder", InterceptorBuilder.class, true);
+        infoFactory.addAttribute("pool", InstancePool.class, true);
         infoFactory.addAttribute("componentContext", Map.class, true);
-        infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
-        infoFactory.addAttribute("JndiNames", String[].class, true);
-        infoFactory.addAttribute("LocalJndiNames", String[].class, true);
-        infoFactory.addAttribute("DefaultPrincipal", DefaultPrincipal.class, true);
-        infoFactory.addAttribute("RunAsSubject", Subject.class, true);
+        infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("jndiNames", String[].class, true);
+        infoFactory.addAttribute("localJndiNames", String[].class, true);
+        infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
+        infoFactory.addAttribute("runAsSubject", Subject.class, true);
 
         infoFactory.addAttribute("homeTxPolicyConfig", Serializable.class, true);
         infoFactory.addAttribute("remoteTxPolicyConfig", Serializable.class, true);
@@ -473,24 +473,24 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addOperation("getTimerById", new Class[]{Long.class});
 
         infoFactory.setConstructor(new String[]{
-            "ContainerID",
-            "EJBName",
-            "ProxyInfo",
-            "Signatures",
-            "ContextFactory",
-            "InterceptorBuilder",
-            "Pool",
+            "containerID",
+            "ejbName",
+            "proxyInfo",
+            "signatures",
+            "contextFactory",
+            "interceptorBuilder",
+            "pool",
             "componentContext",
-            "UserTransaction",
-            "JndiNames",
-            "LocalJndiNames",
+            "userTransaction",
+            "jndiNames",
+            "localJndiNames",
             "TransactionContextManager",
             "TrackedConnectionAssociator",
             "Timer",
             "objectName",
             "kernel",
-            "DefaultPrincipal",
-            "RunAsSubject",
+            "defaultPrincipal",
+            "runAsSubject",
             "TSSBean",
             "homeTxPolicyConfig",
             "remoteTxPolicyConfig",

@@ -50,7 +50,6 @@ package org.openejb.deployment;
 import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
-import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
@@ -62,6 +61,7 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -80,6 +80,9 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
+import org.openejb.EJBComponentType;
+import org.openejb.GenericEJBContainer;
+import org.openejb.proxy.ProxyInfo;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbTssType;
@@ -96,11 +99,11 @@ class EntityBuilder extends BeanBuilder {
         for (int i = 0; i < bmpEntityBeans.length; i++) {
             EntityBeanType entityBean = bmpEntityBeans[i];
 
-            if (!"Bean".equals(entityBean.getPersistenceType().getStringValue())) {
+            if (!"Bean".equals(entityBean.getPersistenceType().getStringValue().trim())) {
                 continue;
             }
 
-            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue());
+            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue().trim());
             ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
 
             GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, componentPermissions, transactionPolicyHelper, cl, policyContextID);
@@ -109,7 +112,7 @@ class EntityBuilder extends BeanBuilder {
     }
 
     public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, String policyContextID) throws DeploymentException {
-        String ejbName = entityBean.getEjbName().getStringValue();
+        String ejbName = entityBean.getEjbName().getStringValue().trim();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(cl);
@@ -154,7 +157,10 @@ class EntityBuilder extends BeanBuilder {
                 }
             } else if (openejbEntityBean.isSetTssLink()) {
                 String tssBeanLink = openejbEntityBean.getTssLink().trim();
-                tssBeanObjectName = earContext.getRefContext().locateComponent(tssBeanLink, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
+                //todo check this is correct
+                URI moduleURI = null;
+                String moduleType = null;
+                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
             } else if (openejbEntityBean.isSetTss()) {
                 OpenejbTssType tss = openejbEntityBean.getTss();
                 try {
@@ -227,46 +233,68 @@ class EntityBuilder extends BeanBuilder {
 
         MessageDestinationRefType[] messageDestinationRefs = entityBean.getMessageDestinationRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
+        Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
         builder.setComponentContext(context);
         ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
     }
 
-    public void initContext(RefContext refContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
+    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
         // Entity Beans
+        RefContext refContext = earContext.getRefContext();
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
             String ejbName = entityBean.getEjbName().getStringValue();
 
             ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
+            GBeanData gbean = new GBeanData(entityObjectName, GenericEJBContainer.GBEAN_INFO);
+
+            Class homeInterface = null;
+            Class remoteInterface = null;
+            Class localHomeInterface = null;
+            Class localObjectInterface = null;
 
             // ejb-ref
             if (entityBean.isSetRemote()) {
-                String remote = OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote());
-                ENCConfigBuilder.assureEJBObjectInterface(remote, cl);
+                String remote = entityBean.getRemote().getStringValue().trim();
+                remoteInterface = ENCConfigBuilder.assureEJBObjectInterface(remote, cl);
 
-                String home = OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome());
-                ENCConfigBuilder.assureEJBHomeInterface(home, cl);
+                String home = entityBean.getHome().getStringValue().trim();
+                homeInterface = ENCConfigBuilder.assureEJBHomeInterface(home, cl);
 
-                interfaces.add(remote);
-                interfaces.add(home);
-
-                String objectName = entityObjectName.getCanonicalName();
-                refContext.addEJBRemoteId(moduleUri, ejbName, objectName, false, home, remote);
+//                String objectName = entityObjectName.getCanonicalName();
+//                refContext.addEJBRemoteId(moduleUri, ejbName, objectName, false, home, remote);
             }
 
             // ejb-local-ref
             if (entityBean.isSetLocal()) {
-                String local = OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal());
-                ENCConfigBuilder.assureEJBLocalObjectInterface(local, cl);
+                String local = entityBean.getLocal().getStringValue().trim();
+                localObjectInterface = ENCConfigBuilder.assureEJBLocalObjectInterface(local, cl);
 
-                String localHome = OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome());
-                ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
+                String localHome = entityBean.getLocalHome().getStringValue().trim();
+                localHomeInterface = ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
 
-                String objectName = entityObjectName.getCanonicalName();
-                refContext.addEJBLocalId(moduleUri, ejbName, objectName, false, localHome, local);
+//                String objectName = entityObjectName.getCanonicalName();
+//                refContext.addEJBLocalId(moduleUri, ejbName, objectName, false, localHome, local);
             }
+            int componentType = entityBean.getPersistenceType().getStringValue().trim().equals("Bean")? EJBComponentType.BMP_ENTITY: EJBComponentType.CMP_ENTITY;
+            String className = entityBean.getPrimKeyClass().getStringValue().trim();
+                    Class primaryKeyClass = null;
+            try {
+                primaryKeyClass = ClassLoading.loadClass(className, cl);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load primary key class: " + className + " for entity: " + entityObjectName);
+            }
+            ProxyInfo proxyInfo = new ProxyInfo(componentType,
+                    entityObjectName.getCanonicalName(),
+                    homeInterface,
+                    remoteInterface,
+                    localHomeInterface,
+                    localObjectInterface,
+                    null,
+                    primaryKeyClass);
+            gbean.setAttribute("proxyInfo", proxyInfo);
+            earContext.addGBean(gbean);
         }
     }
 

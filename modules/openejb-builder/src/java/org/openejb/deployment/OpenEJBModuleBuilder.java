@@ -63,12 +63,15 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
@@ -83,12 +86,14 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -110,6 +115,7 @@ import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.EJBProxyReference;
+import org.openejb.proxy.ProxyInfo;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
@@ -136,7 +142,7 @@ import org.tranql.sql.SQLSchema;
  *
  * @version $Revision$ $Date$
  */
-public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
+public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     private final URI defaultParentId;
     private final ObjectName listener;
@@ -328,28 +334,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
-        Set interfaces = new HashSet();
-        RefContext refContext = earContext.getRefContext();
-        sessionBuilder.initContext(refContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
-        entityBuilder.initContext(refContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
+        sessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
+        entityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
         mdbBuilder.initContext(cl, enterpriseBeans);
 
-    }
-
-    public Reference createEJBLocalReference(String objectName, boolean session, String localHome, String local) {
-        return EJBProxyReference.createLocal(objectName, session, local, localHome);
-    }
-
-    public Reference createEJBRemoteReference(String objectName, boolean session, String home, String remote) {
-        return EJBProxyReference.createRemote(objectName, session, remote, home);
-    }
-
-    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
-        return new CORBAProxyReference(corbaURL, objectName, containerName, home);
-    }
-
-    public Object createHandleDelegateReference() {
-        return new CORBAHandleDelegate.HandleDelegateReference();
     }
 
     public CMPEntityBuilder getCmpEntityBuilder() {
@@ -475,15 +463,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         Set beans = new HashSet();
         EntityBeanType[] ebs = enterpriseBeans.getEntityArray();
         for (int i = 0; i < ebs.length; i++) {
-            beans.add(ebs[i].getEjbName().getStringValue());
+            beans.add(ebs[i].getEjbName().getStringValue().trim());
         }
         SessionBeanType[] sbs = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sbs.length; i++) {
-            beans.add(sbs[i].getEjbName().getStringValue());
+            beans.add(sbs[i].getEjbName().getStringValue().trim());
         }
         MessageDrivenBeanType[] mbs = enterpriseBeans.getMessageDrivenArray();
         for (int i = 0; i < mbs.length; i++) {
-            beans.add(mbs[i].getEjbName().getStringValue());
+            beans.add(mbs[i].getEjbName().getStringValue().trim());
         }
 
         // create an index of the openejb ejb configurations by ejb-name
@@ -648,7 +636,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
-        infoBuilder.addInterface(EJBReferenceBuilder.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "WebServiceLinkTemplate", "WebServiceBuilder", "Repository", "kernel"});

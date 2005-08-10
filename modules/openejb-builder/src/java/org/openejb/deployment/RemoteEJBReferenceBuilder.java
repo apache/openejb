@@ -48,41 +48,47 @@
 package org.openejb.deployment;
 
 import java.net.URI;
+import java.util.Set;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 import org.openejb.client.naming.RemoteEJBObjectFactory;
 import org.openejb.client.naming.RemoteEJBRefAddr;
 import org.openejb.corba.CORBAHandleDelegate;
 import org.openejb.corba.proxy.CORBAProxyReference;
+import org.openejb.proxy.ProxyInfo;
 
 
 /**
  */
-public class RemoteEJBReferenceBuilder implements EJBReferenceBuilder {
+public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
 
-    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
+    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) {
         throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
     }
 
-    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
+    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
+        throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
+    }
+
+    protected Reference buildRemoteReference(String objectName, boolean session, String home, String remote) {
         RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
         Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
         return reference;
-    }
-
-    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
-        return new CORBAProxyReference(corbaURL, objectName, containerName, home);
-    }
-
-    public Object createHandleDelegateReference() {
-        return new CORBAHandleDelegate.HandleDelegateReference();
     }
 
     public static final GBeanInfo GBEAN_INFO;

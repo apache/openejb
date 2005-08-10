@@ -53,12 +53,12 @@ import org.apache.geronimo.naming.reference.SimpleAwareReference;
  * @version $Revision$ $Date$
  */
 public class EJBProxyReference extends SimpleAwareReference {
-    public static EJBProxyReference createRemote(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName) {
-        return new EJBProxyReference(containerId, sessionBean, remoteInterfaceName, homeInterfaceName, null, null, false);
+    public static EJBProxyReference createRemote(String containerId, boolean sessionBean, String homeInterfaceName, String remoteInterfaceName) {
+        return new EJBProxyReference(containerId, sessionBean, homeInterfaceName, remoteInterfaceName, null, null, false);
     }
 
-    public static EJBProxyReference createLocal(String containerId, boolean sessionBean, String localInterfaceName, String localHomeInterfaceName) {
-        return new EJBProxyReference(containerId, sessionBean, null, null, localInterfaceName, localHomeInterfaceName, true);
+    public static EJBProxyReference createLocal(String containerId, boolean sessionBean, String localHomeInterfaceName, String localInterfaceName) {
+        return new EJBProxyReference(containerId, sessionBean, null, null, localHomeInterfaceName, localInterfaceName, true);
     }
 
     private final String containerId;
@@ -71,7 +71,7 @@ public class EJBProxyReference extends SimpleAwareReference {
 
     private transient EJBProxyFactory proxyFactory;
 
-    private EJBProxyReference(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, boolean local) {
+    private EJBProxyReference(String containerId, boolean sessionBean, String homeInterfaceName, String remoteInterfaceName, String localHomeInterfaceName, String localInterfaceName, boolean local) {
         this.containerId = containerId;
         isSessionBean = sessionBean;
         this.remoteInterfaceName = remoteInterfaceName;

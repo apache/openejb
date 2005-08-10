@@ -62,6 +62,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
