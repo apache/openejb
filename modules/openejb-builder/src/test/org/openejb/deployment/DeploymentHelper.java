@@ -55,10 +55,15 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
+import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.connector.work.GeronimoWorkManagerGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
@@ -103,7 +108,7 @@ public class DeploymentHelper {
     public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPool,name=DefaultThreadPool");
     public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
     public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
-    public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapper.getGBeanInfo());
+    public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapperGBean.getGBeanInfo());
 
     static {
         try {
@@ -130,7 +135,7 @@ public class DeploymentHelper {
         tcmGBean.setReferencePattern("XidImporter", TRANSACTIONMANAGER_NAME);
         start(kernel, tcmGBean);
 
-        GBeanData trackedConnectionAssociator = new GBeanData(TRACKEDCONNECTIONASSOCIATOR_NAME, ConnectionTrackingCoordinator.GBEAN_INFO);
+        GBeanData trackedConnectionAssociator = new GBeanData(TRACKEDCONNECTIONASSOCIATOR_NAME, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
         DeploymentHelper.start(kernel, trackedConnectionAssociator);
 
         return kernel;
@@ -155,7 +160,7 @@ public class DeploymentHelper {
     }
 
     public static void setUpResourceAdapter(Kernel kernel) throws Exception {
-        GBeanData geronimoWorkManagerGBean = new GBeanData(WORKMANAGER_NAME, GeronimoWorkManager.getGBeanInfo());
+        GBeanData geronimoWorkManagerGBean = new GBeanData(WORKMANAGER_NAME, GeronimoWorkManagerGBean.getGBeanInfo());
         geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
@@ -165,16 +170,16 @@ public class DeploymentHelper {
         Map activationSpecInfoMap = new HashMap();
         ACTIVATION_SPEC_INFO.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
         activationSpecInfoMap.put(javax.jms.MessageListener.class.getName(), ACTIVATION_SPEC_INFO);
-        GBeanData moduleData = new GBeanData(RESOURCE_ADAPTER_MODULE_NAME, ResourceAdapterModuleImpl.GBEAN_INFO);
+        GBeanData moduleData = new GBeanData(RESOURCE_ADAPTER_MODULE_NAME, ResourceAdapterModuleImplGBean.GBEAN_INFO);
         moduleData.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
         start(kernel, moduleData);
 
-        GBeanData resourceAdapterGBean = new GBeanData(RESOURCE_ADAPTER_NAME, ResourceAdapterWrapper.getGBeanInfo());
+        GBeanData resourceAdapterGBean = new GBeanData(RESOURCE_ADAPTER_NAME, ResourceAdapterWrapperGBean.getGBeanInfo());
         resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class.getName());
         resourceAdapterGBean.setReferencePattern("WorkManager", WORKMANAGER_NAME);
         start(kernel, resourceAdapterGBean);
 
-        GBeanData activationSpecGBean = new GBeanData(ACTIVATIONSPEC_NAME, ActivationSpecWrapper.getGBeanInfo());
+        GBeanData activationSpecGBean = new GBeanData(ACTIVATIONSPEC_NAME, ActivationSpecWrapperGBean.getGBeanInfo());
         activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
         activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.getCanonicalName());
         activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", RESOURCE_ADAPTER_NAME);
