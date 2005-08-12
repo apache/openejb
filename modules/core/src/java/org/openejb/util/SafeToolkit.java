@@ -53,7 +53,7 @@ import java.util.Properties;
 public class SafeToolkit {
 
     private String systemLocation;
-    protected static final Messages messages = new Messages("org.openejb.util.resources");
+    public static final Messages messages = new Messages("org.openejb.util.resources");
     protected static final HashMap codebases = new HashMap();
     protected static final HashMap _tempcodebases = new HashMap();
 
@@ -225,7 +225,7 @@ public class SafeToolkit {
      * @return ClassLoader
      * @throws OpenEJBException
      */
-    protected static ClassLoader getCodebaseClassLoader(String codebase) throws OpenEJBException {
+    public static ClassLoader getCodebaseClassLoader(String codebase) throws OpenEJBException {
         if (codebase == null) codebase = "CLASSPATH";
 
         ClassLoader cl = (ClassLoader) codebases.get(codebase);
@@ -260,7 +260,7 @@ public class SafeToolkit {
      * @return ClassLoader
      * @throws OpenEJBException
      */
-    protected static ClassLoader getClassLoader(String codebase) throws OpenEJBException {
+    public static ClassLoader getClassLoader(String codebase) throws OpenEJBException {
         ClassLoader cl = null;
         try {
             java.net.URL[] urlCodebase = new java.net.URL[1];
