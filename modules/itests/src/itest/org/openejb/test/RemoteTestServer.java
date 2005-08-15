@@ -54,7 +54,7 @@ import java.util.Properties;
 import org.openejb.util.Launcher;
 
 /**
- * 
+ *
  */
 public class RemoteTestServer implements org.openejb.test.TestServer {
 
@@ -75,8 +75,8 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         props.put("test.server.class", "org.openejb.test.RemoteTestServer");
         props.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
         props.put("java.naming.provider.url", "127.0.0.1:4201");
-        props.put("java.naming.security.principal", "testuser");
-        props.put("java.naming.security.credentials", "testpassword");
+//        props.put("java.naming.security.principal", "testuser");
+//        props.put("java.naming.security.credentials", "testpassword");
 
 
     }
@@ -118,7 +118,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         }
 
         Process remoteServerProcess = Runtime.getRuntime().exec(cmd);
-        
+
         // it seems as if OpenEJB wouldn't start up till the output stream was read
         final java.io.InputStream is = remoteServerProcess.getInputStream();
         final java.io.OutputStream out = new FileOutputStream("logs/testsuite.out");
