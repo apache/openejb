@@ -194,7 +194,7 @@
                 <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
-        </dependency>	
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -213,7 +213,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-    
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
@@ -440,7 +440,7 @@
         </dependency>
 
         <dependency>
-             <groupId>incubator-derby</groupId>
+             <groupId>org.apache.derby</groupId>
              <artifactId>derby</artifactId>
              <version>${derby_version}</version>
              <properties>
@@ -449,7 +449,7 @@
          </dependency>
 
          <dependency>
-             <groupId>incubator-derby</groupId>
+             <groupId>org.apache.derby</groupId>
              <artifactId>derbynet</artifactId>
              <version>${derby_version}</version>
              <properties>
