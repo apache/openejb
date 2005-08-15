@@ -63,7 +63,6 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -117,8 +116,7 @@ class SessionBuilder extends BeanBuilder {
 
     private ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, SessionBeanType sessionBean) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
-        //todo use constants from NameFactory
-        String type = sessionBean.getSessionType().getStringValue().trim() + "SessionBean";
+        String type = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim())? NameFactory.STATELESS_SESSION_BEAN: NameFactory.STATEFUL_SESSION_BEAN;
         try {
             return NameFactory.getEjbComponentName(null, null, null, null, ejbName, type, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
@@ -301,9 +299,8 @@ class SessionBuilder extends BeanBuilder {
                 }
             } else if (openejbSessionBean.isSetTssLink()) {
                 String tssBeanLink = openejbSessionBean.getTssLink().trim();
-                //todo check this is correct
-                URI moduleURI = null;
-                String moduleType = null;
+                URI moduleURI = ejbModule.getModuleURI();
+                String moduleType = NameFactory.EJB_MODULE;
                 tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
             } else if (openejbSessionBean.isSetTss()) {
                 OpenejbTssType tss = openejbSessionBean.getTss();
@@ -377,11 +374,9 @@ class SessionBuilder extends BeanBuilder {
 
     public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
         // Session Beans
-        RefContext refContext = earContext.getRefContext();
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
             SessionBeanType sessionBean = sessionBeans[i];
-            String ejbName = sessionBean.getEjbName().getStringValue();
 
             ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
             GBeanData gbean = new GBeanData(sessionObjectName, GenericEJBContainer.GBEAN_INFO);
@@ -397,9 +392,6 @@ class SessionBuilder extends BeanBuilder {
 
                 String home = sessionBean.getHome().getStringValue().trim();
                 homeInterface = ENCConfigBuilder.assureEJBHomeInterface(home, cl);
-                //TODO remove
-//                String objectName = sessionObjectName.getCanonicalName();
-//                refContext.addEJBRemoteId(moduleUri, ejbName, objectName, true, home, remote);
             }
 
             // ejb-local-ref
@@ -409,9 +401,6 @@ class SessionBuilder extends BeanBuilder {
 
                 String localHome = sessionBean.getLocalHome().getStringValue().trim();
                 localHomeInterface = ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
-                //TODO remove
-//                String objectName = sessionObjectName.getCanonicalName();
-//                refContext.addEJBLocalId(moduleUri, ejbName, objectName, true, localHome, local);
             }
             int componentType = sessionBean.getSessionType().getStringValue().trim().equals("Stateless")? EJBComponentType.STATELESS: EJBComponentType.STATEFUL;
             ProxyInfo proxyInfo = new ProxyInfo(componentType,
