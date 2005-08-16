@@ -44,18 +44,7 @@
  */
 package org.openejb.alt.config;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Vector;
-import java.util.ArrayList;
-
 import org.openejb.OpenEJBException;
-import org.openejb.loader.SystemInstance;
 import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.ContainerTransaction;
 import org.openejb.alt.config.ejb11.EjbDeployment;
@@ -87,9 +76,25 @@ import org.openejb.alt.config.sys.SecurityService;
 import org.openejb.alt.config.sys.ServiceProvider;
 import org.openejb.alt.config.sys.ServicesJar;
 import org.openejb.alt.config.sys.TransactionService;
-import org.openejb.util.FileUtils;
+import org.openejb.loader.SystemInstance;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
+import org.openejb.util.FileUtils;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Vector;
+import java.util.List;
 
 /**
  * An implementation of the Classic Assembler's OpenEjbConfigurationFactory
@@ -1094,122 +1099,28 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * If a jar was listed twice in the config file for some
      * reason, it only occur once in the list returned
      */
-    private String[] getJarLocations(Deployments[] deploy) {
+    private String[] resolveJarLocations(Deployments[] deploy) {
 
-        Vector jarList = new Vector(deploy.length);
-        // tmpJarList is used to store jar file names, without paths
-        // this is used when loading from different bean directories
-        Vector tmpJarList = new Vector(deploy.length);
+        FileUtils base = SystemInstance.get().getBase();
+        FileUtils home = SystemInstance.get().getHome();
 
-        boolean loadFromBoth = false;
-        String loadLocalBeans = (String) this.props.get("openejb.load-local-beans");
-        if (loadLocalBeans != null && loadLocalBeans.compareToIgnoreCase("true") == 0) {
-            String homeDir = (String) this.props.get("openejb.home");
-            String baseDir = (String) this.props.get("openejb.base");
-            if (homeDir != null && baseDir != null && !homeDir.equals(baseDir))
-                loadFromBoth = true;
-        }
+        List jarList = new ArrayList(deploy.length);
+
+        String flag = this.props.getProperty("openejb.loadFromBaseAndHome","false").toLowerCase();
+        boolean loadFromBoth = flag.equals("true") && !base.equals(home);
 
         try {
-
             for (int i = 0; i < deploy.length; i++) {
 
                 Deployments d = deploy[i];
 
-                ///// Add Jar file  /////
-                if (d.getDir() == null && d.getJar() != null) {
-                    File jar = null;
-                    try {
-                        jar = SystemInstance.get().getBase().getFile(d.getJar(), false);
-                    } catch (Exception ignored) {
-                        try {
-                            jar = SystemInstance.get().getHome().getFile(d.getJar(), false);
-                        } catch (Exception ignoredAgain) {
-                        }
-                    }
-                    if (!jarList.contains(jar.getAbsolutePath())) {
-                        jarList.add(jar.getAbsolutePath());
-                        tmpJarList.add(jar.getName());
-                    }
-
-                    continue;
-                }
-
-                ///// A directory /////
-
-                File dir = null;
-                try {
-                    dir = SystemInstance.get().getBase().getFile(d.getDir(), false);
-                } catch (Exception ignored) {
-                }
-                if (dir == null || !dir.exists()) {
-                    try {
-                        dir = SystemInstance.get().getHome().getFile(d.getDir(), false);
-                    } catch (Exception ignoredAgain) {
-                    }
-                }
-
-                // Opps! Not a directory
-                if (dir == null || !dir.isDirectory()) continue;
-
-                String[] files = dir.list();
-
-                if (files == null) {
-                    continue;
-                }
-
-                for (int x = 0; x < files.length; x++) {
-
-                    String f = files[x];
-
-                    if (!f.endsWith(".jar")) continue;
-
-                    //// Found a jar in the dir ////
-
-                    File jar = new File(dir, f);
-
-                    if (jarList.contains(jar.getAbsolutePath())) continue;
-                    jarList.add(jar.getAbsolutePath());
-                    tmpJarList.add(jar.getName());
-
-                }
-
+                loadFrom(d, base, jarList);
                 if (loadFromBoth) {
                     // If openejb.base and openejb.home are both specified
                     // but are different, we would have already loaded from
                     // openejb.base. Now load from openejb.home to pick up
                     // any global beans.
-
-                    dir = null;
-                    try {
-                        dir = SystemInstance.get().getHome().getFile(d.getDir(), false);
-                    } catch (Exception ignoredAgain) {
-                    }
-
-                    // Opps! Not a directory
-                    if (dir == null || !dir.isDirectory()) continue;
-
-                    files = dir.list();
-
-                    if (files == null) {
-                        continue;
-                    }
-
-                    for (int x = 0; x < files.length; x++) {
-
-                        String f = files[x];
-
-                        if (!f.endsWith(".jar")) continue;
-
-                        //// Found a jar in the dir ////
-
-                        File jar = new File(dir, f);
-
-                        // Use our tmpJarList to make sure we don't load a
-                        // jar deployed twice
-                        if (tmpJarList.contains(jar.getName())) continue;
-                        jarList.add(jar.getAbsolutePath());
-                    }
+                    loadFrom(d, home, jarList);
                 }
             }
         } catch (SecurityException se) {
@@ -1218,11 +1129,60 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             // TODO:  Log this
         }
 
-        String[] locations = new String[jarList.size()];
-        jarList.copyInto(locations);
+        return (String[]) jarList.toArray(new String[]{});
 
-        return locations;
+    }
 
+    private void loadFrom(Deployments d, FileUtils path, List jarList) {
+        ///// Add Jar file  /////
+        if (d.getDir() == null && d.getJar() != null) {
+            try {
+                File jar = path.getFile(d.getJar(), false);
+                if (!jarList.contains(jar.getAbsolutePath())) {
+                    jarList.add(jar.getAbsolutePath());
+                }
+            } catch (Exception ignored) {
+            }
+            return;
+        }
+
+        ///// A directory /////
+        File dir = null;
+        try {
+            dir = path.getFile(d.getDir(), false);
+        } catch (Exception ignored) {
+        }
+
+        // Opps! Not a directory
+        if (dir == null || !dir.isDirectory()) return;
+
+        // Check to see if it's an unpacked ejb-jar
+        File ejbJarXml = new File(dir, "META-INF/ejb-jar.xml");
+        if (ejbJarXml.exists()) {
+            if (!jarList.contains(dir.getAbsolutePath())) {
+                jarList.add(dir.getAbsolutePath());
+            }
+            return;
+        }
+
+        // Glob all the *.jar files and add them to the list
+        String[] jarFiles = dir.list(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
+
+        if (jarFiles == null) {
+            return;
+        }
+
+        for (int x = 0; x < jarFiles.length; x++) {
+            String f = jarFiles[x];
+            File jar = new File(dir, f);
+
+            if (jarList.contains(jar.getAbsolutePath())) continue;
+            jarList.add(jar.getAbsolutePath());
+        }
     }
 
     /**
@@ -1236,7 +1196,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         Vector jarsVect = new Vector();
 
-        String[] jarsToLoad = getJarLocations(openejb.getDeployments());
+        String[] jarsToLoad = resolveJarLocations(openejb.getDeployments());
 
         /*[1]  Put all EjbJar & OpenejbJar objects in a vector ***************/
         for (int i = 0; i < jarsToLoad.length; i++) {
@@ -1245,8 +1205,21 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             try {
                 EjbJarUtils ejbJarUtils = new EjbJarUtils(jarLocation);
                 EjbJar ejbJar = ejbJarUtils.getEjbJar();
-                TempCodebase tempCodebase = new TempCodebase(jarLocation);
-                ClassLoader classLoader = tempCodebase.getClassLoader();
+
+                ClassLoader classLoader;
+
+                File jarFile = new File(jarLocation);
+                if (jarFile.isDirectory()){
+                    try {
+                        URL[] urls = new URL[]{jarFile.toURL()};
+                        classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
+                    } catch (MalformedURLException e) {
+                        throw new OpenEJBException(messages.format("cl0001", jarLocation, e.getMessage()));
+                    }
+                } else {
+                    TempCodebase tempCodebase = new TempCodebase(jarLocation);
+                    classLoader = tempCodebase.getClassLoader();
+                }
 
                 /* If there is no openejb-jar.xml attempt to auto deploy it.
                  */
@@ -1262,6 +1235,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 }
 
                 /* Add it to the Vector ***************/
+                logger.info("Loaded EJBs from "+jarLocation);
                 jarsVect.add(new DeployedJar(jarLocation, ejbJar, openejbJar));
             } catch (OpenEJBException e) {
                 ConfigUtils.logger.i18n.warning("conf.0004", jarLocation, e.getMessage());
