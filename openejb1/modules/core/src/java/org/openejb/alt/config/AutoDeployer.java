@@ -88,14 +88,12 @@ public class AutoDeployer {
     private String configFile;
     private Container[] containers;
     private Connector[] resources;
+    private ClassLoader classLoader;
+    private String jarLocation;
 
-    public AutoDeployer() throws OpenEJBException {
-        this(ConfigUtils.readConfig());
-    }
-        
     public AutoDeployer(Openejb config) {
         this.config = config;
-        
+
         /* Load container list */
         this.containers = config.getContainer();
         
@@ -107,7 +105,9 @@ public class AutoDeployer {
     public void init() throws OpenEJBException {
     }
 
-    public OpenejbJar deploy(EjbJarUtils ejbJarUtils, String jarLocation) throws OpenEJBException {
+    public OpenejbJar deploy(EjbJarUtils ejbJarUtils, String jarLocation, ClassLoader classLoader) throws OpenEJBException {
+        this.jarLocation = jarLocation;
+        this.classLoader = classLoader;
         OpenejbJar openejbJar = new OpenejbJar();
 
         Bean[] beans = ejbJarUtils.getBeans();
@@ -139,14 +139,14 @@ public class AutoDeployer {
 
         if (bean.getType().equals("CMP_ENTITY")){
         	if (bean.getHome() != null){
-                Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
-            	if (hasFinderMethods(tempBean)){
+                Class tempBean = loadClass(bean.getHome());
+                if (hasFinderMethods(tempBean)){
                     throw new OpenEJBException("CMP 1.1 Beans with finder methods cannot be autodeployed; finder methods require OQL Select statements which cannot be generated accurately.");
             	}
         	}
         	if (bean.getLocalHome() != null){
-                Class tempBean = SafeToolkit.loadTempClass(bean.getLocalHome(), jarLocation);
-            	if (hasFinderMethods(tempBean)){
+                Class tempBean = loadClass(bean.getLocalHome());
+                if (hasFinderMethods(tempBean)){
                     throw new OpenEJBException("CMP 1.1 Beans with finder methods cannot be autodeployed; finder methods require OQL Select statements which cannot be generated accurately.");
             	}
         	}
@@ -155,7 +155,15 @@ public class AutoDeployer {
         return deployment;
     }
 
-	private boolean hasFinderMethods(Class bean)
+    private Class loadClass(String className) throws OpenEJBException {
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException cnfe) {
+            throw new OpenEJBException(SafeToolkit.messages.format("cl0007", className, this.jarLocation));
+        }
+    }
+
+    private boolean hasFinderMethods(Class bean)
     throws OpenEJBException {
 
         Method[] methods = bean.getMethods();

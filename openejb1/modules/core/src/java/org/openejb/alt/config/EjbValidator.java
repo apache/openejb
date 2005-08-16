@@ -47,6 +47,8 @@ package org.openejb.alt.config;
 import java.io.InputStream;
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.MalformedURLException;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -91,11 +93,11 @@ public class EjbValidator {
         return ejbSets;
     }
 
-    public EjbSet validateJar(EjbJarUtils ejbJarUtils){
+    public EjbSet validateJar(EjbJarUtils ejbJarUtils, ClassLoader classLoader){
         EjbSet set = null;
 
         try {
-            set = new EjbSet(ejbJarUtils.getJarLocation(), ejbJarUtils.getEjbJar(), ejbJarUtils.getBeans());
+            set = new EjbSet(ejbJarUtils.getJarLocation(), ejbJarUtils.getEjbJar(), ejbJarUtils.getBeans(), classLoader);
             ValidationRule[] rules = getValidationRules();
             for (int i=0; i < rules.length; i++){
                 rules[i].validate( set );
@@ -342,7 +344,16 @@ public class EjbValidator {
                     for (; i < args.length; i++){
                         try{
                             EjbJarUtils ejbJarUtils = new EjbJarUtils(args[i]);
-                            EjbSet set = v.validateJar( ejbJarUtils );
+                            String jarLocation = ejbJarUtils.getJarLocation();
+                            ClassLoader classLoader = null;
+                            try {
+                                File jarFile = new File(jarLocation);
+                                URL[] classpath = new URL[]{jarFile.toURL()};
+                                classLoader = new URLClassLoader(classpath, EjbValidator.class.getClassLoader());
+                            } catch (MalformedURLException e) {
+                                throw new OpenEJBException("Unable to create a classloader to load classes from '"+jarLocation+"'", e);
+                            }
+                            EjbSet set = v.validateJar( ejbJarUtils, classLoader);
                             v.addEjbSet( set );
                        } catch (Exception e){
                            e.printStackTrace();

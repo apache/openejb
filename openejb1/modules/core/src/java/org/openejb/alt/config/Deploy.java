@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact dev@openejb.org.
+ *    please contact info@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://www.openejb.org/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -50,8 +50,11 @@ import java.io.PrintStream;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.MalformedURLException;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.HashMap;
 
 import org.openejb.OpenEJBException;
 import org.openejb.loader.SystemInstance;
@@ -69,6 +72,7 @@ import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Logger;
+import org.openejb.util.FileUtils;
 
 /**
  * This class represents a command line tool for deploying beans.
@@ -221,6 +225,8 @@ public class Deploy {
     private boolean autoAssign;
     private Container[] containers;
     private Connector[] resources;
+    private ClassLoader classLoader;
+    private String jarLocation;
 
     /*------------------------------------------------------*/
     /*    Constructors                                      */
@@ -271,10 +277,22 @@ public class Deploy {
     /*------------------------------------------------------*/
 
     private void deploy(String jarLocation) throws OpenEJBException {
+
+        this.jarLocation = jarLocation;
         EjbJarUtils ejbJarUtils = new EjbJarUtils(jarLocation);
 
         EjbValidator validator = new EjbValidator();
-        EjbSet set = validator.validateJar(ejbJarUtils);
+
+        classLoader = null;
+        try {
+            File jarFile = new File(ejbJarUtils.getJarLocation());
+            URL[] classpath = new URL[]{jarFile.toURL()};
+            classLoader = new URLClassLoader(classpath, this.getClass().getClassLoader());
+        } catch (MalformedURLException e) {
+            throw new OpenEJBException("Unable to create a classloader to load classes from '"+jarLocation+"'", e);
+        }
+
+        EjbSet set = validator.validateJar(ejbJarUtils, classLoader);
 
         if (set.hasErrors() || set.hasFailures()) {
             validator.printResults(set);
@@ -358,13 +376,13 @@ public class Deploy {
         //check for OQL statement
         if (bean.getType().equals("CMP_ENTITY")){
         	if (bean.getHome() != null){
-                Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
+                Class tempBean = loadClass(bean.getHome());
             	if (hasFinderMethods(tempBean)){
                     promptForOQLForEntityBeans(tempBean, deployment);
             	}
         	}
         	if (bean.getLocalHome() != null){
-                Class tempBean = SafeToolkit.loadTempClass(bean.getLocalHome(), jarLocation);
+                Class tempBean = loadClass(bean.getLocalHome());
             	if (hasFinderMethods(tempBean)){
                     promptForOQLForEntityBeans(tempBean, deployment);
             	}
@@ -372,6 +390,14 @@ public class Deploy {
         }
 
         return deployment;
+    }
+
+    private Class loadClass(String className) throws OpenEJBException {
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException cnfe) {
+            throw new OpenEJBException(SafeToolkit.messages.format("cl0007", className, this.jarLocation));
+        }
     }
 
     private boolean hasFinderMethods(Class bean)

@@ -1245,15 +1245,17 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             try {
                 EjbJarUtils ejbJarUtils = new EjbJarUtils(jarLocation);
                 EjbJar ejbJar = ejbJarUtils.getEjbJar();
+                TempCodebase tempCodebase = new TempCodebase(jarLocation);
+                ClassLoader classLoader = tempCodebase.getClassLoader();
 
                 /* If there is no openejb-jar.xml attempt to auto deploy it.
                  */
                 OpenejbJar openejbJar = ejbJarUtils.getOpenejbJar();
                 if (openejbJar == null) {
-                    openejbJar = deployer.deploy(ejbJarUtils, jarLocation);
+                    openejbJar = deployer.deploy(ejbJarUtils, jarLocation, classLoader);
                 }
 
-                EjbSet set = validator.validateJar( ejbJarUtils );
+                EjbSet set = validator.validateJar( ejbJarUtils, classLoader);
                 if (set.hasErrors() || set.hasFailures()) {
                     //System.out.println("[] INVALID "+ jarLocation);
                     throw new OpenEJBException("Jar failed validation.  Use the validation tool for more details");
