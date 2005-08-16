@@ -44,22 +44,13 @@
  */
 package org.openejb.webadmin.main;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
-import javax.ejb.CreateException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-
 import org.openejb.DeploymentInfo;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.Bean;
 import org.openejb.alt.config.ConfigUtils;
 import org.openejb.alt.config.EjbJarUtils;
+import org.openejb.alt.config.TempCodebase;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
 import org.openejb.alt.config.ejb11.EjbRef;
@@ -74,8 +65,16 @@ import org.openejb.alt.config.sys.Container;
 import org.openejb.alt.config.sys.Openejb;
 import org.openejb.util.HtmlUtilities;
 import org.openejb.util.JarUtils;
-import org.openejb.util.SafeToolkit;
 import org.openejb.util.StringUtilities;
+
+import javax.ejb.CreateException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * This is a stateful session bean which handles the action of deployment for the
@@ -554,7 +553,8 @@ public class DeployerBean implements SessionBean {
 		for (int i = 0; i < deployerBeans.length; i++) {
 			//check for entity beans here
 			if ("CMP_ENTITY".equals(deployerBeans[i].getType())) {
-				tempBean = SafeToolkit.loadTempClass(deployerBeans[i].getHome(), this.jarFile);
+                TempCodebase tempCodebase = TempCodebase.getTempCodebase(this.jarFile);
+                tempBean = tempCodebase.loadClass(deployerBeans[i].getHome());
 				htmlString.append(
 					writeOQLForEntityBeansTable(
 						tempBean,

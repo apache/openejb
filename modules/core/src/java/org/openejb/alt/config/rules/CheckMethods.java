@@ -44,10 +44,6 @@
  */
 package org.openejb.alt.config.rules;
 
-import java.lang.reflect.Method;
-
-import javax.ejb.EJBLocalObject;
-
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.Bean;
 import org.openejb.alt.config.EjbSet;
@@ -57,6 +53,9 @@ import org.openejb.alt.config.ValidationFailure;
 import org.openejb.alt.config.ValidationRule;
 import org.openejb.alt.config.ValidationWarning;
 import org.openejb.util.SafeToolkit;
+
+import javax.ejb.EJBLocalObject;
+import java.lang.reflect.Method;
 
 
 
@@ -87,8 +86,6 @@ public class CheckMethods implements ValidationRule {
 	            check_localHomeInterfaceMethods( b );
 		    }
         }
-
-        SafeToolkit.unloadTempCodebase( set.getJarPath() );
     }
 
 
@@ -96,8 +93,8 @@ public class CheckMethods implements ValidationRule {
         Class home  = null;
         Class bean = null;
         try {
-            home = SafeToolkit.loadTempClass( b.getLocalHome() , set.getJarPath() );
-            bean = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
+            home = loadClass(b.getLocalHome());
+            bean = loadClass(b.getEjbClass());
         } catch ( OpenEJBException e ) {
             return;
         }
@@ -114,8 +111,8 @@ public class CheckMethods implements ValidationRule {
         Class intrface  = null;
         Class beanClass = null;
         try {
-            intrface  = SafeToolkit.loadTempClass( b.getLocal() , set.getJarPath() );
-            beanClass = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
+            intrface  = loadClass(b.getLocal());
+            beanClass = loadClass(b.getEjbClass());
         } catch ( OpenEJBException e ) {
             return;
         }
@@ -154,8 +151,8 @@ public class CheckMethods implements ValidationRule {
         Class intrface  = null;
         Class beanClass = null;
         try {
-            intrface  = SafeToolkit.loadTempClass( b.getRemote() , set.getJarPath() );
-            beanClass = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
+            intrface  = loadClass(b.getRemote());
+            beanClass = loadClass(b.getEjbClass());
         } catch ( OpenEJBException e ) {
             return;
         }
@@ -190,8 +187,8 @@ public class CheckMethods implements ValidationRule {
         Class home  = null;
         Class bean = null;
         try {
-            home = SafeToolkit.loadTempClass( b.getHome() , set.getJarPath() );
-            bean = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
+            home = loadClass(b.getHome());
+            bean = loadClass(b.getEjbClass());
         } catch ( OpenEJBException e ) {
             return;
         }
@@ -401,6 +398,15 @@ public class CheckMethods implements ValidationRule {
         }
 
         return paramString.toString();
+    }
+
+    private Class loadClass(String clazz) throws OpenEJBException {
+        ClassLoader cl = set.getClassLoader();
+        try {
+            return cl.loadClass(clazz);
+        } catch (ClassNotFoundException cnfe) {
+            throw new OpenEJBException(SafeToolkit.messages.format("cl0007", clazz, set.getJarPath()));
+        }
     }
 }
 

@@ -47,6 +47,7 @@ package org.openejb.alt.config;
 import java.util.Vector;
 
 import org.openejb.alt.config.ejb11.EjbJar;
+import org.openejb.OpenEJBException;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -61,11 +62,23 @@ public class EjbSet {
     private final EjbJar jar;
     private final Bean[] beans;
 
-    public EjbSet(String jarPath, EjbJar jar, Bean[] beans) {
+    private final ClassLoader classLoader;
+
+    public EjbSet(String jarPath, EjbJar jar, Bean[] beans, ClassLoader classLoader) {
         this.jarPath = jarPath;
         this.jar = jar;
         this.beans = beans;
+        this.classLoader = classLoader;
     }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public EjbJar getJar() {
+        return jar;
+    }
+
 
     public void addWarning(ValidationWarning warning) {
         warnings.addElement(warning);

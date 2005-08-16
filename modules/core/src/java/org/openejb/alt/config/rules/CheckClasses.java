@@ -44,15 +44,15 @@
  */
 package org.openejb.alt.config.rules;
 
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.Bean;
 import org.openejb.alt.config.EjbSet;
 import org.openejb.alt.config.ValidationFailure;
 import org.openejb.alt.config.ValidationRule;
 import org.openejb.util.SafeToolkit;
+
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
 
 
 
@@ -64,8 +64,8 @@ import org.openejb.util.SafeToolkit;
 
 public class CheckClasses implements ValidationRule {
 
-    EjbSet set;
-
+    private EjbSet set;
+    private ClassLoader classLoader;
     public void validate( EjbSet set ) {
         this.set = set;
 
@@ -92,8 +92,6 @@ public class CheckClasses implements ValidationRule {
 		} catch (RuntimeException e) {
 			throw new RuntimeException(b.getEjbName(),e);
 		}
-
-        SafeToolkit.unloadTempCodebase( set.getJarPath() );
     }
 
 	private void check_hasLocalClass(Bean b) {
@@ -172,8 +170,8 @@ public class CheckClasses implements ValidationRule {
 
     private void lookForClass(Bean b, String clazz, String type){
 	try {
-	    SafeToolkit.loadTempClass( clazz, set.getJarPath() );
-        } catch ( OpenEJBException e ) {
+        loadClass(clazz);
+    } catch ( OpenEJBException e ) {
             /*
             # 0 - Class name
             # 1 - Element (home, ejb-class, remote)
@@ -207,8 +205,10 @@ public class CheckClasses implements ValidationRule {
     private void compareTypes(Bean b, String clazz1, Class class2 ){
         Class class1 = null;
         try {
-            class1 = SafeToolkit.loadTempClass( clazz1 , set.getJarPath() );
-        } catch ( OpenEJBException e ) { }
+            class1 = loadClass(clazz1);
+        } catch (OpenEJBException e) {
+            return;
+        }
 
         if ( class1 != null && !class2.isAssignableFrom( class1 ) ) {
             ValidationFailure failure = new ValidationFailure("wrong.class.type");
@@ -219,6 +219,16 @@ public class CheckClasses implements ValidationRule {
             //set.addFailure( new ValidationFailure("wrong.class.type", clazz1, class2.getName()) );
         }
     }
+
+    private Class loadClass(String clazz) throws OpenEJBException {
+        ClassLoader cl = set.getClassLoader();
+        try {
+            return cl.loadClass(clazz);
+        } catch (ClassNotFoundException cnfe) {
+            throw new OpenEJBException(SafeToolkit.messages.format("cl0007", clazz, set.getJarPath()));
+        }
+    }
+
 }
 
 
