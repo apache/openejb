@@ -52,41 +52,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.ArrayList;
 
 import org.openejb.OpenEJBException;
 import org.openejb.loader.SystemInstance;
-import org.openejb.alt.assembler.classic.ConnectionManagerInfo;
-import org.openejb.alt.assembler.classic.ConnectorInfo;
-import org.openejb.alt.assembler.classic.ContainerInfo;
-import org.openejb.alt.assembler.classic.ContainerSystemInfo;
-import org.openejb.alt.assembler.classic.EjbLocalReferenceInfo;
-import org.openejb.alt.assembler.classic.EjbReferenceInfo;
-import org.openejb.alt.assembler.classic.EjbReferenceLocationInfo;
-import org.openejb.alt.assembler.classic.EnterpriseBeanInfo;
-import org.openejb.alt.assembler.classic.EntityBeanInfo;
-import org.openejb.alt.assembler.classic.EntityContainerInfo;
-import org.openejb.alt.assembler.classic.EnvEntryInfo;
-import org.openejb.alt.assembler.classic.FacilitiesInfo;
-import org.openejb.alt.assembler.classic.IntraVmServerInfo;
-import org.openejb.alt.assembler.classic.JndiContextInfo;
-import org.openejb.alt.assembler.classic.JndiEncInfo;
-import org.openejb.alt.assembler.classic.ManagedConnectionFactoryInfo;
-import org.openejb.alt.assembler.classic.MethodInfo;
-import org.openejb.alt.assembler.classic.MethodPermissionInfo;
-import org.openejb.alt.assembler.classic.MethodTransactionInfo;
-import org.openejb.alt.assembler.classic.OpenEjbConfiguration;
-import org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory;
-import org.openejb.alt.assembler.classic.QueryInfo;
-import org.openejb.alt.assembler.classic.ResourceReferenceInfo;
-import org.openejb.alt.assembler.classic.RoleMappingInfo;
-import org.openejb.alt.assembler.classic.SecurityRoleInfo;
-import org.openejb.alt.assembler.classic.SecurityRoleReferenceInfo;
-import org.openejb.alt.assembler.classic.SecurityServiceInfo;
-import org.openejb.alt.assembler.classic.StatefulBeanInfo;
-import org.openejb.alt.assembler.classic.StatefulSessionContainerInfo;
-import org.openejb.alt.assembler.classic.StatelessBeanInfo;
-import org.openejb.alt.assembler.classic.StatelessSessionContainerInfo;
-import org.openejb.alt.assembler.classic.TransactionServiceInfo;
+import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.ContainerTransaction;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
@@ -159,10 +129,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     //------------------------------------------------//
     public static OpenEjbConfiguration sys;
 
-    private ContainerInfo[] cntrs;
-    private EntityContainerInfo[] entyCntrs;
-    private StatefulSessionContainerInfo[] stflCntrs;
-    private StatelessSessionContainerInfo[] stlsCntrs;
+    private ContainerInfo[] containers;
+    private EntityContainerInfo[] entityContainers;
+    private StatefulSessionContainerInfo[] sfsbContainers;
+    private StatelessSessionContainerInfo[] slsbContainers;
 
     /**
      * Hash of container info objects for quick reference
@@ -240,19 +210,28 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         // in this class
         initContainerInfos(openejb);
 
-        sys.containerSystem.containers = cntrs;
-        sys.containerSystem.entityContainers = entyCntrs;
-        sys.containerSystem.statefulContainers = stflCntrs;
-        sys.containerSystem.statelessContainers = stlsCntrs;
+        sys.containerSystem.containers = containers;
+        sys.containerSystem.entityContainers = entityContainers;
+        sys.containerSystem.statefulContainers = sfsbContainers;
+        sys.containerSystem.statelessContainers = slsbContainers;
 
+        ArrayList ejbs = new ArrayList();
+        ArrayList ejbJars = new ArrayList();
         for (int i = 0; i < jars.length; i++) {
             try {
-                initEnterpriseBeanInfos(jars[i]);
+                EjbJarInfo ejbJarInfo = initEjbJarInfo(jars[i]);
+                if (ejbJarInfo == null){
+                    continue;
+                }
+                ejbJars.add(ejbJarInfo);
+                ejbs.addAll(Arrays.asList(ejbJarInfo.enterpriseBeans));
             } catch (Exception e) {
                 e.printStackTrace();
                 ConfigUtils.logger.i18n.warning("conf.0004", jars[i].jarURI, e.getMessage());
             }
         }
+        sys.containerSystem.enterpriseBeans = (EnterpriseBeanInfo[]) ejbs.toArray(new EnterpriseBeanInfo[]{});
+        sys.containerSystem.ejbJars = (EjbJarInfo[]) ejbJars.toArray(new EjbJarInfo[]{});
 
         // Add the defaults
         SecurityRoleInfo defaultRole = new SecurityRoleInfo();
@@ -572,22 +551,22 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         }
 
-        entyCntrs = new EntityContainerInfo[e.size()];
-        e.copyInto(entyCntrs);
+        entityContainers = new EntityContainerInfo[e.size()];
+        e.copyInto(entityContainers);
 
-        stflCntrs = new StatefulSessionContainerInfo[sf.size()];
-        sf.copyInto(stflCntrs);
+        sfsbContainers = new StatefulSessionContainerInfo[sf.size()];
+        sf.copyInto(sfsbContainers);
 
-        stlsCntrs = new StatelessSessionContainerInfo[sl.size()];
-        sl.copyInto(stlsCntrs);
+        slsbContainers = new StatelessSessionContainerInfo[sl.size()];
+        sl.copyInto(slsbContainers);
 
         e.addAll(sf);
         e.addAll(sl);
-        cntrs = new ContainerInfo[e.size()];
-        e.copyInto(cntrs);
+        this.containers = new ContainerInfo[e.size()];
+        e.copyInto(this.containers);
 
-        for (int i = 0; i < cntrs.length; i++) {
-            containerTable.put(cntrs[i].containerName, cntrs[i]);
+        for (int i = 0; i < this.containers.length; i++) {
+            containerTable.put(this.containers[i].containerName, this.containers[i]);
         }
 
     }
@@ -612,7 +591,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * @param jar
      * @throws OpenEJBException
      */
-    private void initEnterpriseBeanInfos(DeployedJar jar) throws OpenEJBException {
+    private EjbJarInfo initEjbJarInfo(DeployedJar jar) throws OpenEJBException {
 
         int beansDeployed = jar.openejbJar.getEjbDeploymentCount();
         int beansInEjbJar = jar.ejbJar.getEnterpriseBeans().getEnterpriseBeansItemCount();
@@ -622,13 +601,18 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             // Not all ejb in this jar have been deployed.
             // This jar cannot be loaded into the system and must
             // be skipped.
-            return;
+            return null;
         }
 
         Map ejbds = getDeployments(jar.openejbJar);
         Map infos = new HashMap();
         Map items = new HashMap();
+
         EnterpriseBeanInfo[] beans = new EnterpriseBeanInfo[ejbds.size()];
+        EjbJarInfo ejbJar = new EjbJarInfo();
+        ejbJar.enterpriseBeans = beans;
+        ejbJar.jarPath = jar.jarURI;
+
         int i = -1;
 
         Enumeration bl = jar.ejbJar.getEnterpriseBeans().enumerateEnterpriseBeansItem();
@@ -649,7 +633,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 // the entire ejb jar is invalid and must be redeployed.
                 // This jar cannot be loaded into the system and must
                 // be skipped.
-                return;
+                return null;
             }
 
             deploymentIds.add(beans[i].ejbDeploymentId);
@@ -684,6 +668,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return ejbJar;
     }
 
     private void initJndiReferences(Map ejbds, Map infos, Map items) throws OpenEJBException {
@@ -1076,8 +1061,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         // Now create the bean arrays of the specific container
         // type.
-        for (int i = 0; i < entyCntrs.length; i++) {
-            EnterpriseBeanInfo[] b = entyCntrs[i].ejbeans;
+        for (int i = 0; i < entityContainers.length; i++) {
+            EnterpriseBeanInfo[] b = entityContainers[i].ejbeans;
             EntityBeanInfo[] eb = new EntityBeanInfo[b.length];
             System.arraycopy(b, 0, eb, 0, b.length);
         }

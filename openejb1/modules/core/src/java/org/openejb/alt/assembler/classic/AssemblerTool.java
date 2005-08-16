@@ -44,18 +44,10 @@
  */
 package org.openejb.alt.assembler.classic;
 
+import org.openejb.Container;
 import org.openejb.OpenEJBException;
 import org.openejb.core.ContainerSystem;
 import org.openejb.core.DeploymentInfo;
-import org.openejb.core.entity.EntityContainer;
-import org.openejb.core.ivm.naming.IntraVmJndiReference;
-import org.openejb.core.ivm.naming.IvmContext;
-import org.openejb.core.ivm.naming.JndiReference;
-import org.openejb.core.ivm.naming.NameNode;
-import org.openejb.core.ivm.naming.ParsedName;
-import org.openejb.core.ivm.naming.Reference;
-import org.openejb.core.stateful.StatefulContainer;
-import org.openejb.core.stateless.StatelessContainer;
 import org.openejb.spi.SecurityService;
 import org.openejb.spi.TransactionService;
 import org.openejb.util.Messages;
@@ -67,17 +59,11 @@ import javax.naming.InitialContext;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
-import java.net.URLClassLoader;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.io.File;
 
 /**
  * This class provides a set of utility methods for constructing various artifacts
@@ -102,7 +88,6 @@ public class AssemblerTool {
     public static final Class PROXY_FACTORY = org.openejb.util.proxy.ProxyFactory.class;
     public static final Class SECURITY_SERVICE = org.openejb.spi.SecurityService.class;
     public static final Class TRANSACTION_SERVICE = org.openejb.spi.TransactionService.class;
-    public static final Class CONTAINER = org.openejb.Container.class;
     public static final Class CONNECTION_MANAGER = javax.resource.spi.ConnectionManager.class;
     public static final Class CONNECTOR = javax.resource.spi.ManagedConnectionFactory.class;
 
@@ -137,102 +122,17 @@ public class AssemblerTool {
      * @see ContainerManagerInfo
      */
     public void assembleContainers(ContainerSystem containerSystem, ContainerSystemInfo containerSystemInfo) throws Exception {
-        /*TODO: Add better exception handling, this method throws java.lang.Exception,
-         which is not very specific. Only a very specific OpenEJBException should be
-         thrown.
-         */
 
-        ArrayList list = new ArrayList();
-        if (containerSystemInfo.entityContainers != null) list.addAll(Arrays.asList(containerSystemInfo.entityContainers));
-        if (containerSystemInfo.statefulContainers != null) list.addAll(Arrays.asList(containerSystemInfo.statefulContainers));
-        if (containerSystemInfo.statelessContainers != null) list.addAll(Arrays.asList(containerSystemInfo.statelessContainers));
-        Iterator iterator = list.iterator();
-        while (iterator.hasNext()) {
-            ContainerInfo containerInfo = (ContainerInfo) iterator.next();
-            org.openejb.Container container = assembleContainer(containerInfo);
+        ContainerBuilder containerBuilder = new ContainerBuilder(containerSystemInfo, this.props);
+        List containers = (List) containerBuilder.build();
+        for (int i = 0; i < containers.size(); i++) {
+            Container container = (Container) containers.get(i);
             containerSystem.addContainer(container.getContainerID(), container);
-        }
-
-        // ADD deployments to container system and to Global JNDI name space
-        org.openejb.Container[] containers = containerSystem.containers();
-        for (int i = 0; i < containers.length; i++) {
-            org.openejb.DeploymentInfo deployments [] = containers[i].deployments();
-            for (int x = 0; x < deployments.length; x++) {
-                containerSystem.addDeployment((org.openejb.core.DeploymentInfo) deployments[x]);
+            org.openejb.DeploymentInfo[] deployments = container.deployments();
+            for (int j = 0; j < deployments.length; j++) {
+                containerSystem.addDeployment((org.openejb.core.DeploymentInfo) deployments[j]);
             }
         }
-
-
-    }
-
-    /**
-     * This method can construct a Container of any kind based on information in the
-     * ContainerInfo object: StatefulContainer, StatelessContainer, or EntityContainer
-     * In addition to constructing the containers, this method also constructs all the
-     * deployments declared in the containerInfo object and adds them to the containers
-     * It constructs the deployment Info object using the assembleDeploymentInfo
-     * method.
-     *
-     * @param containerInfo describes a Container and its deployments.
-     * @return the Container that was constructed (StatefulContainer, StatelessContainer, EntityContainer)
-     * @see org.openejb.alt.assembler.classic.ContainerInfo
-     * @see org.openejb.alt.assembler.classic.Assembler#assembleDeploymentInfo(EnterpriseBeanInfo)
-     */
-    public org.openejb.Container assembleContainer(ContainerInfo containerInfo)
-            throws org.openejb.OpenEJBException {
-        HashMap deployments = new HashMap();
-        for (int z = 0; z < containerInfo.ejbeans.length; z++) {
-            DeploymentInfo deployment = assembleDeploymentInfo(containerInfo.ejbeans[z]);
-            deployments.put(containerInfo.ejbeans[z].ejbDeploymentId, deployment);
-        }
-        org.openejb.Container container = null;
-
-        // This trick retains backward compatibility with version 0.7.3. Otherwise CMP
-        // beans will be deployed in the default BMP container, and everything goes wrong
-        if (containerInfo.className != null ||
-                "org.openejb.alt.containers.castor_cmp11.CastorCMP11_EntityContainer".equals(containerInfo.codebase)) {
-            if (containerInfo.className == null) {
-                containerInfo.className = containerInfo.codebase;
-            }
-            // create the custom container
-            try {
-                //container = (org.openejb.Container)Class.forName(containerInfo.codebase).newInstance();
-                // Support for an actual codebase.
-                Class factory = SafeToolkit.loadClass(containerInfo.className, containerInfo.codebase);
-
-                checkImplementation(CONTAINER, factory, "Container", containerInfo.containerName);
-
-                container = (org.openejb.Container) factory.newInstance();
-            } catch (OpenEJBException oee) {
-                throw new OpenEJBException(messages.format("as0002", containerInfo, oee.getMessage()));
-            } catch (InstantiationException ie) {
-                throw new OpenEJBException(messages.format("as0003", containerInfo, ie.getMessage()));
-            } catch (IllegalAccessException iae) {
-                throw new OpenEJBException(messages.format("as0003", containerInfo, iae.getMessage()));
-            }
-        } else {
-            // create a standard container
-            switch (containerInfo.containerType) {
-                case ContainerInfo.STATEFUL_SESSION_CONTAINER:
-                    container = new StatefulContainer();
-                    break;
-                case ContainerInfo.ENTITY_CONTAINER:
-                    container = new EntityContainer();
-                    break;
-                case ContainerInfo.STATELESS_SESSION_CONTAINER:
-                    container = new StatelessContainer();
-
-            }
-        }
-        try {
-            Properties clonedProps = (Properties) (this.props.clone());
-            clonedProps.putAll(containerInfo.properties);
-            container.init(containerInfo.containerName, deployments, clonedProps);
-        } catch (OpenEJBException e) {
-            throw new OpenEJBException(messages.format("as0003", containerInfo.containerName, e.getMessage()));
-        }
-
-        return container;
     }
 
     /*
@@ -250,23 +150,6 @@ public class AssemblerTool {
             // not a super serious error but assemble should be stoped.
             throw new org.openejb.OpenEJBException("The remote JNDI EJB references for remote-jndi-contexts = " + context.jndiContextId + "+ could not be resolved.", ne);
         }
-    }
-
-    /**
-     * This method assembles a org.openejb.core.DeploymentInfo object from a EnterpriseBeanInfo configuration
-     * object of anyone of three types: EntityBeanInfo, StatelessBeanInfo, or StatefulBeanInfo.
-     * The DeploymentInfo object is not complete, its component type and transaction type (bean or container)
-     * is set and its JNDI ENC context is established with all its bean references, resource references,
-     * and environment entries, BUT its method permissions, security role references and transaction attribute
-     * method mapping are not established. These must be done in post processing using the methods
-     * applyMethodPermissions(), applySecurityRoleReferences() and applyTransactionAttributes()
-     *
-     * @param beanInfo describes the enterprise bean deployment to be assembled.
-     */
-    public DeploymentInfo assembleDeploymentInfo(EnterpriseBeanInfo beanInfo)
-            throws org.openejb.SystemException, org.openejb.OpenEJBException {
-        EnterpriseBeanBuilder deploymentBuilder = new EnterpriseBeanBuilder(beanInfo);
-        return (DeploymentInfo)deploymentBuilder.build();
     }
 
     /**

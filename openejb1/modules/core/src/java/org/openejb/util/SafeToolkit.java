@@ -54,7 +54,7 @@ public class SafeToolkit {
 
     private String systemLocation;
     public static final Messages messages = new Messages("org.openejb.util.resources");
-    protected static final HashMap codebases = new HashMap();
+    public static final HashMap codebases = new HashMap();
     protected static final HashMap _tempcodebases = new HashMap();
 
     /**

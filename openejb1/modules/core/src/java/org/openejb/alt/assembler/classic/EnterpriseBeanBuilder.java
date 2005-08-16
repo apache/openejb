@@ -47,6 +47,7 @@ package org.openejb.alt.assembler.classic;
 
 import org.openejb.OpenEJBException;
 import org.openejb.SystemException;
+import org.openejb.OpenEJB;
 import org.openejb.core.DeploymentContext;
 import org.openejb.core.DeploymentInfo;
 import org.openejb.core.ivm.naming.IvmContext;
@@ -64,10 +65,12 @@ import java.util.Vector;
  * @version $Revision$ $Date$
  */
 class EnterpriseBeanBuilder {
+    protected static final Messages messages = new Messages("org.openejb.util.resources");
     private final EnterpriseBeanInfo bean;
     private final EjbType ejbType;
+    private final ClassLoader cl;
 
-    public EnterpriseBeanBuilder(EnterpriseBeanInfo bean) {
+    public EnterpriseBeanBuilder(ClassLoader cl, EnterpriseBeanInfo bean) {
         this.bean = bean;
 
         if (bean.type == EnterpriseBeanInfo.STATEFUL) {
@@ -80,6 +83,7 @@ class EnterpriseBeanBuilder {
         } else {
             throw new UnsupportedOperationException("No building support for bean type: " + bean);
         }
+        this.cl = cl;
     }
 
     static class Loader {
@@ -125,12 +129,11 @@ class EnterpriseBeanBuilder {
 
         Class primaryKey = null;
         if (ejbType.isEntity() && ((EntityBeanInfo) bean).primKeyClass != null) {
-            primaryKey = loadClass(((EntityBeanInfo) bean).primKeyClass, "classNotFound.primaryKey");
+            String className = ((EntityBeanInfo) bean).primKeyClass;
+            primaryKey = loadClass(className, "classNotFound.primaryKey");
         }
-
         final String transactionType = bean.transactionType;
 
-        /*[3] Populate a new DeploymentInfo object  */
         JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, transactionType, ejbType);
         IvmContext root = (IvmContext) jndiEncBuilder.build();
 
@@ -173,7 +176,6 @@ class EnterpriseBeanBuilder {
     }
 
     private Class loadClass(String className, String messageCode) throws OpenEJBException {
-        ClassLoader cl = SafeToolkit.getCodebaseClassLoader(bean.codebase);
         try {
             return cl.loadClass(className);
         } catch (ClassNotFoundException cnfe) {
