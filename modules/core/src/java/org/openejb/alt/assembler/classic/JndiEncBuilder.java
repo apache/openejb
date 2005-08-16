@@ -81,14 +81,15 @@ public class JndiEncBuilder {
      * @throws OpenEJBException
      */
     public JndiEncBuilder(JndiEncInfo jndiEnc, String transactionType, EjbType ejbType) throws OpenEJBException {
-        if (ejbType.isEntity())
+        if (ejbType.isEntity()) {
             referenceWrapper = new EntityRefereceWrapper();
-        else if (ejbType == EjbType.STATEFUL)
+        } else if (ejbType == EjbType.STATEFUL) {
             referenceWrapper = new StatefulRefereceWrapper();
-        else if (ejbType == EjbType.STATELESS)
+        } else if (ejbType == EjbType.STATELESS) {
             referenceWrapper = new StatelessRefereceWrapper();
-        else
+        } else {
             throw new org.openejb.OpenEJBException("Unknown component type");
+        }
 
         beanManagedTransactions = transactionType != null && transactionType.equalsIgnoreCase("Bean");
 

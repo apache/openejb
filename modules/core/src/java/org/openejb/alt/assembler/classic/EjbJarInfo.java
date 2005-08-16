@@ -45,16 +45,10 @@
 
 package org.openejb.alt.assembler.classic;
 
-public class ContainerSystemInfo extends InfoObject {
-
-    public ContainerInfo[] containers;
+/**
+ * @version $Revision$ $Date$
+ */
+public class EjbJarInfo extends InfoObject {
+    public String jarPath;
     public EnterpriseBeanInfo[] enterpriseBeans;
-    public EjbJarInfo[] ejbJars;
-
-    public EntityContainerInfo[] entityContainers;
-    public StatelessSessionContainerInfo[] statelessContainers;
-    public StatefulSessionContainerInfo[] statefulContainers;
-    public SecurityRoleInfo[] securityRoles;
-    public MethodPermissionInfo[] methodPermissions;
-    public MethodTransactionInfo[] methodTransactions;
 }
