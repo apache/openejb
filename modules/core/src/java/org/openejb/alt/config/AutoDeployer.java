@@ -145,7 +145,7 @@ public class AutoDeployer {
             	}
         	}
         	if (bean.getLocalHome() != null){
-                Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
+                Class tempBean = SafeToolkit.loadTempClass(bean.getLocalHome(), jarLocation);
             	if (hasFinderMethods(tempBean)){
                     throw new OpenEJBException("CMP 1.1 Beans with finder methods cannot be autodeployed; finder methods require OQL Select statements which cannot be generated accurately.");
             	}

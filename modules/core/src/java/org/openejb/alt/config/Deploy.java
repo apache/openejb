@@ -315,7 +315,6 @@ public class Deploy {
 
     private EjbDeployment deployBean(Bean bean, String jarLocation) throws OpenEJBException {
         EjbDeployment deployment = new EjbDeployment();
-        Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
 
         out.println("\n-----------------------------------------------------------");
         out.println("Deploying bean: " + bean.getEjbName());
@@ -357,11 +356,36 @@ public class Deploy {
         }
 
         //check for OQL statement
-        if (bean.getType().equals("CMP_ENTITY")) {
-            promptForOQLForEntityBeans(tempBean, deployment);
+        if (bean.getType().equals("CMP_ENTITY")){
+        	if (bean.getHome() != null){
+                Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
+            	if (hasFinderMethods(tempBean)){
+                    promptForOQLForEntityBeans(tempBean, deployment);
+            	}
+        	}
+        	if (bean.getLocalHome() != null){
+                Class tempBean = SafeToolkit.loadTempClass(bean.getLocalHome(), jarLocation);
+            	if (hasFinderMethods(tempBean)){
+                    promptForOQLForEntityBeans(tempBean, deployment);
+            	}
+        	}
         }
 
         return deployment;
+    }
+
+    private boolean hasFinderMethods(Class bean)
+    throws OpenEJBException {
+
+        Method[] methods = bean.getMethods();
+
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getName().startsWith("find")
+                && !methods[i].getName().equals("findByPrimaryKey")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void promptForOQLForEntityBeans(Class bean, EjbDeployment deployment)

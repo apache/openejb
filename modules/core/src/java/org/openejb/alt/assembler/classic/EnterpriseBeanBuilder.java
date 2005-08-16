@@ -47,7 +47,6 @@ package org.openejb.alt.assembler.classic;
 
 import org.openejb.OpenEJBException;
 import org.openejb.SystemException;
-import org.openejb.OpenEJB;
 import org.openejb.core.DeploymentContext;
 import org.openejb.core.DeploymentInfo;
 import org.openejb.core.ivm.naming.IvmContext;
@@ -183,4 +182,6 @@ class EnterpriseBeanBuilder {
             throw new OpenEJBException(AssemblerTool.messages.format(messageCode, className, bean.ejbDeploymentId, message));
         }
     }
+
+
 }
