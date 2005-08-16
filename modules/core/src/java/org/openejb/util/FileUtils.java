@@ -98,6 +98,12 @@ public class FileUtils {
         return getDirectory(path, false);
     }
 
+    public boolean equals(Object obj) {
+        if (!(obj instanceof FileUtils)) return false;
+        FileUtils that = (FileUtils)obj;
+        return this.getDirectory().equals(that.getDirectory());
+    }
+
     /**
 	 * Resolves the specified path relative to the home directory; create it if requested
 	 * 
