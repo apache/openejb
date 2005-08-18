@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
@@ -41,7 +42,7 @@ public class SunNameServiceTest extends TestCase {
 
         String tmpDir = System.getProperty("java.io.tmpdir");
         cosNamingDbDir = new File(tmpDir, DB_DIR);
-        ServerInfo serverInfo = new ServerInfo(tmpDir);
+        ServerInfo serverInfo = new BasicServerInfo(tmpDir);
         sunNameService = new SunNameService(serverInfo, DB_DIR, 8050);
         sunNameService.doStart();
 
