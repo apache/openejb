@@ -75,8 +75,8 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         props.put("test.server.class", "org.openejb.test.RemoteTestServer");
         props.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
         props.put("java.naming.provider.url", "127.0.0.1:4201");
-//        props.put("java.naming.security.principal", "testuser");
-//        props.put("java.naming.security.credentials", "testpassword");
+        props.put("java.naming.security.principal", "testuser");
+        props.put("java.naming.security.credentials", "testpassword");
 
 
     }

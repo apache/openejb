@@ -73,7 +73,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.openejb.ContainerIndex;
 import org.openejb.server.axis.WSContainerGBean;
@@ -131,7 +131,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         DeploymentHelper.setUpTimer(kernel);
 
         ObjectName serverInfoObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ServerInfo");
-        GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, ServerInfo.GBEAN_INFO);
+        GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, BasicServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(serverInfoGBean, testClassLoader);
         kernel.startGBean(serverInfoObjectName);
