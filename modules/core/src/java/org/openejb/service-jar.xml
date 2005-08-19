@@ -47,7 +47,7 @@
 
     <ServiceProvider id="DefaultWorkManager"
         provider-type="WorkManager"
-        class-name="org.apache.geronimo.connector.work.GeronimoWorkManager">
+        class-name="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
         syncMaximumPoolSize		        10
         startMaximumPoolSize		    10
         scheduledMaximumPoolSize		10
