@@ -78,7 +78,9 @@ import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 
@@ -123,14 +125,14 @@ public class DeploymentHelper {
     public static Kernel setUpKernelWithTransactionManager() throws Exception {
         Kernel kernel = KernelHelper.getPreparedKernel();
 
-        GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImpl.GBEAN_INFO);
+        GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImplGBean.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
         start(kernel, tmGBean);
 
-        GBeanData tcmGBean = new GBeanData(TRANSACTIONCONTEXTMANAGER_NAME, TransactionContextManager.GBEAN_INFO);
+        GBeanData tcmGBean = new GBeanData(TRANSACTIONCONTEXTMANAGER_NAME, TransactionContextManagerGBean.GBEAN_INFO);
         tcmGBean.setReferencePattern("TransactionManager", TRANSACTIONMANAGER_NAME);
         tcmGBean.setReferencePattern("XidImporter", TRANSACTIONMANAGER_NAME);
         start(kernel, tcmGBean);

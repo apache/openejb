@@ -254,7 +254,7 @@ by the server.
         </reference>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <attribute name="defaultTransactionTimeoutSeconds">300</attribute>
         <reference name="TransactionLog">
             <name>HOWLTransactionLog</name>
@@ -269,7 +269,7 @@ by the server.
         </references>
     </gbean>
 
-    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
