@@ -105,6 +105,8 @@ import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
 
 class SessionBuilder extends BeanBuilder {
 
+    private final static String DEFAULT_AUTH_REALM_NAME = "Geronimo Web Service";
+    
     private final WebServiceBuilder webServiceBuilder;
     private final GBeanData linkDataTemplate;
 
@@ -211,7 +213,7 @@ class SessionBuilder extends BeanBuilder {
         //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
-            linkData.setAttribute("realmName", webServiceSecurity.getRealmName().trim());
+            linkData.setAttribute("realmName", webServiceSecurity.isSetRealmName()? webServiceSecurity.getRealmName().trim(): DEFAULT_AUTH_REALM_NAME);
             linkData.setAttribute("transportGuarantee", webServiceSecurity.getTransportGuarantee().toString());
             linkData.setAttribute("authMethod", webServiceSecurity.getAuthMethod().toString());
         }
