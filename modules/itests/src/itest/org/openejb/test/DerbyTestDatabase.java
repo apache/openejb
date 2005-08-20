@@ -85,15 +85,15 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
 
     private static final String DROP_STORAGE = "DROP TABLE storage";
 
-    private static final String CREATE_ONE_OWNING = "CREATE TABLE oneowning (id INTEGER, field1 INTEGER)";
+    private static final String CREATE_ONE_OWNING = "CREATE TABLE oneowning (col_id INTEGER, col_field1 INTEGER)";
 
     private static final String DROP_ONE_OWNING = "DROP TABLE oneowning";
 
-    private static final String CREATE_ONE_INVERSE = "CREATE TABLE oneinverse (id INTEGER)";
+    private static final String CREATE_ONE_INVERSE = "CREATE TABLE oneinverse (col_id INTEGER)";
 
     private static final String DROP_ONE_INVERSE = "DROP TABLE oneinverse";
 
-    private static final String CREATE_MANY_OWNING = "CREATE TABLE manyowning (id INTEGER, field1 INTEGER)";
+    private static final String CREATE_MANY_OWNING = "CREATE TABLE manyowning (col_id INTEGER, col_field1 INTEGER)";
 
     private static final String DROP_MANY_OWNING = "DROP TABLE manyowning";
 

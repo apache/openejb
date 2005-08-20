@@ -443,10 +443,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     private CMPFieldTransform buildCMRMappedToPKCMP(Entity entity, AssociationEnd end, CMPFieldTransform accessor, boolean owning, int cmrSlot) {
-        List pkFields = entity.getPrimaryKeyFields();
+        Table table = sqlSchema.getTable(entity.getName());
+        List pkFields = table.getPrimaryKeyFields();
         for (Iterator iter = pkFields.iterator(); iter.hasNext();) {
             Attribute pkField = (Attribute) iter.next();
-            if (end.hasFKAttribute(pkField.getName())) {
+            if (end.hasFKAttribute(pkField.getPhysicalName())) {
                 if (owning) {
                     return new CMRMappedToOwningPKCMP(accessor, cmrSlot);
                 }
