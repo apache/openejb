@@ -151,7 +151,11 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
                 Collection entities = (Collection) cascadeManyDeleteFields[i].get(cache, cacheRow);
                 cascadeDeleteEntities.addAll(entities);
             }
-            
+
+            // delete this row in the persistence engine
+            cacheRow.markRemoved();
+            cache.remove(cacheRow);
+
             // remove entity from all relationships
             for (int i = 0; i < cmrOneFields.length; i++) {
                 cmrOneFields[i].set(cache, cacheRow, null);
@@ -160,9 +164,6 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
                 cmrManyFields[i].set(cache, cacheRow, Collections.EMPTY_SET);
             }
 
-            // delete this row in the persistence engine
-            cacheRow.markRemoved();
-            cache.remove(cacheRow);
 
             // clear id and row data from the instance
             ctx.setId(null);

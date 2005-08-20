@@ -172,6 +172,26 @@
             username="system"
             password="manager"
             id="org/openejb/cmp2/Prefetch"/>
+
+        <!-- CMR Mapping Tests  -->
+        <ant:jar destfile="${basedir}/target/openejb-cmp2-cmrmapping.jar">
+            <fileset dir="${basedir}/target/classes">
+                <include name="**/cmp2/cmrmapping/*.class"/>
+                <include name="**/TestFailureException.class"/>
+            </fileset>
+            <metainf dir="${basedir}/src/cmp2/cmrmapping" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-cmp2-cmrmapping.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/CMRMapping"/>
             
         <!-- PK Generator Tests  -->
         <ant:jar destfile="${basedir}/target/openejb-cmp2-petstore.jar">
@@ -214,6 +234,17 @@
     </preGoal>
 
     <preGoal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/CMRMapping"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/CMRMapping"/>
+
         <deploy:stop
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"

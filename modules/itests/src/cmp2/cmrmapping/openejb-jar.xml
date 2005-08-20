@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<openejb-jar
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    configId="org/openejb/cmp2/CMRMapping"
+    parentId="org/apache/geronimo/DefaultDatabase">
+
+    <dependency>
+        <uri>junit/jars/junit-3.8.1.jar</uri>
+    </dependency>
+
+    <cmp-connection-factory>
+        <application>null</application>
+        <module>org/apache/geronimo/DefaultDatabase</module>
+        <name>DefaultDatasource</name>
+    </cmp-connection-factory>
+
+    <enterprise-beans>
+        <entity>
+            <ejb-name>OneOwningSideBean</ejb-name>
+            <table-name>OneOwning</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>field1</cmp-field-name>
+                <table-column>field1</table-column>
+            </cmp-field-mapping>
+        </entity>
+        <entity>
+            <ejb-name>OneInverseSideBean</ejb-name>
+            <table-name>OneInverse</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+        </entity>
+        <entity>
+            <ejb-name>ManyOwningSideBean</ejb-name>
+            <table-name>ManyOwning</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>field1</cmp-field-name>
+                <table-column>field1</table-column>
+            </cmp-field-mapping>
+        </entity>
+        
+        <session>
+            <ejb-name>CMRMappingFacadeBean</ejb-name>
+            <jndi-name>cmp2/CMRMappingFacade</jndi-name>
+        </session>
+    </enterprise-beans>
+
+    <relationships>
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OneInverseSideBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>oneOwningSide</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>id</key-column>
+                        <foreign-key-column>field1</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OneInverseSideBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>manyOwningSide</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>id</key-column>
+                        <foreign-key-column>field1</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+
+    </relationships>
+
+</openejb-jar>

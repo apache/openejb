@@ -348,7 +348,7 @@ public class CMPEntityBuilderTest extends TestCase {
         assertTrue(fkEnd.isSingle());
 
         Association association = pkEnd.getAssociation();
-        assertTrue(association.isOneToOne());
+        assertTrue(pkEnd.isOneToOne());
         JoinDefinition joinDefinition = association.getJoinDefinition();
         assertEquals(pkEntity, joinDefinition.getPKEntity());
         assertEquals(fkEntity, joinDefinition.getFKEntity());
@@ -375,8 +375,8 @@ public class CMPEntityBuilderTest extends TestCase {
         assertTrue(fkEnd.isSingle());
 
         Association association = pkEnd.getAssociation();
-        assertTrue(association.isOneToMany(pkEnd));
-        assertTrue(association.isManyToOne(fkEnd));
+        assertTrue(pkEnd.isOneToMany());
+        assertTrue(fkEnd.isManyToOne());
         JoinDefinition joinDefinition = association.getJoinDefinition();
         assertEquals(pkEntity, joinDefinition.getPKEntity());
         assertEquals(fkEntity, joinDefinition.getFKEntity());
@@ -404,7 +404,7 @@ public class CMPEntityBuilderTest extends TestCase {
 
         Association association = leftEnd.getAssociation();
         Entity mtmEntity = association.getManyToManyEntity();
-        assertTrue(association.isManyToMany());
+        assertTrue(leftEnd.isManyToMany());
         assertNotNull(mtmEntity);
         assertEquals("MTM", mtmEntity.getName());
         JoinDefinition joinDefinition = association.getLeftJoinDefinition();
