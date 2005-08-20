@@ -21,11 +21,11 @@
             <table-name>OneOwning</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
-                <table-column>id</table-column>
+                <table-column>col_id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>field1</cmp-field-name>
-                <table-column>field1</table-column>
+                <table-column>col_field1</table-column>
             </cmp-field-mapping>
         </entity>
         <entity>
@@ -33,7 +33,7 @@
             <table-name>OneInverse</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
-                <table-column>id</table-column>
+                <table-column>col_id</table-column>
             </cmp-field-mapping>
         </entity>
         <entity>
@@ -41,11 +41,11 @@
             <table-name>ManyOwning</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
-                <table-column>id</table-column>
+                <table-column>col_id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>field1</cmp-field-name>
-                <table-column>field1</table-column>
+                <table-column>col_field1</table-column>
             </cmp-field-mapping>
         </entity>
         
@@ -66,8 +66,8 @@
                 </cmr-field>
                 <role-mapping>
                     <cmr-field-mapping>
-                        <key-column>id</key-column>
-                        <foreign-key-column>field1</foreign-key-column>
+                        <key-column>col_id</key-column>
+                        <foreign-key-column>col_field1</foreign-key-column>
                     </cmr-field-mapping>
                 </role-mapping>
             </ejb-relationship-role>
@@ -82,8 +82,8 @@
                 </cmr-field>
                 <role-mapping>
                     <cmr-field-mapping>
-                        <key-column>id</key-column>
-                        <foreign-key-column>field1</foreign-key-column>
+                        <key-column>col_id</key-column>
+                        <foreign-key-column>col_field1</foreign-key-column>
                     </cmr-field-mapping>
                 </role-mapping>
             </ejb-relationship-role>
