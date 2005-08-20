@@ -105,6 +105,8 @@ import org.tranql.ejb.CMPFieldNestedRowAccessor;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.CMPMappedToCMRAccessor;
 import org.tranql.ejb.CMRField;
+import org.tranql.ejb.CMRMappedToInversePKCMP;
+import org.tranql.ejb.CMRMappedToOwningPKCMP;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.FinderEJBQLQuery;
@@ -315,9 +317,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
-        } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
         }
+        return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
     }
 
     private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessor) throws QueryException {
@@ -407,12 +408,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             FaultHandler relatedFaultHandler = buildFaultHandler(queryBuilder, relatedEJB, relatedField, relatedIndex, prefetch);
             CMPFieldTransform relatedAccessor = new CMPFieldAccessor(new CacheRowAccessor(relatedIndex, null), name);
             relatedAccessor = new CMPFieldFaultTransform(relatedAccessor, relatedFaultHandler, new int[]{relatedIndex});
-            if ( association.isOneToOne() ) {
+            if ( field.isOneToOne() ) {
                 accessor = new OneToOneCMR(accessor, identityDefiner, relatedAccessor, relatedIdentityDefiner);
-            } else if ( association.isOneToMany(field) ) {
+                accessor = buildCMRMappedToPKCMP(relatedEJB, relatedField, accessor, false, relatedIndex);
+                accessor = buildCMRMappedToPKCMP(ejb, field, accessor, true, i);
+            } else if ( field.isOneToMany() ) {
+                relatedAccessor = buildCMRMappedToPKCMP(relatedEJB, relatedField, relatedAccessor, true, relatedIndex);
                 accessor = new ManyToOneCMR(accessor, identityDefiner, relatedAccessor, relatedIdentityDefiner);
-            } else if ( association.isManyToOne(field) ) {
+            } else if ( field.isManyToOne() ) {
                 accessor = new OneToManyCMR(accessor, relatedAccessor, relatedIdentityDefiner);
+                accessor = buildCMRMappedToPKCMP(ejb, field, accessor, true, i);
             } else {
                 CacheTable mtm = (CacheTable) getGlobalSchema().getEntity(association.getManyToManyEntity().getName());
                 boolean isRight = association.getRightJoinDefinition().getPKEntity() == ejb;
@@ -422,7 +427,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             cmrFaultAccessors.put(name, accessor);
 
             IdentityTransform relatedIdentityTransform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEJB);
-            if ( association.isOneToOne() || association.isManyToOne(field) ) {
+            if ( field.isOneToOne() || field.isManyToOne() ) {
                 accessor = new SingleValuedCMRAccessor(accessor,
                         new LocalProxyTransform(relatedIdentityTransform, relatedEJB.getProxyFactory()));
             } else {
@@ -437,6 +442,20 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return new LinkedHashMap[] {cmrFaultAccessors, cmrFieldAccessors};
     }
 
+    private CMPFieldTransform buildCMRMappedToPKCMP(Entity entity, AssociationEnd end, CMPFieldTransform accessor, boolean owning, int cmrSlot) {
+        List pkFields = entity.getPrimaryKeyFields();
+        for (Iterator iter = pkFields.iterator(); iter.hasNext();) {
+            Attribute pkField = (Attribute) iter.next();
+            if (end.hasFKAttribute(pkField.getName())) {
+                if (owning) {
+                    return new CMRMappedToOwningPKCMP(accessor, cmrSlot);
+                }
+                return new CMRMappedToInversePKCMP(accessor, cmrSlot);
+            }
+        }
+        return accessor;
+    }
+    
     private FaultHandler buildFaultHandler(SQLQueryBuilder queryBuilder, EJB definingEJB, CMRField field, int slot, boolean prefetch) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         Association association = field.getAssociation();
@@ -458,7 +477,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         QueryCommand faultCommand = queryBuilder.buildLoadAssociationEnd(definingEJB.getName(), field.getName(), prefetch);
-        if ( association.isOneToOne() || association.isManyToOne(field) ) {
+        if ( field.isOneToOne() || field.isManyToOne() ) {
             return new SingleValuedCMRFaultHandler(faultCommand,
                     identityDefiner,
                     new EmptySlotLoader[]{new EmptySlotLoader(slot, new ReferenceAccessor(relatedIdentityDefiner))});

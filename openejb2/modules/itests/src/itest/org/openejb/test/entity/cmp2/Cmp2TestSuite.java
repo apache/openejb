@@ -71,6 +71,7 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
         this.addTest(new PrefetchTests());
         this.addTest(new PetstoreTests());
         this.addTest(new StorageTests());
+        this.addTest(new CMRMappingTests());
     }
 
     public static junit.framework.Test suite() {

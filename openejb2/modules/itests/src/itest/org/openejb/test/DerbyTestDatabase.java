@@ -85,6 +85,18 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
 
     private static final String DROP_STORAGE = "DROP TABLE storage";
 
+    private static final String CREATE_ONE_OWNING = "CREATE TABLE oneowning (id INTEGER, field1 INTEGER)";
+
+    private static final String DROP_ONE_OWNING = "DROP TABLE oneowning";
+
+    private static final String CREATE_ONE_INVERSE = "CREATE TABLE oneinverse (id INTEGER)";
+
+    private static final String DROP_ONE_INVERSE = "DROP TABLE oneinverse";
+
+    private static final String CREATE_MANY_OWNING = "CREATE TABLE manyowning (id INTEGER, field1 INTEGER)";
+
+    private static final String DROP_MANY_OWNING = "DROP TABLE manyowning";
+
     private static final String CREATE_SEQUENCE_TABLE = "CREATE TABLE SEQUENCE_TABLE (ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), DUMMY INT)";
 
     private static final String DROP_SEQUENCE_TABLE = "DROP TABLE SEQUENCE_TABLE";
@@ -136,6 +148,15 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
         executeStatementIgnoreErrors(DROP_STORAGE);
         executeStatement(CREATE_STORAGE);
 
+        executeStatementIgnoreErrors(DROP_ONE_OWNING);
+        executeStatement(CREATE_ONE_OWNING);
+        
+        executeStatementIgnoreErrors(DROP_ONE_INVERSE);
+        executeStatement(CREATE_ONE_INVERSE);
+        
+        executeStatementIgnoreErrors(DROP_MANY_OWNING);
+        executeStatement(CREATE_MANY_OWNING);
+
         executeStatementIgnoreErrors(DROP_SEQUENCE_TABLE);
         executeStatement(CREATE_SEQUENCE_TABLE);
     }
@@ -150,6 +171,12 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
         executeStatementIgnoreErrors(DROP_ORDER);
 
         executeStatementIgnoreErrors(DROP_PRODUCT);
+
+        executeStatementIgnoreErrors(DROP_ONE_OWNING);
+        
+        executeStatementIgnoreErrors(DROP_ONE_INVERSE);
+        
+        executeStatementIgnoreErrors(DROP_MANY_OWNING);
 
         executeStatementIgnoreErrors(DROP_SEQUENCE_TABLE);
     }
