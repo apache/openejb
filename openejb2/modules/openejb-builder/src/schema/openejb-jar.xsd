@@ -160,7 +160,7 @@
     <xs:complexType name="web-service-securityType">
         <xs:sequence>
             <xs:element name="security-realm-name" type="xs:string"/>
-            <xs:element name="realm-name" type="xs:string"/>
+            <xs:element name="realm-name" type="xs:string" minOccurs="0"/>
             <xs:element name="transport-guarantee" type="openejb:transport-guaranteeType"/>
             <xs:element name="auth-method" type="openejb:auth-methodType"/>
         </xs:sequence>
