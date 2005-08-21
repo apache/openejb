@@ -102,7 +102,7 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
     }
 
 
-    public void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
+    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
         contextPathToWSMap.put(contextPath, webServiceContainer);
     }
 

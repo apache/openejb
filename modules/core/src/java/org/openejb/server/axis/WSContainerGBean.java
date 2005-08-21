@@ -70,6 +70,7 @@ public class WSContainerGBean {
         infoFactory.addAttribute("transportGuarantee", String.class, true);
         infoFactory.addAttribute("authMethod", String.class, true);
         infoFactory.addAttribute("serviceInfo", ServiceInfo.class, true);
+        infoFactory.addAttribute("virtualHosts", String[].class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class);
 
         infoFactory.setConstructor(new String[]{
@@ -81,7 +82,8 @@ public class WSContainerGBean {
             "securityRealmName",
             "realmName",
             "transportGuarantee",
-            "authMethod"
+            "authMethod",
+            "virtualHosts"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
