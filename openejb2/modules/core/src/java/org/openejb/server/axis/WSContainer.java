@@ -73,7 +73,8 @@ public class WSContainer implements GBeanLifecycle {
                        String securityRealmName,
                        String realmName,
                        String transportGuarantee,
-                       String authMethod) throws Exception {
+                       String authMethod,
+                       String[] virtualHosts) throws Exception {
 
         this.soapHandler = soapHandler;
         this.location = location;
@@ -94,7 +95,7 @@ public class WSContainer implements GBeanLifecycle {
         ClassLoader classLoader = ejbContainer.getClassLoader();
         AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         if (soapHandler != null) {
-            soapHandler.addWebService(location.getPath(), axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+            soapHandler.addWebService(location.getPath(), virtualHosts, axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
         }
 
     }

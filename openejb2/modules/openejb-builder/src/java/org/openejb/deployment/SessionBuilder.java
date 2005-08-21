@@ -106,7 +106,7 @@ import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
 class SessionBuilder extends BeanBuilder {
 
     private final static String DEFAULT_AUTH_REALM_NAME = "Geronimo Web Service";
-    
+
     private final WebServiceBuilder webServiceBuilder;
     private final GBeanData linkDataTemplate;
 
@@ -195,8 +195,6 @@ class SessionBuilder extends BeanBuilder {
         J2eeContext j2eeContext = earContext.getJ2eeContext();
         OpenejbWebServiceSecurityType webServiceSecurity = openejbSessionBean == null ? null : openejbSessionBean.getWebServiceSecurity();
 
-
-
         //this code belongs here
         ObjectName linkName = null;
         try {
@@ -217,12 +215,19 @@ class SessionBuilder extends BeanBuilder {
             linkData.setAttribute("transportGuarantee", webServiceSecurity.getTransportGuarantee().toString());
             linkData.setAttribute("authMethod", webServiceSecurity.getAuthMethod().toString());
         }
+
         linkData.setReferencePattern("WebServiceContainer", listener);
         linkData.setReferencePattern("EJBContainer", sessionObjectName);
 
-        GBeanData gBean = linkData;
+        if (openejbSessionBean != null) {
+            String[] virtualHosts = openejbSessionBean.getWebServiceVirtualHostArray();
+            for (int i = 0; i < virtualHosts.length; i++) {
+                virtualHosts[i] = virtualHosts[i].trim();
+            }
+            linkData.setAttribute("virtualHosts", virtualHosts);
+        }
 
-        earContext.addGBean(gBean);
+        earContext.addGBean(linkData);
     }
 
     private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
