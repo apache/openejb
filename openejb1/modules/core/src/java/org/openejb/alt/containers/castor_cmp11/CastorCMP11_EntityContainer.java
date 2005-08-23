@@ -241,8 +241,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * @exception org.openejb.OpenEJBException
      * @see org.openejb.Container
      */
-    public void init( Object id, HashMap registry, Properties properties )
-    throws org.openejb.OpenEJBException {
+    public void init( Object id, HashMap registry, Properties properties ) throws org.openejb.OpenEJBException {
         containerID = id;
         deploymentRegistry = registry;
 
@@ -259,24 +258,14 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         File lTxDb = null;
         try {
             gTxDb = SystemInstance.get().getBase().getFile( Global_TX_Database );
-        } catch ( Exception ignored ) {
-            try {
-                gTxDb = SystemInstance.get().getHome().getFile(Global_TX_Database);
-            } catch (Exception e) {
-                throw new OpenEJBException("Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. "
-                        + e.getMessage());
-            }
+        } catch ( Exception e ) {
+            throw new OpenEJBException("Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. " + e.getMessage());
         }
 
         try {
             lTxDb = SystemInstance.get().getBase().getFile( Local_TX_Database );
-        } catch ( Exception ignored ) {
-            try {
-                lTxDb = SystemInstance.get().getHome().getFile(Local_TX_Database);
-            } catch (Exception e) {
-                throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. "
-                        + e.getMessage());
-            }
+        } catch ( Exception e ) {
+            throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. " + e.getMessage());
         }
 
         /*
@@ -386,9 +375,14 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                     findByPrimarKeyQuery.append("e." + di.getPrimaryKeyField().getName() + " = $1");
                 }
 
-                Method findByPrimaryKeyMethod = di.getHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
-
-                di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery.toString() );
+                if (di.getHomeInterface() != null) {
+                    Method findByPrimaryKeyMethod = di.getHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
+                    di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery.toString() );
+                }
+                if (di.getLocalHomeInterface() != null) {
+                    Method findByPrimaryKeyMethod = di.getLocalHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
+                    di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery.toString() );
+                }
             } catch ( Exception e ) {
                 throw new org.openejb.SystemException( "Could not generate a query statement for the findByPrimaryKey method of the deployment = " + di.getDeploymentID(), e );
             }
@@ -410,13 +404,12 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
 
         String userDir = System.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.base"));
+            File base = SystemInstance.get().getBase().getDirectory();
+            System.setProperty("user.dir", base.getAbsolutePath());
             jdo_ForLocalTransaction.getDatabase();
             jdo_ForGlobalTransaction.getDatabase();
-
         } catch (Throwable e){
-            //e.printStackTrace();
-            //throw new org.openejb.SystemException("DB thing failed",e);
+            throw (IllegalStateException) new IllegalStateException("Castor JDO initialization failed").initCause(e);
         } finally {
             initialized = true;
             System.setProperty("user.dir",userDir);

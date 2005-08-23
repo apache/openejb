@@ -149,15 +149,20 @@ class EnterpriseBeanBuilder {
             deployment.setIsReentrant(entity.reentrant.equalsIgnoreCase("true"));
 
             if (ejbType == EjbType.CMP_ENTITY) {
-                QueryInfo[] queries = entity.queries;
-                if (queries != null) {
-                    for (int i = 0; i < queries.length; i++) {
-                        Vector finderMethods = new Vector();
-                        QueryInfo query = queries[i];
+                QueryInfo[] queries = (entity.queries == null)? new QueryInfo[]{}:entity.queries;
+                for (int i = 0; i < queries.length; i++) {
+                    QueryInfo query = queries[i];
+
+                    Vector finderMethods = new Vector();
+
+                    if (home != null ){
                         AssemblerTool.resolveMethods(finderMethods, home, query.method);
-                        for (int j = 0; j < finderMethods.size(); j++) {
-                            deployment.addQuery((Method) finderMethods.elementAt(j), query.queryStatement);
-                        }
+                    }
+                    if (localhome != null ){
+                        AssemblerTool.resolveMethods(finderMethods, localhome, query.method);
+                    }
+                    for (int j = 0; j < finderMethods.size(); j++) {
+                        deployment.addQuery((Method) finderMethods.elementAt(j), query.queryStatement);
                     }
                 }
                 deployment.setCmrFields(entity.cmpFieldNames);
