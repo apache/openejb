@@ -12,24 +12,24 @@
  *    following disclaimer in the documentation and/or other
  *    materials provided with the distribution.
  *
- * 3. The name "Exolab" must not be used to endorse or promote
+ * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
- *    permission of Exoffice Technologies.  For written permission,
- *    please contact info@exolab.org.
+ *    permission of The OpenEJB Group.  For written permission,
+ *    please contact info@openejb.org.
  *
- * 4. Products derived from this Software may not be called "Exolab"
- *    nor may "Exolab" appear in their names without prior written
- *    permission of Exoffice Technologies. Exolab is a registered
- *    trademark of Exoffice Technologies.
+ * 4. Products derived from this Software may not be called "OpenEJB"
+ *    nor may "OpenEJB" appear in their names without prior written
+ *    permission of The OpenEJB Group. OpenEJB is a registered
+ *    trademark of The OpenEJB Group.
  *
- * 5. Due credit should be given to the Exolab Project
- *    (http://www.exolab.org/).
+ * 5. Due credit should be given to the OpenEJB Project
+ *    (http://openejb.org/).
  *
- * THIS SOFTWARE IS PROVIDED BY EXOFFICE TECHNOLOGIES AND CONTRIBUTORS
+ * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
- * EXOFFICE TECHNOLOGIES OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -38,15 +38,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 1999 (C) Exoffice Technologies Inc. All Rights Reserved.
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
- */package org.openejb.resource.jdbc;
+ */
+package org.openejb.resource.jdbc;
 
 import java.sql.SQLException;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
+import javax.resource.spi.ManagedConnectionFactory;
 
 /*
 * As a connection factory the JdbcConnecitonFactory must implement the Serializable and 
@@ -61,14 +63,18 @@ javax.sql.DataSource,
 javax.resource.Referenceable, 
 java.io.Serializable {
     
-    protected transient JdbcManagedConnectionFactory mngdCxFactory;
+    protected transient ManagedConnectionFactory mngdCxFactory;
     protected transient ConnectionManager cxManager;
     protected transient java.io.PrintWriter logWriter;
     protected int logTimeout = 0;
     
     // Reference to this ConnectionFactory
     javax.naming.Reference jndiReference;
-    
+    private final String jdbcUrl;
+    private final String jdbcDriver;
+    private final String defaultPassword;
+    private final String defaultUserName;
+
     // setReference is called by deployment code
     public void setReference(javax.naming.Reference ref) {
         jndiReference = ref;
@@ -78,19 +84,23 @@ java.io.Serializable {
         return jndiReference;
     }
     
-    public JdbcConnectionFactory(JdbcManagedConnectionFactory mngdCxFactory, ConnectionManager cxManager)
+    public JdbcConnectionFactory(ManagedConnectionFactory mngdCxFactory, ConnectionManager cxManager, String jdbcUrl, String jdbcDriver, String defaultPassword, String defaultUserName)
     throws ResourceException{
         this.mngdCxFactory = mngdCxFactory;
         this.cxManager = cxManager;
-        logWriter = mngdCxFactory.getLogWriter();
+        this.logWriter = mngdCxFactory.getLogWriter();
+        this.jdbcUrl = jdbcUrl;
+        this.jdbcDriver = jdbcDriver;
+        this.defaultPassword = defaultPassword;
+        this.defaultUserName = defaultUserName;
     }
         
     public java.sql.Connection getConnection() throws SQLException{
-        return getConnection(mngdCxFactory.getDefaultUserName(), mngdCxFactory.getDefaultPassword());
+        return getConnection(defaultUserName, defaultPassword);
     }
+
     public java.sql.Connection getConnection(java.lang.String username, java.lang.String password)throws SQLException{
-        JdbcConnectionRequestInfo conInfo = new JdbcConnectionRequestInfo(username, password, mngdCxFactory.getJdbcDriver(), mngdCxFactory.getJdbcUrl());
-        return getConnection(conInfo);
+        return getConnection(new JdbcConnectionRequestInfo(username, password, jdbcDriver, jdbcUrl));
     }
     protected java.sql.Connection getConnection(JdbcConnectionRequestInfo conInfo) throws SQLException{
         try{

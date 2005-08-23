@@ -42,69 +42,32 @@
  *
  * $Id$
  */
+
 package org.openejb.resource.jdbc;
 
-import org.openejb.core.EnvProps;
-import org.openejb.util.Logger;
+import org.openejb.loader.SystemInstance;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionManager;
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
-import javax.resource.spi.ResourceAdapterInternalException;
+import javax.resource.spi.ConnectionManager;
+import javax.resource.spi.ManagedConnection;
+import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.EISSystemException;
+import javax.resource.ResourceException;
 import javax.security.auth.Subject;
-import java.io.PrintWriter;
 import java.util.Set;
+import java.util.Properties;
+import java.io.PrintWriter;
+import java.io.File;
+import java.sql.DriverManager;
 
-public class JdbcManagedConnectionFactory implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
+/**
+ * @version $Revision$ $Date$
+ */
+public class ManagedConnectionFactoryPathHack implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
+    private final ManagedConnectionFactory factory;
 
-    protected Logger logger = Logger.getInstance("OpenEJB.connector", "org.openejb.alt.util.resources");
-    private ManagedConnectionFactory factory;
-
-    public void init(java.util.Properties props) throws javax.resource.spi.ResourceAdapterInternalException {
-        String defaultUserName = props.getProperty(EnvProps.USER_NAME);
-        String defaultPassword = props.getProperty(EnvProps.PASSWORD);
-        String url = props.getProperty(EnvProps.JDBC_URL);
-        String driver = props.getProperty(EnvProps.JDBC_DRIVER);
-
-        loadDriver(driver);
-
-        factory = new BasicManagedConnectionFactory(driver, url, defaultUserName, defaultPassword);
-
-        if (driver.equals("org.enhydra.instantdb.jdbc.idbDriver")) {
-            factory = new ManagedConnectionFactoryPathHack(factory);
-        }
-
-        JdbcConnectionRequestInfo info = new JdbcConnectionRequestInfo(defaultUserName, defaultPassword, driver, url);
-        ManagedConnection connection = null;
-        try {
-            connection = factory.createManagedConnection(null, info);
-        } catch (Throwable e) {
-            logger.error("Testing driver failed.  " + "[" + url + "]  "
-                    + "Could not obtain a physical JDBC connection from the DriverManager."
-                    + "\nThe error message was:\n" + e.getMessage() + "\nPossible cause:"
-                    + "\n\to JDBC driver classes are not available to OpenEJB"
-                    + "\n\to Relative paths are not resolved properly");
-        } finally {
-            try {
-                connection.destroy();
-            } catch (ResourceException dontCare) {
-            }
-        }
-    }
-
-    private void loadDriver(String driver) throws ResourceAdapterInternalException {
-        try {
-            ClassLoader classLoader = (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
-                public Object run() {
-                    return Thread.currentThread().getContextClassLoader();
-                }
-            });
-            Class.forName(driver, true, classLoader);
-        } catch (ClassNotFoundException cnf) {
-            throw new ResourceAdapterInternalException("JDBC Driver class \"" + driver + "\" not found by class loader", ErrorCode.JDBC_0002);
-        }
+    public ManagedConnectionFactoryPathHack(ManagedConnectionFactory factory) {
+        this.factory = factory;
     }
 
     public Object createConnectionFactory(ConnectionManager connectionManager) throws ResourceException {
@@ -116,7 +79,20 @@ public class JdbcManagedConnectionFactory implements javax.resource.spi.ManagedC
     }
 
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo connectionRequestInfo) throws ResourceException {
-        return factory.createManagedConnection(subject, connectionRequestInfo);
+        // DMB: This hack makes me want to vomit, but it will have to do until
+        // we figure out how to get relative file paths in nested configs, like
+        // the instantdb config file, to resolve to openejb.base or something predictable.
+        Properties systemProperties = System.getProperties();
+        synchronized(systemProperties){
+            String userDir = systemProperties.getProperty("user.dir");
+            try{
+                File base = SystemInstance.get().getBase().getDirectory();
+                systemProperties.setProperty("user.dir", base.getAbsolutePath());
+                return factory.createManagedConnection(subject, connectionRequestInfo);
+            } finally {
+                systemProperties.setProperty("user.dir",userDir);
+            }
+        }
     }
 
     public ManagedConnection matchManagedConnections(Set set, Subject subject, ConnectionRequestInfo connectionRequestInfo) throws ResourceException {
