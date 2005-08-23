@@ -44,114 +44,123 @@
  */
 package org.openejb.resource.jdbc;
 
-import java.sql.SQLException;
-
+import javax.naming.Reference;
 import javax.resource.ResourceException;
+import javax.resource.spi.ApplicationServerInternalException;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.ResourceAdapterInternalException;
+import javax.resource.spi.ResourceAllocationException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-/*
-* As a connection factory the JdbcConnecitonFactory must implement the Serializable and 
-* Referenceable methods so that it can be store in a JNDI name space.  The referenc itself
-* is an application specific object that can be used to lookup and configure a new ManagedConnectionFactory
-* the JdbcConnecitonFactory is only a store for this reference, its not expected to be functional after 
-* it has been serialized into a JNDI name space.  See section 10.5.3 of the Connector API spec.
-*/
-public class JdbcConnectionFactory 
-implements 
-javax.sql.DataSource, 
-javax.resource.Referenceable, 
-java.io.Serializable {
+/**
+ * As a connection factory the JdbcConnecitonFactory must implement the
+ * Serializable and Referenceable methods so that it can be store in a
+ * JNDI name space.  The reference itself is an application specific object
+ * that can be used to lookup and configure a new ManagedConnectionFactory
+ * the JdbcConnecitonFactory is only a store for this reference, its not
+ * expected to be functional after it has been serialized into a JNDI
+ * namespace.
+ * <p/>
+ * See section 10.5.3 of the J2EE Connector Architecture 1.0 spec.
+ */
+public class JdbcConnectionFactory implements javax.sql.DataSource, javax.resource.Referenceable, java.io.Serializable {
+    /**
+     * A Reference to this ConnectionFactory in JNDI
+     */
+    private Reference jndiReference;
     
-    protected transient ManagedConnectionFactory mngdCxFactory;
-    protected transient ConnectionManager cxManager;
-    protected transient java.io.PrintWriter logWriter;
-    protected int logTimeout = 0;
-    
-    // Reference to this ConnectionFactory
-    javax.naming.Reference jndiReference;
+    private final transient ManagedConnectionFactory managedConnectionFactory;
+    private final transient ConnectionManager connectionManager;
     private final String jdbcUrl;
     private final String jdbcDriver;
     private final String defaultPassword;
     private final String defaultUserName;
+    private transient PrintWriter logWriter;
+    private int logTimeout = 0;
 
-    // setReference is called by deployment code
-    public void setReference(javax.naming.Reference ref) {
-        jndiReference = ref;
-    }
-    // getReference is called by JNDI provider during Context.bind
-    public javax.naming.Reference getReference() {
-        return jndiReference;
-    }
-    
-    public JdbcConnectionFactory(ManagedConnectionFactory mngdCxFactory, ConnectionManager cxManager, String jdbcUrl, String jdbcDriver, String defaultPassword, String defaultUserName)
-    throws ResourceException{
-        this.mngdCxFactory = mngdCxFactory;
-        this.cxManager = cxManager;
-        this.logWriter = mngdCxFactory.getLogWriter();
+    public JdbcConnectionFactory(ManagedConnectionFactory managedConnectionFactory,
+                                 ConnectionManager connectionManager, String jdbcUrl,
+                                 String jdbcDriver, String defaultPassword, String defaultUserName) throws ResourceException {
+        this.managedConnectionFactory = managedConnectionFactory;
+        this.connectionManager = connectionManager;
+        this.logWriter = managedConnectionFactory.getLogWriter();
         this.jdbcUrl = jdbcUrl;
         this.jdbcDriver = jdbcDriver;
         this.defaultPassword = defaultPassword;
         this.defaultUserName = defaultUserName;
     }
-        
-    public java.sql.Connection getConnection() throws SQLException{
+
+    /**
+     * setReference is called by deployment code
+     *
+     * @param jndiReference
+     */
+    public void setReference(Reference jndiReference) {
+        this.jndiReference = jndiReference;
+    }
+
+    /**
+     * getReference is called by JNDI provider during Context.bind
+     *
+     * @return
+     */
+    public Reference getReference() {
+        return jndiReference;
+    }
+
+    public Connection getConnection() throws SQLException {
         return getConnection(defaultUserName, defaultPassword);
     }
 
-    public java.sql.Connection getConnection(java.lang.String username, java.lang.String password)throws SQLException{
+    public Connection getConnection(java.lang.String username, java.lang.String password) throws SQLException {
         return getConnection(new JdbcConnectionRequestInfo(username, password, jdbcDriver, jdbcUrl));
     }
-    protected java.sql.Connection getConnection(JdbcConnectionRequestInfo conInfo) throws SQLException{
-        try{
-            // FIXME: Use ManagedConnection.assocoate() method here if the client has already obtained a physical connection.
-            // the previous connection is either shared or invalidated. IT should probably be shared.
-            return (java.sql.Connection)cxManager.allocateConnection(mngdCxFactory, conInfo);
-        }catch(javax.resource.spi.ApplicationServerInternalException asi){
-            // Application problem with the ConnectionManager. May be a SQLException
-            if(asi.getLinkedException() instanceof SQLException)
-                throw (SQLException)asi.getLinkedException();
-            else
-                throw new SQLException("Error code: "+asi.getErrorCode()+"\nApplication error in ContainerManager"+((asi.getLinkedException()!=null)?asi.getLinkedException().getMessage():""));
-        }catch(javax.resource.spi.SecurityException se){
-            // The username/password in the conInfo is invalid. Should be a nested SQLException.
-            if(se.getLinkedException() instanceof SQLException)
-                throw (SQLException)se.getLinkedException();
-            else
-                throw new SQLException("Error code: "+se.getErrorCode()+"\nAuthentication error. Invalid credentials"+((se.getLinkedException()!=null)?se.getLinkedException().getMessage():""));
-        }catch(javax.resource.spi.ResourceAdapterInternalException rai){
-            // some kind of connection problem. Should be a nested SQLException.
-            if(rai.getLinkedException() instanceof SQLException)
-                throw (SQLException)rai.getLinkedException();
-            else
-                throw new SQLException("Error code: "+rai.getErrorCode()+"\nJDBC Connection problem"+((rai.getLinkedException()!=null)?rai.getLinkedException().getMessage():""));
-        }catch(javax.resource.spi.ResourceAllocationException rae){
-            // a connection could not be obtained from the driver or ConnectionManager.  May be a SQLException
-            if(rae.getLinkedException() instanceof SQLException)
-                throw (SQLException)rae.getLinkedException();
-            else
-                throw new SQLException("Error code: "+rae.getErrorCode()+"\nJDBC Connection could not be obtained"+((rae.getLinkedException()!=null)?rae.getLinkedException().getMessage():""));
-        }catch(javax.resource.ResourceException re){
-            // Unknown cause of exception.  May be a SQLException
-            if(re.getLinkedException() instanceof SQLException)
-                throw (SQLException)re.getLinkedException();
-            else
-                throw new SQLException("Error code: "+re.getErrorCode()+"\nJDBC Connection Factory problem"+((re.getLinkedException()!=null)?re.getLinkedException().getMessage():""));
+
+    protected Connection getConnection(JdbcConnectionRequestInfo connectionRequestInfo) throws SQLException {
+        // TODO: Use ManagedConnection.assocoate() method here if the client has already obtained a physical connection.
+        // the previous connection is either shared or invalidated. IT should probably be shared.
+        try {
+            return (Connection) connectionManager.allocateConnection(managedConnectionFactory, connectionRequestInfo);
+        } catch (ApplicationServerInternalException e) {
+            throw convertToSQLException(e, "Application error in ContainerManager");
+        } catch (javax.resource.spi.SecurityException e) {
+            throw convertToSQLException(e, "Authentication error. Invalid credentials");
+        } catch (ResourceAdapterInternalException e) {
+            throw convertToSQLException(e, "JDBC Connection problem");
+        } catch (ResourceAllocationException e) {
+            throw convertToSQLException(e, "JDBC Connection could not be obtained");
+        } catch (ResourceException e) {
+            throw convertToSQLException(e, "JDBC Connection Factory problem");
         }
     }
-    public int getLoginTimeout(){
+
+    private SQLException convertToSQLException(ResourceException e, String error) {
+        Throwable cause = e.getCause();
+        if (cause instanceof SQLException) {
+            return (SQLException) cause;
+        } else {
+            String message = ((cause != null) ? cause.getMessage() : "");
+            return (SQLException) new SQLException("Error code: " + e.getErrorCode() + error + message).initCause(e);
+        }
+    }
+
+    public int getLoginTimeout() {
         return logTimeout;
-    } 
-       
-    public java.io.PrintWriter getLogWriter(){
+    }
+
+    public java.io.PrintWriter getLogWriter() {
         return logWriter;
     }
-    public void setLoginTimeout(int seconds){
-        //FIXME: how should log timeout work?
+
+    public void setLoginTimeout(int seconds) {
+        //TODO: how should log timeout work?
         logTimeout = seconds;
-    } 
-       
-    public void setLogWriter(java.io.PrintWriter out){
+    }
+
+    public void setLogWriter(java.io.PrintWriter out) {
         logWriter = out;
     }
 }
