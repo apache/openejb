@@ -63,27 +63,6 @@
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="schema/geronimo-config.xsd"/>
     <xs:import namespace="http://www.openejb.org/xml/ns/pkgen" schemaLocation="schema/openejb-pkgen.xsd"/>
 
-    <xs:group name="openejb-jndiEnvironmentRefsGroup">
-        <xs:annotation>
-            <xs:documentation>
-
-                 This is a hack until groups in xmlbeans behave better
-
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
-
-            <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
-
-        </xs:sequence>
-    </xs:group>
-
-
     <xs:element name="openejb-jar" type="openejb:openejb-jarType"/>
 
     <xs:complexType name="openejb-jarType">
@@ -127,8 +106,7 @@
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:group ref="openejb:tssGroup" minOccurs="0"/>
 
-            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
-            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+            <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
             <xs:element name="web-service-address" type="xs:string" minOccurs="0"/>
             <xs:element name="web-service-virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="web-service-security" type="openejb:web-service-securityType" minOccurs="0"/>
@@ -223,8 +201,7 @@
                 </xs:element>
             </xs:sequence>
 
-            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
-            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+            <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
 
             <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -353,8 +330,7 @@
                 type="openejb:activation-configType"
                 minOccurs="0"/>
 
-            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
-            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+            <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
     </xs:complexType>
