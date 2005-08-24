@@ -197,6 +197,16 @@ public class CSSBean implements GBeanLifecycle {
 
     public void doStart() throws Exception {
 
+        if (cssConfig == null) {
+            cssConfig = new CSSConfig();
+        }
+        if (cssArgs == null) {
+            cssArgs = new ArrayList();
+        }
+        if (cssProps == null) {
+            cssProps = new Properties();
+        }
+
         if (nssConfig == null) {
             if (log.isDebugEnabled()) log.debug("Defaulting NSS config to be CSS config");
             nssConfig = cssConfig;
