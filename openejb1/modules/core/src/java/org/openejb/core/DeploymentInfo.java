@@ -745,7 +745,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             handler = new EntityEjbHomeHandler((RpcContainer)container, null, getDeploymentID());
             break;
         }
-        handler.setIntraVmCopyMode(false);
+        handler.setLocal(true);
         Object proxy = null;
         try{
             Class[] interfaces = new Class[]{ this.getLocalHomeInterface(), org.openejb.core.ivm.IntraVmProxy.class };
