@@ -279,7 +279,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
         }
 
         String jndiEnc = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
-        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES,"org.openejb.core.ivm.naming");
+//        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES,"org.openejb.core.ivm.naming");
         // the four operations on IntraVmCopyMonitor are quite expensive, because
         // all of them require a Thread.currentThread() operation, which is native code
         try{
@@ -314,6 +314,12 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
 					*/
                 	
 					return _invoke(proxy,method,args);
+				} catch (RemoteException e) {
+                    if (this.isLocal()){
+                        throw new EJBException(e.getMessage()).initCause(e.getCause());
+                    } else {
+                        throw e;
+                    }
 				} catch (Throwable t) {
 					t.printStackTrace();
 					Class[] etypes = method.getExceptionTypes();
@@ -325,14 +331,14 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
 					}
 					// Exception is undeclared
 					// Try and find a runtime exception in there
-					while (!(t instanceof RuntimeException)){
+					while (t.getCause() != null && !(t instanceof RuntimeException)){
 						t = t.getCause();
 					}
 					throw t;
 				}
             }
         } finally {
-            System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, jndiEnc);
+//            System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, jndiEnc);
             // restore the context
             if(cntextValid){
                 cntext.set(depInfo, prmryKey, scrtyIdentity);
