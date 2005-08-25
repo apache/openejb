@@ -51,6 +51,7 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 
 import javax.ejb.EJBHome;
+import javax.ejb.EJBException;
 
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
@@ -184,8 +185,20 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
          * The ire is thrown by the container system and propagated by
          * the server to the stub.
          */
-        }catch ( org.openejb.InvalidateReferenceException ire ) {
-            throw ire.getRootCause();
+        } catch (RemoteException re) {
+            if (isLocal()){
+                throw new EJBException(re.getMessage(),(Exception)re.detail);
+            } else {
+                throw re;
+            }
+
+        } catch ( org.openejb.InvalidateReferenceException ire ) {
+            Throwable cause = ire.getRootCause();
+            if (cause instanceof RemoteException && isLocal()){
+                RemoteException re = (RemoteException)cause;
+                cause = new EJBException(re.getMessage(),(Exception)re.detail);
+            }
+            throw cause;
         /*
          * Application exceptions must be reported dirctly to the client. They
          * do not impact the viability of the proxy.
@@ -197,9 +210,17 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
          * problem with the container system.
          */
         } catch ( org.openejb.SystemException se ) {
-            throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
+            if (isLocal()){
+                throw new EJBException("Container has suffered a SystemException", (Exception)se.getRootCause());
+            } else {
+                throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
+            }
         } catch ( org.openejb.OpenEJBException oe ) {
-            throw new RemoteException("Unknown Container Exception",oe.getRootCause());
+            if (isLocal()){
+                throw new EJBException("Unknown Container Exception", (Exception)oe.getRootCause());
+            } else {
+                throw new RemoteException("Unknown Container Exception",oe.getRootCause());
+            }
         } catch(Throwable t) {
             logger.info("finished invoking method "+method.getName()+" with exception:"+t, t);
             throw t;
