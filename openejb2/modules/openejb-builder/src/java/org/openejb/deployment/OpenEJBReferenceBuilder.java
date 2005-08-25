@@ -188,12 +188,16 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
     private boolean matchesProxyInfo(GBeanData data, boolean isRemote, String home, String remote) {
         ProxyInfo proxyInfo = (ProxyInfo) data.getAttribute("proxyInfo");
         if (isRemote) {
-            return proxyInfo.getHomeInterface().getName().equals(home)
-                    && proxyInfo.getRemoteInterface().getName().equals(remote);
+            return matches(proxyInfo.getHomeInterface(), home)
+                    && matches(proxyInfo.getRemoteInterface(), remote);
         } else {
-            return proxyInfo.getLocalHomeInterface().getName().equals(home)
-                    && proxyInfo.getLocalInterface().getName().equals(remote);
+            return matches(proxyInfo.getLocalHomeInterface(), home)
+                    && matches(proxyInfo.getLocalInterface(), remote);
         }
+    }
+
+    private boolean matches(Class clazz, String name) {
+        return clazz != null && clazz.getName().equals(name);
     }
 
     public static final GBeanInfo GBEAN_INFO;
