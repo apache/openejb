@@ -260,7 +260,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             } else if ( componentType == STATEFUL ){
                 policy = new TxNotSupported((TransactionContainer) container );
                 policy = new StatefulContainerManagedTxPolicy( policy );
-            } else if ( componentType == CMP_ENTITY && container instanceof CastorCMP11_EntityContainer){
+            } else if ( componentType == CMP_ENTITY ){
                 policy = new TxNotSupported((TransactionContainer) container );
                 policy = new CastorCmpEntityTxPolicy( policy );
             } else {
@@ -670,7 +670,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
                 policy = new StatefulContainerManagedTxPolicy( policy );
             }
 
-        } else if ( componentType == CMP_ENTITY && container instanceof CastorCMP11_EntityContainer){
+        } else if ( componentType == CMP_ENTITY ){
             policy = new CastorCmpEntityTxPolicy( policy );
         }
         methodTransactionAttributes.put( method, byteValue );
