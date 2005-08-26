@@ -48,6 +48,7 @@ import org.openejb.loader.OpenEJBInstance;
 import org.openejb.loader.SystemInstance;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -70,7 +71,7 @@ public class LocalInitialContextFactory implements javax.naming.spi.InitialConte
                 properties.putAll(env);
                 init(properties);
             } catch (Exception e) {
-                throw new javax.naming.NamingException("Attempted to load OpenEJB. " + e.getMessage());
+                throw (NamingException) new NamingException("Attempted to load OpenEJB. " + e.getMessage()).initCause(e);
             }
             intraVmContext = getIntraVmContext(env);
         }
