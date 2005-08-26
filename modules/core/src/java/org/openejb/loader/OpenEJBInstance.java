@@ -99,7 +99,7 @@ public class OpenEJBInstance {
             return classLoader.loadClass("org.openejb.OpenEJB");
         } catch (Exception e) {
             try {
-                checkOpenEjbHome();
+                checkOpenEjbHome(SystemInstance.get().getHome().getDirectory());
                 FileUtils home = SystemInstance.get().getHome();
                 classPath.addJarsToPath(home.getDirectory("lib"));
             } catch (Exception e2) {
@@ -127,16 +127,12 @@ public class OpenEJBInstance {
     // TODO: move this part back into the LoaderServlet
     String INSTRUCTIONS = "Please edit the web.xml of the openejb_loader webapp and set the openejb.home init-param to the full path where OpenEJB is installed.";
 
-    private void checkOpenEjbHome() throws Exception {
+    private void checkOpenEjbHome(File openejbHome) throws Exception {
         try {
 
-            // The openejb.home must be set
-            String homePath = System.getProperty("openejb.home");
-            if (homePath == null)
-                handleError(NO_HOME, INSTRUCTIONS);
-
+            String homePath = openejbHome.getAbsolutePath();
+            
             // The openejb.home must exist
-            File openejbHome = new File(homePath);
             if (!openejbHome.exists())
                 handleError(BAD_HOME + homePath, NOT_THERE, INSTRUCTIONS);
 
