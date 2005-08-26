@@ -63,7 +63,7 @@ public class TomcatClassPath extends BasicURLClassPath {
     /**
      * The Tomcat Common ClassLoader
      */
-    private final ClassLoader tomcatLoader;
+    private final ClassLoader classLoader;
 
     /**
      * The addRepository(String jar) method of the Tomcat Common ClassLoader
@@ -71,8 +71,13 @@ public class TomcatClassPath extends BasicURLClassPath {
     private Method addRepositoryMethod;
     private Method addURLMethod;
 
+
     public TomcatClassPath() {
-        tomcatLoader = getCommonLoader(getContextClassLoader()).getParent();
+        this(getCommonLoader(getContextClassLoader()).getParent());
+    }
+
+    public TomcatClassPath(ClassLoader classLoader){
+        this.classLoader = classLoader;
         try {
             addRepositoryMethod = getAddRepositoryMethod();
         } catch (Exception tomcat4Exception) {
@@ -83,6 +88,18 @@ public class TomcatClassPath extends BasicURLClassPath {
                 throw new RuntimeException("Failed accessing classloader for Tomcat 4 or 5", tomcat5Exception);
             }
         }
+    }
+
+    private static ClassLoader getCommonLoader(ClassLoader loader) {
+        if (loader.getClass().getName().equals("org.apache.catalina.loader.StandardClassLoader")) {
+            return loader;
+        } else {
+            return getCommonLoader(loader.getParent());
+        }
+    }
+    
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public void addJarsToPath(File dir) throws Exception {
@@ -100,10 +117,6 @@ public class TomcatClassPath extends BasicURLClassPath {
             this.addJarToPath(new File(dir, jarNames[j]).toURL());
         }
         rebuild();
-    }
-
-    public ClassLoader getClassLoader() {
-        return tomcatLoader;
     }
 
     public void addJarToPath(URL jar) throws Exception {
@@ -151,14 +164,6 @@ public class TomcatClassPath extends BasicURLClassPath {
         } catch (Exception e) {
         }
 
-    }
-
-    private ClassLoader getCommonLoader(ClassLoader loader) {
-        if (loader.getClass().getName().equals("org.apache.catalina.loader.StandardClassLoader")) {
-            return loader;
-        } else {
-            return this.getCommonLoader(loader.getParent());
-        }
     }
 
     /**
