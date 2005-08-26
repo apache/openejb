@@ -134,12 +134,17 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
 
         
         /* Add IntraVM JNDI service /////////////////////*/
-        String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
-        if(str==null)
-            str = ":org.openejb.core.ivm.naming";
-        else
-            str = str+":org.openejb.core.ivm.naming";
-        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
+        Properties systemProperties = System.getProperties();
+        synchronized(systemProperties){
+            String str = systemProperties.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
+            String naming = "org.openejb.core.ivm.naming";
+            if (str == null) {
+                str = naming;
+            } else if (str.indexOf(naming) == -1) {
+                str = naming + ":" + str;
+            }
+            systemProperties.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
+        }
         /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
     }
 
