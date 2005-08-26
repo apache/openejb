@@ -78,9 +78,16 @@ public class LoaderServlet extends HttpServlet {
         }
 
         String loader = p.getProperty("openejb.loader"); // Default loader set above
-        if (loader.endsWith("tomcat-webapp") && p.getProperty("openejb.base") == null) {
+        if (loader.endsWith("tomcat-webapp")) {
             ServletContext ctx = config.getServletContext();
-            p.setProperty("openejb.base", ctx.getRealPath("WEB-INF"));
+            File webInf = new File(ctx.getRealPath("WEB-INF"));
+            File webapp = webInf.getParentFile();
+            String webappPath = webapp.getAbsolutePath();
+
+            setPropertyIfNUll(p, "openejb.base", webappPath);
+            setPropertyIfNUll(p, "openejb.configuration", "META-INF/openejb.xml");
+            setPropertyIfNUll(p, "openejb.container.decorators", "org.openejb.core.TomcatJndiSupport");
+            setPropertyIfNUll(p, "log4j.configuration", "META-INF/log4j.properties");
         }
 
         try {
@@ -98,5 +105,11 @@ public class LoaderServlet extends HttpServlet {
         openejb.init(properties);
     }
 
+    private Object setPropertyIfNUll(Properties properties, String key, String value){
+        String currentValue = properties.getProperty(key);
+        if (currentValue == null){
+            properties.setProperty(key, value);
+        }
+        return currentValue;
+    }
 }
-
