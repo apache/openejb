@@ -47,10 +47,14 @@ package org.openejb.alt.assembler.classic;
 
 import org.openejb.Container;
 import org.openejb.OpenEJBException;
+import org.openejb.RpcContainer;
 import org.openejb.core.DeploymentInfo;
+import org.openejb.util.Logger;
 import org.openejb.util.SafeToolkit;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -63,14 +67,20 @@ import java.util.Properties;
  * @version $Revision$ $Date$
  */
 public class ContainerBuilder {
+
+    private static final Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
+
     private final Properties props;
     private final EjbJarInfo[] ejbJars;
     private final ContainerInfo[] containerInfos;
+    private final String[] decorators;
+
 
     public ContainerBuilder(ContainerSystemInfo containerSystemInfo, Properties props) {
         this.props = props;
         this.ejbJars = containerSystemInfo.ejbJars;
         this.containerInfos = containerSystemInfo.containers;
+        this.decorators = props.getProperty("openejb.container.decorators", "").split(":");
     }
 
     public Object build() throws OpenEJBException {
@@ -125,6 +135,24 @@ public class ContainerBuilder {
             clonedProps.putAll(containerInfo.properties);
 
             Container container = (Container) factory.newInstance();
+
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            for (int i = 0; i < decorators.length && container instanceof RpcContainer; i++) {
+                try {
+                    String decoratorName = decorators[i];
+                    Class decorator = contextClassLoader.loadClass(decoratorName);
+                    Constructor constructor = decorator.getConstructor(new Class[]{RpcContainer.class});
+                    container = (Container) constructor.newInstance(new Object[]{container});
+                } catch (NoSuchMethodException e) {
+                    String name = decorators[i].replaceAll(".*\\.", "");
+                    logger.error("Container wrapper " + decorators[i] + " does not have the required constructor 'public " + name + "(RpcContainer container)'");
+                } catch (InvocationTargetException e) {
+                    logger.error("Container wrapper " + decorators[i] + " could not be constructed and will be skipped.  Received message: " + e.getCause().getMessage(), e.getCause());
+                } catch (ClassNotFoundException e) {
+                    logger.error("Container wrapper class " + decorators[i] + " could not be loaded and will be skipped.");
+                }
+            }
+
             container.init(containerName, deploymentsList, clonedProps);
             return container;
         } catch (OpenEJBException e) {
