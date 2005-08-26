@@ -9,7 +9,9 @@ import org.exolab.castor.jdo.JDO;
 import org.openejb.ApplicationException;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.DeploymentInfo;
+import org.openejb.core.RpcContainerWrapper;
 
 /**
  * Wraps the TxPolicies for EntityBeans beans with container-managed
@@ -40,10 +42,19 @@ public class CastorCmpEntityTxPolicy extends org.openejb.core.transaction.Transa
         this.policy     = policy;
         this.container  = policy.getContainer();
         this.policyType = policy.policyType;
-        
-        this.cmpContainer   = (CastorCMP11_EntityContainer)container;
+
+        this.cmpContainer = getCastorContainer(container);
         
         this.jdo_ForLocalTransaction  = cmpContainer.jdo_ForLocalTransaction;
+    }
+
+    private CastorCMP11_EntityContainer getCastorContainer(TransactionContainer container) {
+        if (container instanceof RpcContainerWrapper) {
+            RpcContainerWrapper wrapper = (RpcContainerWrapper)container;
+            return getCastorContainer((TransactionContainer) wrapper.getContainer());
+        } else {
+            return (CastorCMP11_EntityContainer)container;
+        }
     }
 
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
