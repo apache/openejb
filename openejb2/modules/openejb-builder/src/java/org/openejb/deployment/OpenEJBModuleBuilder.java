@@ -99,12 +99,17 @@ import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
+import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
@@ -332,6 +337,17 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         EJBModule ejbModule = (EJBModule) module;
         EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
+
+        if (ejbJar.isSetAssemblyDescriptor()) {
+            AssemblyDescriptorType assemblyDescriptor = ejbJar.getAssemblyDescriptor();
+
+            MessageDestinationType[] messageDestinations = assemblyDescriptor.getMessageDestinationArray();
+            OpenejbOpenejbJarType openejbJar = (OpenejbOpenejbJarType) module.getVendorDD();
+            GerMessageDestinationType[] gerMessageDestinations = openejbJar.getMessageDestinationArray();
+
+            ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+        }
+
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
         sessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);

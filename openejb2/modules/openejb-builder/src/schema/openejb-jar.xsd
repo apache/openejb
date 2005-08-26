@@ -90,6 +90,8 @@
                     <xs:field xpath="openejb:ejb-relation-name"/>
                 </xs:unique>
             </xs:element>
+            
+            <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element ref="security:security" minOccurs="0"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
