@@ -106,9 +106,9 @@
         </dependency>
 
         <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-assembly</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-assembly</artifactId>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>

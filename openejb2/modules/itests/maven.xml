@@ -55,6 +55,7 @@
     xmlns:maven="jelly:maven"
     xmlns:u="jelly:util"
     xmlns:define="jelly:define"
+    xmlns:velocity="jelly:velocity"
     >
 
     <preGoal name="xdoc:jelly-transform">
@@ -68,32 +69,73 @@
     </postGoal>
 
     <preGoal name="itest:setup">
-        <ant:delete dir="${maven.build.dir}/openejb"/>
+        <!-- Preprocess all plans using velocity  -->
+        <ant:mkdir dir="${basedir}/target/plan"/>
+        <fileScanner var="plans">
+            <fileset dir="${basedir}/src/plan">
+                <include name="*-plan.xml"/>
+            </fileset>
+        </fileScanner>
+
+        <j:forEach var="plan" items="${plans.iterator()}">
+            <j:set var="planName" value="${plan.name}"/>
+            <echo>Preprocessing ${planName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/plan"
+                template="${planName}"
+                name="${basedir}/target/plan/${planName}"/>
+        </j:forEach>
+
+        <ant:delete dir="${maven.build.dir}/geronimo"/>
         <deploy:unpackServer
-            geronimoVersion="${openejb_version}"
-            geronimoName="openejb"
-            targetDir="${maven.build.dir}/openejb"/>
-        <ant:copy todir="${maven.build.dir}/openejb/var/certstores">
+            geronimoVersion="${geronimo_version}"
+            geronimoName="geronimo"
+            targetDir="${maven.build.dir}/geronimo"/>
+        <ant:copy todir="${maven.build.dir}/geronimo/var/certstores">
             <ant:fileset dir="src/test-resources" includes="keystore,truststore"/>
         </ant:copy>
+
+        <ant:copy todir="${maven.build.dir}/geronimo/var">
+            <ant:fileset dir="src/var"/>
+        </ant:copy>
+
         <deploy:startRemoteServer
-            geronimoTarget="${maven.build.dir}/openejb"
+            geronimoTarget="${maven.build.dir}/geronimo"
             vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${corba.vmargs}"
-            configs="org/openejb/Security"/>
+            configs="org/apache/geronimo/DefaultDatabase"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            id="org/openejb/Security"/>
+            id="org/apache/geronimo/DefaultDatabase"/>
+        <echo message="default database has started"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/RuntimeDeployer"/>
+        <echo message="runtime deployer starting"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/RuntimeDeployer"/>
+        <echo message="runtime deployer has started"/>
         <echo message="server has started"/>
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            module="${basedir}/target/openejb-itests-${pom.currentVersion}.jar"
-            />
-        <echo message="distributed ejbs"/>
+            plan="${basedir}/target/plan/security-plan.xml" />
+        <echo message="deployed test security configuration"/>
+        <echo message="deploying itests... this will take a while"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-itests-${pom.currentVersion}.jar" />
+        <echo message="deployed ejbs"/>
         <deploy:start
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -318,7 +360,7 @@
     
     <goal name="svr:start">
         <deploy:startRemoteServer
-            geronimoTarget="${maven.build.dir}/openejb"
+            geronimoTarget="${maven.build.dir}/geronimo"
             vmArgs="-Xmx512m -XX:MaxPermSize=128m -Xdebug -Xnoagent -Dcom.sun.CORBA.ORBDebug=transport,giop,subcontract,POA,naming,serviceContext -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 ${corba.vmargs}"
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>

@@ -33,10 +33,10 @@ Configuration for the CORBA server.
         <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
     </dependency>
 
-    <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
+    <!--gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
         <attribute name="bindURI">tcp://0.0.0.0:4242</attribute>
         <reference name="LoginService"><gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService</gbean-name></reference>
-    </gbean>
+    </gbean-->
 
     <!-- public security realm -->
 
@@ -93,5 +93,41 @@ Configuration for the CORBA server.
         <attribute name="realmName">black-properties-realm</attribute>
     </gbean>
 
+    <gbean name="org/openejb/Itests" class="org.openejb.corba.TSSBean">
+        <attribute name="POAName">org/openejb/POA</attribute>
+        <reference name="Server">
+            <name>Server</name>
+        </reference>
+        <xml-attribute name="tssConfig">
+            <tss:tss inherit="true" xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
+        </xml-attribute>
+    </gbean>
 
+    <gbean name="IOR7" class="org.openejb.corba.CSSBean">
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="TransactionContextManager">
+            <name>TransactionContextManager</name>
+        </reference>
+        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <attribute name="description">IOR7</attribute>
+        <attribute name="cssArgs"></attribute>
+        <attribute name="cssProps">
+
+
+        </attribute>
+        <xml-attribute name="cssConfig">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+                <css:compoundSecMechTypeList>
+                    <css:compoundSecMech>
+                        <css:SSL>
+                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
+                            <css:requires>Integrity Confidentiality EstablishTrustInTarget</css:requires>
+                        </css:SSL>
+                    </css:compoundSecMech>
+                </css:compoundSecMechTypeList>
+            </css:css>
+        </xml-attribute>
+    </gbean>
 </configuration>
