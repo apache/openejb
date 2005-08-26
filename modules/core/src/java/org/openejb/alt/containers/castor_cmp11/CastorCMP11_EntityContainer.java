@@ -268,6 +268,16 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. " + e.getMessage());
         }
 
+        if (!gTxDb.exists()) {
+            throw new OpenEJBException(id+": The "+EnvProps.GLOBAL_TX_DATABASE+" file does not exit: "+gTxDb.getAbsolutePath());
+        }
+        if (!lTxDb.exists()) {
+            throw new OpenEJBException(id+": The "+EnvProps.LOCAL_TX_DATABASE+" file does not exit: "+lTxDb.getAbsolutePath());
+        }
+        if (gTxDb.equals(lTxDb)) {
+            throw new OpenEJBException(id+": The "+EnvProps.LOCAL_TX_DATABASE+" and "+EnvProps.GLOBAL_TX_DATABASE+" files cannot be the same: "+lTxDb.getAbsolutePath());
+        }
+
         /*
          * Castor JDO obtains a reference to the TransactionManager throught the InitialContext.
          * The new InitialContext will use the deployment's JNDI Context, which is normal inside
@@ -294,7 +304,8 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         jdo_ForGlobalTransaction = new JDO();
 
         // Assign the TransactionManager JNDI name to the dynamically generated JNDI name
-        jdo_ForGlobalTransaction.setTransactionManager( "java:comp/" + transactionManagerJndiNameTyrex );
+//        jdo_ForGlobalTransaction.setTransactionManager( "java:comp/" + transactionManagerJndiNameTyrex );
+        jdo_ForGlobalTransaction.setTransactionManager("java:openejb/TransactionManager");
         jdo_ForGlobalTransaction.setDatabasePooling( true );
         jdo_ForGlobalTransaction.setConfiguration( gTxDb.getAbsolutePath() );
         jdo_ForGlobalTransaction.setDatabaseName(EnvProps.GLOBAL_TX_DATABASE);
@@ -399,20 +410,36 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     }
 
     boolean initialized;
+
+    /**
+     * I keep forgetting why I put this block outside the init method.
+     * Caused by: java.lang.NullPointerException
+     *  at org.openejb.OpenEJB.getJNDIContext(OpenEJB.java:415)
+     *  at org.openejb.core.ivm.naming.java.javaURLContextFactory.getContext(javaURLContextFactory.java:111)
+     *  at org.openejb.core.ivm.naming.java.javaURLContextFactory.getObjectInstance(javaURLContextFactory.java:87)
+     *  at javax.naming.spi.NamingManager.getURLObject(NamingManager.java:579)
+     *
+     * That's the reason.  A dependency problem.  Castor JDO depends on looking up the
+     * datasource from JNDI, which has not been fully constructed till after the containers
+     * are constructed.
+     */
     protected void postInit() {
         if (initialized) return;
 
-        String userDir = System.getProperty("user.dir");
-        try{
-            File base = SystemInstance.get().getBase().getDirectory();
-            System.setProperty("user.dir", base.getAbsolutePath());
-            jdo_ForLocalTransaction.getDatabase();
-            jdo_ForGlobalTransaction.getDatabase();
-        } catch (Throwable e){
-            throw (IllegalStateException) new IllegalStateException("Castor JDO initialization failed").initCause(e);
-        } finally {
+        Properties systemProperties = System.getProperties();
+        synchronized(systemProperties) {
+            String userDir = systemProperties.getProperty("user.dir");
+            try{
+                File base = SystemInstance.get().getBase().getDirectory();
+                systemProperties.setProperty("user.dir", base.getAbsolutePath());
+                jdo_ForLocalTransaction.getDatabase();
+                jdo_ForGlobalTransaction.getDatabase();
+            } catch (Throwable e){
+                throw (IllegalStateException) new IllegalStateException("Castor JDO initialization failed").initCause(e);
+            } finally {
+                systemProperties.setProperty("user.dir",userDir);
+            }
             initialized = true;
-            System.setProperty("user.dir",userDir);
         }
     }
     //===============================
