@@ -70,7 +70,7 @@ public class JdbcManagedConnectionFactory implements javax.resource.spi.ManagedC
 
         loadDriver(driver);
 
-        factory = new BasicManagedConnectionFactory(driver, url, defaultUserName, defaultPassword);
+        factory = new BasicManagedConnectionFactory(this, driver, url, defaultUserName, defaultPassword);
 
         if (driver.equals("org.enhydra.instantdb.jdbc.idbDriver")) {
             factory = new ManagedConnectionFactoryPathHack(factory);

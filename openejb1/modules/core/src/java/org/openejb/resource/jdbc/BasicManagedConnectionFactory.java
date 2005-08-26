@@ -64,8 +64,10 @@ public class BasicManagedConnectionFactory implements javax.resource.spi.Managed
     private final String defaultPassword;
     private java.io.PrintWriter logWriter;
     private final int hashCode;
+    private final JdbcManagedConnectionFactory managedConnectionFactory;
 
-    public BasicManagedConnectionFactory(String jdbcDriver, String jdbcUrl, String defaultUserName, String defaultPassword) {
+    public BasicManagedConnectionFactory(JdbcManagedConnectionFactory factory, String jdbcDriver, String jdbcUrl, String defaultUserName, String defaultPassword) {
+        this.managedConnectionFactory = factory;
         this.jdbcDriver = jdbcDriver;
         this.jdbcUrl = jdbcUrl;
         this.defaultUserName = defaultUserName;
@@ -78,14 +80,14 @@ public class BasicManagedConnectionFactory implements javax.resource.spi.Managed
     }
 
     public Object createConnectionFactory(ConnectionManager cxManager) throws javax.resource.ResourceException {
-        return new JdbcConnectionFactory(this, cxManager, jdbcUrl, jdbcDriver, defaultPassword, defaultUserName);
+        return new JdbcConnectionFactory(managedConnectionFactory, cxManager, jdbcUrl, jdbcDriver, defaultPassword, defaultUserName);
     }
 
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo connectionRequestInfo) throws javax.resource.ResourceException {
         try {
             JdbcConnectionRequestInfo request = (JdbcConnectionRequestInfo) connectionRequestInfo;
             Connection connection = DriverManager.getConnection(jdbcUrl, request.getUserName(), request.getPassword());
-            return new JdbcManagedConnection(this, connection, request);
+            return new JdbcManagedConnection(managedConnectionFactory, connection, request);
         } catch (java.sql.SQLException e) {
             throw (EISSystemException)new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager").initCause(e);
         }
