@@ -49,14 +49,13 @@ package org.openejb.loader;
  * @version $Revision$ $Date$
  */
 public class WebAppClassPath extends TomcatClassPath {
-    private final ClassLoader webappLoader;
 
     public WebAppClassPath() {
-        this.webappLoader = getContextClassLoader();
+        this(getContextClassLoader());
     }
 
-    public ClassLoader getClassLoader() {
-        return webappLoader;
+    public WebAppClassPath(ClassLoader classLoader){
+        super(classLoader);
     }
 
     protected void rebuild() {
