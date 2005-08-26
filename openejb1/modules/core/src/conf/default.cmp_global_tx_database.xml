@@ -35,7 +35,7 @@ how beans map to the database.
 
 -->
 <database name="Global_TX_Database" engine="instantdb">
-    <jndi name="java:comp/env/jdbc/basic/entityDatabase" />
+    <jndi name="java:openejb/connector/Default JDBC Database" />
     <mapping href="conf/default.cmp_mapping.xml" />
 </database>
 
