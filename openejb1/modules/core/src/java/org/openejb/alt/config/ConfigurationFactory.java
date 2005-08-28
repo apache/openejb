@@ -109,7 +109,7 @@ import java.util.List;
 public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults {
 
     public static final String DEFAULT_SECURITY_ROLE = "openejb.default.security.role";
-    protected static final Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
+    protected static final Logger logger = Logger.getInstance("OpenEJB.startup", "org.openejb.util.resources");
     protected static final Messages messages = new Messages("org.openejb.util.resources");
 
     private AutoDeployer deployer;
@@ -664,14 +664,17 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         assignBeansToContainers(beans, ejbds);
 
-        try {
-            //TODO:2: This is really temporary, jars should have their
-            // own classpaths.  We have code for this, but it has a couple
-            // issues in the CMP container that prevent us from relying on it.
-            File jarFile = SystemInstance.get().getHome().getFile(jar.jarURI);
-            SystemInstance.get().getClassPath().addJarToPath(jarFile.toURL());
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!"tomcat-webapp".equals(SystemInstance.get().getProperty("openejb.loader"))){
+            try {
+                //TODO:2: This is really temporary, jars should have their
+                // own classpaths.  We have code for this, but it has a couple
+                // issues in the CMP container that prevent us from relying on it.
+                File base = SystemInstance.get().getBase().getDirectory();
+                File jarFile = new File(base, jar.jarURI);
+                SystemInstance.get().getClassPath().addJarToPath(jarFile.toURL());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return ejbJar;
     }
