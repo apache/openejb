@@ -70,21 +70,7 @@
   <!-- Versions -->
   <!-- ======== -->
 
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
-
-  <versions>
-    <version>
-      <id>2.0-alpha-1</id>
-      <name>2.0-alpha-1</name>
-      <tag>OPENEJB_2_0_ALPHA_1</tag>
-    </version>
-    <version>
-      <id>2.0-alpha-2</id>
-      <name>2.0-alpha-2</name>
-      <tag>HEAD</tag>
-    </version>
-  </versions>
-
+  <currentVersion>1.0-beta1</currentVersion>
 
   <!-- ========== -->
   <!-- Developers -->
