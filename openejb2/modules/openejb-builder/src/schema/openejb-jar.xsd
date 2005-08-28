@@ -65,14 +65,16 @@
 
     <xs:element name="openejb-jar" type="openejb:openejb-jarType"/>
 
+    <xs:complexType name="emptyType"/>
+
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
             <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
-            <xs:element name="ejb-ql-compiler-factory" minOccurs="0"/>
-            <xs:element name="db-syntax-factory" minOccurs="0"/>
-            <xs:element name="enforce-foreign-key-constraints" minOccurs="0"/>
+            <xs:element name="ejb-ql-compiler-factory" type="xs:string" minOccurs="0"/>
+            <xs:element name="db-syntax-factory" type="xs:string" minOccurs="0"/>
+            <xs:element name="enforce-foreign-key-constraints" type="openejb:emptyType" minOccurs="0"/>
 
             <xs:element name="enterprise-beans">
                 <xs:complexType>
