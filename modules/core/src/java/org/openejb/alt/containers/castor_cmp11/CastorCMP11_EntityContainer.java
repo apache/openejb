@@ -538,7 +538,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             String methodName = callMethod.getName();
 
     		if (EJBHome.class.isAssignableFrom(declaringClass) || EJBLocalHome.class.isAssignableFrom(declaringClass) ){
-				if ( declaringClass != EJBHome.class ) {
+				if ( declaringClass != EJBHome.class && declaringClass != EJBLocalHome.class) {
                     // Its a home interface method, which is declared by the bean provider, but not a EJBHome method.
                     // only create() and find<METHOD>( ) are declared by the bean provider.
                     if ( methodName.equals( "create" ) ) {

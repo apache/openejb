@@ -196,7 +196,8 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
             Throwable cause = ire.getRootCause();
             if (cause instanceof RemoteException && isLocal()){
                 RemoteException re = (RemoteException)cause;
-                cause = new EJBException(re.getMessage(),(Exception)re.detail);
+                Throwable detail = (re.detail !=  null)? re.detail: re;
+                cause = new EJBException(re.getMessage(), (Exception) detail);
             }
             throw cause;
         /*
