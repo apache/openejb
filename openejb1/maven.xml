@@ -37,7 +37,7 @@
          -->
 
         <j:if test="${context.getVariable('module.types') == null}">
-            <j:set var="module.types" value="modules,specs"/>
+            <j:set var="module.types" value="modules,examples"/>
         </j:if>
 
         <j:if test="${context.getVariable('modules') == null}">
@@ -361,6 +361,7 @@
             </j:forEach>
         </j:forEach>
 
+
         <!-- Cleanse some stuff -->
         <u:available file="${aggregate.dir}/bin" xmlns="jelly:ant">
             <!-- Fix permissions -->
@@ -399,6 +400,17 @@
                 <include name="LICENSE.txt"/>
                 <include name="README.txt"/>
             </fileset>
+        </copy>
+        <copy todir="examples/moviefun">
+            <fileset dir="examples/moviefun/target">
+                <include name="*.war"/>
+            </fileset>
+        </copy>
+
+        <delete dir="examples/moviefun/target"/>
+
+        <copy todir="${aggregate.dir}">
+            <fileset dir="examples" />
         </copy>
     </goal>
 
@@ -515,9 +527,8 @@
         <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
     </postGoal>
 
-    <goal name="test:tomcat4">
+    <goal name="setup:tomcat4">
       <j:set var="targetDir" value="${basedir}/target/"/>
-
 
       <j:set var="tomcat4.version" value="4.1.31"/>
       <j:set var="tomcat4.download" value="http://www.ibiblio.org/pub/mirrors/apache/jakarta/tomcat-4/v4.1.31/bin/jakarta-tomcat-${tomcat4.version}.zip"/>
@@ -539,10 +550,6 @@
 	<chmod dir="${tomcat4.home}/bin" perm="u+x" includes="**/*.sh"/>
       </j:if>      
 
-      <!-- Unzip webapp and set openejb.home -->
-      <mkdir dir="${tomcat4.home}/webapps/openejb"/>
-      <unjar src="${openejb.home}/war/openejb-webadmin-${pom.currentVersion}.war" dest="${tomcat4.home}/webapps/openejb"/>
-      <replace file="${tomcat4.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
 
 <!--
       <j:set var="catalina.dir" value="${tomcat4.home}"/>
@@ -559,4 +566,18 @@
       </java>
 -->      
     </goal>
+
+    <goal name="setup:loader-webapp">
+      <!-- Unzip webapp and set openejb.home -->
+      <mkdir dir="${tomcat4.home}/webapps/openejb"/>
+      <unjar src="${openejb.home}/war/openejb-webadmin-${pom.currentVersion}.war" dest="${tomcat4.home}/webapps/openejb"/>
+      <replace file="${tomcat4.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
+    </goal>
+    <goal name="setup:webapp-example">
+      <!-- Unzip webapp and set openejb.home -->
+      <mkdir dir="${tomcat4.home}/webapps/openejb"/>
+      <unjar src="${openejb.home}/war/openejb-webapp-examples-${pom.currentVersion}.war" dest="${tomcat4.home}/webapps/movies"/>
+      <replace file="${tomcat4.home}/webapps/movies/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
+    </goal>
+
 </project>

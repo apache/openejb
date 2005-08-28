@@ -1,7 +1,7 @@
 ===============================================
 OpenEJB -- EJB Container System and EJB Server
 
-OpenEJB v1.0            http://www.openejb.org/
+OpenEJB v1.0-beta1      http://www.openejb.org/
 -----------------------------------------------
 ___________________
 Installation
@@ -37,7 +37,7 @@ Using OpenEJB
  
  For UNIX/Linux/Mac OS X users, that looks like this:
  
-   [user@host openejb]# ./openejb.sh help
+   [user@host openejb]# openejb help
  
  You really only need to know two commands to use OpenEJB, deploy
  and start.  Both are completely documented and have examples.
@@ -53,7 +53,7 @@ Using OpenEJB
    openejb start -examples
  
  That's it!
- 
+
 ___________________
 Documentation
 ===================
@@ -68,5 +68,6 @@ Support
  Any problems with this release can be reported to our user
  mailing list.
 
- User list:
+ Send email to subscribe-user@openejb.org or follow this link
+ for other subscription and list information:
  http://www.openejb.org/lists.html#user
