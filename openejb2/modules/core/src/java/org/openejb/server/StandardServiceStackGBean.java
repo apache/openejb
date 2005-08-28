@@ -68,9 +68,9 @@ public class StandardServiceStackGBean {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("OpenEJB Connector", StandardServiceStack.class);
 
         infoFactory.addAttribute("name", String.class, true);
-        infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("port", int.class, true, true);
         infoFactory.addAttribute("soTimeout", int.class, true);
-        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("host", String.class, true, true);
         infoFactory.addAttribute("fullAddress", InetSocketAddress.class, false);
         infoFactory.addAttribute("allowHosts", ServiceAccessController.IPAddressPermission[].class, true);
         infoFactory.addAttribute("logOnSuccess", String[].class, true);
