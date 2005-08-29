@@ -59,6 +59,7 @@ import org.openejb.alt.config.rules.CheckClasses;
 import org.openejb.alt.config.rules.CheckMethods;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
+import org.openejb.util.Logger;
 
 
 /**
@@ -314,6 +315,8 @@ public class EjbValidator {
         } catch (Exception e){
             // ignore it
         }
+        Logger.initialize( System.getProperties() );
+        
         try {
             EjbValidator v = new EjbValidator();
 
