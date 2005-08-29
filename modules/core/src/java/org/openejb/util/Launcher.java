@@ -99,7 +99,7 @@ public final class Launcher {
         
         ArrayList cmd = new ArrayList();
         cmd.add("java");
-//        cmd.addAll(Arrays.asList("-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005".split(" ")));
+        cmd.addAll(Arrays.asList("-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005".split(" ")));
         cmd.add("-classpath");
         cmd.add(classpath.toString());
         cmd.addAll(getVmParameters());
