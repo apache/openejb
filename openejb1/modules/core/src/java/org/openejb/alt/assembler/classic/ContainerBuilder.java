@@ -48,6 +48,7 @@ package org.openejb.alt.assembler.classic;
 import org.openejb.Container;
 import org.openejb.OpenEJBException;
 import org.openejb.RpcContainer;
+import org.openejb.loader.SystemInstance;
 import org.openejb.core.DeploymentInfo;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeToolkit;
@@ -153,7 +154,18 @@ public class ContainerBuilder {
                 }
             }
 
-            container.init(containerName, deploymentsList, clonedProps);
+            Properties systemProperties = System.getProperties();
+            synchronized(systemProperties) {
+                String userDir = systemProperties.getProperty("user.dir");
+                try{
+                    File base = SystemInstance.get().getBase().getDirectory();
+                    systemProperties.setProperty("user.dir", base.getAbsolutePath());
+                    container.init(containerName, deploymentsList, clonedProps);
+                } finally {
+                    systemProperties.setProperty("user.dir",userDir);
+                }
+            }
+
             return container;
         } catch (OpenEJBException e) {
             throw new OpenEJBException(AssemblerTool.messages.format("as0002", containerName, e.getMessage()));

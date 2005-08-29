@@ -46,8 +46,10 @@ package org.openejb.server;
 
 import java.util.Properties;
 import java.io.InputStream;
+import java.io.File;
 import java.net.URL;
 import org.openejb.util.JarUtils;
+import org.openejb.loader.SystemInstance;
 
 /**
  * This class will parse all the command line arguments then
@@ -64,7 +66,10 @@ public class Main {
 
         try{
             Properties props = parseArguments(args);
-
+            SystemInstance.init(props);
+            SystemInstance system = SystemInstance.get();
+            File libs = system.getHome().getDirectory("lib");
+            system.getClassPath().addJarsToPath(libs);
             initServer(props);
         } catch (DontStartServerException e){
             // OK, we won't start the server then
@@ -75,7 +80,8 @@ public class Main {
 
 
     private static Properties parseArguments(String args[]) throws DontStartServerException {
-        Properties props = new Properties(System.getProperties());
+        Properties props = new Properties();
+        props.putAll(System.getProperties());
 
         // -- Set Defaults -- //
         props.put("openejb.server.ip",         "127.0.0.1");
@@ -89,40 +95,40 @@ public class Main {
         for (int i=0; i < args.length; i++) {
             if (args[i].equals("-h")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("openejb.server.ip", args[++i]);
+                    props.setProperty("openejb.server.ip", args[++i]);
                 }
             } else if (args[i].equals("-p")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("openejb.server.port", args[++i]);
+                    props.setProperty("openejb.server.port", args[++i]);
                 }
             } else if (args[i].equals("-t")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("openejb.server.threads", args[++i]);
+                    props.setProperty("openejb.server.threads", args[++i]);
                 }
             } else if (args[i].equals("-conf")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("openejb.configuration", args[++i]);
+                    props.setProperty("openejb.configuration", args[++i]);
                 }
             } else if (args[i].equals("-l")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("log4j.configuration", args[++i]);
+                    props.setProperty("log4j.configuration", args[++i]);
                 }
             } else if (args[i].equals("-d")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("openejb.home", args[++i]);
+                    props.setProperty("openejb.home", args[++i]);
                 }
             } else if (args[i].equals("--admin-ip")) {
                 if (args.length > i+1 ) {
-                    System.setProperty("openejb.server.admin-ip", args[++i]);
+                    props.setProperty("openejb.server.admin-ip", args[++i]);
                 }
             } else if (args[i].startsWith("--local-copy")) {
                 if (args[i].endsWith("false") ||
                     args[i].endsWith("FALSE") ||
                     args[i].endsWith("no") ||
                     args[i].endsWith("NO") ) {
-                    System.setProperty("openejb.localcopy", "false");
+                    props.setProperty("openejb.localcopy", "false");
                 } else {
-                    System.setProperty("openejb.localcopy", "true");
+                    props.setProperty("openejb.localcopy", "true");
                 }
             } else if (args[i].equals("-help")) {
                 printHelp();

@@ -57,6 +57,8 @@ if $cygwin; then
   OPENEJB_HOME=`cygpath --path --windows "$OPENEJB_HOME"`
 fi
 
+echo OPENEJB_HOME = $OPENEJB_HOME
+
 OPTIONS="-Dopenejb.home=$OPENEJB_HOME"
 
 #============================================================
