@@ -54,6 +54,7 @@ import org.openejb.alt.config.sys.Container;
 import org.openejb.loader.SystemInstance;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
+import org.openejb.util.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,6 +73,7 @@ import java.util.jar.JarFile;
 public class EjbJarUtils {
 
     public static final Messages messages = new Messages("org.openejb.util.resources");
+    public static final Logger logger = Logger.getInstance("OpenEJB.startup", "org.openejb.util.resources");
 
     private final EjbJar ejbJar;
     private final String jarLocation;
@@ -83,7 +85,11 @@ public class EjbJarUtils {
         /*[1.1]  Get the jar ***************/
         this.jarLocation = jarLocation;
         this.ejbJar = readEjbJar(jarLocation);
-        this.openejbJar = readOpenEjbJar(jarLocation);
+        try {
+            this.openejbJar = readOpenEjbJar(jarLocation);
+        } catch (OpenEJBException e) {
+            logger.warning("Reading openejb-jar.xml.",e);
+        }
     }
 
     /**
