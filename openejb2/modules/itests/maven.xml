@@ -4,15 +4,15 @@
  Redistribution and use of this software and associated documentation
  ("Software"), with or without modification, are permitted provided
  that the following conditions are met:
- 
+
  1. Redistributions of source code must retain copyright
     statements and notices.  Redistributions must also contain a
     copy of this document.
- 
+
  2. Redistributions in binary form must reproduce this list of
     conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
- 
+
  3. The name "OpenEJB" must not be used to endorse or promote
     products derived from this Software without prior written
     permission of The OpenEJB Group.  For written permission,
@@ -22,10 +22,10 @@
     nor may "OpenEJB" appear in their names without prior written
     permission of The OpenEJB Group. OpenEJB is a registered
     trademark of The OpenEJB Group.
- 
+
  5. Due credit should be given to the OpenEJB Project
     (http://www.openejb.org/).
- 
+
  THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
  NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
@@ -38,13 +38,13 @@
  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
  ====================================================================
- 
+
  This software consists of voluntary contributions made by many
  individuals on behalf of the OpenEJB Project.  For more information
  please see <http://www.openejb.org/>.
- 
+
  ====================================================================
 -->
 <!-- $Revision$ $Date$ -->
@@ -95,9 +95,9 @@
             <ant:fileset dir="src/test-resources" includes="keystore,truststore"/>
         </ant:copy>
 
-        <ant:copy todir="${maven.build.dir}/geronimo/var">
-            <ant:fileset dir="src/var"/>
-        </ant:copy>
+<!--        <ant:copy todir="${maven.build.dir}/geronimo/var">-->
+<!--            <ant:fileset dir="src/var"/>-->
+<!--        </ant:copy>-->
 
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/geronimo"
@@ -193,7 +193,7 @@
             username="system"
             password="manager"
             id="org/openejb/scenario003"/>
-            
+
         <!-- Prefetch Tests  -->
         <ant:jar destfile="${basedir}/target/openejb-cmp2-prefetch.jar">
             <fileset dir="${basedir}/target/classes">
@@ -234,7 +234,7 @@
             username="system"
             password="manager"
             id="org/openejb/cmp2/CMRMapping"/>
-            
+
         <!-- PK Generator Tests  -->
         <ant:jar destfile="${basedir}/target/openejb-cmp2-petstore.jar">
             <fileset dir="${basedir}/target/classes">
@@ -319,7 +319,7 @@
             username="system"
             password="manager"
             id="org/openejb/cmp2/Prefetch"/>
-    	
+
         <deploy:stop
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -357,7 +357,7 @@
             password="manager"/>
         <echo message="server has stopped"/>
     </preGoal>
-    
+
     <goal name="svr:start">
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/geronimo"
@@ -371,7 +371,7 @@
             id="org/openejb/Security"/>
         <echo message="server has started"/>
     </goal>
-    
+
     <goal name="svr:stop">
         <deploy:stopRemoteServer
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -379,7 +379,7 @@
             password="manager"/>
         <echo message="server has stopped"/>
     </goal>
-    
+
     <goal name="sec:start">
         <ant:jar destfile="${basedir}/target/openejb-security-001.jar">
             <fileset dir="${basedir}/target/classes" includes="**/security/**/*.class"/>
