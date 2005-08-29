@@ -149,7 +149,7 @@ import org.tranql.sql.SQLSchema;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder {
 
-    private final URI defaultParentId;
+    private final URI[] defaultParentId;
     private final ObjectName listener;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -159,11 +159,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
+    public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
         this(defaultParentId, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository);
     }
 
-    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository) {
+    public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository) {
         this.defaultParentId = defaultParentId;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
@@ -230,13 +230,20 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + openejbJar.getConfigId(), e);
         }
 
-        URI parentId = null;
+        URI[] parentId = null;
         if (openejbJar.isSetParentId()) {
+            String parentIdString = openejbJar.getParentId();
             try {
-                parentId = new URI(openejbJar.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + openejbJar.getParentId(), e);
-            }
+                 String[] parentIdStrings = parentIdString.split(",");
+                 parentId = new URI[parentIdStrings.length];
+                 for (int i = 0; i < parentIdStrings.length; i++) {
+                     String idString = parentIdStrings[i];
+                     URI parent = new URI(idString);
+                     parentId[i] = parent;
+                 }
+             } catch (URISyntaxException e) {
+                 throw new DeploymentException("Invalid parentId " + openejbJar.getParentId(), e);
+             }
         } else {
             parentId = defaultParentId;
         }
@@ -305,7 +312,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
-        openejbEjbJar.setParentId(defaultParentId.toString());
         if (null != ejbJar.getId()) {
             openejbEjbJar.setConfigId(ejbJar.getId());
         } else {
@@ -646,7 +652,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
