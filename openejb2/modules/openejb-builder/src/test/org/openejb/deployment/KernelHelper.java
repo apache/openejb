@@ -46,7 +46,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev:  $ $Date$
  */
 public class KernelHelper {
-    public static final URI DEFAULT_PARENTID = URI.create("org/apache/geronimo/Server");
+    public static final URI[] DEFAULT_PARENTID = new URI[] {URI.create("org/apache/geronimo/Server")};
 
     public static Kernel getPreparedKernel() throws Exception {
         Kernel kernel = KernelFactory.newInstance().createKernel("bar");
@@ -62,7 +62,7 @@ public class KernelHelper {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load(DEFAULT_PARENTID);
+        ObjectName baseConfigName = configurationManager.load(DEFAULT_PARENTID[0]);
         kernel.startGBean(baseConfigName);
 
         return kernel;
