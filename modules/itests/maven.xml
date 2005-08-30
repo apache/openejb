@@ -86,21 +86,18 @@
                 name="${basedir}/target/plan/${planName}"/>
         </j:forEach>
 
-        <ant:delete dir="${maven.build.dir}/geronimo"/>
-        <deploy:unpackServer
-            geronimoVersion="${geronimo_version}"
-            geronimoName="geronimo"
-            targetDir="${maven.build.dir}/geronimo"/>
-        <ant:copy todir="${maven.build.dir}/geronimo/var/certstores">
+        <ant:delete dir="${maven.build.dir}/geronimo-${geronimo_version}"/>
+        <deploy:unpackServer geronimoVersion="${geronimo_version}"/>
+        <ant:copy todir="${maven.build.dir}/geronimo-${geronimo_version}/var/certstores">
             <ant:fileset dir="src/test-resources" includes="keystore,truststore"/>
         </ant:copy>
 
-<!--        <ant:copy todir="${maven.build.dir}/geronimo/var">-->
+<!--        <ant:copy todir="${maven.build.dir}/geronimo-${geronimo_version}/var">-->
 <!--            <ant:fileset dir="src/var"/>-->
 <!--        </ant:copy>-->
 
         <deploy:startRemoteServer
-            geronimoTarget="${maven.build.dir}/geronimo"
+            geronimoTarget="${maven.build.dir}/geronimo-${geronimo_version}"
             vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${corba.vmargs}"
             configs="org/apache/geronimo/DefaultDatabase"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
@@ -360,7 +357,7 @@
 
     <goal name="svr:start">
         <deploy:startRemoteServer
-            geronimoTarget="${maven.build.dir}/geronimo"
+            geronimoTarget="${maven.build.dir}/geronimo-${geronimo_version}"
             vmArgs="-Xmx512m -XX:MaxPermSize=128m -Xdebug -Xnoagent -Dcom.sun.CORBA.ORBDebug=transport,giop,subcontract,POA,naming,serviceContext -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 ${corba.vmargs}"
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
