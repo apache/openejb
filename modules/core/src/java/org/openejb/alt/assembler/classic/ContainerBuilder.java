@@ -81,20 +81,25 @@ public class ContainerBuilder {
         this.props = props;
         this.ejbJars = containerSystemInfo.ejbJars;
         this.containerInfos = containerSystemInfo.containers;
-        this.decorators = props.getProperty("openejb.container.decorators", "").split(":");
+        String decorators = props.getProperty("openejb.container.decorators");
+        this.decorators = (decorators == null)? new String[]{}: decorators.split(":");
     }
 
     public Object build() throws OpenEJBException {
         HashMap deployments = new HashMap();
+        URL[] jars = new URL[this.ejbJars.length];
+        for (int i = 0; i < this.ejbJars.length; i++) {
+            try {
+                jars[i] = new File(this.ejbJars[i].jarPath).toURL();
+            } catch (MalformedURLException e) {
+                throw new OpenEJBException(AssemblerTool.messages.format("cl0001", ejbJars[i].jarPath, e.getMessage()));
+            }
+        }
+
+        ClassLoader classLoader = new URLClassLoader(jars, org.openejb.OpenEJB.class.getClassLoader());
+
         for (int i = 0; i < this.ejbJars.length; i++) {
             EjbJarInfo ejbJar = this.ejbJars[i];
-
-            ClassLoader classLoader;
-            try {
-                classLoader = new URLClassLoader(new URL[]{new File(ejbJar.jarPath).toURL()}, org.openejb.OpenEJB.class.getClassLoader());
-            } catch (MalformedURLException e) {
-                throw new OpenEJBException(AssemblerTool.messages.format("cl0001", ejbJar.jarPath, e.getMessage()));
-            }
 
             EnterpriseBeanInfo[] ejbs = ejbJar.enterpriseBeans;
             for (int j = 0; j < ejbs.length; j++) {

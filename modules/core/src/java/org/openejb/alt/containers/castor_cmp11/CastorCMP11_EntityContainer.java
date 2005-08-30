@@ -432,9 +432,13 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             try{
                 File base = SystemInstance.get().getBase().getDirectory();
                 systemProperties.setProperty("user.dir", base.getAbsolutePath());
+                ClassLoader classLoader = deployments()[0].getBeanClass().getClassLoader();
+                jdo_ForLocalTransaction.setClassLoader(classLoader);
                 jdo_ForLocalTransaction.getDatabase();
+                jdo_ForGlobalTransaction.setClassLoader(classLoader);
                 jdo_ForGlobalTransaction.getDatabase();
             } catch (Throwable e){
+                logger.fatal("Castor JDO initialization failed: "+e.getMessage(), e);
                 throw (IllegalStateException) new IllegalStateException("Castor JDO initialization failed").initCause(e);
             } finally {
                 systemProperties.setProperty("user.dir",userDir);
