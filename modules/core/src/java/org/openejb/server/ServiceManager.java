@@ -44,34 +44,44 @@
  */
 package org.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.*;
-import org.openejb.util.*;
+import org.openejb.OpenEJB;
+import org.openejb.loader.SystemInstance;
+import org.openejb.util.Logger;
+import org.openejb.util.Messages;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Vector;
 
 
 /**
- * This is the base class for orcistrating the other daemons 
- * which actually accept and react to calls coming in from 
+ * This is the base class for orcistrating the other daemons
+ * which actually accept and react to calls coming in from
  * different protocols or channels.
- * 
+ * <p/>
  * To perform this task, this class will
- *    newInstance()
- *    init( port, properties)
- *    start()
- *    stop()
- * 
- * 
+ * newInstance()
+ * init( port, properties)
+ * start()
+ * stop()
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ServiceManager {
 
-    static Messages messages = new Messages( "org.openejb.server.util.resources" );
-    static Logger logger = Logger.getInstance( "OpenEJB.server.remote", "org.openejb.server.util.resources" );
+    static Messages messages = new Messages("org.openejb.server.util.resources");
+    static Logger logger = Logger.getInstance("OpenEJB.server.remote", "org.openejb.server.util.resources");
 
     private static ServiceManager manager;
-    
+
     private static HashMap propsByFile = new HashMap();
     private static HashMap fileByProps = new HashMap();
 
@@ -79,9 +89,10 @@ public class ServiceManager {
 
     private boolean stop = false;
 
-    private ServiceManager(){}
+    private ServiceManager() {
+    }
 
-    public static ServiceManager getManager(){
+    public static ServiceManager getManager() {
         if (manager == null) {
             manager = new ServiceManager();
         }
@@ -106,36 +117,36 @@ public class ServiceManager {
     // The port to use
     // whether it's turned on
     public void init() throws Exception {
-        try{
+        try {
             org.apache.log4j.MDC.put("SERVER", "main");
             InetAddress localhost = InetAddress.getLocalHost();
             org.apache.log4j.MDC.put("HOST", localhost.getHostName());
-        } catch (Exception e){
+        } catch (Exception e) {
         }
 
         
         // Get the properties files
         //  - hard coded for now -
-        String[] serviceFiles = new String[] {
+        String[] serviceFiles = new String[]{
             "admin.properties",
             "ejbd.properties",
             "telnet.properties",
             "webadmin.properties"
         };
-        
+
         Vector enabledServers = new Vector();
 
-        for (int i=0; i < serviceFiles.length; i++){
-            try{
+        for (int i = 0; i < serviceFiles.length; i++) {
+            try {
                 //Properties props = getProperties("conf/server.d/"+serviceFiles[i]);
                 Properties props = getProperties(serviceFiles[i]);
-                if (isEnabled(props)){
+                if (isEnabled(props)) {
                     ServerService server = createService(props);
                     server = wrapService(server);
                     server.init(props);
                     enabledServers.add(server);
                 }
-            } catch (Throwable e){
+            } catch (Throwable e) {
                 logger.i18n.error("service.not.loaded", serviceFiles[i], e.getMessage());
             }
         }
@@ -158,42 +169,72 @@ public class ServiceManager {
 
     }
 
-    private static Properties getProperties(String file) throws ServiceException{
-        Properties props = (Properties)propsByFile.get(file);
+    private static Properties getProperties(String file) throws ServiceException {
+        Properties props = (Properties) propsByFile.get(file);
 
         if (props == null) {
             props = loadProperties(file);
-            propsByFile.put(file,props);
-            fileByProps.put(props,file);
+            propsByFile.put(file, props);
+            fileByProps.put(props, file);
         }
-        
+
         return props;
     }
 
-    private static Properties loadProperties(String file) throws ServiceException{
+    private static Properties loadProperties(String file) throws ServiceException {
+
         Properties props = new Properties();
-        try{
-            URL url = new URL("resource:/"+file);
-            props.load(url.openStream());
-        } catch (Exception e){
-            //e.printStackTrace();
-            throw new ServiceException("Cannot load properties",e);
+        try {
+            File propFile = SystemInstance.get().getBase().getFile("conf/" + file);
+            props.load(new FileInputStream(propFile));
+        } catch (IOException e) {
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                URL url = new URL("resource:/" + file);
+                in = url.openStream();
+                props.load(in);
+                in.close();
+
+                File propFile = SystemInstance.get().getBase().getFile("conf/" + file, false);
+                out = new FileOutputStream(propFile);
+                in = url.openStream();
+
+                int b;
+                while ((b = in.read()) != -1) {
+                    out.write(b);
+                }
+            } catch (Exception e2) {
+                throw new ServiceException("Cannot load properties", e2);
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e1) {
+                    //who cares
+                }
+            }
         }
+
         return props;
     }
-    
+
     private ServerService createService(Properties props) throws ServiceException {
         ServerService service = null;
-        
-        String serviceClassName = getRequiredProperty("server",props);
+
+        String serviceClassName = getRequiredProperty("server", props);
         Class serviceClass = loadClass(serviceClassName);
         checkImplementation(serviceClass);
         service = instantiateService(serviceClass);
-        
+
         return service;
     }
-    
-    private ServerService wrapService(ServerService service){
+
+    private ServerService wrapService(ServerService service) {
         service = new ServiceLogger(service);
         service = new ServiceAccessController(service);
         service = new ServiceDaemon(service);
@@ -201,29 +242,29 @@ public class ServiceManager {
     }
 
     public synchronized void start() throws ServiceException {
-        boolean display = System.getProperty( "openejb.nobanner" ) == null;
-            
-        
-        if (display){
+        boolean display = System.getProperty("openejb.nobanner") == null;
+
+
+        if (display) {
             System.out.println("  ** Starting Services **");
             printRow("NAME", "IP", "PORT");
         }
-        
-        for (int i=0; i < daemons.length; i++){
+
+        for (int i = 0; i < daemons.length; i++) {
             ServerService d = daemons[i];
-            try{
+            try {
                 d.start();
-                if (display){
-                    printRow(d.getName(), d.getIP(), d.getPort()+"");
+                if (display) {
+                    printRow(d.getName(), d.getIP(), d.getPort() + "");
                 }
-            } catch (Exception e){
-                logger.error(d.getName()+" "+d.getIP()+" "+d.getPort()+": "+e.getMessage());
-                if (display){
+            } catch (Exception e) {
+                logger.error(d.getName() + " " + d.getIP() + " " + d.getPort() + ": " + e.getMessage());
+                if (display) {
                     printRow(d.getName(), "----", "FAILED");
                 }
             }
         }
-        if (display){
+        if (display) {
             System.out.println("-------");
             System.out.println("Ready!");
         }
@@ -236,13 +277,13 @@ public class ServiceManager {
          *  To stop the thread (and the VM), just call the stop method
          *  which will set 'stop' to true and notify the user thread.
          */
-        try{
-            while ( !stop ) {
+        try {
+            while (!stop) {
                 //System.out.println("[] waiting to stop \t["+Thread.currentThread().getName()+"]");
                 this.wait(Long.MAX_VALUE);
             }
-        } catch (Throwable t){
-            logger.fatal("Unable to keep the server thread alive. Received exception: "+t.getClass().getName()+" : "+t.getMessage());
+        } catch (Throwable t) {
+            logger.fatal("Unable to keep the server thread alive. Received exception: " + t.getClass().getName() + " : " + t.getMessage());
         }
         System.out.println("[] exiting vm");
         logger.info("Stopping Remote Server");
@@ -252,25 +293,25 @@ public class ServiceManager {
     public synchronized void stop() throws ServiceException {
         System.out.println("[] received stop signal");
         stop = true;
-        for (int i=0; i < daemons.length; i++){
+        for (int i = 0; i < daemons.length; i++) {
             daemons[i].stop();
         }
         notifyAll();
     }
 
-    public void printRow(String col1, String col2, String col3){
+    public void printRow(String col1, String col2, String col3) {
 
         // column 1 is 20 chars long
         col1 += "                    ";
-        col1 = col1.substring(0,20);
+        col1 = col1.substring(0, 20);
         
         // column 2 is 15 chars long
         col2 += "                    ";
-        col2 = col2.substring(0,15);
+        col2 = col2.substring(0, 15);
         
         // column 3 is 6 chars long
         col3 += "                    ";
-        col3 = col3.substring(0,6);
+        col3 = col3.substring(0, 6);
 
         StringBuffer sb = new StringBuffer(50);
         sb.append("  ").append(col1);
@@ -282,37 +323,34 @@ public class ServiceManager {
 
     /**
      * Loads the service class passed in
-     * 
+     *
      * @param className
-     * 
      * @return Class
-     * @exception ServiceException
+     * @throws ServiceException
      */
-    private Class loadClass(String className) throws ServiceException{
+    private Class loadClass(String className) throws ServiceException {
         ClassLoader loader = OpenEJB.getContextClassLoader();
         Class clazz = null;
-        try{
-            clazz = Class.forName(className,true,loader);
-        } 
-        catch (ClassNotFoundException cnfe){
+        try {
+            clazz = Class.forName(className, true, loader);
+        } catch (ClassNotFoundException cnfe) {
             String msg = messages.format("service.no.class", className);
-            throw new ServiceException( msg );
-        } 
+            throw new ServiceException(msg);
+        }
         return clazz;
     }
 
     /**
      * Does this class implement the ServerService interface?
-     * 
+     *
      * @param clazz
-     * 
-     * @exception ServiceException
+     * @throws ServiceException
      */
-    private void checkImplementation(Class clazz) throws ServiceException{
+    private void checkImplementation(Class clazz) throws ServiceException {
         Class intrfce = org.openejb.server.ServerService.class;
 
-        if ( !intrfce.isAssignableFrom(clazz) ){
-            String msg = messages.format("service.bad.impl", clazz.getName(),intrfce.getName());
+        if (!intrfce.isAssignableFrom(clazz)) {
+            String msg = messages.format("service.bad.impl", clazz.getName(), intrfce.getName());
             throw new ServiceException(msg);
         }
     }
@@ -320,57 +358,52 @@ public class ServiceManager {
 
     /**
      * Instantiates the specified service
-     * 
+     *
      * @param clazz
-     * 
-     * @return ServerService 
-     * @exception ServiceException
+     * @return ServerService
+     * @throws ServiceException
      */
-    private ServerService instantiateService(Class clazz) throws ServiceException{
+    private ServerService instantiateService(Class clazz) throws ServiceException {
         ServerService service = null;
-        
-        try{
-            service = (ServerService)clazz.newInstance();
-        } 
-        catch (Throwable t){
-            String msg = messages.format(
-                "service.instantiation.err", 
-                clazz.getName(),
-                t.getClass().getName(),
-                t.getMessage());
 
-            throw new ServiceException( msg, t );
-        } 
+        try {
+            service = (ServerService) clazz.newInstance();
+        } catch (Throwable t) {
+            String msg = messages.format("service.instantiation.err",
+                    clazz.getName(),
+                    t.getClass().getName(),
+                    t.getMessage());
+
+            throw new ServiceException(msg, t);
+        }
 
         return service;
     }
 
-    private boolean isEnabled(Properties props) throws ServiceException{
-         // if it should be started, continue
-        String dissabled = props.getProperty("dissabled","");
-        
+    private boolean isEnabled(Properties props) throws ServiceException {
+        // if it should be started, continue
+        String dissabled = props.getProperty("dissabled", "");
+
         if (dissabled.equalsIgnoreCase("yes") || dissabled.equalsIgnoreCase("true")) {
             return false;
         } else {
             return true;
         }
     }
- 
-    
 
-    public static String getRequiredProperty(String name, Properties props) throws ServiceException{
-         
+
+    public static String getRequiredProperty(String name, Properties props) throws ServiceException {
+
         String value = props.getProperty(name);
         if (value == null) {
-            String msg = messages.format(
-                "service.missing.property", 
-                name, fileByProps.get(props));
+            String msg = messages.format("service.missing.property",
+                    name, fileByProps.get(props));
 
-            throw new ServiceException( msg );
+            throw new ServiceException(msg);
         }
 
         return value;
     }
-    
+
 
 }
