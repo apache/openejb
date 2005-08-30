@@ -54,14 +54,6 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-	<!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-remoting</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-	-->
-
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
@@ -107,8 +99,10 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-assembly</artifactId>
+            <artifactId>geronimo</artifactId>
             <version>${geronimo_version}</version>
+            <jar>geronimo-${geronimo_version}.zip</jar>
+            <type>distribution</type>
         </dependency>
 
         <dependency>
