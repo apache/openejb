@@ -69,6 +69,7 @@
 
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
             <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
@@ -92,7 +93,7 @@
                     <xs:field xpath="openejb:ejb-relation-name"/>
                 </xs:unique>
             </xs:element>
-            
+
             <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element ref="security:security" minOccurs="0"/>
