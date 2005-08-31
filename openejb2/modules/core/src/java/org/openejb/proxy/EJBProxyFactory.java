@@ -300,7 +300,27 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         } else {
             baseClass = entityBaseClasses[interfaceType];
         }
-        return new CglibEJBProxyFactory(baseClass, interfaceClass);
+
+        ClassLoader classLoader = findClassLoader(baseClass, interfaceClass);
+
+        return new CglibEJBProxyFactory(baseClass, interfaceClass, classLoader);
+    }
+
+    private ClassLoader findClassLoader(Class baseClass, Class interfaceClass) {
+        ClassLoader cl = interfaceClass.getClassLoader();
+        try {
+            cl.loadClass(baseClass.getName());
+            return cl;
+        } catch (ClassNotFoundException e) {
+
+        }
+        cl = baseClass.getClassLoader();
+        try {
+            cl.loadClass(interfaceClass.getName());
+            return cl;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Openejb base class: " + baseClass.getName() + " and interface class: " + interfaceClass.getName() + " do not have a common classloader that will load both!");
+        }
     }
 
     private static void addLegacyMethods(Map legacyMethodMap, Class clazz, InterfaceMethodSignature[] signatures) {
