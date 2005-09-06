@@ -140,7 +140,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, null, null, repository);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, null, null, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
@@ -153,7 +153,7 @@ public class CMPEntityBuilderTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    KernelHelper.DEFAULT_PARENTID,
+                    KernelHelper.DEFAULT_PARENTID_LIST,
                     kernel,
                     "null",
                     null,
@@ -186,7 +186,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, null, null, repository);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, null, null, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
@@ -199,7 +199,7 @@ public class CMPEntityBuilderTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    KernelHelper.DEFAULT_PARENTID,
+                    KernelHelper.DEFAULT_PARENTID_LIST,
                     kernel,
                     "null",
                     null,
@@ -233,7 +233,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, null, null, repository);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, null, null, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
@@ -246,7 +246,7 @@ public class CMPEntityBuilderTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    KernelHelper.DEFAULT_PARENTID,
+                    KernelHelper.DEFAULT_PARENTID_LIST,
                     kernel,
                     "null",
                     null,

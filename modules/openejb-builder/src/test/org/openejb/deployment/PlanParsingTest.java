@@ -12,8 +12,12 @@ import org.apache.geronimo.kernel.repository.Repository;
 public class PlanParsingTest extends TestCase {
     private Repository repository = null;
 
-    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null, null, null, null, repository);
+    private OpenEJBModuleBuilder builder;
     File basedir = new File(System.getProperty("basedir", "."));
+
+    protected void setUp() throws Exception {
+        builder = new OpenEJBModuleBuilder(null, null, null, null, repository, null);
+    }
 
     public void testResourceRef() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
