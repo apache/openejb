@@ -44,25 +44,23 @@
  */
 package org.openejb.server.httpd;
 
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.ServiceException;
+import org.activeio.xnet.SocketService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.openejb.ContainerIndex;
+import org.openejb.OpenEJBException;
+import sun.net.www.protocol.http.HttpURLConnection;
+
+import javax.naming.Context;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.util.Properties;
-
-import javax.naming.Context;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.openejb.ContainerIndex;
-import org.openejb.OpenEJBException;
-import org.openejb.server.ServerService;
-import org.openejb.server.ServiceException;
-import org.openejb.server.SocketService;
-
-import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
  * This is the main class for the web administration.  It takes care of the
@@ -75,12 +73,13 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
     private static Log log = LogFactory.getLog(HttpServer.class);
     private HttpListener listener;
 
-    public HttpServer(ContainerIndex index){
+    public HttpServer(ContainerIndex index) {
     }
 
-    public HttpServer(){}
+    public HttpServer() {
+    }
 
-    public HttpServer(HttpListener listener){
+    public HttpServer(HttpListener listener) {
         this.listener = listener;
     }
 
@@ -96,7 +95,7 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
 
         try {
             //TODO: if ssl change to https
-            URI socketURI = new URI("http://"+socket.getLocalAddress().getHostName()+":"+socket.getLocalPort() );
+            URI socketURI = new URI("http://" + socket.getLocalAddress().getHostName() + ":" + socket.getLocalPort());
             processRequest(socketURI, in, out);
         } catch (Throwable e) {
             log.error("Unexpected error", e);
@@ -158,10 +157,10 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
 
     /**
      * takes care of processing requests and creating the webadmin ejb's
-     * @param socket 
      *
-     * @param in  the input stream from the browser
-     * @param out the output stream to the browser
+     * @param socket
+     * @param in     the input stream from the browser
+     * @param out    the output stream to the browser
      */
     private void processRequest(URI socketURI, InputStream in, OutputStream out) {
         HttpResponseImpl response = null;
@@ -181,7 +180,7 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
     }
 
     private HttpResponseImpl process(URI socketURI, InputStream in) throws OpenEJBException {
-        
+
         HttpRequestImpl req = new HttpRequestImpl(socketURI);
         HttpResponseImpl res = new HttpResponseImpl();
 

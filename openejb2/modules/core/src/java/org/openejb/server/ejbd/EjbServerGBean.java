@@ -56,7 +56,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.ContainerIndex;
 import org.openejb.corba.ORBRef;
-import org.openejb.server.SocketService;
+import org.activeio.xnet.SocketService;
 
 public class EjbServerGBean {
 

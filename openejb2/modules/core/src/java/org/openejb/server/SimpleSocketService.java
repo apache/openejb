@@ -61,6 +61,13 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.ContainerIndex;
 import org.openejb.OpenEJB;
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.hba.ServiceAccessController;
+import org.activeio.xnet.hba.IPAddressPermission;
+import org.activeio.xnet.ServiceException;
+import org.activeio.xnet.ServiceLogger;
+import org.activeio.xnet.ServicePool;
+import org.activeio.xnet.SocketService;
 
 /**
  * @version $Revision$ $Date$
@@ -69,7 +76,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SimpleSocketService.class);
     private final ServerService server;
 
-    public SimpleSocketService(String serviceClassName, ServiceAccessController.IPAddressPermission[] onlyFrom, ContainerIndex containerIndex, ClassLoader cl) throws Exception {
+    public SimpleSocketService(String serviceClassName, IPAddressPermission[] onlyFrom, ContainerIndex containerIndex, ClassLoader cl) throws Exception {
         ServerService service;
 
         Class serviceClass = ClassLoading.loadClass(serviceClassName, cl);
