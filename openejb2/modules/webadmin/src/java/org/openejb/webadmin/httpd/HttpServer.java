@@ -54,8 +54,8 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.openejb.server.ServerService;
-import org.openejb.server.ServiceException;
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.ServiceException;
 import org.openejb.util.Logger;
 import org.openejb.webadmin.HttpHome;
 import org.openejb.webadmin.HttpObject;
