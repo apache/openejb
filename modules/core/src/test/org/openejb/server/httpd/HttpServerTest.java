@@ -44,29 +44,27 @@
  */
 package org.openejb.server.httpd;
 
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
-
-import javax.management.ObjectName;
-
 import junit.framework.TestCase;
-
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.ServiceDaemon;
+import org.activeio.xnet.StandardServiceStack;
+import org.activeio.xnet.StandardServiceStackGBean;
+import org.activeio.xnet.SyncChannelServerDaemon;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.pool.ThreadPool;
-import org.openejb.server.ServerService;
-import org.openejb.server.ServiceDaemon;
-import org.openejb.server.StandardServiceStack;
-import org.openejb.server.StandardServiceStackGBean;
-import org.openejb.server.SynchChannelServerDaemon;
+
+import javax.management.ObjectName;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
 
 public class HttpServerTest extends TestCase {
 
@@ -97,7 +95,7 @@ public class HttpServerTest extends TestCase {
 
     public void testBareChannelService() throws Exception {
         ServerService service = new HttpServer(new TestHttpListener());
-        SynchChannelServerDaemon daemon = new SynchChannelServerDaemon("HTTP", service, InetAddress.getByName("localhost"), 0);
+        SyncChannelServerDaemon daemon = new SyncChannelServerDaemon("HTTP", service, InetAddress.getByName("localhost"), 0);
         HttpURLConnection connection = null;
 
         try {
@@ -111,7 +109,7 @@ public class HttpServerTest extends TestCase {
             int responseCode = connection.getResponseCode();
             assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
         } finally {
-            if (connection != null ) {
+            if (connection != null) {
                 connection.disconnect();
             }
             daemon.doStop();
@@ -123,7 +121,7 @@ public class HttpServerTest extends TestCase {
         ServerService service = new HttpServer(new TestHttpListener());
 
         ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader(), "openejb:type=ThreadPool,name=Test");
-        
+
         StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, threadPool, service);
         HttpURLConnection connection = null;
 
@@ -179,7 +177,7 @@ public class HttpServerTest extends TestCase {
 
         ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
-        
+
         ClassLoader cl = ThreadPool.class.getClassLoader();
         ObjectName executor = JMXUtil.getObjectName("openejb:name=ThreadPool");
         GBeanData gbean = new GBeanData(executor, ThreadPool.GBEAN_INFO);
@@ -199,8 +197,8 @@ public class HttpServerTest extends TestCase {
         HttpURLConnection connection = null;
 
         try {
-            kernel.setAttribute(stack,"soTimeout",new Integer(100));
-            int port = ((Integer)kernel.getAttribute(stack, "port")).intValue();
+            kernel.setAttribute(stack, "soTimeout", new Integer(100));
+            int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
             URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
 
             connection = (HttpURLConnection) url.openConnection();
@@ -208,7 +206,7 @@ public class HttpServerTest extends TestCase {
             System.out.println("responseCode = " + responseCode);
             assertEquals("HTTP response code should be 204", responseCode, HttpURLConnection.HTTP_NO_CONTENT);
         } catch (Exception e) {
-            System.out.println("exception "+e.getMessage());
+            System.out.println("exception " + e.getMessage());
         } finally {
             connection.disconnect();
             kernel.stopGBean(stack);

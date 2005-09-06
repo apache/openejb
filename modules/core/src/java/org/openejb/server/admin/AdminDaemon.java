@@ -47,9 +47,10 @@ package org.openejb.server.admin;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.openejb.server.ServerService;
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.ServiceException;
 import org.openejb.server.ServiceManager;
-import org.openejb.server.ServiceException;
+import org.activeio.xnet.ServiceException;
 import org.openejb.client.RequestMethods;
 import org.openejb.ContainerIndex;
 

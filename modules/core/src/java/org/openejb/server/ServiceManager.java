@@ -58,6 +58,10 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.util.Messages;
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.ServiceException;
+import org.activeio.xnet.ServiceDaemon;
+import org.activeio.xnet.ServiceDaemonGBean;
 
 
 /**
@@ -322,7 +326,7 @@ public class ServiceManager {
      * @exception ServiceException
      */
     private void checkImplementation(Class clazz) throws ServiceException {
-        Class intrfce = org.openejb.server.ServerService.class;
+        Class intrfce = org.activeio.xnet.ServerService.class;
 
         if (!intrfce.isAssignableFrom(clazz)) {
             String msg = messages.format("service.bad.impl", clazz.getName(), intrfce.getName());
@@ -394,7 +398,7 @@ public class ServiceManager {
         socketService.setReferencePattern("ContainerIndex", CONTAINER_INDEX);
         kernel.loadGBean(socketService, classLoader);
 
-        GBeanData serviceDaemon = new GBeanData(SERVICEDAEMON_NAME, ServiceDaemon.GBEAN_INFO);
+        GBeanData serviceDaemon = new GBeanData(SERVICEDAEMON_NAME, ServiceDaemonGBean.GBEAN_INFO);
         serviceDaemon.setAttribute("port", new Integer(port));
         serviceDaemon.setAttribute("inetAddress", InetAddress.getByName(host));
         serviceDaemon.setReferencePattern("SocketService",SOCKETSERVICE_NAME);

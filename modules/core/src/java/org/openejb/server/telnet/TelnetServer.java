@@ -52,11 +52,12 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Properties;
 
-import org.openejb.server.ServiceException;
+import org.activeio.xnet.ServiceException;
+import org.activeio.xnet.ServiceException;
 
 /**
  */
-public class TelnetServer implements org.openejb.server.ServerService {
+public class TelnetServer implements org.activeio.xnet.ServerService {
 
 
     public void init(Properties props) throws Exception {

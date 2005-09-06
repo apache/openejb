@@ -45,16 +45,16 @@
 package org.openejb.server.ejbd;
 
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Properties;
-
-import org.openejb.server.ServerFederation;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerService;
+import org.activeio.xnet.ServerService;
+import org.activeio.xnet.ServiceException;
 import org.openejb.ContainerIndex;
 import org.openejb.OpenEJB;
 import org.openejb.corba.ORBRef;
+import org.openejb.server.ServerFederation;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Properties;
 
 /**
  * @since 11/25/2001
@@ -68,6 +68,7 @@ public class EjbServer implements ServerService {
             OpenEJB.setApplicationServer(new ServerFederation());
         }
     }
+
     public EjbServer() throws Exception {
         ejbDaemon = EjbDaemon.getEjbDaemon();
     }
