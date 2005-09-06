@@ -186,7 +186,7 @@ public class EJBQLTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null, repository);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null, repository, kernel);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
         File tempDir = DeploymentUtil.createTempDir();
@@ -195,7 +195,7 @@ public class EJBQLTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    KernelHelper.DEFAULT_PARENTID,
+                    KernelHelper.DEFAULT_PARENTID_LIST,
                     kernel,
                     NameFactory.NULL,
                     null,

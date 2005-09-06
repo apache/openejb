@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Collections;
+import java.util.Arrays;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -46,7 +47,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev:  $ $Date$
  */
 public class KernelHelper {
-    public static final URI[] DEFAULT_PARENTID = new URI[] {URI.create("org/apache/geronimo/Server")};
+    public static final URI[] DEFAULT_PARENTID_ARRAY = new URI[] {URI.create("org/apache/geronimo/Server")};
+    public static final List DEFAULT_PARENTID_LIST = Arrays.asList(DEFAULT_PARENTID_ARRAY);
 
     public static Kernel getPreparedKernel() throws Exception {
         Kernel kernel = KernelFactory.newInstance().createKernel("bar");
@@ -62,7 +64,7 @@ public class KernelHelper {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load(DEFAULT_PARENTID[0]);
+        ObjectName baseConfigName = configurationManager.load((URI) DEFAULT_PARENTID_LIST.get(0));
         kernel.startGBean(baseConfigName);
 
         return kernel;
@@ -120,7 +122,7 @@ public class KernelHelper {
             return null;
         }
 
-        public List listConfiguations() {
+        public List listConfigurations() {
             return null;
         }
 

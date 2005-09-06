@@ -156,11 +156,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             ObjectName listener = null;
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, linkData, webServiceBuilder, null);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, linkData, webServiceBuilder, null, kernel);
             OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY,
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -192,7 +192,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
             config.setName(CONFIGURATION_OBJECT_NAME);
             config.setAttribute("baseURL", tempDir.toURL());
-            config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID);
+            config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID_ARRAY);
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);

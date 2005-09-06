@@ -51,76 +51,66 @@ package org.openejb.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.security.Permissions;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Arrays;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
-import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
-import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
-import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
-import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
+import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
-import org.openejb.corba.CORBAHandleDelegate;
-import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
 import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.EJBProxyReference;
-import org.openejb.proxy.ProxyInfo;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
@@ -149,7 +139,7 @@ import org.tranql.sql.SQLSchema;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder {
 
-    private final URI[] defaultParentId;
+    private final List defaultParentId;
     private final ObjectName listener;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -158,13 +148,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private final WebServiceBuilder webServiceBuilder;
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
+    private final Kernel kernel;
+    private static final String OPENEJBJAR_NAMESPACE = OpenejbOpenejbJarDocument.type.getDocumentElementName().getNamespaceURI();
 
     public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
-        this(defaultParentId, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository);
+        this(defaultParentId, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository, kernel);
     }
 
-    public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository) {
-        this.defaultParentId = defaultParentId;
+    public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) {
+        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
@@ -173,6 +165,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         this.mdbBuilder = new MdbBuilder(this);
         this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
+        this.kernel = kernel;
     }
 
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
@@ -230,9 +223,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + openejbJar.getConfigId(), e);
         }
 
-        URI[] parentId = ServiceConfigBuilder.getParentID(openejbJar.getParentId(), openejbJar.getImportArray());
-        if (parentId == null) {
-            parentId = defaultParentId;
+        List parentId = ServiceConfigBuilder.getParentID(openejbJar.getParentId(), openejbJar.getImportArray());
+        if (parentId.isEmpty()) {
+            parentId = new ArrayList(defaultParentId);
         }
 
         return new EJBModule(standAlone, configId, parentId, moduleFile, targetPath, ejbJar, openejbJar, specDD);
@@ -309,6 +302,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        earContext.addParentId(defaultParentId);
         JarFile moduleFile = module.getModuleFile();
         try {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
@@ -575,6 +569,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, componentPermissions, policyContextID);
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
+    }
+
+    public String getSchemaNamespace() {
+        return OPENEJBJAR_NAMESPACE;
     }
 
     private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
