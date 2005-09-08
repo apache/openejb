@@ -7,3 +7,4 @@ target
 bin
 scout.log
 velocity.log
+.settings
