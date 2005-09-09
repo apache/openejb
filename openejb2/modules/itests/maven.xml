@@ -99,27 +99,16 @@
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/geronimo-${geronimo_version}"
             vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${corba.vmargs}"
-            configs="org/apache/geronimo/DefaultDatabase"/>
+            />
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            id="org/apache/geronimo/DefaultDatabase"/>
-        <echo message="default database has started"/>
-        <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
-            id="org/apache/geronimo/RuntimeDeployer"/>
-        <echo message="runtime deployer starting"/>
-        <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
+            maxtries="125"
             id="org/apache/geronimo/RuntimeDeployer"/>
         <echo message="runtime deployer has started"/>
-        <echo message="server has started"/>
+        <u:sleep millis="7000"/>
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
