@@ -158,7 +158,7 @@ class EntityBuilder extends BeanBuilder {
             } else if (openejbEntityBean.isSetTssLink()) {
                 String tssBeanLink = openejbEntityBean.getTssLink().trim();
                 //todo check this is correct
-                URI moduleURI = null;
+                URI moduleURI = URI.create("");
                 String moduleType = null;
                 tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
             } else if (openejbEntityBean.isSetTss()) {
