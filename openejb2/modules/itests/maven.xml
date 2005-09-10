@@ -189,6 +189,7 @@
             </fileset>
             <metainf dir="${basedir}/src/cmp2/prefetch" includes="*.xml"/>
         </ant:jar>
+        <attainGoal name="antIntegration"/>
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -410,6 +411,33 @@
             username="system"
             password="manager"
             id="org/openejb/scenario001"/>
+    </goal>
+
+    <goal name="antIntegration">
+        <ant:taskdef name="ddlExporter" classname="org.openejb.deployment.ant.DDLExporterTask">
+            <classpath>
+                <pathelement location="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar"/>
+                <pathelement location="${maven.repo.local}/tranql/jars/tranql-${tranql_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-kernel-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-deployment-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-common-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/xmlbeans/jars/xbean-${xmlbeans_version}.jar"/>
+                <pathelement location="${maven.repo.local}/stax/jars/stax-api-${stax_api_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo-spec/jars/geronimo-spec-ejb-${geronimo_spec_ejb_version}.jar"/>
+            </classpath>
+        </ant:taskdef>
+        
+        <ddlExporter
+            ejbJar="jar:${basedir}/target/openejb-cmp2-prefetch.jar"
+            openejbJar="jar:${basedir}/target/openejb-cmp2-prefetch.jar"
+            output="${basedir}/target/openejb-cmp2-prefetch.sql"
+            ddlCommandBuilder="org.tranql.ddl.DerbyDDLCommandBuilder"
+            type="drop-create-constraint">
+            <classpath>
+                <pathelement location="target/openejb-cmp2-prefetch.jar"/>
+            </classpath>
+        </ddlExporter>
     </goal>
 
 </project>

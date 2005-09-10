@@ -80,8 +80,8 @@ public class CMPEntityBuilderTestUtil extends TestCase {
         this.delegate = new CMPEntityBuilder(builder);
     }
     
-    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
-        delegate.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema, pkGen, dataSource);
+    public Schemata buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
+        return delegate.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJar, openejbEjbJar, cl, pkGen, dataSource);
     }
     
 }

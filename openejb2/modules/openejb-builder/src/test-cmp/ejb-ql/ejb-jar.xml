@@ -16,6 +16,7 @@
             <ejb-class>org.openejb.deployment.entity.cmp.ejbql.ABean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>AASN</abstract-schema-name>
             <cmp-field>

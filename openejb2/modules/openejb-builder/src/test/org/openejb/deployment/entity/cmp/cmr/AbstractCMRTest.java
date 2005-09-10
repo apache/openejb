@@ -83,6 +83,7 @@ import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
+import org.openejb.deployment.Schemata;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
@@ -145,14 +146,8 @@ public abstract class AbstractCMRTest extends TestCase {
     protected abstract EJBClass getB();
 
     protected void setUp() throws Exception {
-//        EmbeddedDataSource eds = new EmbeddedDataSource();
-//        eds.setDatabaseName("/home/gianny/derbyDB");
-//        eds.setCreateDatabase("create");
-//        ds = eds;
-
         ds = new AxionDataSource("jdbc:axiondb:testdb");
         Connection c = ds.getConnection("root", null);
-//        Connection c = ds.getConnection();
         buildDBSchema(c);
 
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
@@ -162,10 +157,6 @@ public abstract class AbstractCMRTest extends TestCase {
         TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
 
         tmDelegate.setTransactionManager(tm);
-
-        ejbSchema = new EJBSchema("Mock");
-        sqlSchema = new BaseSQLSchema("Mock", ds, new DerbyDBSyntaxtFactory(), new DerbyEJBQLCompilerFactory());
-        cacheSchema = new GlobalSchema("Mock");
 
         File ejbJarFile = new File(basedir, getEjbJarDD());
         File openejbJarFile = new File(basedir, getOpenEjbJarDD());
@@ -191,7 +182,12 @@ public abstract class AbstractCMRTest extends TestCase {
                     null, null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema, pkGen, null);
+            Schemata schemata = builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, pkGen, ds);
+
+            ejbSchema = schemata.getEjbSchema();
+            sqlSchema = schemata.getSqlSchema();
+            cacheSchema = schemata.getGlobalSchema();
+            
             GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
             Set patterns = new HashSet();
             patterns.add(C_NAME_A);

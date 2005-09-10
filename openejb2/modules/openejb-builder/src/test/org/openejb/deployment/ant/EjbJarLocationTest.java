@@ -1,4 +1,4 @@
-/* ====================================================================
+/**
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,14 +7,15 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce this list of
- *    conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact info@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -37,45 +38,57 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * ====================================================================
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the OpenEJB Project.  For more information
- * please see <http://openejb.org/>.
- *
- * ====================================================================
+ * $Id$
  */
-package org.openejb.deployment;
+package org.openejb.deployment.ant;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
-import junit.framework.Test;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.tools.ant.Project;
+
+import junit.framework.TestCase;
+
 
 /**
+ *
  * @version $Revision$ $Date$
  */
-public class EjbJarModuleDeploymentTest extends AbstractDeploymentTest {
-    private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(EjbJarModuleDeploymentTest.class, new File("target/test-ejb-jar.jar"));
+public class EjbJarLocationTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
-    public static Test suite() {
-        return SUITE;
+    private Project project;
+
+    public void testJar() throws Exception {
+        EjbJarLocation location = new EjbJarLocation("jar:target/test-ejb-jar.jar");
+        executeAssert(location);
     }
 
-    public String getJ2eeApplicationName() {
-        return "null";
+    public void testJarJar() throws Exception {
+        EjbJarLocation location = new EjbJarLocation("jar:jar:target/test-ear.ear!/test-ejb-jar.jar");
+        executeAssert(location);
+    }
+    
+    public void testBare() throws Exception {
+        EjbJarLocation location = new EjbJarLocation("src/test-ejb-jar/META-INF/ejb-jar.xml");
+        executeAssert(location);
     }
 
-    public String getJ2eeModuleName() {
-        return "org/openejb/deployment/test";
+    private void executeAssert(EjbJarLocation location) throws IOException {
+        InputStream in = location.getInputStream(project);
+        try {
+            assertNotNull(in);
+        } finally {
+            in.close();
+        }
     }
 
-    public Kernel getKernel() {
-        return SUITE.getKernel();
+    protected void setUp() throws Exception {
+        project = new Project();
+        project.setBaseDir(basedir);
     }
-
-    public ClassLoader getApplicationClassLoader() {
-        return SUITE.getApplicationClassLoader();
-    }    
+    
 }

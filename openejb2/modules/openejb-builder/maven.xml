@@ -47,5 +47,16 @@
                 <include name="META-INF/*"/>
             </fileset>
         </ant:jar>
+        
+        <ant:jar destfile="${basedir}/target/test-ant.ear" >
+            <fileset dir="${basedir}/target">
+                <include name="test-ejb-jar.jar"/>
+            </fileset>
+            <fileset dir="${basedir}/src/test-ant">
+                <include name="META-INF/*"/>
+            </fileset>
+        </ant:jar>
+        
     </preGoal>
+    
 </project>

@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.jar.JarFile;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -116,18 +117,10 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
-import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.SimpleFlushStrategyFactory;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
-import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.sql.BaseSQLSchema;
-import org.tranql.sql.DBSyntaxFactory;
 import org.tranql.sql.DataSourceDelegate;
-import org.tranql.sql.EJBQLCompilerFactory;
 import org.tranql.sql.SQLSchema;
 
 
@@ -367,9 +360,20 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
 
+        DataSourceDelegate delegate = new DataSourceDelegate();
+
+        // Handle automatic PK generation -- we want to use the same builder for all CMP entities
+        TranQLPKGenBuilder pkgen = new TranQLPKGenBuilder();
+
         EJBModule ejbModule = (EJBModule) module;
         OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
         EjbJarType ejbJar = (EjbJarType) module.getSpecDD();
+
+        // @todo need a better schema name
+        Schemata schemata = cmpEntityBuilder.buildSchemata(earContext, moduleJ2eeContext, ejbModule.getName(), ejbJar, openejbEjbJar, cl, pkgen, delegate);
+        EJBSchema ejbSchema = schemata.getEjbSchema();
+        SQLSchema sqlSchema = schemata.getSqlSchema();
+        GlobalSchema globalSchema = schemata.getGlobalSchema();
 
         GbeanType[] gbeans = openejbEjbJar.getGbeanArray();
         ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
@@ -381,53 +385,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to construct module name", e);
         }
 
-        // EJBModule GBean
-        GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
-        CacheFlushStrategyFactory flushStrategyFactory;
-        if (openejbEjbJar.isSetEnforceForeignKeyConstraints()) {
-            flushStrategyFactory = new EnforceRelationshipsFlushStrategyFactory();
-        } else {
-            flushStrategyFactory = new SimpleFlushStrategyFactory();
-        }
-        EJBSchema ejbSchema = new EJBSchema(module.getName());
         TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
-        DataSourceDelegate delegate = new DataSourceDelegate();
-
-        EJBQLCompilerFactory compilerFactory = new DerbyEJBQLCompilerFactory();
-        try {
-            if (openejbEjbJar.isSetEjbQlCompilerFactory()) {
-                String className = openejbEjbJar.getEjbQlCompilerFactory().toString();
-                Class clazz = cl.loadClass(className);
-                Constructor constructor = clazz.getConstructor(null);
-                Object factory = constructor.newInstance(null);
-                if (false == factory instanceof EJBQLCompilerFactory) {
-                    throw new DeploymentException("EJBQLCompilerFactory expected. was=" + factory);
-                }
-                compilerFactory = (EJBQLCompilerFactory) factory;
-            }
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
-        }
-
-        DBSyntaxFactory syntaxFactory = new DerbyDBSyntaxtFactory();
-        try {
-            if (openejbEjbJar.isSetDbSyntaxFactory()) {
-                String className = openejbEjbJar.getDbSyntaxFactory().toString();
-                Class clazz = cl.loadClass(className);
-                Constructor constructor = clazz.getConstructor(null);
-                Object factory = constructor.newInstance(null);
-                if (false == factory instanceof DBSyntaxFactory) {
-                    throw new DeploymentException("DBSyntaxFactory expected. was=" + factory);
-                }
-                syntaxFactory = (DBSyntaxFactory) factory;
-            }
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
-        }
-
-        SQLSchema sqlSchema = new BaseSQLSchema(module.getName(), delegate, syntaxFactory, compilerFactory);
-
-        GlobalSchema globalSchema = new GlobalSchema(module.getName(), flushStrategyFactory);
 
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);
         try {
@@ -438,11 +396,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
             ejbModuleGBeanData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
+            GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
             if (connectionFactoryLocator != null) {
                 ObjectName connectionFactoryObjectName = getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext);
                 //TODO this uses connection factory rather than datasource for the type.
                 ejbModuleGBeanData.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
                 ejbModuleGBeanData.setAttribute("Delegate", delegate);
+            } else if (false == ejbSchema.getEntities().isEmpty()) {
+                throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
             }
 
             ejbModuleGBeanData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
@@ -451,16 +412,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getName(), e);
         }
         earContext.addGBean(ejbModuleGBeanData);
-
-        // Handle automatic PK generation -- we want to use the same builder for all CMP entities
-        TranQLPKGenBuilder pkgen = new TranQLPKGenBuilder();
-
-        // @todo need a better schema name
-        cmpEntityBuilder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema, pkgen, delegate);
-
-        if (null == connectionFactoryLocator && false == ejbSchema.getEntities().isEmpty()) {
-            throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
-        }
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
         Set beans = new HashSet();

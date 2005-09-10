@@ -14,6 +14,7 @@
             <ejb-class>org.openejb.deployment.entity.cmp.cmr.manytomany.ABean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>org.openejb.deployment.entity.cmp.cmr.CompoundPK</prim-key-class>
+            <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>manytomanyA</abstract-schema-name>
             <cmp-field>
@@ -30,6 +31,7 @@
             <ejb-class>org.openejb.deployment.entity.cmp.cmr.manytomany.BBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>manytomanyB</abstract-schema-name>
             <cmp-field>
