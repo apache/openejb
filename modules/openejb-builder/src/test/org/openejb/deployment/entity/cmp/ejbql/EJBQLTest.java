@@ -56,12 +56,14 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -83,6 +85,7 @@ import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
+import org.openejb.deployment.Schemata;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
@@ -93,8 +96,7 @@ import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.sql.sql92.SQL92Schema;
+import org.tranql.sql.SQLSchema;
 
 /**
  * @version $Revision$ $Date$
@@ -119,7 +121,7 @@ public class EJBQLTest extends TestCase {
     private Kernel kernel;
     private DataSource ds;
     private EJBSchema ejbSchema;
-    private SQL92Schema sqlSchema;
+    private SQLSchema sqlSchema;
     private GlobalSchema cacheSchema;
     private AHome aHome;
     private ALocalHome aLocalHome;
@@ -177,10 +179,6 @@ public class EJBQLTest extends TestCase {
 
         tmDelegate.setTransactionManager(tm);
 
-        ejbSchema = new EJBSchema("Mock");
-        sqlSchema = new SQL92Schema("Mock", ds, new DerbyEJBQLCompilerFactory());
-        cacheSchema = new GlobalSchema("Mock");
-
         File ejbJarFile = new File(basedir, getEjbJarDD());
         File openejbJarFile = new File(basedir, getOpenEjbJarDD());
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
@@ -205,7 +203,12 @@ public class EJBQLTest extends TestCase {
                     null, null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema, pkGen, null);
+            Schemata schemata = builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, pkGen, ds);
+
+            ejbSchema = schemata.getEjbSchema();
+            sqlSchema = schemata.getSqlSchema();
+            cacheSchema = schemata.getGlobalSchema();
+            
             GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
             Set patterns = new HashSet();
             patterns.add(C_NAME_A);
@@ -284,4 +287,3 @@ public class EJBQLTest extends TestCase {
         public Class local;
     }
 }
-

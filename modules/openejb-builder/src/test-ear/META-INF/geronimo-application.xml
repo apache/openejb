@@ -19,4 +19,38 @@
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server">
+
+    <module>
+        <ejb>test-ejb-jar.jar</ejb>
+        <openejb-jar
+            xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            configId="org/openejb/deployment/test">
+
+            <cmp-connection-factory>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
+            </cmp-connection-factory>
+
+            <enterprise-beans>
+                <entity>
+                    <ejb-name>SimpleCMPEntity</ejb-name>
+                    <table-name>SimpleCMP</table-name>
+                    <cmp-field-mapping>
+                        <cmp-field-name>id</cmp-field-name>
+                        <table-column>id</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>firstName</cmp-field-name>
+                        <table-column>firstName</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>lastName</cmp-field-name>
+                        <table-column>lastName</table-column>
+                    </cmp-field-mapping>
+                </entity>
+            </enterprise-beans>
+        </openejb-jar>
+    </module>
+
 </application>

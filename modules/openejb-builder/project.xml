@@ -412,6 +412,12 @@
             <version>${commons_discovery_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${ant_version}</version>
+        </dependency>
+
     </dependencies>
 
     <!-- =================== -->
