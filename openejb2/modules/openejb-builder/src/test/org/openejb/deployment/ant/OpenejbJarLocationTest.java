@@ -73,12 +73,12 @@ public class OpenejbJarLocationTest extends TestCase {
         executeAssert(location);
     }
 
-    public void XtestNested() throws Exception {
+    public void testNested() throws Exception {
         OpenejbJarLocation location = new OpenejbJarLocation("nested:src/test-ant/META-INF/geronimo-application.xml!/0");
         executeAssert(location);
     }
 
-    public void XtestNestedJar() throws Exception {
+    public void testNestedJar() throws Exception {
         OpenejbJarLocation location = new OpenejbJarLocation("nested:jar:target/test-ant.ear!/0");
         executeAssert(location);
     }

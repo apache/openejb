@@ -455,7 +455,6 @@
             </includes>
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
-                <exclude>**/EarDeploymentTest.java</exclude>
             </excludes>
             <resources>
                 <resource>
