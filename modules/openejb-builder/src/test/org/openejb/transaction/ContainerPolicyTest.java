@@ -60,6 +60,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.Flushable;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import junit.framework.TestCase;
@@ -221,10 +222,10 @@ public class ContainerPolicyTest extends TestCase {
         public void flushState() throws Throwable {
         }
 
-        public void setInTxCache(InTxCache inTxCache) {
+        public void setInTxCache(Flushable flushable) {
         }
 
-        public InTxCache getInTxCache() {
+        public Flushable getInTxCache() {
             return null;
         }
 

@@ -182,7 +182,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
 
         // cache insert
         TransactionContext transactionContext = invocation.getTransactionContext();
-        InTxCache cache = transactionContext.getInTxCache();
+        InTxCache cache = (InTxCache) transactionContext.getInTxCache();
 
         try {
             if ( null != keyGenerator ) {
@@ -198,7 +198,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             Object pk = primaryKeyTransform.getDomainIdentity(globalId);
             return invocation.createExceptionResult((Exception)new DuplicateKeyException("ID=" + pk));
         }
-        
+
         ctx.setCacheRow(cacheRow);
         ctx.setId(primaryKeyTransform.getDomainIdentity(globalId));
 

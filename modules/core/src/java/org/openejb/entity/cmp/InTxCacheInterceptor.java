@@ -51,13 +51,15 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.Flushable;
 import org.openejb.EJBInvocation;
 import org.tranql.cache.CacheFlushStrategyFactory;
 import org.tranql.cache.InTxCache;
+import org.tranql.cache.CacheFlushStrategy;
 
 /**
- * This interceptor defines, if required, the InTxCache of the 
- * TransactionContext bound to the intercepted EJBInvocation. A 
+ * This interceptor defines, if required, the InTxCache of the
+ * TransactionContext bound to the intercepted EJBInvocation. A
  * CacheFlushStrategyFactory is used to create the CacheFlushStrategy to be
  * used under the cover of the defined InTxCache.
  *
@@ -76,9 +78,17 @@ public final class InTxCacheInterceptor implements Interceptor {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
         TransactionContext transactionContext = ejbInvocation.getTransactionContext();
         if ( null == transactionContext.getInTxCache() ) {
-            transactionContext.setInTxCache(new InTxCache(strategyFactory.createCacheFlushStrategy()));
+            transactionContext.setInTxCache(new GeronimoInTxCache(strategyFactory.createCacheFlushStrategy()));
         }
-        
+
         return next.invoke(invocation);
+    }
+
+    public static class GeronimoInTxCache extends InTxCache implements Flushable {
+
+        public GeronimoInTxCache(CacheFlushStrategy flushStrategy) {
+            super(flushStrategy);
+        }
+
     }
 }

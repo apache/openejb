@@ -84,14 +84,14 @@ public abstract class CMPSelectMethod implements InstanceOperation {
         this.flushCache = flushCache;
         this.idDefiner = idDefiner;
         this.idInjector = idInjector;
-     
+
         Query query = command.getQuery();
         resultAccessor = query.getResultAccessors()[0];
         groupHandler = query.getPrefetchGroupHandler();
     }
-    
+
     protected Object execute(CMPInstanceContext instCtx, ResultHandler handler, Object[] args, Object ctx) throws QueryException {
-        InTxCache cache = instCtx.getTransactionContext().getInTxCache();
+        InTxCache cache = (InTxCache) instCtx.getTransactionContext().getInTxCache();
         if (flushCache) {
             cache.flush();
         }
