@@ -93,7 +93,7 @@ public class CMP1Bridge implements Serializable {
 
     public void loadCacheRow(CMPInstanceContext source, CacheRow destination) {
         EnterpriseBean entityBean = source.getInstance();
-        InTxCache inTxCache = source.getTransactionContext().getInTxCache();
+        InTxCache inTxCache = (InTxCache) source.getTransactionContext().getInTxCache();
         for (int i = 0; i < beanFields.length; i++) {
             Field beanField = beanFields[i];
             CMPFieldTransform fieldTransform = fieldTransforms[i];
@@ -111,7 +111,7 @@ public class CMP1Bridge implements Serializable {
 
     public void loadEntityBean(CacheRow source, CMPInstanceContext destination) {
         EnterpriseBean entityBean = destination.getInstance();
-        InTxCache inTxCache = destination.getTransactionContext().getInTxCache();
+        InTxCache inTxCache = (InTxCache) destination.getTransactionContext().getInTxCache();
         for (int i = 0; i < beanFields.length; i++) {
             Field beanField = beanFields[i];
             CMPFieldTransform fieldTransform = fieldTransforms[i];

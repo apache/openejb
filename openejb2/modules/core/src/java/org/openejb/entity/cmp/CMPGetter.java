@@ -70,7 +70,7 @@ public class CMPGetter implements InstanceOperation {
                 " fieldName=" + fieldName + ", args.length=" + args.length;
 
         CacheRow row = ctx.getCacheRow();
-        InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
+        InTxCache inTxCache = (InTxCache) ctx.getTransactionContext().getInTxCache();
         return field.get(inTxCache, row);
     }
 }

@@ -106,7 +106,7 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
                 }
             }
         }
-        
+
         cascadeOneDeleteFields = (CMPFieldTransform[]) cascadeOneDeleteFieldsList.toArray(new CMPFieldTransform[0]);
         cascadeManyDeleteFields = (CMPFieldTransform[]) cascadeManyDeleteFieldsList.toArray(new CMPFieldTransform[0]);
         cmrOneFields = (CMPFieldTransform[]) cmrOneFieldsList.toArray(new CMPFieldTransform[0]);
@@ -136,7 +136,7 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
                 }
             }
 
-            InTxCache cache = invocation.getTransactionContext().getInTxCache();
+            InTxCache cache = (InTxCache) invocation.getTransactionContext().getInTxCache();
             CacheRow cacheRow = ctx.getCacheRow();
 
             // get the entities to be deleted as part of a cascade delete

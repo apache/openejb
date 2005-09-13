@@ -68,7 +68,7 @@ public abstract class CMPFinder implements VirtualOperation, Serializable {
     private final boolean flushCache;
     private final IdentityDefiner idDefiner;
     private final IdentityDefiner idInjector;
-    
+
     public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache, IdentityDefiner idDefiner, IdentityDefiner idInjector) {
         this.localCommand = localCommand;
         this.remoteCommand = remoteCommand;
@@ -82,11 +82,11 @@ public abstract class CMPFinder implements VirtualOperation, Serializable {
     }
 
     protected Object execute(EJBInvocation invocation, ResultHandler handler, Object ctx) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
+        InTxCache cache = (InTxCache) invocation.getTransactionContext().getInTxCache();
         if (flushCache) {
             cache.flush();
         }
-        
+
         QueryCommand command = getCommand(invocation);
         Row arguments = new Row(invocation.getArguments());
         PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();

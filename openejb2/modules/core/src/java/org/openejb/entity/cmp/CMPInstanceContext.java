@@ -138,7 +138,7 @@ public final class CMPInstanceContext extends EntityInstanceContext {
 
             // locate the cache row for this instance
             GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(id);
-            InTxCache inTxCache = transactionContext.getInTxCache();
+            InTxCache inTxCache = (InTxCache) transactionContext.getInTxCache();
             cacheRow = inTxCache.get(globalId);
 
             // if we don't already have the row execute the load fault handler
