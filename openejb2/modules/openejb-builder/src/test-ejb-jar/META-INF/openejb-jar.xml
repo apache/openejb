@@ -152,6 +152,9 @@
 
     </enterprise-beans>
     <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+        <reference name="TransactionContextManager">
+            <gbean-name>test:type=TransactionContextManager</gbean-name>
+        </reference>
         <reference name="ManagedConnectionFactoryWrapper">
             <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>
         </reference>
@@ -160,6 +163,9 @@
         <attribute name="batchSize">1</attribute>
     </gbean>
     <gbean gbeanName="geronimo.server:name=CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+        <reference name="TransactionContextManager">
+            <gbean-name>test:type=TransactionContextManager</gbean-name>
+        </reference>
         <reference name="ManagedConnectionFactoryWrapper">
             <application>null</application>
             <moduleType>JCAResource</moduleType>

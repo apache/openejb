@@ -48,6 +48,7 @@
 package org.openejb.entity.cmp.pkgenerator;
 
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,6 +57,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
@@ -71,14 +73,16 @@ import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
  */
 public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SequenceTablePrimaryKeyGeneratorWrapper.class);
-    
+
+    private final TransactionContextManager transactionContextManager;
     private final ManagedConnectionFactoryWrapper connectionFactoryWrapper;
     private final String tableName;
     private final String sequenceName;
     private final int batchSize;
     private SequenceTablePrimaryKeyGenerator delegate; 
 
-    public SequenceTablePrimaryKeyGeneratorWrapper(ManagedConnectionFactoryWrapper connectionFactoryWrapper, String tableName, String sequenceName, int batchSize) {
+    public SequenceTablePrimaryKeyGeneratorWrapper(TransactionContextManager transactionContextManager, ManagedConnectionFactoryWrapper connectionFactoryWrapper, String tableName, String sequenceName, int batchSize) {
+        this.transactionContextManager = transactionContextManager;
         this.connectionFactoryWrapper = connectionFactoryWrapper;
         this.tableName = tableName;
         this.sequenceName = sequenceName;
@@ -87,7 +91,8 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
     
     public void doStart() throws Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
-        delegate = new SequenceTablePrimaryKeyGenerator(dataSource, tableName, sequenceName, batchSize);
+        TransactionManager tm = transactionContextManager.getTransactionManager();
+        delegate = new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
         delegate.initSequenceTable();
     }
 
@@ -113,12 +118,13 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SequenceTablePrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("tableName", String.class, true);
         infoFactory.addAttribute("sequenceName", String.class, true);
         infoFactory.addAttribute("batchSize", int.class, true);
 
-        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "tableName", "sequenceName", "batchSize"});
+        infoFactory.setConstructor(new String[]{"TransactionContextManager", "ManagedConnectionFactoryWrapper", "tableName", "sequenceName", "batchSize"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

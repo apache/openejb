@@ -158,7 +158,7 @@ public class CMPEntityBuilderTest extends TestCase {
                     null, null);
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null);
+            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null, null);
 
             EJBSchema ejbSchema = schemata.getEjbSchema();
             SQLSchema sqlSchema = schemata.getSqlSchema();
@@ -204,7 +204,7 @@ public class CMPEntityBuilderTest extends TestCase {
 
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null);
+            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null, null);
 
             EJBSchema ejbSchema = schemata.getEjbSchema();
             SQLSchema sqlSchema = schemata.getSqlSchema();
@@ -250,7 +250,7 @@ public class CMPEntityBuilderTest extends TestCase {
 
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null);
+            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null, null);
 
             EJBSchema ejbSchema = schemata.getEjbSchema();
             SQLSchema sqlSchema = schemata.getSqlSchema();

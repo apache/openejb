@@ -81,7 +81,7 @@ public class CMPEntityBuilderTestUtil extends TestCase {
     }
     
     public Schemata buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
-        return delegate.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJar, openejbEjbJar, cl, pkGen, dataSource);
+        return delegate.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJar, openejbEjbJar, cl, pkGen, dataSource, null);
     }
     
 }
