@@ -48,6 +48,8 @@
 package org.openejb.deployment.pkgen;
 
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
@@ -67,5 +69,5 @@ import org.apache.geronimo.common.DeploymentException;
  * @version $Revision$ $Date$
  */
 public interface PKGenBuilder {
-    PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException;
+    PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, TransactionManager tm, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException;
 }

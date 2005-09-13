@@ -361,6 +361,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
 
         DataSourceDelegate delegate = new DataSourceDelegate();
+        TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
 
         // Handle automatic PK generation -- we want to use the same builder for all CMP entities
         TranQLPKGenBuilder pkgen = new TranQLPKGenBuilder();
@@ -370,7 +371,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         EjbJarType ejbJar = (EjbJarType) module.getSpecDD();
 
         // @todo need a better schema name
-        Schemata schemata = cmpEntityBuilder.buildSchemata(earContext, moduleJ2eeContext, ejbModule.getName(), ejbJar, openejbEjbJar, cl, pkgen, delegate);
+        Schemata schemata = cmpEntityBuilder.buildSchemata(earContext, moduleJ2eeContext, ejbModule.getName(), ejbJar, openejbEjbJar, cl, pkgen, delegate, tmDelegate);
         EJBSchema ejbSchema = schemata.getEjbSchema();
         SQLSchema sqlSchema = schemata.getSqlSchema();
         GlobalSchema globalSchema = schemata.getGlobalSchema();
@@ -384,8 +385,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct module name", e);
         }
-
-        TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
 
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);
         try {

@@ -51,6 +51,8 @@ import java.util.Map;
 import java.util.HashMap;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 import org.tranql.pkgenerator.SQLPrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
@@ -98,12 +100,13 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
      * be prepared to acquire a new data source after deserialization.
      *
      * @param config The XMLBeans object tree representing the key-generator element in the XML document
+     * @param tm The TransactionManager that the key generator should use, if needed
      * @param dataSource The JDBC data source that the key generator should use
      * @param pkClass The key generator should return IDs of this type
      * @param earContext Used by the key generator when it needs to register a GBean for any reason
      * @return The configured PrimaryKeyGenerator
      */
-    public PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException {
+    public PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, TransactionManager tm, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException {
         //todo: Handle a PK Class with multiple fields?
         if(config.isSetCustomGenerator()) {
             EjbCustomGeneratorType custom = config.getCustomGenerator();
@@ -135,7 +138,7 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
             String tableName = seq.getTableName();
             String sequenceName = seq.getSequenceName();
             int batchSize = seq.getBatchSize();
-            SequenceTablePrimaryKeyGenerator generator = new SequenceTablePrimaryKeyGenerator(dataSource, tableName, sequenceName, batchSize);
+            SequenceTablePrimaryKeyGenerator generator = new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
             return generator;
         } else if(config.isSetAutoIncrementTable()) {
             EjbAutoIncrementTableType auto = config.getAutoIncrementTable();

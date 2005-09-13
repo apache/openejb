@@ -51,6 +51,7 @@ import java.util.Map;
 
 import javax.management.ObjectName;
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
@@ -115,7 +116,7 @@ class CMPEntityBuilder extends EntityBuilder {
      * EJB JAR.  This includes setting up the database mappings, key
      * generation, etc.
      */
-    public Schemata buildSchemata(final EARContext earContext, final J2eeContext moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, final PKGenBuilder pkGen, final DataSource dataSource) throws DeploymentException {
+    public Schemata buildSchemata(final EARContext earContext, final J2eeContext moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, final PKGenBuilder pkGen, final DataSource dataSource, final TransactionManager tm) throws DeploymentException {
         SchemataBuilder builder = new SchemataBuilder() {
             protected EJBProxyFactory buildEJBProxyFactory(EntityBeanType entityBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {
                 ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
@@ -129,7 +130,7 @@ class CMPEntityBuilder extends EntityBuilder {
             }
 
             protected PrimaryKeyGenerator buildPKGenerator(EjbKeyGeneratorType config, Class pkClass) throws DeploymentException, QueryException {
-                return pkGen.configurePKGenerator(config, dataSource, pkClass, earContext);
+                return pkGen.configurePKGenerator(config, tm, dataSource, pkClass, earContext);
             }
         };
         return builder.buildSchemata(moduleName, ejbJar, openejbEjbJar, dataSource, cl);
