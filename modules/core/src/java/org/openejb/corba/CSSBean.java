@@ -288,7 +288,7 @@ public class CSSBean implements GBeanLifecycle {
         infoFactory.addOperation("getHome", new Class[]{URI.class, String.class});
 
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.setConstructor(new String[]{"configAdapter", "ThreadPool", "TransactionContextManager", "classLoader"});
