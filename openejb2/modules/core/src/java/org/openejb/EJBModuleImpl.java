@@ -214,7 +214,7 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
         infoBuilder.addReference("ConnectionFactory", ConnectionProxyFactory.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoBuilder.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoBuilder.addAttribute("TMDelegate", TransactionManagerDelegate.class, true);
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);

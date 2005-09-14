@@ -118,7 +118,7 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SequenceTablePrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("tableName", String.class, true);
         infoFactory.addAttribute("sequenceName", String.class, true);
