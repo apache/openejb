@@ -268,6 +268,8 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 call.reset();
             }
         } finally {
+            ContextManager.setCurrentCaller(null);
+            ContextManager.setNextCaller(null);
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
@@ -305,7 +307,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
         }
 
 //        return container.invoke((EJBInvocationStream)req);
-//        return container.invoke(req.getMethodInstance(), req.getMethodParameters(), req.getPrimaryKey());        
+//        return container.invoke(req.getMethodInstance(), req.getMethodParameters(), req.getPrimaryKey());
 
     }
 
