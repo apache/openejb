@@ -82,6 +82,8 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.apache.geronimo.management.J2EEManagedObject;
+
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
@@ -96,13 +98,14 @@ import org.openejb.corba.TSSBean;
 /**
  * @version $Revision$ $Date$
  */
-public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
+public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEManagedObject {
 
     private static Log log = LogFactory.getLog(GenericEJBContainer.class);
 
     private final ClassLoader classLoader;
     private final Object containerId;
     private final String ejbName;
+    private final String objectName;
 
     private final Interceptor interceptor;
     private final ProxyInfo proxyInfo;
@@ -159,6 +162,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         assert (classLoader != null);
         this.containerId = containerId;
         this.ejbName = ejbName;
+        this.objectName = objectName;
         this.jndiNames = copyNames(jndiNames);
         this.localJndiNames = copyNames(localJndiNames);
         this.signatures = signatures;
@@ -424,6 +428,22 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         log.info("GenericEJBContainer '" + containerId + "' failed");
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -453,6 +473,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addReference("TSSBean", TSSBean.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addInterface(J2EEManagedObject.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
 
