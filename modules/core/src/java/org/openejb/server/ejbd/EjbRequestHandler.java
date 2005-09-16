@@ -51,6 +51,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.security.auth.Subject;
 
@@ -75,11 +76,11 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
     private static final Log log = LogFactory.getLog(EjbRequestHandler.class);
     private final ContainerIndex containerIndex;
-    private final ORBRef orbRef;
+    private final Collection orbRefs;
 
 
-    EjbRequestHandler(ContainerIndex containerIndex, ORBRef orbRef) {
-        this.orbRef = orbRef;
+    EjbRequestHandler(ContainerIndex containerIndex, Collection orbRefs) {
+        this.orbRefs = orbRefs;
 
         if (containerIndex == null) {
             containerIndex = ContainerIndex.getInstance();
@@ -92,6 +93,13 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         EJBObjectInputStream in = (EJBObjectInputStream) input;
 
+        ORBRef orbRef = null;
+        if (orbRefs != null) {
+            Iterator iterator = orbRefs.iterator();
+            if (iterator.hasNext()) {
+                orbRef = (ORBRef) iterator.next();
+            }
+        }
         EJBInvocationStream req = new EJBInvocationStream(orbRef);
 
         EJBResponse res = new EJBResponse();

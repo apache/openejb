@@ -67,9 +67,9 @@ public class EjbServerGBean {
 
         infoFactory.addInterface(SocketService.class);
         infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("ORBRef", ORBRef.class, NameFactory.CORBA_SERVICE);
+        infoFactory.addReference("ORBRefs", ORBRef.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.setConstructor(new String[]{"ContainerIndex", "ORBRef"});
+        infoFactory.setConstructor(new String[]{"ContainerIndex", "ORBRefs"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

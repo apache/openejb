@@ -50,6 +50,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Collection;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
@@ -60,7 +61,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openejb.ContainerIndex;
-import org.openejb.corba.ORBRef;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
 import org.openejb.proxy.ProxyInfo;
@@ -89,11 +89,11 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
         this(ContainerIndex.getInstance(), null);
     }
 
-    public EjbDaemon(ContainerIndex containerIndex, ORBRef orbRef) throws Exception {
+    public EjbDaemon(ContainerIndex containerIndex, Collection orbRefs) throws Exception {
         clientObjectFactory = new ClientObjectFactory(containerIndex);
 
         // Request Handlers
-        ejbHandler = new EjbRequestHandler(containerIndex, orbRef);
+        ejbHandler = new EjbRequestHandler(containerIndex, orbRefs);
         jndiHandler = new JndiRequestHandler(containerIndex);
         authHandler = new AuthRequestHandler();
     }
