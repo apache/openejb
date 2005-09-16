@@ -96,7 +96,7 @@ public class Unmarshaller {
         String file = xmlFile.getName();
 
         JarFile jar = JarUtils.getJarFile(jarLocation);
-        JarEntry entry = jar.getJarEntry(xmlFile.getPath());
+        JarEntry entry = jar.getJarEntry(xmlFile.getPath().replaceAll("\\\\", "/"));
 
         if (entry == null) throw new OpenEJBException(EjbJarUtils.messages.format("xml.cannotFindFile", file, jarLocation));
 

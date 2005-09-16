@@ -1160,7 +1160,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         if (dir == null || !dir.isDirectory()) return;
 
         // Check to see if it's an unpacked ejb-jar
-        File ejbJarXml = new File(dir, "META-INF/ejb-jar.xml");
+        File ejbJarXml = new File(dir, "META-INF" + File.separator + "ejb-jar.xml");
         if (ejbJarXml.exists()) {
             if (!jarList.contains(dir.getAbsolutePath())) {
                 jarList.add(dir.getAbsolutePath());
