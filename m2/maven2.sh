@@ -1,87 +1,126 @@
 #!/bin/sh
 
-src=`pwd`/..
-dir=`pwd`/openejb
+runDir=`pwd`
+root=`pwd`/openejb
 poms=`pwd`
-modules_dir=$dir/modules
-
-echo "Backing up IntelliJ files"
-mkdir -p intellij
-find openejb -name '*.iml' -exec cp --parents {} intellij \;
-cp openejb/*.iws intellij/openejb
-cp openejb/*.ipr intellij/openejb
+modules=`pwd`/../modules
 
 echo "Removing old version"
-rm -rf $dir
+rm -rf $root
+
 
 echo "Setting up base"
-mkdir -p $dir
+mkdir -p $root
+cp $poms/openejb-root.pom $root/pom.xml
 
-cp $poms/ejb-group.pom $dir/pom.xml
 
-echo "Setting up modules"
-mkdir -p $modules_dir
+echo "Setting up core..."
+m1Dir=$modules/core
+m2Dir=$root/openejb-core
+mkdir -p $m2Dir
+cp $poms/openejb-core.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/main/resources
+  cp -r $m1Dir/src/bin $m2Dir/src/main
+  cp -r $m1Dir/src/conf $m2Dir/src/main
+  cp -r $m1Dir/src/etc $m2Dir/src/main
+  cd $m1Dir/src/java
+  cp -r **/*.properties $m2Dir/src/main/resources --parent
+  cp -r **/*.xml $m2Dir/src/main/resources --parent
+  cd $runDir
+  mkdir -p $m2Dir/src/test/java
+  cp -r $m1Dir/src/test/* $m2Dir/src/test/java
+  mkdir -p $m2Dir/src/test/resources
+  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
+  cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
+  mkdir -p $m2Dir/src/main/java
+  cd $m1Dir/src/java
+  cp -r **/*.java $m2Dir/src/main/java --parent
+  cd $runDir
+}
 
-echo "... core"
-# TODO: should be ./openejb-core not ./modules/core
-cp -r $src/modules/core $modules_dir
-cp $poms/ejb-core.pom $modules_dir/core/pom.xml
-(
-  cd $modules_dir/core
-  mkdir -p src/main
-  mkdir -p src/test/java
-  mv src/conf src/main/resources
-  mv src/test/org src/test/java
-  mv src/test-resources src/test/resources
-  # cygwin seems to freak out sometimes without the sleep. Weird.
-  sleep 10
-  mv src/java src/main
-)
 
-echo "... test-ejb-jar"
-mv $dir/modules/core/src/test-ejb-jar $modules_dir
-cp $poms/ejb-test-jar.pom $modules_dir/test-ejb-jar/pom.xml
+echo "Setting up openejb-builder..."
+m1Dir=$modules/openejb-builder
+m2Dir=$root/openejb-builder
+mkdir -p $m2Dir
+cp $poms/ejb-builder.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/test/java
+  cp -r $m1Dir/src/test/* $m2Dir/src/test/java
+  mkdir -p $m2Dir/src/test/resources
+  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
+  cp -r $m1Dir/src/test-cmp $m2Dir/src/test
+  cp -r $m1Dir/src/test-ear $m2Dir/src/test
+  cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
+  mkdir -p $m2Dir/src/main
+  cp -r $m1Dir/src/schema $m2Dir/src/main
+  cp -r $m1Dir/src/java/**/*.java $m2Dir/src/main/java
+}
 
-( 
-  cd $modules_dir/test-ejb-jar
-  mkdir -p src/main/java
-  mv org src/main/java
-  mkdir -p src/main/resources
-  mv META-INF src/main/resources
-)
 
-echo "... builder"
-cp -r $src/modules/openejb-builder $modules_dir
-cp $poms/ejb-builder.pom $modules_dir/openejb-builder/pom.xml
-rm -rf $modules_dir/openejb-builder/src/test-ejb-jar
-(
-  cd $modules_dir/openejb-builder
-  mkdir -p src/main
-  mkdir -p src/test/java
-  mv src/java src/main
-  mv src/test/org src/test/java
-  mv src/test-resources src/test/resources
-)
+echo "Setting up pkgen-builder..."
+m1Dir=$modules/pkgen-builder
+m2Dir=$root/pkgen-builder
+mkdir -p $m2Dir
+cp $poms/pkgen-builder.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/main
+  cp -r $m1Dir/src/java $m2Dir/src/main
+  cp -r $m1Dir/src/schema $m2Dir/src/main
+}
 
-echo "... test-ear"
-mv $dir/modules/openejb-builder/src/test-ear $modules_dir
-cp $poms/ejb-test-ear.pom $modules_dir/test-ear/pom.xml
 
-( 
-  cd $modules_dir/test-ear
-  mkdir -p src/main/resources
-  mv META-INF src/main/resources
-)
+echo "Setting up openejb-webadmin..."
+m1Dir=$modules/webadmin
+m2Dir=$root/openejb-webadmin
+mkdir -p $m2Dir
+cp $poms/openejb-webadmin.pom $m2Dir/pom.xml
 
-echo "... assembly"
-cp -r $src/modules/assembly $modules_dir
-cp $poms/ejb-assembly.pom $modules_dir/assembly/pom.xml
 
-# ---------------------------------------------------
+echo "Setting up openejb-webadmin-commons..."
+m2Dir=$root/openejb-webadmin/openejb-webadmin-commons
+mkdir -p $m2Dir
+cp $poms/openejb-webadmin-commons.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/main/java/org/openejb/webadmin
+  cp $m1Dir/src/java/org/openejb/webadmin/*.java $m2Dir/src/main/java/org/openejb/webadmin
+}
 
-echo "Removing CVS directories"
-find $dir -name 'CVS*' -exec rm -rf {} \; > /dev/null 2>&1
 
-echo "Restoring IntelliJ Files"
-cp -r intellij/openejb/* openejb
+echo "Setting up openejb-webadmin-clienttools..."
+m2Dir=$root/openejb-webadmin/openejb-webadmin-clienttools
+mkdir -p $m2Dir
+cp $poms/openejb-webadmin-clienttools.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/main/java/org/openejb/webadmin/clienttools
+  cp $m1Dir/src/java/org/openejb/webadmin/clienttools/*.java $m2Dir/src/main/java/org/openejb/webadmin/clienttools
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp $m1Dir/src/java/org/openejb/webadmin/clienttools/*.xml  $m2Dir/src/main/resources/META-INF
+}
 
+
+echo "Setting up openejb-webadmin-ejbgen..."
+m2Dir=$root/openejb-webadmin/openejb-webadmin-ejbgen
+mkdir -p $m2Dir
+cp $poms/openejb-webadmin-ejbgen.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/main/java/org/openejb/webadmin/ejbgen
+  cp $m1Dir/src/java/org/openejb/webadmin/ejbgen/*.java $m2Dir/src/main/java/org/openejb/webadmin/ejbgen
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp $m1Dir/src/java/org/openejb/webadmin/ejbgen/*.xml  $m2Dir/src/main/resources/META-INF
+}
+
+
+echo "Setting up openejb-webadmin-main..."
+m2Dir=$root/openejb-webadmin/openejb-webadmin-main
+mkdir -p $m2Dir
+cp $poms/openejb-webadmin-main.pom $m2Dir/pom.xml
+{
+  mkdir -p $m2Dir/src/main/java/org/openejb/webadmin/main
+  cp $m1Dir/src/java/org/openejb/webadmin/main/*.java $m2Dir/src/main/java/org/openejb/webadmin/main
+  mkdir -p $m2Dir/src/main/java/org/openejb/webadmin/httpd
+  cp $m1Dir/src/java/org/openejb/webadmin/httpd/*.* $m2Dir/src/main/java/org/openejb/webadmin/httpd
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp $m1Dir/src/java/org/openejb/webadmin/main/*.xml  $m2Dir/src/main/resources/META-INF
+}
