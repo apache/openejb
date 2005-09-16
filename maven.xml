@@ -393,6 +393,9 @@
 	    <replace file="${aggregate.dir}/bin/openejb.bat" 
 	             token="@REPLACED-BY-MAVEN-XML@"
 	             value="${pom.currentVersion}"/>
+	    <replace file="${aggregate.dir}/bin/openejb-tests.bat" 
+	             token="@REPLACED-BY-MAVEN-XML@"
+	             value="${pom.currentVersion}"/>
         </u:available>
         <copy todir="${aggregate.dir}">
             <fileset dir=".">
