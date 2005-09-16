@@ -48,7 +48,7 @@ REM================================================
    set SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    
-   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
+   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
          
 goto EOF
 REM================================================
@@ -62,7 +62,7 @@ REM================================================
    set SERVER="-Dopenejb.test.server=org.openejb.test.RemoteTestServer"
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    
-   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
+   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
 
 goto EOF
 REM================================================
@@ -83,7 +83,7 @@ REM================================================
    set NAMING_OPTIONS=%NAMING_OPTIONS% -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl
 
    REM  >logs\corba.jndi.log 2>&1 doesn't work with 'start'
-   start "OpenORB JNDI Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %NAMING_OPTIONS% org.openorb.util.MapNamingContext -ORBPort=2001 -default
+   start "OpenORB JNDI Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %NAMING_OPTIONS% org.openorb.util.MapNamingContext -ORBPort=2001 -default
 
    sleep 20
    echo 2. OpenEJB RMI/IIOP Server...
@@ -100,7 +100,7 @@ REM================================================
    set SERVER_OPTIONS=-Dlog4j.configuration=file:conf/default.logging.conf
    set SERVER_OPTIONS=%SERVER_OPTIONS% -Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext
    REM  > logs\corba.server.log 2>&1 doesn't work with 'start'
-   start "OpenEJB RMI/IIOP Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %SERVER_OPTIONS% %OPENORB_OPTIONS% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml
+   start "OpenEJB RMI/IIOP Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %SERVER_OPTIONS% %OPENORB_OPTIONS% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml
 
    echo 3. Starting test client...
 
