@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+
+  <parent>
+    <groupId>openejb</groupId>
+    <artifactId>openejb</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>pkgen-builder</name>
+  <artifactId>pkgen-builder</artifactId>
+  <version>2.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <dependencies>
+    <dependency>
+        <groupId>xmlbeans</groupId>
+        <artifactId>xbean</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>stax</groupId>
+        <artifactId>stax-api</artifactId>
+    </dependency>
+    <dependency>
+         <groupId>openejb</groupId>
+         <artifactId>openejb-core</artifactId>
+   </dependency>
+    <dependency>
+         <groupId>geronimo</groupId>
+         <artifactId>geronimo-deployment</artifactId>
+   </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee-builder</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>maven-xmlbeans-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>xmlbeans</goal>
+            </goals>
+            <configuration>
+              <schemaDirectory>${basedir}/src/main/schema</schemaDirectory>
+              <sourceSchemas>openejb-pkgen.xsd</sourceSchemas>
+              <xmlConfigs>${basedir}/src/main/schema/xmlconfig.xml</xmlConfigs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <targetPath>META-INF/schema</targetPath>
+        <directory>${basedir}/src/main/schema</directory>
+        <includes>
+          <include>openejb-pkgen.xsd</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+</project>

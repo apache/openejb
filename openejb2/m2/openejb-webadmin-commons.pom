@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+
+  <parent>
+    <groupId>openejb</groupId>
+    <artifactId>openejb-webadmin</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>openejb-webadmin-commons</name>
+  <artifactId>openejb-webadmin-commons</artifactId>
+  <description>OpenEJB Web-based Administration Console Commons</description>
+  <packaging>jar</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>openejb</groupId>
+      <artifactId>openejb-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jta</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-ejb</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-servlet</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee-connector</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>castor</groupId>
+      <artifactId>castor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>activeio</groupId>
+      <artifactId>activeio</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
