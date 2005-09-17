@@ -31,7 +31,7 @@ if /I %P1% EQU _CORBA     goto TEST_CORBA
 if /I %P1% EQU _HELP      goto HELP_TEST
 if /I %P1% EQU _-HELP     goto HELP_TEST
 if /I %P1% EQU _--HEL     goto HELP_TEST
-if /I %P1% EQU _          goto TEST_NOARGS
+if /I %P1% EQU _          goto TEST_INTRAVM
 
 echo Unknown option: %1
 goto HELP_TEST                                   
@@ -50,6 +50,7 @@ REM================================================
    
    java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
          
+if /I %P1% EQU _ goto TEST_SERVER
 goto EOF
 REM================================================
 :TEST_SERVER
@@ -64,6 +65,7 @@ REM================================================
    
    java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
 
+if /I %P1% EQU _ goto TEST_CORBA
 goto EOF
 REM================================================
 :TEST_CORBA
