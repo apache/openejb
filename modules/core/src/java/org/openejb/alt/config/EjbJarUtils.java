@@ -44,6 +44,19 @@
  */
 package org.openejb.alt.config;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Properties;
+import java.util.Vector;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import org.exolab.castor.util.Configuration;
+import org.exolab.castor.util.LocalConfiguration;
 import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
@@ -53,18 +66,8 @@ import org.openejb.alt.config.ejb11.OpenejbJar;
 import org.openejb.alt.config.sys.Container;
 import org.openejb.loader.SystemInstance;
 import org.openejb.util.JarUtils;
-import org.openejb.util.Messages;
 import org.openejb.util.Logger;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Vector;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import org.openejb.util.Messages;
 
 /**
  *
@@ -78,6 +81,11 @@ public class EjbJarUtils {
     private final EjbJar ejbJar;
     private final String jarLocation;
     private OpenejbJar openejbJar;
+    
+    static {
+    	Properties properties = LocalConfiguration.getInstance().getProperties();
+    	properties.setProperty( Configuration.Property.Indent, "true");
+    }
 
     // TODO Make this a plain EjbJar instance with String jarFile as constructor
     // TODO Add support for unpacked jars (jarFile is a directory)
