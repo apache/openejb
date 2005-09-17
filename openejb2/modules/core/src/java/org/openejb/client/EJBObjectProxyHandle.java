@@ -49,6 +49,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.openejb.proxy.EJBProxyFactory;
+
 
 public class EJBObjectProxyHandle implements Externalizable {
 
@@ -98,8 +100,23 @@ public class EJBObjectProxyHandle implements Externalizable {
 
     }
 
+    public static boolean client = true;
     private Object readResolve() {
-        return handler.createEJBObjectProxy();
-    }
+        if (client) {
+            return handler.createEJBObjectProxy();
+        } else {
+            EJBMetaDataImpl ejb = handler.ejb;
+            Class remoteInterface = ejb.remoteClass;
+            Class homeInterface = ejb.homeClass;
 
+            EJBProxyFactory proxyFactory = new EJBProxyFactory(ejb.deploymentID,
+                    ejb.isSession(),
+                    remoteInterface,
+                    homeInterface,
+                    null,
+                    null);
+
+            return proxyFactory.getEJBObject(handler.primaryKey);
+        }
+    }
 }

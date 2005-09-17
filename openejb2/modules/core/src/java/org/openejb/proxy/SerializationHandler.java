@@ -51,8 +51,6 @@ import java.io.ObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.rmi.MarshalledObject;
 
-import javax.xml.rpc.Stub;
-
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.omg.CORBA.ORB;
 
