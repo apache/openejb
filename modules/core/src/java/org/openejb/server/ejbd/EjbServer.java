@@ -54,6 +54,7 @@ import org.activeio.xnet.ServerService;
 import org.activeio.xnet.ServiceException;
 import org.openejb.ContainerIndex;
 import org.openejb.OpenEJB;
+import org.openejb.client.EJBObjectProxyHandle;
 import org.openejb.server.ServerFederation;
 
 /**
@@ -66,6 +67,7 @@ public class EjbServer implements ServerService {
         // TODO Horrid hack, the concept needs to survive somewhere
         if (OpenEJB.getApplicationServer() == null) {
             OpenEJB.setApplicationServer(new ServerFederation());
+            EJBObjectProxyHandle.client = false;
         }
     }
 
