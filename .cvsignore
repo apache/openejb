@@ -1,7 +1,15 @@
 .project
+
 .classpath
+
 .settings
+
 target
+
 *.iml
+
 *.ipr
+
 *.iws
+
+eclipsebin
