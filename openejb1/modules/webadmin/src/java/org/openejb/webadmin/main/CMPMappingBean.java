@@ -59,17 +59,18 @@ import javax.naming.InitialContext;
 import javax.rmi.PortableRemoteObject;
 
 import org.exolab.castor.jdo.conf.Database;
+import org.exolab.castor.jdo.conf.DatabaseChoice;
 import org.exolab.castor.jdo.conf.Driver;
 import org.exolab.castor.jdo.conf.Jndi;
 import org.exolab.castor.jdo.conf.Mapping;
 import org.exolab.castor.jdo.conf.Param;
 import org.exolab.castor.xml.ValidationException;
+import org.openejb.core.EnvProps;
+import org.openejb.loader.SystemInstance;
+import org.openejb.util.FileUtils;
 import org.openejb.webadmin.HttpRequest;
 import org.openejb.webadmin.HttpResponse;
 import org.openejb.webadmin.WebAdminBean;
-import org.openejb.core.EnvProps;
-import org.openejb.util.FileUtils;
-import org.openejb.loader.SystemInstance;
 
 /**
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
@@ -209,7 +210,9 @@ public class CMPMappingBean extends WebAdminBean {
 
 		//set the standard variables for the global and local databases
 		Database globalDatabase = new Database();
+		DatabaseChoice globalDatabaseChoice = new DatabaseChoice();
 		Database localDatabase = new Database();
+		DatabaseChoice localDatabaseChoice = new DatabaseChoice();
 		globalDatabase.setName(EnvProps.GLOBAL_TX_DATABASE);
 		globalDatabase.setEngine(databaseData.getDbEngine());
 		localDatabase.setName(EnvProps.LOCAL_TX_DATABASE);
@@ -224,7 +227,7 @@ public class CMPMappingBean extends WebAdminBean {
 		//set up the global specific fields
 		Jndi jndi = new Jndi();
 		jndi.setName(databaseData.getJndiName());
-		globalDatabase.setJndi(jndi);
+		globalDatabaseChoice.setJndi(jndi);
 
 		//set up the local specific fields
 		Driver driver = new Driver();
@@ -243,7 +246,10 @@ public class CMPMappingBean extends WebAdminBean {
 		driver.addParam(userNameParam);
 		driver.addParam(passwordParam);
 
-		localDatabase.setDriver(driver);
+		localDatabaseChoice.setDriver(driver);
+		
+		localDatabase.setDatabaseChoice(localDatabaseChoice);
+		globalDatabase.setDatabaseChoice(globalDatabaseChoice);
 
 		//validate the two database types again just in case
 		try {

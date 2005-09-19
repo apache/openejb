@@ -66,6 +66,7 @@ import org.exolab.castor.jdo.Database;
 import org.exolab.castor.jdo.JDO;
 import org.exolab.castor.jdo.OQLQuery;
 import org.exolab.castor.jdo.QueryResults;
+import org.exolab.castor.mapping.AccessMode;
 import org.exolab.castor.persist.spi.CallbackInterceptor;
 import org.exolab.castor.persist.spi.Complex;
 import org.exolab.castor.persist.spi.InstanceFactory;
@@ -75,14 +76,13 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
-import org.openejb.loader.SystemInstance;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
-import org.openejb.util.FileUtils;
+import org.openejb.loader.SystemInstance;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
@@ -288,14 +288,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
          * and use the binding directly.  It may be possible, however, to locate it using a Context listing method.
          */
 
-        String transactionManagerJndiName = "java:openejb/" + ( new java.rmi.dgc.VMID() ).toString().replace( ':', '_' );
-
-        /*
-         * Because the Tyrex root (used by Castor) is different from the IntraVM root,
-         * we have to bind the TxMgr under env in the IntraVM/comp
-         * IntraVM/comp is bound under TyrexRoot/comp so beans can use java:comp indifferently.
-         */
-        String transactionManagerJndiNameTyrex = "env/" + ( new java.rmi.dgc.VMID() ).toString().replace( ':', '_' );
+        String transactionManagerJndiName = "java:openejb/TransactionManager";
 
         /*
          * This container uses two different JDO objects. One whose transactions are managed by a tx manager
@@ -303,9 +296,6 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
          */
         jdo_ForGlobalTransaction = new JDO();
 
-        // Assign the TransactionManager JNDI name to the dynamically generated JNDI name
-//        jdo_ForGlobalTransaction.setTransactionManager( "java:comp/" + transactionManagerJndiNameTyrex );
-        jdo_ForGlobalTransaction.setTransactionManager("java:openejb/TransactionManager");
         jdo_ForGlobalTransaction.setDatabasePooling( true );
         jdo_ForGlobalTransaction.setConfiguration( gTxDb.getAbsolutePath() );
         jdo_ForGlobalTransaction.setDatabaseName(EnvProps.GLOBAL_TX_DATABASE);
@@ -359,7 +349,6 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             // bind the TransactionManager to the dynamically generated JNDI name
             try {
                 di.getJndiEnc().bind( transactionManagerJndiName, txReference );
-                jdo_ForGlobalTransaction.setTransactionManager( transactionManagerJndiName );
             } catch ( Exception e ) {
                 logger.error( "Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e );
                 throw new org.openejb.SystemException( "Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e );
@@ -1637,5 +1626,13 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         }
 
     }
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.exolab.castor.persist.spi.CallbackInterceptor#loaded(java.lang.Object, org.exolab.castor.mapping.AccessMode)
+     */
+	public Class loaded(Object loaded, AccessMode mode) throws Exception {
+		return loaded(loaded, mode.getId());
+	}
 
 }
