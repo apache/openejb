@@ -76,15 +76,15 @@ public class SystemInstance {
         this.properties.putAll(System.getProperties());
         this.properties.putAll(properties);
         
-        this.home = new FileUtils("openejb.home", "user.dir", properties);
-        this.base = new FileUtils("openejb.base", "openejb.home", properties);
-        this.classPath = ClassPathFactory.createClassPath(properties.getProperty("openejb.loader", "context"));
+        this.home = new FileUtils("openejb.home", "user.dir", this.properties);
+        this.base = new FileUtils("openejb.base", "openejb.home", this.properties);
+        this.classPath = ClassPathFactory.createClassPath(this.properties.getProperty("openejb.loader", "context"));
         this.classLoader = classPath.getClassLoader();
 
         // TODO Setup the jar url handler too
 
-        properties.setProperty("openejb.home", home.getDirectory().getCanonicalPath());
-        properties.setProperty("openejb.base", base.getDirectory().getCanonicalPath());
+        this.properties.setProperty("openejb.home", home.getDirectory().getCanonicalPath());
+        this.properties.setProperty("openejb.base", base.getDirectory().getCanonicalPath());
     }
 
 
