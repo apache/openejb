@@ -530,32 +530,47 @@
         <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
     </postGoal>
 
+    <goal name="setup:tomcat50">
+      <j:set var="tomcat.version" value="5.0.28"/>
+      <j:set var="tomcat.download" value="http://www.ibiblio.org/pub/mirrors/apache/jakarta/tomcat-5/v${tomcat.version}/bin/jakarta-tomcat-${tomcat.version}.zip"/>
+      <attainGoal name="setup:tomcat"/>
+    </goal>
+    <goal name="setup:tomcat55">
+      <j:set var="tomcat.version" value="5.5.9"/>
+      <j:set var="tomcat.download" value="http://www.ibiblio.org/pub/mirrors/apache/jakarta/tomcat-5/v${tomcat.version}/bin/jakarta-tomcat-${tomcat.version}.zip"/>
+      <attainGoal name="setup:tomcat"/>
+    </goal>
+
     <goal name="setup:tomcat4">
+      <j:set var="tomcat.version" value="4.1.31"/>
+      <j:set var="tomcat.download" value="http://www.ibiblio.org/pub/mirrors/apache/jakarta/tomcat-4/v4.1.31/bin/jakarta-tomcat-${tomcat.version}.zip"/>
+      <attainGoal name="setup:tomcat"/>
+    </goal>
+
+    <goal name="setup:tomcat">
       <j:set var="targetDir" value="${basedir}/target/"/>
 
-      <j:set var="tomcat4.version" value="4.1.31"/>
-      <j:set var="tomcat4.download" value="http://www.ibiblio.org/pub/mirrors/apache/jakarta/tomcat-4/v4.1.31/bin/jakarta-tomcat-${tomcat4.version}.zip"/>
-      <j:set var="tomcat4.dist" value="${maven.repo.local}/tomcat/distributions/jakarta-tomcat-${tomcat4.version}.zip"/>
-      <j:set var="tomcat4.home" value="${targetDir}/jakarta-tomcat-${tomcat4.version}"/>
+      <j:set var="tomcat.dist" value="${maven.repo.local}/tomcat/distributions/jakarta-tomcat-${tomcat.version}.zip"/>
+      <j:set var="tomcat.home" value="${targetDir}/jakarta-tomcat-${tomcat.version}"/>
       <j:set var="openejb.home" value="${targetDir}/openejb-${pom.currentVersion}" />
 
       <!-- Download tomcat if it isn't in the repo -->
-      <u:file var="fileAsFile" name="${tomcat4.dist}"/>
+      <u:file var="fileAsFile" name="${tomcat.dist}"/>
       <j:if test="${!(fileAsFile.exists())}">
 	<mkdir dir="${maven.repo.local}/tomcat/distributions"/>
-	<get src="${tomcat4.download}" dest="${tomcat4.dist}"/>
+	<get src="${tomcat.download}" dest="${tomcat.dist}"/>
       </j:if>      
 
       <!-- Unzip if not unzipped -->
-      <u:file var="fileAsFile" name="${tomcat4.home}"/>
+      <u:file var="fileAsFile" name="${tomcat.home}"/>
       <j:if test="${!(fileAsFile.exists())}">
-	<unjar src="${tomcat4.dist}" dest="${targetDir}"/>
-	<chmod dir="${tomcat4.home}/bin" perm="u+x" includes="**/*.sh"/>
+	<unjar src="${tomcat.dist}" dest="${targetDir}"/>
+	<chmod dir="${tomcat.home}/bin" perm="u+x" includes="**/*.sh"/>
       </j:if>      
 
 
 <!--
-      <j:set var="catalina.dir" value="${tomcat4.home}"/>
+      <j:set var="catalina.dir" value="${tomcat.home}"/>
       <echo message="Starting tomcat servlet engine..."/>
       <java classname="org.apache.catalina.startup.Bootstrap" fork="yes">
 	<jvmarg value="-Djava.endorsed.dirs=${catalina.dir}/common/endorsed"/>
@@ -572,15 +587,15 @@
 
     <goal name="setup:loader-webapp">
       <!-- Unzip webapp and set openejb.home -->
-      <mkdir dir="${tomcat4.home}/webapps/openejb"/>
-      <unjar src="${openejb.home}/war/openejb-webadmin-${pom.currentVersion}.war" dest="${tomcat4.home}/webapps/openejb"/>
-      <replace file="${tomcat4.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
+      <mkdir dir="${tomcat.home}/webapps/openejb"/>
+      <unjar src="${openejb.home}/war/openejb-webadmin-${pom.currentVersion}.war" dest="${tomcat.home}/webapps/openejb"/>
+      <replace file="${tomcat.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
     </goal>
     <goal name="setup:webapp-example">
       <!-- Unzip webapp and set openejb.home -->
-      <mkdir dir="${tomcat4.home}/webapps/openejb"/>
-      <unjar src="${openejb.home}/war/openejb-webapp-examples-${pom.currentVersion}.war" dest="${tomcat4.home}/webapps/movies"/>
-      <replace file="${tomcat4.home}/webapps/movies/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
+      <mkdir dir="${tomcat.home}/webapps/openejb"/>
+      <unjar src="${openejb.home}/war/openejb-webapp-examples-${pom.currentVersion}.war" dest="${tomcat.home}/webapps/movies"/>
+      <replace file="${tomcat.home}/webapps/movies/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
     </goal>
 
 </project>
