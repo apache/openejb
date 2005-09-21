@@ -1,7 +1,6 @@
 <!DOCTYPE jdo-conf PUBLIC "-//EXOLAB/Castor JDO Configuration DTD Version 1.0//EN"
                            "http://castor.exolab.org/jdo-conf.dtd">
 
-
 <!--
 	======================================================
 	Global Transaction Database file for Container-Managed
@@ -37,7 +36,7 @@
 <jdo-conf>
 	<database name="Global_TX_Database" engine="instantdb">
 		<jndi name="java:openejb/connector/Default JDBC Database" />
-		<mapping href="conf/default.cmp_mapping.xml" />
+		<mapping href="default.cmp_mapping.xml" />
 	</database>
 
 	<transaction-demarcation mode="global">

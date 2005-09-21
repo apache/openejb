@@ -29,7 +29,7 @@
 			<param name="password" value="pass" />
 		</driver>
 
-		<mapping href="META-INF/cmp.or-mapping.xml" />
+		<mapping href="cmp.or-mapping.xml" />
 	</database>
 	
 	<transaction-demarcation mode="local" />

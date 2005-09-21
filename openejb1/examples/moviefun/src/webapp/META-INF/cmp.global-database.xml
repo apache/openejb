@@ -23,7 +23,7 @@
 <jdo-conf>
 	<database name="Global_TX_Database" engine="instantdb">
 		<jndi name="java:openejb/connector/Movie Database Connector" />
-		<mapping href="META-INF/cmp.or-mapping.xml" />
+		<mapping href="cmp.or-mapping.xml" />
 	</database>
 
 	<transaction-demarcation mode="global">
