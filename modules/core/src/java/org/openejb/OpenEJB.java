@@ -172,6 +172,10 @@ public final class OpenEJB {
 
 	logger.i18n.info( "startup.banner", versionInfo.get( "url" ), new Date(), versionInfo.get( "copyright" ),
 		     versionInfo.get( "version" ), versionInfo.get( "date" ), versionInfo.get( "time" ) );
+    
+    logger.info("openejb.home = "+SystemInstance.get().getHome().getDirectory().getAbsolutePath());
+    logger.info("openejb.base = "+SystemInstance.get().getBase().getDirectory().getAbsolutePath());
+
 
         /* DMB: This is causing bug 725781.
          * I can't even remember why we decided to add a default security manager.
