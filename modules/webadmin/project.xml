@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <id>castor</id>
-            <version>0.9.9.0</version>
+            <version>0.9.9.0-pre</version>
             <url>http://www.castor.org</url>
             <properties>
                 <runtime>true</runtime>
