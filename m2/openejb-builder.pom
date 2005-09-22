@@ -362,6 +362,12 @@
     </dependency>
 
     <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.5</version>
+    </dependency>
+
+    <dependency>
       <groupId>axis</groupId>
       <artifactId>commons-discovery</artifactId>
       <version>SNAPSHOT</version>
