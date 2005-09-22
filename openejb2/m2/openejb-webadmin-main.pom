@@ -9,7 +9,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <name>openejb-webadmin-main</name>
+  <name>OpenEJB :: WebAdmin :: Main</name>
   <artifactId>openejb-webadmin-main</artifactId>
   <description>OpenEJB Web-based Administration Console Main</description>
   <packaging>jar</packaging>

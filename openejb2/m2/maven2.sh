@@ -31,7 +31,7 @@ cp $poms/openejb-core.pom $m2Dir/pom.xml
   mkdir -p $m2Dir/src/test/java
   cp -r $m1Dir/src/test/* $m2Dir/src/test/java
   mkdir -p $m2Dir/src/test/resources
-  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
+  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/test-resources
   cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
   mkdir -p $m2Dir/src/main/java
   cd $m1Dir/src/java
@@ -44,12 +44,12 @@ echo "Setting up openejb-builder..."
 m1Dir=$modules/openejb-builder
 m2Dir=$root/openejb-builder
 mkdir -p $m2Dir
-cp $poms/ejb-builder.pom $m2Dir/pom.xml
+cp $poms/openejb-builder.pom $m2Dir/pom.xml
 {
   mkdir -p $m2Dir/src/test/java
   cp -r $m1Dir/src/test/* $m2Dir/src/test/java
-  mkdir -p $m2Dir/src/test/resources
-  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
+  mkdir -p $m2Dir/src/test/test-resources
+  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/test-resources
   cp -r $m1Dir/src/test-cmp $m2Dir/src/test
   cp -r $m1Dir/src/test-ear $m2Dir/src/test
   cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
@@ -124,3 +124,14 @@ cp $poms/openejb-webadmin-main.pom $m2Dir/pom.xml
   mkdir -p $m2Dir/src/main/resources/META-INF
   cp $m1Dir/src/java/org/openejb/webadmin/main/*.xml  $m2Dir/src/main/resources/META-INF
 }
+
+echo "Installing needed jar files into m2 local repository..."
+$M2_HOME\bin\m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository\commons-discovery-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-deployment-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-j2ee-builder-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-kernel -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-kernel-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-service-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-service-builder-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-system -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-system-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\tranql-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\maven-xmlbeans-plugin-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=pom -Dversion=1.0-SNAPSHOT -Dfile=repository\maven-xmlbeans-plugin-1.0-SNAPSHOT.pom
