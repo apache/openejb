@@ -8,12 +8,8 @@
   xmlns:artifact="artifact"
   xmlns:maven="jelly:maven">
 
-  <postGoal name="jar:install">
-    <artifact:install
-      artifact="${basedir}/../core/target/openejb-loader-${pom.currentVersion}.jar"
-      type="jar"
-      project="${pom}"
-    />
+  <postGoal name="jar:jar">
+    <copy file="${basedir}/../core/target/openejb-loader-${pom.currentVersion}.jar" todir="${basedir}/target/"/>
   </postGoal>
 
 
