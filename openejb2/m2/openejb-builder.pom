@@ -455,6 +455,7 @@
           <include>test-ejb-jar.jar</include>
           <include>test-ear.ear</include>
           <include>test-ejb-jar/**/*.*</include>
+          <include>test-ant.ear</include>
         </includes>
       </testResource>
     </testResources>

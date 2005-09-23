@@ -51,14 +51,13 @@ import java.io.File;
 
 import junit.framework.Test;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Revision$ $Date$
  */
 public class EjbJarModuleDeploymentTest extends AbstractDeploymentTest {
     private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(EjbJarModuleDeploymentTest.class, new File(System.getProperty( "basedir", System.getProperty( "user.dir" ) ), "target/test-ejb-jar.jar"));
+            new DeploymentTestSuite(EjbJarModuleDeploymentTest.class, new File(System.getProperty("basedir", System.getProperty("user.dir")), "target/test-ejb-jar.jar"));
 
     public static Test suite() {
         return SUITE;

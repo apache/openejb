@@ -6,6 +6,8 @@ Requires m1 version to be built using m1 first.
 Requires m2 to be installed. Check out from:
   :pserver:anoncvs@cvs.apache.org:/home/cvspublic:maven-components
 
+If running under windows, requires m2 local repo path not to contain spaces. Refer to http://maven.apache.org/maven2/maven-settings/settings.html on how to change the location of m2 local repo.
+
 Run m2-bootstrap-all.[sh|bat] as per the instructions in that directory.
 
 Create the M2_HOME environment variable, set to the installation directory and add $M2_HOME/bin to the path.
