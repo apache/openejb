@@ -122,7 +122,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
                         true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
-        proxyReference.setClassLoader(new URLClassLoader(new URL[] {new File(System.getProperty( "basedir", System.getProperty( "user.dir" ) ), "target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader()));
+        proxyReference.setClassLoader(new URLClassLoader(new URL[] {new File(System.getProperty("basedir", System.getProperty("user.dir")), "target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader()));
         statelessHome = proxyReference.getContent();
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
         stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);

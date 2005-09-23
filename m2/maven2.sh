@@ -52,6 +52,7 @@ cp $poms/openejb-builder.pom $m2Dir/pom.xml
   cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/test-resources
   cp -r $m1Dir/src/test-cmp $m2Dir/src/test
   cp -r $m1Dir/src/test-ear $m2Dir/src/test
+  cp -r $m1Dir/src/test-ant $m2Dir/src/test
   cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
   mkdir -p $m2Dir/src/main
   cp -r $m1Dir/src/schema $m2Dir/src/main
@@ -126,12 +127,14 @@ cp $poms/openejb-webadmin-main.pom $m2Dir/pom.xml
 }
 
 echo "Installing needed jar files into m2 local repository..."
-$M2_HOME/bin/m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository/commons-discovery-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-deployment-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-j2ee-builder-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-kernel -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-kernel-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-service-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-service-builder-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-system -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-system-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/tranql-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/maven-xmlbeans-plugin-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=pom -Dversion=1.0-SNAPSHOT -Dfile=repository/maven-xmlbeans-plugin-1.0-SNAPSHOT.pom
+$M2_HOME\bin\m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository\commons-discovery-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-deployment-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-j2ee-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-j2ee-builder-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-kernel -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-kernel-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-service-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-service-builder-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-system -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-system-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-transaction -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-transaction-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\tranql-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\maven-xmlbeans-plugin-1.0-SNAPSHOT.jar
+$M2_HOME\bin\m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=pom -Dversion=1.0-SNAPSHOT -Dfile=repository\maven-xmlbeans-plugin-1.0-SNAPSHOT.pom

@@ -74,7 +74,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.schema.Association;
 import org.tranql.schema.AssociationEnd;
@@ -82,8 +81,8 @@ import org.tranql.schema.Attribute;
 import org.tranql.schema.Entity;
 import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Association.JoinDefinition;
+import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
-import org.tranql.sql.sql92.SQL92Schema;
 
 /**
  *
@@ -144,10 +143,6 @@ public class CMPEntityBuilderTest extends TestCase {
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
-        GlobalSchema globalSchema = new GlobalSchema("Test");
-        EJBSchema ejbSchema = new EJBSchema("Test");
-        SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
-
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
@@ -163,7 +158,10 @@ public class CMPEntityBuilderTest extends TestCase {
                     null, null);
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema, pkGen, null);
+            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null, null);
+
+            EJBSchema ejbSchema = schemata.getEjbSchema();
+            SQLSchema sqlSchema = schemata.getSqlSchema();
 
             assertOneToOneEntity(ejbSchema.getEntity("A"), ejbSchema.getEntity("B"));
             assertOneToOneEntity(sqlSchema.getEntity("A"), sqlSchema.getEntity("B"));
@@ -190,10 +188,6 @@ public class CMPEntityBuilderTest extends TestCase {
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
-        GlobalSchema globalSchema = new GlobalSchema("Test");
-        EJBSchema ejbSchema = new EJBSchema("Test");
-        SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
-
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
@@ -209,8 +203,11 @@ public class CMPEntityBuilderTest extends TestCase {
                     null, null);
 
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
-             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema, pkGen, null);
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null, null);
+
+            EJBSchema ejbSchema = schemata.getEjbSchema();
+            SQLSchema sqlSchema = schemata.getSqlSchema();
 
             assertOneToManyEntity(ejbSchema.getEntity("A"), ejbSchema.getEntity("B"));
             assertOneToManyEntity(sqlSchema.getEntity("A"), sqlSchema.getEntity("B"));
@@ -237,10 +234,6 @@ public class CMPEntityBuilderTest extends TestCase {
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
-        GlobalSchema globalSchema = new GlobalSchema("Test");
-        EJBSchema ejbSchema = new EJBSchema("Test");
-        SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
-
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
@@ -256,8 +249,11 @@ public class CMPEntityBuilderTest extends TestCase {
                     null, null);
 
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
-             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema, pkGen, null);
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            Schemata schemata = builder.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJarType, openejbJarType, cl, pkGen, null, null);
+
+            EJBSchema ejbSchema = schemata.getEjbSchema();
+            SQLSchema sqlSchema = schemata.getSqlSchema();
 
             assertManyToManyEntity(ejbSchema.getEntity("A"), ejbSchema.getEntity("B"));
             assertManyToManyEntity(sqlSchema.getEntity("A"), sqlSchema.getEntity("B"));

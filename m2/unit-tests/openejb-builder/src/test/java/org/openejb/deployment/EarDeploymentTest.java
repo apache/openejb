@@ -51,7 +51,6 @@ import java.io.File;
 
 import junit.framework.Test;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Revision$ $Date$
@@ -59,7 +58,7 @@ import org.apache.geronimo.kernel.Kernel;
 public class EarDeploymentTest extends AbstractDeploymentTest {
 
     private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(EarDeploymentTest.class, new File( System.getProperty( "basedir", System.getProperty( "user.dir" ) ), "target/test-ear.ear"));
+            new DeploymentTestSuite(EarDeploymentTest.class, new File(System.getProperty("basedir", System.getProperty("user.dir")), "target/test-ear.ear"));
 
     public static Test suite() {
         return SUITE;
