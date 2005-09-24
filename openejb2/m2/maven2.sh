@@ -25,17 +25,17 @@ cp $poms/openejb-core.pom $m2Dir/pom.xml
   cp -r $m1Dir/src/conf $m2Dir/src/main
   cp -r $m1Dir/src/etc $m2Dir/src/main
   cd $m1Dir/src/java
-  cp -r **/*.properties $m2Dir/src/main/resources --parent
-  cp -r **/*.xml $m2Dir/src/main/resources --parent
+  find . -name '*.properties' -exec cp {} $m2Dir/src/main/resources --parent \;
+  find . -name '*.xml' -exec cp {} $m2Dir/src/main/resources --parent \;
   cd $runDir
   mkdir -p $m2Dir/src/test/java
   cp -r $m1Dir/src/test/* $m2Dir/src/test/java
   mkdir -p $m2Dir/src/test/resources
-  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/test-resources
+  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
   cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
   mkdir -p $m2Dir/src/main/java
   cd $m1Dir/src/java
-  cp -r **/*.java $m2Dir/src/main/java --parent
+  find . -name '*.java' -exec cp {} $m2Dir/src/main/java --parent \;
   cd $runDir
 }
 
@@ -48,15 +48,18 @@ cp $poms/openejb-builder.pom $m2Dir/pom.xml
 {
   mkdir -p $m2Dir/src/test/java
   cp -r $m1Dir/src/test/* $m2Dir/src/test/java
-  mkdir -p $m2Dir/src/test/test-resources
-  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/test-resources
+  mkdir -p $m2Dir/src/test/resources
+  cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
   cp -r $m1Dir/src/test-cmp $m2Dir/src/test
   cp -r $m1Dir/src/test-ear $m2Dir/src/test
   cp -r $m1Dir/src/test-ant $m2Dir/src/test
   cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
   mkdir -p $m2Dir/src/main
   cp -r $m1Dir/src/schema $m2Dir/src/main
-  cp -r $m1Dir/src/java/**/*.java $m2Dir/src/main/java
+  mkdir -p $m2Dir/src/main/java
+  cd $m1Dir/src/java
+  find . -name '*.java' -exec cp {} $m2Dir/src/main/java --parent \;
+  cd $runDir
 }
 
 
