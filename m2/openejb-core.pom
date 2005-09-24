@@ -201,7 +201,7 @@
           <systemProperties>
             <property>
               <name>maven.junit.jvmargs</name>
-              <value>-Djava.security.auth.login.config=src/test-resources/login.config</value>
+              <value>-Djava.security.auth.login.config=src/test/resources/login.config</value>
             </property>
           </systemProperties>
         </configuration>
