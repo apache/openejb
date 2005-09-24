@@ -64,15 +64,15 @@ public class PortableStubCompilerTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     public void testBeanPropertiesNameMangler() throws Exception {
-        assertMangling( "src/test/test-resources/beanPropertiesNameMangler.properties", BeanProperties.class);
+        assertMangling( "src/test/resources/beanPropertiesNameMangler.properties", BeanProperties.class);
     }
 
     public void testBasicNameMangler() throws Exception {
-        assertMangling("src/test/test-resources/nameMangler.properties", Foo.class);
+        assertMangling("src/test/resources/nameMangler.properties", Foo.class);
     }
 
     public void testSpecialNameMangler() throws Exception {
-        assertMangling("src/test/test-resources/specialNameMangler.properties", Special.class);
+        assertMangling("src/test/resources/specialNameMangler.properties", Special.class);
     }
 
     private void assertMangling(String propertiesFile, Class intf) throws IOException {
