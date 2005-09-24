@@ -36,6 +36,8 @@ cp $poms/openejb-core.pom $m2Dir/pom.xml
   mkdir -p $m2Dir/src/main/java
   cd $m1Dir/src/java
   find . -name '*.java' -exec cp {} $m2Dir/src/main/java --parent \;
+  cd $m2Dir
+  patch -p0 src/test/java/org/openejb/corba/compiler/PortableStubCompilerTest.java <../../PortableStubCompilerTest.java.diff
   cd $runDir
 }
 
