@@ -18,6 +18,8 @@
     <module>openejb-core</module>
     <module>openejb-builder</module>
     <module>openejb-webadmin</module>
+    <module>test-ejb-jar</module>
+    <module>test-ear</module>
   </modules>
 
   <repositories>

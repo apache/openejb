@@ -95,6 +95,25 @@ copy %poms%\openejb-webadmin-main.pom %m2Dir%\pom.xml
   xcopy /EXCLUDE:cvs.exclude /S /Q /I %m1Dir%\src\java\org\openejb\webadmin\httpd\*.* %m2Dir%\src\main\java\org\openejb\webadmin\httpd
   xcopy /EXCLUDE:cvs.exclude /S /Q /I %m1Dir%\src\java\org\openejb\webadmin\main\*.xml %m2Dir%\src\main\resources\META-INF
 
+echo Setting up test-ear...
+set m2Dir=%root%\test-ear
+set m1Dir=%modules%\openejb-builder\src\test-ear
+mkdir  %m2Dir%
+copy %poms%\ejb-test-ear.pom %m2Dir%\pom.xml
+
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir% %m2Dir%
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
+
+echo Setting up test-jar...
+set m2Dir=%root%\test-ejb-jar
+set m1Dir=%modules%\openejb-builder\src\test-ejb-jar
+mkdir  %m2Dir%
+copy %poms%\ejb-test-jar.pom %m2Dir%\pom.xml
+
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\ %m2Dir%\
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
+  xcopy /EXCLUDE:cvs.exclude /S /Q /I %m1Dir%\org %m2Dir%\src\main\java\org
+
 echo Copying edited unit test files...
   xcopy /E /Q /I /Y unit-tests\*.* openejb
 
