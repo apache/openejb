@@ -69,11 +69,11 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
-import org.bouncycastle.asn1.DERInputStream;
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.DEROutputStream;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.X509Name;
+import org.apache.geronimo.util.asn1.DERInputStream;
+import org.apache.geronimo.util.asn1.DERObjectIdentifier;
+import org.apache.geronimo.util.asn1.DEROutputStream;
+import org.apache.geronimo.util.asn1.x509.GeneralName;
+import org.apache.geronimo.util.asn1.x509.X509Name;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;

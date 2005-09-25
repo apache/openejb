@@ -107,7 +107,6 @@ public final class SSLCipherSuiteDatabase {
         SUITES.put("SSL_RSA_WITH_RC4_128_SHA", authEnc);
         SUITES.put("SSL_RSA_WITH_DES_CBC_SHA", authEnc);
         SUITES.put("SSL_RSA_WITH_3DES_EDE_CBC_SHA", authEnc);
-        SUITES.put("SSL_RSA_WITH_IDEA_CBC_SHA", authEnc);
         SUITES.put("SSL_RSA_EXPORT_WITH_RC4_40_MD5", authEnc);
 
         SUITES.put("TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", authEnc);
@@ -132,8 +131,6 @@ public final class SSLCipherSuiteDatabase {
         SUITES.put("TLS_KRB5_WITH_3DES_EDE_CBC_SHA", authEnc);
         SUITES.put("TLS_KRB5_WITH_DES_CBC_MD5", authEnc);
         SUITES.put("TLS_KRB5_WITH_DES_CBC_SHA", authEnc);
-        SUITES.put("TLS_KRB5_WITH_IDEA_CBC_MD5", authEnc);
-        SUITES.put("TLS_KRB5_WITH_IDEA_CBC_SHA", authEnc);
         SUITES.put("TLS_KRB5_WITH_RC4_128_MD5", authEnc);
         SUITES.put("TLS_KRB5_WITH_RC4_128_SHA", authEnc);
         SUITES.put("TLS_RSA_EXPORT_WITH_DES40_CBC_SHA", authEnc);
@@ -141,7 +138,6 @@ public final class SSLCipherSuiteDatabase {
         SUITES.put("TLS_RSA_EXPORT_WITH_RC4_40_MD5", authEnc);
         SUITES.put("TLS_RSA_WITH_3DES_EDE_CBC_SHA", authEnc);
         SUITES.put("TLS_RSA_WITH_DES_CBC_SHA", authEnc);
-        SUITES.put("TLS_RSA_WITH_IDEA_CBC_SHA", authEnc);
         SUITES.put("TLS_RSA_WITH_RC4_128_MD5", authEnc);
         SUITES.put("TLS_RSA_WITH_RC4_128_SHA", authEnc);
 
