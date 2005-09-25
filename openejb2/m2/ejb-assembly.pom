@@ -88,6 +88,16 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <server>true</server>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${geronimo_version}</version>
             <properties>
@@ -636,15 +646,6 @@
             <groupId>avalon</groupId>
             <artifactId>avalon-logkit</artifactId>
             <version>${avalon_logkit_version}</version>
-            <properties>
-               <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov</artifactId>
-            <version>${bouncycastle_version}</version>
             <properties>
                <repository>true</repository>
             </properties>
