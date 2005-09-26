@@ -32,7 +32,6 @@ cp $poms/openejb-core.pom $m2Dir/pom.xml
   cp -r $m1Dir/src/test/* $m2Dir/src/test/java
   mkdir -p $m2Dir/src/test/resources
   cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
-  cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
   mkdir -p $m2Dir/src/main/java
   cd $m1Dir/src/java
   find . -name '*.java' -exec cp {} $m2Dir/src/main/java --parent \;
@@ -53,9 +52,6 @@ cp $poms/openejb-builder.pom $m2Dir/pom.xml
   mkdir -p $m2Dir/src/test/resources
   cp -r $m1Dir/src/test-resources/* $m2Dir/src/test/resources
   cp -r $m1Dir/src/test-cmp $m2Dir/src/test
-  cp -r $m1Dir/src/test-ear $m2Dir/src/test
-  cp -r $m1Dir/src/test-ant $m2Dir/src/test
-  cp -r $m1Dir/src/test-ejb-jar $m2Dir/src/test
   mkdir -p $m2Dir/src/main
   cp -r $m1Dir/src/schema $m2Dir/src/main
   mkdir -p $m2Dir/src/main/java
@@ -135,35 +131,32 @@ cp $poms/openejb-webadmin-main.pom $m2Dir/pom.xml
 echo "Setting up test-ear..."
 m2Dir=$root/test-ear
 m1Dir=$modules/openejb-builder/src/test-ear
-mkdir -p $m2Dir
-cp $poms/ejb-test-ear.pom $m2Dir/pom.xml
 {
-  cp $m1Dir $m2Dir
-  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir $m2Dir
+  cp $poms/ejb-test-ear.pom $m2Dir/pom.xml
+  mkdir -p $m2Dir/src/main/resources
   cp -r $m1Dir/META-INF $m2Dir/src/main/resources
 }
 
 echo "Setting up test-ant-ear..."
 m2Dir=$root/test-ant-ear
 m1Dir=$modules/openejb-builder/src/test-ant
-mkdir -p $m2Dir
-cp $poms/test-ant-ear.pom $m2Dir/pom.xml
 {
-  cp $m1Dir $m2Dir
-  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir $m2Dir
+  cp $poms/test-ant-ear.pom $m2Dir/pom.xml
+  mkdir -p $m2Dir/src/main/resources
   cp -r $m1Dir/META-INF $m2Dir/src/main/resources
 }
 
 echo "Setting up test-ejb-jar..."
 m2Dir=$root/test-ejb-jar
 m1Dir=$modules/openejb-builder/src/test-ejb-jar
-mkdir -p $m2Dir
-cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
 {
-  cp $m1Dir $m2Dir
-  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir $m2Dir
+  cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
+  mkdir -p $m2Dir/src/main/resources
   cp -r $m1Dir/META-INF $m2Dir/src/main/resources
-  mkdir -p $m2Dir/src/main/java/org
+  mkdir -p $m2Dir/src/main/java
   cp -r $m1Dir/org $m2Dir/src/main/java
 }
 
