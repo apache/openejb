@@ -101,7 +101,16 @@ set m1Dir=%modules%\openejb-builder\src\test-ear
 mkdir  %m2Dir%
 copy %poms%\ejb-test-ear.pom %m2Dir%\pom.xml
 
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir% %m2Dir%
+  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %m2Dir%
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
+
+echo Setting up test-ant-ear...
+set m2Dir=%root%\test-ant-ear
+set m1Dir=%modules%\openejb-builder\src\test-ant
+mkdir  %m2Dir%
+copy %poms%\test-ant-ear.pom %m2Dir%\pom.xml
+
+  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %m2Dir%
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
 
 echo Setting up test-jar...
@@ -110,7 +119,7 @@ set m1Dir=%modules%\openejb-builder\src\test-ejb-jar
 mkdir  %m2Dir%
 copy %poms%\ejb-test-jar.pom %m2Dir%\pom.xml
 
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\ %m2Dir%\
+  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %m2Dir%
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
   xcopy /EXCLUDE:cvs.exclude /S /Q /I %m1Dir%\org %m2Dir%\src\main\java\org
 

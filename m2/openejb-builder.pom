@@ -371,15 +371,16 @@
       <groupId>axis</groupId>
       <artifactId>commons-discovery</artifactId>
       <version>SNAPSHOT</version>
-        <scope>runtime</scope>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.2</version>
-        <scope>runtime</scope>
+      <scope>runtime</scope>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -447,16 +448,9 @@
         </includes>
       </testResource>
 
-<!-- temporarily copy required files built from m1 -->
       <testResource>
         <targetPath>..</targetPath>
-        <directory>../../../modules/openejb-builder/target</directory>
-        <includes>
-          <include>test-ejb-jar.jar</include>
-          <include>test-ear.ear</include>
-          <include>test-ejb-jar/**/*.*</include>
-          <include>test-ant.ear</include>
-        </includes>
+        <directory>src/test/resources</directory>
       </testResource>
     </testResources>
   </build>
