@@ -39,8 +39,8 @@ copy %poms%\openejb-builder.pom %m2Dir%\pom.xml
 
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test %m2Dir%\src\test\java
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-cmp %m2Dir%\src\test\test-cmp
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-ear %m2Dir%\src\test\test-ear
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-ant %m2Dir%\src\test\test-ant
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-ear %m2Dir%\src\test\test-ear
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-ejb-jar %m2Dir%\src\test\test-ejb-jar
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-resources %m2Dir%\src\test\resources
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\schema %m2Dir%\src\main\schema

@@ -167,6 +167,11 @@ cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
   cp -r $m1Dir/org $m2Dir/src/main/java/org
 }
 
+echo "Cleaning up copied CVS folders"
+cd openejb
+find . -name 'CVS' -type d -exec rm -rf {} \;
+cd ..
+
 echo "Installing needed jar files into m2 local repository..."
 $M2_HOME/bin/m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository/commons-discovery-SNAPSHOT.jar
 $M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-deployment-1.0-SNAPSHOT.jar
