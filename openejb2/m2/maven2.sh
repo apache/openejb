@@ -132,6 +132,41 @@ cp $poms/openejb-webadmin-main.pom $m2Dir/pom.xml
   cp $m1Dir/src/java/org/openejb/webadmin/main/*.xml  $m2Dir/src/main/resources/META-INF
 }
 
+echo "Setting up test-ear..."
+m2Dir=$root/test-ear
+m1Dir=$modules/openejb-builder/src/test-ear
+mkdir -p $m2Dir
+cp $poms/ejb-test-ear.pom $m2Dir/pom.xml
+{
+  cp $m1Dir $m2Dir
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF $m2Dir/src/main/resources/META-INF
+}
+
+echo "Setting up test-ant-ear..."
+m2Dir=$root/test-ant-ear
+m1Dir=$modules/openejb-builder/src/test-ant
+mkdir -p $m2Dir
+cp $poms/test-ant-ear.pom $m2Dir/pom.xml
+{
+  cp $m1Dir $m2Dir
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF $m2Dir/src/main/resources/META-INF
+}
+
+echo "Setting up test-ejb-jar..."
+m2Dir=$root/test-ejb-jar
+m1Dir=$modules/openejb-builder/src/test-ejb-jar
+mkdir -p $m2Dir
+cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
+{
+  cp $m1Dir $m2Dir
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF $m2Dir/src/main/resources/META-INF
+  mkdir -p $m2Dir/src/main/java/org
+  cp -r $m1Dir/org $m2Dir/src/main/java/org
+}
+
 echo "Installing needed jar files into m2 local repository..."
 $M2_HOME/bin/m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository/commons-discovery-SNAPSHOT.jar
 $M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-deployment-1.0-SNAPSHOT.jar
