@@ -140,7 +140,7 @@ cp $poms/ejb-test-ear.pom $m2Dir/pom.xml
 {
   cp $m1Dir $m2Dir
   mkdir -p $m2Dir/src/main/resources/META-INF
-  cp -r $m1Dir/META-INF $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF $m2Dir/src/main/resources
 }
 
 echo "Setting up test-ant-ear..."
@@ -151,7 +151,7 @@ cp $poms/test-ant-ear.pom $m2Dir/pom.xml
 {
   cp $m1Dir $m2Dir
   mkdir -p $m2Dir/src/main/resources/META-INF
-  cp -r $m1Dir/META-INF $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF $m2Dir/src/main/resources
 }
 
 echo "Setting up test-ejb-jar..."
@@ -162,9 +162,9 @@ cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
 {
   cp $m1Dir $m2Dir
   mkdir -p $m2Dir/src/main/resources/META-INF
-  cp -r $m1Dir/META-INF $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF $m2Dir/src/main/resources
   mkdir -p $m2Dir/src/main/java/org
-  cp -r $m1Dir/org $m2Dir/src/main/java/org
+  cp -r $m1Dir/org $m2Dir/src/main/java
 }
 
 echo "Cleaning up copied CVS folders"

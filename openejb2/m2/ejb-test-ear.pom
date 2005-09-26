@@ -20,8 +20,6 @@
     </dependency>
   </dependencies>
   <build>
-    <outputDirectory>target</outputDirectory>
-    <directory>../openejb-builder/src/test/resources</directory>
     <finalName>test-ear</finalName>
     <plugins>
       <plugin>

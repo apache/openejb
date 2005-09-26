@@ -450,7 +450,17 @@
 
       <testResource>
         <targetPath>..</targetPath>
-        <directory>src/test/resources</directory>
+        <directory>../../test-ant-ear/src/test/resources</directory>
+      </testResource>
+
+      <testResource>
+        <targetPath>..</targetPath>
+        <directory>../../test-ant-ear/src/test/resources</directory>
+      </testResource>
+
+      <testResource>
+        <targetPath>..</targetPath>
+        <directory>../../test-ant-ear/src/test/resources</directory>
       </testResource>
     </testResources>
   </build>

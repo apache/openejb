@@ -24,8 +24,6 @@
     </dependency>
   </dependencies>
   <build>
-    <outputDirectory>../openejb-builder/src/test/resources/test-ejb-jar</outputDirectory>
-    <directory>../openejb-builder/src/test/resources</directory>
     <finalName>test-ejb-jar</finalName>
   </build>
 </project>
