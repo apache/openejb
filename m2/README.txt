@@ -1,8 +1,6 @@
 Usage instructions
 ------------------
 
-Requires m1 version to be built using m1 first.
-
 Requires m2 to be installed. Check out from:
   :pserver:anoncvs@cvs.apache.org:/home/cvspublic:maven-components
 
@@ -19,8 +17,7 @@ From this directory, run
 This will create an openejb subdirectory (sources will be copied from the parent structures into that subdirectory).
 
 From the openejb subdirectory, run:
-  m2 install
-
+  m2 install -Dmaven.itest.skip=true
 
 This project depends on the XMLBeans plugin. The current version is at:
   http://cvs.mojo.codehaus.org/mojo/maven-xmlbeans-plugin/
