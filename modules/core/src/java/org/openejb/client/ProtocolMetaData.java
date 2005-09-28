@@ -51,9 +51,11 @@ import java.io.OutputStream;
 import java.util.regex.Matcher;
 
 /**
- * This protocal uses a "<major>.<minor>" numbering scheme to indicate versions.
+ * OpenEJB Enterprise Javabean Protocol (OEJP)
+ * 
+ * OEJP uses a "<major>.<minor>" numbering scheme to indicate versions of the protocol.
  *
- *     Protocol-Version   = "OEJB" "/" 1*DIGIT "." 1*DIGIT
+ *     Protocol-Version   = "OEJP" "/" 1*DIGIT "." 1*DIGIT
  *
  * Some compatability is guaranteed with the major part of the version number.
  *
@@ -61,7 +63,7 @@ import java.util.regex.Matcher;
  */
 public class ProtocolMetaData {
 
-    private static final String OEJB = "OEJB";
+    private static final String OEJB = "OEJP";
     private String id;
     private int major;
     private int minor;
@@ -74,7 +76,7 @@ public class ProtocolMetaData {
     }
 
     private void init(String spec) {
-        assert spec.matches("^OEJB/[0-9]\\.[0-9]$"): "Protocol version spec must follow format [ \"OEJB\" \"/\" 1*DIGIT \".\" 1*DIGIT ]";
+        assert spec.matches("^OEJP/[0-9]\\.[0-9]$"): "Protocol version spec must follow format [ \"OEJB\" \"/\" 1*DIGIT \".\" 1*DIGIT ]";
 
         char[] chars = new char[8];
         spec.getChars(0, chars.length, chars, 0);

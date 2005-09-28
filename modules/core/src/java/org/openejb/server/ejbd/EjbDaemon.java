@@ -63,16 +63,20 @@ import org.apache.commons.logging.LogFactory;
 import org.openejb.ContainerIndex;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
+import org.openejb.client.ProtocolMetaData;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.spi.ApplicationServer;
 
 /**
+ *
  * @since 11/25/2001
  */
 public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMethods {
+    private static final ProtocolMetaData PROTOCOL_VERSION = new ProtocolMetaData("2.0");
     private static final Log log = LogFactory.getLog(EjbDaemon.class);
 
     private static EjbDaemon ejbDaemon;
+
     public static EjbDaemon getEjbDaemon() throws Exception {
         if (ejbDaemon == null) {
             ejbDaemon = new EjbDaemon();
@@ -99,6 +103,8 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
     }
 
     public void service(Socket socket) throws IOException {
+        ProtocolMetaData protocolMetaData = new ProtocolMetaData();
+        String requestTypeName = null;
         InputStream in = null;
         OutputStream out = null;
 
@@ -118,6 +124,10 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
             //TODO: Implement multiple request processing
             //while ( !stop ) {
 
+            protocolMetaData.readExternal(in);
+
+            PROTOCOL_VERSION.writeExternal(out);
+
             // Read the request
             byte requestType = (byte) in.read();
 
@@ -130,48 +140,47 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
             oos = new ObjectOutputStream(out);
 
             // Process the request
-            switch (requestType) {
-            case EJB_REQUEST:
-                ejbHandler.processRequest(ois, oos);
-                break;
-            case JNDI_REQUEST:
-                jndiHandler.processRequest(ois, oos);
-                break;
-            case AUTH_REQUEST:
-                authHandler.processRequest(ois, oos);
-                break;
-            default:
-                log.error("Unknown request type " + requestType);
-            }
-
-            try {
-                if (oos != null) {
-                    oos.flush();
-                }
-            } catch (Throwable t) {
-                log.error("Encountered problem while communicating with client: " + t.getMessage());
-            }
-            //}
 
             // Exceptions should not be thrown from these methods
             // They should handle their own exceptions and clean
             // things up with the client accordingly.
+            switch (requestType) {
+            case EJB_REQUEST:
+                requestTypeName = "EJB_REQUEST";
+                ejbHandler.processRequest(ois, oos);
+                break;
+            case JNDI_REQUEST:
+                requestTypeName = "JNDI_REQUEST";
+                jndiHandler.processRequest(ois, oos);
+                break;
+            case AUTH_REQUEST:
+                requestTypeName = "AUTH_REQUEST";
+                authHandler.processRequest(ois, oos);
+                break;
+            default:
+                requestTypeName = requestType+" (UNKNOWN)";
+                log.error(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" FAIL \"Unknown request type "+requestType);
+            }
+
+//            log.info(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" OK");
         } catch (SecurityException e) {
-            log.error("Security error: " + e.getMessage());
+            log.error(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" FAIL \"Security error - "+e.getMessage()+"\"",e);
         } catch (Throwable e) {
-            log.error("Unexpected error", e);
-            //System.out.println("ERROR: "+clienntIP.getHostAddress()+": " +e.getMessage());
+            log.error(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" FAIL \"Unexpected error - "+e.getMessage()+"\"",e);
         } finally {
             try {
-                close(oos);
-                close(out);
-                close(ois);
-                close(socket);
+                if (oos != null) {
+                    oos.flush();
+                    oos.close();
+                } else if (out != null) {
+                    out.flush();
+                    out.close();
+                }
                 if (socket != null) {
                     socket.close();
                 }
             } catch (Throwable t) {
-                log.error("Encountered problem while closing connection with client: " + t.getMessage());
+                log.error(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" FAIL \""+t.getMessage()+"\"");
             }
         }
     }
@@ -232,7 +241,7 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
             try {
                 out.close();
             } catch (IOException e) {
-                log.error("Error closing output stream", e);
+                log.warn("Error closing output stream", e);
             }
         }
     }
