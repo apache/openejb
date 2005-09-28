@@ -68,10 +68,12 @@ import java.util.jar.JarFile;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -117,6 +119,7 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.openejb.xbeans.pkgen.EjbKeyGeneratorDocument;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
@@ -143,6 +146,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private final Repository repository;
     private final Kernel kernel;
     private static final String OPENEJBJAR_NAMESPACE = OpenejbOpenejbJarDocument.type.getDocumentElementName().getNamespaceURI();
+
+    static {
+        Map conversions = new HashMap();
+        QName name = EjbKeyGeneratorDocument.type.getDocumentElementName();
+        conversions.put(name.getLocalPart(), name.getNamespaceURI());
+        SchemaConversionUtils.registerNamespaceConversions(conversions);
+    }
 
     public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
         this(defaultParentId, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository, kernel);
@@ -200,7 +210,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         //there is a file named ejb-jar.xml in META-INF.  If we can't process it, it is an error.
         try {
             // parse it
-            EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(SchemaConversionUtils.parse(specDD));
+            EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(XmlBeansUtil.parse(specDD));
             ejbJar = ejbJarDoc.getEjbJar();
         } catch (XmlException e) {
             throw new DeploymentException("Error parsing ejb-jar.xml", e);
@@ -226,35 +236,26 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJarType ejbJar) throws DeploymentException {
         OpenejbOpenejbJarType openejbJar = null;
+        XmlObject rawPlan = null;
         try {
             // load the openejb-jar.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "openejb-jar",
-                            OpenejbOpenejbJarType.type);
+                    rawPlan = (XmlObject) plan;
                 } else {
-                    OpenejbOpenejbJarDocument openejbJarDoc = null;
                     if (plan != null) {
-                        openejbJarDoc = OpenejbOpenejbJarDocument.Factory.parse((File) plan);
+                        rawPlan = XmlBeansUtil.parse(((File) plan).toURL());
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/openejb-jar.xml");
-                        openejbJarDoc = OpenejbOpenejbJarDocument.Factory.parse(path);
-                    }
-                    if (openejbJarDoc != null) {
-                        openejbJar = openejbJarDoc.getOpenejbJar();
+                        rawPlan = XmlBeansUtil.parse(path);
                     }
                 }
             } catch (IOException e) {
             }
 
             // if we got one extract, adjust, and validate it otherwise create a default one
-            if (openejbJar != null) {
-                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoNamingSchema(openejbJar);
-                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoSecuritySchema(openejbJar);
-                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoServiceSchema(openejbJar);
-                openejbJar = (OpenejbOpenejbJarType) OpenEJBSchemaUtils.convertToPKGenSchema(openejbJar);
-                SchemaConversionUtils.validateDD(openejbJar);
+            if (rawPlan != null) {
+                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "openejb-jar", OpenejbOpenejbJarType.type);
             } else {
                 String path;
                 if (standAlone) {

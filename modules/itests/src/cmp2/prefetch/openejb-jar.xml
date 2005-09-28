@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     configId="org/openejb/cmp2/Prefetch"
     parentId="org/apache/geronimo/DefaultDatabase">
 
@@ -122,7 +122,7 @@
                 </group>
             </prefetch-group>
         </entity>
-        
+
         <session>
             <ejb-name>PrefetchFacadeBean</ejb-name>
             <jndi-name>cmp2/Prefetch/PrefetchFacade</jndi-name>
@@ -152,7 +152,7 @@
                     </cmr-field-mapping>
                 </role-mapping>
             </ejb-relationship-role>
-        </ejb-relation>    
+        </ejb-relation>
         <ejb-relation>
             <ejb-relationship-role>
                 <relationship-role-source>
@@ -169,7 +169,7 @@
                     </cmr-field-mapping>
                 </role-mapping>
             </ejb-relationship-role>
-        </ejb-relation>    
+        </ejb-relation>
         <ejb-relation>
             <ejb-relationship-role>
                 <relationship-role-source>
@@ -185,7 +185,7 @@
                     </cmr-field-mapping>
                 </role-mapping>
             </ejb-relationship-role>
-        </ejb-relation>    
+        </ejb-relation>
         <ejb-relation>
             <ejb-relationship-role>
                 <relationship-role-source>
@@ -201,7 +201,7 @@
                     </cmr-field-mapping>
                 </role-mapping>
             </ejb-relationship-role>
-        </ejb-relation>    
+        </ejb-relation>
     </relationships>
 
 </openejb-jar>

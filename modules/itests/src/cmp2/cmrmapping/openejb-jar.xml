@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     configId="org/openejb/cmp2/CMRMapping"
     parentId="org/apache/geronimo/DefaultDatabase">
 
@@ -48,7 +48,7 @@
                 <table-column>col_field1</table-column>
             </cmp-field-mapping>
         </entity>
-        
+
         <session>
             <ejb-name>CMRMappingFacadeBean</ejb-name>
             <jndi-name>cmp2/CMRMappingFacade</jndi-name>

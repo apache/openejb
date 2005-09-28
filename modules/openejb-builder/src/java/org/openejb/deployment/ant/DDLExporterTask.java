@@ -59,6 +59,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -83,7 +84,7 @@ import org.tranql.ql.QueryException;
  */
 public class DDLExporterTask extends Task {
     private static String SCHEMA_NAME = "UNDEFINED";
-    
+
     private Path classpath;
     private EjbJarLocation ejbJarLocation;
     private OpenejbJarLocation openejbJarLocation;
@@ -144,7 +145,7 @@ public class DDLExporterTask extends Task {
         } else if (null == type) {
             throw new BuildException("type is required.");
         }
-        
+
         SchemataBuilder schemataBuilder = new SchemataBuilder() {
             protected EJBProxyFactory buildEJBProxyFactory(EntityBeanType entityBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {
                 return null;
@@ -161,7 +162,7 @@ public class DDLExporterTask extends Task {
             InputStream in = ejbJarLocation.getInputStream(project);
             XmlObject xmlObject;
             try {
-                xmlObject = SchemaConversionUtils.parse(in);
+                xmlObject = XmlBeansUtil.parse(in);
             } finally {
                 in.close();
             }
@@ -169,7 +170,7 @@ public class DDLExporterTask extends Task {
 
             in = openejbJarLocation.getInputStream(project);
             try {
-                xmlObject = SchemaConversionUtils.parse(in);
+                xmlObject = XmlBeansUtil.parse(in);
             } finally {
                 in.close();
             }
@@ -191,7 +192,7 @@ public class DDLExporterTask extends Task {
         } catch (Exception e) {
             throw new BuildException("Cannot create ddlCommandBuilder", e);
         }
-        
+
         DDLGenerator generator = new DDLGenerator(schemata.getSqlSchema(), builder);
         OutputStream out = null;
         try {
@@ -226,5 +227,5 @@ public class DDLExporterTask extends Task {
             }
         }
     }
-    
+
 }
