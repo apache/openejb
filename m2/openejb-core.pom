@@ -17,6 +17,11 @@
 
   <dependencies>
       <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-util</artifactId>
+      </dependency>
+
+      <dependency>
         <groupId>geronimo-spec</groupId>
         <artifactId>geronimo-spec-ejb</artifactId>
       </dependency>

@@ -135,6 +135,7 @@ call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geron
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-service-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-service-builder-1.0-SNAPSHOT.jar
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-system -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-system-1.0-SNAPSHOT.jar
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-transaction -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-transaction-1.0-SNAPSHOT.jar
+call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-util -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-util-1.0-SNAPSHOT.jar
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.1-SNAPSHOT -Dfile=repository\tranql-1.1-SNAPSHOT.jar
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\maven-xmlbeans-plugin-1.0-SNAPSHOT.jar
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=org.codehaus.mojo -DartifactId=maven-xmlbeans-plugin -Dpackaging=pom -Dversion=1.0-SNAPSHOT -Dfile=repository\maven-xmlbeans-plugin-1.0-SNAPSHOT.pom
