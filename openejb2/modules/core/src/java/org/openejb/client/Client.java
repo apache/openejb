@@ -55,6 +55,8 @@ import org.openejb.server.ejbd.EJBObjectInputStream;
  */
 public class Client {
 
+    private static final ProtocolMetaData PROTOCOL_VERSION = new ProtocolMetaData("2.0");
+
     public static Response request(Request req, Response res, ServerMetaData server) throws RemoteException {
         if ( server == null ) throw new IllegalArgumentException("Server instance cannot be null");
 
@@ -82,11 +84,19 @@ public class Client {
 
                 out = conn.getOuputStream();
 
-            } catch (IOException e){
-                throw new RemoteException("Cannot open output stream to server: " , e );
-
             } catch (Throwable e){
                 throw new RemoteException("Cannot open output stream to server: " , e );
+            }
+
+            /*----------------------------------*/
+            /* Write the protocol magic         */
+            /*----------------------------------*/
+            try{
+
+                PROTOCOL_VERSION.writeExternal(out);
+
+            } catch (Throwable e){
+                throw new RemoteException("Cannot write the protocol metadata to the server: " , e );
             }
 
             /*----------------------------------*/
@@ -142,15 +152,31 @@ public class Client {
             /*----------------------------------*/
             /* Get input streams               */
             /*----------------------------------*/
+            InputStream in = null;
+            try {
+
+                in = conn.getInputStream();
+
+            } catch (IOException e) {
+                throw new RemoteException("Cannot open input stream to server: " , e );
+            }
+
+            ProtocolMetaData protocolMetaData = null;
+            try {
+
+                protocolMetaData = new ProtocolMetaData();
+                protocolMetaData.readExternal(in);
+
+            } catch (IOException e) {
+                throw new RemoteException("Cannot deternmine server protocol version: Received "+protocolMetaData.getSpec() , e );
+            }
+
             try{
 
-                objectIn = new EJBObjectInputStream(conn.getInputStream());
-
-            } catch (IOException e){
-                throw new RemoteException("Cannot open object input stream to server: " , e );
+                objectIn = new EJBObjectInputStream(in);
 
             } catch (Throwable e){
-                throw new RemoteException("Cannot open object input stream to server: " , e );
+                throw new RemoteException("Cannot open object input stream to server ("+protocolMetaData.getSpec() +") : "+e.getMessage() , e );
             }
 
             /*----------------------------------*/
@@ -163,10 +189,10 @@ public class Client {
                 throw new RemoteException("Cannot read the response from the server.  The class for an object being returned is not located in this system:" , e );
 
             } catch (IOException e){
-                throw new RemoteException("Cannot read the response from the server." , e );
+                throw new RemoteException("Cannot read the response from the server ("+protocolMetaData.getSpec() +") : "+e.getMessage() , e );
 
             } catch (Throwable e){
-                throw new RemoteException("Error reading response from server: " , e );
+                throw new RemoteException("Error reading response from server ("+protocolMetaData.getSpec() +") : "+e.getMessage() , e );
             }
 
         } finally {

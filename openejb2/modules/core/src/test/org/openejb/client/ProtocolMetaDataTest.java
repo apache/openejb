@@ -22,11 +22,11 @@ public class ProtocolMetaDataTest extends TestCase {
     }
 
     public void testGetSpec() throws Exception {
-        assertEquals("OEJB/2.4", protocol.getSpec());
+        assertEquals("OEJP/2.4", protocol.getSpec());
     }
 
     public void testGetId() throws Exception {
-        assertEquals("OEJB", protocol.getId());
+        assertEquals("OEJP", protocol.getId());
     }
 
     public void testGetMajor() throws Exception {
