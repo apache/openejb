@@ -49,8 +49,8 @@ please see <http://openejb.org/>.
 <xsd:schema
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen"
-    targetNamespace="http://www.openejb.org/xml/ns/pkgen"
+    xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen-2.0"
+    targetNamespace="http://www.openejb.org/xml/ns/pkgen-2.0"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">

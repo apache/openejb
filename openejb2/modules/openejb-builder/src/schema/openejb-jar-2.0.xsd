@@ -47,21 +47,21 @@
  ================================================================ -->
 
 <xs:schema
-    xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar"
-    targetNamespace="http://www.openejb.org/xml/ns/openejb-jar"
-    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
-    xmlns:security="http://geronimo.apache.org/xml/ns/security"
-    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
-    xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen"
+    xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+    targetNamespace="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.0"
+    xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen-2.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="schema/geronimo-naming.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="schema/geronimo-security.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="schema/geronimo-config.xsd"/>
-    <xs:import namespace="http://www.openejb.org/xml/ns/pkgen" schemaLocation="schema/openejb-pkgen.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="schema/geronimo-naming-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.0" schemaLocation="schema/geronimo-security-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.0" schemaLocation="schema/geronimo-config-1.0.xsd"/>
+    <xs:import namespace="http://www.openejb.org/xml/ns/pkgen-2.0" schemaLocation="schema/openejb-pkgen-2.0.xsd"/>
 
     <xs:element name="openejb-jar" type="openejb:openejb-jarType"/>
 

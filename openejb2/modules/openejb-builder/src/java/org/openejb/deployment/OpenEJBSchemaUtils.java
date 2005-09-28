@@ -58,7 +58,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
  * @version $Revision$ $Date$
  */
 public class OpenEJBSchemaUtils {
-    private static final String OPENEJB_PKGEN_NAMESPACE = "http://www.openejb.org/xml/ns/pkgen";
+    private static final String OPENEJB_PKGEN_NAMESPACE = "http://www.openejb.org/xml/ns/pkgen-2.0";
 
     /**
      * Finds any key-generator elements in the openejb-jar.xml file and
@@ -66,7 +66,7 @@ public class OpenEJBSchemaUtils {
      *
      * @param xmlObject The root of the openejb-jar.xml document
      * @return The adjusted openejb-jar.xml document
-     */ 
+     */
     public static XmlObject convertToPKGenSchema(XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor end = xmlObject.newCursor();

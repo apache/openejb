@@ -101,6 +101,7 @@
             vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${corba.vmargs}"
             />
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
+        <u:sleep millis="30000"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -427,7 +428,7 @@
                 <pathelement location="${maven.repo.local}/geronimo-spec/jars/geronimo-spec-ejb-${geronimo_spec_ejb_version}.jar"/>
             </classpath>
         </ant:taskdef>
-        
+
         <ddlExporter
             ejbJar="jar:${basedir}/target/openejb-cmp2-prefetch.jar"
             openejbJar="jar:${basedir}/target/openejb-cmp2-prefetch.jar"

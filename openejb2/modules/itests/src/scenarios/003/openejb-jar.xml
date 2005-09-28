@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
     configId="org/openejb/scenario003"
     parentId="org/openejb/Security">
 

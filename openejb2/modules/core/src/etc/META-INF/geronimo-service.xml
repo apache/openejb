@@ -48,7 +48,7 @@
 
 
 <!--dependencies for openejb core-->
-<service xmlns="http://geronimo.apache.org/xml/ns/deployment">
+<service xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
 
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-corba-${geronimo_spec_corba_version}.jar</uri>

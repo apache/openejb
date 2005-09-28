@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     configId="org/openejb/deployment/test"
     parentId="org/apache/geronimo/Server">
 
@@ -47,7 +47,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>lastName</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:name=CMPPKGenerator</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -91,7 +91,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>lastName</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <sequence-table>
                     <table-name>PKGENCMP_SEQ</table-name>
                     <sequence-name>PKGENCMP3</sequence-name>
