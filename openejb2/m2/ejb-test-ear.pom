@@ -17,7 +17,24 @@
     <dependency>
       <groupId>openejb</groupId>
       <artifactId>test-ejb-jar</artifactId>
-      <version>${version}</version>
     </dependency>
   </dependencies>
+  <build>
+    <finalName>test-ear</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-ear-plugin</artifactId>
+        <configuration>
+          <modules>
+            <javaModule>
+              <groupId>openejb</groupId>
+              <artifactId>test-ejb-jar</artifactId>
+              <bundleFileName>test-ejb-jar.jar</bundleFileName>
+            </javaModule>
+          </modules>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

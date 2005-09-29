@@ -14,6 +14,9 @@
   <url>http://www.openejb.org/</url>
 
   <modules>
+    <module>test-ejb-jar</module>
+    <module>test-ear</module>
+    <module>test-ant-ear</module>
     <module>pkgen-builder</module>
     <module>openejb-core</module>
     <module>openejb-builder</module>
@@ -339,9 +342,15 @@
       </dependency>
 
       <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-util</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
         <groupId>tranql</groupId>
         <artifactId>tranql</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -546,20 +555,30 @@
            <version>2.0-SNAPSHOT</version>
      </dependency>
 
-      <dependency>
+     <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
         <version>1.1-dev</version>
      </dependency>
 
+     <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>test-ejb-jar</artifactId>
+        <version>2.0-SNAPSHOT</version>
+     </dependency>
 
-<!--
-      <dependency>
-        <groupId>axis</groupId>
-        <artifactId>commons-discovery</artifactId>
-        <version>SNAPSHOT</version>
-      </dependency>
--->
+     <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>test-ant-ear</artifactId>
+        <version>2.0-SNAPSHOT</version>
+     </dependency>
+
+     <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>test-ear</artifactId>
+        <version>2.0-SNAPSHOT</version>
+     </dependency>
+
     </dependencies>
   </dependencyManagement>
 

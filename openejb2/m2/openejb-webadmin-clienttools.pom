@@ -9,7 +9,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <name>openejb-webadmin-clienttools</name>
+  <name>OpenEJB :: WebAdmin :: Client Tools</name>
   <artifactId>openejb-webadmin-clienttools</artifactId>
   <description>OpenEJB Web-based Administration Console Client Tools</description>
   <packaging>jar</packaging>

@@ -58,7 +58,6 @@ import java.net.UnknownHostException;
  */
 public class ServerMetaData implements Externalizable{
 
-    
     transient int port;
 
     /**

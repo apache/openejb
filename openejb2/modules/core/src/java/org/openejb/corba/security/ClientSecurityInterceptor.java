@@ -120,7 +120,7 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
         } catch (BAD_PARAM bp) {
             // do nothing
         } catch (Exception ue) {
-            log.error(ue);
+            log.error("Exception", ue);
         }
     }
 
