@@ -670,7 +670,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 // own classpaths.  We have code for this, but it has a couple
                 // issues in the CMP container that prevent us from relying on it.
                 File base = SystemInstance.get().getBase().getDirectory();
-                File jarFile = new File(base, jar.jarURI);
+                File jarFile = new File(jar.jarURI);
+                
                 SystemInstance.get().getClassPath().addJarToPath(jarFile.toURL());
             } catch (Exception e) {
                 e.printStackTrace();
