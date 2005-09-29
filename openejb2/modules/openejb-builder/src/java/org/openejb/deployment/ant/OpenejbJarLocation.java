@@ -51,6 +51,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -66,7 +67,7 @@ import org.apache.xmlbeans.XmlObject;
 public class OpenejbJarLocation {
     private static final String OPENEJB_JAR = "META-INF/openejb-jar.xml";
     private static final String GERONIMO_APP = "META-INF/geronimo-application.xml";
-    
+
     private final String location;
 
     public OpenejbJarLocation(String location) {
@@ -107,9 +108,9 @@ public class OpenejbJarLocation {
                 String name = newLoc.substring(0, newLoc.indexOf("!/"));
                 in = new FileInputStream(project.resolveFile(name));
             }
-            XmlObject xmlObject = SchemaConversionUtils.parse(in);
+            XmlObject xmlObject = XmlBeansUtil.parse(in);
             int index = Integer.parseInt(newLoc.substring(newLoc.indexOf("!/") + 2));
-            
+
             int found = 0;
             XmlCursor cursor = xmlObject.newCursor();
             try {
@@ -131,7 +132,7 @@ public class OpenejbJarLocation {
             } finally {
                 cursor.dispose();
             }
-            
+
             throw new BuildException("Only " + found + " openejb-jar DD are nested.");
         }
 

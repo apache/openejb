@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     configId="org/openejb/Itests"
     parentId="org/apache/geronimo/DefaultDatabase">
 
@@ -214,7 +214,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -243,7 +243,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -278,7 +278,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -313,7 +313,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -343,7 +343,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -431,7 +431,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -486,7 +486,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -521,7 +521,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
                     <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
