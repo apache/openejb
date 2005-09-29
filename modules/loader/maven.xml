@@ -9,7 +9,9 @@
   xmlns:maven="jelly:maven">
 
   <postGoal name="jar:jar">
-    <copy file="${basedir}/../core/target/openejb-loader-${pom.currentVersion}.jar" todir="${basedir}/target/"/>
+    <copy overwrite="true" 
+          file="${basedir}/../core/target/openejb-loader-${pom.currentVersion}.jar" 
+          todir="${basedir}/target/"/>
   </postGoal>
 
 
