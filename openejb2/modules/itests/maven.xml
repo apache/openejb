@@ -423,6 +423,7 @@
                 <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-deployment-${geronimo_version}.jar"/>
                 <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-common-${geronimo_version}.jar"/>
                 <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-service-builder-${geronimo_version}.jar"/>
                 <pathelement location="${maven.repo.local}/xmlbeans/jars/xbean-${xmlbeans_version}.jar"/>
                 <pathelement location="${maven.repo.local}/stax/jars/stax-api-${stax_api_version}.jar"/>
                 <pathelement location="${maven.repo.local}/geronimo-spec/jars/geronimo-spec-ejb-${geronimo_spec_ejb_version}.jar"/>
