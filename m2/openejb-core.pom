@@ -192,7 +192,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0-beta-1</version>
         <configuration>
           <source>1.4</source>
           <target>1.4</target>
@@ -201,7 +200,6 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.0-beta-1</version>
         <configuration>
           <systemProperties>
             <property>
