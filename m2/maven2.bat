@@ -12,7 +12,7 @@ if exist %root% rmdir /s /q %root%
 echo Setting up base
 mkdir %root%
 copy %poms%\openejb-root.pom %root%\pom.xml
-
+maven -q process-root-pom
 
 echo Setting up core...
 set m1Dir=%modules%\core
@@ -101,8 +101,7 @@ set m1Dir=%modules%\openejb-builder\src\test-ear
 mkdir  %m2Dir%
 copy %poms%\ejb-test-ear.pom %m2Dir%\pom.xml
 
-  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %m2Dir%
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF\geronimo-application.xml %m2Dir%\src\main\resources\META-INF
 
 echo Setting up test-ant-ear...
 set m2Dir=%root%\test-ant-ear
@@ -110,8 +109,8 @@ set m1Dir=%modules%\openejb-builder\src\test-ant
 mkdir  %m2Dir%
 copy %poms%\test-ant-ear.pom %m2Dir%\pom.xml
 
-  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %m2Dir%
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF\geronimo-application.xml %m2Dir%\src\main\resources\META-INF
+  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %root%\openejb-builder\src\test-ant
 
 echo Setting up test-jar...
 set m2Dir=%root%\test-ejb-jar
@@ -119,23 +118,15 @@ set m1Dir=%modules%\openejb-builder\src\test-ejb-jar
 mkdir  %m2Dir%
 copy %poms%\ejb-test-jar.pom %m2Dir%\pom.xml
 
-  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %m2Dir%
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
   xcopy /EXCLUDE:cvs.exclude /S /Q /I %m1Dir%\org %m2Dir%\src\main\java\org
+  xcopy /EXCLUDE:cvs.exclude /Q /I %m1Dir% %root%\openejb-builder\src\test-ejb-jar
 
 echo Copying edited unit test files...
   xcopy /E /Q /I /Y unit-tests\*.* openejb
 
 echo Installing needed jar files into m2 local repository...
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository\commons-discovery-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-deployment-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-j2ee-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-j2ee-builder-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-kernel -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-kernel-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-service-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-service-builder-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-system -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-system-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-transaction -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-transaction-1.0-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-util -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository\geronimo-util-1.0-SNAPSHOT.jar
 call %M2_HOME%\bin\m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.1-SNAPSHOT -Dfile=repository\tranql-1.1-SNAPSHOT.jar
 
 

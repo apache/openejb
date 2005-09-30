@@ -12,7 +12,7 @@ rm -rf $root
 echo "Setting up base"
 mkdir -p $root
 cp $poms/openejb-root.pom $root/pom.xml
-
+maven -q process-root-pom
 
 echo "Setting up core..."
 m1Dir=$modules/core
@@ -132,32 +132,35 @@ echo "Setting up test-ear..."
 m2Dir=$root/test-ear
 m1Dir=$modules/openejb-builder/src/test-ear
 {
-  cp -r $m1Dir $m2Dir
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp -r $m1Dir/META-INF/geronimo-application.xml $m2Dir/src/main/resources/META-INF
   cp $poms/ejb-test-ear.pom $m2Dir/pom.xml
-  mkdir -p $m2Dir/src/main/resources
-  cp -r $m1Dir/META-INF $m2Dir/src/main/resources
 }
 
 echo "Setting up test-ant-ear..."
 m2Dir=$root/test-ant-ear
 m1Dir=$modules/openejb-builder/src/test-ant
 {
-  cp -r $m1Dir $m2Dir
+  mkdir -p $m2Dir/src/main/resources/META-INF
+  cp $m1Dir/META-INF/geronimo-application.xml $m2Dir/src/main/resources/META-INF
   cp $poms/test-ant-ear.pom $m2Dir/pom.xml
-  mkdir -p $m2Dir/src/main/resources
-  cp -r $m1Dir/META-INF $m2Dir/src/main/resources
+
+  # This is what the ant tests want - could be improved
+  cp -r $m1Dir $root/openejb-builder/src
 }
 
 echo "Setting up test-ejb-jar..."
 m2Dir=$root/test-ejb-jar
 m1Dir=$modules/openejb-builder/src/test-ejb-jar
 {
-  cp -r $m1Dir $m2Dir
-  cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
   mkdir -p $m2Dir/src/main/resources
   cp -r $m1Dir/META-INF $m2Dir/src/main/resources
   mkdir -p $m2Dir/src/main/java
   cp -r $m1Dir/org $m2Dir/src/main/java
+  cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
+
+  # This is what the ant tests want - could be improved
+  cp -r $m1Dir $root/openejb-builder/src
 }
 
 echo "Cleaning up copied CVS folders"
@@ -167,12 +170,4 @@ cd ..
 
 echo "Installing needed jar files into m2 local repository..."
 $M2_HOME/bin/m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository/commons-discovery-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-deployment -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-deployment-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-j2ee-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-j2ee-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-j2ee-builder-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-kernel -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-kernel-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-service-builder -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-service-builder-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-system -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-system-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-transaction -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-transaction-1.0-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=geronimo -DartifactId=geronimo-util -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/geronimo-util-1.0-SNAPSHOT.jar
 $M2_HOME/bin/m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/tranql-1.0-SNAPSHOT.jar

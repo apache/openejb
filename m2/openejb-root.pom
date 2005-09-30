@@ -34,6 +34,17 @@
       <url>http://cvs.apache.org/repository</url>
       <layout>legacy</layout>
     </repository>
+    <repository>
+      <id>localhost</id>
+      <url>file://localhost/@maven.repo.local@</url>
+      <layout>legacy</layout>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
   </repositories>
 
   <organization>
@@ -564,6 +575,7 @@
      <dependency>
         <groupId>openejb</groupId>
         <artifactId>test-ejb-jar</artifactId>
+        <type>ejb</type>
         <version>2.0-SNAPSHOT</version>
      </dependency>
 

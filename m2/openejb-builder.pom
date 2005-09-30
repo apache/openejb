@@ -381,6 +381,21 @@
       <scope>runtime</scope>
     </dependency>
 
+    <dependency>
+      <groupId>${groupId}</groupId>
+      <artifactId>test-ear</artifactId>
+      <version>${version}</version>
+      <type>ear</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${groupId}</groupId>
+      <artifactId>test-ejb-jar</artifactId>
+      <version>${version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -397,6 +412,26 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-test-resources</phase>
+            <configuration>
+              <tasks>
+                <copy todir="${project.build.directory}" file="../test-ejb-jar/target/test-ejb-jar.jar" />
+                <copy todir="${project.build.directory}" file="../test-ear/target/test-ear.ear" />
+                <copy todir="${project.build.directory}" file="../test-ant-ear/target/test-ant.ear" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
         <executions>
@@ -406,8 +441,10 @@
             </goals>
             <configuration>
               <schemaDirectory>${basedir}/src/main/schema</schemaDirectory>
-              <sourceSchemas>corba-css-config_1_0.xsd,corba-tss-config_1_0.xsd,openejb-jar-2.0.xsd</sourceSchemas>
-              <xmlConfigs>${basedir}/src/main/schema/xmlconfig.xml</xmlConfigs>
+              <sourceSchemas>corba-css-config-2.0.xsd,corba-tss-config-2.0.xsd,openejb-jar-2.0.xsd</sourceSchemas>
+              <xmlConfigs>
+                <xmlConfig implementation="java.io.File">${basedir}/src/main/schema/xmlconfig.xml</xmlConfig>
+              </xmlConfigs>
             </configuration>
           </execution>
         </executions>
@@ -417,49 +454,14 @@
 
     <resources>
       <resource>
-        <targetPath>../test-ejb-jar/META-INF</targetPath>
-        <directory>${basedir}/src/test/test-ejb-jar/META-INF</directory>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/main/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <targetPath>META-INF/schema</targetPath>
-        <directory>${basedir}/src/main/schema</directory>
+        <directory>src/main/schema</directory>
         <includes>
-          <include>corba-css-config_1_0.xsd</include>
-          <include>corba-tss-config_1_0.xsd</include>
+          <include>corba-css-config-2.0.xsd</include>
+          <include>corba-tss-config-2.0.xsd</include>
           <include>openejb-jar-2.0.xsd</include>
         </includes>
       </resource>
     </resources>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/main/schema</directory>
-        <includes>
-          <include>*.xsd</include>
-          <include>*.dtd</include>
-        </includes>
-      </testResource>
-
-      <testResource>
-        <targetPath>..</targetPath>
-        <directory>../../test-ant-ear/src/test/resources</directory>
-      </testResource>
-
-      <testResource>
-        <targetPath>..</targetPath>
-        <directory>../../test-ant-ear/src/test/resources</directory>
-      </testResource>
-
-      <testResource>
-        <targetPath>..</targetPath>
-        <directory>../../test-ant-ear/src/test/resources</directory>
-      </testResource>
-    </testResources>
   </build>
 </project>

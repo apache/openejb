@@ -17,6 +17,7 @@
     <dependency>
       <groupId>openejb</groupId>
       <artifactId>test-ejb-jar</artifactId>
+      <type>ejb</type>
     </dependency>
   </dependencies>
   <build>
@@ -26,12 +27,15 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-ear-plugin</artifactId>
         <configuration>
+          <!-- TODO: use regular resources -->
+          <resourcesDir>src/main/resources</resourcesDir>
+          <version>1.4</version>
           <modules>
-            <javaModule>
+            <ejbModule>
               <groupId>openejb</groupId>
               <artifactId>test-ejb-jar</artifactId>
               <bundleFileName>test-ejb-jar.jar</bundleFileName>
-            </javaModule>
+            </ejbModule>
           </modules>
         </configuration>
       </plugin>
