@@ -18,9 +18,8 @@
     <plugins>
       <plugin>
         <artifactId>maven-xmlbeans-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
         <configuration>
-          <sourceSchemas>src/schema/openejb-jar.xsd,src/schema/corba-tss-config_1_0.xsd,src/schema/corba-css-config_1_0.xsd</sourceSchemas>
+          <sourceSchemas>src/schema/openejb-jar-2.0.xsd,src/schema/corba-tss-config_1_0.xsd,src/schema/corba-css-config_1_0.xsd</sourceSchemas>
           <xmlConfigs>src/schema/xmlconfig.xml</xmlConfigs>
           <resolverCatalog>src/schema/resolver-catalog.xml</resolverCatalog>
         </configuration>
