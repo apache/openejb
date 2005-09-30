@@ -41,7 +41,7 @@
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
-        <artifactId>maven-xmlbeans-plugin</artifactId>
+        <artifactId>xmlbeans-maven-plugin</artifactId>
         <executions>
           <execution>
             <goals>

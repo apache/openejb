@@ -17,7 +17,8 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-xmlbeans-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xmlbeans-maven-plugin</artifactId>
         <configuration>
           <sourceSchemas>src/schema/openejb-jar-2.0.xsd,src/schema/corba-tss-config_1_0.xsd,src/schema/corba-css-config_1_0.xsd</sourceSchemas>
           <xmlConfigs>src/schema/xmlconfig.xml</xmlConfigs>
