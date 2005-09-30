@@ -50,7 +50,9 @@
             <configuration>
               <schemaDirectory>${basedir}/src/main/schema</schemaDirectory>
               <sourceSchemas>openejb-pkgen-2.0.xsd</sourceSchemas>
-              <xmlConfigs>${basedir}/src/main/schema/xmlconfig.xml</xmlConfigs>
+              <xmlConfigs>
+                <xmlConfig implementation="java.io.File">${basedir}/src/main/schema/xmlconfig.xml</xmlConfig>
+              </xmlConfigs>
             </configuration>
           </execution>
         </executions>

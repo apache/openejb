@@ -12,7 +12,7 @@
   <groupId>openejb</groupId>
   <artifactId>test-ejb-jar</artifactId>
   <name>OpenEJB Test Jar</name>
-  <packaging>jar</packaging>
+  <packaging>ejb</packaging>
   <dependencies>
     <dependency>
       <groupId>geronimo-spec</groupId>

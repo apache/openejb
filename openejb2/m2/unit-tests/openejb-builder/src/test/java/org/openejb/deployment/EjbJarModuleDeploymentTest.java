@@ -57,7 +57,7 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class EjbJarModuleDeploymentTest extends AbstractDeploymentTest {
     private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(EjbJarModuleDeploymentTest.class, new File(System.getProperty("basedir", System.getProperty("user.dir")), "target/test-ejb-jar.jar"));
+            new DeploymentTestSuite(EjbJarModuleDeploymentTest.class, new File(System.getProperty("localRepository"), "openejb/test-ejb-jar/2.0-SNAPSHOT/test-ejb-jar-2.0-SNAPSHOT.jar"));
 
     public static Test suite() {
         return SUITE;

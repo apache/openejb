@@ -58,7 +58,7 @@ import org.apache.geronimo.kernel.Kernel;
 public class EarDeploymentTest extends AbstractDeploymentTest {
 
     private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(EarDeploymentTest.class, new File(System.getProperty("basedir", System.getProperty("user.dir")), "target/test-ear.ear"));
+            new DeploymentTestSuite(EarDeploymentTest.class, new File(System.getProperty("localRepository"), "openejb/test-ear/2.0-SNAPSHOT/test-ear-2.0-SNAPSHOT.ear"));
 
     public static Test suite() {
         return SUITE;
