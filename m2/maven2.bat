@@ -12,6 +12,7 @@ if exist %root% rmdir /s /q %root%
 echo Setting up base
 mkdir %root%
 copy %poms%\openejb-root.pom %root%\pom.xml
+copy %poms%\openejb-root-profiles.xml %root%\profiles.xml
 maven -q process-root-pom
 
 echo Setting up core...
