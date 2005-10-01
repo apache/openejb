@@ -23,8 +23,9 @@ cp $poms/openejb-core.pom $m2Dir/pom.xml
 {
   mkdir -p $m2Dir/src/main/resources
   cp -r $m1Dir/src/bin $m2Dir/src/main
-  cp -r $m1Dir/src/conf $m2Dir/src/main
-  cp -r $m1Dir/src/etc $m2Dir/src/main
+  #cp -r $m1Dir/src/conf $m2Dir/src/main
+  #cp -r $m1Dir/src/etc $m2Dir/src/main
+  cp -r $m1Dir/src/etc/META-INF $m2Dir/src/main/resources
   cd $m1Dir/src/java
   find . -name '*.properties' -exec cp {} $m2Dir/src/main/resources --parent \;
   find . -name '*.xml' -exec cp {} $m2Dir/src/main/resources --parent \;
@@ -135,7 +136,7 @@ m1Dir=$modules/openejb-builder/src/test-ear
 {
   mkdir -p $m2Dir/src/main/resources/META-INF
   cp -r $m1Dir/META-INF/geronimo-application.xml $m2Dir/src/main/resources/META-INF
-  cp $poms/ejb-test-ear.pom $m2Dir/pom.xml
+  cp $poms/test-ear.pom $m2Dir/pom.xml
 }
 
 echo "Setting up test-ant-ear..."
@@ -158,7 +159,7 @@ m1Dir=$modules/openejb-builder/src/test-ejb-jar
   cp -r $m1Dir/META-INF $m2Dir/src/main/resources
   mkdir -p $m2Dir/src/main/java
   cp -r $m1Dir/org $m2Dir/src/main/java
-  cp $poms/ejb-test-jar.pom $m2Dir/pom.xml
+  cp $poms/test-ejb-jar.pom $m2Dir/pom.xml
 
   # This is what the ant tests want - could be improved
   cp -r $m1Dir $root/openejb-builder/src
@@ -168,7 +169,3 @@ echo "Cleaning up copied CVS folders"
 cd openejb
 find . -name 'CVS' -type d -exec rm -rf {} \;
 cd ..
-
-echo "Installing needed jar files into m2 local repository..."
-$M2_HOME/bin/m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository/commons-discovery-SNAPSHOT.jar
-$M2_HOME/bin/m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.0-SNAPSHOT -Dfile=repository/tranql-1.0-SNAPSHOT.jar
