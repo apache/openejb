@@ -22,8 +22,9 @@ mkdir %m2dir%
 copy %poms%\openejb-core.pom %m2Dir%\pom.xml
 
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\bin %m2Dir%\src\main\bin
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\conf %m2Dir%\src\main\conf
-  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\etc %m2Dir%\src\main\etc
+  REM xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\conf %m2Dir%\src\main\conf
+  REM xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\etc %m2Dir%\src\main\etc
+  xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\etc\META-INF %m2Dir%\src\main\resources\META-INF
   xcopy /EXCLUDE:cvs.exclude+java.exclude /Q /I %m1Dir%\src\java %m2Dir%\src\main\resources
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test %m2Dir%\src\test\java
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\src\test-resources %m2Dir%\src\test\resources
@@ -100,7 +101,7 @@ echo Setting up test-ear...
 set m2Dir=%root%\test-ear
 set m1Dir=%modules%\openejb-builder\src\test-ear
 mkdir  %m2Dir%
-copy %poms%\ejb-test-ear.pom %m2Dir%\pom.xml
+copy %poms%\test-ear.pom %m2Dir%\pom.xml
 
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF\geronimo-application.xml %m2Dir%\src\main\resources\META-INF
 
@@ -117,7 +118,7 @@ echo Setting up test-jar...
 set m2Dir=%root%\test-ejb-jar
 set m1Dir=%modules%\openejb-builder\src\test-ejb-jar
 mkdir  %m2Dir%
-copy %poms%\ejb-test-jar.pom %m2Dir%\pom.xml
+copy %poms%\test-ejb-jar.pom %m2Dir%\pom.xml
 
   xcopy /EXCLUDE:cvs.exclude /E /Q /I %m1Dir%\META-INF %m2Dir%\src\main\resources\META-INF
   xcopy /EXCLUDE:cvs.exclude /S /Q /I %m1Dir%\org %m2Dir%\src\main\java\org
@@ -125,11 +126,6 @@ copy %poms%\ejb-test-jar.pom %m2Dir%\pom.xml
 
 echo Copying edited unit test files...
   xcopy /E /Q /I /Y unit-tests\*.* openejb
-
-echo Installing needed jar files into m2 local repository...
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=axis -DartifactId=commons-discovery -Dpackaging=jar -Dversion=SNAPSHOT -Dfile=repository\commons-discovery-SNAPSHOT.jar
-call %M2_HOME%\bin\m2 install:install-file -DgroupId=tranql -DartifactId=tranql -Dpackaging=jar -Dversion=1.1-SNAPSHOT -Dfile=repository\tranql-1.1-SNAPSHOT.jar
-
 
 del cvs.exclude
 del java.exclude

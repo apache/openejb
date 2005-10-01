@@ -27,6 +27,11 @@
       </dependency>
 
       <dependency>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-qname</artifactId>
+      </dependency>
+
+      <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-connector</artifactId>
       </dependency>
@@ -34,16 +39,6 @@
       <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-core</artifactId>
-      </dependency>
-
-      <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-client</artifactId>
-      </dependency>
-
-      <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-common</artifactId>
       </dependency>
 
       <dependency>
@@ -93,7 +88,17 @@
 
       <dependency>
         <groupId>geronimo</groupId>
+        <artifactId>geronimo-client</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>geronimo</groupId>
         <artifactId>geronimo-system</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-common</artifactId>
       </dependency>
 
       <dependency>
@@ -137,11 +142,6 @@
       </dependency>
 
       <dependency>
-        <groupId>geronimo-spec</groupId>
-        <artifactId>geronimo-spec-qname</artifactId>
-      </dependency>
-
-      <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-webservices</artifactId>
       </dependency>
@@ -163,7 +163,7 @@
 
       <dependency>
         <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
+        <artifactId>commons-logging-api</artifactId>
       </dependency>
 
       <dependency>
@@ -177,15 +177,14 @@
       </dependency>
 
       <dependency>
-        <groupId>bouncycastle</groupId>
-        <artifactId>bcprov-jdk14</artifactId>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
       </dependency>
 
       <dependency>
         <groupId>axis</groupId>
         <artifactId>axis</artifactId>
       </dependency>
-
   </dependencies>
 
   <build>
@@ -197,29 +196,6 @@
           <target>1.4</target>
         </configuration>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemProperties>
-            <property>
-              <name>maven.junit.jvmargs</name>
-              <value>-Djava.security.auth.login.config=src/test/resources/login.config</value>
-            </property>
-          </systemProperties>
-        </configuration>
-      </plugin>
     </plugins>
-
-    <resources>
-      <resource>
-        <targetPath>META-INF</targetPath>
-        <directory>${basedir}/src/main/etc/META-INF</directory>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/main/resources</directory>
-      </resource>
-    </resources>
-
   </build>
 </project>

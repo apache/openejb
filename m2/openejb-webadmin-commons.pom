@@ -22,48 +22,9 @@
 
     <dependency>
       <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jta</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-ejb</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-servlet</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-j2ee-connector</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>castor</groupId>
-      <artifactId>castor</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>regexp</groupId>
-      <artifactId>regexp</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>activeio</groupId>
-      <artifactId>activeio</artifactId>
-    </dependency>
   </dependencies>
 
 </project>
