@@ -76,15 +76,20 @@ import org.openejb.xbeans.ejbjar.OpenejbEntityGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbGroupType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.Cache;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.PrefetchGroup;
 import org.openejb.xbeans.ejbjar.OpenejbGroupType.CmrField;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.tranql.cache.CacheFlushStrategyFactory;
+import org.tranql.cache.CacheTable;
 import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.cache.SimpleFlushStrategyFactory;
+import org.tranql.cache.cache.CacheFactory;
+import org.tranql.cache.cache.ReadCommittedCacheFactory;
+import org.tranql.cache.cache.ReadUncommittedCacheFactory;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
@@ -172,11 +177,36 @@ public abstract class SchemataBuilder {
             processRelationships(ejbJar, openejbEjbJar);
             processGroups(openejbEjbJar);
             GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
+            processEnterpriseBeanCaches(openejbEjbJar);
         } catch (Exception e) {
             throw new DeploymentException("Could not deploy module", e);
         }
         
         return new Schemata(ejbSchema, sqlSchema, globalSchema);
+    }
+
+    private void processEnterpriseBeanCaches(OpenejbOpenejbJarType openejbEjbJar) {
+        OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
+        for (int i = 0; i < openEJBEntities.length; i++) {
+            String ejbName = openEJBEntities[i].getEjbName();
+            if (false == openEJBEntities[i].isSetCache()) {
+                continue;
+            }
+            
+            CacheFactory factory;
+            Cache cache = openEJBEntities[i].getCache();
+            int size = cache.getSize();
+            if (Cache.IsolationLevel.READ_COMMITTED == cache.getIsolationLevel()) {
+                factory = new ReadCommittedCacheFactory(size);
+            } else if (Cache.IsolationLevel.READ_UNCOMMITTED == cache.getIsolationLevel()) {
+                factory = new ReadUncommittedCacheFactory(size);
+            } else {
+                throw new AssertionError();
+            }
+            
+            CacheTable cacheTable = globalSchema.getCacheTable(ejbName);
+            cacheTable.setCacheFactory(factory);
+        }
     }
 
     private void processGroups(OpenejbOpenejbJarType openejbEjbJar)

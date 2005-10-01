@@ -84,6 +84,7 @@ public class CMPSystemMethodIndicesTest extends TestCase {
         globalSchema.addCacheTable(cacheTable);
         builder.setEJBName("mock");
         builder.setEJBSchema(ejbSchema);
+        builder.setGlobalSchema(globalSchema);
         builder.initialize();
         Map vopMap = builder.buildVopMap(MockCMPEJB.class, cacheTable, Collections.EMPTY_MAP, null, new IdentityDefinerBuilder(ejbSchema, globalSchema), null, null, null, null, new HashMap());
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);

@@ -96,7 +96,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private String serviceEndpointName;
     private String primaryKeyClassName;
     private DefaultPrincipal defaultPrincipal;
-    private Subject runAs;
+    protected Subject runAs;
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
@@ -399,7 +399,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return policies;
     }
 
-    private Serializable getHomeTxPolicyConfig() throws ClassNotFoundException {
+    protected Serializable getHomeTxPolicyConfig() throws ClassNotFoundException {
         if (transactionImportPolicyBuilder == null) {
             return null;
         }
@@ -413,7 +413,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         }
     }
 
-    private Serializable getRemoteTxPolicyConfig() throws ClassNotFoundException {
+    protected Serializable getRemoteTxPolicyConfig() throws ClassNotFoundException {
         if (transactionImportPolicyBuilder == null) {
             return null;
         }
@@ -486,14 +486,17 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 Thread.currentThread().getContextClassLoader());
     }
 
-
+    protected GBeanData buildGBeanData() {
+        return new GBeanData(GenericEJBContainer.GBEAN_INFO);
+    }
+    
     protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
                                             InstanceContextFactory contextFactory,
                                             InterceptorBuilder interceptorBuilder,
                                             InstancePool pool,
                                             ObjectName timerName) throws Exception {
 
-        GBeanData gbean = new GBeanData(GenericEJBContainer.GBEAN_INFO);
+        GBeanData gbean = buildGBeanData();
         gbean.setAttribute("containerID", getContainerId());
         gbean.setAttribute("ejbName", getEJBName());
         gbean.setAttribute("proxyInfo", createProxyInfo());
