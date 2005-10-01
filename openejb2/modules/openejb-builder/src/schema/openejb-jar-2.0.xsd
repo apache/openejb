@@ -206,6 +206,22 @@
                 </xs:element>
             </xs:sequence>
 
+            <xs:element name="cache" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="isolation-level">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+	                                <xs:enumeration value="read-uncommitted"/>
+                                    <xs:enumeration value="read-committed"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element name="size" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
 
             <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>

@@ -58,7 +58,10 @@ import javax.ejb.Timer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBComponentType;
+import org.openejb.EJBContainer;
+import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
@@ -72,6 +75,7 @@ import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.HomeMethod;
 import org.openejb.entity.cmp.CMP1Bridge;
 import org.openejb.entity.cmp.CMPCreateMethod;
+import org.openejb.entity.cmp.CMPEJBContainer;
 import org.openejb.entity.cmp.CMPEntityInterceptorBuilder;
 import org.openejb.entity.cmp.CMPGetter;
 import org.openejb.entity.cmp.CMPInstanceContextFactory;
@@ -98,6 +102,10 @@ import org.tranql.cache.EmptySlotLoader;
 import org.tranql.cache.FaultHandler;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.QueryFaultHandler;
+import org.tranql.cache.cache.CacheFactory;
+import org.tranql.cache.cache.CacheFaultHandler;
+import org.tranql.cache.cache.CacheFieldFaultTransform;
+import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldIdentityExtractorAccessor;
@@ -154,8 +162,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     private GlobalSchema globalSchema;
     private EJB ejb;
     private TransactionManagerDelegate tm;
+    private FrontEndCacheDelegate cache;
+    private CacheFactory factory;
     private boolean reentrant;
-
+    
     public boolean isCMP2() {
         return cmp2;
     }
@@ -211,15 +221,20 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     protected InterceptorBuilder initializeInterceptorBuilder(CMPEntityInterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
         super.initializeInterceptorBuilder(interceptorBuilder, signatures, vtable);
         interceptorBuilder.setCacheFlushStrategyFactory(globalSchema.getCacheFlushStrategyFactorr());
+        interceptorBuilder.setFrontEndCache(cache);
         interceptorBuilder.setReentrant(reentrant);
         return interceptorBuilder;
     }
 
     protected void initialize() throws Exception {
-        ejb = ejbSchema.getEJB(getEJBName());
+        String name = getEJBName();
+        ejb = ejbSchema.getEJB(name);
         if (ejb == null) {
-            throw new DeploymentException("Schema does not contain EJB: " + getEJBName());
+            throw new DeploymentException("Schema does not contain EJB: " + name);
         }
+        cache = new FrontEndCacheDelegate();
+        CacheTable cacheTable = globalSchema.getCacheTable(name);
+        factory = cacheTable.getCacheFactory();
     }
     
     protected Object buildIt(boolean buildContainer) throws Exception {
@@ -245,13 +260,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         List pkAttributes = ejb.getPrimaryKeyFields();
         EmptySlotLoader[] slotLoaders = new EmptySlotLoader[pkAttributes.size()];
         String[] attributeNames = new String[pkAttributes.size()];
+        int[] indexes = new int[pkAttributes.size()];
         for (int i = 0; i < pkAttributes.size(); i++) {
             Attribute attr = (Attribute) pkAttributes.get(i);
             attributeNames[i] = attr.getName();
+            indexes[i] = attributes.indexOf(attr);
             slotLoaders[i] = new EmptySlotLoader(attributes.indexOf(attr), new FieldAccessor(i, attr.getType()));
         }
         QueryCommand loadCommand = queryBuilder.buildLoadEntity(getEJBName(), attributeNames);
         FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner, slotLoaders);
+        faultHandler = new CacheFaultHandler(cache, faultHandler, indexes);
 
         // EJB QL queries
         Map finders = queryBuilder.buildFinders(ejb.getName());
@@ -370,7 +388,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 FieldTransform attAccessor = command.getQuery().getResultAccessors()[0];
                 EmptySlotLoader[] loaders = new EmptySlotLoader[] {new EmptySlotLoader(i, attAccessor)};
                 FaultHandler faultHandler = new QueryFaultHandler(command, identityDefiner, loaders);
+                faultHandler = new CacheFaultHandler(cache, faultHandler, new int[] {i});
                 accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
+                accessor = new CacheFieldFaultTransform(cache, accessor, i);
             }
             // TODO: this breaks the CMP1 bridge.
 //            if (attribute.isIdentity()) {
@@ -402,6 +422,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, null), name);
 
             FaultHandler faultHandler = buildFaultHandler(queryBuilder, ejb, field, i, prefetch);
+            faultHandler = new CacheFaultHandler(cache, faultHandler, new int[] {i});
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
 
             int relatedIndex = relatedEJB.getAttributes().size() + relatedEJB.getAssociationEnds().indexOf(relatedField);
@@ -423,7 +444,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 boolean isRight = association.getRightJoinDefinition().getPKEntity() == ejb;
                 accessor = new ManyToManyCMR(accessor, relatedAccessor, relatedIdentityDefiner, mtm, isRight);
             }
-
+            accessor = new CacheFieldFaultTransform(cache, accessor, i);
+            
             cmrFaultAccessors.put(name, accessor);
 
             IdentityTransform relatedIdentityTransform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEJB);
@@ -698,5 +720,54 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
         
         return vopMap;
+    }
+    
+    protected GBeanData buildGBeanData() {
+        return new GBeanData(CMPEJBContainer.GBEAN_INFO);
+    }
+    
+    protected EJBContainer createContainer(InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool) throws Exception {
+
+        return new CMPEJBContainer(
+                getContainerId(),
+                getEJBName(),
+                createProxyInfo(),
+                signatures,
+                contextFactory,
+                interceptorBuilder,
+                pool,
+                getComponentContext(),
+                getUserTransaction(),
+                getJndiNames(),
+                getLocalJndiNames(),
+                getTransactionContextManager(),
+                getTrackedConnectionAssociator(),
+                null, // timer
+                null, // objectname
+                null, // kernel
+                getDefaultPrincipal(),
+                runAs,
+                null,
+                getHomeTxPolicyConfig(),
+                getRemoteTxPolicyConfig(),
+                Thread.currentThread().getContextClassLoader(),
+                cache,
+                factory);
+    }
+    
+    protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool,
+            ObjectName timerName) throws Exception {
+        GBeanData gbean = super.createConfiguration(cl, signatures, contextFactory, interceptorBuilder, pool, timerName);
+        
+        gbean.setAttribute("frontEndCacheDelegate", cache);
+        gbean.setAttribute("cacheFactory", factory);
+        
+        return gbean;
     }
 }
