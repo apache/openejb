@@ -12,6 +12,7 @@ rm -rf $root
 echo "Setting up base"
 mkdir -p $root
 cp $poms/openejb-root.pom $root/pom.xml
+cp $poms/openejb-root-profiles.xml $root/profiles.xml
 maven -q process-root-pom
 
 echo "Setting up core..."
