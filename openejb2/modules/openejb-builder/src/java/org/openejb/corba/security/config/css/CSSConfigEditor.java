@@ -75,6 +75,7 @@ import org.openejb.xbeans.csiv2.css.CSSITTPrincipalNameDynamicType;
 import org.openejb.xbeans.csiv2.css.CSSITTPrincipalNameStaticType;
 import org.openejb.xbeans.csiv2.css.CSSSSLType;
 import org.openejb.xbeans.csiv2.css.CSSSasMechType;
+import org.openejb.xbeans.csiv2.css.CSSCssDocument;
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
 
 
@@ -82,7 +83,7 @@ import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
  * @version $Revision$ $Date$
  */
 public class CSSConfigEditor implements XmlAttributeBuilder {
-    private static final String NAMESPACE = "http://www.openejb.org/xml/ns/corba-css-config_1_0";
+    private static final String NAMESPACE = CSSCssDocument.type.getDocumentElementName().getNamespaceURI(); 
 
     public String getNamespace() {
         return NAMESPACE;

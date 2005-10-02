@@ -16,14 +16,14 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server">
 
     <module>
         <ejb>test-ejb-jar.jar</ejb>
         <openejb-jar
-            xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
             configId="org/openejb/deployment/test">
 
             <cmp-connection-factory>

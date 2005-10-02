@@ -21,7 +21,7 @@
 Configuration for the CORBA server.
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="org/openejb/Security"
     parentId="org/apache/geronimo/DefaultDatabase"
     >
@@ -46,7 +46,7 @@ Configuration for the CORBA server.
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
         <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">
                 <lc:login-module control-flag="REQUIRED" server-side="true">
                     <lc:login-domain-name>public-login</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
@@ -82,7 +82,7 @@ Configuration for the CORBA server.
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
         <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">
                 <lc:login-module-ref control-flag="REQUIRED">
                     <lc:name>black-login</lc:name>
                 </lc:login-module-ref>

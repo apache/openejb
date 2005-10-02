@@ -362,18 +362,25 @@
     </dependency>
 
     <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.5</version>
+    </dependency>
+
+    <dependency>
       <groupId>axis</groupId>
       <artifactId>commons-discovery</artifactId>
       <version>SNAPSHOT</version>
-        <scope>runtime</scope>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.2</version>
-        <scope>runtime</scope>
+      <scope>runtime</scope>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -383,7 +390,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0-beta-1-SNAPSHOT</version>
+        <version>2.0-beta-1</version>
         <configuration>
           <source>1.4</source>
           <target>1.4</target>
@@ -441,15 +448,19 @@
         </includes>
       </testResource>
 
-<!-- temporarily copy required files built from m1 -->
       <testResource>
         <targetPath>..</targetPath>
-        <directory>../../../modules/openejb-builder/target</directory>
-        <includes>
-          <include>test-ejb-jar.jar</include>
-          <include>test-ear.ear</include>
-          <include>test-ejb-jar/**/*.*</include>
-        </includes>
+        <directory>../../test-ant-ear/src/test/resources</directory>
+      </testResource>
+
+      <testResource>
+        <targetPath>..</targetPath>
+        <directory>../../test-ant-ear/src/test/resources</directory>
+      </testResource>
+
+      <testResource>
+        <targetPath>..</targetPath>
+        <directory>../../test-ant-ear/src/test/resources</directory>
       </testResource>
     </testResources>
   </build>

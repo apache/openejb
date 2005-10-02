@@ -9,7 +9,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <name>openejb-webadmin-commons</name>
+  <name>OpenEJB :: WebAdmin :: Commons</name>
   <artifactId>openejb-webadmin-commons</artifactId>
   <description>OpenEJB Web-based Administration Console Commons</description>
   <packaging>jar</packaging>

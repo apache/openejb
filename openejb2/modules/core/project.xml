@@ -127,6 +127,12 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
@@ -291,12 +297,6 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>${commons_cli_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov</artifactId>
-            <version>${bouncycastle_version}</version>
         </dependency>
 
         <dependency>

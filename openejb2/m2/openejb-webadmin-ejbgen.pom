@@ -9,7 +9,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <name>openejb-webadmin-ejbgen</name>
+  <name>OpenEJB :: WebAdmin :: EJB Generator</name>
   <artifactId>openejb-webadmin-ejbgen</artifactId>
   <description>OpenEJB Web-based Administration Console EJB Generator</description>
   <packaging>jar</packaging>

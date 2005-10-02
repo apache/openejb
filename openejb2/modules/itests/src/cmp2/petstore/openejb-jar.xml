@@ -4,15 +4,15 @@
  Redistribution and use of this software and associated documentation
  ("Software"), with or without modification, are permitted provided
  that the following conditions are met:
- 
+
  1. Redistributions of source code must retain copyright
     statements and notices.  Redistributions must also contain a
     copy of this document.
- 
+
  2. Redistributions in binary form must reproduce this list of
     conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
- 
+
  3. The name "OpenEJB" must not be used to endorse or promote
     products derived from this Software without prior written
     permission of The OpenEJB Group.  For written permission,
@@ -22,10 +22,10 @@
     nor may "OpenEJB" appear in their names without prior written
     permission of The OpenEJB Group. OpenEJB is a registered
     trademark of The OpenEJB Group.
- 
+
  5. Due credit should be given to the OpenEJB Project
     (http://www.openejb.org/).
- 
+
  THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
  NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
@@ -38,17 +38,17 @@
  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
  ====================================================================
- 
+
  This software consists of voluntary contributions made by many
  individuals on behalf of the OpenEJB Project.  For more information
  please see <http://www.openejb.org/>.
- 
+
  ====================================================================
 -->
 <!-- $Revision$ $Date$ -->
-<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar" configId="org/openejb/cmp2/petstore" parentId="org/apache/geronimo/DefaultDatabase">
+<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0" configId="org/openejb/cmp2/petstore" parentId="org/apache/geronimo/DefaultDatabase">
   <dependency>
     <uri>junit/jars/junit-3.8.1.jar</uri>
   </dependency>
@@ -76,7 +76,7 @@
         <table-column>city</table-column>
       </cmp-field-mapping>
       <primkey-field>id</primkey-field>
-      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
         <auto-increment-table>
           <sql>insert into sequence_table (dummy) values (1)</sql>
           <return-type>java.lang.Integer</return-type>

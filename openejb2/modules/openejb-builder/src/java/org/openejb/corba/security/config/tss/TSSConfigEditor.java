@@ -79,6 +79,7 @@ import org.openejb.xbeans.csiv2.tss.TSSIdentityTokenTypeList;
 import org.openejb.xbeans.csiv2.tss.TSSSSLType;
 import org.openejb.xbeans.csiv2.tss.TSSSasMechType;
 import org.openejb.xbeans.csiv2.tss.TSSTssType;
+import org.openejb.xbeans.csiv2.tss.TSSTssDocument;
 
 
 /**
@@ -88,7 +89,7 @@ import org.openejb.xbeans.csiv2.tss.TSSTssType;
  */
 public class TSSConfigEditor implements XmlAttributeBuilder {
 
-    private static final String NAMESPACE = "http://www.openejb.org/xml/ns/corba-tss-config_1_0";
+    private static final String NAMESPACE = TSSTssDocument.type.getDocumentElementName().getNamespaceURI();
 
     public String getNamespace() {
         return NAMESPACE;
