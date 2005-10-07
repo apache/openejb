@@ -51,6 +51,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+import org.apache.geronimo.security.ContextManager;
 
 import org.openejb.corba.security.config.tss.TSSASMechConfig;
 import org.openejb.corba.security.config.tss.TSSGSSUPMechConfig;
@@ -91,13 +92,9 @@ public class CSSGSSUPMechConfigDynamic implements CSSASMechConfig {
     public byte[] encode() {
         if (encoding == null) {
             NamedUsernamePasswordCredential credential = null;
+            Subject subject = ContextManager.getCurrentCaller();
 
-            Set creds = (Set) AccessController.doPrivileged(new PrivilegedAction() {
-                public Object run() {
-                    Subject subject = Subject.getSubject(AccessController.getContext());
-                    return subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
-                }
-            });
+            Set creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
 
             if (creds.size() != 0) {
                 for (Iterator iter = creds.iterator(); iter.hasNext();) {
