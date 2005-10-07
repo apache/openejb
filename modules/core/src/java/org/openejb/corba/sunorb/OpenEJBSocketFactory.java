@@ -195,7 +195,13 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
 
             return new Socket(endPointInfo.getHost(), endPointInfo.getPort());
         } else if (type.equals(IIOP_SSL)) {
-            SSLSocket socket = (SSLSocket) socketFactory.createSocket(endPointInfo.getHost(), endPointInfo.getPort());
+            SSLSocket socket = null;
+            try {
+                socket = (SSLSocket) socketFactory.createSocket(endPointInfo.getHost(), endPointInfo.getPort());
+            } catch (IOException e) {
+                log.debug("could not create socket:", e);
+                throw e;
+            }
 
             socket.setEnabledCipherSuites(cipherSuites);
             socket.setWantClientAuth(clientAuthSupported);
