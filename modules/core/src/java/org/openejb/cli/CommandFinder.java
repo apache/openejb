@@ -27,7 +27,7 @@ public class CommandFinder {
         if (in == null) {
             in = CommandFinder.class.getClassLoader().getResourceAsStream(uri);
             if (in == null) {
-                throw new IOException("Could not find factory class for resource: " + uri);
+                throw new IOException("Could not find command in : " + uri);
             }
         }
 
