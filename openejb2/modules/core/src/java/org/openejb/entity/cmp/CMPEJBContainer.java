@@ -107,19 +107,19 @@ public class CMPEJBContainer extends GenericEJBContainer {
         
         Cache cache = factory.factory();
         FrontEndCache frontEndCache = new FrontEndToCacheAdaptor(tm, cache);
-        delegate.setFrontEndCache(frontEndCache);
+        delegate.addFrontEndCache(getEjbName(), frontEndCache);
     }
     
     public void doStop() throws Exception {
         super.doStop();
         
-        delegate.setFrontEndCache(null);
+        delegate.removeFrontEndCache(getEjbName());
     }
     
     public void doFail() {
         super.doFail();
         
-        delegate.setFrontEndCache(null);
+        delegate.removeFrontEndCache(getEjbName());
     }
     
     public static final GBeanInfo GBEAN_INFO;

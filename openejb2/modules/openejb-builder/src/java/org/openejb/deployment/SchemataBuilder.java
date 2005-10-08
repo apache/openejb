@@ -90,6 +90,7 @@ import org.tranql.cache.SimpleFlushStrategyFactory;
 import org.tranql.cache.cache.CacheFactory;
 import org.tranql.cache.cache.ReadCommittedCacheFactory;
 import org.tranql.cache.cache.ReadUncommittedCacheFactory;
+import org.tranql.cache.cache.RepeatableReadCacheFactory;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
@@ -200,6 +201,8 @@ public abstract class SchemataBuilder {
                 factory = new ReadCommittedCacheFactory(size);
             } else if (Cache.IsolationLevel.READ_UNCOMMITTED == cache.getIsolationLevel()) {
                 factory = new ReadUncommittedCacheFactory(size);
+            } else if (Cache.IsolationLevel.REPEATABLE_READ == cache.getIsolationLevel()) {
+                factory = new RepeatableReadCacheFactory(size);
             } else {
                 throw new AssertionError();
             }

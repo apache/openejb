@@ -69,6 +69,7 @@ import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.EJBProxyFactory;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
@@ -93,6 +94,8 @@ class CMPEntityBuilder extends EntityBuilder {
      * Create GBeans for all the CMP entity beans in the EJB JAR.
      */
     public void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
+        FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
+        
         // CMP Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -105,7 +108,7 @@ class CMPEntityBuilder extends EntityBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
             ObjectName entityObjectName = super.createEJBObjectName(moduleJ2eeContext, entityBean);
 
-            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, cl, tmDelegate, componentPermissions, policyContextID);
+            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, cl, tmDelegate, cacheDelegate, componentPermissions, policyContextID);
 
             earContext.addGBean(entityGBean);
         }
@@ -152,7 +155,7 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
 
-    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, TransactionManagerDelegate tmDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
         String ejbName = getString(entityBean.getEjbName());
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(cl);
@@ -180,6 +183,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(globalSchema);
         builder.setTransactionManagerDelegate(tmDelegate);
+        builder.setFrontEndCacheDelegate(cacheDelegate);
 
         try {
             GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), getTssBeanObjectName(openejbEntityBean, earContext));
