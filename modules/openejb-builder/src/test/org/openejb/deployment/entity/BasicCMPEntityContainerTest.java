@@ -80,6 +80,7 @@ import org.openejb.transaction.TransactionPolicyType;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBQueryBuilder;
@@ -427,6 +428,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(globalSchema);
         builder.setComponentContext(new HashMap());
+        builder.setFrontEndCacheDelegate(new FrontEndCacheDelegate());
 //        builder.setConnectionFactoryName("defaultDatasource");
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);

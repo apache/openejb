@@ -62,7 +62,6 @@ import org.openejb.security.EJBSecurityInterceptor;
 import org.openejb.security.PolicyContextHandlerEJBInterceptor;
 import org.openejb.transaction.TransactionContextInterceptor;
 import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.cache.Cache;
 import org.tranql.cache.cache.FrontEndCache;
 
 /**

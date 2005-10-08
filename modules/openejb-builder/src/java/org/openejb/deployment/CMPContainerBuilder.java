@@ -105,6 +105,7 @@ import org.tranql.cache.QueryFaultHandler;
 import org.tranql.cache.cache.CacheFactory;
 import org.tranql.cache.cache.CacheFaultHandler;
 import org.tranql.cache.cache.CacheFieldFaultTransform;
+import org.tranql.cache.cache.FindByPKCacheQueryCommand;
 import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
@@ -210,6 +211,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         this.tm = tm;
     }
 
+    public FrontEndCacheDelegate getFrontEndCacheDelegate() {
+        return cache;
+    }
+
+    public void setFrontEndCacheDelegate(FrontEndCacheDelegate cache) {
+        this.cache = cache;
+    }
+
     public boolean isReentrant() {
         return reentrant;
     }
@@ -232,7 +241,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         if (ejb == null) {
             throw new DeploymentException("Schema does not contain EJB: " + name);
         }
-        cache = new FrontEndCacheDelegate();
         CacheTable cacheTable = globalSchema.getCacheTable(name);
         factory = cacheTable.getCacheFactory();
     }
@@ -276,8 +284,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         
         // findByPrimaryKey
         QueryCommand localProxyLoad = queryBuilder.buildFindByPrimaryKey(getEJBName(), true);
+        localProxyLoad = new FindByPKCacheQueryCommand(cache, primaryKeyTransform, localProxyLoad);
         QueryCommand remoteProxyLoad = queryBuilder.buildFindByPrimaryKey(getEJBName(), false);
-
+        remoteProxyLoad = new FindByPKCacheQueryCommand(cache, primaryKeyTransform, remoteProxyLoad);
+        
         Class pkClass = ejb.isUnknownPK() ? Object.class :  ejb.getPrimaryKeyClass();
         FinderEJBQLQuery pkFinder = new FinderEJBQLQuery("findByPrimaryKey", new Class[] {pkClass}, "UNDEFINED");
         QueryCommand[] commands = new QueryCommand[]{localProxyLoad, remoteProxyLoad};
@@ -388,7 +398,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 FieldTransform attAccessor = command.getQuery().getResultAccessors()[0];
                 EmptySlotLoader[] loaders = new EmptySlotLoader[] {new EmptySlotLoader(i, attAccessor)};
                 FaultHandler faultHandler = new QueryFaultHandler(command, identityDefiner, loaders);
-                faultHandler = new CacheFaultHandler(cache, faultHandler, new int[] {i});
                 accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
                 accessor = new CacheFieldFaultTransform(cache, accessor, i);
             }
@@ -422,8 +431,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, null), name);
 
             FaultHandler faultHandler = buildFaultHandler(queryBuilder, ejb, field, i, prefetch);
-            faultHandler = new CacheFaultHandler(cache, faultHandler, new int[] {i});
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
+
+            accessor = new CacheFieldFaultTransform(cache, accessor, i);
 
             int relatedIndex = relatedEJB.getAttributes().size() + relatedEJB.getAssociationEnds().indexOf(relatedField);
             FaultHandler relatedFaultHandler = buildFaultHandler(queryBuilder, relatedEJB, relatedField, relatedIndex, prefetch);
@@ -444,7 +454,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 boolean isRight = association.getRightJoinDefinition().getPKEntity() == ejb;
                 accessor = new ManyToManyCMR(accessor, relatedAccessor, relatedIdentityDefiner, mtm, isRight);
             }
-            accessor = new CacheFieldFaultTransform(cache, accessor, i);
             
             cmrFaultAccessors.put(name, accessor);
 

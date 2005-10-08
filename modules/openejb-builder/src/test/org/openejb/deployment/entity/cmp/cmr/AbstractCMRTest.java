@@ -91,6 +91,8 @@ import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.cache.FrontEndCache;
+import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
@@ -200,8 +202,10 @@ public abstract class AbstractCMRTest extends TestCase {
             kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
             kernel.startGBean(connectionProxyFactoryObjectName);
 
-            setUpContainer(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, tmDelegate);
-            setUpContainer(ejbSchema.getEJB("B"), getB().bean, getB().home, getB().local, C_NAME_B, tmDelegate);
+            FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
+            
+            setUpContainer(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, tmDelegate, cacheDelegate);
+            setUpContainer(ejbSchema.getEJB("B"), getB().bean, getB().home, getB().local, C_NAME_B, tmDelegate, cacheDelegate);
 
             ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
             bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
@@ -211,7 +215,7 @@ public abstract class AbstractCMRTest extends TestCase {
     }
 
 
-    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate) throws Exception {
+    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate) throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(containerName.getCanonicalName());
@@ -237,6 +241,7 @@ public abstract class AbstractCMRTest extends TestCase {
         builder.setGlobalSchema(cacheSchema);
         builder.setComponentContext(new HashMap());
         builder.setTransactionManagerDelegate(tmDelegate);
+        builder.setFrontEndCacheDelegate(cacheDelegate);
 
         GBeanData container = builder.createConfiguration(containerName, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
 

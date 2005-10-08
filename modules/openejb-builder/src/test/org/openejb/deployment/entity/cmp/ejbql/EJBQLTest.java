@@ -93,6 +93,8 @@ import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.cache.FrontEndCache;
+import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
@@ -220,7 +222,8 @@ public class EJBQLTest extends TestCase {
             kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
             kernel.startGBean(connectionProxyFactoryObjectName);
 
-            setUpContainer(ejbSchema.getEJB("A"), ABean.class, AHome.class, ARemote.class, ALocalHome.class, ALocal.class, C_NAME_A, tmDelegate);
+            FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
+            setUpContainer(ejbSchema.getEJB("A"), ABean.class, AHome.class, ARemote.class, ALocalHome.class, ALocal.class, C_NAME_A, tmDelegate, cacheDelegate);
 
             aLocalHome = (ALocalHome) kernel.getAttribute(C_NAME_A, "ejbLocalHome");
             aHome = (AHome) kernel.getAttribute(C_NAME_A, "ejbHome");
@@ -230,7 +233,7 @@ public class EJBQLTest extends TestCase {
     }
 
 
-    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate) throws Exception {
+    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate) throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(containerName.getCanonicalName());
@@ -256,6 +259,7 @@ public class EJBQLTest extends TestCase {
         builder.setGlobalSchema(cacheSchema);
         builder.setComponentContext(new HashMap());
         builder.setTransactionManagerDelegate(tmDelegate);
+        builder.setFrontEndCacheDelegate(cacheDelegate);
 
         GBeanData container = builder.createConfiguration(containerName, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
 

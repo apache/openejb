@@ -86,16 +86,14 @@ public final class InTxCacheInterceptor implements Interceptor {
             strategy = new InTxCacheTracker(cache, strategy);
             transactionContext.setInTxCache(new GeronimoInTxCache(strategy));
         }
-
+    
         return next.invoke(invocation);
     }
 
-    public static class GeronimoInTxCache extends InTxCache implements Flushable {
-
-        public GeronimoInTxCache(CacheFlushStrategy flushStrategy) {
-            super(flushStrategy);
-        }
-
+    private static class GeronimoInTxCache extends InTxCache implements Flushable {
         
+        public GeronimoInTxCache(CacheFlushStrategy strategy) {
+            super(strategy);
+        }
     }
 }
