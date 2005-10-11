@@ -44,12 +44,15 @@
  */
 package org.openejb.server;
 
-import java.util.Properties;
-import java.io.InputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import org.openejb.util.JarUtils;
+import java.util.Properties;
+
+import org.openejb.cli.CommandFinder;
 import org.openejb.loader.SystemInstance;
+import org.openejb.util.JarUtils;
 
 /**
  * This class will parse all the command line arguments then
@@ -61,6 +64,8 @@ import org.openejb.loader.SystemInstance;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class Main {
+	
+	private static final String helpBase = "META-INF/org.openejb.cli/";
 
     public static void main (String args[]) {
 
@@ -130,7 +135,7 @@ public class Main {
                 } else {
                     props.setProperty("openejb.localcopy", "true");
                 }
-            } else if (args[i].equals("-help")) {
+            } else if (args[i].equals("--help")) {
                 printHelp();
                 throw new DontStartServerException();
             } else if (args[i].equals("-version")) {
@@ -173,10 +178,12 @@ public class Main {
         }
 
         System.out.println( header );
+        
+        
 
         // Internationalize this
         try {
-            InputStream in = new URL( "resource:/openejb/start.txt" ).openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "start.help").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {
@@ -201,7 +208,7 @@ public class Main {
 
         // Internationalize this
         try {
-            InputStream in = new URL( "resource:/openejb/ejbserver-examples.txt" ).openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "start.examples").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {

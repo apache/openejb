@@ -66,6 +66,7 @@ import org.openejb.util.Logger;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class EjbValidator {
+	private static final String helpBase = "META-INF/org.openejb.cli/";
 
     protected static final Messages _messages = new Messages( "org.openejb.util.resources" );
 
@@ -269,7 +270,7 @@ public class EjbValidator {
 
         // Internationalize this
         try {
-            InputStream in = new URL( "resource:/openejb/validate.txt" ).openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "validate.help").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {
@@ -294,7 +295,7 @@ public class EjbValidator {
 
         // Internationalize this
         try {
-            InputStream in = new URL( "resource:/openejb/validate-examples.txt" ).openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "validate.examples").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {
@@ -336,7 +337,7 @@ public class EjbValidator {
                     v.PRINT_WARNINGS = false;
                 } else if (args[i].equals("-xml")){
                     v.PRINT_XML = true;
-                } else if (args[i].equals("-help")){
+                } else if (args[i].equals("--help")){
                     printHelp();
                 } else if (args[i].equals("-examples")){
                     printExamples();

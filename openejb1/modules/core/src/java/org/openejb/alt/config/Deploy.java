@@ -100,6 +100,7 @@ import org.openejb.util.FileUtils;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class Deploy {
+	private static final String helpBase = "META-INF/org.openejb.cli/";
 
     protected static final Messages _messages = new Messages("org.openejb.alt.util.resources");
 
@@ -858,7 +859,7 @@ public class Deploy {
                     printExamples();
                 } else if (args[i].equals("-version")) {
                     printVersion();
-                } else if (args[i].equals("-help")) {
+                } else if (args[i].equals("--help")) {
                     printHelp();
                 } else if (args[i].startsWith("-")) {
                     error(INCORRECT_OPTION + args[i]);
@@ -927,8 +928,7 @@ public class Deploy {
 
         // Internationalize this
         try {
-            InputStream in =
-            new URL("resource:/openejb/deploy.txt").openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "deploy.help").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {
@@ -954,8 +954,7 @@ public class Deploy {
 
         // Internationalize this
         try {
-            InputStream in =
-            new URL("resource:/openejb/deploy-examples.txt").openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "deploy.examples").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {

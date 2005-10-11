@@ -96,13 +96,6 @@
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/META-INF/org.openejb.cli.help</directory>
-                <targetPath>META-INF/org.openejb.cli.help</targetPath>
-                <includes>
-                    <include>*</include>
-                </includes>
-            </resource>
-            <resource>
                 <directory>${basedir}/src/schema</directory>
                 <targetPath>openejb/dtds</targetPath>
                 <includes>

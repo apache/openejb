@@ -1,9 +1,6 @@
 package org.openejb.cli;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
@@ -24,7 +21,6 @@ import java.util.jar.JarFile;
 public class Main {
 	private static CommandFinder finder = null;
 	private static String basePath = "META-INF/org.openejb.cli/";
-	private static String helpBasePath = "META-INF/org.openejb.cli.help/";
 	private static String locale = "";
 	private static String descriptionBase = "description";
 
@@ -35,32 +31,10 @@ public class Main {
 		if (args.length > 0) {
 			Properties props = null;
 			
-			if (args[0].equals("help")) {
-				if (args.length > 1) {
-					try {
-						props = finder.doFindCommandProperies(args[1]);
-					} catch (IOException e1) {
-						System.out.println("Usage: openejb help [command]");
-						
-						printAvailableCommands();
-					}
-					
-					InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(helpBasePath + args[1] + ".txt");
-					BufferedReader br = new BufferedReader(new InputStreamReader(in));
-					String cLine;
-					
-					try {
-						while ((cLine = br.readLine()) != null) {
-							System.out.println(cLine);
-						}
-					} catch (IOException e) {
-						System.out.println("No available help for " + args[1] + ".");
-					}
-				} else {
-					System.out.println("Usage: openejb help [command]");
-					
-					printAvailableCommands();
-				}
+			if (args[0].equals("--help")) {
+				System.out.println("Usage: openejb help [command]");
+				
+				printAvailableCommands();
 			} else {
 				String mainClass = null;
 				Class clazz = null;
@@ -137,7 +111,7 @@ public class Main {
 			        	while (commands.hasMoreElements()) {
 			        		JarEntry je = (JarEntry)commands.nextElement();
 				        	
-				        	if (je.getName().indexOf(basePath) > -1 && !je.getName().equals(basePath)) {
+				        	if (je.getName().indexOf(basePath) > -1 && !je.getName().equals(basePath) && !je.getName().endsWith(".help") && !je.getName().endsWith(".examples")) {
 				        		Properties props = finder.doFindCommandProperies(je.getName().substring(je.getName().lastIndexOf("/") + 1));
 				        		 
 								String key = locale.equals("en") ? descriptionBase : descriptionBase + "." + locale;
