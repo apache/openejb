@@ -57,6 +57,7 @@ import org.openejb.util.JarUtils;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class Stop implements org.openejb.client.RequestMethods {
+	private static final String helpBase = "META-INF/org.openejb.cli/";
     
     /**
      * 
@@ -100,7 +101,7 @@ public class Stop implements org.openejb.client.RequestMethods {
                     if (args.length > i+1 ) {
                         port = Integer.parseInt( args[++i] );
                     }
-                } else if (args[i].equals("-help")){
+                } else if (args[i].equals("--help")){
                     printHelp();
                     return;
                 } else if (args[i].equals("-examples")){
@@ -130,7 +131,7 @@ public class Stop implements org.openejb.client.RequestMethods {
 
         // Internationalize this
         try {
-            InputStream in = new URL( "resource:/openejb/stop.txt" ).openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "stop.help").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {
@@ -155,7 +156,7 @@ public class Stop implements org.openejb.client.RequestMethods {
 
         // Internationalize this
         try {
-            InputStream in = new URL( "resource:/openejb/stop-examples.txt" ).openConnection().getInputStream();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResource(helpBase + "stop.examples").openConnection().getInputStream();
 
             int b = in.read();
             while (b != -1) {
