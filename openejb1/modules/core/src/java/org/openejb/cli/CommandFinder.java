@@ -1,10 +1,8 @@
 package org.openejb.cli;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -37,24 +35,6 @@ public class CommandFinder {
             reader = new BufferedInputStream(in);
             Properties properties = new Properties();
             properties.load(reader);
-            
-            //All is well, set openejb.home
-            URL propsURL = Thread.currentThread().getContextClassLoader().getResource(uri);
-            String propsString = propsURL.getFile();
-            URL jarURL;
-            File jarFile;
-            
-            propsString = propsString.substring(0, propsString.indexOf("!"));
-            
-            jarURL = new URL(propsString);
-            jarFile = new File(jarURL.getFile());
-            
-            if (jarFile.getName().indexOf("openejb-core") > -1) {
-            	File lib = jarFile.getParentFile();
-            	File home = lib.getParentFile();
-            	
-            	System.setProperty("openejb.home", home.getAbsolutePath());
-            }
             
             return properties;
         } finally {

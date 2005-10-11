@@ -44,14 +44,17 @@
  */
 package org.openejb.test;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URL;
 import java.util.Properties;
 
-import org.openejb.util.Launcher;
+import org.openejb.util.JarUtils;
 
 /**
  * 
@@ -90,8 +93,30 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
             try{
                 System.out.println("[] START SERVER");
                 serverHasAlreadyBeenStarted = false;
-                Launcher.main(new String[]{"-nowait","org.openejb.server.Main"});
-                //oldStart();
+                String version = null;
+                
+                JarUtils.setHandlerSystemProperty();
+                Properties versionInfo = new Properties();
+                versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+                version = (String)versionInfo.get( "version" );
+                
+                Process server = Runtime.getRuntime().exec("java -jar lib" + File.separator + "openejb-core-" + version + ".jar start -nowait");
+                
+                // Pipe the processes STDOUT to ours
+                InputStream out = server.getInputStream();
+                Thread serverOut = new Thread(new Pipe(out, System.out));
+
+                serverOut.setDaemon(true);
+                serverOut.start();
+
+
+
+                // Pipe the processes STDERR to ours
+                InputStream err = server.getErrorStream();
+                Thread serverErr = new Thread(new Pipe(err, System.err));
+
+                serverErr.setDaemon(true);
+                serverErr.start();
             } catch (Exception e){
                 throw new RuntimeException("Cannot start the server.");
             }
@@ -209,4 +234,47 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         return true;
     }
 
+    private static final class Pipe implements Runnable {
+
+
+
+        private final InputStream is;
+
+        private final OutputStream out;
+
+        private Pipe(InputStream is, OutputStream out) {
+
+            super();
+
+            this.is = is;
+
+            this.out = out;
+
+        }
+
+        public void run() {
+
+            try{
+
+                int i = is.read();
+
+                out.write( i );
+
+                while ( i != -1 ){
+
+                    i = is.read();
+
+                    out.write( i );
+
+                }
+
+            } catch (Exception e){
+
+                e.printStackTrace();
+
+            }
+
+        }
+
+    }
 }
