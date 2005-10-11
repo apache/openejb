@@ -193,7 +193,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
             try{
                 System.out.println("[] STOP SERVER");
         
-                Socket socket = new Socket("localhost", 4201);
+                Socket socket = new Socket("localhost", 4200);
                 OutputStream out = socket.getOutputStream();
         
                 out.write( "Stop".getBytes() );
@@ -215,7 +215,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     private boolean connect(int tries) {
         //System.out.println("CONNECT "+ tries);
         try{
-            Socket socket = new Socket("localhost", 4201);
+            Socket socket = new Socket("localhost", 4200);
             OutputStream out = socket.getOutputStream();
         } catch (Exception e){
             //System.out.println(e.getMessage());
