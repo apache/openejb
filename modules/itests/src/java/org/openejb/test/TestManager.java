@@ -93,7 +93,7 @@ public class TestManager {
     private static void initServer(Properties props){
         try{
 
-            String className = (String)props.getProperty("openejb.test.server");
+            String className = props.getProperty("openejb.test.server");
             if (className == null) throw new IllegalArgumentException("Must specify a test server by setting its class name using the system property \"openejb.test.server\"");
             ClassLoader cl = getContextClassLoader();
             Class testServerClass = Class.forName( className, true, cl );
@@ -108,7 +108,7 @@ public class TestManager {
 
     private static void initDatabase(Properties props){
         try{
-            String className = (String)props.getProperty("openejb.test.database");
+            String className = props.getProperty("openejb.test.database");
             if (className == null) throw new IllegalArgumentException("Must specify a test database by setting its class name  using the system property \"openejb.test.database\"");
             ClassLoader cl = getContextClassLoader();
             Class testDatabaseClass = Class.forName( className , true, cl);

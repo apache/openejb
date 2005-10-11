@@ -34,7 +34,7 @@
 
       <ant:jar destfile="${basedir}/target/openejb-itests-client.jar"
               basedir="${basedir}/target/classes"
-              includes="org/openejb/test/**"
+              includes="org/openejb/test/**,META-INF/org.openejb.cli/*"
               excludes="**/*Bean.class,META-INF/*.xml"/>
   </postGoal>
 
