@@ -71,6 +71,7 @@ import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -234,9 +235,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
             // load the configuration
             kernel.loadGBean(config, cl);
+            kernel.startGBean(CONFIGURATION_OBJECT_NAME);
 
             // start the configuration
-            kernel.startRecursiveGBean(CONFIGURATION_OBJECT_NAME);
+            kernel.invoke(CONFIGURATION_OBJECT_NAME, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+            kernel.invoke(CONFIGURATION_OBJECT_NAME, "startRecursiveGBeans");
 
             assertRunning(kernel, CONFIGURATION_OBJECT_NAME);
             applicationClassLoader = (ClassLoader) kernel.getAttribute(CONFIGURATION_OBJECT_NAME, "configurationClassLoader");
