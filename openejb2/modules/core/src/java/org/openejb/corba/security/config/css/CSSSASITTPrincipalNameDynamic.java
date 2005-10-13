@@ -44,8 +44,6 @@
  */
 package org.openejb.corba.security.config.css;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Collections;
@@ -81,6 +79,10 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
         this.domain = domain;
     }
 
+    /**
+     * TODO should also use login domains?
+     * @return IdentityToken
+     */
     public IdentityToken encodeIdentityToken() {
 
         IdentityToken token = null;
@@ -96,7 +98,7 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
         if (principals.size() != 0) {
             for (Iterator iter = principals.iterator(); iter.hasNext();) {
                 RealmPrincipal p = (RealmPrincipal) iter.next();
-                if (p.getLoginDomain().equals(domain)) {
+                if (p.getRealm().equals(domain)) {
                     principal = p;
                     if (p instanceof PrimaryRealmPrincipal) break;
                 }
