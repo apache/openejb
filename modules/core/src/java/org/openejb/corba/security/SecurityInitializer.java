@@ -44,6 +44,7 @@
  */
 package org.openejb.corba.security;
 
+import java.security.Principal;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
@@ -142,7 +143,8 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
         String className = tokens[1];
         String principalName = tokens[2];
 
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(className, principalName, realm);
+        String loginDomain = null;
+        Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(className, principalName, loginDomain, realm);
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
