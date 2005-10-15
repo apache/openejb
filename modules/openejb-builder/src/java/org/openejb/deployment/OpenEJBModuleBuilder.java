@@ -73,6 +73,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanData;
@@ -307,6 +308,16 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         OpenejbOpenejbJarType openEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
         DependencyType[] dependencies = openEjbJar.getDependencyArray();
         ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
+
+        if (openEjbJar.isSetInverseClassloading()) {
+            earContext.setInverseClassloading(openEjbJar.getInverseClassloading());
+        }
+        
+        ClassFilterType[] filters = openEjbJar.getHiddenClassesArray();
+        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
+        
+        filters = openEjbJar.getNonOverridableClassesArray();
+        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
