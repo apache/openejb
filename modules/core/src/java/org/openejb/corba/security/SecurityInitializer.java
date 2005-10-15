@@ -56,7 +56,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -140,11 +139,11 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
 
         String[] tokens = argument.substring(19).split(":");
         String realm = tokens[0];
-        String className = tokens[1];
-        String principalName = tokens[2];
+        String domain = tokens[1];
+        String className = tokens[2];
+        String principalName = tokens[3];
 
-        String loginDomain = null;
-        Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(className, principalName, loginDomain, realm);
+        Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(className, principalName, realm, domain);
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }

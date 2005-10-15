@@ -85,7 +85,7 @@ public class SunORBConfigAdapter implements ConfigAdapter {
 
         DefaultPrincipal principal = config.getDefaultPrincipal();
         if (principal != null) {
-            list.add("default-principal::" + principal.getRealmName() + ":" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
+            list.add("default-principal::" + principal.getRealmName() + ":" + principal.getLoginDomain() + ":" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
         }
 
         if (log.isDebugEnabled()) {
