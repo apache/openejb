@@ -107,7 +107,7 @@
             username="system"
             password="manager"
             maxtries="125"
-            id="org/apache/geronimo/RuntimeDeployer"/>
+            id="org/apache/geronimo/JettyRuntimeDeployer"/>
         <echo message="runtime deployer has started"/>
         <u:sleep millis="7000"/>
         <deploy:distribute
