@@ -64,8 +64,8 @@ public class KernelHelper {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load((URI) DEFAULT_PARENTID_LIST.get(0));
-        kernel.startGBean(baseConfigName);
+        configurationManager.load((URI) DEFAULT_PARENTID_LIST.get(0));
+        configurationManager.start((URI) DEFAULT_PARENTID_LIST.get(0));
 
         return kernel;
     }
