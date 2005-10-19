@@ -90,6 +90,13 @@ public class StorageTests extends NamedTestCase {
         assertTrue(Arrays.equals(testdata, readblob));
     }
 
+    public void testChar() throws Exception {
+        char expectedChar = 'c';
+        storage.setChar(expectedChar);
+        char readChar = storage.getChar();
+        assertEquals(expectedChar, readChar);
+    }
+    
     protected void setUp() throws Exception {
         Properties properties = TestManager.getServer().getContextEnvironment();
         properties.put(Context.SECURITY_PRINCIPAL, "ENTITY_TEST_CLIENT");

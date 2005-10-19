@@ -81,7 +81,7 @@ public class DerbyTestDatabase extends AbstractTestDatabase {
 
     private static final String DROP_PRODUCT = "DROP TABLE product";
 
-    private static final String CREATE_STORAGE = "CREATE TABLE storage (id INTEGER, blob_column BLOB(2M))";
+    private static final String CREATE_STORAGE = "CREATE TABLE storage (id INTEGER, blob_column BLOB(2M), char_column CHAR(1))";
 
     private static final String DROP_STORAGE = "DROP TABLE storage";
 
