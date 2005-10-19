@@ -382,7 +382,13 @@ public abstract class SchemataBuilder {
                 pkFieldNames = new HashSet(fields.length);
                 for (int j = 0; j < fields.length; j++) {
                     Field field = fields[j];
+                    if (Modifier.isStatic(field.getModifiers())) {
+                        continue;
+                    }
                     pkFieldNames.add(field.getName());
+                }
+                if (0 == pkFieldNames.size()) {
+                    throw new DeploymentException("Invalid primary key class: ejbName=" + ejbName + " pkClass=" + pkClass);
                 }
             } else {
                 // specific field is primary key
@@ -693,6 +699,7 @@ public abstract class SchemataBuilder {
         LinkedHashMap pkToFkMapEJB = new LinkedHashMap();
         LinkedHashMap pkToFkMapTable = new LinkedHashMap();
         Table pkTable = mappedRoleInfo[0].table;
+        Table fkTable = mappedRoleInfo[1].table;
         EJB pkEJB = mappedRoleInfo[0].ejb;
         for (Iterator attIter = pkTable.getPrimaryKeyFields().iterator(); attIter.hasNext();) {
             Column att = (Column) attIter.next();
@@ -702,8 +709,16 @@ public abstract class SchemataBuilder {
                 throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: primary key column [" +
                         pkColumn + "] is not mapped to a foreign key.");
             }
-            pkToFkMapEJB.put(pkEJB.getAttribute(att.getName()), new FKField(fkColumn, att.getType()));
-            FKColumn column = new FKColumn(fkColumn, att.getType());
+            String fkColumnName = fkColumn;
+            for (Iterator iter = fkTable.getAttributes().iterator(); iter.hasNext();) {
+                Column column = (Column) iter.next();
+                if (column.getPhysicalName().equals(fkColumn)) {
+                    fkColumnName = column.getName();
+                    break;
+                }
+            }
+            pkToFkMapEJB.put(pkEJB.getAttribute(att.getName()), new FKField(fkColumnName, fkColumn, att.getType()));
+            FKColumn column = new FKColumn(fkColumnName, fkColumn, att.getType());
             if (att.isSQLTypeSet()) {
                 column.setSQLType(att.getSQLType());
             }
@@ -714,7 +729,6 @@ public abstract class SchemataBuilder {
         }
 
         EJB fkEJB = mappedRoleInfo[1].ejb;
-        Table fkTable = mappedRoleInfo[1].table;
         if (null != mtmEntityName) {
             fkEJB = ejbSchema.getEJB(mtmEntityName);
             if (null == fkEJB) {

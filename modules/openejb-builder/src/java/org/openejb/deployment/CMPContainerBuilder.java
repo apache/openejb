@@ -61,7 +61,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
-import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
@@ -351,9 +350,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
     private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessor) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
-
-        Table table = (Table) sqlSchema.getEntity(ejb.getName());
-        
         List attributes = ejb.getAttributes();
         List virtualAttributes = ejb.getVirtualCMPFields();
         LinkedHashMap cmpFieldAccessors = new LinkedHashMap(attributes.size());
@@ -365,9 +361,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             String name = attribute.getName();
             
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
-            String columnName = table.getAttribute(name).getPhysicalName();
-            AssociationEnd end = table.getAssociationEndDefiningFKAttribute(columnName);
-            if (null != end) {
+            if (null != ejb.getAssociationEndDefiningFKAttribute(name)) {
+                AssociationEnd end = ejb.getAssociationEndDefiningFKAttribute(name);
                 CMPFieldTransform cmrAccessor = (CMPFieldTransform) cmrFieldAccessor.get(end.getName());
 
                 Entity relatedEntity = end.getEntity();
@@ -380,7 +375,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                     for (Iterator iter = pkToFK.entrySet().iterator(); iter.hasNext();) {
                         Map.Entry entry = (Map.Entry) iter.next();
                         FKAttribute fkAttribute = (FKAttribute) entry.getValue();
-                        if (fkAttribute.getName().equals(columnName)) {
+                        if (fkAttribute.getName().equals(name)) {
                             accessor = new CMPFieldNestedRowAccessor(accessor, index);
                             break;
                         }
@@ -474,11 +469,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     private CMPFieldTransform buildCMRMappedToPKCMP(Entity entity, AssociationEnd end, CMPFieldTransform accessor, boolean owning, int cmrSlot) {
-        Table table = sqlSchema.getTable(entity.getName());
-        List pkFields = table.getPrimaryKeyFields();
+        List pkFields = entity.getPrimaryKeyFields();
         for (Iterator iter = pkFields.iterator(); iter.hasNext();) {
             Attribute pkField = (Attribute) iter.next();
-            if (end.hasFKAttribute(pkField.getPhysicalName())) {
+            if (end.hasFKAttribute(pkField.getName())) {
                 if (owning) {
                     return new CMRMappedToOwningPKCMP(accessor, cmrSlot);
                 }
