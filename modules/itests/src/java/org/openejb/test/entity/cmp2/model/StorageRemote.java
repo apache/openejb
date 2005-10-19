@@ -62,4 +62,7 @@ public interface StorageRemote extends EJBObject {
 
     public void setBytes(byte[] bytes) throws RemoteException;
     public byte[] getBytes() throws RemoteException;
+    
+    public char getChar() throws RemoteException;
+    public void setChar(char value) throws RemoteException;
 }

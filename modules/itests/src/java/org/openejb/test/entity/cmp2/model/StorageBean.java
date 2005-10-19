@@ -47,20 +47,19 @@
  */
 package org.openejb.test.entity.cmp2.model;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
+
 import javax.ejb.CreateException;
+import javax.ejb.EJBException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
-import javax.ejb.EJBException;
-import javax.sql.DataSource;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 /**
  * @version $Revision$ $Date$
@@ -74,6 +73,9 @@ public abstract class StorageBean implements EntityBean {
 
     public abstract byte[] getBlob();
     public abstract void setBlob(byte[] blob);
+
+    public abstract char getChar();
+    public abstract void setChar(char value);
 
     public void setBytes(byte[] bytes) {
         try {
