@@ -68,6 +68,11 @@ public class ServerPolicy extends LocalObject implements Policy {
         this.classloader = config.getClassloader();
     }
 
+    protected ServerPolicy(TSSConfig config, ClassLoader classLoader) {
+         this.TSSConfig = config;
+         this.classloader = classLoader;
+    }
+
     public TSSConfig getConfig() {
         return TSSConfig;
     }
@@ -84,7 +89,7 @@ public class ServerPolicy extends LocalObject implements Policy {
     }
 
     public Policy copy() {
-        return null;
+        return new ServerPolicy(TSSConfig, classloader);
     }
 
     public static class Config implements Serializable {
