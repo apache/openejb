@@ -76,6 +76,6 @@ public class ClientPolicy extends LocalObject implements Policy {
     }
 
     public Policy copy() {
-        return null;
+        return new ClientPolicy(config);
     }
 }
