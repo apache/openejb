@@ -174,7 +174,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     return;
                 */
             } catch (Throwable t) {
-                replyWithFatalError(out, t, "Unkown error occured while retrieving deployment");
+                replyWithFatalError(out, t, "unknown error occured while retrieving deployment");
                 return;
             }
 
@@ -259,7 +259,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 // aggressive actions to attempt recovery.
                 log.fatal(req + ": OpenEJB encountered an unknown system error in container: ", e);
             } catch (Throwable t) {
-                //System.out.println(req+": Unkown error in container: ");
+                //System.out.println(req+": unknown error in container: ");
                 replyWithFatalError(out, t, "Unknown error in container");
                 return;
             } finally {

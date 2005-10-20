@@ -70,7 +70,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
     * The registryId is a logical identifier that is used as a key when placing EntityEJBObjectHandler into
     * the BaseEjbProxyHanlder's liveHandleRegistry.  EntityEJBObjectHandlers that represent the same
     * bean identity (keyed by the registry id) will be stored together so that they can be removed together
-    * when the EJBInvocationHandler.invalidateAllHandlers is invoked. The EntityEJBObjectHandler uses a 
+    * when the EJBInvocationHandler.invalidateAllHandlers is invoked. The EntityEJBObjectHandler uses a
     * compound key composed of the entity bean's primary key, deployment id, and
     * container id.  This uniquely identifies the bean identity that is proxied by this handler allowing it
     * to be removed with other handlers bound to the same registry id.
@@ -81,7 +81,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
     EJBHomeProxy ejbHome = null;
 
     // new Class []{javax.ejb.EntityContext.class}
-        
+
     public EJBObjectHandler() {
     }
 
@@ -150,7 +150,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
          * This section is to be replaced by a more appropriate solution.
          * This code is very temporary.
          */
-        
+
         try {
 
             String methodName = m.getName();
@@ -165,7 +165,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
                 } else if (m.equals(HASHCODE)) {
                     return new Integer(this.hashCode());
                 } else {
-                    throw new UnsupportedOperationException("Unkown method: " + m);
+                    throw new UnsupportedOperationException("unknown method: " + m);
                 }
             } else if (m.getDeclaringClass() == EJBObjectProxy.class) {
                 if (m.equals(GETHANDLER)) {
@@ -176,7 +176,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
                     //TODO
                     // Maybe turn this into Externalizable
                 } else {
-                    throw new UnsupportedOperationException("Unkown method: " + m);
+                    throw new UnsupportedOperationException("unknown method: " + m);
                 }
             } else if (m.getDeclaringClass() == javax.ejb.EJBObject.class) {
                 if (m.equals(GETHANDLE)) {
@@ -190,12 +190,12 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
                 } else if (m.equals(REMOVE)) {
                     retValue = remove(m, a, p);
                 } else {
-                    throw new UnsupportedOperationException("Unkown method: " + m);
+                    throw new UnsupportedOperationException("unknown method: " + m);
                 }
             } else if (m.getDeclaringClass().isAssignableFrom(ejb.remoteClass)) {
                 retValue = businessMethod(m, a, p);
             } else {
-                throw new UnsupportedOperationException("Unkown method: " + m);
+                throw new UnsupportedOperationException("unknown method: " + m);
             }
 
 
@@ -247,7 +247,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
     protected Object businessMethod(Method method, Object[] args, Object proxy) throws Throwable {
 //      checkAuthorization(method);
 //      return container.invoke(deploymentID, method, args, primaryKey, getThreadSpecificSecurityIdentity());
-        
+
         EJBRequest req = new EJBRequest(EJB_OBJECT_BUSINESS_METHOD);
 
         req.setMethodParameters(args);
@@ -258,7 +258,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
         req.setPrimaryKey(primaryKey);
 
         EJBResponse res = request(req);
-  
+
 //        if (method.getName().equals("test36_returnEJBHome2")) {
 //          System.out.println("\n\n----------------------------------------------------------");
 //          System.out.println(method.getName());

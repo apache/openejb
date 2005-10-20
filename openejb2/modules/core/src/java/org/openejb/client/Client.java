@@ -74,7 +74,7 @@ public class Client {
             } catch (IOException e){
                 throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" Exception: ", e );
             } catch (Throwable e){
-                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to an unkown exception in the OpenEJB client: ", e );
+                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to an unknown exception in the OpenEJB client: ", e );
             }
 
             /*----------------------------------*/
