@@ -214,7 +214,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                             return Util.writeUserException(method, reply, e);
                         }
                     } else {
-                        throw new UnsupportedOperationException("Unkown method: " + method);
+                        throw new UnsupportedOperationException("unknown method: " + method);
                     }
                 } else if (method.getDeclaringClass() == javax.ejb.EJBHome.class) {
                    if (method.equals(GETEJBMETADATA)) {
@@ -263,7 +263,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                             return Util.writeUserException(method, reply, e);
                         }
                     } else {
-                        throw new UnsupportedOperationException("Unkown method: " + method);
+                        throw new UnsupportedOperationException("unknown method: " + method);
                     }
                 } else {
                     // create the invocation object

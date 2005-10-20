@@ -53,11 +53,11 @@ import javax.naming.*;
 import javax.naming.spi.InitialContextFactory;
 /**
  * JNDI client
- * 
+ *
  * @since 11/25/2001
  */
 public class JNDIContext implements Serializable, InitialContextFactory, Context, RequestMethods, ResponseCodes {
-    
+
     private transient String tail = "/";
     private transient ServerMetaData server;
     private transient Hashtable env;
@@ -66,7 +66,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      * Constructs this JNDI context for the client.
      *
      * Opens a socket connection with the NamingServer.
-     * Initializes object output/input streams for writing/reading 
+     * Initializes object output/input streams for writing/reading
      * objects with the naming server.
      * Authenticates the user's information with the NamingServer
      *
@@ -79,12 +79,12 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     public JNDIContext(){
     }
-    
+
     /*
      * A neater version of clone
      */
     public JNDIContext(JNDIContext that){
-        this.tail   = that.tail;    
+        this.tail   = that.tail;
         this.server = that.server;
         this.env    = (Hashtable)that.env.clone();
     }
@@ -93,7 +93,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      * Initializes this JNDI context for the client.
      *
      * Opens a socket connection with the NamingServer.
-     * Initializes object output/input streams for writing/reading 
+     * Initializes object output/input streams for writing/reading
      * objects with the naming server.
      * Authenticates the user's information with the NamingServer
      *
@@ -123,7 +123,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     //-------------------------------------------------------------//
     //  InitialContextFactory implementation                       //
     //-------------------------------------------------------------//
-    
+
     /**
       * Creates an Initial Context for beginning name resolution.
       * Special requirements of this context are supplied
@@ -134,7 +134,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
       * to it, although it may keep a reference to a clone or copy.
       *
       * @param environment The possibly null environment
-      * 		specifying information to be used in the creation 
+      * 		specifying information to be used in the creation
       * 		of the initial context.
       * @return A non-null initial context object that implements the Context
       *		interface.
@@ -153,7 +153,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 //        if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
 //        if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
         if (serverURL == null) throw new ConfigurationException("Context property cannot be null: "+Context.PROVIDER_URL);
-        
+
         URL url;
         if ( serverURL instanceof String ) {
             try {
@@ -167,23 +167,23 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         } else {
             throw new ConfigurationException("Invalid provider URL: "+serverURL);
         }
-        
+
         try {
             server = new ServerMetaData();
             server.address = InetAddress.getByName( url.getHost() );
             server.port    = url.getPort();
         } catch (UnknownHostException  e){
-            throw new ConfigurationException("Invalid provider URL:"+serverURL+": host unkown: "+e.getMessage());
+            throw new ConfigurationException("Invalid provider URL:"+serverURL+": host unknown: "+e.getMessage());
         }
-        
-        //TODO:1: Either aggressively initiate authentication or wait for the 
+
+        //TODO:1: Either aggressively initiate authentication or wait for the
         //        server to send us an authentication challange.
         authenticate(userID, psswrd);
 
         return this;
     }
-    
-    
+
+
     public void authenticate(String userID, String psswrd) throws javax.naming.AuthenticationException{
         // TODO:1: Skip this if the identity hasn't been changed and
         // the user already has been authenticated.
@@ -195,7 +195,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         } catch (java.rmi.RemoteException e) {
             throw new javax.naming.AuthenticationException(e.getLocalizedMessage());
         }
-        
+
         switch (res.getResponseCode()) {
             case AUTH_REDIRECT:
                 server = res.getServer();
@@ -204,22 +204,22 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
                 throw new javax.naming.AuthenticationException("This principle is not authorized.");
         }
     }
-    
+
     // Construct a new handler and proxy.
     public EJBHomeProxy createEJBHomeProxy(EJBMetaDataImpl ejbData){
-        
+
         EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejbData, server);
         EJBHomeProxy proxy = handler.createEJBHomeProxy();
         handler.ejb.ejbHomeProxy = proxy;
-        
+
         return proxy;
-    
+
     }
-    
+
     //-------------------------------------------------------------//
     // Context implementation                                      //
     //-------------------------------------------------------------//
-    
+
     //----------------------------------------------------------------------//
     //   Supportted methods                                                 //
     //----------------------------------------------------------------------//
@@ -243,25 +243,25 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
             case JNDI_EJBHOME:
                 // Construct a new handler and proxy.
                 return createEJBHomeProxy( (EJBMetaDataImpl)res.getResult() );
-            
-            case JNDI_OK:    
+
+            case JNDI_OK:
                 return res.getResult();
-            
+
             case JNDI_CONTEXT:
                 JNDIContext subCtx = new JNDIContext(this);
                 if (!name.endsWith("/")) name += '/';
                 subCtx.tail = name;
                 return subCtx;
-            
-            case JNDI_NOT_FOUND:    
+
+            case JNDI_NOT_FOUND:
                 throw new NameNotFoundException(name + " not found");
-            
+
             case JNDI_NAMING_EXCEPTION:
                 throw (NamingException) res.getResult();
-            
+
             case JNDI_RUNTIME_EXCEPTION:
                 throw (RuntimeException) res.getResult();
-            
+
             case JNDI_ERROR:
                 throw (Error) res.getResult();
             default:

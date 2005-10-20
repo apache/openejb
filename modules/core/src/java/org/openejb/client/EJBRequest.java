@@ -251,9 +251,9 @@ public class EJBRequest implements Request {
         readRequestMethod(in);
 
         readContainerId(in);
-        
+
         readClientIdentity(in);
-        
+
         readPrimaryKey(in);
 
         readMethod(in);
@@ -267,7 +267,7 @@ public class EJBRequest implements Request {
         try {
             methodInstance = methodClass.getDeclaredMethod(methodName, methodParamTypes);
         } catch (NoSuchMethodException nsme) {
-            throw (IOException)new IOException("Invalid EJB request data.").initCause(nsme); 
+            throw (IOException)new IOException("Invalid EJB request data.").initCause(nsme);
         }
     }
 
@@ -394,7 +394,7 @@ public class EJBRequest implements Request {
                     out.writeShort(shortvalue);
 
                 } else {
-                    throw new IOException("Unkown primitive type: " + type);
+                    throw new IOException("unknown primitive type: " + type);
                 }
             } else {
                 if (obj instanceof PortableRemoteObject && obj instanceof Remote) {
@@ -491,7 +491,7 @@ public class EJBRequest implements Request {
                 }
                 break;
             default:
-                throw new IOException("Unkown data type: " + type);
+                throw new IOException("unknown data type: " + type);
             }
 
             types[i] = clazz;

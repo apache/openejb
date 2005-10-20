@@ -98,9 +98,9 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
         return null;
 
     }
-    
+
 //    protected abstract EJBObjectHandler newEJBObjectHandler();
-    
+
     public EJBHomeProxy createEJBHomeProxy() {
         Class[] interfaces = new Class[]{EJBHomeProxy.class, ejb.homeClass};
         return (EJBHomeProxy) ProxyManager.newProxyInstance(interfaces, this, ejb.homeClass.getClassLoader());
@@ -124,7 +124,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
                     //TODO
                     // Maybe turn this into Externalizable
                 } else {
-                    throw new UnsupportedOperationException("Unkown method: " + method);
+                    throw new UnsupportedOperationException("unknown method: " + method);
                 }
             } else if (method.getDeclaringClass() == EJBHomeProxy.class) {
                 if (method.equals(GETHANDLER)) {
@@ -133,10 +133,10 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
                     return new EJBHomeProxyHandle(this);
                 } else if (methodName.equals("readResolve")) {
                     //TODO
-                    throw new UnsupportedOperationException("Unkown method: " + method);
+                    throw new UnsupportedOperationException("unknown method: " + method);
                     // Maybe turn this into Externalizable
                 } else {
-                    throw new UnsupportedOperationException("Unkown method: " + method);
+                    throw new UnsupportedOperationException("unknown method: " + method);
                 }
             }
             /*-------------------------------------------------------*/
@@ -175,10 +175,10 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
             } else if (method.getDeclaringClass() == ejb.homeClass) {
                 return homeMethod(method, args, proxy);
 
-                /*-- UNKOWN ---------------------------------------------*/
+                /*-- unknown ---------------------------------------------*/
             } else {
 
-                throw new UnsupportedOperationException("Unkown method: " + method);
+                throw new UnsupportedOperationException("unknown method: " + method);
 
             }
             //TODO:1: Catch this in the server-side and return an OpenEJB specific
@@ -192,9 +192,9 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
     }
 
     /*-------------------------------------------------*/
-    /*  Home interface methods                         */  
+    /*  Home interface methods                         */
     /*-------------------------------------------------*/
-    
+
     /**
      * <P>
      * Creates a new EJBObject and returns it to the
@@ -264,7 +264,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
     protected abstract Object findX(Method method, Object[] args, Object proxy) throws Throwable;
 
     /*-------------------------------------------------*/
-    /*  EJBHome methods                                */  
+    /*  EJBHome methods                                */
     /*-------------------------------------------------*/
 
     /**

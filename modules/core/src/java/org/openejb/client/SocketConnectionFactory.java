@@ -43,7 +43,7 @@
  * $Id$
  */
 package org.openejb.client;
- 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,24 +52,24 @@ import java.net.Socket;
 import java.util.Properties;
 
 /**
- * 
+ *
  */
 public class SocketConnectionFactory implements ConnectionFactory{
 
     /**
      * Prepares the ConnectionFactory for use.  Called once right after
      * the ConnectionFactory is instantiated.
-     * 
+     *
      * @param props
      */
     public void init(Properties props) {
     }
 
-    
+
     /**
      * Get a connection from the factory
-     * 
-     * @return 
+     *
+     * @return
      * @exception java.io.IOException
      */
     public Connection getConnection(ServerMetaData server) throws java.io.IOException {
@@ -79,14 +79,14 @@ public class SocketConnectionFactory implements ConnectionFactory{
     }
 
     /**
-     * 
+     *
      */
     class SocketConnection implements Connection{
-        
+
         Socket       socket    = null;
-        OutputStream socketOut = null;        
-        InputStream  socketIn  = null;        
-    
+        OutputStream socketOut = null;
+        InputStream  socketIn  = null;
+
         protected void open(ServerMetaData server) throws IOException {
             /*-----------------------*/
             /* Open socket to server */
@@ -96,16 +96,16 @@ public class SocketConnectionFactory implements ConnectionFactory{
                 socket.setTcpNoDelay(true);
             } catch (IOException e){
                 throw new IOException("Cannot access server: "+server.address+":"+server.port+" Exception: "+ e.getClass().getName() +" : "+ e.getMessage());
-            
+
             } catch (SecurityException e){
                 throw new IOException("Cannot access server: "+server.address+":"+server.port+" due to security restrictions in the current VM: "+ e.getClass().getName() +" : "+ e.getMessage());
-            
+
             } catch (Throwable e){
-                throw new IOException("Cannot access server: "+server.address+":"+server.port+" due to an unkown exception in the OpenEJB client: "+ e.getClass().getName() +" : "+ e.getMessage());
+                throw new IOException("Cannot access server: "+server.address+":"+server.port+" due to an unknown exception in the OpenEJB client: "+ e.getClass().getName() +" : "+ e.getMessage());
             }
-            
+
         }
-    
+
         public void close() throws IOException {
             try {
                 if (socketOut != null) socketOut.close();
@@ -115,7 +115,7 @@ public class SocketConnectionFactory implements ConnectionFactory{
                 throw new IOException("Error closing connection with server: "+t.getMessage() );
             }
         }
-    
+
         public InputStream getInputStream() throws IOException {
             /*----------------------------------*/
             /* Open input streams               */
@@ -124,16 +124,16 @@ public class SocketConnectionFactory implements ConnectionFactory{
                 socketIn = socket.getInputStream();
             } catch (StreamCorruptedException e){
                 throw new IOException("Cannot open input stream to server, the stream has been corrupted: " + e.getClass().getName() +" : "+ e.getMessage());
-    
+
             } catch (IOException e){
                 throw new IOException("Cannot open input stream to server: " + e.getClass().getName() +" : "+ e.getMessage());
-    
+
             } catch (Throwable e){
                 throw new IOException("Cannot open output stream to server: " + e.getClass().getName() +" : "+ e.getMessage());
-            } 
+            }
             return socketIn;
         }
-        
+
         public OutputStream getOuputStream() throws IOException {
             /*----------------------------------*/
             /* Openning output streams          */
@@ -142,13 +142,13 @@ public class SocketConnectionFactory implements ConnectionFactory{
                 socketOut = socket.getOutputStream();
             } catch (IOException e){
                 throw new IOException("Cannot open output stream to server: "+ e.getClass().getName() +" : "+ e.getMessage());
-            
+
             } catch (Throwable e){
                 throw new IOException("Cannot open output stream to server: "+ e.getClass().getName() +" : "+ e.getMessage());
-            } 
+            }
             return socketOut;
         }
-    
+
     }
 }
 
