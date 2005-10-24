@@ -72,7 +72,7 @@ public class CglibEJBProxyFactory {
         this(superClass, new Class[]{clientInterface}, classLoader);
     }
 
-    
+
     public CglibEJBProxyFactory(Class superClass, Class[] clientInterfaces, ClassLoader classLoader) {
         assert superClass != null && !superClass.isInterface();
         assert clientInterfaces != null;
@@ -136,6 +136,29 @@ public class CglibEJBProxyFactory {
                 return 1;
             }
         }
+
+        public boolean equals(Object other) {
+            if (other == null) {
+                return false;
+            }
+            if (other == this) {
+                return true;
+            }
+
+            NoOverrideCallbackFilter otherFilter = null;
+            if (other instanceof NoOverrideCallbackFilter) {
+                otherFilter = (NoOverrideCallbackFilter) other;
+            } else {
+                return false;
+            }
+
+            return superClass.equals(otherFilter.superClass);
+        }
+
+        public int hashCode() {
+            return superClass.hashCode();
+        }
+         
     }
 }
 
