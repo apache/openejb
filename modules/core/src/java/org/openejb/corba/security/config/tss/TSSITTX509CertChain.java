@@ -61,9 +61,11 @@ public class TSSITTX509CertChain extends TSSSASIdentityToken {
 
     public static final String OID = "";
     private final String realmName;
+    private final String domainName;
 
-    public TSSITTX509CertChain(String realmName) {
+    public TSSITTX509CertChain(String realmName, String domainName) {
         this.realmName = realmName;
+        this.domainName = domainName;
     }
 
     public short getType() {

@@ -51,7 +51,7 @@
     targetNamespace="http://www.openejb.org/xml/ns/corba-tss-config-2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.1"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
@@ -276,6 +276,7 @@
         <!--        </xsd:complexContent>-->
         <xsd:sequence/>
         <xsd:attribute name="realm-name"  type="xsd:string"/>
+        <xsd:attribute name="domain-name"  type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:complexType name="ITTDistinguishedNameType">
@@ -284,6 +285,7 @@
 <!--        </xsd:complexContent>-->
         <xsd:sequence/>
         <xsd:attribute name="realm-name"  type="xsd:string"/>
+        <xsd:attribute name="domain-name"  type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:complexType name="ITTX509CertChainType">
@@ -292,6 +294,7 @@
 <!--        </xsd:complexContent>-->
         <xsd:sequence/>
         <xsd:attribute name="realm-name"  type="xsd:string"/>
+        <xsd:attribute name="domain-name"  type="xsd:string"/>
     </xsd:complexType>
 
 </xsd:schema>

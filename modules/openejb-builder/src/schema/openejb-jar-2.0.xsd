@@ -50,7 +50,7 @@
     xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     targetNamespace="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
-    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.1"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.0"
     xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen-2.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -59,7 +59,7 @@
     version="1.0">
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.0" schemaLocation="geronimo-security-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.1" schemaLocation="geronimo-security-1.1.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.0" schemaLocation="geronimo-config-1.0.xsd"/>
     <xs:import namespace="http://www.openejb.org/xml/ns/pkgen-2.0" schemaLocation="openejb-pkgen-2.0.xsd"/>
 
