@@ -51,14 +51,18 @@ import java.security.Principal;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.geronimo.security.PrimaryRealmPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.omg.CORBA.Any;
 import org.omg.CSI.ITTDistinguishedName;
 import org.omg.CSI.IdentityToken;
 import org.omg.CSI.X501DistinguishedNameHelper;
 import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.IOP.CodecPackage.TypeMismatch;
+
+import org.apache.geronimo.security.DomainPrincipal;
+import org.apache.geronimo.security.PrimaryDomainPrincipal;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
+
 import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
@@ -70,9 +74,11 @@ public class TSSITTDistinguishedName extends TSSSASIdentityToken {
 
     public static final String OID = "";
     private final String realmName;
+    private final String domainName;
 
-    public TSSITTDistinguishedName(String realmName) {
+    public TSSITTDistinguishedName(String realmName, String domainName) {
         this.realmName = realmName;
+        this.domainName = domainName;
     }
 
     public short getType() {
@@ -93,14 +99,27 @@ public class TSSITTDistinguishedName extends TSSSASIdentityToken {
         } catch (TypeMismatch typeMismatch) {
             throw new SASException(1, typeMismatch);
         }
+
         byte[] principalNameBytes = X501DistinguishedNameHelper.extract(any);
         X500Principal x500Principal = new X500Principal(principalNameBytes);
-        Principal realmPrincipal = new RealmPrincipal(realmName, x500Principal);
-        Principal primaryRealmPrincipal = new PrimaryRealmPrincipal(realmName, x500Principal);
+        Principal principal = null;
+        Principal primaryPrincipal = null;
+
+        if (realmName != null && domainName != null) {
+            principal = new RealmPrincipal(realmName, domainName, x500Principal);
+            primaryPrincipal = new PrimaryRealmPrincipal(realmName, domainName, x500Principal);
+        } else if (domainName != null) {
+            principal = new DomainPrincipal(domainName, x500Principal);
+            primaryPrincipal = new PrimaryDomainPrincipal(domainName, x500Principal);
+        }
+
         Subject subject = new Subject();
         subject.getPrincipals().add(x500Principal);
-        subject.getPrincipals().add(realmPrincipal);
-        subject.getPrincipals().add(primaryRealmPrincipal);
+        if (principal != null) {
+            subject.getPrincipals().add(principal);
+            subject.getPrincipals().add(primaryPrincipal);
+        }
+
         return subject;
     }
 }

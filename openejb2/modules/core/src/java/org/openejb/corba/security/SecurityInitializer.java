@@ -54,8 +54,13 @@ import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.omg.PortableInterceptor.ORBInitializer;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.DomainPrincipal;
+import org.apache.geronimo.security.PrimaryDomainPrincipal;
+import org.apache.geronimo.security.PrimaryPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -65,6 +70,9 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 public class SecurityInitializer extends LocalObject implements ORBInitializer {
 
     private final Log log = LogFactory.getLog(SecurityInitializer.class);
+    public final static String DEFAULT_REALM_PRINCIPAL = "default-realm-principal::";
+    public final static String DEFAULT_DOMAIN_PRINCIPAL = "default-domain-principal::";
+    public final static String DEFAULT_PRINCIPAL = "default-principal::";
 
     public SecurityInitializer() {
         if (log.isDebugEnabled()) log.debug("SecurityInitializer.<init>");
@@ -110,7 +118,13 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
             String[] strings = info.arguments();
             for (int i = 0; i < strings.length; i++) {
                 String arg = strings[i];
-                if (arg.startsWith("default-principal::")) {
+                if (arg.startsWith(DEFAULT_REALM_PRINCIPAL)) {
+                    defaultSubject = generateDefaultRealmSubject(arg);
+                    break;
+                } else if (arg.startsWith(DEFAULT_DOMAIN_PRINCIPAL)) {
+                    defaultSubject = generateDefaultDomainSubject(arg);
+                    break;
+                } else if (arg.startsWith(DEFAULT_PRINCIPAL)) {
                     defaultSubject = generateDefaultSubject(arg);
                     break;
                 }
@@ -134,22 +148,30 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
         }
     }
 
-    private Subject generateDefaultSubject(String argument) {
+    private Subject generateDefaultRealmSubject(String argument) {
         Subject defaultSubject = new Subject();
 
-        String[] tokens = argument.substring(19).split(":");
+        String[] tokens = argument.substring(DEFAULT_REALM_PRINCIPAL.length()).split(":");
+        if (tokens.length != 4) throw new GeronimoSecurityException("Unable to create primary realm principal");
+
         String realm = tokens[0];
         String domain = tokens[1];
         String className = tokens[2];
         String principalName = tokens[3];
 
-        Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(className, principalName, realm, domain);
+        if (realm.length() == 0 || domain.length() == 0 || className.length() == 0 || principalName.length() == 0) {
+            throw new GeronimoSecurityException("Unable to create primary realm principal");
+        }
+
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(realm, domain, className, principalName);
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(className, principalName, realm);
-        if (primaryRealmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create primary realm principal");
+        PrimaryRealmPrincipal primaryRealmPrincipal = null;
+        try {
+            primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(realm, domain, className, principalName);
+        } catch (DeploymentException e) {
+            throw new GeronimoSecurityException("Unable to create primary realm principal", e);
         }
 
         defaultSubject.getPrincipals().add(realmPrincipal);
@@ -157,4 +179,66 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
 
         return defaultSubject;
     }
+
+    private Subject generateDefaultDomainSubject(String argument) {
+        Subject defaultSubject = new Subject();
+
+        String[] tokens = argument.substring(DEFAULT_DOMAIN_PRINCIPAL.length()).split(":");
+        if (tokens.length != 3) throw new GeronimoSecurityException("Unable to create primary domain principal");
+
+        String realm = tokens[0];
+        String className = tokens[1];
+        String principalName = tokens[2];
+
+        if (realm.length() == 0 || className.length() == 0 || principalName.length() == 0) {
+            throw new GeronimoSecurityException("Unable to create primary domain principal");
+        }
+
+        DomainPrincipal domainPrincipal = ConfigurationUtil.generateDomainPrincipal(realm, className, principalName);
+        if (domainPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create domain principal");
+        }
+        PrimaryDomainPrincipal primaryDomainPrincipal = null;
+        try {
+            primaryDomainPrincipal = ConfigurationUtil.generatePrimaryDomainPrincipal(realm, className, principalName);
+        } catch (DeploymentException e) {
+            throw new GeronimoSecurityException("Unable to create primary domain principal", e);
+        }
+
+        defaultSubject.getPrincipals().add(domainPrincipal);
+        defaultSubject.getPrincipals().add(primaryDomainPrincipal);
+
+        return defaultSubject;
+    }
+
+    private Subject generateDefaultSubject(String argument) {
+        Subject defaultSubject = new Subject();
+
+        String[] tokens = argument.substring(DEFAULT_PRINCIPAL.length()).split(":");
+        if (tokens.length != 2) throw new GeronimoSecurityException("Unable to create primary principal");
+
+        String className = tokens[0];
+        String principalName = tokens[1];
+
+        if (className.length() == 0 || principalName.length() == 0) {
+            throw new GeronimoSecurityException("Unable to create primary principal");
+        }
+
+        Principal domainPrincipal = ConfigurationUtil.generatePrincipal(className, principalName);
+        if (domainPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create principal");
+        }
+        PrimaryPrincipal primaryDomainPrincipal = null;
+        try {
+            primaryDomainPrincipal = ConfigurationUtil.generatePrimaryPrincipal(className, principalName);
+        } catch (DeploymentException e) {
+            throw new GeronimoSecurityException("Unable to create primary principal", e);
+        }
+
+        defaultSubject.getPrincipals().add(domainPrincipal);
+        defaultSubject.getPrincipals().add(primaryDomainPrincipal);
+
+        return defaultSubject;
+    }
+
 }

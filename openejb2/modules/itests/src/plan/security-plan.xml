@@ -44,7 +44,7 @@ Configuration for the CORBA server.
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">public-properties-realm</attribute>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>org/apache/geronimo/Security</module><name>JaasLoginService</name></reference>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">
                 <lc:login-module control-flag="REQUIRED" server-side="true">
@@ -61,7 +61,7 @@ Configuration for the CORBA server.
            class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">public</attribute>
         <attribute name="realmName">public-properties-realm</attribute>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>org/apache/geronimo/Security</module><name>JaasLoginService</name></reference>
     </gbean>
 
     <!-- secret internal auditing security realm -->
@@ -80,7 +80,7 @@ Configuration for the CORBA server.
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">black-properties-realm</attribute>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>org/apache/geronimo/Security</module><name>JaasLoginService</name></reference>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">
                 <lc:login-module-ref control-flag="REQUIRED">
@@ -94,7 +94,7 @@ Configuration for the CORBA server.
            class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">black</attribute>
         <attribute name="realmName">black-properties-realm</attribute>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>org/apache/geronimo/Security</module><name>JaasLoginService</name></reference>
     </gbean>
 
     <gbean name="org/openejb/Itests" class="org.openejb.corba.TSSBean">

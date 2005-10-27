@@ -139,8 +139,8 @@ public class TSSConfigEditorTest extends TestCase {
                                              "            iiop.TransportServerInitializerClass=org.openorb.orb.ssl.SSLTransportServerInitializer\n" +
                                              "\n" +
                                              "            secure.server.allowUnsecure=false";
-    private static final String TEST_XML4 = "            <tss:tss xmlns:tss=\"http://www.openejb.org/xml/ns/corba-tss-config-2.0\" xmlns:sec=\"http://geronimo.apache.org/xml/ns/security-1.0\">\n" +
-                                            "                <tss:default-principal realm-name=\"public-properties-realm\">\n" +
+    private static final String TEST_XML4 = "            <tss:tss xmlns:tss=\"http://www.openejb.org/xml/ns/corba-tss-config-2.0\" xmlns:sec=\"http://geronimo.apache.org/xml/ns/security-1.1\">\n" +
+                                            "                <tss:default-principal>\n" +
                                             "                    <sec:principal class=\"org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal\" name=\"guest\"/>\n" +
                                             "                </tss:default-principal>\n" +
                                             "                <tss:SSL port=\"6685\" hostname=\"localhost\">\n" +
@@ -151,7 +151,7 @@ public class TSSConfigEditorTest extends TestCase {
                                             "                    <tss:compoundSecMech>\n" +
                                             "                        <tss:GSSUP targetName=\"geronimo-properties-realm\"/>\n" +
                                             "                        <tss:sasMech>\n" +
-                                            "                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP realm-name=\"foo\"/><tss:ITTDistinguishedName realm-name=\"foo\"/><tss:ITTX509CertChain realm-name=\"foo\"/></tss:identityTokenTypes>\n" +
+                                            "                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP domain-name=\"foo\"/><tss:ITTDistinguishedName domain-name=\"foo\"/><tss:ITTX509CertChain domain-name=\"foo\"/></tss:identityTokenTypes>\n" +
                                             "                        </tss:sasMech>\n" +
                                             "                    </tss:compoundSecMech>\n" +
                                             "                </tss:compoundSecMechTypeList>\n" +

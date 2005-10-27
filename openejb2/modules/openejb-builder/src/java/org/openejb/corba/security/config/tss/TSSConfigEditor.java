@@ -47,6 +47,8 @@ package org.openejb.corba.security.config.tss;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.omg.CSIIOP.CompositeDelegation;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.DetectMisordering;
@@ -57,8 +59,6 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.NoDelegation;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.SimpleDelegation;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
@@ -78,8 +78,8 @@ import org.openejb.xbeans.csiv2.tss.TSSGssExportedNameType;
 import org.openejb.xbeans.csiv2.tss.TSSIdentityTokenTypeList;
 import org.openejb.xbeans.csiv2.tss.TSSSSLType;
 import org.openejb.xbeans.csiv2.tss.TSSSasMechType;
-import org.openejb.xbeans.csiv2.tss.TSSTssType;
 import org.openejb.xbeans.csiv2.tss.TSSTssDocument;
+import org.openejb.xbeans.csiv2.tss.TSSTssType;
 
 
 /**
@@ -125,7 +125,6 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
             DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
             GerDefaultPrincipalType defaultPrincipalType = tss.getDefaultPrincipal();
 
-            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName().trim());
             defaultPrincipal.setPrincipal(SecurityBuilder.buildPrincipal(defaultPrincipalType.getPrincipal()));
 
             tssConfig.setDefaultPrincipal(defaultPrincipal);
@@ -220,16 +219,28 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
                 sasMechConfig.addIdentityToken(new TSSITTAnonymous());
             }
             if (identityTokenTypes.isSetITTPrincipalNameGSSUP()) {
-                String realmName = identityTokenTypes.getITTPrincipalNameGSSUP().getRealmName().trim();
-                sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP(realmName));
+                String realmName = identityTokenTypes.getITTPrincipalNameGSSUP().getRealmName();
+                String domainName = identityTokenTypes.getITTPrincipalNameGSSUP().getDomainName();
+
+                realmName = (realmName == null ? "" : realmName.trim());
+                domainName = (domainName == null ? "" : domainName.trim());
+                sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP(realmName, domainName));
             }
             if (identityTokenTypes.isSetITTDistinguishedName()) {
-                String realmName = identityTokenTypes.getITTDistinguishedName().getRealmName().trim();
-                sasMechConfig.addIdentityToken(new TSSITTDistinguishedName(realmName));
+                String realmName = identityTokenTypes.getITTDistinguishedName().getRealmName();
+                String domainName = identityTokenTypes.getITTDistinguishedName().getDomainName();
+
+                realmName = (realmName == null ? "" : realmName.trim());
+                domainName = (domainName == null ? "" : domainName.trim());
+                sasMechConfig.addIdentityToken(new TSSITTDistinguishedName(realmName, domainName));
             }
             if (identityTokenTypes.isSetITTX509CertChain()) {
-                String realmName = identityTokenTypes.getITTX509CertChain().getRealmName().trim();
-                sasMechConfig.addIdentityToken(new TSSITTX509CertChain(realmName));
+                String realmName = identityTokenTypes.getITTX509CertChain().getRealmName();
+                String domainName = identityTokenTypes.getITTX509CertChain().getDomainName();
+
+                realmName = (realmName == null ? "" : realmName.trim());
+                domainName = (domainName == null ? "" : domainName.trim());
+                sasMechConfig.addIdentityToken(new TSSITTX509CertChain(realmName, domainName));
             }
         }
 

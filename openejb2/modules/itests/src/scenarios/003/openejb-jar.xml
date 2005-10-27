@@ -2,7 +2,7 @@
 
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
     configId="org/openejb/scenario003"
     parentId="org/openejb/Security">
 
@@ -26,7 +26,7 @@
     </enterprise-beans>
 
     <sec:security default-role="UNASSIGNED" doas-current-caller="true">
-        <sec:default-principal realm-name="public-properties-realm">
+        <sec:default-principal>
             <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
         </sec:default-principal>
     </sec:security>

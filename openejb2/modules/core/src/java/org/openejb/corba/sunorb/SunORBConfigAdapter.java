@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import com.sun.corba.se.internal.core.EndPoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.ORB;
@@ -58,7 +59,9 @@ import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInTarget;
 import org.omg.Security.NoProtection;
 
+import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
 
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.ConfigException;
@@ -68,7 +71,6 @@ import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.security.config.tss.TSSSSLTransportConfig;
 import org.openejb.corba.security.config.tss.TSSTransportMechConfig;
-import com.sun.corba.se.internal.core.EndPoint;
 
 
 /**
@@ -85,7 +87,17 @@ public class SunORBConfigAdapter implements ConfigAdapter {
 
         DefaultPrincipal principal = config.getDefaultPrincipal();
         if (principal != null) {
-            list.add("default-principal::" + principal.getRealmName() + ":" + principal.getLoginDomain() + ":" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
+            if (principal instanceof DefaultRealmPrincipal) {
+                DefaultRealmPrincipal realmPrincipal = (DefaultRealmPrincipal) principal;
+                list.add("default-realm-principal::" + realmPrincipal.getRealm() + ":" + realmPrincipal.getDomain() + ":"
+                         + realmPrincipal.getPrincipal().getClassName() + ":" + realmPrincipal.getPrincipal().getPrincipalName());
+            } else if (principal instanceof DefaultDomainPrincipal) {
+                DefaultDomainPrincipal domainPrincipal = (DefaultDomainPrincipal) principal;
+                list.add("default-domain-principal::" + domainPrincipal.getDomain() + ":"
+                         + domainPrincipal.getPrincipal().getClassName() + ":" + domainPrincipal.getPrincipal().getPrincipalName());
+            } else {
+                list.add("default-principal::" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
+            }
         }
 
         if (log.isDebugEnabled()) {
