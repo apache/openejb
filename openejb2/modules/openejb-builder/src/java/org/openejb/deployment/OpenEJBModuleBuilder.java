@@ -93,6 +93,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -149,7 +150,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     static {
         Map conversions = new HashMap();
         QName name = EjbKeyGeneratorDocument.type.getDocumentElementName();
-        conversions.put(name.getLocalPart(), name.getNamespaceURI());
+        conversions.put(name.getLocalPart(), new NamespaceElementConverter(name.getNamespaceURI()));
         SchemaConversionUtils.registerNamespaceConversions(conversions);
     }
 
@@ -312,10 +313,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         if (openEjbJar.isSetInverseClassloading()) {
             earContext.setInverseClassloading(openEjbJar.getInverseClassloading());
         }
-        
+
         ClassFilterType[] filters = openEjbJar.getHiddenClassesArray();
         ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-        
+
         filters = openEjbJar.getNonOverridableClassesArray();
         ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
