@@ -130,6 +130,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-util</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -142,6 +145,9 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
