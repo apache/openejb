@@ -26,6 +26,13 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
