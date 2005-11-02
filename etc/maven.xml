@@ -68,10 +68,6 @@
         </j:if>
     </preGoal>
 
-    <!-- Construct dependency lists for inclusion in generated jar. -->
-    <postGoal name="java:compile">
-        <attainGoal name="geronimo:dependency"/>
-    </postGoal>
 
     <!-- Remove the log files -->
     <goal name="clobber"
