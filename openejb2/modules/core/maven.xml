@@ -6,6 +6,12 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     >
+
+    <!-- Construct dependency lists for inclusion in generated jar. -->
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+    </postGoal>
+    
     <preGoal name="test:compile">
         <ant:mkdir dir="${basedir}/target/test-ejb-jar/META-INF"/>
         <copy todir="${basedir}/target/test-ejb-jar/META-INF">
