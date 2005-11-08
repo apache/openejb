@@ -377,7 +377,9 @@ public class EndpointHandler implements MethodInterceptor {
 
             // restore the adapter transaction is possible
             transactionContextManager.setContext(adapterTransaction);
-            if (adapterTransaction != null) {
+            //only resume adapter transaction if it exists and if it was suspended:
+            //this can be detected by testing beanTransaction != null
+            if (adapterTransaction != null && beanTransaction != null) {
                 try {
                     adapterTransaction.resume();
                 } catch (Throwable resumeException) {
