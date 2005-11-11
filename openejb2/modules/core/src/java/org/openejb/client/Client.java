@@ -197,7 +197,9 @@ public class Client {
 
         } finally {
             try {
-                conn.close();
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (Throwable t){
                 //TODO:2: Log this
                 System.out.println("Error closing connection with server: "+t.getMessage() );
