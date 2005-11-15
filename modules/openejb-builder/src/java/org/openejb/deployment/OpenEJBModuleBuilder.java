@@ -511,7 +511,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
          * Build the security configuration.  Attempt to auto generate role mappings.
          */
         if (openejbEjbJar.isSetSecurity()) {
-            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(openejbEjbJar.getSecurity());
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(openejbEjbJar.getSecurity(), cl);
             earContext.setSecurityConfiguration(securityConfiguration);
         }
 

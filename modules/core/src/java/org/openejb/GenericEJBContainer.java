@@ -218,7 +218,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         }
 
         if (defaultPrincipal != null) {
-            this.defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+            this.defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, classLoader);
         } else {
             this.defaultSubject = null;
         }

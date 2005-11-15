@@ -74,6 +74,9 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
     public final static String DEFAULT_DOMAIN_PRINCIPAL = "default-domain-principal::";
     public final static String DEFAULT_PRINCIPAL = "default-principal::";
 
+    //TODO see if there is a better way... TCCL??
+    private final ClassLoader classLoader = this.getClass().getClassLoader();
+
     public SecurityInitializer() {
         if (log.isDebugEnabled()) log.debug("SecurityInitializer.<init>");
     }
@@ -163,13 +166,13 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }
 
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(realm, domain, className, principalName);
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(realm, domain, className, principalName, classLoader);
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
         PrimaryRealmPrincipal primaryRealmPrincipal = null;
         try {
-            primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(realm, domain, className, principalName);
+            primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(realm, domain, className, principalName, classLoader);
         } catch (DeploymentException e) {
             throw new GeronimoSecurityException("Unable to create primary realm principal", e);
         }
@@ -194,13 +197,13 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
             throw new GeronimoSecurityException("Unable to create primary domain principal");
         }
 
-        DomainPrincipal domainPrincipal = ConfigurationUtil.generateDomainPrincipal(realm, className, principalName);
+        DomainPrincipal domainPrincipal = ConfigurationUtil.generateDomainPrincipal(realm, className, principalName, classLoader);
         if (domainPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create domain principal");
         }
         PrimaryDomainPrincipal primaryDomainPrincipal = null;
         try {
-            primaryDomainPrincipal = ConfigurationUtil.generatePrimaryDomainPrincipal(realm, className, principalName);
+            primaryDomainPrincipal = ConfigurationUtil.generatePrimaryDomainPrincipal(realm, className, principalName, classLoader);
         } catch (DeploymentException e) {
             throw new GeronimoSecurityException("Unable to create primary domain principal", e);
         }
@@ -224,13 +227,13 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
             throw new GeronimoSecurityException("Unable to create primary principal");
         }
 
-        Principal domainPrincipal = ConfigurationUtil.generatePrincipal(className, principalName);
+        Principal domainPrincipal = ConfigurationUtil.generatePrincipal(className, principalName, classLoader);
         if (domainPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create principal");
         }
         PrimaryPrincipal primaryDomainPrincipal = null;
         try {
-            primaryDomainPrincipal = ConfigurationUtil.generatePrimaryPrincipal(className, principalName);
+            primaryDomainPrincipal = ConfigurationUtil.generatePrimaryPrincipal(className, principalName, classLoader);
         } catch (DeploymentException e) {
             throw new GeronimoSecurityException("Unable to create primary principal", e);
         }
