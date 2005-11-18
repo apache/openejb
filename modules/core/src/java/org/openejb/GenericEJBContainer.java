@@ -72,9 +72,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -183,7 +183,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
                     ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
                 }
             }
-            enc = new SimpleReadOnlyContext(componentContext);
+            enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
         }
         interceptorBuilder.setComponentContext(enc);
 

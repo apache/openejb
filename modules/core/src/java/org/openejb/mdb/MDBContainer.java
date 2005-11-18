@@ -69,9 +69,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
@@ -152,7 +152,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
                     ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
                 }
             }
-            enc = new SimpleReadOnlyContext(componentContext);
+            enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
         }
         interceptorBuilder.setComponentContext(enc);
 

@@ -65,7 +65,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -141,7 +141,7 @@ public class StandardServant extends Servant implements InvokeHandler {
         componentContext.put("ORB", Util.getORB());
         componentContext.put("HandleDelegate", new CORBAHandleDelegate());
         try {
-            enc = new SimpleReadOnlyContext(componentContext);
+            enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
