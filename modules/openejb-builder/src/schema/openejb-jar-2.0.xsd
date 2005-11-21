@@ -69,10 +69,12 @@
 
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
-            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+            <xs:group ref="sys:classloader-infoGroup"/>
+
             <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
             <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
             <xs:element name="ejb-ql-compiler-factory" type="xs:string" minOccurs="0"/>
@@ -116,7 +118,7 @@
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
             <xs:element name="web-service-address" type="xs:string" minOccurs="0"/>
-            <xs:element name="web-service-virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="web-service-virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="web-service-security" type="openejb:web-service-securityType" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
@@ -192,7 +194,7 @@
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="primkey-field" type="xs:string" minOccurs="0"/>
-                <xs:element ref="pkgen:key-generator" minOccurs="0" />
+                <xs:element ref="pkgen:key-generator" minOccurs="0"/>
                 <xs:element name="prefetch-group" minOccurs="0">
                     <xs:complexType>
                         <xs:sequence>
@@ -215,7 +217,7 @@
                         <xs:element name="isolation-level">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
-	                                <xs:enumeration value="read-uncommitted"/>
+                                    <xs:enumeration value="read-uncommitted"/>
                                     <xs:enumeration value="read-committed"/>
                                     <xs:enumeration value="repeatable-read"/>
                                 </xs:restriction>
