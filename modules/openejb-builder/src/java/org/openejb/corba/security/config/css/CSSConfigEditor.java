@@ -66,6 +66,7 @@ import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.kernel.ClassLoading;
 
 import org.openejb.xbeans.csiv2.css.CSSCompoundSecMechType;
 import org.openejb.xbeans.csiv2.css.CSSCssType;
@@ -83,7 +84,7 @@ import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
  * @version $Revision$ $Date$
  */
 public class CSSConfigEditor implements XmlAttributeBuilder {
-    private static final String NAMESPACE = CSSCssDocument.type.getDocumentElementName().getNamespaceURI(); 
+    private static final String NAMESPACE = CSSCssDocument.type.getDocumentElementName().getNamespaceURI();
 
     public String getNamespace() {
         return NAMESPACE;
@@ -110,14 +111,14 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
 
             CSSCompoundSecMechType[] mechList = css.getCompoundSecMechTypeList().getCompoundSecMechArray();
             for (int i = 0; i < mechList.length; i++) {
-                mechListConfig.add(extractCompoundSecMech(mechList[i]));
+                mechListConfig.add(extractCompoundSecMech(mechList[i], cl));
             }
         }
 
         return cssConfig;
     }
 
-    protected static CSSCompoundSecMechConfig extractCompoundSecMech(CSSCompoundSecMechType mechType) {
+    protected static CSSCompoundSecMechConfig extractCompoundSecMech(CSSCompoundSecMechType mechType, ClassLoader cl) throws DeploymentException {
 
         CSSCompoundSecMechConfig result = new CSSCompoundSecMechConfig();
 
@@ -137,7 +138,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             result.setAs_mech(new CSSNULLASMechConfig());
         }
 
-        result.setSas_mech(extractSASMech(mechType.getSasMech()));
+        result.setSas_mech(extractSASMech(mechType.getSasMech(), cl));
 
         return result;
     }
@@ -159,7 +160,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         return new CSSGSSUPMechConfigDynamic(gssupType.getDomain());
     }
 
-    protected static CSSSASMechConfig extractSASMech(CSSSasMechType sasMechType) {
+    protected static CSSSASMechConfig extractSASMech(CSSSasMechType sasMechType, ClassLoader cl) throws DeploymentException {
         CSSSASMechConfig result = new CSSSASMechConfig();
 
         if (sasMechType == null) {
@@ -173,7 +174,19 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             result.setIdentityToken(new CSSSASITTPrincipalNameStatic(principal.getOid(), principal.getName()));
         } else if (sasMechType.isSetITTPrincipalNameDynamic()) {
             CSSITTPrincipalNameDynamicType principal = sasMechType.getITTPrincipalNameDynamic();
-            result.setIdentityToken(new CSSSASITTPrincipalNameDynamic(principal.getOid(), principal.getDomain()));
+            String principalClassName = principal.getPrincipalClass();
+            Class principalClass = null;
+            try {
+                principalClass = ClassLoading.loadClass(principalClassName, cl);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load principal class");
+            }
+            String domainName = principal.getDomain();
+            String realmName = null;
+            if (domainName != null) {
+                realmName = principal.getRealm();
+            }
+            result.setIdentityToken(new CSSSASITTPrincipalNameDynamic(principal.getOid(), principalClass, domainName, realmName));
         }
 
         return result;

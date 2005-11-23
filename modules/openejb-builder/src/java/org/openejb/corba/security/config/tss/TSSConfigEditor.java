@@ -46,6 +46,7 @@ package org.openejb.corba.security.config.tss;
 
 import java.util.Iterator;
 import java.util.List;
+import java.lang.reflect.Constructor;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -69,6 +70,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+import org.apache.geronimo.kernel.ClassLoading;
 
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
 import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
@@ -144,7 +146,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
 
             TSSCompoundSecMechType[] mechList = tss.getCompoundSecMechTypeList().getCompoundSecMechArray();
             for (int i = 0; i < mechList.length; i++) {
-                TSSCompoundSecMechConfig cMech = extractCompoundSecMech(mechList[i]);
+                TSSCompoundSecMechConfig cMech = extractCompoundSecMech(mechList[i], cl);
                 cMech.setTransport_mech(tssConfig.getTransport_mech());
                 mechListConfig.add(cMech);
             }
@@ -165,7 +167,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         return sslConfig;
     }
 
-    protected static TSSCompoundSecMechConfig extractCompoundSecMech(TSSCompoundSecMechType mech) {
+    protected static TSSCompoundSecMechConfig extractCompoundSecMech(TSSCompoundSecMechType mech, ClassLoader cl) throws DeploymentException {
 
         TSSCompoundSecMechConfig result = new TSSCompoundSecMechConfig();
 
@@ -176,7 +178,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         }
 
         if (mech.isSetSasMech()) {
-            result.setSas_mech(extractSASMech(mech.getSasMech()));
+            result.setSas_mech(extractSASMech(mech.getSasMech(), cl));
         }
 
         return result;
@@ -192,7 +194,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         return gssupConfig;
     }
 
-    protected static TSSSASMechConfig extractSASMech(TSSSasMechType sasMech) {
+    protected static TSSSASMechConfig extractSASMech(TSSSasMechType sasMech, ClassLoader cl) throws DeploymentException {
 
         TSSSASMechConfig sasMechConfig = new TSSSASMechConfig();
 
@@ -219,27 +221,41 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
                 sasMechConfig.addIdentityToken(new TSSITTAnonymous());
             }
             if (identityTokenTypes.isSetITTPrincipalNameGSSUP()) {
-                String realmName = identityTokenTypes.getITTPrincipalNameGSSUP().getRealmName();
-                String domainName = identityTokenTypes.getITTPrincipalNameGSSUP().getDomainName();
+                org.openejb.xbeans.csiv2.tss.TSSITTPrincipalNameGSSUPType ittPrincipalNameGSSUP = identityTokenTypes.getITTPrincipalNameGSSUP();
+                String principalClassName = ittPrincipalNameGSSUP.getPrincipalClass();
+                Class principalClass;
+                try {
+                    principalClass = ClassLoading.loadClass(principalClassName, cl);
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("Could not load principal class", e);
+                }
+                String domainName = ittPrincipalNameGSSUP.isSetDomain() ? ittPrincipalNameGSSUP.getDomain().trim() : null;
+                String realmName = null;
+                if (domainName != null && ittPrincipalNameGSSUP.isSetRealm()) {
+                    realmName = ittPrincipalNameGSSUP.getRealm().trim();
+                }
 
-                realmName = (realmName == null ? "" : realmName.trim());
-                domainName = (domainName == null ? "" : domainName.trim());
-                sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP(realmName, domainName));
+
+                try {
+                    sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP(principalClass, realmName, domainName));
+                } catch (NoSuchMethodException e) {
+                    throw new DeploymentException("Could not find principal class constructor", e);
+                }
             }
             if (identityTokenTypes.isSetITTDistinguishedName()) {
-                String realmName = identityTokenTypes.getITTDistinguishedName().getRealmName();
-                String domainName = identityTokenTypes.getITTDistinguishedName().getDomainName();
+                String realmName = identityTokenTypes.getITTDistinguishedName().getRealm();
+                String domainName = identityTokenTypes.getITTDistinguishedName().getDomain();
 
-                realmName = (realmName == null ? "" : realmName.trim());
-                domainName = (domainName == null ? "" : domainName.trim());
+                realmName = (realmName == null ? null : realmName.trim());
+                domainName = (domainName == null ? null : domainName.trim());
                 sasMechConfig.addIdentityToken(new TSSITTDistinguishedName(realmName, domainName));
             }
             if (identityTokenTypes.isSetITTX509CertChain()) {
-                String realmName = identityTokenTypes.getITTX509CertChain().getRealmName();
-                String domainName = identityTokenTypes.getITTX509CertChain().getDomainName();
+                String realmName = identityTokenTypes.getITTX509CertChain().getRealm();
+                String domainName = identityTokenTypes.getITTX509CertChain().getDomain();
 
-                realmName = (realmName == null ? "" : realmName.trim());
-                domainName = (domainName == null ? "" : domainName.trim());
+                realmName = (realmName == null ? null : realmName.trim());
+                domainName = (domainName == null ? null : domainName.trim());
                 sasMechConfig.addIdentityToken(new TSSITTX509CertChain(realmName, domainName));
             }
         }
