@@ -275,8 +275,9 @@
         <!--            <xsd:restriction base="xsd:anyType"/>-->
         <!--        </xsd:complexContent>-->
         <xsd:sequence/>
-        <xsd:attribute name="realm-name"  type="xsd:string"/>
-        <xsd:attribute name="domain-name"  type="xsd:string"/>
+        <xsd:attribute name="principal-class" type="xsd:string"/>
+        <xsd:attribute name="domain" type="xsd:string" use="optional"/>
+        <xsd:attribute name="realm" type="xsd:string" use="optional"/>
     </xsd:complexType>
 
     <xsd:complexType name="ITTDistinguishedNameType">
@@ -284,8 +285,8 @@
 <!--            <xsd:restriction base="xsd:anyType"/>-->
 <!--        </xsd:complexContent>-->
         <xsd:sequence/>
-        <xsd:attribute name="realm-name"  type="xsd:string"/>
-        <xsd:attribute name="domain-name"  type="xsd:string"/>
+        <xsd:attribute name="realm"  type="xsd:string" use="optional"/>
+        <xsd:attribute name="domain"  type="xsd:string" use="optional"/>
     </xsd:complexType>
 
     <xsd:complexType name="ITTX509CertChainType">
@@ -293,8 +294,8 @@
 <!--            <xsd:restriction base="xsd:anyType"/>-->
 <!--        </xsd:complexContent>-->
         <xsd:sequence/>
-        <xsd:attribute name="realm-name"  type="xsd:string"/>
-        <xsd:attribute name="domain-name"  type="xsd:string"/>
+        <xsd:attribute name="realm"  type="xsd:string" use="optional"/>
+        <xsd:attribute name="domain"  type="xsd:string" use="optional"/>
     </xsd:complexType>
 
 </xsd:schema>

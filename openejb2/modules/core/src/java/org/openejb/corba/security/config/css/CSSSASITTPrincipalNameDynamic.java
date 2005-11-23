@@ -44,21 +44,21 @@
  */
 package org.openejb.corba.security.config.css;
 
+import java.security.Principal;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Collections;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.DomainPrincipal;
+import org.apache.geronimo.security.PrimaryDomainPrincipal;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
 import org.omg.CORBA.Any;
 import org.omg.CSI.GSS_NT_ExportedNameHelper;
 import org.omg.CSI.IdentityToken;
 import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
-
-import org.apache.geronimo.security.PrimaryRealmPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.ContextManager;
-
 import org.openejb.corba.util.Util;
 
 
@@ -68,15 +68,19 @@ import org.openejb.corba.util.Util;
 public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
 
     private final String oid;
+    private final Class principalClass;
     private final String domain;
+    private final String realm;
 
-    public CSSSASITTPrincipalNameDynamic(String domain) {
-        this(GSSUPMechOID.value.substring(4), domain);
-    }
+//    public CSSSASITTPrincipalNameDynamic(String domain) {
+//        this(GSSUPMechOID.value.substring(4), domain);
+//    }
 
-    public CSSSASITTPrincipalNameDynamic(String oid, String domain) {
+    public CSSSASITTPrincipalNameDynamic(String oid, Class principalClass, String domain, String realm) {
         this.oid = (oid == null ? GSSUPMechOID.value.substring(4) : oid);
+        this.principalClass = principalClass;
         this.domain = domain;
+        this.realm = realm;
     }
 
     /**
@@ -86,33 +90,48 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
     public IdentityToken encodeIdentityToken() {
 
         IdentityToken token = null;
-        RealmPrincipal principal = null;
         Subject subject = ContextManager.getCurrentCaller();
-        Set principals;
+        String principalName = null;
         if (subject == null) {
-            principals = Collections.EMPTY_SET;
-        } else {
-            principals = subject.getPrincipals(RealmPrincipal.class);
-        }
-
-        if (principals.size() != 0) {
+//            Set principals = Collections.EMPTY_SET;
+        } else if (realm != null) {
+            Set principals = subject.getPrincipals(RealmPrincipal.class);
             for (Iterator iter = principals.iterator(); iter.hasNext();) {
                 RealmPrincipal p = (RealmPrincipal) iter.next();
-                if (p.getRealm().equals(domain)) {
-                    principal = p;
+                if (p.getRealm().equals(realm) && p.getLoginDomain().equals(domain) && p.getPrincipal().getClass().equals(principalClass)) {
+                    principalName = p.getPrincipal().getName();
                     if (p instanceof PrimaryRealmPrincipal) break;
                 }
             }
+        } else if (domain != null) {
+            Set principals = subject.getPrincipals(DomainPrincipal.class);
+            for (Iterator iter = principals.iterator(); iter.hasNext();) {
+                DomainPrincipal p = (DomainPrincipal) iter.next();
+                if (p.getDomain().equals(domain) && p.getPrincipal().getClass().equals(principalClass)) {
+                    principalName = p.getPrincipal().getName();
+                    if (p instanceof PrimaryDomainPrincipal) break;
+                }
+            }
+        } else {
+            Set principals = subject.getPrincipals(principalClass);
+            if (!principals.isEmpty()) {
+                Principal principal = (Principal) principals.iterator().next();
+                principalName = principal.getName();
+
+            }
+        }
+
+        if (principalName != null) {
 
             Any any = Util.getORB().create_any();
 
-            GSS_NT_ExportedNameHelper.insert(any, Util.encodeGSSExportName(oid, principal.getPrincipal().getName()));
+            GSS_NT_ExportedNameHelper.insert(any, Util.encodeGSSExportName(oid, principalName));
 
             byte[] encoding = null;
             try {
                 encoding = Util.getCodec().encode_value(any);
             } catch (InvalidTypeForEncoding itfe) {
-                throw new IllegalStateException("Unable to encode principal name '" + principal.getPrincipal().getName() + "' " + itfe);
+                throw new IllegalStateException("Unable to encode principal name '" + principalName + "' " + itfe);
             }
 
             token = new IdentityToken();

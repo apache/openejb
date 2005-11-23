@@ -97,7 +97,7 @@ public class TSSSASMechConfig implements Serializable {
             //TODO is this needed?
             if (TSSITTPrincipalNameGSSUP.OID.equals(oid)) {
                 //TODO this doesn't make sense if we plan to use this for identity check.
-                addIdentityToken(new TSSITTPrincipalNameGSSUP(null, null));
+                addIdentityToken(new TSSITTPrincipalNameGSSUP(null, null, null));
             }
         }
 

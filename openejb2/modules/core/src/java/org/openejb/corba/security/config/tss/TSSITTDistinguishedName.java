@@ -101,23 +101,17 @@ public class TSSITTDistinguishedName extends TSSSASIdentityToken {
         }
 
         byte[] principalNameBytes = X501DistinguishedNameHelper.extract(any);
+        Subject subject = new Subject();
         X500Principal x500Principal = new X500Principal(principalNameBytes);
-        Principal principal = null;
-        Principal primaryPrincipal = null;
+        subject.getPrincipals().add(x500Principal);
 
         if (realmName != null && domainName != null) {
-            principal = new RealmPrincipal(realmName, domainName, x500Principal);
-            primaryPrincipal = new PrimaryRealmPrincipal(realmName, domainName, x500Principal);
-        } else if (domainName != null) {
-            principal = new DomainPrincipal(domainName, x500Principal);
-            primaryPrincipal = new PrimaryDomainPrincipal(domainName, x500Principal);
+            subject.getPrincipals().add(new RealmPrincipal(realmName, domainName, x500Principal));
+            subject.getPrincipals().add(new PrimaryRealmPrincipal(realmName, domainName, x500Principal));
         }
-
-        Subject subject = new Subject();
-        subject.getPrincipals().add(x500Principal);
-        if (principal != null) {
-            subject.getPrincipals().add(principal);
-            subject.getPrincipals().add(primaryPrincipal);
+        if (domainName != null) {
+            subject.getPrincipals().add(new DomainPrincipal(domainName, x500Principal));
+            subject.getPrincipals().add(new PrimaryDomainPrincipal(domainName, x500Principal));
         }
 
         return subject;

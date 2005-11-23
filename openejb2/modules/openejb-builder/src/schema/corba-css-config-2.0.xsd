@@ -216,7 +216,9 @@
     <xsd:complexType name="ITTPrincipalNameDynamicType">
         <xsd:complexContent>
             <xsd:restriction base="xsd:anyType">
-                <xsd:attribute name="domain" type="xsd:string"/>
+                <xsd:attribute name="principal-class" type="xsd:string"/>
+                <xsd:attribute name="domain" type="xsd:string" use="optional"/>
+                <xsd:attribute name="realm" type="xsd:string" use="optional"/>
                 <xsd:attribute name="oid" type="xsd:string" use="optional"/>
             </xsd:restriction>
         </xsd:complexContent>

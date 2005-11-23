@@ -47,9 +47,15 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.security.DomainPrincipal;
+import org.apache.geronimo.security.PrimaryDomainPrincipal;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
 import org.omg.CORBA.Any;
 import org.omg.CSI.GSS_NT_ExportedNameHelper;
 import org.omg.CSI.ITTPrincipalName;
@@ -57,13 +63,6 @@ import org.omg.CSI.IdentityToken;
 import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.IOP.CodecPackage.TypeMismatch;
-
-import org.apache.geronimo.security.DomainPrincipal;
-import org.apache.geronimo.security.PrimaryDomainPrincipal;
-import org.apache.geronimo.security.PrimaryRealmPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
-
 import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
@@ -74,12 +73,22 @@ import org.openejb.corba.util.Util;
 public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
 
     public static final String OID = GSSUPMechOID.value.substring(4);
+    private final Class principalClass;
+    private transient Constructor constructor;
     private final String realmName;
     private final String domainName;
 
-    public TSSITTPrincipalNameGSSUP(String realmName, String domainName) {
+    public TSSITTPrincipalNameGSSUP(Class principalClass, String realmName, String domainName) throws NoSuchMethodException {
+        this.principalClass = principalClass;
         this.realmName = realmName;
         this.domainName = domainName;
+        getConstructor();
+    }
+
+    private void getConstructor() throws NoSuchMethodException {
+        if (constructor == null && principalClass != null) {
+            constructor = principalClass.getConstructor(new Class[]{String.class});
+        }
     }
 
     public short getType() {
@@ -91,6 +100,7 @@ public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
     }
 
     public Subject check(IdentityToken identityToken) throws SASException {
+        assert principalClass != null;
         byte[] principalNameToken = identityToken.principal_name();
         Any any = null;
         try {
@@ -102,23 +112,29 @@ public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
         }
         byte[] principalNameBytes = GSS_NT_ExportedNameHelper.extract(any);
         String principalName = Util.decodeGSSExportName(principalNameBytes);
-        Principal basePrincipal = new GeronimoUserPrincipal(principalName);
-        Principal principal = null;
-        Principal primaryPrincipal = null;
-
-        if (realmName != null && domainName != null) {
-            principal = new RealmPrincipal(realmName, domainName, basePrincipal);
-            primaryPrincipal = new PrimaryRealmPrincipal(realmName, domainName, basePrincipal);
-        } else if (domainName != null) {
-            principal = new DomainPrincipal(domainName, basePrincipal);
-            primaryPrincipal = new PrimaryDomainPrincipal(domainName, basePrincipal);
+        Principal basePrincipal = null;
+        try {
+            getConstructor();
+            basePrincipal = (Principal) constructor.newInstance(new Object[]{principalName});
+        } catch (InstantiationException e) {
+            throw new SASException(1, e);
+        } catch (IllegalAccessException e) {
+            throw new SASException(1, e);
+        } catch (InvocationTargetException e) {
+            throw new SASException(1, e);
+        } catch (NoSuchMethodException e) {
+            throw new SASException(1, e);
         }
 
         Subject subject = new Subject();
         subject.getPrincipals().add(basePrincipal);
-        if (principal != null) {
-            subject.getPrincipals().add(principal);
-            subject.getPrincipals().add(primaryPrincipal);
+        if (realmName != null && domainName != null) {
+            subject.getPrincipals().add(new RealmPrincipal(realmName, domainName, basePrincipal));
+            subject.getPrincipals().add(new PrimaryRealmPrincipal(realmName, domainName, basePrincipal));
+        }
+        if (domainName != null) {
+            subject.getPrincipals().add(new DomainPrincipal(domainName, basePrincipal));
+            subject.getPrincipals().add(new PrimaryDomainPrincipal(domainName, basePrincipal));
         }
 
         return subject;
