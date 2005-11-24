@@ -68,6 +68,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.openejb.deployment.Schemata;
 import org.openejb.deployment.SchemataBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.tranql.ddl.DDLCommandBuilder;
 import org.tranql.ddl.DDLGenerator;
@@ -176,7 +177,7 @@ public class DDLExporterTask extends Task {
             }
             OpenejbOpenejbJarType openejbJarType = (OpenejbOpenejbJarType)
                 SchemaConversionUtils.getNestedObjectAsType(xmlObject,
-                    "openejb-jar",
+                    OpenejbOpenejbJarDocument.type.getDocumentElementName(),
                     OpenejbOpenejbJarType.type);
 
             schemata = schemataBuilder.buildSchemata(SCHEMA_NAME, ejbJarType, openejbJarType, null, cl);

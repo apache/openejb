@@ -145,7 +145,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
     private final Kernel kernel;
-    private static final String OPENEJBJAR_NAMESPACE = OpenejbOpenejbJarDocument.type.getDocumentElementName().getNamespaceURI();
+    private static QName OPENEJBJAR_QNAME = OpenejbOpenejbJarDocument.type.getDocumentElementName();
+    private static final String OPENEJBJAR_NAMESPACE = OPENEJBJAR_QNAME.getNamespaceURI();
 
     static {
         Map conversions = new HashMap();
@@ -255,7 +256,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
             // if we got one extract, adjust, and validate it otherwise create a default one
             if (rawPlan != null) {
-                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "openejb-jar", OpenejbOpenejbJarType.type);
+                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, OPENEJBJAR_QNAME, OpenejbOpenejbJarType.type);
             } else {
                 String path;
                 if (standAlone) {
