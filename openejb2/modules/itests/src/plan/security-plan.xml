@@ -22,15 +22,19 @@ Configuration for the CORBA server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/openejb/Security"
-    parentId="org/apache/geronimo/DefaultDatabase"
+    configId="openejb/security/${openejb_version}/car"
+    parentId="geronimo/default-database/${geronimo_version}/car"
     >
 
     <dependency>
-        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+        <groupId>activeio</groupId>
+        <artifactId>activeio</artifactId>
+        <version>${activeio_version}</version>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
 
     <!--gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">

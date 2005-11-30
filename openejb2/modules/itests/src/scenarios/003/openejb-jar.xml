@@ -3,11 +3,14 @@
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-    configId="org/openejb/scenario003"
-    parentId="org/openejb/Security">
+    configId="openejb/itests-security-scenario003/${openejb_version}/car"
+    parentId="openejb/security/${openejb_version}/car"
+    >
 
     <dependency>
-        <uri>junit/jars/junit-3.8.1.jar</uri>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit_version}</version>
     </dependency>
 
     <enterprise-beans>
