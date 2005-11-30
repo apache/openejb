@@ -2,16 +2,19 @@
 
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/Itests"
-    parentId="org/apache/geronimo/DefaultDatabase">
+    configId="openejb/itests/${openejb_version}/car"
+    parentId="geronimo/default-database/${geronimo_version}/car"
+    >
 
     <dependency>
-        <uri>junit/jars/junit-3.8.1.jar</uri>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit_version}</version>
     </dependency>
 
     <cmp-connection-factory>
         <application>null</application>
-        <module>org/apache/geronimo/DefaultDatabase</module>
+        <module>geronimo/default-database/${geronimo_version}/car</module>
         <name>DefaultDatasource</name>
     </cmp-connection-factory>
 
@@ -27,7 +30,7 @@
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -37,7 +40,7 @@
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -47,7 +50,7 @@
             <resource-ref>
                 <ref-name>database</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -57,7 +60,7 @@
             <resource-ref>
                 <ref-name>database</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -67,7 +70,7 @@
             <resource-ref>
                 <ref-name>datasource</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -81,7 +84,7 @@
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -101,7 +104,7 @@
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -111,7 +114,7 @@
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -121,7 +124,7 @@
             <resource-ref>
                 <ref-name>datasource</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -131,7 +134,7 @@
             <resource-ref>
                 <ref-name>datasource</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </session>
@@ -151,7 +154,7 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -161,13 +164,13 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -177,13 +180,13 @@
             <resource-ref>
                 <ref-name>datasource</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -223,7 +226,7 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -252,13 +255,13 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -287,13 +290,13 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>datasource</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -352,7 +355,7 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <query>
@@ -440,13 +443,13 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <query>
@@ -495,13 +498,13 @@
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>datasource</ref-name>
                 <application>null</application>
-                <module>org/apache/geronimo/DefaultDatabase</module>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
@@ -531,7 +534,7 @@
     </enterprise-beans>
 
     <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
-        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>*:J2EEApplication=null,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource,*</gbean-name></reference>
+        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>*:J2EEApplication=null,JCAResource=geronimo/default-database/${geronimo_version}/car,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource,*</gbean-name></reference>
         <attribute name="sql">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
         <attribute name="returnType">java.lang.Integer</attribute>
     </gbean>

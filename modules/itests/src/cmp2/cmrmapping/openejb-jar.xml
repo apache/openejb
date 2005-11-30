@@ -2,16 +2,19 @@
 
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/cmp2/CMRMapping"
-    parentId="org/apache/geronimo/DefaultDatabase">
+    configId="openejb/cmp2-cmrmapping/${openejb_version}/car"
+    parentId="geronimo/default-database/${geronimo_version}/car"
+    >
 
     <dependency>
-        <uri>junit/jars/junit-3.8.1.jar</uri>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit_version}</version>
     </dependency>
 
     <cmp-connection-factory>
         <application>null</application>
-        <module>org/apache/geronimo/DefaultDatabase</module>
+        <module>geronimo/default-database/${geronimo_version}/car</module>
         <name>DefaultDatasource</name>
     </cmp-connection-factory>
 
