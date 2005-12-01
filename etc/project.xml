@@ -140,6 +140,13 @@
       <email>jlaskowski@codehaus.org</email>
       <organization></organization>
     </developer>
+    
+    <developer>
+      <name>Jeremy Whitlock</name>
+      <id>jcscoobyrs</id>
+      <email>jcscoobyrs@codehaus.org</email>
+      <organization></organization>
+    </developer>
   </developers>
   
   

@@ -49,11 +49,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
+import org.openejb.util.FileUtils;
+import org.openejb.util.HtmlUtilities;
 import org.openejb.webadmin.HttpRequest;
 import org.openejb.webadmin.HttpResponse;
 import org.openejb.webadmin.WebAdminBean;
-import org.openejb.util.FileUtils;
-import org.openejb.util.HtmlUtilities;
 
 /** Page for user to input needed data to build EJB Skeleton.
  * @author <a href="mailto:jcscoobyrs@developerkb.com">Jeremy Whitlock</a>
@@ -163,7 +163,7 @@ public class EJBGenBean extends WebAdminBean
 				
 				if(ejbstyp.equals("remote"))
 				{
-					File nsdir = new File(oehp + psep + "htdocs" + psep + "EJBGenerator" + psep + "BeanSources");
+					File nsdir = new File(oehp + psep + "beangen" + psep + "EJBGenerator" + psep + "BeanSources");
 					
 					if(!nsdir.exists())
 					{
