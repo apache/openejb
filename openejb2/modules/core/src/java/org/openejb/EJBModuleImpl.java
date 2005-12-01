@@ -207,7 +207,7 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(EJBModuleImpl.class, NameFactory.EJB_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EJBModuleImpl.class, NameFactory.EJB_MODULE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 

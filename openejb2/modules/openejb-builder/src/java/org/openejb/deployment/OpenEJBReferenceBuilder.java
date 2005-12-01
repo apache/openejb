@@ -203,7 +203,7 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(OpenEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

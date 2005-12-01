@@ -297,7 +297,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TSSConfigEditor.class, "XmlAttributeBuilder");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TSSConfigEditor.class, "XmlAttributeBuilder");
         infoBuilder.addInterface(XmlAttributeBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

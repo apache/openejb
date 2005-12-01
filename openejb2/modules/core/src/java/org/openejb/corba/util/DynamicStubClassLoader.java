@@ -216,7 +216,7 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DynamicStubClassLoader.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DynamicStubClassLoader.class, NameFactory.CORBA_SERVICE);
         infoFactory.addOperation("loadClass", new Class[]{String.class});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

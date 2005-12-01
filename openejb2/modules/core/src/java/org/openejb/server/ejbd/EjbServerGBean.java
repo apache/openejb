@@ -63,7 +63,7 @@ public class EjbServerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EjbServer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbServerGBean.class, EjbServer.class);
 
         infoFactory.addInterface(SocketService.class);
         infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);

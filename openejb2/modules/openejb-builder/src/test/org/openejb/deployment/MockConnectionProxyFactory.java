@@ -66,7 +66,7 @@ public class MockConnectionProxyFactory implements ConnectionProxyFactory {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockConnectionProxyFactory.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockConnectionProxyFactory.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         infoFactory.addInterface(ConnectionProxyFactory.class);
 

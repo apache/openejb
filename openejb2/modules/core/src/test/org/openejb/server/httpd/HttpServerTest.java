@@ -229,7 +229,7 @@ public class HttpServerTest extends TestCase {
         public static final GBeanInfo GBEAN_INFO;
 
         static {
-            GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TestHttpListener.class);
+            GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(TestHttpListener.class);
             infoFactory.addOperation("onMessage", new Class[]{HttpRequest.class, HttpResponse.class});
             infoFactory.setConstructor(new String[]{});
 

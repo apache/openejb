@@ -63,7 +63,7 @@ public class MockEJBContainerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockEJBContainer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockEJBContainerGBean.class, MockEJBContainer.class);
 
         infoFactory.addAttribute("ejbJarURL", URL.class, true);
         infoFactory.addAttribute("ejbName", String.class, true);

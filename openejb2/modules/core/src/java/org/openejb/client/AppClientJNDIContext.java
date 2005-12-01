@@ -106,7 +106,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientJNDIContext.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AppClientJNDIContext.class);
 
         infoFactory.addOperation("startClient", new Class[]{ObjectName.class});
         infoFactory.addOperation("stopClient", new Class[]{ObjectName.class});

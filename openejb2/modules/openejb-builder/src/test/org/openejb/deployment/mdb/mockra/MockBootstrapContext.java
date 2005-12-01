@@ -84,7 +84,7 @@ public class MockBootstrapContext implements BootstrapContext {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockBootstrapContext.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockBootstrapContext.class);
         infoFactory.addInterface(BootstrapContext.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

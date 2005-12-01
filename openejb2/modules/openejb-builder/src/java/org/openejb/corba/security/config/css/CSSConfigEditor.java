@@ -226,7 +226,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(CSSConfigEditor.class, "XmlAttributeBuilder");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CSSConfigEditor.class, "XmlAttributeBuilder");
         infoBuilder.addInterface(XmlAttributeBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -151,7 +151,7 @@ public class SunNameService implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("CORBA Naming Service", SunNameService.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("CORBA Naming Service", SunNameService.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("dbDir", String.class, true);

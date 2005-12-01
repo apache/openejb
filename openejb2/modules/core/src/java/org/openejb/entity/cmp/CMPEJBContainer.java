@@ -125,7 +125,7 @@ public class CMPEJBContainer extends GenericEJBContainer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CMPEJBContainer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CMPEJBContainer.class);
 
         infoFactory.addAttribute("containerID", Object.class, true);
         infoFactory.addAttribute("ejbName", String.class, true);

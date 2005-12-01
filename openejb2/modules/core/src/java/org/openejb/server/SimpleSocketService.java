@@ -134,7 +134,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SimpleSocketService.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SimpleSocketService.class);
 
         infoFactory.addAttribute("serviceClassName", String.class, true);
         infoFactory.addAttribute("onlyFrom", InetAddress[].class, true);

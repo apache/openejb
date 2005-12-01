@@ -109,7 +109,7 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);

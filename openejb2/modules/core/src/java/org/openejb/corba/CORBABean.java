@@ -177,7 +177,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CORBABean.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CORBABean.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addAttribute("configAdapter", String.class, true);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
