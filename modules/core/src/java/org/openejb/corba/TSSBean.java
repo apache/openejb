@@ -217,7 +217,7 @@ public class TSSBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TSSBean.class, NameFactory.CORBA_TSS);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(TSSBean.class, NameFactory.CORBA_TSS);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("POAName", String.class, true);

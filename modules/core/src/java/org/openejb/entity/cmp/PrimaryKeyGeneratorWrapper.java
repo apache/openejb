@@ -82,7 +82,7 @@ public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(PrimaryKeyGeneratorWrapper.class);
         infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("primaryKeyGeneratorDelegate", PrimaryKeyGeneratorDelegate.class, true);
 

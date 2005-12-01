@@ -598,7 +598,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI[].class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);

@@ -62,7 +62,7 @@ public class SoapHttpListenerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(SoapHttpListener.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SoapHttpListenerGBean.class, SoapHttpListener.class);
 
         infoBuilder.addOperation("onMessage", new Class[]{HttpRequest.class, HttpResponse.class});
         infoBuilder.addInterface(SoapHandler.class);

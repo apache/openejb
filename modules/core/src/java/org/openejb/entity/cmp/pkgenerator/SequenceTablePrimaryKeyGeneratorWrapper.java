@@ -115,7 +115,7 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SequenceTablePrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SequenceTablePrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);

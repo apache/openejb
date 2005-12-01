@@ -131,7 +131,7 @@ public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBean
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SQLPrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SQLPrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);

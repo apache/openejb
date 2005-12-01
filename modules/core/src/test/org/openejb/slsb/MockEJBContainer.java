@@ -195,7 +195,7 @@ public class MockEJBContainer implements EJBContainer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockEJBContainer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockEJBContainer.class);
 
         infoFactory.addAttribute("ejbName", String.class, true);
         infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);

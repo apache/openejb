@@ -74,7 +74,7 @@ public class EJBConfigurer implements ModuleConfigurer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EJBConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EJBConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
         infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

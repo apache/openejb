@@ -58,7 +58,7 @@ public class WSContainerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WSContainer.class, NameFactory.WEB_SERVICE_LINK);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(WSContainerGBean.class, WSContainer.class, NameFactory.WEB_SERVICE_LINK);
 
 //        infoFactory.addOperation("invoke", new Class[]{WebServiceContainer.Request.class, WebServiceContainer.Response.class});
 

@@ -62,7 +62,7 @@ public class HttpServerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HttpServer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(HttpServerGBean.class, HttpServer.class);
 
         infoFactory.addReference("Listener", HttpListener.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("service", new Class[]{Socket.class});

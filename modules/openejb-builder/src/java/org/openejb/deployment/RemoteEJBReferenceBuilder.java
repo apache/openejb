@@ -94,7 +94,7 @@ public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RemoteEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
