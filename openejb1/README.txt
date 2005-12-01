@@ -70,4 +70,4 @@ Support
 
  Send email to subscribe-user@openejb.org or follow this link
  for other subscription and list information:
- http://www.openejb.org/lists.html#user
+ http://www.openejb.org/Mailing+Lists#user

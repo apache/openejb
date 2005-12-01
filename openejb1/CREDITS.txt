@@ -3,7 +3,7 @@ OpenEJB -- EJB Container System and EJB Server
 
  THANK YOU to our community for your support.
 
-OpenEJB 1.0-beta1        http://openejb.sf.net/
+OpenEJB 1.0-beta1        http://www.openejb.org/
 -----------------------------------------------
 
 OpenEJB would like to thank the our community members
