@@ -168,6 +168,8 @@ public class ConfigBean extends WebAdminBean {
 			configurationData = getConfigurationObject();
 			handleFile = createHandle(configurationData);
 			try {
+				configLocation = ConfigUtils.searchForConfiguration();
+				
 				openejb = ConfigUtils.readConfig(configLocation);
 			} catch (OpenEJBException e) {
 				throw new IOException(e.getMessage());
