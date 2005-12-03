@@ -251,7 +251,7 @@ public abstract class SchemataBuilder {
             
             OpenejbCmpFieldGroupMappingType[] cmpMappings = prefetchGroup.getCmpFieldGroupMappingArray();
             for (int j = 0; j < cmpMappings.length; j++) {
-                OpenejbCmpFieldGroupMappingType mapping = cmpMappings[i];
+                OpenejbCmpFieldGroupMappingType mapping = cmpMappings[j];
                 CMPField cmpField = (CMPField) ejb.getAttribute(mapping.getCmpFieldName());
                 if (null == cmpField) {
                     throw new DeploymentException("EJB [" + ejbName + "] does not define the CMP field [" + 
@@ -262,7 +262,7 @@ public abstract class SchemataBuilder {
             
             OpenejbCmrFieldGroupMappingType[] cmrMappings = prefetchGroup.getCmrFieldGroupMappingArray();
             for (int j = 0; j < cmrMappings.length; j++) {
-                OpenejbCmrFieldGroupMappingType mapping = cmrMappings[i];
+                OpenejbCmrFieldGroupMappingType mapping = cmrMappings[j];
                 CMRField cmrField = (CMRField) ejb.getAssociationEnd(mapping.getCmrFieldName());
                 if (null == cmrField) {
                     throw new DeploymentException("EJB [" + ejbName + "] does not define the CMR field [" + 
