@@ -154,7 +154,7 @@ public class TSSBean implements GBeanLifecycle {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
-        log.info("Started CORBA Target Security Service in POA " + POAName);
+        log.debug("Started CORBA Target Security Service in POA " + POAName);
     }
 
     public void doStop() throws Exception {
@@ -166,11 +166,11 @@ public class TSSBean implements GBeanLifecycle {
             }
             localPOA = null;
         }
-        log.info("Stopped CORBA Target Security Service in POA " + POAName);
+        log.debug("Stopped CORBA Target Security Service in POA " + POAName);
     }
 
     public void doFail() {
-        log.info("Failed CORBA Target Security Service in POA " + POAName);
+        log.warn("Failed CORBA Target Security Service in POA " + POAName);
     }
 
     private TSSConfig createCSIv2Config() {
@@ -199,7 +199,7 @@ public class TSSBean implements GBeanLifecycle {
         adapterWrapper.start(server.getORB(), localPOA, initialContext, securityPolicy);
         adapters.put(container.getContainerID(), adapterWrapper);
 
-        log.info(POAName + " - Linked container " + container.getContainerID());
+        log.debug(POAName + " - Linked container " + container.getContainerID());
     }
 
     public void unregisterContainer(EJBContainer container) {
@@ -207,7 +207,7 @@ public class TSSBean implements GBeanLifecycle {
         if (adapterWrapper != null) {
             try {
                 adapterWrapper.stop();
-                log.info(POAName + " - Unlinked container " + container.getContainerID());
+                log.debug(POAName + " - Unlinked container " + container.getContainerID());
             } catch (CORBAException e) {
                 log.error(POAName + " - Error unlinking container " + container.getContainerID(), e);
             }

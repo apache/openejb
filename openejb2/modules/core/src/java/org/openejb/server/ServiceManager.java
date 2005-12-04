@@ -268,7 +268,7 @@ public class ServiceManager {
     }
 
     public synchronized void stop() throws ServiceException {
-        System.out.println("[] received stop signal");
+        log.debug("[] received stop signal");
         stop = true;
         for (int i = 0; i < daemons.length; i++) {
             daemons[i].doStop();

@@ -400,7 +400,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
             tssBean.registerContainer(this);
         }
 
-        log.info("GenericEJBContainer '" + containerId + "' started");
+        log.debug("GenericEJBContainer '" + containerId + "' started");
     }
 
     public void doStop() throws Exception {
@@ -414,7 +414,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
         if (runAsSubject != null) ContextManager.unregisterSubject(runAsSubject);
 
-        log.info("GenericEJBContainer '" + containerId + "' stopped");
+        log.debug("GenericEJBContainer '" + containerId + "' stopped");
     }
 
     public void doFail() {
@@ -425,7 +425,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
             throw new RuntimeException(e);
         }
 
-        log.info("GenericEJBContainer '" + containerId + "' failed");
+        log.error("GenericEJBContainer '" + containerId + "' failed");
     }
 
     public String getObjectName() {

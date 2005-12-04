@@ -123,17 +123,17 @@ public class SunNameService implements GBeanLifecycle {
 
     public void doStart() throws Exception {
         new Thread(new ORBRunner(orb), "ORBRunner").start();
-        log.info("Started transient CORBA name service on port " + port);
+        log.debug("Started transient CORBA name service on port " + port);
     }
 
     public void doStop() throws Exception {
         orb.destroy();
-        log.info("Stopped transient CORBA name service on port " + port);
+        log.debug("Stopped transient CORBA name service on port " + port);
     }
 
     public void doFail() {
         orb.destroy();
-        log.info("Failed transient CORBA name service on port " + port);
+        log.warn("Failed transient CORBA name service on port " + port);
     }
 
     private static final class ORBRunner implements Runnable {

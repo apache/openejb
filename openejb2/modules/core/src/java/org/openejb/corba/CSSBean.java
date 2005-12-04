@@ -254,7 +254,7 @@ public class CSSBean implements GBeanLifecycle {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
-        log.info("Started CORBA Client Security Server - " + description);
+        log.debug("Started CORBA Client Security Server - " + description);
     }
 
     private ClientTransactionPolicyConfig buildClientTransactionPolicyConfig() {
@@ -264,11 +264,11 @@ public class CSSBean implements GBeanLifecycle {
     public void doStop() throws Exception {
         nssORB.destroy();
         cssORB.destroy();
-        log.info("Stopped CORBA Client Security Server - " + description);
+        log.debug("Stopped CORBA Client Security Server - " + description);
     }
 
     public void doFail() {
-        log.info("Failed CORBA Client Security Server " + description);
+        log.debug("Failed CORBA Client Security Server " + description);
     }
 
     public static final GBeanInfo GBEAN_INFO;
