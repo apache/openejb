@@ -205,12 +205,12 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     public synchronized void doStop() throws Exception {
         stopped = true;
-        log.info("Stopped");
+        log.debug("Stopped");
     }
 
     public synchronized void doFail() {
         stopped = true;
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;

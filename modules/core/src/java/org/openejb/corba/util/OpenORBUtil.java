@@ -82,15 +82,15 @@ public class OpenORBUtil implements GBeanLifecycle {
 
 //        DefaultORB.setORB(server.getORB());
 
-        log.info("Started OpenORBUtil");
+        log.debug("Started OpenORBUtil");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped OpenORBUtil");
+        log.debug("Stopped OpenORBUtil");
     }
 
     public void doFail() {
-        log.info("Failed OpenORBUtil");
+        log.warn("Failed OpenORBUtil");
     }
 
     public static final GBeanInfo GBEAN_INFO;

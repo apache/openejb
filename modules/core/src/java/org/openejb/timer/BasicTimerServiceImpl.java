@@ -280,7 +280,7 @@ public class BasicTimerServiceImpl implements BasicTimerService {
                 currentThread.setContextClassLoader(classLoader);
                 timerService.getStack().invoke(invocation);
             } catch (Throwable throwable) {
-                log.info(throwable);
+                log.warn("Timer invocation failed", throwable);
             } finally {
                 currentThread.setContextClassLoader(oldClassLoader);
             }

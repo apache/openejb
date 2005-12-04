@@ -162,7 +162,7 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
                 log.error(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" FAIL \"Unknown request type "+requestType);
             }
 
-//            log.info(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" OK");
+//            log.debug(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" OK");
         } catch (SecurityException e) {
             log.error(socket.getInetAddress().getHostAddress()+" \""+requestTypeName +" "+ protocolMetaData.getSpec() + "\" FAIL \"Security error - "+e.getMessage()+"\"",e);
         } catch (Throwable e) {

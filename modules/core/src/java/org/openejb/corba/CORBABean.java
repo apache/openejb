@@ -162,16 +162,16 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
-        log.info("Started CORBABean");
+        log.debug("Started CORBABean");
     }
 
     public void doStop() throws Exception {
         orb.destroy();
-        log.info("Stopped CORBABean");
+        log.debug("Stopped CORBABean");
     }
 
     public void doFail() {
-        log.info("Failed CORBABean");
+        log.warn("Failed CORBABean");
     }
 
     public static final GBeanInfo GBEAN_INFO;
