@@ -45,6 +45,7 @@
 package org.openejb.test.entity.cmp2.cmrmapping;
 
 import javax.ejb.EJBLocalObject;
+import javax.ejb.FinderException;
 
 /**
  * @version $Revision$ $Date$
@@ -53,4 +54,5 @@ public interface ManyOwningSideLocal extends EJBLocalObject {
     // CMR
     public OneInverseSideLocal getOneInverseSide();
     public void setOneInverseSide(OneInverseSideLocal oneInverseSideLocal);
+    public void testEJBSelect() throws FinderException;
 }

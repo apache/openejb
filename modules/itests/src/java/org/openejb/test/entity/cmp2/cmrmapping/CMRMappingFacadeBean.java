@@ -183,6 +183,23 @@ public class CMRMappingFacadeBean implements javax.ejb.SessionBean {
         }
     }
 
+    public void testEjbSelectWithCMR() throws TestFailureException {
+        UserTransaction userTransaction = ctx.getUserTransaction();
+        try {
+            userTransaction.begin();
+            OneInverseSideLocal inverseLocal = createOneInverseSide(compoundPK_20_10.field1);
+            ManyOwningSideLocal owningLocal = createManyOwningSide(compoundPK_20_10);
+            owningLocal.setOneInverseSide(inverseLocal);
+            userTransaction.commit();
+
+            owningLocal.testEJBSelect();
+
+            removeOneToMany(userTransaction);
+        } catch (Throwable e) {
+            throw new TestFailureException(new AssertionFailedError("Received Exception " + e.getClass() + " : " + e.getMessage()));
+        }
+    }
+
     public void testOneToManySetCMROnOwningSideResetPK() throws TestFailureException {
         UserTransaction userTransaction = ctx.getUserTransaction();
         try {
