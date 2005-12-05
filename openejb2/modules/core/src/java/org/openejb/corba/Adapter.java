@@ -70,6 +70,7 @@ import org.openejb.proxy.ProxyInfo;
 public abstract class Adapter implements RefGenerator {
     private final EJBContainer container;
     protected final POA homePOA;
+    protected final ORB orb;
     private final NamingContextExt initialContext;
     private final byte[] home_id;
     private final org.omg.CORBA.Object homeReference;
@@ -77,6 +78,7 @@ public abstract class Adapter implements RefGenerator {
     protected Adapter(EJBContainer container, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
         this.container = container;
         this.home_id = container.getContainerID().toString().getBytes();
+        this.orb = orb;
 
         Any any = orb.create_any();
         any.insert_Value(container.getHomeTxPolicyConfig());
@@ -95,7 +97,7 @@ public abstract class Adapter implements RefGenerator {
 
             homePOA.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(EJBInterfaceType.HOME, container);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.HOME, container);
 
             homePOA.activate_object_with_id(home_id, servant);
             homeReference = homePOA.servant_to_reference(servant);
@@ -135,6 +137,10 @@ public abstract class Adapter implements RefGenerator {
 
     public org.omg.CORBA.Object getHomeReference() {
         return homeReference;
+    }
+
+    public ORB getOrb() {
+        return orb;
     }
 
     public void stop() throws CORBAException {

@@ -86,7 +86,7 @@ public final class AdapterStateless extends Adapter {
 
             poa.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(EJBInterfaceType.REMOTE, container);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, container);
 
             poa.activate_object_with_id(object_id = container.getContainerID().toString().getBytes(), servant);
             objectReference = poa.servant_to_reference(servant);
