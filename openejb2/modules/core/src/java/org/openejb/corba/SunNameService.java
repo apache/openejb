@@ -66,7 +66,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  *  <gbean name="NameServer" class="org.openejb.corba.SunNameService">
  *      <reference name="ServerInfo">
- *          <module>org/apache/geronimo/System</module>
+ *          <module>geronimo/j2ee-system/${geronimo_version}/car</module>
  *          <name>ServerInfo</name>
  *      </reference>
  *      <attribute name="dbDir">var/cosnaming.db</attribute>
