@@ -66,6 +66,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -111,11 +112,11 @@ public class StandardServant extends Servant implements InvokeHandler {
     private final Map operations;
     private final Context enc;
 
-    public StandardServant(EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer) {
-        this(ejbInterfaceType, ejbContainer, null);
+    public StandardServant(ORB orb, EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer) {
+        this(orb, ejbInterfaceType, ejbContainer, null);
     }
 
-    public StandardServant(EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer, Object primaryKey) {
+    public StandardServant(ORB orb, EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer, Object primaryKey) {
         this.ejbInterfaceType = ejbInterfaceType;
         this.ejbContainer = ejbContainer;
         this.primaryKey = primaryKey;

@@ -101,7 +101,7 @@ public final class AdapterEntity extends Adapter {
 
             poa.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(EJBInterfaceType.REMOTE, container);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, container);
             referenceInterface = servant._all_interfaces(null, null)[0];
         } catch (Exception e) {
             throw new CORBAException(e);
@@ -147,7 +147,7 @@ public final class AdapterEntity extends Adapter {
                 is.close();
 
                 EJBContainer container = getContainer();
-                StandardServant servant = new StandardServant(EJBInterfaceType.REMOTE, container, pk);
+                StandardServant servant = new StandardServant(getOrb(), EJBInterfaceType.REMOTE, container, pk);
                 return servant;
             } catch (IOException e) {
                 // if we can't deserialize, then this object can't exist in this process
