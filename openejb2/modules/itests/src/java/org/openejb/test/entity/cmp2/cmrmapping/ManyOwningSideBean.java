@@ -44,7 +44,9 @@
  */
 package org.openejb.test.entity.cmp2.cmrmapping;
 
+import java.util.Collection;
 import javax.ejb.CreateException;
+import javax.ejb.FinderException;
 
 /**
  * @version $Revision$ $Date$
@@ -61,7 +63,13 @@ public abstract class ManyOwningSideBean extends AbstractEntityBean {
     // CMR
     public abstract OneInverseSideLocal getOneInverseSide();
     public abstract void setOneInverseSide(OneInverseSideLocal oneInverseSideLocal);
-    
+
+    // EJB Select
+    public abstract OneInverseSideLocal ejbSelectSomething(Integer id) throws FinderException;
+    public void testEJBSelect() throws FinderException {
+        ejbSelectSomething(getId());
+    }
+
     public Integer ejbCreate(Integer id, Integer field1) throws CreateException {
         setId(id);
         setField1(field1);

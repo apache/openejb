@@ -47,6 +47,15 @@
             <abstract-schema-name>Order</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>field1</field-name></cmp-field>
+            <query>
+                <query-method>
+                    <method-name>ejbSelectSomething</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT m.oneInverseSide FROM Order m WHERE m.id = ?1</ejb-ql>
+            </query>
         </entity>
 
         <session>
