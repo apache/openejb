@@ -235,7 +235,7 @@
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <u:sleep millis="30000"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             maxtries="125"
@@ -243,53 +243,53 @@
         <echo message="runtime deployer has started"/>
         <u:sleep millis="7000"/>
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             plan="${maven.build.dir}/plan/security-plan.xml" />
         <echo message="deployed test security configuration"/>
         <echo message="deploying itests... this will take a while"/>
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-itests-${pom.currentVersion}.jar" />
         <echo message="deployed ejbs"/>
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests/${openejb_version}/car"/>
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-security-001.jar"
             />
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-security-002.jar"
             />
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-security-003.jar"
             />
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests-security-scenario001/${openejb_version}/car"/>
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests-security-scenario002/${openejb_version}/car"/>
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests-security-scenario003/${openejb_version}/car"/>
@@ -297,52 +297,52 @@
         <!-- Prefetch Tests  -->
         <attainGoal name="antIntegration"/>
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-cmp2-prefetch.jar"
             />
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-prefetch/${openejb_version}/car"/>
 
         <!-- CMR Mapping Tests  -->
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-cmp2-cmrmapping.jar"
             />
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-cmrmapping/${openejb_version}/car"/>
 
         <!-- PK Generator Tests  -->
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-cmp2-petstore.jar"
             />
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-petstore/${openejb_version}/car"/>
 
         <!-- Storage Tests  -->
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-cmp2-storage.jar"
             />
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-storage/${openejb_version}/car"/>
@@ -350,82 +350,82 @@
 
     <preGoal name="itest:teardown">
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-cmrmapping/${openejb_version}/car"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-cmrmapping/${openejb_version}/car"/>
 
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-storage/${openejb_version}/car"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-storage/${openejb_version}/car"/>
 
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-petstore/${openejb_version}/car"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-petstore/${openejb_version}/car"/>
 
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-prefetch/${openejb_version}/car"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/cmp2-prefetch/${openejb_version}/car"/>
 
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/scenario003"/>
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/scenario002"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/scenario002"/>
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/scenario001"/>
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/Itests"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/Itests"/>
         <echo message="undeployed ejbs"/>
         <deploy:stopRemoteServer
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"/>
         <echo message="server has stopped"/>
@@ -438,7 +438,7 @@
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/openejb/Security"/>
@@ -447,7 +447,7 @@
 
     <goal name="svr:stop">
         <deploy:stopRemoteServer
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"/>
         <echo message="server has stopped"/>
@@ -459,7 +459,7 @@
             <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
         </ant:jar>
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-security-001.jar"
@@ -469,13 +469,13 @@
             <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
         </ant:jar>
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.build.dir}/openejb-security-003.jar"
             />
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/openejb/scenario001"/>
@@ -483,17 +483,17 @@
 
     <goal name="sec:stop">
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests-security-scenario003/${openejb_version}/car"/>
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests-security-scenario003/${openejb_version}/car"/>
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="openejb/itests-security-scenario003/${openejb_version}/car"/>
