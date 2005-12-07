@@ -111,9 +111,9 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo</artifactId>
+            <artifactId>geronimo-jetty-j2ee</artifactId>
             <version>${geronimo_version}</version>
-            <jar>geronimo-${geronimo_version}.zip</jar>
+            <jar>geronimo-jetty-j2ee-${geronimo_version}.zip</jar>
             <type>distribution</type>
         </dependency>
 
