@@ -48,6 +48,7 @@
 package org.openejb.client.naming;
 
 import java.util.Hashtable;
+
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
@@ -56,6 +57,8 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openejb.client.Client;
 import org.openejb.client.EJBHomeHandler;
 import org.openejb.client.EJBHomeProxy;
@@ -69,6 +72,27 @@ import org.openejb.client.ServerMetaData;
  * @version $Revision$ $Date$
  */
 public class RemoteEJBObjectFactory implements ObjectFactory {
+	private static Log log = LogFactory.getLog(RemoteEJBObjectFactory.class);
+	private static final int PORT;
+	private static final String IP;
+	
+	static {
+		int port;
+		
+		try {
+			port = Integer.parseInt(System.getProperty("openejb.server.port", "4201"));
+		} catch (NumberFormatException nfe) {
+			port = 4201;
+			
+			log.warn("openejb.server.port [" + 
+				System.getProperty("openejb.server.port") + 
+				"] is invalid.  Using the default [" + port + "].");
+		}
+		
+		PORT = port;
+		IP = System.getProperty("openejb.server.ip", "127.0.0.1");
+	}
+	
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
         if (!(obj instanceof Reference)) {
             return null;
@@ -85,7 +109,7 @@ public class RemoteEJBObjectFactory implements ObjectFactory {
         JNDIResponse res = null;
         ServerMetaData server;
         try{
-            server = new ServerMetaData("127.0.0.1", 4201);
+            server = new ServerMetaData(RemoteEJBObjectFactory.IP, RemoteEJBObjectFactory.PORT);
             res = (JNDIResponse) Client.request(req, new JNDIResponse(), server);
         } catch (Exception e){
             throw (NamingException)new NamingException("Cannot lookup " + containerId).initCause(e);
