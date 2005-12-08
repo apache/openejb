@@ -44,6 +44,8 @@
  */
 package org.openejb.server.ejbd;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openejb.ContainerIndex;
 import org.openejb.client.EJBHomeHandle;
 import org.openejb.client.EJBHomeHandler;
@@ -61,12 +63,32 @@ import org.openejb.proxy.ProxyInfo;
  */
 class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
     private final ContainerIndex containerIndex;
+    private static Log log = LogFactory.getLog(ClientObjectFactory.class);
+	private static final int PORT;
+	private static final String IP;
+	
+	static {
+		int port;
+		
+		try {
+			port = Integer.parseInt(System.getProperty("openejb.server.port", "4201"));
+		} catch (NumberFormatException nfe) {
+			port = 4201;
+			
+			log.warn("openejb.server.port [" + 
+				System.getProperty("openejb.server.port") + 
+				"] is invalid.  Using the default [" + port + "].");
+		}
+		
+		PORT = port;
+		IP = System.getProperty("openejb.server.ip", "127.0.0.1");
+	}
 
     protected ServerMetaData sMetaData;
 
     public ClientObjectFactory(ContainerIndex containerIndex) throws Exception {
         this.containerIndex = containerIndex;
-        this.sMetaData = new ServerMetaData("127.0.0.1", 4201);
+        this.sMetaData = new ServerMetaData(ClientObjectFactory.IP, ClientObjectFactory.PORT);
     }
 
     public javax.ejb.EJBMetaData getEJBMetaData(ProxyInfo info) {
