@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-
-<database name="Local_TX_Database" engine="postgresql">
-  <driver class-name="org.postgresql.Driver" url="jdbc:postgresql://localhost/mydb">
-    <param name="user" value="username"/>
-    <param name="password" value="password"/>
-  </driver>
-  <mapping href="src/examples/conf/postgresql.titan_or_mapping.xml"/>
-</database>
