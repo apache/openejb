@@ -47,12 +47,6 @@
  */
 package org.openejb.deployment;
 
-import java.util.Map;
-
-import javax.management.ObjectName;
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -76,6 +70,11 @@ import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.sql.SQLSchema;
+
+import javax.management.ObjectName;
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+import java.util.Map;
 
 
 /**
@@ -189,7 +188,7 @@ class CMPEntityBuilder extends EntityBuilder {
             GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), getTssBeanObjectName(openejbEntityBean, earContext));
             return gbean;
         } catch (Throwable e) {
-            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName [" + ejbName + "]", e);
+            throw new DeploymentException("Unable to initialize EJB named '" + ejbName + "': "+e.getMessage(), e);
         }
     }
 
