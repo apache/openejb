@@ -48,34 +48,13 @@
 
 package org.openejb.deployment;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.Permissions;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -92,8 +71,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -125,6 +104,26 @@ import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.SQLSchema;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.Permissions;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
 
 
 /**
@@ -218,6 +217,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
+        if(openejbJar == null) { // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
+            throw new DeploymentException("Currently a Geronimo deployment plan is required for an EJB module.  Please provide a plan as a deployer argument or packaged in the EJB JAR at META-INF/openejb-jar.xml");
+        }
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;

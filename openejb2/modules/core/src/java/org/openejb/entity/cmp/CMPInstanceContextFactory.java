@@ -47,17 +47,6 @@
  */
 package org.openejb.entity.cmp;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import javax.ejb.EntityBean;
-import javax.ejb.EntityContext;
-import javax.ejb.EJBException;
-
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
@@ -67,6 +56,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.common.DeploymentException;
 import org.openejb.InstanceContextFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
@@ -76,6 +66,17 @@ import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.timer.BasicTimerService;
 import org.tranql.cache.FaultHandler;
 import org.tranql.identity.IdentityTransform;
+
+import javax.ejb.EJBException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Revision$ $Date$
@@ -98,7 +99,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient TransactionContextManager transactionContextManager;
     private transient BasicTimerService timerService;
 
-    public CMPInstanceContextFactory(Object containerId, CMP1Bridge cmp1Bridge, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) {
+    public CMPInstanceContextFactory(Object containerId, CMP1Bridge cmp1Bridge, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) throws DeploymentException {
         this.containerId = containerId;
         this.cmp1Bridge = cmp1Bridge;
         this.primaryKeyTransform = primaryKeyTransform;
@@ -124,7 +125,11 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
                 Map.Entry entry = (Map.Entry) iterator.next();
                 MethodSignature signature = (MethodSignature) entry.getKey();
                 InstanceOperation iop = (InstanceOperation) entry.getValue();
-                itable[MethodHelper.getSuperIndex(enhancedClass, signature)] = iop;
+                int index = MethodHelper.getSuperIndex(enhancedClass, signature);
+                if(index < 0) {
+                    throw new DeploymentException("Based on the EJB configuration I expected to find a method "+beanClass.getName()+"."+signature.toString()+" but no such method was found");
+                }
+                itable[index] = iop;
             }
         } else {
             enhancer = null;
@@ -201,6 +206,11 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     };
 
     private Object readResolve() {
-        return new CMPInstanceContextFactory(containerId, cmp1Bridge, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
+        try {
+            return new CMPInstanceContextFactory(containerId, cmp1Bridge, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
+        } catch (DeploymentException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
