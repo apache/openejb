@@ -95,6 +95,19 @@ public abstract class CMPFinder implements VirtualOperation, Serializable {
             return groupHandler.execute(cache, command, arguments, ctx);
         }
         handler = new CacheFiller(handler, idDefiner, idInjector, cache);
-        return command.execute(handler, arguments, ctx);
+        try {
+            return command.execute(handler, arguments, ctx);
+        } catch (IllegalStateException e) {
+            throw new QueryException("Unable to execute finder; perhaps the cmp-connection-factory was not configured correctly?  Error message is: "+e.getMessage());
+            // The handling for this is kind of awkward -- the user configured a bad cmp-connection-factory
+            // and we didn't validate it during deployment for various reasons.  So the only way we discover
+            // it is that at runtime TranQL detects that it doesn't have a database connection.  Since it's
+            // a little late to throw a deployment exception, and TranQL doesn't know specifically about
+            // OpenEJB, it just throws a sort of generic IllegalStateException.  We catch that here and try
+            // to be a little more specific, but it's still not 100% sure that we got into this situation
+            // exactly because of that initial cause.  See GERONIMO-1176 for a bit more related information.
+            // See TranQL org.tranql.sql.DataSourceDelegate.getConnection for the exception this is catching.
+            // todo: see if we can detect this when we set the database connection on TranQL in the first place
+        }
     }
 }
