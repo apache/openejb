@@ -46,9 +46,6 @@ package org.openejb.corba;
 
 import com.sun.corba.se.internal.orbutil.ORBConstants;
 
-import org.apache.geronimo.interop.ApacheVMCID;
-
-
 /**
  * @version $Revision$ $Date$
  */
@@ -59,7 +56,8 @@ public interface MinorCodes {
     /**
      * GENERAL_BASE is used for orbutil/MinorCodes
      */
-    public static final int GENERAL_BASE = ApacheVMCID.value + SUBSYSTEM_SIZE;
+    // todo the hard coded value here is the Apache orb vendor id and Alan is going to replace this with a link to a Geronimo constant
+    public static final int GENERAL_BASE = 0x41534000 + SUBSYSTEM_SIZE;
 
     /**
      * COMM_FAILURE minor codes
