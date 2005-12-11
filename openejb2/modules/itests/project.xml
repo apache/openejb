@@ -114,7 +114,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment-plugin</artifactId>
-            <version>${geronimo_version}</version>
+            <version>${geronimo_deployment_plugin_version}</version>
             <type>plugin</type>
         </dependency>
 
