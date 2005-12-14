@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -134,11 +135,9 @@ import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.ReferenceAccessor;
-import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
-import org.tranql.identity.UserDefinedIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
@@ -150,7 +149,6 @@ import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Schema;
 import org.tranql.sql.SQLQueryBuilder;
 import org.tranql.sql.SQLSchema;
-import org.tranql.sql.Table;
 
 /**
  * @version $Revision$ $Date$
@@ -365,8 +363,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 AssociationEnd end = ejb.getAssociationEndDefiningFKAttribute(name);
                 CMPFieldTransform cmrAccessor = (CMPFieldTransform) cmrFieldAccessor.get(end.getName());
 
-                Entity relatedEntity = end.getEntity();
-                if (1 < relatedEntity.getPrimaryKeyFields().size()) {
+                EJB relatedEJB = (EJB) end.getEntity();
+                if (relatedEJB.isCompoundPK()) {
                     IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(end.getEntity());
                     accessor = new CMPFieldIdentityExtractorAccessor(cmrAccessor, identityDefiner);
 
@@ -384,7 +382,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                     
                     accessor = new ReadOnlyCMPFieldAccessor(accessor, attribute.getName());
                 } else {
-                    IdentityTransform transform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEntity);
+                    IdentityTransform transform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEJB);
                     accessor = new CMPMappedToCMRAccessor(cmrAccessor, accessor, transform);
                 }
             }  else {
@@ -487,20 +485,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         Association association = field.getAssociation();
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
         EJB relatedEJB = (EJB) field.getEntity();
-        CacheTable relatedCacheTbl = (CacheTable) globalSchema.getEntity(relatedEJB.getName());
-        IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(relatedField.getEntity());
 
-        List pkFields = relatedEJB.getPrimaryKeyFields();
-        IdentityDefiner relatedIdentityDefiner;
-        if ( 1 == pkFields.size() ) {
-            relatedIdentityDefiner = new UserDefinedIdentity(relatedCacheTbl, 0);
-        } else {
-            int slots[] = new int[pkFields.size()];
-            for (int i = 0; i < slots.length; i++) {
-                slots[i] = i;
-            }
-            relatedIdentityDefiner = new DerivedIdentity(relatedCacheTbl, slots);
-        }
+        IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(relatedField.getEntity());
+        IdentityDefiner relatedIdentityDefiner =
+            identityDefinerBuilder.getIdentityDefiner(relatedEJB, 0);
 
         QueryCommand faultCommand = queryBuilder.buildLoadAssociationEnd(definingEJB.getName(), field.getName(), prefetch);
         if ( field.isOneToOne() || field.isManyToOne() ) {
