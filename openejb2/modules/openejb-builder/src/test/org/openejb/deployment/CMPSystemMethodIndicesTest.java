@@ -61,6 +61,7 @@ import org.openejb.EJBInstanceContext;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
+import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.identity.IdentityDefinerBuilder;
@@ -76,10 +77,11 @@ public class CMPSystemMethodIndicesTest extends TestCase {
     public void testSystemMethodIndices() throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(MockCMPEJB.class.getClassLoader());
-        EJB ejb = new EJB("mock", "mock");
+        EJB ejb = new EJB("mock", "mock", Integer.class, null, null, false);
+        ejb.addCMPField(new CMPField("field1", Integer.class, true));
         EJBSchema ejbSchema = new EJBSchema("schema");
         ejbSchema.addEJB(ejb);
-        CacheTable cacheTable = new CacheTable("mock", new CacheSlot[0], null, null, null, null);
+        CacheTable cacheTable = new CacheTable("mock", new CacheSlot[] {new CacheSlot("field1", Integer.class, null)}, null, null, null, null);
         GlobalSchema globalSchema = new GlobalSchema("schema");
         globalSchema.addCacheTable(cacheTable);
         builder.setEJBName("mock");
