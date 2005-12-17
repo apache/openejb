@@ -49,12 +49,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -68,6 +74,14 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
     public static ContainerIndex getInstance() {
         return containerIndex;
     }
+
+    private static final Log log = LogFactory.getLog(ContainerIndex.class);
+
+    /**
+     * The kernel in which this index is registered.  This is only needed due to the inability to control the order of
+     * notifications in the kernel.
+     */
+    private final Kernel kernel;
 
     /**
      * The container lookup table.
@@ -90,9 +104,11 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
     private ReferenceCollection ejbContainers;
 
     protected ContainerIndex() {
+        kernel = null;
     }
 
-    public ContainerIndex(Collection ejbContainers) {
+    public ContainerIndex(Collection ejbContainers, Kernel kernel) {
+        this.kernel = kernel;
         ContainerIndex.containerIndex = this;
         this.ejbContainers = (ReferenceCollection) ejbContainers;
         this.ejbContainers.addReferenceCollectionListener(this);
@@ -181,7 +197,35 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
 
     public synchronized int getContainerIndex(String containerID) {
         Integer index = (Integer) containerIdToIndex.get(containerID);
-        return (index == null) ? -1 : index.intValue();
+
+        // try to fault in the container using the kernel directly
+        if ((index == null)) {
+            ObjectName name = null;
+            try {
+                name = new ObjectName(containerID);
+            } catch (MalformedObjectNameException e) {
+                log.error("contianerId is not a valid ObjectName: " + containerID);
+            }
+            EJBContainer ejbContainer = null;
+            try {
+                ejbContainer = (EJBContainer) kernel.getProxyManager().createProxy(name, EJBContainer.class);
+            } catch (Exception e) {
+                // couldn't find the container
+                log.debug("Container not found: " + containerID, e);
+                return -1;
+            }
+            addContainer(ejbContainer);
+            index = (Integer) containerIdToIndex.get(containerID);
+            if (index == null) {
+                log.error("added ejb container to index but index value was null: " + containerID);
+            }
+        }
+
+        if (index == null) {
+            return -1;
+        } else {
+            return index.intValue();
+        }
     }
 
     public synchronized int getContainerIndexByJndiName(String jndiName) {
@@ -214,7 +258,9 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ContainerIndex.class); //name apparently hardcoded
 
-        infoFactory.setConstructor(new String[]{"EJBContainers"});
+        infoFactory.addReference("EJBContainers", EJBContainer.class);//many types, specify type in patterns
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.setConstructor(new String[]{"EJBContainers", "kernel"});
 
         infoFactory.addOperation("getContainerIndex", new Class[]{Object.class});
         infoFactory.addOperation("getContainerIndex", new Class[]{String.class});
@@ -223,8 +269,6 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         infoFactory.addOperation("getContainer", new Class[]{Integer.class});
         infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
         infoFactory.addOperation("getContainerByJndiName", new Class[]{String.class});
-
-        infoFactory.addReference("EJBContainers", EJBContainer.class);//many types, specify type in patterns
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
