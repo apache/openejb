@@ -1,3 +1,0 @@
-main.class = org.openejb.test.TestRunner
-name = test
-description = Runs the OpenEJB compliance tests
