@@ -59,7 +59,7 @@ import javax.naming.spi.InitialContextFactory;
 public class JNDIContext implements Serializable, InitialContextFactory, Context, RequestMethods, ResponseCodes {
 
     private transient String tail = "/";
-    private transient ServerMetaData server;
+    private transient ServerMetaData[] servers;
     private transient Hashtable env;
 
     /**
@@ -85,7 +85,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      */
     public JNDIContext(JNDIContext that){
         this.tail   = that.tail;
-        this.server = that.server;
+        this.servers = that.servers;
         this.env    = (Hashtable)that.env.clone();
     }
 
@@ -105,7 +105,11 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
 
     private JNDIResponse request(JNDIRequest req) throws Exception {
-        return (JNDIResponse) Client.request(req, new JNDIResponse(), server);
+        RequestInfo reqInfo = new RequestInfo(req, servers);
+        JNDIResponse res = new JNDIResponse();
+        ResponseInfo resInfo = new ResponseInfo(res);
+        Client.request(reqInfo, resInfo);
+        return res;
     }
 
     public static void print(String s){
@@ -117,7 +121,11 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     //TODO:0:Write authentication module
     protected AuthenticationResponse requestAuthorization(AuthenticationRequest req) throws java.rmi.RemoteException {
-        return (AuthenticationResponse) Client.request(req, new AuthenticationResponse(), server);
+        RequestInfo reqInfo = new RequestInfo(req, servers);
+        AuthenticationResponse res = new AuthenticationResponse();
+        ResponseInfo resInfo = new ResponseInfo(res);
+        Client.request(reqInfo, resInfo);
+        return res;
     }
 
     //-------------------------------------------------------------//
@@ -169,9 +177,11 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         }
 
         try {
-            server = new ServerMetaData();
+            ServerMetaData server = new ServerMetaData();
             server.address = InetAddress.getByName( url.getHost() );
             server.port    = url.getPort();
+            
+            servers = new ServerMetaData[] {server};
         } catch (UnknownHostException  e){
             throw new ConfigurationException("Invalid provider URL:"+serverURL+": host unknown: "+e.getMessage());
         }
@@ -198,7 +208,8 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
         switch (res.getResponseCode()) {
             case AUTH_REDIRECT:
-                server = res.getServer();
+                ServerMetaData server = res.getServer();
+                servers = new ServerMetaData[] {server};
                 break;
             case AUTH_DENIED:
                 throw new javax.naming.AuthenticationException("This principle is not authorized.");
@@ -208,7 +219,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     // Construct a new handler and proxy.
     public EJBHomeProxy createEJBHomeProxy(EJBMetaDataImpl ejbData){
 
-        EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejbData, server);
+        EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejbData, servers);
         EJBHomeProxy proxy = handler.createEJBHomeProxy();
         handler.ejb.ejbHomeProxy = proxy;
 

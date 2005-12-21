@@ -50,8 +50,8 @@ import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.java.RootContext;
 import org.openejb.client.naming.java.javaURLContextFactory;
 
 /**
@@ -71,14 +71,15 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
 
     public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
         try {
-            ServerMetaData serverMetaData = new ServerMetaData(host, port);
-            JNDIResponse res = new JNDIResponse(serverMetaData);
+            ServerMetaData serverMetaData = new ServerMetaData("BOOT", host, port);
+            JNDIResponse res = new JNDIResponse();
+            ResponseInfo resInfo = new ResponseInfo(res);
             JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, appClientModuleName.toString(), "");
-
-            Client.request(req, res, serverMetaData);
+            RequestInfo reqInfo = new RequestInfo(req, new ServerMetaData[] {serverMetaData});
+            
+            Client.request(reqInfo, resInfo);
 
             context = (Context) res.getResult();
-
         } catch (Exception e) {
             NamingException namingException = new NamingException("Unable to retrieve J2EE AppClient's JNDI Context");
             namingException.initCause(e);

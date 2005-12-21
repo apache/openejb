@@ -50,12 +50,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBHome;
 import javax.ejb.Handle;
 
-import org.openejb.EJBComponentType;
-
 import org.apache.geronimo.security.ContextManager;
+import org.openejb.EJBComponentType;
 
 
 /**
@@ -75,25 +75,25 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
     public EJBHomeHandler() {
     }
 
-    public EJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server) {
-        super(ejb, server);
+    public EJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers) {
+        super(ejb, servers);
     }
 
-    public static EJBHomeHandler createEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server) {
+    public static EJBHomeHandler createEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers) {
 
         switch (ejb.type) {
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
 
-                return new EntityEJBHomeHandler(ejb, server);
+                return new EntityEJBHomeHandler(ejb, servers);
 
             case EJBComponentType.STATEFUL:
 
-                return new StatefulEJBHomeHandler(ejb, server);
+                return new StatefulEJBHomeHandler(ejb, servers);
 
             case EJBComponentType.STATELESS:
 
-                return new StatelessEJBHomeHandler(ejb, server);
+                return new StatelessEJBHomeHandler(ejb, servers);
         }
         return null;
 
@@ -234,7 +234,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
             case EJB_OK:
                 // Create the EJBObject proxy
                 Object primKey = res.getResult();
-                EJBObjectHandler handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, primKey);
+                EJBObjectHandler handler = EJBObjectHandler.createEJBObjectHandler(ejb, servers, primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy) proxy);
                 //TODO:1: Add the proxy to the handler registry
                 return handler.createEJBObjectProxy();

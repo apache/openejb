@@ -49,11 +49,11 @@ package org.openejb.sfsb;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-
 import org.openejb.AbstractInterceptorBuilder;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
 import org.openejb.TwoChains;
+import org.openejb.cluster.server.ClusteredInstanceInterceptor;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EJBRunAsInterceptor;
@@ -92,6 +92,9 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
         }
         if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
+        }
+        if (clustered) {
+            firstInterceptor = new ClusteredInstanceInterceptor(firstInterceptor);
         }
         firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache, transactionContextManager);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);

@@ -58,6 +58,7 @@ import java.net.UnknownHostException;
  */
 public class ServerMetaData implements Externalizable{
 
+    transient String nodeName;
     transient int port;
 
     /**
@@ -71,9 +72,14 @@ public class ServerMetaData implements Externalizable{
 
     }
     
-    public ServerMetaData(String host, int port) throws UnknownHostException{
+    public ServerMetaData(String nodeName, String host, int port) throws UnknownHostException{
+        this.nodeName = nodeName;
         this.address = InetAddress.getByName( host );
         this.port = port;
+    }
+
+    public String getNodeName() {
+        return nodeName;
     }
 
     public int getPort(){
@@ -92,8 +98,26 @@ public class ServerMetaData implements Externalizable{
         this.address = address;
     }
 
+    public boolean equals(Object obj) {
+        if (false == obj instanceof ServerMetaData) {
+            return false;
+        }
+        ServerMetaData other = (ServerMetaData) obj;
+        
+        if (false == nodeName.equals(other.nodeName)) {
+            return false;
+        } else if (false == address.equals(other.address)) {
+            return false;
+        } else if (false == (port == other.port)) {
+            return false;
+        }
+        return true;
+    }
 
-
+    public int hashCode() {
+        return nodeName.hashCode() * address.hashCode() * port;
+    }
+    
     /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive
@@ -107,6 +131,7 @@ public class ServerMetaData implements Externalizable{
      *              restored cannot be found.
      */
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
+        nodeName = in.readUTF();
         // byte[] IP = new byte[4];
         
         // IP[0] = in.readByte();
@@ -155,6 +180,8 @@ public class ServerMetaData implements Externalizable{
      * @exception IOException Includes any I/O exceptions that may occur
      */
     public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(nodeName);
+        
         byte[] addr = address.getAddress();
         
         out.writeByte(addr[0]);
@@ -164,7 +191,4 @@ public class ServerMetaData implements Externalizable{
         
         out.writeInt(port);
     }
-
 }
-
-

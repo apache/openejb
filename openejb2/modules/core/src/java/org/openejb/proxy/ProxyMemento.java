@@ -44,17 +44,14 @@
  */
 package org.openejb.proxy;
 
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 import java.io.InvalidClassException;
 import java.io.InvalidObjectException;
-import java.io.ObjectOutput;
-import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.rmi.RemoteException;
 
-import org.openejb.EJBComponentType;
-import org.openejb.client.*;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.openejb.EJBComponentType;
 
 /**
  * @version $Revision$ $Date$

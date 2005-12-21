@@ -85,33 +85,33 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
     public EJBObjectHandler() {
     }
 
-    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server) {
-        super(ejb, server);
+    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers) {
+        super(ejb, servers);
     }
 
-    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey) {
-        super(ejb, server, primaryKey);
+    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers, Object primaryKey) {
+        super(ejb, servers, primaryKey);
     }
 
     protected void setEJBHomeProxy(EJBHomeProxy ejbHome) {
         this.ejbHome = ejbHome;
     }
 
-    public static EJBObjectHandler createEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey) {
+    public static EJBObjectHandler createEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers, Object primaryKey) {
 
         switch (ejb.type) {
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
 
-                return new EntityEJBObjectHandler(ejb, server, primaryKey);
+                return new EntityEJBObjectHandler(ejb, servers, primaryKey);
 
             case EJBComponentType.STATEFUL:
 
-                return new StatefulEJBObjectHandler(ejb, server, primaryKey);
+                return new StatefulEJBObjectHandler(ejb, servers, primaryKey);
 
             case EJBComponentType.STATELESS:
 
-                return new StatelessEJBObjectHandler(ejb, server, primaryKey);
+                return new StatelessEJBObjectHandler(ejb, servers, primaryKey);
         }
         return null;
     }
@@ -228,7 +228,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
 
     protected Object getEJBHome(Method method, Object[] args, Object proxy) throws Throwable {
         if (ejbHome == null) {
-            ejbHome = EJBHomeHandler.createEJBHomeHandler(ejb, server).createEJBHomeProxy();
+            ejbHome = EJBHomeHandler.createEJBHomeHandler(ejb, servers).createEJBHomeProxy();
         }
         return ejbHome;
     }

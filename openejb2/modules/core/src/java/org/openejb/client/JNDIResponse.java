@@ -59,9 +59,6 @@ import org.openejb.proxy.EJBProxyReference;
  * @since 11/25/2001
  */
 public class JNDIResponse implements Response {
-
-
-    private transient ServerMetaData serverMetaData;
     private transient int responseCode = -1;
     private transient Object result;
     private static final int CONTEXT = 1;
@@ -70,10 +67,6 @@ public class JNDIResponse implements Response {
     private static final int END = 99;
 
     public JNDIResponse(){
-    }
-
-    public JNDIResponse(ServerMetaData serverMetaData) {
-        this.serverMetaData = serverMetaData;
     }
 
     public JNDIResponse(int code, Object obj){

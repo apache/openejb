@@ -68,7 +68,9 @@ import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstancePool;
+import org.openejb.cluster.server.EJBClusterManager;
 import org.openejb.corba.TSSBean;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.ProxyInfo;
@@ -89,12 +91,39 @@ public class CMPEJBContainer extends GenericEJBContainer {
     private final FrontEndCacheDelegate delegate;
     private final CacheFactory factory;
     
-    public CMPEJBContainer(Object containerId, String ejbName, ProxyInfo proxyInfo, InterfaceMethodSignature[] signatures, InstanceContextFactory contextFactory, InterceptorBuilder interceptorBuilder, InstancePool pool, Map componentContext, UserTransactionImpl userTransaction, String[] jndiNames, String[] localJndiNames, TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator, ThreadPooledTimer timer, String objectName, Kernel kernel, DefaultPrincipal defaultPrincipal, Subject runAsSubject, TSSBean tssBean, Serializable homeTxPolicyConfig, Serializable remoteTxPolicyConfig, ClassLoader classLoader, FrontEndCacheDelegate delegate, CacheFactory factory) throws Exception {
-        super(containerId, ejbName, proxyInfo, signatures, contextFactory,
-                interceptorBuilder, pool, componentContext, userTransaction, jndiNames,
-                localJndiNames, transactionContextManager, trackedConnectionAssociator,
-                timer, objectName, kernel, defaultPrincipal, runAsSubject, tssBean,
-                homeTxPolicyConfig, remoteTxPolicyConfig, classLoader);
+    public CMPEJBContainer(Object containerId,
+            String ejbName,
+            ProxyInfo proxyInfo,
+            InterfaceMethodSignature[] signatures,
+            InstanceCache instanceCache, 
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool,
+            Map componentContext,
+            UserTransactionImpl userTransaction,
+            String[] jndiNames,
+            String[] localJndiNames,
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            ThreadPooledTimer timer,
+            String objectName,
+            Kernel kernel,
+            DefaultPrincipal defaultPrincipal,
+            Subject runAsSubject,
+            TSSBean tssBean,
+            Serializable homeTxPolicyConfig,
+            Serializable remoteTxPolicyConfig,
+            ClassLoader classLoader,
+            EJBClusterManager clusterManager,
+            FrontEndCacheDelegate delegate,
+            CacheFactory factory) throws Exception {
+        super(containerId, ejbName, proxyInfo, signatures, instanceCache,
+                contextFactory, interceptorBuilder, pool, componentContext,
+                userTransaction, jndiNames, localJndiNames,
+                transactionContextManager, trackedConnectionAssociator, timer,
+                objectName, kernel, defaultPrincipal, runAsSubject, tssBean,
+                homeTxPolicyConfig, remoteTxPolicyConfig, classLoader,
+                clusterManager);
         this.transactionContextManager = transactionContextManager;
         this.delegate = delegate;
         this.factory = factory;
@@ -131,6 +160,7 @@ public class CMPEJBContainer extends GenericEJBContainer {
         infoFactory.addAttribute("ejbName", String.class, true);
         infoFactory.addAttribute("proxyInfo", ProxyInfo.class, true);
         infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
+        infoFactory.addAttribute("instanceCache", InstanceCache.class, true);
         infoFactory.addAttribute("contextFactory", InstanceContextFactory.class, true);
         infoFactory.addAttribute("interceptorBuilder", InterceptorBuilder.class, true);
         infoFactory.addAttribute("pool", InstancePool.class, true);
@@ -149,6 +179,8 @@ public class CMPEJBContainer extends GenericEJBContainer {
         infoFactory.addReference("Timer", ThreadPooledTimer.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addReference("TSSBean", TSSBean.class);
+
+        infoFactory.addReference("EJBClusterManager", EJBClusterManager.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addInterface(J2EEManagedObject.class);
@@ -179,6 +211,7 @@ public class CMPEJBContainer extends GenericEJBContainer {
             "ejbName",
             "proxyInfo",
             "signatures",
+            "instanceCache",
             "contextFactory",
             "interceptorBuilder",
             "pool",
@@ -197,6 +230,7 @@ public class CMPEJBContainer extends GenericEJBContainer {
             "homeTxPolicyConfig",
             "remoteTxPolicyConfig",
             "classLoader",
+            "EJBClusterManager",
             "frontEndCacheDelegate",
             "cacheFactory"});
 

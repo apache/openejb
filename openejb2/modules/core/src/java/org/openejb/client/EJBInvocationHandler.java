@@ -126,8 +126,10 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
     /**
      * The ServerMetaData object containing the information needed to 
      * send invokations to the EJB Server.
+     * This array identifies all the EJB servers running the target bean
+     * deployment.
      */
-    protected transient ServerMetaData server;
+    protected transient ServerMetaData[] servers;
 
     /**
      * The primary key of the bean deployment or null if the deployment
@@ -141,13 +143,13 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
     public EJBInvocationHandler(){
     }
     
-    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server){
+    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers){
         this.ejb        = ejb;
-        this.server     = server;
+        this.servers     = servers;
     }
     
-    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
-        this(ejb, server);
+    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers, Object primaryKey){
+        this(ejb, servers);
         this.primaryKey = primaryKey;
     }
 
@@ -204,7 +206,12 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
     }
 
     protected EJBResponse request(EJBRequest req) throws Exception {
-        return (EJBResponse) Client.request(req, new EJBResponse(), server);
+        RequestInfo reqInfo = new RequestInfo(req, servers);
+        EJBResponse res = new EJBResponse();
+        ResponseInfo resInfo = new ResponseInfo(res);
+        Client.request(reqInfo, resInfo);
+        servers = resInfo.getServers();
+        return res;
     }
     
     /**
@@ -215,7 +222,7 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
      * removed, by calling one of the remove( ) methods.
      */
     protected void invalidateReference(){
-        this.server     = null;
+        this.servers     = null;
         this.ejb        = null;
         this.inProxyMap = false;
         this.isInvalidReference = true;

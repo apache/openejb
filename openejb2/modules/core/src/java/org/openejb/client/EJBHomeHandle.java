@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBHome;
 
 /**
@@ -99,7 +100,8 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
         out.writeByte(ejb.type);
         out.writeUTF(ejb.deploymentID);
         out.writeShort(ejb.deploymentCode);
-        handler.server.writeExternal(out);
+        
+        out.writeObject(handler.servers);
     }
 
     /**
@@ -107,7 +109,6 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         EJBMetaDataImpl ejb = new EJBMetaDataImpl();
-        ServerMetaData server = new ServerMetaData();
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) {
@@ -127,9 +128,9 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
         ejb.deploymentID = in.readUTF();
         ejb.deploymentCode = in.readShort();
 
-        server.readExternal(in);
+        ServerMetaData[] servers = (ServerMetaData[]) in.readObject();
 
-        handler = EJBHomeHandler.createEJBHomeHandler(ejb, server);
+        handler = EJBHomeHandler.createEJBHomeHandler(ejb, servers);
         ejbHomeProxy = handler.createEJBHomeProxy();
     }
 

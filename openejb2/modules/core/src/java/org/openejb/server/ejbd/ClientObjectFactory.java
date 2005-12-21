@@ -84,11 +84,11 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
 		IP = System.getProperty("openejb.server.ip", "127.0.0.1");
 	}
 
-    protected ServerMetaData sMetaData;
+    protected ServerMetaData[] servers;
 
     public ClientObjectFactory(ContainerIndex containerIndex) throws Exception {
         this.containerIndex = containerIndex;
-        this.sMetaData = new ServerMetaData(ClientObjectFactory.IP, ClientObjectFactory.PORT);
+        servers = new ServerMetaData[] {new ServerMetaData("BOOT", ClientObjectFactory.IP, ClientObjectFactory.PORT)};
     }
 
     public javax.ejb.EJBMetaData getEJBMetaData(ProxyInfo info) {
@@ -197,7 +197,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 idCode);
         Object primKey = info.getPrimaryKey();
 
-        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,primKey);
+        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,servers,primKey);
 
         return new EJBObjectHandle( hanlder.createEJBObjectProxy() );
     }
@@ -223,7 +223,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getContainerID(),
                 idCode);
         
-        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData);
+        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,servers);
 
         return new EJBHomeHandle( hanlder.createEJBHomeProxy() );
     }
@@ -250,7 +250,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 idCode);
         Object primKey = info.getPrimaryKey();
 
-        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,primKey);
+        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,servers,primKey);
 
         return hanlder.createEJBObjectProxy();
     }
@@ -276,7 +276,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                                                         info.getContainerID(),
                                                         idCode);
 
-        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData);
+        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,servers);
 
         //EJBHomeProxyHandle handle = new EJBHomeProxyHandle( hanlder );
 

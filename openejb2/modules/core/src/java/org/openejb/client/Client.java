@@ -44,9 +44,16 @@
  */
 package org.openejb.client;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openejb.server.ejbd.EJBObjectInputStream;
 
 /**
@@ -54,11 +61,14 @@ import org.openejb.server.ejbd.EJBObjectInputStream;
  * @since 11/25/2001
  */
 public class Client {
-
+    private static final Log log = LogFactory.getLog(Client.class);
+    
     private static final ProtocolMetaData PROTOCOL_VERSION = new ProtocolMetaData("2.0");
 
-    public static Response request(Request req, Response res, ServerMetaData server) throws RemoteException {
-        if ( server == null ) throw new IllegalArgumentException("Server instance cannot be null");
+    public static void request(RequestInfo reqInfo, ResponseInfo resInfo) throws RemoteException {
+        Request req = reqInfo.getRequest();
+        ServerMetaData[] servers = reqInfo.getServers();
+        if ( servers == null || servers.length == 0) throw new IllegalArgumentException("Server instance cannot be null");
 
         OutputStream out       = null;
         ObjectOutput objectOut = null;
@@ -69,12 +79,23 @@ public class Client {
             /*----------------------------*/
             /* Get a connection to server */
             /*----------------------------*/
-            try{
-                conn = ConnectionManager.getConnection( server );
-            } catch (IOException e){
-                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" Exception: ", e );
-            } catch (Throwable e){
-                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to an unknown exception in the OpenEJB client: ", e );
+            for (int i = 0; i < servers.length && null == conn; i++) {
+                ServerMetaData server = servers[i];
+                try{
+                    conn = ConnectionManager.getConnection( server );
+                } catch (IOException e){
+                    log.error("Cannot access server: "+server.address+":"+server.port+" Exception: ", e);
+                } catch (Throwable e){
+                    log.error("Cannot access server: "+server.address+":"+server.port+" due to an unknown exception in the OpenEJB client: ", e );
+                }
+            }
+            if (null == conn) {
+                StringBuffer buffer = new StringBuffer();
+                for (int i = 0; i < servers.length; i++) {
+                    ServerMetaData server = servers[i];
+                    buffer.append("Server #" + i + ": " + server);
+                }
+                throw new RemoteException("Cannot access servers: " + buffer);
             }
 
             /*----------------------------------*/
@@ -103,9 +124,7 @@ public class Client {
             /* Write request type               */
             /*----------------------------------*/
             try{
-
                 out.write( req.getRequestType() );
-
             } catch (IOException e){
                 throw new RemoteException("Cannot write the request type to the server: " , e );
 
@@ -179,6 +198,8 @@ public class Client {
                 throw new RemoteException("Cannot open object input stream to server ("+protocolMetaData.getSpec() +") : "+e.getMessage() , e );
             }
 
+            Response res = resInfo.getResponse();
+            
             /*----------------------------------*/
             /* Read response                    */
             /*----------------------------------*/
@@ -194,7 +215,15 @@ public class Client {
             } catch (Throwable e){
                 throw new RemoteException("Error reading response from server ("+protocolMetaData.getSpec() +") : "+e.getMessage() , e );
             }
-
+            
+            if (res instanceof ClusteredResponse) {
+                ClusteredResponse clusteredResponse = (ClusteredResponse) res;
+                ServerMetaData[] newServers = clusteredResponse.getServers();
+                if (null == newServers || newServers.length == 0) {
+                    newServers = servers;
+                }
+                resInfo.setServers(newServers);
+            }
         } finally {
             try {
                 if (conn != null) {
@@ -205,7 +234,6 @@ public class Client {
                 System.out.println("Error closing connection with server: "+t.getMessage() );
             }
         }
-        return res;
     }
 
 }

@@ -58,12 +58,12 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
     public StatefulEJBObjectHandler() {
     }
 
-    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server){
-        super(ejb, server);
+    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers){
+        super(ejb, servers);
     }
     
-    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
-        super(ejb, server, primaryKey);
+    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers, Object primaryKey){
+        super(ejb, servers, primaryKey);
         registerHandler( primaryKey, this );
     }
     

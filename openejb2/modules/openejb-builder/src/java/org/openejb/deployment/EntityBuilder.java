@@ -115,6 +115,7 @@ class EntityBuilder extends BeanBuilder {
         String ejbName = entityBean.getEjbName().getStringValue().trim();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
+        builder.setContainerStrategy(new DefaultBMPContainerStrategy(builder));
         builder.setClassLoader(cl);
         builder.setContainerId(containerObjectName.getCanonicalName());
         builder.setEJBName(ejbName);

@@ -48,35 +48,33 @@
 package org.openejb.deployment;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.net.UnknownHostException;
+
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedEJBRefException;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-
+import org.openejb.client.ServerMetaData;
+import org.openejb.client.naming.RemoteEJBAddr;
 import org.openejb.client.naming.RemoteEJBObjectFactory;
 import org.openejb.client.naming.RemoteEJBRefAddr;
-import org.openejb.corba.CORBAHandleDelegate;
-import org.openejb.corba.proxy.CORBAProxyReference;
-import org.openejb.proxy.ProxyInfo;
 
 
 /**
  */
 public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
-
+    private final ServerMetaData server;
+    
+    public RemoteEJBReferenceBuilder(String host, int port) throws UnknownHostException {
+        server = new ServerMetaData("BOOT", host, port);
+    }
+    
     public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) {
         throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
     }
@@ -86,7 +84,7 @@ public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
     }
 
     protected Reference buildRemoteReference(String objectName, boolean session, String home, String remote) {
-        RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
+        RemoteEJBRefAddr addr = new RemoteEJBRefAddr(new RemoteEJBAddr(server, objectName));
         Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
         return reference;
     }
@@ -97,6 +95,11 @@ public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
 
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
+
+        infoFactory.setConstructor(new String[]{"host", "port"});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

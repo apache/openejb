@@ -49,6 +49,7 @@ package org.openejb.deployment;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -68,7 +69,6 @@ import org.openejb.entity.HomeMethod;
 import org.openejb.entity.bmp.BMPCreateMethod;
 import org.openejb.entity.bmp.BMPEntityInterceptorBuilder;
 import org.openejb.entity.bmp.BMPFinderMethod;
-import org.openejb.entity.bmp.BMPInstanceContextFactory;
 import org.openejb.entity.bmp.BMPRemoveMethod;
 import org.openejb.entity.dispatch.EJBActivateOperation;
 import org.openejb.entity.dispatch.EJBLoadOperation;
@@ -115,7 +115,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new BMPEntityInterceptorBuilder(), signatures, vtable);
 
         // build the context factory
-        InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), beanClass, getUnshareableResources(), getApplicationManagedSecurityResources());
+        InstanceContextFactory contextFactory = containerStrategy.newInstanceContextFactory();
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
 
         // build the pool
@@ -124,9 +124,9 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         ObjectName timerName = getTimerName(beanClass);
 
         if (buildContainer) {
-            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
+            return createContainer(signatures, null, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
+            return createConfiguration(classLoader, signatures, null, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 

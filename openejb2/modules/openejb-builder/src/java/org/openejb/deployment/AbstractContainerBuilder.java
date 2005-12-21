@@ -51,6 +51,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -67,6 +68,7 @@ import org.openejb.EJBInterfaceType;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
@@ -112,12 +114,13 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     //todo use object names here for build configuration rather than in ModuleBuilder.
     private TransactionContextManager transactionContextManager;
     private TrackedConnectionAssociator trackedConnectionAssociator;
-
+    
     private ObjectName transactedTimerName;
+    protected ContainerStrategy containerStrategy;
     private ObjectName nonTransactedTimerName;
-
+    private ObjectName ejbClusterManagerName;
+    
     //corba tx import
-
 
     public ClassLoader getClassLoader() {
         return classLoader;
@@ -358,9 +361,12 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         if (tssBeanObjectName != null) {
             gbean.setReferencePattern("TSSBean", tssBeanObjectName);
         }
+        if (null != ejbClusterManagerName) {
+            gbean.setReferencePattern("EJBClusterManager", ejbClusterManagerName);
+        }
         return gbean;
     }
-
+    
     protected abstract Object buildIt(boolean buildContainer) throws Exception;
 
     protected InterceptorBuilder initializeInterceptorBuilder(InterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
@@ -374,6 +380,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         interceptorBuilder.setPolicyContextId(policycontextId);
         interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(buildTransactionPolicies(transactionPolicySource, signatures)));
         interceptorBuilder.setPermissionManager(new PermissionManager(ejbName, signatures));
+        interceptorBuilder.setClustered(isClustered());
         return interceptorBuilder;
     }
 
@@ -427,6 +434,22 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         }
     }
 
+    public void setContainerStrategy(ContainerStrategy containerStrategy) {
+        this.containerStrategy = containerStrategy;
+    }
+
+    public ObjectName getEjbClusterManagerName() {
+        return ejbClusterManagerName;
+    }
+    
+    public void setEjbClusterManagerName(ObjectName ejbClusterManagerName) {
+        this.ejbClusterManagerName = ejbClusterManagerName;
+    }
+
+    public boolean isClustered() {
+        return null != ejbClusterManagerName;
+    }
+    
     protected ProxyInfo createProxyInfo() throws ClassNotFoundException {
         ClassLoader classLoader = getClassLoader();
         Class homeInterface = loadOptionalClass(homeInterfaceName, classLoader);
@@ -457,15 +480,19 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return ClassLoading.loadClass(className, classLoader);
     }
 
-    protected EJBContainer createContainer(InterfaceMethodSignature[] signatures,
-                                           InstanceContextFactory contextFactory,
-                                           InterceptorBuilder interceptorBuilder,
-                                           InstancePool pool) throws Exception {
+    protected EJBContainer createContainer(
+            InterfaceMethodSignature[] signatures,
+            InstanceCache instanceCache,
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool)
+            throws Exception {
 
         return new GenericEJBContainer(getContainerId(),
                 getEJBName(),
                 createProxyInfo(),
                 signatures,
+                instanceCache,
                 contextFactory,
                 interceptorBuilder,
                 pool,
@@ -483,24 +510,28 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null,
                 getHomeTxPolicyConfig(),
                 getRemoteTxPolicyConfig(),
-                Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader(),
+                null); // EJBClusterManager
     }
 
     protected GBeanData buildGBeanData() {
         return new GBeanData(GenericEJBContainer.GBEAN_INFO);
     }
     
-    protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
-                                            InstanceContextFactory contextFactory,
-                                            InterceptorBuilder interceptorBuilder,
-                                            InstancePool pool,
-                                            ObjectName timerName) throws Exception {
+    protected GBeanData createConfiguration(ClassLoader cl,
+            InterfaceMethodSignature[] signatures,
+            InstanceCache instanceCache,
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool,
+            ObjectName timerName) throws Exception {
 
         GBeanData gbean = buildGBeanData();
         gbean.setAttribute("containerID", getContainerId());
         gbean.setAttribute("ejbName", getEJBName());
         gbean.setAttribute("proxyInfo", createProxyInfo());
         gbean.setAttribute("signatures", signatures);
+        gbean.setAttribute("instanceCache", instanceCache);
         gbean.setAttribute("contextFactory", contextFactory);
         gbean.setAttribute("interceptorBuilder", interceptorBuilder);
         gbean.setAttribute("pool", pool);

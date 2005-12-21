@@ -64,6 +64,7 @@ import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -341,9 +342,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         ObjectName timerName = getTimerName(beanClass);
 
         if (buildContainer) {
-            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
+            return createContainer(signatures, null, contextFactory, interceptorBuilder, pool);
         }
-        return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
+        return createConfiguration(classLoader, signatures, null, contextFactory, interceptorBuilder, pool, timerName);
     }
 
     private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessor) throws QueryException {
@@ -718,6 +719,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
     
     protected EJBContainer createContainer(InterfaceMethodSignature[] signatures,
+            InstanceCache instanceCache, 
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool) throws Exception {
@@ -727,6 +729,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 getEJBName(),
                 createProxyInfo(),
                 signatures,
+                instanceCache,
                 contextFactory,
                 interceptorBuilder,
                 pool,
@@ -745,16 +748,19 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 getHomeTxPolicyConfig(),
                 getRemoteTxPolicyConfig(),
                 Thread.currentThread().getContextClassLoader(),
+                null, // EJBClusterManager
                 cache,
                 factory);
     }
     
-    protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
+    protected GBeanData createConfiguration(ClassLoader cl,
+            InterfaceMethodSignature[] signatures,
+            InstanceCache instanceCache,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
             ObjectName timerName) throws Exception {
-        GBeanData gbean = super.createConfiguration(cl, signatures, contextFactory, interceptorBuilder, pool, timerName);
+        GBeanData gbean = super.createConfiguration(cl, signatures, instanceCache, contextFactory, interceptorBuilder, pool, timerName);
         
         gbean.setAttribute("frontEndCacheDelegate", cache);
         gbean.setAttribute("cacheFactory", factory);

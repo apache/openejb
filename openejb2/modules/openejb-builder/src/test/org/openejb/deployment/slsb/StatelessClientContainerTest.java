@@ -63,6 +63,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBContainer;
+import org.openejb.deployment.DefaultSLContainerStrategy;
 import org.openejb.deployment.MockTransactionManager;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -227,6 +228,7 @@ public class StatelessClientContainerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         StatelessContainerBuilder builder = new StatelessContainerBuilder();
+        builder.setContainerStrategy(new DefaultSLContainerStrategy(builder));
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId("MockEJB");
         builder.setEJBName("MockEJB");

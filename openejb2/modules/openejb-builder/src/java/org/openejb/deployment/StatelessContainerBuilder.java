@@ -49,12 +49,13 @@ package org.openejb.deployment;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
 
 import org.openejb.EJBComponentType;
-import org.openejb.InterceptorBuilder;
+import org.openejb.InstanceContextFactory;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -63,11 +64,11 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.slsb.BusinessMethod;
 import org.openejb.slsb.CreateMethod;
 import org.openejb.slsb.EJBCreateMethod;
+import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.slsb.RemoveMethod;
 import org.openejb.slsb.StatelessInstanceContextFactory;
 import org.openejb.slsb.StatelessInstanceFactory;
 import org.openejb.slsb.StatelessInterceptorBuilder;
-import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
 
 /**
@@ -106,7 +107,7 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         interceptorBuilder.setHandlerChainConfiguration(getHandlerChainConfiguration());
 
         // build the instance factory
-        StatelessInstanceContextFactory contextFactory = new StatelessInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
+        InstanceContextFactory contextFactory = containerStrategy.newInstanceContextFactory();
         StatelessInstanceFactory instanceFactory = new StatelessInstanceFactory(contextFactory);
 
         // build the pool
@@ -116,9 +117,9 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
 
         if (buildContainer) {
             //TODO add timer to sig.
-            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
+            return createContainer(signatures, null, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
+            return createConfiguration(classLoader, signatures, null, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 
