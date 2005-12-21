@@ -112,7 +112,9 @@ public class EJBObjectHandle implements java.io.Externalizable, javax.ejb.Handle
         out.writeByte(ejb.type);
         out.writeUTF(ejb.deploymentID);
         out.writeShort(ejb.deploymentCode);
-        handler.server.writeExternal(out);
+        
+        out.writeObject(handler.servers);
+
         out.writeObject(handler.primaryKey);
     }
 
@@ -121,7 +123,6 @@ public class EJBObjectHandle implements java.io.Externalizable, javax.ejb.Handle
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         EJBMetaDataImpl ejb = new EJBMetaDataImpl();
-        ServerMetaData server = new ServerMetaData();
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) {
@@ -141,10 +142,11 @@ public class EJBObjectHandle implements java.io.Externalizable, javax.ejb.Handle
         ejb.deploymentID = in.readUTF();
         ejb.deploymentCode = in.readShort();
 
-        server.readExternal(in);
+        ServerMetaData[] servers = (ServerMetaData[]) in.readObject();
+        
         Object primaryKey = in.readObject();
 
-        handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, primaryKey);
+        handler = EJBObjectHandler.createEJBObjectHandler(ejb, servers, primaryKey);
         ejbObjectProxy = handler.createEJBObjectProxy();
     }
 

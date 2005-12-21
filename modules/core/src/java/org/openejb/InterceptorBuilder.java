@@ -68,4 +68,6 @@ public interface InterceptorBuilder extends Serializable {
     TwoChains buildInterceptorChains();
 
     void setContainerId(Object containerID);
+    
+    void setClustered(boolean clustered);
 }

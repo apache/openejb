@@ -54,14 +54,14 @@ import javax.naming.RefAddr;
  */
 public class RemoteEJBRefAddr extends RefAddr {
     private final static String TYPE = RemoteEJBRefAddr.class.getName();
-    private final String containerId;
+    private final RemoteEJBAddr addr;
 
-    public RemoteEJBRefAddr(String containerId) {
+    public RemoteEJBRefAddr(RemoteEJBAddr addr) {
         super(TYPE);
-        this.containerId = containerId;
+        this.addr = addr;
     }
 
     public Object getContent() {
-        return containerId;
+        return addr;
     }
 }

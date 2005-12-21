@@ -108,6 +108,16 @@
         <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
+    <xs:complexType name="ejb-cluster-referenceType">
+        <xs:choice>
+            <xs:element name="target-name" type="xs:string"/>
+            <!-- 
+            TODO add support for this type of locator.
+            <xs:group ref="naming:objectNameGroup"/>
+             -->
+        </xs:choice>
+    </xs:complexType>
+
     <!-- session bean section-->
     <xs:complexType name="session-beanType">
         <xs:sequence>
@@ -115,6 +125,7 @@
             <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:group ref="openejb:tssGroup" minOccurs="0"/>
+            <xs:element name="ejb-cluster-reference" type="openejb:ejb-cluster-referenceType" minOccurs="0"/>
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
             <xs:element name="web-service-address" type="xs:string" minOccurs="0"/>

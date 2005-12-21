@@ -68,6 +68,7 @@ import org.openejb.client.EJBRequest;
 import org.openejb.client.EJBResponse;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
+import org.openejb.cluster.server.ClusteredInvocationResult;
 import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.ProxyInfo;
 
@@ -283,7 +284,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     }
 
 
-    private Object invoke(EJBRequest req) throws Throwable {
+    private Object invoke(EJBRequest req, EJBResponse res) throws Throwable {
 
         CallContext call = CallContext.getCallContext();
         EJBContainer container = call.getContainer();
@@ -307,6 +308,10 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         }
 
+        if (result instanceof ClusteredInvocationResult) {
+            ClusteredInvocationResult clusteredResult = (ClusteredInvocationResult) result;
+            res.setServers(clusteredResult.getServers());
+        }
 
         if (result.isException()) {
             throw new org.openejb.ApplicationException(result.getException());
@@ -322,7 +327,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
     protected void doEjbObject_BUSINESS_METHOD(EJBRequest req, EJBResponse res) throws Throwable {
 
-        Object result = invoke(req);
+        Object result = invoke(req, res);
 
         res.setResponse(EJB_OK, result);
     }
@@ -332,14 +337,14 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     // Home interface methods
 
     protected void doEjbHome_METHOD(EJBRequest req, EJBResponse res) throws Throwable {
-        Object result = invoke(req);
+        Object result = invoke(req, res);
 
         res.setResponse(EJB_OK, result);
     }
 
     protected void doEjbHome_CREATE(EJBRequest req, EJBResponse res) throws Throwable {
 
-        Object result = invoke(req);
+        Object result = invoke(req, res);
 
         if (result instanceof BaseEJB) {
             BaseEJB proxy = (BaseEJB) result;
@@ -391,7 +396,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
     protected void doEjbHome_FIND(EJBRequest req, EJBResponse res) throws Throwable {
 
-        Object result = invoke(req);
+        Object result = invoke(req,res);
 
         /* Multiple instances found */
         if (result instanceof Collection) {
@@ -472,7 +477,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
 
     private void doEjbObject_REMOVE(EJBRequest req, EJBResponse res) throws Throwable {
-        invoke(req);
+        invoke(req, res);
         res.setResponse(EJB_OK, null);
     }
 
@@ -491,13 +496,13 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
 
     private void doEjbHome_REMOVE_BY_HANDLE(EJBRequest req, EJBResponse res) throws Throwable {
-        invoke(req);
+        invoke(req, res);
         res.setResponse(EJB_OK, null);
     }
 
 
     private void doEjbHome_REMOVE_BY_PKEY(EJBRequest req, EJBResponse res) throws Throwable {
-        invoke(req);
+        invoke(req, res);
         res.setResponse(EJB_OK, null);
     }
 

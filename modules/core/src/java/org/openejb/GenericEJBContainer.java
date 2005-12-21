@@ -52,6 +52,7 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -72,9 +73,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.J2EEManagedObject;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -82,17 +84,21 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.management.J2EEManagedObject;
-
+import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
+import org.openejb.cluster.server.ClusteredEJBContainer;
+import org.openejb.cluster.server.ClusteredInstanceCache;
+import org.openejb.cluster.server.ClusteredInstanceContextFactory;
+import org.openejb.cluster.server.DefaultClusteredEJBContainer;
+import org.openejb.cluster.server.EJBClusterManager;
+import org.openejb.corba.TSSBean;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.timer.BasicTimerServiceImpl;
-import org.openejb.corba.TSSBean;
 
 
 /**
@@ -119,6 +125,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
     private final Subject runAsSubject;
     private final BasicTimerServiceImpl timerService;
 
+    private final EJBClusterManager clusterManager;
+    private final ClusteredEJBContainer clusteredEJBContainer;
+    
     //corba security configuration
     private final TSSBean tssBean;
     //corba tx import policies
@@ -130,6 +139,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
                                String ejbName,
                                ProxyInfo proxyInfo,
                                InterfaceMethodSignature[] signatures,
+                               InstanceCache instanceCache,
                                InstanceContextFactory contextFactory,
                                InterceptorBuilder interceptorBuilder,
                                InstancePool pool,
@@ -146,7 +156,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
                                Subject runAsSubject,
                                TSSBean tssBean, Serializable homeTxPolicyConfig,
                                Serializable remoteTxPolicyConfig,
-                               ClassLoader classLoader) throws Exception {
+                               ClassLoader classLoader,
+                               EJBClusterManager clusterManager) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -171,6 +182,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         this.proxyInfo = proxyInfo;
         this.proxyFactory = new EJBProxyFactory(this);
 
+        this.clusterManager = clusterManager;
+        
         // create ReadOnlyContext
         Context enc = null;
         if (componentContext != null) {
@@ -212,6 +225,21 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
             timerService = null;
         }
 
+        if (null != clusterManager) {
+            if (false == instanceCache instanceof ClusteredInstanceCache) {
+                throw new IllegalArgumentException("instanceCache MUST be a" +
+                        " ClusteredInstanceCache instance.");
+            } else if (false == contextFactory instanceof ClusteredInstanceContextFactory) {
+                throw new IllegalArgumentException("contextFactory MUST be a" +
+                    " ClusteredInstanceContextFactory instance.");
+            }
+            clusteredEJBContainer = new DefaultClusteredEJBContainer(this,
+                    (ClusteredInstanceCache) instanceCache,
+                    (ClusteredInstanceContextFactory) contextFactory);
+        } else {
+            clusteredEJBContainer = null;
+        }
+        
         // initialize the user transaction
         if (userTransaction != null) {
             userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
@@ -399,11 +427,18 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         if (tssBean != null) {
             tssBean.registerContainer(this);
         }
-
+        //TODO we are giving out a direct reference, not a proxy
+        if (null != clusterManager) {
+            clusterManager.addEJBContainer(clusteredEJBContainer);
+        }
+        
         log.debug("GenericEJBContainer '" + containerId + "' started");
     }
 
     public void doStop() throws Exception {
+        if (null != clusterManager) {
+            clusterManager.removeEJBContainer(clusteredEJBContainer);
+        }
         if (tssBean != null) {
             tssBean.unregisterContainer(this);
         }
@@ -453,6 +488,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         infoFactory.addAttribute("ejbName", String.class, true);
         infoFactory.addAttribute("proxyInfo", ProxyInfo.class, true);
         infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
+        infoFactory.addAttribute("instanceCache", InstanceCache.class, true);
         infoFactory.addAttribute("contextFactory", InstanceContextFactory.class, true);
         infoFactory.addAttribute("interceptorBuilder", InterceptorBuilder.class, true);
         infoFactory.addAttribute("pool", InstancePool.class, true);
@@ -471,6 +507,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         infoFactory.addReference("Timer", ThreadPooledTimer.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addReference("TSSBean", TSSBean.class);
+
+        infoFactory.addReference("EJBClusterManager", EJBClusterManager.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addInterface(J2EEManagedObject.class);
@@ -498,6 +536,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
             "ejbName",
             "proxyInfo",
             "signatures",
+            "instanceCache",
             "contextFactory",
             "interceptorBuilder",
             "pool",
@@ -515,7 +554,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
             "TSSBean",
             "homeTxPolicyConfig",
             "remoteTxPolicyConfig",
-            "classLoader"});
+            "classLoader",
+            "EJBClusterManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

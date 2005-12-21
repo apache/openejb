@@ -57,6 +57,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.deployment.BMPContainerBuilder;
+import org.openejb.deployment.DefaultBMPContainerStrategy;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
@@ -135,6 +136,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
         DeploymentHelper.setUpTimer(kernel);
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
+        builder.setContainerStrategy(new DefaultBMPContainerStrategy(builder));
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(CONTAINER_NAME.getCanonicalName());
         builder.setEJBName("MockEJB");

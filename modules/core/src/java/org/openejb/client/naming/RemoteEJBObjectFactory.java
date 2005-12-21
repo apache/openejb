@@ -65,7 +65,9 @@ import org.openejb.client.EJBHomeProxy;
 import org.openejb.client.EJBMetaDataImpl;
 import org.openejb.client.JNDIRequest;
 import org.openejb.client.JNDIResponse;
+import org.openejb.client.RequestInfo;
 import org.openejb.client.ResponseCodes;
+import org.openejb.client.ResponseInfo;
 import org.openejb.client.ServerMetaData;
 
 /**
@@ -98,28 +100,44 @@ public class RemoteEJBObjectFactory implements ObjectFactory {
             return null;
         }
         Reference ref = (Reference) obj;
-        RefAddr addr = ref.get(0);
-        if (!(addr instanceof RemoteEJBRefAddr)) {
-            throw new IllegalStateException("Reference address must be a RemoteEJBRefAddr: " + addr);
-        }
 
-        String containerId = (String) addr.getContent();
+        if (0 == ref.size()) {
+            throw new IllegalStateException("No defined RemoteEJBRefAddr");
+        }
+        
+        String containerId = null;
+        ServerMetaData[] servers = new ServerMetaData[ref.size() + 1];
+        for (int i = 0; i < servers.length - 1; i++) {
+            RefAddr addr = ref.get(i);
+            if (!(addr instanceof RemoteEJBRefAddr)) {
+                throw new IllegalStateException("Reference address must be a RemoteEJBRefAddr: " + addr);
+            }
+            RemoteEJBAddr ejbAddr = (RemoteEJBAddr) addr.getContent();
+            servers[i] =  ejbAddr.getServer();
+            if (null == containerId) {
+                containerId = ejbAddr.getContainerId();
+            } else if (false == containerId.equals(ejbAddr.getContainerId())) {
+                throw new IllegalStateException("Distinct containerId");
+            }
+        }
+        servers[servers.length - 1] = new ServerMetaData("BOOT", RemoteEJBObjectFactory.IP, RemoteEJBObjectFactory.PORT);
+
         JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, containerId);
 
-        JNDIResponse res = null;
-        ServerMetaData server;
+        ResponseInfo resInfo = new ResponseInfo(new JNDIResponse());
         try{
-            server = new ServerMetaData(RemoteEJBObjectFactory.IP, RemoteEJBObjectFactory.PORT);
-            res = (JNDIResponse) Client.request(req, new JNDIResponse(), server);
+            Client.request(new RequestInfo(req, servers), resInfo);
         } catch (Exception e){
             throw (NamingException)new NamingException("Cannot lookup " + containerId).initCause(e);
         }
-
+        
+        JNDIResponse res = (JNDIResponse) resInfo.getResponse();
         switch ( res.getResponseCode() ) {
             case ResponseCodes.JNDI_EJBHOME:
                 // Construct a new handler and proxy.
                 EJBMetaDataImpl ejb = (EJBMetaDataImpl)res.getResult();
-                EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejb, server);
+                ServerMetaData[] newServers = resInfo.getServers();
+                EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejb, newServers);
                 EJBHomeProxy proxy = handler.createEJBHomeProxy();
                 ejb.setEJBHomeProxy(proxy);
                 return proxy;

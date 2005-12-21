@@ -45,6 +45,7 @@
 package org.openejb.deployment;
 
 import java.util.Map;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
@@ -53,6 +54,8 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBContainer;
+import org.openejb.InstanceContextFactory;
+import org.openejb.cache.InstanceCache;
 import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.transaction.TransactionPolicySource;
 
@@ -139,4 +142,16 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
     TransactionImportPolicyBuilder getTransactionImportPolicyBuilder();
 
     void setTransactionImportPolicyBuilder(TransactionImportPolicyBuilder transactionImportPolicyBuilder);
+
+    ObjectName getEjbClusterManagerName();
+    
+    void setEjbClusterManagerName(ObjectName ejbClusterName);
+    
+    void setContainerStrategy(ContainerStrategy containerStrategy);
+
+    public interface ContainerStrategy {
+        public InstanceCache newInstanceCache();
+    
+        public InstanceContextFactory newInstanceContextFactory();
+    }
 }

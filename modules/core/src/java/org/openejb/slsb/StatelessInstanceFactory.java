@@ -51,7 +51,7 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.openejb.InstanceContextFactory;
 import org.openejb.cache.InstanceFactory;
 
 
@@ -61,9 +61,9 @@ import org.openejb.cache.InstanceFactory;
 public class StatelessInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(StatelessInstanceFactory.class);
 
-    private final StatelessInstanceContextFactory factory;
+    private final InstanceContextFactory factory;
 
-    public StatelessInstanceFactory(StatelessInstanceContextFactory factory) {
+    public StatelessInstanceFactory(InstanceContextFactory factory) {
         this.factory = factory;
     }
 

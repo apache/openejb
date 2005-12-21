@@ -47,6 +47,7 @@ package org.openejb.client;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -58,14 +59,12 @@ import org.omg.CORBA.ORB;
  * 
  * @since 11/25/2001
  */
-public class EJBResponse implements Response {
-    
-
+public class EJBResponse implements ClusteredResponse {
     private transient int responseCode = -1;
     private transient Object result;
+    private transient ServerMetaData[] servers;
 
     public EJBResponse(){
-
     }
 
     public EJBResponse(int code, Object obj){
@@ -84,6 +83,15 @@ public class EJBResponse implements Response {
     public void setResponse(int code, Object result){
         this.responseCode = code;
         this.result       = result;
+    }
+
+
+    public ServerMetaData[] getServers() {
+        return servers;
+    }
+
+    public void setServers(ServerMetaData[] servers) {
+        this.servers = servers;
     }
 
     public String toString(){
@@ -153,6 +161,8 @@ public class EJBResponse implements Response {
             }
             stub.connect(orb);
         }
+        
+        servers = (ServerMetaData[]) in.readObject();
     }
     
     /**
@@ -174,5 +184,6 @@ public class EJBResponse implements Response {
         //out.writeByte((byte)responseCode);
         out.writeByte(responseCode);
         out.writeObject(result);
+        out.writeObject(servers);
     }
 }

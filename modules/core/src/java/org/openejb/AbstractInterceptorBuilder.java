@@ -81,6 +81,7 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected transient InstancePool instancePool;
     protected InstanceCache instanceCache;
     protected InstanceFactory instanceFactory;
+    protected boolean clustered;
 
     public void setContainerId(Object containerID) {
         assert (containerID != null) : "containerID is null!";
@@ -152,4 +153,7 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
         this.instanceFactory = instanceFactory;
     }
 
+    public void setClustered(boolean clustered) {
+        this.clustered = clustered;
+    }
 }

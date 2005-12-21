@@ -98,6 +98,7 @@ import org.openejb.proxy.ProxyInfo;
 import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
+import org.openejb.xbeans.ejbjar.OpenejbEjbClusterReferenceType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbTssType;
 import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
@@ -239,6 +240,7 @@ class SessionBuilder extends BeanBuilder {
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim());
         if (isStateless) {
             builder = new StatelessContainerBuilder();
+            builder.setContainerStrategy(new DefaultSLContainerStrategy(builder));
             builder.setTransactedTimerName(earContext.getTransactedTimerName());
             builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
             builder.setServiceEndpointName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint()));
@@ -246,6 +248,21 @@ class SessionBuilder extends BeanBuilder {
             containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "ServiceEndpoint", builder.getServiceEndpointName(), cl);
         } else {
             builder = new StatefulContainerBuilder();
+            if (null == openejbSessionBean ||
+                    false == openejbSessionBean.isSetEjbClusterReference()) {
+                builder.setContainerStrategy(new DefaultSFContainerStrategy(builder));
+            } else if (openejbSessionBean.isSetEjbClusterReference()) {
+                builder.setContainerStrategy(new ClusteredSFContainerStrategy(builder));
+                OpenejbEjbClusterReferenceType ejbClusterReference = openejbSessionBean.getEjbClusterReference();
+                ObjectName clusterObjectName; 
+                String name = ejbClusterReference.getTargetName();
+                try {
+                    clusterObjectName = ObjectName.getInstance(name);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid object name for ejb-cluster-reference", e);
+                }
+                builder.setEjbClusterManagerName(clusterObjectName);
+            }
         }
         builder.setClassLoader(cl);
         builder.setContainerId(sessionObjectName.getCanonicalName());
@@ -255,7 +272,7 @@ class SessionBuilder extends BeanBuilder {
         builder.setRemoteInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getRemote()));
         builder.setLocalHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getLocalHome()));
         builder.setLocalInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getLocal()));
-
+        
         SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
         if (securityConfiguration != null) {
             containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
@@ -292,7 +309,7 @@ class SessionBuilder extends BeanBuilder {
             }
         }
         builder.setTransactionImportPolicyBuilder(getModuleBuilder().getTransactionImportPolicyBuilder());
-
+        
         processEnvironmentRefs(builder, earContext, ejbModule, sessionBean, openejbSessionBean, userTransaction, cl);
 
         ObjectName tssBeanObjectName = null;

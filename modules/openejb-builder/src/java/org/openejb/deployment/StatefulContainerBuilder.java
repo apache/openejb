@@ -51,9 +51,10 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 import org.openejb.EJBComponentType;
+import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstancePool;
-import org.openejb.cache.SimpleInstanceCache;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
@@ -64,7 +65,6 @@ import org.openejb.sfsb.BeforeCompletion;
 import org.openejb.sfsb.BusinessMethod;
 import org.openejb.sfsb.CreateMethod;
 import org.openejb.sfsb.RemoveMethod;
-import org.openejb.sfsb.StatefulInstanceContextFactory;
 import org.openejb.sfsb.StatefulInstanceFactory;
 import org.openejb.sfsb.StatefulInterceptorBuilder;
 import org.openejb.slsb.dispatch.EJBActivateOperation;
@@ -78,8 +78,13 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
     protected int getEJBComponentType() {
         return EJBComponentType.STATEFUL;
     }
-
+    
     protected Object buildIt(boolean buildContainer) throws Exception {
+        if (null == containerStrategy) {
+            throw new IllegalStateException("SFSBContainerStrategy has not" +
+                    " been set.");
+        }
+        
         // get the bean class
         ClassLoader classLoader = getClassLoader();
         Class beanClass = classLoader.loadClass(getBeanClassName());
@@ -90,22 +95,23 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         // build the instance factory
-        StatefulInstanceContextFactory contextFactory = new StatefulInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
+        InstanceContextFactory contextFactory = containerStrategy.newInstanceContextFactory();
         StatefulInstanceFactory instanceFactory = new StatefulInstanceFactory(contextFactory);
 
         // create and intitalize the interceptor moduleBuilder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new StatefulInterceptorBuilder(), signatures, vtable);
         interceptorBuilder.setInstanceFactory(instanceFactory);
-        interceptorBuilder.setInstanceCache(new SimpleInstanceCache());
+        InstanceCache instanceCache = containerStrategy.newInstanceCache();
+        interceptorBuilder.setInstanceCache(instanceCache);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
         if (buildContainer) {
-            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
+            return createContainer(signatures, instanceCache, contextFactory, interceptorBuilder, pool);
         } else {
             //stateful has no timers
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, null);
+            return createConfiguration(classLoader, signatures, instanceCache, contextFactory, interceptorBuilder, pool, null);
         }
     }
 

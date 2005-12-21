@@ -62,12 +62,12 @@ public class EntityEJBObjectHandler extends EJBObjectHandler {
     public EntityEJBObjectHandler(){
     }
     
-    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server){
-        super(ejb, server);
+    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers){
+        super(ejb, servers);
     }
     
-    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
-        super(ejb, server, primaryKey);
+    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers, Object primaryKey){
+        super(ejb, servers, primaryKey);
         registryId = ejb.deploymentID+":"+primaryKey;
         registerHandler( registryId, this );
     }

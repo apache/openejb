@@ -59,8 +59,8 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
     public EntityEJBHomeHandler(){
     }
     
-    public EntityEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server){
-        super(ejb, server);
+    public EntityEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers){
+        super(ejb, servers);
     }
    
     /**
@@ -145,7 +145,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
             if (null == primKey) {
                 return null;
             }
-            handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
+            handler = EJBObjectHandler.createEJBObjectHandler(ejb,servers,primKey);
             handler.setEJBHomeProxy((EJBHomeProxy)proxy);
             registerHandler(ejb.deploymentID+":"+primKey, handler);
             return handler.createEJBObjectProxy();
@@ -162,7 +162,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
                 if (null == primKey) {
                     continue;
                 }
-                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
+                handler = EJBObjectHandler.createEJBObjectHandler(ejb,servers,primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy)proxy);
                 registerHandler(ejb.deploymentID+":"+primKey, handler);
                 primaryKeys[i] = handler.createEJBObjectProxy();
@@ -177,7 +177,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
                 if (null == primKey) {
                     continue;
                 }
-                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
+                handler = EJBObjectHandler.createEJBObjectHandler(ejb,servers,primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy)proxy);
                 registerHandler(ejb.deploymentID+":"+primKey, handler);
                 primaryKeys[i] = handler.createEJBObjectProxy();

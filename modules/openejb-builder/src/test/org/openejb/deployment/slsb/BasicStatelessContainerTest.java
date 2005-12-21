@@ -56,6 +56,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.ContainerIndex;
+import org.openejb.deployment.DefaultSLContainerStrategy;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -161,6 +162,7 @@ public class BasicStatelessContainerTest extends TestCase {
         DeploymentHelper.setUpTimer(kernel);
 
         StatelessContainerBuilder builder = new StatelessContainerBuilder();
+        builder.setContainerStrategy(new DefaultSLContainerStrategy(builder));
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(CONTAINER_NAME.getCanonicalName());
         builder.setEJBName("MockEJB");

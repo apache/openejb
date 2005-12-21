@@ -49,6 +49,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.activeio.xnet.ServerService;
+
 
 public class EJBHomeProxyHandle implements Externalizable {
 
@@ -73,7 +75,7 @@ public class EJBHomeProxyHandle implements Externalizable {
         out.writeByte(ejb.type);
         out.writeUTF(ejb.deploymentID);
         out.writeShort(ejb.deploymentCode);
-        handler.server.writeExternal(out);
+        out.writeObject(handler.servers);
     }
 
     /**
@@ -81,7 +83,6 @@ public class EJBHomeProxyHandle implements Externalizable {
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         EJBMetaDataImpl ejb = new EJBMetaDataImpl();
-        ServerMetaData server = new ServerMetaData();
 
         ejb.homeClass = (Class) in.readObject();
         ejb.remoteClass = (Class) in.readObject();
@@ -90,9 +91,9 @@ public class EJBHomeProxyHandle implements Externalizable {
         ejb.deploymentID = in.readUTF();
         ejb.deploymentCode = in.readShort();
 
-        server.readExternal(in);
+        ServerMetaData[] servers = (ServerMetaData[]) in.readObject();
 
-        handler = EJBHomeHandler.createEJBHomeHandler(ejb, server);
+        handler = EJBHomeHandler.createEJBHomeHandler(ejb, servers);
 
         handler.ejb.ejbHomeProxy = handler.createEJBHomeProxy();
     }

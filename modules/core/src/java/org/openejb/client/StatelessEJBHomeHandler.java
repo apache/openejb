@@ -59,8 +59,8 @@ public class StatelessEJBHomeHandler extends EJBHomeHandler {
     public StatelessEJBHomeHandler(){
     }
     
-    public StatelessEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server){
-        super(ejb, server);
+    public StatelessEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData[] servers){
+        super(ejb, servers);
     }
     
     /**
