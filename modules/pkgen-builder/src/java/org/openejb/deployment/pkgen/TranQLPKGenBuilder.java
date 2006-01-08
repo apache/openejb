@@ -58,6 +58,7 @@ import org.tranql.pkgenerator.SQLPrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
 import org.tranql.pkgenerator.AutoIncrementTablePrimaryKeyGenerator;
+import org.tranql.pkgenerator.UUIDPrimaryKeyGenerator;
 import org.tranql.sql.jdbc.binding.BindingFactory;
 import org.tranql.ql.QueryBindingImpl;
 import org.tranql.ql.QueryException;
@@ -129,6 +130,12 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
                 keyGenerators.put(generatorName, keyGeneratorDelegate);
             }
             return keyGeneratorDelegate;
+        } else if (config.isSetUuid()) {
+            if (false == pkClass.equals(String.class)) {
+                throw new DeploymentException("The primary key MUST be of the" +
+                        " String type as the UUID generator is used.");
+            }
+            return new UUIDPrimaryKeyGenerator();
         } else if(config.isSetSqlGenerator()) {
             EjbSqlGeneratorType sqlGen = config.getSqlGenerator();
             String sql = sqlGen.getSql();
