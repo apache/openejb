@@ -57,6 +57,8 @@ please see <http://openejb.org/>.
 
     <xsd:element name="key-generator" type="pkgen:key-generatorType"/>
 
+    <xsd:complexType name="emptyType"/>
+
     <xsd:complexType name="key-generatorType">
         <xsd:annotation>
             <xsd:documentation>
@@ -68,12 +70,7 @@ please see <http://openejb.org/>.
         </xsd:annotation>
 
         <xsd:choice>
-<!-- Add this in as soon as TranQL has support.
-     I assume it needs some kind of token PK generator that just tells
-     it which column(s) in the table will be populated automatically
-     by a database feature (such as MySQL AUTO_INCREMENT columns or a
-     pre-insert trigger or whatever)
-            <xsd:element name="database-generated" type="pkgen:database-generatedType" /> -->
+            <xsd:element name="uuid" type="pkgen:emptyType"/>
             <xsd:element name="sequence-table" type="pkgen:sequence-tableType" />
             <xsd:element name="auto-increment-table" type="pkgen:auto-increment-tableType" />
             <xsd:element name="sql-generator" type="pkgen:sql-generatorType" />
