@@ -216,14 +216,15 @@ public class Client {
                 throw new RemoteException("Error reading response from server ("+protocolMetaData.getSpec() +") : "+e.getMessage() , e );
             }
             
+            ServerMetaData[] newServers = servers;
             if (res instanceof ClusteredResponse) {
                 ClusteredResponse clusteredResponse = (ClusteredResponse) res;
-                ServerMetaData[] newServers = clusteredResponse.getServers();
-                if (null == newServers || newServers.length == 0) {
-                    newServers = servers;
+                ServerMetaData[] tmpNewServers = clusteredResponse.getServers();
+                if (null != tmpNewServers && 0 != tmpNewServers.length) {
+                    newServers = tmpNewServers;
                 }
-                resInfo.setServers(newServers);
             }
+            resInfo.setServers(newServers);
         } finally {
             try {
                 if (conn != null) {
@@ -237,5 +238,3 @@ public class Client {
     }
 
 }
-
-
