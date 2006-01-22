@@ -118,10 +118,6 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         return new CORBAProxyReference(corbaURL, objectName, containerName, home);
     }
 
-    public Object createHandleDelegateReference() {
-        return new CORBAHandleDelegate.HandleDelegateReference();
-    }
-
     public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
         boolean isRemote = true;
         ObjectName match = getImplicitMatch(isSession, context, isRemote, home, remote, refName, module);

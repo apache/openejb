@@ -64,6 +64,8 @@ import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.util.Util;
 
+import javax.ejb.spi.HandleDelegate;
+
 
 /**
  * @version $Revision$ $Date$
@@ -110,6 +112,10 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
 
     public ORB getORB() {
         return orb;
+    }
+
+    public HandleDelegate getHandleDelegate() {
+        return new CORBAHandleDelegate();
     }
 
     public POA getRootPOA() {
@@ -177,24 +183,26 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CORBABean.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CORBABean.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.addAttribute("configAdapter", String.class, true);
-        infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addAttribute("args", ArrayList.class, true);
-        infoFactory.addAttribute("props", Properties.class, true);
+        infoBuilder.addAttribute("configAdapter", String.class, true);
+        infoBuilder.addAttribute("tssConfig", TSSConfig.class, true);
+        infoBuilder.addAttribute("args", ArrayList.class, true);
+        infoBuilder.addAttribute("props", Properties.class, true);
 
-        infoFactory.addAttribute("ORB", ORB.class, false);
-        infoFactory.addAttribute("rootPOA", POA.class, false);
+        infoBuilder.addAttribute("ORB", ORB.class, false);
+        infoBuilder.addAttribute("rootPOA", POA.class, false);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("SecurityService", SecurityService.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("NameService", SunNameService.class, NameFactory.CORBA_SERVICE);
+        infoBuilder.addAttribute("handleDelegate", HandleDelegate.class, false);
 
-        infoFactory.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool", "SecurityService", "NameService"});
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("SecurityService", SecurityService.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("NameService", SunNameService.class, NameFactory.CORBA_SERVICE);
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        infoBuilder.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool", "SecurityService", "NameService"});
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
