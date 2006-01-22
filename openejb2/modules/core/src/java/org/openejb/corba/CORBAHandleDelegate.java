@@ -100,10 +100,4 @@ public class CORBAHandleDelegate implements HandleDelegate {
         out.writeObject(ejbObject);
     }
 
-    public static class HandleDelegateReference extends SimpleReference {
-
-        public Object getContent() {
-            return new CORBAHandleDelegate();
-        }
-    }
 }
