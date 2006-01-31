@@ -108,13 +108,16 @@ import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.BaseSQLSchema;
 import org.tranql.sql.Column;
 import org.tranql.sql.DBSyntaxFactory;
+import org.tranql.sql.DynamicCommandBuilder;
 import org.tranql.sql.EJBQLCompilerFactory;
 import org.tranql.sql.EndTable;
 import org.tranql.sql.FKColumn;
 import org.tranql.sql.JoinTable;
 import org.tranql.sql.SQLSchema;
+import org.tranql.sql.StaticCommandBuilder;
 import org.tranql.sql.Table;
 import org.tranql.sql.TypeConverter;
+import org.tranql.sql.UpdateCommandBuilder;
 import org.tranql.sql.jdbc.SQLTypeLoader;
 import org.tranql.sql.prefetch.PrefetchGroupDictionary;
 import org.tranql.sql.prefetch.PrefetchGroupDictionary.EndTableDesc;
@@ -177,7 +180,8 @@ public abstract class SchemataBuilder {
             processEnterpriseBeans(ejbJar, openejbEjbJar, cl);
             processRelationships(ejbJar, openejbEjbJar);
             processGroups(openejbEjbJar);
-            GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
+            GlobalSchemaLoader loader = new GlobalSchemaLoader(globalSchema, ejbSchema, sqlSchema);
+            loader.build();
             processEnterpriseBeanCaches(openejbEjbJar);
         } catch (Exception e) {
             throw new DeploymentException("Could not deploy module", e);
@@ -371,7 +375,14 @@ public abstract class SchemataBuilder {
             ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGenerator, unknownPK);
 
             Table table = new Table(ejbName, openEjbEntity.getTableName());
-
+            UpdateCommandBuilder commandBuilder;
+            if (openEjbEntity.isSetStaticSql()) {
+                commandBuilder = new StaticCommandBuilder(ejbName, ejbSchema, sqlSchema, globalSchema);
+            } else {
+                commandBuilder = new DynamicCommandBuilder(ejbName, ejbSchema, sqlSchema, globalSchema);
+            }
+            table.setCommandBuilder(commandBuilder);
+            
             Set pkFieldNames;
             if ( unknownPK && openEjbEntity.isSetPrimkeyField() ) {
                 pkFieldNames = new HashSet(1);
