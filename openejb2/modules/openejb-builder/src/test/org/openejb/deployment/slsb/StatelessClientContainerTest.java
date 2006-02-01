@@ -48,8 +48,6 @@
 package org.openejb.deployment.slsb;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.HashSet;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
@@ -62,13 +60,11 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBContainer;
-import org.openejb.deployment.DefaultSLContainerStrategy;
+import org.openejb.RpcEjbDeployment;
+import org.openejb.slsb.DefaultStatelessEjbContainer;
+import org.openejb.StatelessEjbDeploymentFactory;
+import org.openejb.StatelessEjbContainer;
 import org.openejb.deployment.MockTransactionManager;
-import org.openejb.deployment.StatelessContainerBuilder;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.transaction.TransactionPolicyType;
 
 /**
  *
@@ -77,10 +73,10 @@ import org.openejb.transaction.TransactionPolicyType;
  * @version $Revision$ $Date$
  */
 public class StatelessClientContainerTest extends TestCase {
-    private EJBContainer container;
+    private RpcEjbDeployment deployment;
 
     public void testMetadata() throws Exception {
-        EJBMetaData metaData = container.getEjbHome().getEJBMetaData();
+        EJBMetaData metaData = deployment.getEjbHome().getEJBMetaData();
         assertTrue(metaData.isSession());
         assertTrue(metaData.isStatelessSession());
         assertEquals(MockHome.class, metaData.getHomeInterfaceClass());
@@ -105,7 +101,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testHomeInterface() throws Exception {
-        MockHome home = (MockHome) container.getEjbHome();
+        MockHome home = (MockHome) deployment.getEjbHome();
         assertTrue(home.create() instanceof MockRemote);
         try {
             home.remove(new Integer(1));
@@ -137,7 +133,7 @@ public class StatelessClientContainerTest extends TestCase {
     public MockEJB mockEJB2;
 
     public void testRemove() throws Throwable {
-        MockLocalHome home = (MockLocalHome) container.getEjbLocalHome();
+        MockLocalHome home = (MockLocalHome) deployment.getEjbLocalHome();
         final MockLocal mock1 = home.create();
         Thread waiter = new Thread("Waiter") {
             public void run() {
@@ -158,7 +154,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testLocalHomeInterface() {
-        MockLocalHome localHome = (MockLocalHome) container.getEjbLocalHome();
+        MockLocalHome localHome = (MockLocalHome) deployment.getEjbLocalHome();
         try {
             localHome.remove(new Integer(1));
             fail("Expected RemoveException, but no exception was thrown");
@@ -172,7 +168,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testObjectInterface() throws Exception {
-        MockHome home = (MockHome) container.getEjbHome();
+        MockHome home = (MockHome) deployment.getEjbHome();
         MockRemote remote = home.create();
         assertTrue(remote.isIdentical(remote));
         assertTrue(remote.isIdentical(home.create()));
@@ -190,7 +186,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testLocalInterface() throws Exception {
-        MockLocalHome localHome = (MockLocalHome) container.getEjbLocalHome();
+        MockLocalHome localHome = (MockLocalHome) deployment.getEjbLocalHome();
         MockLocal local = localHome.create();
         assertTrue(local.isIdentical(local));
         assertTrue(local.isIdentical(localHome.create()));
@@ -208,7 +204,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testInvocation() throws Exception {
-        MockHome home = (MockHome) container.getEjbHome();
+        MockHome home = (MockHome) deployment.getEjbHome();
         MockRemote remote = home.create();
         assertEquals(2, remote.intMethod(1));
         try {
@@ -227,27 +223,25 @@ public class StatelessClientContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        StatelessContainerBuilder builder = new StatelessContainerBuilder();
-        builder.setContainerStrategy(new DefaultSLContainerStrategy(builder));
-        builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId("MockEJB");
-        builder.setEJBName("MockEJB");
-        builder.setBeanClassName(MockEJB.class.getName());
-        builder.setHomeInterfaceName(MockHome.class.getName());
-        builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
-        builder.setRemoteInterfaceName(MockRemote.class.getName());
-        builder.setLocalInterfaceName(MockLocal.class.getName());
-        builder.setJndiNames(new String[0]);
-        builder.setLocalJndiNames(new String[0]);
-        builder.setUnshareableResources(new HashSet());
-        builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return TransactionPolicyType.Required;
-            }
-        });
-        builder.setComponentContext(new HashMap());
-        builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager(), null));
-        builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());
-        container = builder.createContainer();
+
+        StatelessEjbContainer container = new DefaultStatelessEjbContainer(new TransactionContextManager(new MockTransactionManager(), null),
+                new ConnectionTrackingCoordinator(),
+                null,
+                null,
+                false,
+                false,
+                false);
+
+        StatelessEjbDeploymentFactory deploymentFactory = new StatelessEjbDeploymentFactory();
+        deploymentFactory.setContainerId("MockEjb");
+        deploymentFactory.setEjbName("MockEjb");
+        deploymentFactory.setHomeInterfaceName(MockHome.class.getName());
+        deploymentFactory.setRemoteInterfaceName(MockRemote.class.getName());
+        deploymentFactory.setLocalHomeInterfaceName(MockLocalHome.class.getName());
+        deploymentFactory.setLocalInterfaceName(MockLocal.class.getName());
+        deploymentFactory.setBeanClassName(MockEJB.class.getName());
+        deploymentFactory.setClassLoader(getClass().getClassLoader());
+        deploymentFactory.setEjbContainer(container);
+        deployment = (RpcEjbDeployment) deploymentFactory.create();
     }
 }

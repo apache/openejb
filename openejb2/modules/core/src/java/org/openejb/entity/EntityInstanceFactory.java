@@ -48,7 +48,6 @@
 package org.openejb.entity;
 
 import java.io.Serializable;
-
 import javax.naming.Context;
 
 import org.apache.commons.logging.Log;
@@ -67,6 +66,7 @@ import org.openejb.cache.InstanceFactory;
  * @version $Revision$ $Date$
  */
 public class EntityInstanceFactory implements InstanceFactory, Serializable {
+    private static final long serialVersionUID = -7127497820859468692L;
     private static final Log log = LogFactory.getLog(EntityInstanceFactory.class);
     private final InstanceContextFactory factory;
 

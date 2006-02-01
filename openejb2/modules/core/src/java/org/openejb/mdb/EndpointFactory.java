@@ -49,29 +49,31 @@ package org.openejb.mdb;
 
 import javax.resource.spi.endpoint.MessageEndpoint;
 
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.CglibEJBProxyFactory;
 import org.openejb.proxy.EJBProxyHelper;
-import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
-import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
  * @version $Revision$ $Date$
  */
 public class EndpointFactory {
-    private final MDBContainer mdbContainer;
+    private final MdbDeployment mdbDeploymentContext;
     private final CglibEJBProxyFactory endpointFactory;
     private final int[] operationMap;
+    private final TransactionContextManager transactionContextManager;
 
-    public EndpointFactory(MDBContainer mdbContainer, Class mdbInterface, ClassLoader classLoader) {
-        this.mdbContainer = mdbContainer;
-        InterfaceMethodSignature[] signatures = mdbContainer.getSignatures();
+    public EndpointFactory(MdbDeployment mdbDeploymentContext, Class mdbInterface, ClassLoader classLoader, TransactionContextManager transactionContextManager) {
+        this.mdbDeploymentContext = mdbDeploymentContext;
+        InterfaceMethodSignature[] signatures = mdbDeploymentContext.getSignatures();
         endpointFactory = new CglibEJBProxyFactory(EndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class}, classLoader);
         operationMap = EJBProxyHelper.getOperationMap(endpointFactory.getType(), signatures, true);
+        this.transactionContextManager = transactionContextManager;
     }
 
     public MessageEndpoint getMessageEndpoint(NamedXAResource xaResource) {
-        EndpointHandler handler = new EndpointHandler(mdbContainer, xaResource, operationMap);
+        EndpointHandler handler = new EndpointHandler(mdbDeploymentContext, xaResource, operationMap, transactionContextManager);
         return (MessageEndpoint) endpointFactory.create(handler,
                 new Class[]{EndpointHandler.class},
                 new Object[]{handler});

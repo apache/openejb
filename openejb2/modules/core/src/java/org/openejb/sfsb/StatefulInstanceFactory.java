@@ -48,11 +48,8 @@
 package org.openejb.sfsb;
 
 import java.io.Serializable;
-
 import javax.naming.Context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.naming.java.RootContext;
 import org.openejb.InstanceContextFactory;
 import org.openejb.cache.InstanceFactory;
@@ -67,7 +64,7 @@ import org.openejb.cache.InstanceFactory;
  * @version $Revision$ $Date$
  */
 public class StatefulInstanceFactory implements InstanceFactory, Serializable {
-    private static final Log log = LogFactory.getLog(StatefulInstanceFactory.class);
+    private static final long serialVersionUID = -1396679719578416412L;
 
     private final InstanceContextFactory factory;
 
@@ -101,12 +98,5 @@ public class StatefulInstanceFactory implements InstanceFactory, Serializable {
     }
 
     public void destroyInstance(Object instance) {
-        StatefulInstanceContext ctx = (StatefulInstanceContext) instance;
-        try {
-            ctx.unsetContext();
-        } catch (Throwable t) {
-            // We're destroying this instance, so just log and continue
-            log.warn("Unexpected error destroying Session instance", t);
-        }
     }
 }

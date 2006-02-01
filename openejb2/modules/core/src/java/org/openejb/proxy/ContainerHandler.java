@@ -45,21 +45,19 @@
 package org.openejb.proxy;
 
 import org.apache.geronimo.core.service.InvocationResult;
-
-import org.openejb.EJBContainer;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
 
 public class ContainerHandler implements EJBInterceptor {
+    private EjbDeployment container;
 
-    EJBContainer container;
-    
-    public ContainerHandler(EJBContainer container){
+    public ContainerHandler(EjbDeployment container){
         this.container = container;
     }
 
-    
-    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable{
+
+    public InvocationResult invoke(EjbInvocation ejbInvocation) throws Throwable{
         return container.invoke(ejbInvocation);
     }
-    
+
 }

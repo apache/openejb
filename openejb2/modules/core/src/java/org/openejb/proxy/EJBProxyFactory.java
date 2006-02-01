@@ -54,10 +54,10 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
-import org.openejb.ContainerIndex;
-import org.openejb.EJBContainer;
+import org.openejb.DeploymentIndex;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.EJBInterfaceType;
-import org.openejb.ContainerNotFoundException;
+import org.openejb.DeploymentNotFoundException;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFactory {
@@ -79,7 +79,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
     private transient final CglibEJBProxyFactory localFactory;
     private transient final CglibEJBProxyFactory localHomeFactory;
 
-    private transient EJBContainer container;
+    private transient RpcEjbDeployment container;
 
     private transient int[] remoteMap;
     private transient int[] homeMap;
@@ -88,7 +88,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
 
     private transient Map legacyMethodMap;
 
-    public EJBProxyFactory(EJBContainer container) {
+    public EJBProxyFactory(RpcEjbDeployment container) {
         this(container.getProxyInfo());
         setContainer(container);
     }
@@ -136,14 +136,14 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         return container.getEjbName();
     }
 
-    EJBContainer getContainer() throws ContainerNotFoundException {
+    RpcEjbDeployment getContainer() throws DeploymentNotFoundException {
         if (container == null) {
             locateContainer();
         }
         return container;
     }
 
-    private void setContainer(EJBContainer container) {
+    private void setContainer(RpcEjbDeployment container) {
         assert container != null: "container is null";
         this.container = container;
 
@@ -174,7 +174,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         }
     }
 
-    int[] getOperationMap(EJBInterfaceType type) throws ContainerNotFoundException {
+    int[] getOperationMap(EJBInterfaceType type) throws DeploymentNotFoundException {
         if (container == null) {
             locateContainer();
         }
@@ -337,9 +337,9 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         }
     }
 
-    private void locateContainer() throws ContainerNotFoundException {
-        ContainerIndex containerIndex = ContainerIndex.getInstance();
-        EJBContainer c = containerIndex.getContainer(containerId);
+    private void locateContainer() throws DeploymentNotFoundException {
+        DeploymentIndex deploymentIndex = DeploymentIndex.getInstance();
+        RpcEjbDeployment c = deploymentIndex.getDeployment(containerId);
         if (c == null) {
             throw new IllegalStateException("Contianer not found: " + containerId);
         }

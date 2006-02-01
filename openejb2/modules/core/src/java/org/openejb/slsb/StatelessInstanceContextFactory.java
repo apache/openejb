@@ -47,79 +47,47 @@
  */
 package org.openejb.slsb;
 
-import java.io.Serializable;
 import java.util.Set;
-
 import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
 
 import org.apache.geronimo.transaction.InstanceContext;
-
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
-import org.openejb.timer.BasicTimerService;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.StatelessEjbDeployment;
+import org.openejb.StatelessEjbContainer;
 import org.openejb.proxy.EJBProxyFactory;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.core.service.Interceptor;
 
 /**
  * @version $Revision$ $Date$
  */
-public class StatelessInstanceContextFactory implements InstanceContextFactory, Serializable {
-    private final Object containerId;
-    private final EJBInstanceFactory factory;
-    private final UserTransactionImpl userTransaction;
+public class StatelessInstanceContextFactory implements InstanceContextFactory {
+    private final EJBInstanceFactory instanceFactory;
+    private final EJBProxyFactory proxyFactory;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
-    private transient EJBProxyFactory proxyFactory;
-    private transient SystemMethodIndices systemMethodIndices;
-    private transient Interceptor systemChain;
-    private transient TransactionContextManager transactionContextManager;
-    private transient BasicTimerService timerService;
+    private final StatelessEjbDeployment statelessEjbDeployment;
+    private final StatelessEjbContainer statelessEjbContainer;
 
-    public StatelessInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
-        this.userTransaction = userTransaction;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
+    public StatelessInstanceContextFactory(StatelessEjbDeployment statelessEjbDeployment,
+            StatelessEjbContainer statelessEjbContainer,
+            EJBProxyFactory proxyFactory,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) {
+        this.instanceFactory = new EJBInstanceFactoryImpl(statelessEjbDeployment.getBeanClass());
+        this.proxyFactory = proxyFactory;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-    }
-
-    public void setProxyFactory(EJBProxyFactory proxyFactory) {
-        this.proxyFactory = proxyFactory;
-    }
-
-    public void setSystemChain(Interceptor systemChain) {
-        this.systemChain = systemChain;
-    }
-
-    public SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures) {
-        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), "unsetSessionContext");
-        return systemMethodIndices;
-    }
-
-    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
-        this.transactionContextManager = transactionContextManager;
-    }
-
-    public void setTimerService(BasicTimerService timerService) {
-        this.timerService = timerService;
+        this.statelessEjbDeployment = statelessEjbDeployment;
+        this.statelessEjbContainer = statelessEjbContainer;
     }
 
     public InstanceContext newInstance() throws Exception {
-        if (proxyFactory == null) {
-            throw new IllegalStateException("ProxyFactory has not been set");
-        }
-        return new StatelessInstanceContext(
-                containerId,
-                (SessionBean) factory.newInstance(),
+        return new StatelessInstanceContext(statelessEjbDeployment,
+                statelessEjbContainer,
+                (SessionBean) instanceFactory.newInstance(),
                 proxyFactory,
-                transactionContextManager, userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources, timerService);
+                unshareableResources,
+                applicationManagedSecurityResources);
     }
 }

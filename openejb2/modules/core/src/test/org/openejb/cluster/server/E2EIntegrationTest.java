@@ -48,7 +48,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.Collections;
-
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -59,19 +58,22 @@ import javax.ejb.SessionContext;
 import javax.security.auth.Subject;
 
 import junit.framework.TestCase;
-
 import org.activemq.broker.BrokerContainer;
 import org.activemq.broker.impl.BrokerContainerImpl;
 import org.activemq.store.vm.VMPersistenceAdapter;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBContainer;
+import org.openejb.EjbDeployment;
+import org.openejb.sfsb.DefaultStatefulEjbContainer;
+import org.openejb.StatefulEjbDeployment;
+import org.openejb.StatefulEjbDeploymentFactory;
 import org.openejb.cache.SimpleInstanceCache;
 import org.openejb.cluster.sfsb.ClusteredSFInstanceContextFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.sfsb.StatefulInstanceContext;
+import org.openejb.StatefulEjbContainer;
 
 /**
  * TODO remove this end-to-end test, usefull for lightweight end-to-end testing,
@@ -86,18 +88,19 @@ public class E2EIntegrationTest extends TestCase {
     public void testBasic() throws Exception {
         node1.start();
         node2.start();
-        
+
         StatefulInstanceContext ctx = (StatefulInstanceContext) node2.factory.newInstance();
         SFSB bean = (SFSB) ctx.getInstance();
         bean.name = "Name";
-        
+
         StatefulInstanceContext otherCtx = (StatefulInstanceContext) node1.cache.get(ctx.getId());
         SFSB otherBean = (SFSB) otherCtx.getInstance();
-        
+
         assertEquals(bean.name, otherBean.name);
     }
-    
+
     protected void setUp() throws Exception {
+        super.setUp();
         String clusterName = "OPENEJB_CLUSTER";
         String clusterUri = "vm://clusterName?marshal=false&broker.persistent=false";
 
@@ -117,26 +120,28 @@ public class E2EIntegrationTest extends TestCase {
                 "127.0.0.1",
                 1234,
                 10);
-        ClusteredInstanceCache cache = new DefaultClusteredInstanceCache(
-                new SimpleInstanceCache());
-        ClusteredSFInstanceContextFactory factory = new ClusteredSFInstanceContextFactory(
-                "containerId",
-                SFSB.class,
-                null,
+        ClusteredInstanceCache cache = new DefaultClusteredInstanceCache(new SimpleInstanceCache());
+        StatefulEjbContainer container = new DefaultStatefulEjbContainer(null, null, false, false, false);
+
+        StatefulEjbDeploymentFactory deploymentFactory = new StatefulEjbDeploymentFactory();
+        deploymentFactory.setContainerId("containerId");
+        deploymentFactory.setEjbName("test");
+        deploymentFactory.setBeanClassName(SFSB.class.getName());
+        deploymentFactory.setClassLoader(getClass().getClassLoader());
+        deploymentFactory.setEjbContainer(container);
+        deploymentFactory.setClusterManager(manager);
+        StatefulEjbDeployment deployment = (StatefulEjbDeployment) deploymentFactory.create();
+
+        EJBProxyFactory proxyFactory = new EJBProxyFactory(deployment.getProxyInfo());
+        ClusteredSFInstanceContextFactory factory = new ClusteredSFInstanceContextFactory(deployment,
+                container,
+                proxyFactory,
                 Collections.EMPTY_SET,
                 Collections.EMPTY_SET);
-        factory.setProxyFactory(
-            new EJBProxyFactory("containerId",
-                true,
-                null,
-                null,
-                null,
-                null));
-        factory.setSignatures(new InterfaceMethodSignature[0]);
-
+        factory.setClusterManager(manager);
         return new NodeInfo(manager, cache, factory);
     }
-    
+
     private static class NodeInfo {
         DefaultEJBClusterManager clusterManager;
         ClusteredInstanceCache cache;
@@ -150,11 +155,11 @@ public class E2EIntegrationTest extends TestCase {
         }
         public void start() throws Exception {
             clusterManager.doStart();
-            ClusteredEJBContainer container1 = new MockContainer(cache, factory, "containerId");
+            ClusteredEjbDeployment container1 = new MockContainer(cache, factory, "containerId");
             clusterManager.addEJBContainer(container1);
         }
     }
-    
+
     public static class SFSB implements SessionBean {
         private String name;
 
@@ -170,12 +175,12 @@ public class E2EIntegrationTest extends TestCase {
         public void setSessionContext(SessionContext arg0) throws EJBException, RemoteException {
         }
     }
-    
-    private static class MockContainer implements ClusteredEJBContainer {
+
+    private static class MockContainer implements ClusteredEjbDeployment {
         private final ClusteredInstanceCache instanceCache;
         private final ClusteredInstanceContextFactory contextFactory;
         private final String containerID;
-        
+
         public MockContainer(ClusteredInstanceCache instanceCache, ClusteredInstanceContextFactory contextFactory, String containerID) {
             this.instanceCache = instanceCache;
             this.contextFactory = contextFactory;
@@ -190,7 +195,7 @@ public class E2EIntegrationTest extends TestCase {
             return contextFactory;
         }
 
-        public Object getContainerID() {
+        public String getContainerId() {
             return containerID;
         }
 
@@ -234,7 +239,7 @@ public class E2EIntegrationTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public EJBContainer getUnmanagedReference() {
+        public EjbDeployment getUnmanagedReference() {
             throw new UnsupportedOperationException();
         }
 

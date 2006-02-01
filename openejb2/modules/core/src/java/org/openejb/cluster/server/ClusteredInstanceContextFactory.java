@@ -51,7 +51,7 @@ import org.openejb.InstanceContextFactory;
  * @version $Revision$ $Date$
  */
 public interface ClusteredInstanceContextFactory extends InstanceContextFactory {
-    void setEJBClusterManager(EJBClusterManager clusteredManager);
+    void setClusterManager(EJBClusterManager clusteredManager);
 
     void setServersHolder(ServerMetaDataArrayHolder serversHolder);
 

@@ -61,7 +61,7 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.EJBInstanceContext;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.timer.TimerState;
 
@@ -72,7 +72,7 @@ import org.openejb.timer.TimerState;
  */
 public abstract class AbstractSpecificMethodOperation implements VirtualOperation, Serializable {
 
-    protected InvocationResult invoke(EJBInvocation invocation, EJBOperation operation) throws Throwable {
+    protected InvocationResult invoke(EjbInvocation invocation, EJBOperation operation) throws Throwable {
         EJBInstanceContext ctx = invocation.getEJBInstanceContext();
         boolean oldTimerMethodAvailable = ctx.setTimerState(operation);
         try {

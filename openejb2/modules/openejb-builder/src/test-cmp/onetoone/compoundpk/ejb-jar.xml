@@ -23,6 +23,16 @@
             <cmp-field>
                 <field-name>field2</field-name>
             </cmp-field>
+            <query>
+                <!-- SimplePK one-to-one shares the local home interface so we need to declare this useless finder -->
+                <query-method>
+                    <method-name>findByPrimaryKey</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(A) FROM OneToOneA A</ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>B</ejb-name>
@@ -46,6 +56,16 @@
             <cmp-field>
                 <field-name>field4</field-name>
             </cmp-field>
+            <query>
+                <!-- SimplePK one-to-one shares the local home interface so we need to declare this useless finder -->
+                <query-method>
+                    <method-name>findByPrimaryKey</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(B) FROM OneToOneB B</ejb-ql>
+            </query>
         </entity>
     </enterprise-beans>
     <relationships>

@@ -49,55 +49,54 @@ package org.openejb.sfsb;
 
 import java.util.Set;
 import javax.ejb.SessionBean;
-import javax.ejb.SessionSynchronization;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBOperation;
-import org.openejb.EJBInvocation;
 import org.openejb.EJBContextImpl;
+import org.openejb.EJBOperation;
+import org.openejb.StatefulEjbDeployment;
+import org.openejb.StatefulEjbContainer;
 import org.openejb.cache.InstanceCache;
-import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class StatefulInstanceContext extends AbstractInstanceContext {
     private static final Log log = LogFactory.getLog(StatefulInstanceContext.class);
+    private final StatefulEjbContainer statefulEjbContainer;
     private final Object id;
     private final StatefulSessionContext statefulContext;
-    private final EJBInvocation setContextInvocation;
-    private final EJBInvocation unsetContextInvocation;
-    private final EJBInvocation afterBeginInvocation;
-    private final EJBInvocation beforeCompletionInvocation;
-    private final SystemMethodIndices systemMethodIndices;
     private TransactionContext preexistingContext;
     private EJBOperation operation;
     private InstanceCache cache;
 
-    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
-        //currently stateful beans have no timer service.
-        super(containerId, instance, systemChain, proxyFactory, null, unshareableResources, applicationManagedSecurityResources);
+    public StatefulInstanceContext(StatefulEjbDeployment statefulEjbDeployment,
+            StatefulEjbContainer statefulEjbContainer,
+            SessionBean instance,
+            Object id,
+            EJBProxyFactory proxyFactory,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) {
+        super(statefulEjbDeployment, instance, proxyFactory, unshareableResources, applicationManagedSecurityResources);
+
+        this.statefulEjbContainer = statefulEjbContainer;
         this.id = id;
-        statefulContext = new StatefulSessionContext(this, transactionContextManager, userTransaction);
-        this.systemMethodIndices = systemMethodIndices;
-        setContextInvocation = systemMethodIndices.getSetContextInvocation(this, statefulContext);
-        unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
-        if (instance instanceof SessionSynchronization) {
-            afterBeginInvocation = systemMethodIndices.getAfterBeginInvocation(this);
-            beforeCompletionInvocation = systemMethodIndices.getBeforeCompletionInvocation(this);
+
+        TransactionContextManager transactionContextManager = statefulEjbContainer.getTransactionContextManager();
+
+        UserTransactionImpl userTransaction;
+        if (statefulEjbDeployment.isBeanManagedTransactions()) {
+            userTransaction = statefulEjbContainer.getUserTransaction();
         } else {
-            afterBeginInvocation = null;
-            beforeCompletionInvocation = null;
+            userTransaction = null;
         }
+
+        statefulContext = new StatefulSessionContext(this, transactionContextManager, userTransaction);
     }
 
     public EJBOperation getOperation() {
@@ -155,46 +154,26 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         super.die();
     }
 
-    public StatefulSessionContext getSessionContext() {
-        return statefulContext;
-    }
-
     public void setContext() throws Throwable {
         if (isDead()) {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
-        systemChain.invoke(setContextInvocation);
-    }
-
-    public void unsetContext() throws Throwable {
-        if (isDead()) {
-            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
-        }
-        systemChain.invoke(unsetContextInvocation);
+        statefulEjbContainer.setContext(this, statefulContext);
     }
 
     public void associate() throws Throwable {
         super.associate();
-        if (getInstance() instanceof SessionSynchronization) {
-            assert(getInstance() != null);
-            systemChain.invoke(afterBeginInvocation);
-        }
+        statefulEjbContainer.afterBegin(this);
     }
 
     public void beforeCommit() throws Throwable {
         super.beforeCommit();
-        if (getInstance() instanceof SessionSynchronization) {
-            assert(getInstance() != null);
-            systemChain.invoke(beforeCompletionInvocation);
-        }
+        statefulEjbContainer.beforeCommit(this);
     }
 
     public void afterCommit(boolean committed) throws Throwable {
         super.beforeCommit();
-        if (getInstance() instanceof SessionSynchronization) {
-            assert(getInstance() != null);
-            systemChain.invoke(systemMethodIndices.getAfterCompletionInvocation(this, committed));
-        }
+        statefulEjbContainer.afterCommit(this, committed);
     }
 
     public void unassociate() throws Throwable {

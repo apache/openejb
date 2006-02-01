@@ -54,16 +54,16 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
+import javax.security.auth.Subject;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
-import javax.security.auth.Subject;
 
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.timer.TimerState;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Implementation of SessionContext using the State pattern to determine
@@ -81,7 +81,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
         state = states[operation.getOrdinal()];
         assert (state != null) : "Invalid EJBOperation for Stateless SessionBean, ordinal=" + operation.getOrdinal();
 
-        if(userTransaction != null) {
+        if (userTransaction != null) {
             if (operation == EJBOperation.BIZMETHOD ||
                     operation == EJBOperation.ENDPOINT ||
                     operation == EJBOperation.TIMEOUT) {
@@ -100,10 +100,10 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
     }
 
     public MessageContext getMessageContext() throws IllegalStateException {
-        return ((StatelessSessionContextState) state).getMessageContext((StatelessInstanceContext)context);
+        return ((StatelessSessionContextState) state).getMessageContext((StatelessInstanceContext) context);
     }
 
-    public abstract static class StatelessSessionContextState extends EJBContextImpl.EJBContextState {
+    public abstract static class StatelessSessionContextState extends EJBContextState {
         protected MessageContext getMessageContext(StatelessInstanceContext context) {
             return context.getMessageContext();
         }
@@ -226,7 +226,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
     };
 
     public static final StatelessSessionContextState EJBTIMEOUT = new StatelessSessionContextState() {
-         public MessageContext getMessageContext(StatelessInstanceContext context) {
+        public MessageContext getMessageContext(StatelessInstanceContext context) {
             throw new IllegalStateException("getMessageContext() cannot be called from ejbTimeout");
         }
     };

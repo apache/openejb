@@ -56,12 +56,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.reference.SimpleAwareReference;
 
-
 /**
  * @version $Revision$ $Date$
  */
 public final class CORBAProxyReference extends SimpleAwareReference {
-
     private final static Log log = LogFactory.getLog(CORBAProxyReference.class);
 
     private final URI nsCorbaloc;
@@ -69,13 +67,13 @@ public final class CORBAProxyReference extends SimpleAwareReference {
     private final ObjectName containerName;
     private final String home;
 
-    public CORBAProxyReference(URI corbaURL, String objectName, ObjectName containerName, String home) {
-        this.nsCorbaloc = corbaURL;
+    public CORBAProxyReference(URI corbaUri, String objectName, ObjectName containerName, String home) {
+        this.nsCorbaloc = corbaUri;
         this.objectName = objectName;
         this.containerName = containerName;
         this.home = home;
 
-        if (log.isDebugEnabled()) log.debug("<init> " + corbaURL.toString() + ", " + objectName + ", " + containerName + ", " + home);
+        if (log.isDebugEnabled()) log.debug("<init> " + corbaUri.toString() + ", " + objectName + ", " + containerName + ", " + home);
     }
 
     public String getClassName() {

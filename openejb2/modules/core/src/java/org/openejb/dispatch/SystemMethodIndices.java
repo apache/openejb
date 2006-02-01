@@ -47,12 +47,13 @@
  */
 package org.openejb.dispatch;
 
+import javax.ejb.Timer;
+
 import org.openejb.EJBInstanceContext;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbInvocationImpl;
 import org.openejb.EJBInterfaceType;
 import org.openejb.timer.EJBTimeoutInvocationFactory;
-import org.openejb.timer.TimerImpl;
 
 /**
  *
@@ -134,52 +135,52 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         this.afterCompletion = afterCompletion;
     }
 
-    public EJBInvocation getEjbActivateInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(ejbActivate, null, instanceContext);
+    public EjbInvocation getEjbActivateInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(ejbActivate, null, instanceContext);
     }
 
-    public EJBInvocation getEjbLoadInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(ejbLoad, null, instanceContext);
+    public EjbInvocation getEjbLoadInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(ejbLoad, null, instanceContext);
     }
 
-    public EJBInvocation getEjbPassivateInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(ejbPassivate, null, instanceContext);
+    public EjbInvocation getEjbPassivateInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(ejbPassivate, null, instanceContext);
     }
 
-    public EJBInvocation getEjbStoreInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(ejbStore, null, instanceContext);
+    public EjbInvocation getEjbStoreInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(ejbStore, null, instanceContext);
     }
 
-    public EJBInvocation getEJBTimeoutInvocation(Object id, TimerImpl timer) {
-        return new EJBInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeout, new Object[] {timer});
+    public EjbInvocation getEJBTimeoutInvocation(Object id, Timer timer) {
+        return new EjbInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeout, new Object[] {timer});
     }
 
-    public EJBInvocation getEJBCreateInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(ejbCreate, null, instanceContext);
+    public EjbInvocation getEJBCreateInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(ejbCreate, null, instanceContext);
     }
 
-    public EJBInvocation getEJBRemoveInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(ejbRemove, null, instanceContext);
+    public EjbInvocation getEJBRemoveInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(ejbRemove, null, instanceContext);
 
     }
 
-    public EJBInvocation getSetContextInvocation(EJBInstanceContext instanceContext, Object context) {
-        return new EJBInvocationImpl(setContext, new Object[] {context}, instanceContext);
+    public EjbInvocation getSetContextInvocation(EJBInstanceContext instanceContext, Object context) {
+        return new EjbInvocationImpl(setContext, new Object[] {context}, instanceContext);
     }
 
-    public EJBInvocation getUnsetContextInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(unsetContext, null, instanceContext);
+    public EjbInvocation getUnsetContextInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(unsetContext, null, instanceContext);
     }
 
-    public EJBInvocation getAfterBeginInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(afterBegin, null, instanceContext);
+    public EjbInvocation getAfterBeginInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(afterBegin, null, instanceContext);
     }
 
-    public EJBInvocation getBeforeCompletionInvocation(EJBInstanceContext instanceContext) {
-        return new EJBInvocationImpl(beforeCompletion, null, instanceContext);
+    public EjbInvocation getBeforeCompletionInvocation(EJBInstanceContext instanceContext) {
+        return new EjbInvocationImpl(beforeCompletion, null, instanceContext);
     }
 
-    public EJBInvocation getAfterCompletionInvocation(EJBInstanceContext instanceContext, boolean comitted) {
-        return new EJBInvocationImpl(afterCompletion, new Object[]{Boolean.valueOf(comitted)}, instanceContext);
+    public EjbInvocation getAfterCompletionInvocation(EJBInstanceContext instanceContext, boolean comitted) {
+        return new EjbInvocationImpl(afterCompletion, new Object[]{Boolean.valueOf(comitted)}, instanceContext);
     }
 }

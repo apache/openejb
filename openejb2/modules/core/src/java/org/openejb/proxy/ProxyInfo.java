@@ -50,18 +50,18 @@ import org.openejb.EJBComponentType;
 
 
 public class ProxyInfo implements Serializable {
-    
+    private static final long serialVersionUID = 569021597222976175L;
     private final int componentType;
     private final String containerId;
     private final Object primaryKey;
-    
+
     private final Class remoteInterface;
     private final Class homeInterface;
-    private final Class localObjectInterface;
     private final Class localHomeInterface;
+    private final Class localInterface;
     private final Class serviceEndpointInterface;
     private final Class primaryKeyClass;
-    
+
 
     public ProxyInfo(ProxyInfo info, Object primaryKey) {
         this.componentType = info.componentType;
@@ -69,7 +69,7 @@ public class ProxyInfo implements Serializable {
         this.homeInterface = info.homeInterface;
         this.remoteInterface = info.remoteInterface;
         this.localHomeInterface = info.localHomeInterface;
-        this.localObjectInterface = info.localObjectInterface;
+        this.localInterface = info.localInterface;
         this.serviceEndpointInterface = info.serviceEndpointInterface;
         this.primaryKeyClass = info.primaryKeyClass;
         this.primaryKey = primaryKey;
@@ -81,7 +81,7 @@ public class ProxyInfo implements Serializable {
             Class homeInterface,
             Class remoteInterface,
             Class localHomeInterface,
-            Class localObjectInterface,
+            Class localInterface,
             Class serviceEndpointInterface,
             Class primaryKeyClass) {
 
@@ -90,7 +90,7 @@ public class ProxyInfo implements Serializable {
         this.homeInterface = homeInterface;
         this.remoteInterface = remoteInterface;
         this.localHomeInterface = localHomeInterface;
-        this.localObjectInterface = localObjectInterface;
+        this.localInterface = localInterface;
         this.serviceEndpointInterface = serviceEndpointInterface;
         this.primaryKeyClass = primaryKeyClass;
         this.primaryKey = null;
@@ -131,17 +131,17 @@ public class ProxyInfo implements Serializable {
     public Class getHomeInterface() {
         return homeInterface;
     }
-    
+
     public Class getRemoteInterface() {
         return remoteInterface;
     }
-    
+
     public Class getLocalHomeInterface() {
         return localHomeInterface;
     }
 
     public Class getLocalInterface() {
-        return localObjectInterface;
+        return localInterface;
     }
 
     public Class getServiceEndpointInterface() {

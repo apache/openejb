@@ -52,8 +52,8 @@ import java.util.Map;
 import java.util.List;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import javax.naming.Reference;
 import javax.xml.namespace.QName;
+import javax.naming.Reference;
 
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -62,10 +62,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 
 /**
  * @version $Revision$ $Date$

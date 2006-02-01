@@ -51,7 +51,7 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 
-import org.openejb.ContainerNotFoundException;
+import org.openejb.DeploymentNotFoundException;
 
 
 /**
@@ -71,7 +71,7 @@ public abstract class SessionEJBHome extends EJBHomeImpl{
             ProxyInfo proxyInfo = null;
             try {
                 proxyInfo = ejbHandler.getProxyInfo();
-            } catch (ContainerNotFoundException e) {
+            } catch (DeploymentNotFoundException e) {
                 throw new NoSuchObjectException(e.getMessage());
             }
             Class remoteInterface = proxyInfo.getRemoteInterface();

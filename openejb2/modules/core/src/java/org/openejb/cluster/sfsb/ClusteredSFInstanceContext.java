@@ -45,50 +45,46 @@
 package org.openejb.cluster.sfsb;
 
 import java.util.Set;
-
 import javax.ejb.SessionBean;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.openejb.StatefulEjbDeployment;
 import org.openejb.client.ServerMetaData;
 import org.openejb.cluster.server.ClusteredEJBInstanceContext;
 import org.openejb.cluster.server.ServerMetaDataArrayHolder;
-import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.sfsb.StatefulInstanceContext;
+import org.openejb.StatefulEjbContainer;
 
 /**
- * 
  * @version $Revision$ $Date$
  */
 public class ClusteredSFInstanceContext extends StatefulInstanceContext implements ClusteredEJBInstanceContext {
     private ServerMetaDataArrayHolder serversHolder;
-    
-    public ClusteredSFInstanceContext(Object containerId,
-            EJBProxyFactory proxyFactory,
+
+    public ClusteredSFInstanceContext(StatefulEjbDeployment statefulEjbDeployment,
+            StatefulEjbContainer statefulEjbContainer,
             SessionBean instance,
             Object id,
-            TransactionContextManager transactionContextManager,
-            UserTransactionImpl userTransaction,
-            SystemMethodIndices systemMethodIndices,
-            Interceptor systemChain,
+            EJBProxyFactory proxyFactory,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
             ServerMetaDataArrayHolder serversHolder) {
-        super(containerId, proxyFactory, instance, id, transactionContextManager,
-                userTransaction, systemMethodIndices, systemChain,
-                unshareableResources, applicationManagedSecurityResources);
+        super(statefulEjbDeployment,
+                statefulEjbContainer,
+                instance,
+                id,
+                proxyFactory,
+                unshareableResources,
+                applicationManagedSecurityResources);
         this.serversHolder = serversHolder;
     }
 
     public ServerMetaData[] getServers() {
         return serversHolder.getServers();
     }
-    
+
     public void flush() throws Throwable {
         super.flush();
-        
         // TODO hook replication.
     }
 }

@@ -65,7 +65,7 @@ import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantLocator;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.openejb.proxy.ProxyInfo;
@@ -80,11 +80,11 @@ public final class AdapterEntity extends Adapter {
     private final POA poa;
     private final String referenceInterface;
 
-    public AdapterEntity(EJBContainer container, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
-        super(container, orb, parentPOA, securityPolicy);
+    public AdapterEntity(RpcEjbDeployment deployment, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        super(deployment, orb, parentPOA, securityPolicy);
 
         Any any = orb.create_any();
-        any.insert_Value(container.getRemoteTxPolicyConfig());
+        any.insert_Value(deployment.getRemoteTxPolicyConfig());
 
         try {
             Policy[] policies = new Policy[]{
@@ -96,12 +96,12 @@ public final class AdapterEntity extends Adapter {
                 homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 homePOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
-            poa = homePOA.create_POA(container.getContainerID().toString(), homePOA.the_POAManager(), policies);
+            poa = homePOA.create_POA(deployment.getContainerId().toString(), homePOA.the_POAManager(), policies);
             poa.set_servant_manager(new ObjectActivator());
 
             poa.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, container);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, deployment);
             referenceInterface = servant._all_interfaces(null, null)[0];
         } catch (Exception e) {
             throw new CORBAException(e);
@@ -146,8 +146,8 @@ public final class AdapterEntity extends Adapter {
                 pk = is.readObject();
                 is.close();
 
-                EJBContainer container = getContainer();
-                StandardServant servant = new StandardServant(getOrb(), EJBInterfaceType.REMOTE, container, pk);
+                RpcEjbDeployment deployment = getDeployment();
+                StandardServant servant = new StandardServant(getOrb(), EJBInterfaceType.REMOTE, deployment, pk);
                 return servant;
             } catch (IOException e) {
                 // if we can't deserialize, then this object can't exist in this process

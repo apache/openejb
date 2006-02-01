@@ -65,8 +65,8 @@ import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import junit.framework.TestCase;
 
-import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbInvocationImpl;
 import org.openejb.EJBInterfaceType;
 import org.tranql.cache.InTxCache;
 
@@ -75,7 +75,7 @@ import org.tranql.cache.InTxCache;
  */
 public class ContainerPolicyTest extends TestCase {
     private MockInterceptor interceptor;
-    private EJBInvocation invocation;
+    private EjbInvocation invocation;
     private MockTransactionManager txnManager;
     private TransactionContextManager transactionContextManager;
 
@@ -120,7 +120,7 @@ public class ContainerPolicyTest extends TestCase {
         txnManager = new MockTransactionManager();
         transactionContextManager = new TransactionContextManager(txnManager, null);
         interceptor = new MockInterceptor(transactionContextManager);
-        invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, 0, null);
+        invocation = new EjbInvocationImpl(EJBInterfaceType.LOCAL, 0, null);
     }
 
     private static class MockInterceptor implements Interceptor {

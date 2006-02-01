@@ -51,6 +51,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.EJBComponentType;
 
 /**

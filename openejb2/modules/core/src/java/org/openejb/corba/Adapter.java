@@ -59,7 +59,7 @@ import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.openejb.proxy.ProxyInfo;
@@ -68,20 +68,20 @@ import org.openejb.proxy.ProxyInfo;
  * @version $Revision$ $Date$
  */
 public abstract class Adapter implements RefGenerator {
-    private final EJBContainer container;
+    private final RpcEjbDeployment deployment;
     protected final POA homePOA;
     protected final ORB orb;
     private final NamingContextExt initialContext;
     private final byte[] home_id;
     private final org.omg.CORBA.Object homeReference;
 
-    protected Adapter(EJBContainer container, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
-        this.container = container;
-        this.home_id = container.getContainerID().toString().getBytes();
+    protected Adapter(RpcEjbDeployment deployment, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        this.deployment = deployment;
+        this.home_id = deployment.getContainerId().toString().getBytes();
         this.orb = orb;
 
         Any any = orb.create_any();
-        any.insert_Value(container.getHomeTxPolicyConfig());
+        any.insert_Value(deployment.getHomeTxPolicyConfig());
 
         try {
             Policy[] policies = new Policy[]{
@@ -93,18 +93,18 @@ public abstract class Adapter implements RefGenerator {
                 parentPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 parentPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
-            homePOA = parentPOA.create_POA(container.getContainerID().toString(), parentPOA.the_POAManager(), policies);
+            homePOA = parentPOA.create_POA(deployment.getContainerId().toString(), parentPOA.the_POAManager(), policies);
 
             homePOA.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(orb, EJBInterfaceType.HOME, container);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.HOME, deployment);
 
             homePOA.activate_object_with_id(home_id, servant);
             homeReference = homePOA.servant_to_reference(servant);
 
             org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
             initialContext = NamingContextExtHelper.narrow(obj);
-            String[] names = container.getJndiNames();
+            String[] names = deployment.getJndiNames();
             for (int i = 0; i < names.length; i++) {
                 NameComponent[] nameComponent = initialContext.to_name(names[i]);
                 NamingContext currentContext = initialContext;
@@ -127,8 +127,8 @@ public abstract class Adapter implements RefGenerator {
 
     }
 
-    public EJBContainer getContainer() {
-        return container;
+    public RpcEjbDeployment getDeployment() {
+        return deployment;
     }
 
     public NamingContextExt getInitialContext() {
@@ -145,7 +145,7 @@ public abstract class Adapter implements RefGenerator {
 
     public void stop() throws CORBAException {
         try {
-            String[] names = container.getJndiNames();
+            String[] names = deployment.getJndiNames();
             for (int i = 0; i < names.length; i++) {
                 NameComponent[] nameComponent = initialContext.to_name(names[i]);
                 initialContext.unbind(nameComponent);

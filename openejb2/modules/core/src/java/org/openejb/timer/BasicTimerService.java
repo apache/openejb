@@ -68,5 +68,5 @@ public interface BasicTimerService {
 
     Collection getTimers(Object id) throws IllegalStateException, EJBException;
 
-    TimerImpl getTimerById(Long id);
+    Timer getTimerById(Long id);
 }

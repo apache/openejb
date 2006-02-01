@@ -3,20 +3,20 @@ package org.openejb.deployment;
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
     private Repository repository = null;
 
-    private OpenEJBModuleBuilder builder;
+    private OpenEjbModuleBuilder builder;
     File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
-        builder = new OpenEJBModuleBuilder(null, null, null, null, repository, null);
+        super.setUp();
+        builder = new OpenEjbModuleBuilder(null, null, null, null, null, null, null, null, null, repository);
     }
 
     public void testResourceRef() throws Exception {

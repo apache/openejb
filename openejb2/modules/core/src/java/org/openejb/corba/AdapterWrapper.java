@@ -51,48 +51,48 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.PortableServer.POA;
-
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
+import org.openejb.EjbDeployment;
+import org.openejb.RpcEjbDeployment;
 
 /**
  * @version $Revision$ $Date$
  */
 public final class AdapterWrapper {
     private final static Map adapters = new HashMap();
-    private final EJBContainer container;
+    private final RpcEjbDeployment deployment;
     private Adapter generator;
 
-    public AdapterWrapper(EJBContainer container) {
-        this.container = container;
+    public AdapterWrapper(RpcEjbDeployment deployment) {
+        this.deployment = deployment;
 
     }
 
-    public EJBContainer getContainer() {
-        return container;
+    public EjbDeployment getDeployment() {
+        return deployment;
     }
 
     public void start(ORB orb, POA poa, NamingContextExt initialContext, Policy securityPolicy) throws CORBAException {
-        switch (container.getProxyInfo().getComponentType()) {
+        switch (deployment.getProxyInfo().getComponentType()) {
             case EJBComponentType.STATELESS:
-                generator = new AdapterStateless(container, orb, poa, securityPolicy);
+                generator = new AdapterStateless(deployment, orb, poa, securityPolicy);
                 break;
             case EJBComponentType.STATEFUL:
-                generator = new AdapterStateful(container, orb, poa, securityPolicy);
+                generator = new AdapterStateful(deployment, orb, poa, securityPolicy);
                 break;
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
-                generator = new AdapterEntity(container, orb, poa, securityPolicy);
+                generator = new AdapterEntity(deployment, orb, poa, securityPolicy);
                 break;
             default:
                 throw new CORBAException("CORBA Adapter does not handle MDB containers");
         }
-        adapters.put(container.getContainerID(), generator);
+        adapters.put(deployment.getContainerId(), generator);
     }
 
     public void stop() throws CORBAException {
         generator.stop();
-        adapters.remove(container.getContainerID());
+        adapters.remove(deployment.getContainerId());
     }
 
     public static RefGenerator getRefGenerator(String containerId) {

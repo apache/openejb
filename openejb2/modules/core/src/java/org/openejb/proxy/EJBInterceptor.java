@@ -45,8 +45,8 @@
 package org.openejb.proxy;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 
 public interface EJBInterceptor {
-    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable;
+    public InvocationResult invoke(EjbInvocation ejbInvocation) throws Throwable;
 }

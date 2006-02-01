@@ -53,7 +53,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
@@ -69,29 +68,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.ContainerIndex;
-import org.openejb.deployment.CMPContainerBuilder;
+import org.openejb.DeploymentIndex;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.transaction.TransactionPolicyType;
-import org.tranql.cache.CacheSlot;
-import org.tranql.cache.CacheTable;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.cache.FrontEndCacheDelegate;
-import org.tranql.ejb.CMPField;
-import org.tranql.ejb.EJB;
-import org.tranql.ejb.EJBQueryBuilder;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.identity.IdentityDefinerBuilder;
-import org.tranql.query.SchemaMapper;
-import org.tranql.query.UpdateCommand;
-import org.tranql.sql.Column;
-import org.tranql.sql.Table;
-import org.tranql.sql.sql92.SQL92Schema;
+import org.openejb.deployment.CmpBuilder;
+import org.openejb.entity.cmp.EntitySchema;
+import org.openejb.entity.cmp.ModuleSchema;
+import org.openejb.entity.cmp.TranqlModuleCmpEngine;
 
 /**
  * @version $Revision$ $Date$
@@ -320,33 +303,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
         c.close();
     }
 
-    public void testSelect() throws Exception {
-//        Connection c = initDatabase();
-//        MockLocalHome home = (MockLocalHome) mbServer.invoke(CONTAINER_NAME, "getEJBLocalHome", null, null);
-//
-//        assertEquals("Hello", home.singleSelect(new Integer(1)));
-//        try {
-//            home.singleSelect(new Integer(2));
-//            fail("did not get ObjectNotFoundException");
-//        } catch (ObjectNotFoundException e) {
-        //ok
-//        }
-//
-//        Collection result = home.multiSelect(new Integer(1));
-//        assertEquals(1, result.size());
-//        assertEquals("Hello", result.iterator().next());
-//
-//        result = home.multiSelect(new Integer(0));
-//        assertEquals(0, result.size());
-//
-//        result = home.multiObject(new Integer(1));
-//        assertEquals(1, result.size());
-//        MockLocal local = (MockLocal) result.iterator().next();
-//        assertEquals(new Integer(1), local.getPrimaryKey());
-//
-//        c.close();
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -364,110 +320,54 @@ public class BasicCMPEntityContainerTest extends TestCase {
         s.close();
         c.close();
 
-//        SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
-//        ArrayList queries = new ArrayList();
-//        MethodSignature signature;
-//
-//        signature = new MethodSignature("ejbFindByPrimaryKey", new String[]{"java.lang.Object"});
-//        persistenceFactory.defineQuery(signature, "SELECT ID FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0)});
-//        queries.add(new CMPQuery("Mock", false, signature, false, null));
-//        signature = new MethodSignature("ejbLoad", new String[]{});
-//        persistenceFactory.defineQuery(signature, "SELECT ID,VALUE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0), new StringBinding(2, 1)});
-//        queries.add(new CMPQuery(signature, false, null));
-//        signature = new MethodSignature("ejbSelectSingleValue", new String[]{"java.lang.Integer"});
-//        persistenceFactory.defineQuery(signature, "SELECT VALUE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new StringBinding(1, 0)});
-//        queries.add(new CMPQuery(signature, false, null));
-//        signature = new MethodSignature("ejbSelectMultiValue", new String[]{"java.lang.Integer"});
-//        persistenceFactory.defineQuery(signature, "SELECT VALUE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new StringBinding(1, 0)});
-//        queries.add(new CMPQuery(signature, true, null));
-//        signature = new MethodSignature("ejbSelectMultiObject", new String[]{"java.lang.Integer"});
-//        persistenceFactory.defineQuery(signature, "SELECT ID FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0)});
-//        queries.add(new CMPQuery("Mock", true, signature, true, null));
-//
-//        signature = new MethodSignature("ejbCreate", new String[]{"java.lang.Integer", "java.lang.String"});
-//        persistenceFactory.defineUpdate(signature, "INSERT INTO MOCK(ID, VALUE) VALUES(?,?)", new Binding[]{new IntBinding(1, 0), new StringBinding(2, 1)});
-//        signature = new MethodSignature("ejbRemove", new String[0]);
-//        persistenceFactory.defineUpdate(signature, "DELETE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)});
-//        signature = new MethodSignature("ejbStore", new String[0]);
-//        persistenceFactory.defineUpdate(signature, "UPDATE MOCK SET VALUE = ? WHERE ID=?", new Binding[]{new StringBinding(1, 1), new IntBinding(2, 0)});
-//
-//        CMPConfiguration cmpConfig = new CMPConfiguration();
-//        cmpConfig.persistenceFactory = persistenceFactory;
-//        cmpConfig.queries = (CMPQuery[]) queries.toArray(new CMPQuery[0]);
-//        cmpConfig.cmpFieldNames = new String[]{"id", "value"};
-//        cmpConfig.relations = new CMRelation[]{};
-//        cmpConfig.schema = "Mock";
-
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
-
-
-        CMPContainerBuilder builder = new CMPContainerBuilder();
-        builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
-        builder.setEJBName("MockEJB");
-        builder.setBeanClassName(MockCMPEJB.class.getName());
-        builder.setHomeInterfaceName(MockHome.class.getName());
-        builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
-        builder.setRemoteInterfaceName(MockRemote.class.getName());
-        builder.setLocalInterfaceName(MockLocal.class.getName());
-        builder.setPrimaryKeyClassName(Integer.class.getName());
-        builder.setCMP2(true);
-        builder.setJndiNames(new String[0]);
-        builder.setLocalJndiNames(new String[0]);
-        builder.setUnshareableResources(new HashSet());
-        builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return TransactionPolicyType.Required;
-            }
-        });
-        EJBSchema ejbSchema = new EJBSchema("MOCK");
-        SQL92Schema sqlSchema = new SQL92Schema("MOCK", ds, new DerbyEJBQLCompilerFactory());
-        GlobalSchema globalSchema = new GlobalSchema("MOCK");
-        builder.setEJBSchema(ejbSchema);
-        builder.setSQLSchema(sqlSchema);
-        builder.setGlobalSchema(globalSchema);
-        builder.setComponentContext(new HashMap());
-        builder.setFrontEndCacheDelegate(new FrontEndCacheDelegate());
-//        builder.setConnectionFactoryName("defaultDatasource");
-
-        EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
-        EJB ejb = new EJB("MockEJB", "MOCK", Integer.class, proxyFactory, null, false);
-        CMPField pkField = new CMPField("id", Integer.class, true);
-        ejb.addCMPField(pkField);
-        ejb.addCMPField(new CMPField("value", String.class, false));
-        ejbSchema.addEJB(ejb);
-
-        Table table = new Table("MockEJB", "MOCK");
-        table.addColumn(new Column("id", "id", Integer.class, true));
-        table.addColumn(new Column("value", "VALUE", String.class, false));
-        sqlSchema.addTable(table);
-
-        SchemaMapper mapper = new SchemaMapper(sqlSchema);
-        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(new IdentityDefinerBuilder(ejbSchema, globalSchema));
-        UpdateCommand createCommand = mapper.transform(queryBuilder.buildCreate("MockEJB"));
-        UpdateCommand storeCommand = mapper.transform(queryBuilder.buildStore("MockEJB"));
-        UpdateCommand removeCommand = mapper.transform(queryBuilder.buildRemove("MockEJB"));
-        CacheSlot slots[] = new CacheSlot[2];
-        slots[0] = new CacheSlot("id", Integer.class, null);
-        slots[1] = new CacheSlot("value", String.class, null);
-        CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
-        globalSchema.addCacheTable(cacheTable);
-
-        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
-
-        GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
-        containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
-        start(CI_NAME, containerIndex);
 
         ObjectName connectionProxyFactoryObjectName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
         GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
         kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
         kernel.startGBean(connectionProxyFactoryObjectName);
 
-        //start the ejb container
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
+        ModuleSchema moduleSchema = new ModuleSchema("MockModule");
+        EntitySchema entitySchema = moduleSchema.addEntity("MockEJB");
+        entitySchema.setTableName("mock");
+        entitySchema.setContainerId(CONTAINER_NAME.getCanonicalName());
+        entitySchema.setEjbClassName(MockCMPEJB.class.getName());
+        entitySchema.setHomeInterfaceName(MockHome.class.getName());
+        entitySchema.setLocalHomeInterfaceName(MockLocalHome.class.getName());
+        entitySchema.setRemoteInterfaceName(MockRemote.class.getName());
+        entitySchema.setLocalInterfaceName(MockLocal.class.getName());
+        entitySchema.setPkClassName(Integer.class.getName());
+        entitySchema.addCmpField("id", "id", Integer.class, true);
+        entitySchema.addCmpField("value", "value", String.class, false);
 
+        ObjectName moduleCmpEngineObjectName = new ObjectName("openejb.server:name=ModuleCmpEngine");
+        GBeanData moduleCmpEngineBeanData = new GBeanData(moduleCmpEngineObjectName, TranqlModuleCmpEngine.GBEAN_INFO);
+        moduleCmpEngineBeanData.setAttribute("moduleSchema", moduleSchema);
+        moduleCmpEngineBeanData.setReferencePattern("transactionManager", DeploymentHelper.TRANSACTIONMANAGER_NAME);
+        moduleCmpEngineBeanData.setReferencePattern("connectionFactory", connectionProxyFactoryObjectName);
+        kernel.loadGBean(moduleCmpEngineBeanData, this.getClass().getClassLoader());
+        kernel.startGBean(moduleCmpEngineObjectName);
+
+        CmpBuilder builder = new CmpBuilder();
+        builder.setContainerId(CONTAINER_NAME);
+        builder.setEjbName("MockEJB");
+        builder.setEjbContainerName(DeploymentHelper.CMP_EJB_CONTAINER_NAME);
+        builder.setBeanClassName(MockCMPEJB.class.getName());
+        builder.setHomeInterfaceName(MockHome.class.getName());
+        builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
+        builder.setRemoteInterfaceName(MockRemote.class.getName());
+        builder.setLocalInterfaceName(MockLocal.class.getName());
+        builder.setPrimaryKeyClassName(Integer.class.getName());
+        builder.setModuleCmpEngineName(moduleCmpEngineObjectName);
+        builder.setCmp2(true);
+
+        container = builder.createConfiguration();
+
+        GBeanData containerIndex = new GBeanData(DeploymentIndex.GBEAN_INFO);
+        containerIndex.setReferencePatterns("EjbDeployments", Collections.singleton(CONTAINER_NAME));
+        start(CI_NAME, containerIndex);
+
+        //start the ejb container
         start(CONTAINER_NAME, container);
     }
 

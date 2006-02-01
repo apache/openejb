@@ -46,44 +46,39 @@ package org.openejb.cluster.sfsb;
 
 import java.io.Serializable;
 import java.util.Set;
-
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBInstanceContext;
+import org.openejb.StatefulEjbDeployment;
 import org.openejb.cluster.server.ClusteredInstanceContextFactory;
 import org.openejb.cluster.server.EJBClusterManager;
 import org.openejb.cluster.server.EJBInstanceContextRecreator;
 import org.openejb.cluster.server.ServerMetaDataArrayHolder;
+import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.sfsb.StatefulInstanceContextFactory;
+import org.openejb.StatefulEjbContainer;
 
 /**
- * 
  * @version $Revision$ $Date$
  */
 public class ClusteredSFInstanceContextFactory extends StatefulInstanceContextFactory
-    implements ClusteredInstanceContextFactory {
+        implements ClusteredInstanceContextFactory {
     private transient EJBClusterManager clusterManager;
     private final SFInstanceContextRecreator recreator;
     private transient ServerMetaDataArrayHolder serversHolder;
 
-    public ClusteredSFInstanceContextFactory(Object containerId,
-            Class beanClass,
-            UserTransactionImpl userTransaction,
+    public ClusteredSFInstanceContextFactory(StatefulEjbDeployment statefulEjbDeployment,
+            StatefulEjbContainer statefulEjbContainer,
+            EJBProxyFactory proxyFactory,
             Set unshareableResources,
             Set applicationManagedSecurityResources) {
-        super(containerId,
-                beanClass,
-                userTransaction,
-                unshareableResources,
-                applicationManagedSecurityResources);
-        
-        recreator = new SFInstanceContextRecreator(); 
+        super(statefulEjbDeployment, statefulEjbContainer, proxyFactory, unshareableResources, applicationManagedSecurityResources);
+        recreator = new SFInstanceContextRecreator();
     }
-    
-    public void setEJBClusterManager(EJBClusterManager clusterManager) {
+
+    public void setClusterManager(EJBClusterManager clusterManager) {
         this.clusterManager = clusterManager;
     }
 
@@ -94,47 +89,37 @@ public class ClusteredSFInstanceContextFactory extends StatefulInstanceContextFa
     public EJBInstanceContextRecreator getInstanceContextRecreator() {
         return recreator;
     }
-    
+
     public InstanceContext newInstance() throws Exception {
-        if (proxyFactory == null) {
-            throw new IllegalStateException("ProxyFacory has not been set");
-        }
-
-        if (null == clusterManager) {
-            return super.newInstance();
-        }
-
         SessionBean bean = createInstance();
-        String id = clusterManager.addInstance(bean, containerId);
+        String id = clusterManager.addInstance(bean, statefulEjbDeployment.getContainerId());
 
         return newInstanceContext(id, bean);
     }
 
-    private EJBInstanceContext newInstanceContext(String id, EnterpriseBean bean) {
-        if (false == bean instanceof SessionBean) {
-            throw new IllegalArgumentException("bean must be a " +
-                SessionBean.class + ". Was :" + bean.getClass());
-        }
-        
+    private EJBInstanceContext newInstanceContext(String id, SessionBean bean) {
         return new ClusteredSFInstanceContext(
-                containerId,
-                proxyFactory,
-                (SessionBean) bean,
+                statefulEjbDeployment,
+                statefulEjbContainer,
+                bean,
                 id,
-                transactionContextManager, userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
+                proxyFactory,
+                unshareableResources,
                 applicationManagedSecurityResources,
                 serversHolder);
     }
-    
+
     private class SFInstanceContextRecreator implements EJBInstanceContextRecreator, Serializable {
+        private static final long serialVersionUID = -3075688417789981035L;
 
         public EJBInstanceContext recreate(Object id, EnterpriseBean bean) {
-            if (false == id instanceof String) {
-                throw new IllegalArgumentException("Id should be a String.");
+            if (!(id instanceof String)) {
+                throw new IllegalArgumentException("id must be a String");
             }
-            return newInstanceContext((String) id , bean);
+            if (!(bean instanceof SessionBean)) {
+                throw new IllegalArgumentException("bean must be a SessionBean");
+            }
+            return newInstanceContext((String) id, (SessionBean) bean);
         }
-
     }
 }

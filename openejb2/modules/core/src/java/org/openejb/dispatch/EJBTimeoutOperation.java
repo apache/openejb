@@ -52,7 +52,7 @@ import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
 
@@ -69,7 +69,7 @@ public class EJBTimeoutOperation extends AbstractSpecificMethodOperation {
     private EJBTimeoutOperation() {}
 
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         return invoke(invocation, EJBOperation.TIMEOUT);
     }
 

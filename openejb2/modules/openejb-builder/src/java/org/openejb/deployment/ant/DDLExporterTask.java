@@ -52,40 +52,38 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-
 import javax.sql.DataSource;
 
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.xmlbeans.XmlObject;
-import org.openejb.deployment.Schemata;
-import org.openejb.deployment.SchemataBuilder;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.openejb.deployment.CmpSchemaBuilder;
+import org.openejb.deployment.TranqlCmpSchemaBuilder;
+import org.openejb.entity.cmp.ModuleSchema;
+import org.openejb.entity.cmp.TranqlSchemaBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
-import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.ddl.DDLCommandBuilder;
 import org.tranql.ddl.DDLGenerator;
 import org.tranql.ddl.DDLGenerator.ExecutionStrategy;
 import org.tranql.ddl.DDLGenerator.GenerationStrategy;
 import org.tranql.ejb.EJBProxyFactory;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
-import org.tranql.ql.QueryException;
+import org.tranql.sql.SQLSchema;
 
 
 /**
- *
  * @version $Revision$ $Date$
  */
 public class DDLExporterTask extends Task {
-    private static String SCHEMA_NAME = "UNDEFINED";
-
     private Path classpath;
     private EjbJarLocation ejbJarLocation;
     private OpenejbJarLocation openejbJarLocation;
@@ -147,18 +145,8 @@ public class DDLExporterTask extends Task {
             throw new BuildException("type is required.");
         }
 
-        SchemataBuilder schemataBuilder = new SchemataBuilder() {
-            protected EJBProxyFactory buildEJBProxyFactory(EntityBeanType entityBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {
-                return null;
-            }
-
-            protected PrimaryKeyGenerator buildPKGenerator(EjbKeyGeneratorType config, Class pkClass) throws DeploymentException, QueryException {
-                return null;
-            }
-        };
-
         ClassLoader cl = new AntClassLoader(getClass().getClassLoader(), getProject(), classpath, true);
-        Schemata schemata;
+        SQLSchema sqlSchema;
         try {
             InputStream in = ejbJarLocation.getInputStream(project);
             XmlObject xmlObject;
@@ -176,11 +164,30 @@ public class DDLExporterTask extends Task {
                 in.close();
             }
             OpenejbOpenejbJarType openejbJarType = (OpenejbOpenejbJarType)
-                SchemaConversionUtils.getNestedObjectAsType(xmlObject,
-                    OpenejbOpenejbJarDocument.type.getDocumentElementName(),
-                    OpenejbOpenejbJarType.type);
+                    SchemaConversionUtils.getNestedObjectAsType(xmlObject,
+                            OpenejbOpenejbJarDocument.type.getDocumentElementName(),
+                            OpenejbOpenejbJarType.type);
 
-            schemata = schemataBuilder.buildSchemata(SCHEMA_NAME, ejbJarType, openejbJarType, null, cl);
+            // fake j2ee context
+            J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "GeronimoServer", "null", NameFactory.EJB_MODULE, "Module", null, null);
+
+            // get the ModuleSchema
+            CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
+            ModuleSchema moduleSchema = cmpSchemaBuilder.buildModuleSchema(moduleJ2eeContext, "test", ejbJarType, openejbJarType, cl);
+
+            // build the tranql schema objects
+            // use a subclass of the tranql builder that does not create pk generators or proxy factories
+            TranqlSchemaBuilder tranqlSchemaBuilder = new TranqlSchemaBuilder(moduleSchema, null, null, null, cl) {
+                protected PrimaryKeyGenerator configurePrimaryKeyGenerator(org.openejb.entity.cmp.PrimaryKeyGenerator primaryKeyGenerator, Class pkClass) {
+                    return null;
+                }
+
+                protected EJBProxyFactory buildEJBProxyFactory(String containerId, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) {
+                    return null;
+                }
+            };
+            tranqlSchemaBuilder.buildSchema();
+            sqlSchema = tranqlSchemaBuilder.getSqlSchema();
         } catch (Exception e) {
             throw new BuildException("Cannot read DD", e);
         }
@@ -188,13 +195,13 @@ public class DDLExporterTask extends Task {
         DDLCommandBuilder builder;
         try {
             Class clazz = cl.loadClass(ddlCommandBuilder);
-            Constructor ctr = clazz.getConstructor(new Class[] {DataSource.class});
-            builder = (DDLCommandBuilder) ctr.newInstance(new Object[] {null});
+            Constructor ctr = clazz.getConstructor(new Class[]{DataSource.class});
+            builder = (DDLCommandBuilder) ctr.newInstance(new Object[]{null});
         } catch (Exception e) {
             throw new BuildException("Cannot create ddlCommandBuilder", e);
         }
 
-        DDLGenerator generator = new DDLGenerator(schemata.getSqlSchema(), builder);
+        DDLGenerator generator = new DDLGenerator(sqlSchema, builder);
         OutputStream out = null;
         try {
             out = new BufferedOutputStream(new FileOutputStream(output));
@@ -205,9 +212,9 @@ public class DDLExporterTask extends Task {
             } else if (type.equals("create") || type.equals("create-constraint")) {
                 gen = new DDLGenerator.CreateStrategy(exec);
             } else if (type.equals("drop-create") || type.equals("drop-create-constraint")) {
-                GenerationStrategy strategies[] = new GenerationStrategy[] {
-                        new DDLGenerator.DropStrategy(exec),
-                        new DDLGenerator.CreateStrategy(exec)
+                GenerationStrategy strategies[] = new GenerationStrategy[]{
+                    new DDLGenerator.DropStrategy(exec),
+                    new DDLGenerator.CreateStrategy(exec)
                 };
                 gen = new DDLGenerator.SequenceStrategy(strategies, exec);
             } else {

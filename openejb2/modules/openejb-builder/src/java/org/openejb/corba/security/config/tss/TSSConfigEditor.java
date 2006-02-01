@@ -46,7 +46,6 @@ package org.openejb.corba.security.config.tss;
 
 import java.util.Iterator;
 import java.util.List;
-import java.lang.reflect.Constructor;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -102,7 +101,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
      * as an XML string.
      *
      * @return a TSSConfig object
-     * @throws org.apache.geronimo.common.propertyeditor.PropertyEditorException
+     * @throws PropertyEditorException
      *          An IOException occured.
      */
     public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {

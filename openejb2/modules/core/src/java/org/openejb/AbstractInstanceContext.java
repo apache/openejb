@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.TimerService;
 
-import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.timer.TimerServiceImpl;
 import org.openejb.timer.BasicTimerService;
@@ -37,9 +36,9 @@ import org.openejb.timer.UnavailableTimerService;
  *
  * */
 public abstract class AbstractInstanceContext implements EJBInstanceContext {
+    private final ExtendedEjbDeployment deployment;
     private final Object containerId;
     private final EnterpriseBean instance;
-    protected final Interceptor systemChain;
     private final EJBProxyFactory proxyFactory;
     private final BasicTimerService activeTimer;
     private final TimerService timerService;
@@ -52,15 +51,27 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     private boolean dead = false;
     private int callDepth;
 
-    public AbstractInstanceContext(Object containerId, EnterpriseBean instance, Interceptor systemChain, EJBProxyFactory proxyFactory, BasicTimerService basicTimerService, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
+    public AbstractInstanceContext(ExtendedEjbDeployment deployment,
+            EnterpriseBean instance,
+            EJBProxyFactory proxyFactory,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) {
+        this.deployment = deployment;
+        this.containerId = deployment.getContainerId();
         this.instance = instance;
-        this.systemChain = systemChain;
         this.proxyFactory = proxyFactory;
-        this.activeTimer = basicTimerService;
-        this.timerService = basicTimerService == null? null: new TimerServiceImpl(this);
+        this.activeTimer = deployment.getTimerService();
+        if (activeTimer == null) {
+            this.timerService = null;
+        } else {
+            this.timerService = new TimerServiceImpl(this);
+        }
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    }
+
+    public ExtendedEjbDeployment getDeployment() {
+        return deployment;
     }
 
     public Object getId() {

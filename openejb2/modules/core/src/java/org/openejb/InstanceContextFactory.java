@@ -64,14 +64,4 @@ import org.openejb.timer.BasicTimerService;
  */
 public interface InstanceContextFactory {
     InstanceContext newInstance() throws Exception;
-
-    void setProxyFactory(EJBProxyFactory proxyFactory);
-
-    void setSystemChain(Interceptor lifecycleInterceptorChain);
-
-    SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures);
-
-    void setTransactionContextManager(TransactionContextManager transactionContextManager);
-
-    void setTimerService(BasicTimerService timerService);
 }

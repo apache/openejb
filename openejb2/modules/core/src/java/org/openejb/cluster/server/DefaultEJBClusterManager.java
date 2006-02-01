@@ -162,15 +162,15 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
                 null);
     }
     
-    public void addEJBContainer(ClusteredEJBContainer container) {
-        Object containerID = container.getContainerID();
+    public void addEJBContainer(ClusteredEjbDeployment container) {
+        Object containerID = container.getContainerId();
         ClusteredInstanceCache cache = container.getInstanceCache();
         ClusteredInstanceContextFactory factory = container.getInstanceContextFactory();
         
         EJBInstanceContextRecreator recreator = factory.getInstanceContextRecreator();
         recreatorSelector.addMapping(containerID, recreator);
         cache.setEJBClusterManager(this);
-        factory.setEJBClusterManager(this);
+        factory.setClusterManager(this);
         
         ServerMetaDataArrayHolder holder;
         synchronized (contIdToServersMDHolder) {
@@ -185,14 +185,14 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
         advertiser.advertiseJoin(containerID);
     }
 
-    public void removeEJBContainer(ClusteredEJBContainer container) {
-        Object containerID = container.getContainerID();
+    public void removeEJBContainer(ClusteredEjbDeployment container) {
+        Object containerID = container.getContainerId();
         ClusteredInstanceCache cache = container.getInstanceCache();
         ClusteredInstanceContextFactory factory = container.getInstanceContextFactory();
 
         recreatorSelector.removeMapping(containerID);
         cache.setEJBClusterManager(null);
-        factory.setEJBClusterManager(null);
+        factory.setClusterManager(null);
         factory.setServersHolder(null);
 
         advertiser.advertiseLeave(containerID);

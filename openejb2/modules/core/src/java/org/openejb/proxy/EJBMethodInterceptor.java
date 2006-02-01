@@ -13,12 +13,12 @@ import javax.ejb.NoSuchObjectLocalException;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.ContainerNotFoundException;
+import org.openejb.DeploymentNotFoundException;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbInvocationImpl;
 
 public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     /**
@@ -39,7 +39,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     /**
      * The container we are invokeing
      */
-    private transient EJBContainer container;
+    private transient RpcEjbDeployment container;
 
     /**
      * Map from interface method ids to vop ids.
@@ -71,11 +71,11 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
      */
     private transient boolean crossClassLoader;
 
-    public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap) {
+    public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, RpcEjbDeployment container, int[] operationMap) {
         this(proxyFactory, type, container, operationMap, null);
     }
 
-    public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap, Object primaryKey) {
+    public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, RpcEjbDeployment container, int[] operationMap, Object primaryKey) {
         this.proxyFactory = proxyFactory;
         this.interfaceType = type;
         this.container = container;
@@ -100,7 +100,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         return proxyFactory;
     }
 
-    public ProxyInfo getProxyInfo() throws ContainerNotFoundException {
+    public ProxyInfo getProxyInfo() throws DeploymentNotFoundException {
         if (proxyInfo == null) {
             loadContainerInfo();
         }
@@ -112,7 +112,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     }
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-        EJBInvocation invocation = createEJBInvocation(method, methodProxy, args);
+        EjbInvocation invocation = createEJBInvocation(method, methodProxy, args);
         if (invocation == null) {
             return null;
         }
@@ -161,12 +161,12 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
     }
 
-    private EJBInvocation createEJBInvocation(Method method, MethodProxy methodProxy, Object[] args) throws Throwable {
+    private EjbInvocation createEJBInvocation(Method method, MethodProxy methodProxy, Object[] args) throws Throwable {
         // fault in the operation map if we don't have it yet
         if (operationMap == null) {
             try {
                 loadContainerInfo();
-            } catch (ContainerNotFoundException e) {
+            } catch (DeploymentNotFoundException e) {
                 if (!interfaceType.isLocal()) {
                     throw new NoSuchObjectException(e.getMessage());
                 } else {
@@ -185,7 +185,9 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
 
         int methodIndex = operationMap[methodProxy.getSuperIndex()];
-        if (methodIndex < 0) throw new AssertionError("Unknown method: method=" + method);
+        if (methodIndex < 0) {
+            throw new AssertionError("Unknown method: method=" + method);
+        }
         if ((interfaceType == EJBInterfaceType.HOME || interfaceType == EJBInterfaceType.LOCALHOME) && method.getName().equals("remove")) {
 
             if (args.length != 1) {
@@ -200,7 +202,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             }
         }
 
-        return new EJBInvocationImpl(interfaceType, id, methodIndex, args);
+        return new EjbInvocationImpl(interfaceType, id, methodIndex, args);
     }
 
     private void copyArgsToTargetCL(Object[] args) throws IOException, ClassNotFoundException {
@@ -244,7 +246,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
     }
 
-    private void loadContainerInfo() throws ContainerNotFoundException {
+    private void loadContainerInfo() throws DeploymentNotFoundException {
         container = proxyFactory.getContainer();
         operationMap = proxyFactory.getOperationMap(interfaceType);
 

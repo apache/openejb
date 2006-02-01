@@ -388,6 +388,13 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>${spring_version}</version>
+            <type>test</type>
+        </dependency>
+
     </dependencies>
 
     <!-- =================== -->
@@ -405,6 +412,12 @@
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
             <resources>
+                <resource>
+                    <directory>${basedir}/src/test</directory>
+                    <includes>
+                        <include>**/*.xml</include>
+                    </includes>
+                </resource>
                 <resource>
                     <directory>${basedir}/src/schema</directory>
                     <includes>

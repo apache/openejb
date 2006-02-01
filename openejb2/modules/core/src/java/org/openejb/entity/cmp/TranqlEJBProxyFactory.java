@@ -59,6 +59,7 @@ import org.openejb.proxy.EJBProxyFactory;
  * @version $Revision$ $Date$
  */
 final class TranqlEJBProxyFactory implements org.tranql.ejb.EJBProxyFactory, Serializable {
+    private static final long serialVersionUID = -5825855551226825417L;
     private final Class localClass;
     private final Class remoteClass;
 

@@ -84,7 +84,7 @@ public final class UnavailableTimerService implements BasicTimerService {
         throw new IllegalStateException("Timer service is not available");
     }
 
-    public TimerImpl getTimerById(Long id) {
+    public Timer getTimerById(Long id) {
         throw new IllegalStateException("Timer service is not available");
     }
 }

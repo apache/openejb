@@ -174,4 +174,14 @@ public final class MethodHelper {
             return new InterfaceMethodSignature(signature.getMethodName(), signature.getParameterTypes(),false);
         }
     }
+
+    public static String capitalize(String string) {
+        if (string == null) throw new NullPointerException("string is null");
+        if (string.length() == 0) throw new IllegalArgumentException("string is empty");
+
+        if (string.length() == 1) {
+            return "" + Character.toUpperCase(string.charAt(0));
+        }
+        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+    }
 }

@@ -49,7 +49,7 @@ package org.openejb.dispatch;
 
 import org.apache.geronimo.core.service.InvocationResult;
 
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 
 /**
  *
@@ -57,5 +57,5 @@ import org.openejb.EJBInvocation;
  * @version $Revision$ $Date$
  */
 public interface VirtualOperation {
-    InvocationResult execute(EJBInvocation invocation) throws Throwable;
+    InvocationResult execute(EjbInvocation invocation) throws Throwable;
 }

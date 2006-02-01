@@ -51,44 +51,35 @@ import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.management.J2EEApplication;
-import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.entity.cmp.ConnectionProxyFactory;
-import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.query.ConnectionFactoryDelegate;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.J2EEApplication;
+import org.apache.geronimo.management.J2EEServer;
 
 /**
  * @version $Revision$ $Date$
  */
-public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
+public class EJBModuleImpl implements EJBModule {
     private final static Log log = LogFactory.getLog(EJBModuleImpl.class);
     private final Kernel kernel;
     private final J2eeContext moduleContext;
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
-    private final ConnectionFactoryDelegate delegate;
-    private final ConnectionProxyFactory connectionFactory;
-    private final TransactionManagerDelegate tmDelegate;
-    private final TransactionContextManager transactionContextManager;
     private final String[] J2EE_TYPES = {NameFactory.ENTITY_BEAN, NameFactory.STATELESS_SESSION_BEAN, NameFactory.STATEFUL_SESSION_BEAN, NameFactory.MESSAGE_DRIVEN_BEAN};
     private final String objectName;
 
-    public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory, TransactionManagerDelegate tmDelegate, TransactionContextManager transactionContextManager) {
+    public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
         this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
@@ -98,10 +89,6 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
-        this.delegate = delegate;
-        this.connectionFactory = connectionFactory;
-        this.tmDelegate = tmDelegate;
-        this.transactionContextManager = transactionContextManager;
     }
 
     public String getObjectName() {
@@ -141,9 +128,7 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
 
     public String[] getEJBs() {
         try {
-            return Util.getObjectNames(kernel,
-                    moduleContext,
-                    J2EE_TYPES);
+            return Util.getObjectNames(kernel, moduleContext, J2EE_TYPES);
         } catch (MalformedObjectNameException e) {
             log.error(e);
             return null;
@@ -177,33 +162,6 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         }
     }
 
-    public void doStart() throws Exception {
-        if (delegate != null) {
-            delegate.setConnectionFactory(connectionFactory.$getResource());
-        }
-        if ( null != tmDelegate ) {
-            tmDelegate.setTransactionManager(transactionContextManager.getTransactionManager());
-        }
-    }
-
-    public void doStop() throws Exception {
-        if (delegate != null) {
-            delegate.setConnectionFactory(null);
-        }
-        if ( null != tmDelegate ) {
-            tmDelegate.setTransactionManager(null);
-        }
-    }
-
-    public void doFail() {
-        if (delegate != null) {
-            delegate.setConnectionFactory(null);
-        }
-        if ( null != tmDelegate ) {
-            tmDelegate.setTransactionManager(null);
-        }
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -212,10 +170,6 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-        infoBuilder.addReference("ConnectionFactory", ConnectionProxyFactory.class, NameFactory.JCA_CONNECTION_FACTORY);
-        infoBuilder.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoBuilder.addAttribute("TMDelegate", TransactionManagerDelegate.class, true);
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
@@ -227,15 +181,12 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         infoBuilder.addInterface(EJBModule.class);
 
         infoBuilder.setConstructor(new String[]{
-            "kernel",
-            "objectName",
-            "J2EEServer",
-            "J2EEApplication",
-            "deploymentDescriptor",
-            "Delegate",
-            "ConnectionFactory",
-            "TMDelegate",
-            "TransactionContextManager"});
+                "kernel",
+                "objectName",
+                "J2EEServer",
+                "J2EEApplication",
+                "deploymentDescriptor",
+        });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

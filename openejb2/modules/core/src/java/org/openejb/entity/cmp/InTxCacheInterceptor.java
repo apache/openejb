@@ -50,14 +50,12 @@ package org.openejb.entity.cmp;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.Flushable;
-import org.openejb.EJBInvocation;
-import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.InTxCache;
-import org.tranql.cache.CacheFlushStrategy;
-import org.tranql.cache.cache.FrontEndCache;
-import org.tranql.cache.cache.InTxCacheTracker;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.openejb.CmpEjbDeployment;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
+import org.openejb.EntityEjbDeployment;
 
 /**
  * This interceptor defines, if required, the InTxCache of the
@@ -69,31 +67,25 @@ import org.tranql.cache.cache.InTxCacheTracker;
  */
 public final class InTxCacheInterceptor implements Interceptor {
     private final Interceptor next;
-    private final CacheFlushStrategyFactory strategyFactory;
-    private final FrontEndCache cache;
 
-    public InTxCacheInterceptor(Interceptor next, CacheFlushStrategyFactory strategyFactory, FrontEndCache cache) {
+    public InTxCacheInterceptor(Interceptor next) {
         this.next = next;
-        this.strategyFactory = strategyFactory;
-        this.cache = cache;
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
         TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-        if ( null == transactionContext.getInTxCache() ) {
-            CacheFlushStrategy strategy = strategyFactory.createCacheFlushStrategy();
-            strategy = new InTxCacheTracker(cache, strategy);
-            transactionContext.setInTxCache(new GeronimoInTxCache(strategy));
-        }
-    
-        return next.invoke(invocation);
-    }
+        if (transactionContext.getInTxCache() == null) {
+            EjbDeployment deployment = ejbInvocation.getEjbDeployment();
+            if (!(deployment instanceof EntityEjbDeployment)) {
+                throw new IllegalArgumentException("NewInTxCacheInterceptor can only be used with an EntityEjbDeploymentContext: " + deployment.getClass().getName());
+            }
 
-    private static class GeronimoInTxCache extends InTxCache implements Flushable {
-        
-        public GeronimoInTxCache(CacheFlushStrategy strategy) {
-            super(strategy);
+            CmpEjbDeployment cmpEjbDeploymentContext = ((CmpEjbDeployment) deployment);
+            Flushable inTxCache = cmpEjbDeploymentContext.getEjbCmpEngine().createInTxCache();
+            transactionContext.setInTxCache(inTxCache);
         }
+
+        return next.invoke(invocation);
     }
 }

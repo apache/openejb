@@ -49,95 +49,66 @@ package org.openejb.sfsb;
 
 import java.io.Serializable;
 import java.util.Set;
-
 import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
 
-import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.StatefulEjbDeployment;
+import org.openejb.StatefulEjbContainer;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.BasicTimerService;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class StatefulInstanceContextFactory implements InstanceContextFactory, Serializable {
-    protected final Object containerId;
-    private final EJBInstanceFactory factory;
-    protected final UserTransactionImpl userTransaction;
+    private static final long serialVersionUID = 1363872823647038549L;
+    protected final StatefulEjbContainer statefulEjbContainer;
+    protected final StatefulEjbDeployment statefulEjbDeployment;
+    private final EJBInstanceFactory instanceFactory;
+    protected final transient EJBProxyFactory proxyFactory;
     protected final Set unshareableResources;
     protected final Set applicationManagedSecurityResources;
-    protected transient EJBProxyFactory proxyFactory;
-    protected transient Interceptor systemChain;
-    protected transient SystemMethodIndices systemMethodIndices;
-    protected transient TransactionContextManager transactionContextManager;
 
-    public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.userTransaction = userTransaction;
+    public StatefulInstanceContextFactory(StatefulEjbDeployment statefulEjbDeployment,
+            StatefulEjbContainer statefulEjbContainer,
+            EJBProxyFactory proxyFactory,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) {
+        this.statefulEjbContainer = statefulEjbContainer;
+        this.instanceFactory = new EJBInstanceFactoryImpl(statefulEjbDeployment.getBeanClass());
+        this.proxyFactory = proxyFactory;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-    }
-
-    public void setProxyFactory(EJBProxyFactory proxyFactory) {
-        this.proxyFactory = proxyFactory;
-    }
-
-    public void setSystemChain(Interceptor systemChain) {
-        this.systemChain = systemChain;
-    }
-
-    public SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures) {
-        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), "unsetSessionContext");
-        //perhaps this should be null, stateful doesn't have timers.
-        return systemMethodIndices;
-    }
-
-    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
-        this.transactionContextManager = transactionContextManager;
-    }
-
-    public void setTimerService(BasicTimerService timerService) {
-        //stateful beans have no timers.
+        this.statefulEjbDeployment = statefulEjbDeployment;
     }
 
     public InstanceContext newInstance() throws Exception {
-        if (proxyFactory == null) {
-            throw new IllegalStateException("ProxyFacory has not been set");
-        }
-
         return new StatefulInstanceContext(
-                containerId,
-                proxyFactory,
+                statefulEjbDeployment,
+                statefulEjbContainer,
                 createInstance(),
                 createInstanceId(),
-                transactionContextManager, userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
+                proxyFactory,
+                unshareableResources,
                 applicationManagedSecurityResources);
     }
 
+    protected SessionBean createInstance() throws Exception {
+        return (SessionBean) instanceFactory.newInstance();
+    }
+
     private static int nextId;
+
     private Object createInstanceId() {
-        synchronized(this) {
+        synchronized (this) {
             return new StatefulInstanceId(nextId++);
         }
     }
 
-    protected SessionBean createInstance() throws Exception {
-        return (SessionBean) factory.newInstance();
-    }
-    
     private static class StatefulInstanceId implements Serializable {
+        private static final long serialVersionUID = 6798822247641308803L;
         private final int id;
 
         public StatefulInstanceId(int id) {

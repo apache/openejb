@@ -50,7 +50,7 @@ import org.activeio.xnet.SocketService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.openejb.ContainerIndex;
+import org.openejb.DeploymentIndex;
 import org.openejb.OpenEJBException;
 import sun.net.www.protocol.http.HttpURLConnection;
 
@@ -73,7 +73,7 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
     private static Log log = LogFactory.getLog(HttpServer.class);
     private HttpListener listener;
 
-    public HttpServer(ContainerIndex index) {
+    public HttpServer(DeploymentIndex index) {
     }
 
     public HttpServer() {

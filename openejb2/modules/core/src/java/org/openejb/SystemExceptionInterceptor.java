@@ -55,33 +55,27 @@
  */
 package org.openejb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- *
- *
- *
  * @version $Revision$ $Date$
  */
 public class SystemExceptionInterceptor implements Interceptor {
-    private static final Log log = LogFactory.getLog(SystemExceptionInterceptor.class);
     private final Interceptor next;
-    private final String containerName;
 
-    public SystemExceptionInterceptor(Interceptor next, String containerName) {
+    public SystemExceptionInterceptor(Interceptor next) {
         this.next = next;
-        this.containerName = containerName;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         try {
             return next.invoke(invocation);
         } catch (Throwable t) {
-            log.warn(containerName, t);
+            EjbInvocation ejbInvocation = (EjbInvocation) invocation;
+            ExtendedEjbDeployment deployment = ejbInvocation.getEjbDeployment();
+            deployment.logSystemException(t);
             throw t;
         }
     }

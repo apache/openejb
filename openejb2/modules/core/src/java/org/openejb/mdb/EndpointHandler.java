@@ -62,8 +62,8 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbInvocationImpl;
 
 /**
  * Container for the local interface of a Message Driven Bean.
@@ -108,11 +108,11 @@ public class EndpointHandler implements MethodInterceptor {
     private static final int STATE_METHOD_CALLED = 2;
     private static final int STATE_ERROR = 3;
 
-    private final MDBContainer container;
+    private final MdbDeployment mdbDeployment;
     private final NamedXAResource xaResource;
     private final int[] operationMap;
     private final Map methodIndexMap;
-    private final ClassLoader containerCL;
+    private final ClassLoader classLoader;
     private final TransactionContextManager transactionContextManager;
 
     private ClassLoader adapterClassLoader;
@@ -121,13 +121,13 @@ public class EndpointHandler implements MethodInterceptor {
     private boolean isReleased = false;
     private int state = STATE_NONE;
 
-    public EndpointHandler(MDBContainer container, NamedXAResource xaResource, int[] operationMap) {
-        this.container = container;
+    public EndpointHandler(MdbDeployment mdbDeployment, NamedXAResource xaResource, int[] operationMap, TransactionContextManager transactionContextManager) {
+        this.mdbDeployment = mdbDeployment;
         this.xaResource = xaResource;
         this.operationMap = operationMap;
-        this.methodIndexMap = container.getMethodIndexMap();
-        containerCL = container.getClassLoader();
-        transactionContextManager = container.getTransactionContextManager();
+        this.methodIndexMap = mdbDeployment.getMethodIndexMap();
+        classLoader = mdbDeployment.getClassLoader();
+        this.transactionContextManager = transactionContextManager;
     }
 
     public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
@@ -167,7 +167,7 @@ public class EndpointHandler implements MethodInterceptor {
 
     private Object invoke(int methodIndex, Object[] args) throws Throwable {
         InvocationResult result;
-        EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, null, methodIndex, args);
+        EjbInvocation invocation = new EjbInvocationImpl(EJBInterfaceType.LOCAL, null, methodIndex, args);
 
         // set the transaction context
         TransactionContext transactionContext = transactionContextManager.getContext();
@@ -177,7 +177,7 @@ public class EndpointHandler implements MethodInterceptor {
         invocation.setTransactionContext(transactionContext);
 
         try {
-            result = container.invoke(invocation);
+            result = mdbDeployment.invoke(invocation);
         } catch (Throwable t) {
             if (!(t instanceof EJBException)) {
                 t = new EJBException().initCause(t);
@@ -269,7 +269,7 @@ public class EndpointHandler implements MethodInterceptor {
 
         if (state == STATE_BEFORE_CALLED || state == STATE_METHOD_CALLED) {
             // restore the adapter classloader if necessary
-            if (adapterClassLoader != containerCL) {
+            if (adapterClassLoader != classLoader) {
                 Thread.currentThread().setContextClassLoader(adapterClassLoader);
             }
 
@@ -296,13 +296,13 @@ public class EndpointHandler implements MethodInterceptor {
         try {
             // setup the classloader
             adapterClassLoader = currentThread.getContextClassLoader();
-            if (adapterClassLoader != containerCL) {
-                currentThread.setContextClassLoader(containerCL);
+            if (adapterClassLoader != classLoader) {
+                currentThread.setContextClassLoader(classLoader);
             }
 
             // setup the transaction
             adapterTransaction = transactionContextManager.getContext();
-            boolean transactionRequired = container.isDeliveryTransacted(methodIndex);
+            boolean transactionRequired = mdbDeployment.isDeliveryTransacted(methodIndex);
 
             // if the adapter gave us a transaction and we are required, just move on
             if (transactionRequired && adapterTransaction != null && adapterTransaction.isInheritable()) {
@@ -327,7 +327,7 @@ public class EndpointHandler implements MethodInterceptor {
             }
         } catch (Throwable e) {
             // restore the adapter classloader if necessary
-            if (adapterClassLoader != containerCL) {
+            if (adapterClassLoader != classLoader) {
                 currentThread.setContextClassLoader(adapterClassLoader);
             }
             adapterClassLoader = null;
@@ -370,7 +370,7 @@ public class EndpointHandler implements MethodInterceptor {
             throwable = t;
         } finally {
             // restore the adapter classloader if necessary
-            if (adapterClassLoader != containerCL) {
+            if (adapterClassLoader != classLoader) {
                 Thread.currentThread().setContextClassLoader(adapterClassLoader);
             }
             adapterClassLoader = null;

@@ -56,7 +56,9 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
+import org.openejb.EntityEjbDeployment;
 import org.openejb.NotReentrantException;
 import org.openejb.NotReentrantLocalException;
 import org.openejb.cache.InstancePool;
@@ -69,19 +71,22 @@ import org.openejb.cache.InstancePool;
  */
 public final class EntityInstanceInterceptor implements Interceptor {
     private final Interceptor next;
-    private final Object containerId;
-    private final InstancePool pool;
-    private final boolean reentrant;
 
-    public EntityInstanceInterceptor(Interceptor next, Object containerId, InstancePool pool, boolean reentrant) {
+    public EntityInstanceInterceptor(Interceptor next) {
         this.next = next;
-        this.containerId = containerId;
-        this.pool = pool;
-        this.reentrant = reentrant;
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
+        EjbDeployment deployment = ejbInvocation.getEjbDeployment();
+        if (!(deployment instanceof EntityEjbDeployment)) {
+            throw new IllegalArgumentException("EntityInstanceInterceptor can only be used with a EntityEjbDeploymentContext: " + deployment.getClass().getName());
+        }
+
+        EntityEjbDeployment entityEjbDeploymentContext = ((EntityEjbDeployment) deployment);
+        String containerId = entityEjbDeploymentContext.getContainerId();
+        InstancePool pool = entityEjbDeploymentContext.getInstancePool();
+
         TransactionContext transactionContext = ejbInvocation.getTransactionContext();
         Object id = ejbInvocation.getId();
 
@@ -89,7 +94,7 @@ public final class EntityInstanceInterceptor implements Interceptor {
         EntityInstanceContext ctx = null;
 
         // if we have an id then check if there is already a context associated with the transaction
-        if ( id != null) {
+        if (id != null) {
             ctx = (EntityInstanceContext) transactionContext.getContext(containerId, id);
             // if we have a dead context, the cached context was discarded, so we need clean it up and get a new one
             if (ctx != null && ctx.isDead()) {
@@ -110,7 +115,7 @@ public final class EntityInstanceInterceptor implements Interceptor {
         ejbInvocation.setEJBInstanceContext(ctx);
 
         // check reentrancy
-        if (!reentrant && ctx.isInCall()) {
+        if (!entityEjbDeploymentContext.isReentrant() && ctx.isInCall()) {
             if (ejbInvocation.getType().isLocal()) {
                 throw new NotReentrantLocalException("" + containerId);
             } else {
@@ -135,7 +140,7 @@ public final class EntityInstanceInterceptor implements Interceptor {
         try {
             InvocationResult result = next.invoke(invocation);
             return result;
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             // we must kill the instance when a system exception is thrown
             ctx.die();
             // id may have been set during create

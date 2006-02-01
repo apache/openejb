@@ -52,7 +52,7 @@ import java.io.Serializable;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 
 /**
  *
@@ -60,5 +60,5 @@ import org.openejb.EJBInvocation;
  * @version $Revision$ $Date$
  */
 public interface TransactionPolicy extends Serializable {
-    InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable;
+    InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable;
 }

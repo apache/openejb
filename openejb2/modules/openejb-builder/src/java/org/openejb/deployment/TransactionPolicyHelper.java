@@ -54,27 +54,21 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.MethodIntfType;
 import org.apache.geronimo.xbeans.j2ee.MethodType;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
+import org.openejb.MethodSpec;
 
 /**
  * @version $Revision$ $Date$
  */
 public class TransactionPolicyHelper {
-
-    public final static TransactionPolicySource BMTPolicySource = new TransactionPolicySource() {
-        public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-            return TransactionPolicyType.Bean;
-        }
-    };
-
     private final Map ejbNameToTransactionAttributesMap = new HashMap();
 
     public TransactionPolicyHelper() {
@@ -94,8 +88,20 @@ public class TransactionPolicyHelper {
         }
     }
 
-    public TransactionPolicySource getTransactionPolicySource(String ejbName) throws DeploymentException {
-        return new TransactionPolicySourceImpl(ejbName, (SortedSet) ejbNameToTransactionAttributesMap.get(ejbName));
+    public SortedMap getTransactionPolicies(String ejbName) throws DeploymentException {
+        SortedSet methodTransactions = (SortedSet) ejbNameToTransactionAttributesMap.get(ejbName);
+        if (methodTransactions == null) return null;
+
+        SortedMap transactionPolicies = new TreeMap();
+        for (Iterator iterator = methodTransactions.iterator(); iterator.hasNext();) {
+            MethodTransaction methodTransaction = (MethodTransaction) iterator.next();
+            MethodSpec methodSpec = new MethodSpec(methodTransaction.getMethodIntf(),
+                    methodTransaction.getMethodName(),
+                    methodTransaction.getParameterTypes());
+            TransactionPolicyType transactionPolicy = methodTransaction.getTransactionPolicyType();
+            transactionPolicies.put(methodSpec,  transactionPolicy);
+        }
+        return transactionPolicies;
     }
 
     private void putMethodTransaction(String ejbName, MethodTransaction methodTransaction) {
@@ -105,33 +111,6 @@ public class TransactionPolicyHelper {
             ejbNameToTransactionAttributesMap.put(ejbName, methodTransactions);
         }
         methodTransactions.add(methodTransaction);
-    }
-
-    private static class TransactionPolicySourceImpl implements TransactionPolicySource {
-        private final SortedSet transactionPolicies;
-        private static final boolean STRICT = false;
-
-        public TransactionPolicySourceImpl(String ejbName, SortedSet transactionPolicies) throws DeploymentException {
-            //To allow more lenient spec interpretations, with default of Requires, substitute an empty sorted set here.
-            if (transactionPolicies == null) {
-                if (STRICT) {
-                    throw new DeploymentException("You must specify transaction attributes, see ejb 2.1 spec 17.4.1: ejbName=" + ejbName);
-                }
-                transactionPolicies = new TreeSet();
-            }
-            this.transactionPolicies = transactionPolicies;
-        }
-
-        public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-            for (Iterator iterator = transactionPolicies.iterator(); iterator.hasNext();) {
-                MethodTransaction methodTransaction = (MethodTransaction) iterator.next();
-                if (methodTransaction.matches(methodIntf, signature.getMethodName(), signature.getParameterTypes())) {
-                    return methodTransaction.getTransactionPolicyType();
-                }
-            }
-            //default
-            return TransactionPolicyType.Required;
-        }
     }
 
     private static class MethodTransaction implements Comparable {

@@ -49,7 +49,7 @@ package org.openejb.mdb;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
@@ -62,7 +62,7 @@ public class BusinessMethod extends AbstractMethodOperation {
         super(beanClass, signature);
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         return invoke(invocation, invocation.getType() == EJBInterfaceType.WEB_SERVICE ? EJBOperation.ENDPOINT : EJBOperation.BIZMETHOD);
     }
 }

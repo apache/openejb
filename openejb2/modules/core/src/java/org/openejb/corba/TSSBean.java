@@ -65,7 +65,7 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.corba.security.ServerPolicy;
 import org.openejb.corba.security.ServerPolicyFactory;
 import org.openejb.corba.security.config.tss.TSSConfig;
@@ -193,23 +193,23 @@ public class TSSBean implements GBeanLifecycle {
         return config;
     }
 
-    public void registerContainer(EJBContainer container) throws CORBAException {
+    public void registerContainer(RpcEjbDeployment container) throws CORBAException {
         AdapterWrapper adapterWrapper = new AdapterWrapper(container);
 
         adapterWrapper.start(server.getORB(), localPOA, initialContext, securityPolicy);
-        adapters.put(container.getContainerID(), adapterWrapper);
+        adapters.put(container.getContainerId(), adapterWrapper);
 
-        log.debug(POAName + " - Linked container " + container.getContainerID());
+        log.debug(POAName + " - Linked container " + container.getContainerId());
     }
 
-    public void unregisterContainer(EJBContainer container) {
-        AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.remove(container.getContainerID());
+    public void unregisterContainer(RpcEjbDeployment container) {
+        AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.remove(container.getContainerId());
         if (adapterWrapper != null) {
             try {
                 adapterWrapper.stop();
-                log.debug(POAName + " - Unlinked container " + container.getContainerID());
+                log.debug(POAName + " - Unlinked container " + container.getContainerId());
             } catch (CORBAException e) {
-                log.error(POAName + " - Error unlinking container " + container.getContainerID(), e);
+                log.error(POAName + " - Error unlinking container " + container.getContainerId(), e);
             }
         }
     }
@@ -223,8 +223,8 @@ public class TSSBean implements GBeanLifecycle {
         infoFactory.addAttribute("POAName", String.class, true);
         infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addOperation("registerContainer", new Class[] {EJBContainer.class});
-        infoFactory.addOperation("unregisterContainer", new Class[] {EJBContainer.class});
+        infoFactory.addOperation("registerContainer", new Class[] {RpcEjbDeployment.class});
+        infoFactory.addOperation("unregisterContainer", new Class[] {RpcEjbDeployment.class});
         infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

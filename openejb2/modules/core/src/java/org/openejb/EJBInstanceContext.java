@@ -75,4 +75,6 @@ public interface EJBInstanceContext extends InstanceContext {
     boolean setTimerState(EJBOperation operation);
 
     EJBContextImpl getEJBContextImpl();
+
+    ExtendedEjbDeployment getDeployment();
 }

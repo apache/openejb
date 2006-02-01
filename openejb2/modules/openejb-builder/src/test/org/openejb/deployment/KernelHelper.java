@@ -52,7 +52,9 @@ public class KernelHelper {
 
     public static Kernel getPreparedKernel() throws Exception {
         Kernel kernel = KernelFactory.newInstance().createKernel("bar");
+        long time = System.currentTimeMillis();
         kernel.boot();
+        System.out.println("getPreparedKernel: " + (System.currentTimeMillis() - time) + " ms");
         GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
         kernel.loadGBean(store, KernelHelper.class.getClassLoader());
         kernel.startGBean(store.getName());

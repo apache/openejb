@@ -52,7 +52,7 @@ import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
 
@@ -69,7 +69,7 @@ public class SetEntityContextOperation extends AbstractSpecificMethodOperation {
     private SetEntityContextOperation() {}
 
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         return invoke(invocation, EJBOperation.SETCONTEXT);
     }
 

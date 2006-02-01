@@ -24,6 +24,16 @@
                 <field-name>field2</field-name>
             </cmp-field>
             <primkey-field>field1</primkey-field>
+            <query>
+                <!-- CompondPK one-to-one shares the local home interface so we need to declare this useless finder -->
+                <query-method>
+                    <method-name>findByPrimaryKey</method-name>
+                    <method-params>
+                        <method-param>org.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(A) FROM OneToOneA A</ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>B</ejb-name>
@@ -45,6 +55,16 @@
                 <field-name>field3</field-name>
             </cmp-field>
             <primkey-field>field1</primkey-field>
+            <query>
+                <!-- CompondPK one-to-one shares the local home interface so we need to declare this useless finder -->
+                <query-method>
+                    <method-name>findByPrimaryKey</method-name>
+                    <method-params>
+                        <method-param>org.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(B) FROM OneToOneB B</ejb-ql>
+            </query>
         </entity>
     </enterprise-beans>
     <relationships>

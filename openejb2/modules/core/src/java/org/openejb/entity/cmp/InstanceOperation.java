@@ -51,10 +51,8 @@ import java.io.Serializable;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface InstanceOperation extends Serializable {
-    Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception;
+    Object invokeInstance(CmpInstanceContext ctx, Object[] args) throws Exception;
 }

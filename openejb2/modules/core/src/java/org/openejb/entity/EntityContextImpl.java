@@ -47,24 +47,21 @@
  */
 package org.openejb.entity;
 
-import java.security.Identity;
 import java.security.Principal;
-import java.util.Properties;
-import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.EntityContext;
 import javax.ejb.TimerService;
-import javax.transaction.UserTransaction;
 import javax.security.auth.Subject;
+import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.timer.TimerState;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Revision$ $Date$
@@ -94,19 +91,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
         throw new IllegalStateException("getUserTransaction is not supported for EntityBean");
     }
 
-    public Properties getEnvironment() {
-        throw new EJBException("getEnvironment is no longer supported; use JNDI instead");
-    }
-
-    public Identity getCallerIdentity() {
-        throw new EJBException("getCallerIdentity is no longer supported; use getCallerPrincipal instead");
-    }
-
-    public boolean isCallerInRole(Identity identity) {
-        throw new EJBException("isCallerInRole(Identity role) is no longer supported; use isCallerInRole(String roleName) instead");
-    }
-
-    public static abstract class EntityContextState extends EJBContextImpl.EJBContextState {
+    public static abstract class EntityContextState extends EJBContextState {
         public Object getPrimaryKey(EJBInstanceContext context) {
             return context.getId();
         }

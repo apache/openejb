@@ -47,300 +47,174 @@
  */
 package org.openejb.deployment;
 
-import java.beans.Introspector;
-import java.net.URI;
-import java.security.Permissions;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.Map;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.transaction.UserTransaction;
+import javax.security.auth.Subject;
 
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.security.deployment.SecurityConfiguration;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.ActivationConfigPropertyType;
-import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.j2ee.EjbRefType;
-import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
-import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
-import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.openejb.mdb.MdbDeployment;
 
 
-class MdbBuilder extends BeanBuilder {
+/**
+ * @version $Revision$ $Date$
+ */
+public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
+    private ObjectName containerId;
+    private String ejbName;
 
-    public MdbBuilder(OpenEJBModuleBuilder builder) {
-        super(builder);
+    private String endpointInterfaceName;
+    private String beanClassName;
+
+    private ObjectName activationSpecName;
+
+    private ObjectName ejbContainerName;
+
+    private String policyContextId;
+    private Subject runAs;
+
+    private boolean beanManagedTransactions = false;
+    private SortedMap transactionPolicies;
+
+    private Set unshareableResources;
+    private Set applicationManagedSecurityResources;
+
+    private Map componentContext;
+
+    public void setContainerId(ObjectName containerId) {
+        this.containerId = containerId;
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
-        // Message Driven Beans
-        MessageDrivenBeanType[] messageDrivenBeans = enterpriseBeans.getMessageDrivenArray();
-        for (int i = 0; i < messageDrivenBeans.length; i++) {
-            MessageDrivenBeanType messageDrivenBean = messageDrivenBeans[i];
-
-            OpenejbMessageDrivenBeanType openejbMessageDrivenBean = (OpenejbMessageDrivenBeanType) openejbBeans.get(messageDrivenBean.getEjbName().getStringValue().trim());
-            if (openejbMessageDrivenBean == null) {
-                throw new DeploymentException("No openejb deployment descriptor for mdb: " + messageDrivenBean.getEjbName().getStringValue() + ". Known beans: " + openejbBeans.keySet().toArray());
-            }
-            String ejbName = messageDrivenBean.getEjbName().getStringValue().trim();
-            ObjectName messageDrivenObjectName = null;
-            ObjectName activationSpecName = null;
-            try {
-                messageDrivenObjectName = NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.MESSAGE_DRIVEN_BEAN, moduleJ2eeContext);
-                activationSpecName = NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.JCA_ACTIVATION_SPEC, moduleJ2eeContext);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct object name: " + ejbName, e);
-            }
-
-            String containerId = messageDrivenObjectName.getCanonicalName();
-            addActivationSpecWrapperGBean(earContext,
-                    ejbModule.getModuleURI(),
-                    activationSpecName,
-                    openejbMessageDrivenBean.isSetActivationConfig() ? openejbMessageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : null,
-                    messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
-                    openejbMessageDrivenBean.getResourceAdapter(),
-                    getMessagingType(messageDrivenBean),
-                    containerId);
-            GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
-            messageDrivenGBean.setName(messageDrivenObjectName);
-            earContext.addGBean(messageDrivenGBean);
-        }
+    public void setEjbName(String ejbName) {
+        this.ejbName = ejbName;
     }
 
-    public void initContext(ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
-        // Message Driven Beans
-        // the only relevant action is to check that the messagingType is available.
-        MessageDrivenBeanType[] messageDrivenBeans = enterpriseBeans.getMessageDrivenArray();
-        for (int i = 0; i < messageDrivenBeans.length; i++) {
-            MessageDrivenBeanType messageDrivenBean = messageDrivenBeans[i];
-            String messagingType = OpenEJBModuleBuilder.getJ2eeStringValue(messageDrivenBean.getMessagingType());
-            if(messagingType != null) { // That is, not JMS
-                try {
-                    cl.loadClass(messagingType);
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("could not load messaging type: " + messagingType, e);
-                }
-            }
-        }
+    public void setEndpointInterfaceName(String endpointInterfaceName) {
+        this.endpointInterfaceName = endpointInterfaceName;
     }
 
-    private GBeanData createBean(EARContext earContext,
-                                 EJBModule ejbModule,
-                                 String containerId,
-                                 MessageDrivenBeanType messageDrivenBean,
-                                 OpenejbMessageDrivenBeanType openejbMessageDrivenBean,
-                                 ObjectName activationSpecWrapperName,
-                                 TransactionPolicyHelper transactionPolicyHelper,
-                                 ClassLoader cl,
-                                 ComponentPermissions componentPermissions,
-                                 String policyContextID) throws DeploymentException {
-
-        if (openejbMessageDrivenBean == null) {
-            throw new DeploymentException("openejb-jar.xml required to deploy an mdb");
-        }
-
-        String ejbName = messageDrivenBean.getEjbName().getStringValue().trim();
-
-        MDBContainerBuilder builder = new MDBContainerBuilder();
-        builder.setClassLoader(cl);
-        builder.setContainerId(containerId);
-        builder.setEJBName(ejbName);
-        builder.setBeanClassName(messageDrivenBean.getEjbClass().getStringValue().trim());
-        builder.setEndpointInterfaceName(getMessagingType(messageDrivenBean));
-        builder.setTransactedTimerName(earContext.getTransactedTimerName());
-        builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
-
-        SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
-        if (securityConfiguration != null) {
-            Permissions toBeChecked = new Permissions();
-            ContainerSecurityBuilder containerSecurityBuilder = new ContainerSecurityBuilder();
-            String defaultRole = securityConfiguration.getDefaultRole();
-            containerSecurityBuilder.addComponentPermissions(defaultRole,
-                    toBeChecked,
-                    ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-                    ejbName,
-                    null, componentPermissions);
-
-            containerSecurityBuilder.setDetails(messageDrivenBean.getSecurityIdentity(), securityConfiguration, policyContextID, builder);
-        }
-
-        UserTransactionImpl userTransaction;
-        //TODO this is probably wrong???
-
-        if ("Bean".equals(messageDrivenBean.getTransactionType().getStringValue().trim())) {
-            userTransaction = new UserTransactionImpl();
-            builder.setUserTransaction(userTransaction);
-            builder.setTransactionPolicySource(TransactionPolicyHelper.BMTPolicySource);
-        } else {
-            userTransaction = null;
-            TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
-            builder.setTransactionPolicySource(transactionPolicySource);
-        }
-
-        processEnvironmentRefs(builder, earContext, ejbModule, messageDrivenBean, openejbMessageDrivenBean, userTransaction, cl);
-
-        try {
-            GBeanData gbean = builder.createConfiguration();
-            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
-            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
-            gbean.setReferencePattern("ActivationSpecWrapper", activationSpecWrapperName);
-            return gbean;
-        } catch (Throwable e) {
-            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
-        }
+    public void setBeanClassName(String beanClassName) {
+        this.beanClassName = beanClassName;
     }
 
-    private String getMessagingType(MessageDrivenBeanType messageDrivenBean) {
-        String messageInterfaceType = null;
-        if (messageDrivenBean.isSetMessagingType()) {
-            messageInterfaceType = messageDrivenBean.getMessagingType().getStringValue().trim();
-        } else {
-            messageInterfaceType = "javax.jms.MessageListener";
-        }
-        return messageInterfaceType;
+    public void setActivationSpecName(ObjectName activationSpecName) {
+        this.activationSpecName = activationSpecName;
     }
 
-    private void addActivationSpecWrapperGBean(EARContext earContext,
-                                               URI uri,
-                                               ObjectName activationSpecName,
-                                               OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
-                                               ActivationConfigPropertyType[] activationConfigProperties,
-                                               GerResourceLocatorType resourceAdapter,
-                                               String messageListenerInterfaceName,
-                                               String containerId) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
-        ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, earContext);
-        J2eeContext resourceAdapterJ2eeContext = J2eeContextImpl.newContext(resourceAdapterObjectName, NameFactory.JCA_RESOURCE);
-        ObjectName resourceModuleObjectName = null;
-        try {
-            //N.B. the resource adapter name has module type "JCAResource" but the resource adapter module has module type "ResourceAdapterModule"
-            resourceModuleObjectName = NameFactory.getModuleName(null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, null, resourceAdapterJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct resource module name", e);
-        }
-        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceModuleObjectName, messageListenerInterfaceName, earContext);
-
-        if (activationSpecInfo == null) {
-            throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterObjectName + " and message listener type: " + messageListenerInterfaceName);
-        }
-        activationSpecInfo = new GBeanData(activationSpecInfo);
-        activationSpecInfo.setAttribute("containerId", containerId);
-        activationSpecInfo.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
-        if (openejbActivationConfigProperties != null) {
-            for (int i = 0; i < openejbActivationConfigProperties.length; i++) {
-                OpenejbActivationConfigPropertyType activationConfigProperty = openejbActivationConfigProperties[i];
-                String propertyName = activationConfigProperty.getActivationConfigPropertyName();
-                String propertyValue = activationConfigProperty.getActivationConfigPropertyValue();
-                try {
-                    activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
-                } catch (Exception e) {
-                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getAttribute("activationSpecClass"), e);
-                }
-            }
-
-        } else {
-            for (int i = 0; i < activationConfigProperties.length; i++) {
-                ActivationConfigPropertyType activationConfigProperty = activationConfigProperties[i];
-                String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue().trim();
-                String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue().trim();
-                try {
-                    activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
-                } catch (Exception e) {
-                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getAttribute("activationSpecClass"), e);
-                }
-            }
-        }
-            activationSpecInfo.setName(activationSpecName);
-            earContext.addGBean(activationSpecInfo);
+    public void setEjbContainerName(ObjectName ejbContainerName) {
+        this.ejbContainerName = ejbContainerName;
     }
 
-    private static ObjectName getResourceAdapterId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
-        try {
-            if (resourceLocator.isSetResourceLink()) {
-                String containerId = earContext.getRefContext().getResourceAdapterContainerId(uri, resourceLocator.getResourceLink(), earContext);
-                return ObjectName.getInstance(containerId);
-            } else if (resourceLocator.isSetTargetName()) {
-                String containerId = resourceLocator.getTargetName();
-                return ObjectName.getInstance(containerId);
-            }
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct connector name", e);
-        }
-        //construct name from components
-        try {
-            return NameFactory.getComponentName(resourceLocator.getDomain(),
-                    resourceLocator.getServer(),
-                    resourceLocator.getApplication(),
-                    NameFactory.JCA_RESOURCE,
-                    resourceLocator.getModule(),
-                    resourceLocator.getName(),
-                    NameFactory.JCA_RESOURCE_ADAPTER,
-                    earContext.getJ2eeContext());
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct resource adapter object name", e);
-        }
+    public void setPolicyContextId(String policyContextId) {
+        this.policyContextId = policyContextId;
     }
 
-    protected void processEnvironmentRefs(MDBContainerBuilder builder, EARContext earContext, EJBModule ejbModule, MessageDrivenBeanType messageDrivenBean, OpenejbMessageDrivenBeanType openejbMessageDrivenBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
-        // env entries
-        EnvEntryType[] envEntries = messageDrivenBean.getEnvEntryArray();
-
-        // ejb refs
-        EjbRefType[] ejbRefs = messageDrivenBean.getEjbRefArray();
-        GerEjbRefType[] openejbEjbRefs = null;
-
-        EjbLocalRefType[] ejbLocalRefs = messageDrivenBean.getEjbLocalRefArray();
-        GerEjbLocalRefType[] openejbEjbLocalRefs = null;
-
-        // resource refs
-        ResourceRefType[] resourceRefs = messageDrivenBean.getResourceRefArray();
-        GerResourceRefType[] openejbResourceRefs = null;
-
-        // resource env refs
-        ResourceEnvRefType[] resourceEnvRefs = messageDrivenBean.getResourceEnvRefArray();
-        GerResourceEnvRefType[] openejbResourceEnvRefs = null;
-
-        ServiceRefType[] serviceRefs = messageDrivenBean.getServiceRefArray();
-        GerServiceRefType[] openejbServiceRefs = null;
-
-        //get arrays from openejb plan if present
-        if (openejbMessageDrivenBean != null) {
-            openejbEjbRefs = openejbMessageDrivenBean.getEjbRefArray();
-            openejbEjbLocalRefs = openejbMessageDrivenBean.getEjbLocalRefArray();
-            openejbResourceRefs = openejbMessageDrivenBean.getResourceRefArray();
-            openejbResourceEnvRefs = openejbMessageDrivenBean.getResourceEnvRefArray();
-            openejbServiceRefs = openejbMessageDrivenBean.getServiceRefArray();
-        }
-
-        MessageDestinationRefType[] messageDestinationRefs = messageDrivenBean.getMessageDestinationRefArray();
-
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
-        builder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
-
+    public DefaultPrincipal getDefaultPrincipal() {
+        return null;  // RETURN NOTHING
     }
 
+    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
+        // DO NOTHING
+    }
+
+    public Subject getRunAs() {
+        return runAs;
+    }
+
+    public void setRunAs(Subject runAs) {
+        this.runAs = runAs;
+    }
+
+    public boolean isBeanManagedTransactions() {
+        return beanManagedTransactions;
+    }
+
+    public void setBeanManagedTransactions(boolean beanManagedTransactions) {
+        this.beanManagedTransactions = beanManagedTransactions;
+    }
+
+    public boolean isDoAsCurrentCaller() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
+    }
+
+    public boolean isSecurityEnabled() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setSecurityEnabled(boolean securityEnabled) {
+    }
+
+    public boolean isUseContextHandler() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setUseContextHandler(boolean useContextHandler) {
+    }
+
+    public String getPolicyContextId() {
+        return policyContextId;
+    }
+
+    public Map getComponentContext() {
+        return componentContext;
+    }
+
+    public void setComponentContext(Map componentContext) {
+        this.componentContext = componentContext;
+    }
+
+    public Set getUnshareableResources() {
+        return unshareableResources;
+    }
+
+    public void setUnshareableResources(Set unshareableResources) {
+        this.unshareableResources = unshareableResources;
+    }
+
+    public Set getApplicationManagedSecurityResources() {
+        return applicationManagedSecurityResources;
+    }
+
+    public void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources) {
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    }
+
+    public SortedMap getTransactionPolicies() {
+        return transactionPolicies;
+    }
+
+    public void setTransactionPolicies(SortedMap transactionPolicies) {
+        this.transactionPolicies = transactionPolicies;
+    }
+
+    public GBeanData createConfiguration() throws Exception {
+        GBeanData gbean = new GBeanData(containerId, MdbDeployment.GBEAN_INFO);
+        gbean.setAttribute("ejbName", ejbName);
+
+        gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);
+        gbean.setAttribute("beanClassName", beanClassName);
+
+        gbean.setReferencePattern("ActivationSpecWrapper", activationSpecName);
+
+        gbean.setReferencePattern("ejbContainer", ejbContainerName);
+
+        gbean.setAttribute("policyContextId", policyContextId);
+        gbean.setAttribute("runAs", runAs);
+
+        gbean.setAttribute("beanManagedTransactions", new Boolean(beanManagedTransactions));
+        gbean.setAttribute("transactionPolicies", transactionPolicies);
+
+        gbean.setAttribute("unshareableResources", unshareableResources);
+        gbean.setAttribute("applicationManagedSecurityResources", applicationManagedSecurityResources);
+
+        gbean.setAttribute("componentContextMap", componentContext);
+
+        return gbean;
+    }
 }

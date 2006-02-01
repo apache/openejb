@@ -50,25 +50,19 @@ package org.openejb.dispatch;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-
-import org.openejb.EJBInvocation;
+import org.openejb.ExtendedEjbDeployment;
+import org.openejb.EjbInvocation;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public final class DispatchInterceptor implements Interceptor {
-    private final VirtualOperation[] vtable;
-
-    public DispatchInterceptor(VirtualOperation[] vtable) {
-        this.vtable = vtable;
-    }
-
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
 
-        VirtualOperation vop = vtable[ejbInvocation.getMethodIndex()];
-        return vop.execute(ejbInvocation);
+        ExtendedEjbDeployment deployment = (ExtendedEjbDeployment) ejbInvocation.getEjbDeployment();
+        VirtualOperation virtualOperation = deployment.getVirtualOperation(ejbInvocation.getMethodIndex());
+        InvocationResult result = virtualOperation.execute(ejbInvocation);
+        return result;
     }
 }
