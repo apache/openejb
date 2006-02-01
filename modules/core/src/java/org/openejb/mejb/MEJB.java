@@ -59,7 +59,6 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
-import javax.ejb.Handle;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.j2ee.Management;
@@ -75,8 +74,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
-import org.openejb.EJBInvocation;
+import org.openejb.RpcEjbDeployment;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbDeployment;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
@@ -85,7 +85,7 @@ import org.openejb.proxy.ProxyInfo;
 /**
  * @version $Rev:  $ $Date$
  */
-public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBContainer {
+public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDeployment {
 
     private static final int CREATE_INDEX = -1;
     private static final String DEFAULT_EJB_NAME = "ejb/mgmt/MEJB";
@@ -142,7 +142,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         return vopMap;
     }
 
-    public Object getContainerID() {
+    public String getContainerId() {
         return objectName;
     }
 
@@ -166,12 +166,6 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         return proxyFactory.getEJBLocalObject(primaryKey);
     }
 
-    // EJBObject implementation
-    //TODO who implements this?
-    public Handle getHandle() {
-        return null;
-    }
-
     public Object invoke(Method callMethod, Object[] args, Object primKey) throws Throwable {
         throw new EJBException("This invoke style not implemented in MEJB");
     }
@@ -188,7 +182,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         return this.getClass().getClassLoader();
     }
 
-    public EJBContainer getUnmanagedReference() {
+    public EjbDeployment getUnmanagedReference() {
         return this;
     }
 
@@ -220,7 +214,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
         int methodIndex = methodMap[ejbInvocation.getMethodIndex()];
         if (methodIndex == CREATE_INDEX) {
             return ejbInvocation.createResult(getEjbObject(null));
@@ -229,7 +223,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
             return ejbInvocation.createResult(fastClass.invoke(methodIndex, this, ejbInvocation.getArguments()));
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
-            if (t instanceof Exception && t instanceof RuntimeException == false) {
+            if (t instanceof Exception && !(t instanceof RuntimeException)) {
                 // checked exception - which we simply include in the result
                 return ejbInvocation.createExceptionResult((Exception)t);
             } else {
@@ -242,7 +236,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
-        infoBuilder.addInterface(EJBContainer.class);
+        infoBuilder.addInterface(RpcEjbDeployment.class);
 
         infoBuilder.setConstructor(new String[]{"objectName", "kernel"});
 

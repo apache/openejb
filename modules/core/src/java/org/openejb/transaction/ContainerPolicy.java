@@ -59,7 +59,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 
 /**
  *
@@ -77,7 +77,7 @@ public class ContainerPolicy {
     public static final TransactionPolicy Never = new TxNever();
 
     private static final class TxNotSupported implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
             if (callerContext != null) {
                 callerContext.suspend();
@@ -111,7 +111,7 @@ public class ContainerPolicy {
     }
 
     private static final class TxRequired implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
             if (callerContext != null && callerContext.isInheritable()) {
                 try {
@@ -169,7 +169,7 @@ public class ContainerPolicy {
     }
 
     private static final class TxSupports implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
             if (callerContext != null && callerContext.isInheritable()) {
                 try {
@@ -221,7 +221,7 @@ public class ContainerPolicy {
     }
 
     private static final class TxRequiresNew implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
 
             if (callerContext != null) {
@@ -263,7 +263,7 @@ public class ContainerPolicy {
     }
 
     private static final class TxMandatory implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
 
             // If we don't have a transaction, throw an exception
@@ -300,7 +300,7 @@ public class ContainerPolicy {
     }
 
     private static final class TxNever implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
 
             // If we have a transaction, throw an exception

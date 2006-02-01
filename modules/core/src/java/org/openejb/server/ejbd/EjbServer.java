@@ -52,7 +52,7 @@ import java.util.Properties;
 
 import org.activeio.xnet.ServerService;
 import org.activeio.xnet.ServiceException;
-import org.openejb.ContainerIndex;
+import org.openejb.DeploymentIndex;
 import org.openejb.OpenEJB;
 import org.openejb.client.EJBObjectProxyHandle;
 import org.openejb.server.ServerFederation;
@@ -75,8 +75,8 @@ public class EjbServer implements ServerService {
         ejbDaemon = EjbDaemon.getEjbDaemon();
     }
 
-    public EjbServer(ContainerIndex containerIndex, Collection orbRefs) throws Exception {
-        ejbDaemon = new EjbDaemon(containerIndex, orbRefs);
+    public EjbServer(DeploymentIndex deploymentIndex, Collection orbRefs) throws Exception {
+        ejbDaemon = new EjbDaemon(deploymentIndex, orbRefs);
     }
 
     public void init(Properties props) throws Exception {

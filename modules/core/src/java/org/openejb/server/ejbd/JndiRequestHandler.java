@@ -53,8 +53,8 @@ import javax.naming.NamingException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.openejb.ContainerIndex;
-import org.openejb.EJBContainer;
+import org.openejb.DeploymentIndex;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.client.EJBMetaDataImpl;
 import org.openejb.client.JNDIRequest;
 import org.openejb.client.JNDIResponse;
@@ -66,11 +66,11 @@ import org.openejb.proxy.ProxyInfo;
  */
 class JndiRequestHandler implements ResponseCodes, RequestMethods {
 
-    private final ContainerIndex containerIndex;
+    private final DeploymentIndex deploymentIndex;
     private static final Log log = LogFactory.getLog(JndiRequestHandler.class);
 
-    JndiRequestHandler(ContainerIndex containerIndex) throws NamingException {
-        this.containerIndex = containerIndex;
+    JndiRequestHandler(DeploymentIndex deploymentIndex) throws NamingException {
+        this.deploymentIndex = deploymentIndex;
     }
 
     public void processRequest(ObjectInputStream in, ObjectOutputStream out) {
@@ -165,13 +165,13 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
                 throw (Exception)new NamingException("Unable to retrieve context for module: "+req.getClientModuleID()).initCause(e);
             }
         } else {
-            int index = containerIndex.getContainerIndexByJndiName(name);
+            int index = deploymentIndex.getDeploymentIndexByJndiName(name);
             if (index <= 0) {
                 // name not found... check if an object name was sent directly
-                index = containerIndex.getContainerIndex(name);
+                index = deploymentIndex.getDeploymentIndex(name);
             }
             if (index > 0) {
-                EJBContainer deployment = containerIndex.getContainer(index);
+                RpcEjbDeployment deployment = deploymentIndex.getDeployment(index);
                 ProxyInfo info = deployment.getProxyInfo();
 
                 res.setResponseCode(JNDI_EJBHOME);

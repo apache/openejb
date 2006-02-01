@@ -54,7 +54,7 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.entity.dispatch.SetEntityContextOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
@@ -66,13 +66,11 @@ import org.openejb.dispatch.AbstractSpecificMethodOperation;
  *
  * */
 public class SetSessionContextOperation extends AbstractSpecificMethodOperation {
-
     public static final SetSessionContextOperation INSTANCE = new SetSessionContextOperation();
 
     private SetSessionContextOperation() {}
 
-
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         return invoke(invocation, EJBOperation.SETCONTEXT);
     }
 

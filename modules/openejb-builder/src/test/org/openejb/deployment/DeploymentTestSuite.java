@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.axis.builder.AxisBuilder;
-import org.openejb.ContainerIndex;
+import org.openejb.DeploymentIndex;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -129,21 +129,16 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
 
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
 
         ObjectName serverInfoObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ServerInfo");
         GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, BasicServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
-        kernel.loadGBean(serverInfoGBean, testClassLoader);
-        kernel.startGBean(serverInfoObjectName);
-        assertRunning(kernel, serverInfoObjectName);
+        start(serverInfoGBean, testClassLoader);
 
         ObjectName j2eeServerObjectName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=J2EEServer,name=" + SERVER_NAME);
         GBeanData j2eeServerGBean = new GBeanData(j2eeServerObjectName, J2EEServerImpl.GBEAN_INFO);
         j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
-        kernel.loadGBean(j2eeServerGBean, testClassLoader);
-        kernel.startGBean(j2eeServerObjectName);
-        assertRunning(kernel, j2eeServerObjectName);
+        start(j2eeServerGBean, testClassLoader);
 
         //load mock resource adapter for mdb
         DeploymentHelper.setUpResourceAdapter(kernel);
@@ -157,11 +152,21 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             ObjectName listener = null;
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, linkData, webServiceBuilder, null, kernel);
-            OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
+            OpenEjbModuleBuilder moduleBuilder = new OpenEjbModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY,
+                    DeploymentHelper.STATELESS_EJB_CONTAINER_NAME,
+                    DeploymentHelper.STATEFUL_EJB_CONTAINER_NAME,
+                    DeploymentHelper.BMP_EJB_CONTAINER_NAME,
+                    DeploymentHelper.CMP_EJB_CONTAINER_NAME,
+                    DeploymentHelper.MDB_EJB_CONTAINER_NAME,
+                    listener,
+                    linkData,
+                    webServiceBuilder,
+                    null);
+            OpenEjbReferenceBuilder ejbReferenceBuilder = new OpenEjbReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY,
+                    DeploymentHelper.TRANSACTIONMANAGER_NAME,
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -196,20 +201,16 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID_ARRAY);
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
-            GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
+            GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, DeploymentIndex.GBEAN_INFO);
             Set ejbContainerNames = new HashSet();
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,*"));
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatefulSessionBean,*"));
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,*"));
-            containerIndexGBean.setReferencePatterns("EJBContainers", ejbContainerNames);
-            kernel.loadGBean(containerIndexGBean, cl);
-            kernel.startGBean(containerIndexObjectName);
-            assertRunning(kernel, containerIndexObjectName);
+            containerIndexGBean.setReferencePatterns("EjbDeployments", ejbContainerNames);
+            start(containerIndexGBean, cl);
 
             GBeanData connectionProxyFactoryGBean = new GBeanData(CONNECTION_OBJECT_NAME, MockConnectionProxyFactory.GBEAN_INFO);
-            kernel.loadGBean(connectionProxyFactoryGBean, cl);
-            kernel.startGBean(CONNECTION_OBJECT_NAME);
-            assertRunning(kernel, CONNECTION_OBJECT_NAME);
+            start(connectionProxyFactoryGBean, cl);
 
             dataSource = (DataSource) kernel.invoke(CONNECTION_OBJECT_NAME, "$getResource");
             Connection connection = null;
@@ -234,8 +235,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             }
 
             // load the configuration
-            kernel.loadGBean(config, cl);
-            kernel.startGBean(CONFIGURATION_OBJECT_NAME);
+            start(config, cl);
 
             // start the configuration
             kernel.invoke(CONFIGURATION_OBJECT_NAME, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
@@ -252,6 +252,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
+    }
+
+    private void start(GBeanData gbeanData, ClassLoader classLoader) throws Exception {
+        kernel.loadGBean(gbeanData, classLoader);
+        kernel.startGBean(gbeanData.getName());
+        assertRunning(kernel, gbeanData.getName());
     }
 
     private void tearDown() throws Exception {

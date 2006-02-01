@@ -51,7 +51,7 @@ import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
 
@@ -67,7 +67,7 @@ public class EJBLoadOperation extends AbstractSpecificMethodOperation {
 
     private EJBLoadOperation() {}
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         return invoke(invocation, EJBOperation.EJBLOAD);
     }
 

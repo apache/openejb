@@ -51,7 +51,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.webservices.SoapHandler;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 
 public class WSContainerGBean {
 
@@ -62,7 +62,7 @@ public class WSContainerGBean {
 
 //        infoFactory.addOperation("invoke", new Class[]{WebServiceContainer.Request.class, WebServiceContainer.Response.class});
 
-        infoFactory.addReference("EJBContainer", EJBContainer.class);
+        infoFactory.addReference("EJBContainer", RpcEjbDeployment.class);
         infoFactory.addAttribute("location", URI.class, true);
         infoFactory.addAttribute("wsdlURI", URI.class, true);
         infoFactory.addAttribute("securityRealmName", String.class, true);

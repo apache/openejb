@@ -46,7 +46,7 @@ package org.openejb.server.ejbd;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.ContainerIndex;
+import org.openejb.DeploymentIndex;
 import org.openejb.client.EJBHomeHandle;
 import org.openejb.client.EJBHomeHandler;
 import org.openejb.client.EJBMetaDataImpl;
@@ -62,7 +62,7 @@ import org.openejb.proxy.ProxyInfo;
  * 
  */
 class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
-    private final ContainerIndex containerIndex;
+    private final DeploymentIndex deploymentIndex;
     private static Log log = LogFactory.getLog(ClientObjectFactory.class);
 	private static final int PORT;
 	private static final String IP;
@@ -86,8 +86,8 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
 
     protected ServerMetaData[] servers;
 
-    public ClientObjectFactory(ContainerIndex containerIndex) throws Exception {
-        this.containerIndex = containerIndex;
+    public ClientObjectFactory(DeploymentIndex deploymentIndex) throws Exception {
+        this.deploymentIndex = deploymentIndex;
         servers = new ServerMetaData[] {new ServerMetaData("BOOT", ClientObjectFactory.IP, ClientObjectFactory.PORT)};
     }
 
@@ -172,7 +172,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
     }
 
     private int getContainerId(ProxyInfo info) {
-        return containerIndex.getContainerIndex(info.getContainerID());
+        return deploymentIndex.getDeploymentIndex(info.getContainerID());
     }
 
     /**

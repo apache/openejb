@@ -1,6 +1,8 @@
 package org.openejb.timer;
 
-import org.openejb.EJBInvocation;
+import javax.ejb.Timer;
+
+import org.openejb.EjbInvocation;
 
 /**
  *
@@ -10,6 +12,6 @@ import org.openejb.EJBInvocation;
  * */
 public interface EJBTimeoutInvocationFactory {
 
-    EJBInvocation getEJBTimeoutInvocation(Object id, TimerImpl timer);
+    EjbInvocation getEJBTimeoutInvocation(Object id, Timer timer);
 
 }

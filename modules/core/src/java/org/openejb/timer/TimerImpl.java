@@ -65,10 +65,8 @@ import org.apache.geronimo.timer.WorkInfo;
  * TODO keep track of state so after single-shot firing nothing works.
  *
  * @version $Revision$ $Date$
- *
- * */
+ */
 public class TimerImpl implements Timer {
-
     private final WorkInfo workInfo;
     private final BasicTimerServiceImpl timerService;
     private final String kernelName;
@@ -89,7 +87,7 @@ public class TimerImpl implements Timer {
         try {
             timerService.registerCancelSynchronization(new CancelSynchronization());
         } catch (RollbackException e) {
-            throw (IllegalStateException)new IllegalStateException("Transaction is already rolled back").initCause(e);
+            throw (IllegalStateException) new IllegalStateException("Transaction is already rolled back").initCause(e);
         } catch (SystemException e) {
             throw new EJBException(e);
         }
@@ -109,7 +107,7 @@ public class TimerImpl implements Timer {
 
     public Serializable getInfo() throws EJBException, IllegalStateException, NoSuchObjectLocalException {
         checkState();
-        return (Serializable)workInfo.getUserInfo();
+        return (Serializable) workInfo.getUserInfo();
     }
 
     public TimerHandle getHandle() throws EJBException, IllegalStateException, NoSuchObjectLocalException {

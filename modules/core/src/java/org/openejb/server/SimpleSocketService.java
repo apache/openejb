@@ -59,7 +59,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.openejb.ContainerIndex;
+import org.apache.geronimo.kernel.ClassLoading;
+import org.openejb.DeploymentIndex;
 import org.openejb.OpenEJB;
 import org.activeio.xnet.ServerService;
 import org.activeio.xnet.hba.ServiceAccessController;
@@ -76,7 +77,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SimpleSocketService.class);
     private final ServerService server;
 
-    public SimpleSocketService(String serviceClassName, IPAddressPermission[] onlyFrom, ContainerIndex containerIndex, ClassLoader cl) throws Exception {
+    public SimpleSocketService(String serviceClassName, IPAddressPermission[] onlyFrom, DeploymentIndex deploymentIndex, ClassLoader cl) throws Exception {
         ServerService service;
 
         Class serviceClass = ClassLoading.loadClass(serviceClassName, cl);
@@ -84,8 +85,8 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
             throw new ServiceException("Server service class does not implement " + ServerService.class.getName() + ": " + serviceClassName);
         }
         try {
-            Constructor constructor = serviceClass.getConstructor(new Class[]{ContainerIndex.class});
-            service = (ServerService) constructor.newInstance(new Object[]{containerIndex});
+            Constructor constructor = serviceClass.getConstructor(new Class[]{DeploymentIndex.class});
+            service = (ServerService) constructor.newInstance(new Object[]{deploymentIndex});
         } catch (Exception e) {
             throw new ServiceException("Error constructing server service class", e);
         }
@@ -141,7 +142,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("name", String.class, false);
 
-        infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ContainerIndex", DeploymentIndex.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addInterface(SocketService.class);
 

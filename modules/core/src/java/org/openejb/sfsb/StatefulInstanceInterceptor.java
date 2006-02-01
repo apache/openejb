@@ -56,11 +56,12 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
 import org.openejb.NotReentrantException;
 import org.openejb.NotReentrantLocalException;
+import org.openejb.StatefulEjbDeployment;
 import org.openejb.cache.InstanceCache;
-import org.openejb.cache.InstanceFactory;
 import org.openejb.transaction.UncommittedTransactionException;
 
 /**
@@ -72,24 +73,22 @@ import org.openejb.transaction.UncommittedTransactionException;
  */
 public final class StatefulInstanceInterceptor implements Interceptor {
     private final Interceptor next;
-    private final Object containerId;
-    private final InstanceFactory factory;
-    private final InstanceCache cache;
     private final TransactionContextManager transactionContextManager;
 
-    public StatefulInstanceInterceptor(Interceptor next, Object containerId, InstanceFactory factory, InstanceCache cache, TransactionContextManager transactionContextManager) {
+    public StatefulInstanceInterceptor(Interceptor next, TransactionContextManager transactionContextManager) {
         this.next = next;
-        this.containerId = containerId;
-        this.factory = factory;
-        this.cache = cache;
         this.transactionContextManager = transactionContextManager;
     }
 
-    public InvocationResult invoke(final Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
+        EjbDeployment deployment = ejbInvocation.getEjbDeployment();
+        if (!(deployment instanceof StatefulEjbDeployment)) {
+            throw new IllegalArgumentException("StatefulInstanceInterceptor can only be used with a StatefulEjbDeploymentContext: " + deployment.getClass().getName());
+        }
 
         // initialize the context and set it into the invocation
-        StatefulInstanceContext ctx = getInstanceContext(ejbInvocation);
+        StatefulInstanceContext ctx = getInstanceContext((StatefulEjbDeployment) deployment, ejbInvocation);
         ejbInvocation.setEJBInstanceContext(ctx);
 
         // resume the preexisting transaction context
@@ -102,9 +101,9 @@ public final class StatefulInstanceInterceptor implements Interceptor {
         // check reentrancy
         if (ctx.isInCall()) {
             if (ejbInvocation.getType().isLocal()) {
-                throw new NotReentrantLocalException("Stateful session beans do not support reentrancy: " + containerId);
+                throw new NotReentrantLocalException("Stateful session beans do not support reentrancy: " + deployment.getContainerId());
             } else {
-                throw new NotReentrantException("Stateful session beans do not support reentrancy: " + containerId);
+                throw new NotReentrantException("Stateful session beans do not support reentrancy: " + deployment.getContainerId());
             }
         }
 
@@ -125,7 +124,7 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             }
 
             return invocationResult;
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             // we must kill the instance when a system exception is thrown
             ctx.die();
 
@@ -136,23 +135,25 @@ public final class StatefulInstanceInterceptor implements Interceptor {
         }
     }
 
-    private StatefulInstanceContext getInstanceContext(EJBInvocation ejbInvocation) throws Throwable {
-        StatefulInstanceContext ctx;
+    private StatefulInstanceContext getInstanceContext(StatefulEjbDeployment deployment, EjbInvocation ejbInvocation) throws Throwable {
         Object id = ejbInvocation.getId();
+        InstanceCache instanceCache = deployment.getInstanceCache();
+
+        StatefulInstanceContext ctx;
         if (id == null) {
             // we don't have an id so we are a create method
-            ctx = (StatefulInstanceContext) factory.createInstance();
+            ctx = (StatefulInstanceContext) deployment.getInstanceFactory().createInstance();
             assert ctx.getInstance() != null: "Got a context with no instance assigned";
             id = ctx.getId();
-            ctx.setCache(cache);
-            cache.putActive(id, ctx);
+            ctx.setCache(instanceCache);
+            instanceCache.putActive(id, ctx);
         } else {
             // first check the transaction cache
             TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-            ctx = (StatefulInstanceContext) transactionContext.getContext(containerId, id);
+            ctx = (StatefulInstanceContext) transactionContext.getContext(deployment.getContainerId(), id);
             if (ctx == null) {
                 // next check the main cache
-                ctx = (StatefulInstanceContext) cache.get(id);
+                ctx = (StatefulInstanceContext) instanceCache.get(id);
                 if (ctx == null) {
                     // bean is no longer cached or never existed
                     if (ejbInvocation.getType().isLocal()) {

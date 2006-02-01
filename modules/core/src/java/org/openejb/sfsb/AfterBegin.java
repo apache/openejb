@@ -51,21 +51,21 @@ import java.io.Serializable;
 import javax.ejb.SessionSynchronization;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.timer.TimerState;
+import org.openejb.EjbInvocation;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.timer.TimerState;
 
 /**
  * @version $Revision$ $Date$
  */
 public class AfterBegin implements VirtualOperation, Serializable {
+    private static final long serialVersionUID = 5930690146923450480L;
     public static final AfterBegin INSTANCE = new AfterBegin();
 
     private AfterBegin() {}
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         StatefulInstanceContext ctx = (StatefulInstanceContext) invocation.getEJBInstanceContext();
         boolean oldTimerMethodAvailable = ctx.setTimerState(EJBOperation.BIZMETHOD);
         EJBOperation oldOperation = ctx.getOperation();

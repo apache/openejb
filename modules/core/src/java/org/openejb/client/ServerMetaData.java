@@ -57,7 +57,6 @@ import java.net.UnknownHostException;
  * @since 11/25/2001
  */
 public class ServerMetaData implements Externalizable{
-
     transient String nodeName;
     transient int port;
 
@@ -69,10 +68,9 @@ public class ServerMetaData implements Externalizable{
     transient InetAddress address;
 
     public ServerMetaData(){
-
     }
     
-    public ServerMetaData(String nodeName, String host, int port) throws UnknownHostException{
+    public ServerMetaData(String nodeName, String host, int port) throws UnknownHostException {
         this.nodeName = nodeName;
         this.address = InetAddress.getByName( host );
         this.port = port;
@@ -82,16 +80,20 @@ public class ServerMetaData implements Externalizable{
         return nodeName;
     }
 
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
     public int getPort(){
         return port;
     }
 
-    public InetAddress getAddress(){
-        return address;
-    }
-
     public void setPort(int port){
         this.port = port;
+    }
+
+    public InetAddress getAddress(){
+        return address;
     }
 
     public void setAddress(InetAddress address){
@@ -117,7 +119,11 @@ public class ServerMetaData implements Externalizable{
     public int hashCode() {
         return nodeName.hashCode() * address.hashCode() * port;
     }
-    
+
+    public String toString() {
+        return nodeName + " " + address + ":" + port;
+    }
+
     /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive

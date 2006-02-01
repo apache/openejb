@@ -52,7 +52,7 @@ import org.activeio.xnet.ServiceException;
 import org.openejb.server.ServiceManager;
 import org.activeio.xnet.ServiceException;
 import org.openejb.client.RequestMethods;
-import org.openejb.ContainerIndex;
+import org.openejb.DeploymentIndex;
 
 /**
  * This is the base class for orcistrating the other daemons 
@@ -72,7 +72,7 @@ public class AdminDaemon implements ServerService {
     public void init(Properties props) throws Exception {
     }
 
-    public AdminDaemon(ContainerIndex index) {
+    public AdminDaemon(DeploymentIndex index) {
     }
 
     public void service(Socket socket) throws ServiceException,IOException {

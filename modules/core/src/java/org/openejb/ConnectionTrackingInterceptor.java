@@ -74,7 +74,7 @@ public class ConnectionTrackingInterceptor implements Interceptor {
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
         InstanceContext enteringInstanceContext = ejbInvocation.getEJBInstanceContext();
         InstanceContext leavingInstanceContext = trackedConnectionAssociator.enter(enteringInstanceContext);
         try {

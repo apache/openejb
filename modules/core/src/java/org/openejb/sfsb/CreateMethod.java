@@ -53,12 +53,11 @@ import java.lang.reflect.Method;
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
@@ -86,8 +85,8 @@ public class CreateMethod implements VirtualOperation, Serializable {
         createIndex = fastClass.getIndex(javaMethod.getName(), javaMethod.getParameterTypes());
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        StatefulInstanceContext ctx = (StatefulInstanceContext) invocation.getEJBInstanceContext();
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+        EJBInstanceContext ctx = invocation.getEJBInstanceContext();
 
         // call create
         SessionBean instance = (SessionBean) ctx.getInstance();

@@ -63,7 +63,7 @@ public class MockEJBContainerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockEJBContainerGBean.class, MockEJBContainer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockEJBContainerGBean.class, MockEjbDeployment.class);
 
         infoFactory.addAttribute("ejbJarURL", URL.class, true);
         infoFactory.addAttribute("ejbName", String.class, true);
@@ -98,7 +98,7 @@ public class MockEJBContainerGBean {
 
     public static ObjectName addGBean(Kernel kernel, URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) throws GBeanAlreadyExistsException, GBeanNotFoundException {
         GBeanData gbean = createGBean(ejbJarURL, ejbName, ejbClass, home, remote, localHome, local, serviceEndpoint);
-        kernel.loadGBean(gbean, MockEJBContainer.class.getClassLoader());
+        kernel.loadGBean(gbean, MockEjbDeployment.class.getClassLoader());
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }

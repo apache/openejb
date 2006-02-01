@@ -54,9 +54,9 @@ import org.openejb.cache.InstanceCache;
  * @version $Revision$ $Date$
  */
 public interface EJBClusterManager {
-    void addEJBContainer(ClusteredEJBContainer container);
+    void addEJBContainer(ClusteredEjbDeployment container);
 
-    void removeEJBContainer(ClusteredEJBContainer container);
+    void removeEJBContainer(ClusteredEjbDeployment container);
     
     void putInstanceInCache(InstanceCache cache, String beanId);
 

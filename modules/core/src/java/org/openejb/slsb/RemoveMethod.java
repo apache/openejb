@@ -47,25 +47,50 @@
  */
 package org.openejb.slsb;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.AbstractMethodOperation;
+import org.openejb.EjbInvocation;
+import org.openejb.dispatch.VirtualOperation;
 
 /**
  * Virtual operation handling removal of an instance.
  *
  * @version $Revision$ $Date$
  */
-public class RemoveMethod extends AbstractMethodOperation {
-    private static final MethodSignature REMOVE_SIG = new MethodSignature("ejbRemove");
+public class RemoveMethod implements VirtualOperation {
+    public static final RemoveMethod INSTANCE = new RemoveMethod();
+    private static final InvocationResult NULL_RESULT = new SimpleInvocationResult(true, null);
 
-    public RemoveMethod(Class beanClass) {
-        super(beanClass, REMOVE_SIG);
+    public RemoveMethod() {
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        return invoke(invocation, EJBOperation.EJBREMOVE);
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+        EJBInstanceContext ctx = invocation.getEJBInstanceContext();
+
+        // call create
+        Object instance = ctx.getInstance();
+        Object[] args = invocation.getArguments();
+        try {
+            ctx.setOperation(EJBOperation.EJBCREATE);
+            Method method = invocation.getEjbDeployment().getBeanClass().getMethod("ejbRemove", null);
+            method.invoke(instance, args);
+            return NULL_RESULT;
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            if (t instanceof Exception && !(t instanceof RuntimeException)) {
+                // checked exception - which we simply include in the result
+                return invocation.createExceptionResult((Exception)t);
+            } else {
+                // unchecked Exception - just throw it to indicate an abnormal completion
+                throw t;
+            }
+        } finally {
+            ctx.setOperation(EJBOperation.INACTIVE);
+        }
     }
 }

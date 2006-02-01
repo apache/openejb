@@ -184,7 +184,6 @@ public class HttpServerTest extends TestCase {
         gbean.setAttribute("poolSize", new Integer(1));
         gbean.setAttribute("poolName", "Test");
         gbean.setAttribute("keepAliveTime", new Long(1000));
-        gbean.setAttribute("classLoader", cl);
         kernel.loadGBean(gbean, cl);
         kernel.startGBean(executor);
 

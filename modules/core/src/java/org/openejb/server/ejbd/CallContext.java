@@ -44,7 +44,7 @@
  */
 package org.openejb.server.ejbd;
 
-import org.openejb.EJBContainer;
+import org.openejb.EjbDeployment;
 import org.openejb.client.EJBRequest;
 import org.openejb.util.FastThreadLocal;
 
@@ -62,7 +62,7 @@ public class CallContext {
     /**
      * The container of the bean executed
      */
-    protected EJBContainer container;
+    protected EjbDeployment container;
 
     /**
      * The EJBRequest object from the client
@@ -85,26 +85,20 @@ public class CallContext {
     
     /**
      * Returns the EJBContainer assigned to this CallContext
-     * 
-     * @return 
      */
-    public EJBContainer getContainer() {
+    public EjbDeployment getContainer() {
         return container;
     }
     
     /**
      * Sets the EJBContainer assigned to this CallContext
-     * 
-     * @param info
      */
-    public void setContainer(EJBContainer container) {
+    public void setContainer(EjbDeployment container) {
         this.container = container;
     }
     
     /**
      * Returns the EJBRequest this thread is satisfying.
-     * 
-     * @return 
      */
     public EJBRequest getEJBRequest(){
         return request;
@@ -112,8 +106,6 @@ public class CallContext {
     
     /**
      * Sets the EJBRequest this thread is satisfying.
-     * 
-     * @param request
      */
     public void setEJBRequest(EJBRequest request){
         this.request = request;
@@ -122,8 +114,6 @@ public class CallContext {
     /**
      * Sets the CallContext assigned to the current thread with the CallContext
      * instance passed in
-     * 
-     * @param ctx
      */
     public static void setCallContext(CallContext ctx) {
         if ( ctx == null ) {
@@ -136,8 +126,6 @@ public class CallContext {
     
     /**
      * Gets the CallContext assigned to the current thread
-     * 
-     * @return 
      */
     public static CallContext getCallContext( ) {
         CallContext ctx = (CallContext)threads.get();

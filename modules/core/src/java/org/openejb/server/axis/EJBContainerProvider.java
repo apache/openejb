@@ -48,9 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-import javax.xml.rpc.handler.soap.SOAPMessageContext;
 import javax.xml.rpc.holders.IntHolder;
-import javax.xml.rpc.soap.SOAPFaultException;
 import javax.xml.soap.SOAPMessage;
 
 import org.apache.axis.AxisFault;
@@ -72,17 +70,18 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
-import org.openejb.EJBContainer;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
+import org.openejb.ExtendedEjbDeployment;
 import org.xml.sax.SAXException;
 
 public class EJBContainerProvider extends RPCProvider {
-    private final EJBContainer ejbContainer;
+    private final EjbDeployment ejbDeployment;
 
-    public EJBContainerProvider(EJBContainer ejbContainer) {
-        this.ejbContainer = ejbContainer;
+    public EJBContainerProvider(EjbDeployment ejbDeployment) {
+        this.ejbDeployment = ejbDeployment;
     }
 
     public void processMessage(MessageContext msgContext, SOAPEnvelope reqEnv, SOAPEnvelope resEnv, Object obj) throws Exception {
@@ -90,19 +89,19 @@ public class EJBContainerProvider extends RPCProvider {
         RPCElement body = getBody(reqEnv, msgContext);
         OperationDesc operation = getOperationDesc(msgContext, body);
 
-        int index = ejbContainer.getMethodIndex(operation.getMethod());
+        int index = ejbDeployment.getMethodIndex(operation.getMethod());
         AxisRpcInvocation invocation = new AxisRpcInvocation(operation, msgContext, index);
         invocation.put(MessageContextInvocationKey.INSTANCE, msgContext);
-        SOAPMessage message = ((SOAPMessageContext) msgContext).getMessage();
+        SOAPMessage message = msgContext.getMessage();
 
         Object objRes = null;
         try {
             message.getSOAPPart().getEnvelope();
             msgContext.setProperty(org.apache.axis.SOAPPart.ALLOW_FORM_OPTIMIZATION, Boolean.FALSE);
 
-            InvocationResult invocationResult = ejbContainer.invoke(invocation);
+            InvocationResult invocationResult = ejbDeployment.invoke(invocation);
             if (invocationResult.isException()) {
-                throw (Throwable) invocationResult.getException();
+                throw invocationResult.getException();
             }
             objRes = invocationResult.getResult();
         } catch (Throwable throwable) {
@@ -117,7 +116,7 @@ public class EJBContainerProvider extends RPCProvider {
     }
 
     public Object getServiceObject(MessageContext msgContext, Handler service, String clsName, IntHolder scopeHolder) throws Exception {
-        return ejbContainer;
+        return ejbDeployment;
     }
 
     /**
@@ -126,16 +125,18 @@ public class EJBContainerProvider extends RPCProvider {
      *
      * @see org.apache.axis.providers.java.RPCProvider
      */
-    private class AxisRpcInvocation implements EJBInvocation {
+    private class AxisRpcInvocation implements EjbInvocation {
+        // The container that we are invoking, this is set in the container before sending the invocation to the interceptor stack
+        private ExtendedEjbDeployment ejbDeployment;
+
         private int index;
 
         // Valid in server-side interceptor stack once an instance has been identified
-        private transient EJBInstanceContext instanceContext;
+        private EJBInstanceContext instanceContext;
 
         // Valid in server-side interceptor stack once a TransactionContext has been created
-        private transient TransactionContext transactionContext;
+        private TransactionContext transactionContext;
 
-        private InvocationResult result;
         private Map attributes = new HashMap();
         private OperationDesc operation;
         private MessageContext messageContext;
@@ -144,6 +145,14 @@ public class EJBContainerProvider extends RPCProvider {
             this.messageContext = msgContext;
             this.index = index;
             this.operation = operation;
+        }
+
+        public ExtendedEjbDeployment getEjbDeployment() {
+            return ejbDeployment;
+        }
+
+        public void setEjbDeployment(ExtendedEjbDeployment ejbDeployment) {
+            this.ejbDeployment = ejbDeployment;
         }
 
         public int getMethodIndex() {
@@ -163,7 +172,7 @@ public class EJBContainerProvider extends RPCProvider {
         }
 
         private Object[] demarshallArguments() throws Exception {
-            SOAPMessage message = ((SOAPMessageContext) messageContext).getMessage();
+            SOAPMessage message = messageContext.getMessage();
             messageContext.setProperty(org.apache.axis.SOAPPart.ALLOW_FORM_OPTIMIZATION, Boolean.TRUE);
             if (message != null) {
                 message.saveChanges();

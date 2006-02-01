@@ -58,7 +58,7 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * @version $Revision$ $Date$
  */
-public final class MethodSignature implements Serializable {
+public final class MethodSignature implements Serializable, Comparable {
     private static final String[] NOARGS = {};
     private final String methodName;
     private final String[] parameterTypes;
@@ -156,5 +156,34 @@ public final class MethodSignature implements Serializable {
         }
         MethodSignature other = (MethodSignature) obj;
         return methodName.equals(other.methodName) && Arrays.equals(parameterTypes, other.parameterTypes);
+    }
+
+    public int compareTo(Object object) {
+        MethodSignature methodSignature = (MethodSignature) object;
+
+        // alphabetic compare of method names
+        int value = methodName.compareTo(methodSignature.methodName);
+        if (value != 0) {
+            return value;
+        }
+
+        // shorter parameter list comes before longer parameter lists
+        if (parameterTypes.length < methodSignature.parameterTypes.length) {
+            return -1;
+        }
+        if (parameterTypes.length > methodSignature.parameterTypes.length) {
+            return 1;
+        }
+
+        // alphabetic compare of each parameter type
+        for (int i = 0; i < parameterTypes.length; i++) {
+            value = parameterTypes[i].compareTo(methodSignature.parameterTypes[i]);
+            if (value != 0) {
+                return value;
+            }
+        }
+
+        // they are the same
+        return 0;
     }
 }

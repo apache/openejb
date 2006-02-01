@@ -47,7 +47,6 @@
  */
 package org.openejb.deployment.entity;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import javax.ejb.EJBObject;
 import javax.management.ObjectName;
@@ -56,12 +55,8 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.deployment.BMPContainerBuilder;
-import org.openejb.deployment.DefaultBMPContainerStrategy;
 import org.openejb.deployment.DeploymentHelper;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.transaction.TransactionPolicyType;
+import org.openejb.deployment.BmpBuilder;
 
 /**
  * @version $Revision$ $Date$
@@ -69,8 +64,6 @@ import org.openejb.transaction.TransactionPolicyType;
 public class BasicBMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private Kernel kernel;
-    private GBeanData container;
-
 
     public void testSimpleConfig() throws Throwable {
         MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
@@ -133,38 +126,33 @@ public class BasicBMPEntityContainerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
 
-        BMPContainerBuilder builder = new BMPContainerBuilder();
-        builder.setContainerStrategy(new DefaultBMPContainerStrategy(builder));
-        builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
-        builder.setEJBName("MockEJB");
+        BmpBuilder builder = new BmpBuilder();
+        builder.setContainerId(CONTAINER_NAME);
+        builder.setEjbName("MockEJB");
         builder.setBeanClassName(MockBMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
         builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
         builder.setRemoteInterfaceName(MockRemote.class.getName());
         builder.setLocalInterfaceName(MockLocal.class.getName());
         builder.setPrimaryKeyClassName(Integer.class.getName());
+
+        builder.setEjbContainerName(DeploymentHelper.BMP_EJB_CONTAINER_NAME);
+
         builder.setJndiNames(new String[0]);
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
-        builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return TransactionPolicyType.Required;
-            }
-        });
-        builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
+
+        GBeanData container = builder.createConfiguration();
 
         //start the ejb container
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(CONTAINER_NAME, container);
     }
 
     protected void tearDown() throws Exception {
         stop(CONTAINER_NAME);
         kernel.shutdown();
+        super.tearDown();
     }
 
     private void start(ObjectName name, GBeanData instance) throws Exception {

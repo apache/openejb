@@ -48,18 +48,17 @@
 package org.openejb.slsb;
 
 import javax.xml.rpc.handler.MessageContext;
-import javax.ejb.EJBException;
 
-import org.openejb.EJBInvocation;
-import org.openejb.NotReentrantLocalException;
-import org.openejb.NotReentrantException;
-import org.openejb.cache.InstancePool;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.webservices.MessageContextInvocationKey;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.webservices.MessageContextInvocationKey;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
+import org.openejb.StatelessEjbDeployment;
+import org.openejb.cache.InstancePool;
 
 
 /**
@@ -70,15 +69,19 @@ import org.apache.geronimo.transaction.context.TransactionContext;
  */
 public final class StatelessInstanceInterceptor implements Interceptor {
     private final Interceptor next;
-    private final InstancePool pool;
 
-    public StatelessInstanceInterceptor(Interceptor next, InstancePool pool) {
+    public StatelessInstanceInterceptor(Interceptor next) {
         this.next = next;
-        this.pool = pool;
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
+        EjbDeployment deployment = ejbInvocation.getEjbDeployment();
+        if (!(deployment instanceof StatelessEjbDeployment)) {
+            throw new IllegalArgumentException("StatelessInstanceInterceptor can only be used with a StatelessEjbDeploymentContext: " + deployment.getClass().getName());
+        }
+
+        InstancePool pool = ((StatelessEjbDeployment) deployment).getInstancePool();
 
         // get the context
         StatelessInstanceContext ctx = (StatelessInstanceContext) pool.acquire();

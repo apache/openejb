@@ -60,9 +60,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
-import org.openejb.ContainerIndex;
-import org.openejb.EJBContainer;
+import org.openejb.DeploymentIndex;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.InvalidateReferenceException;
+import org.openejb.EjbDeployment;
 import org.openejb.corba.ORBRef;
 import org.openejb.client.EJBRequest;
 import org.openejb.client.EJBResponse;
@@ -76,17 +77,17 @@ import org.openejb.proxy.ProxyInfo;
 class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
     private static final Log log = LogFactory.getLog(EjbRequestHandler.class);
-    private final ContainerIndex containerIndex;
+    private final DeploymentIndex deploymentIndex;
     private final Collection orbRefs;
 
 
-    EjbRequestHandler(ContainerIndex containerIndex, Collection orbRefs) {
+    EjbRequestHandler(DeploymentIndex deploymentIndex, Collection orbRefs) {
         this.orbRefs = orbRefs;
 
-        if (containerIndex == null) {
-            containerIndex = ContainerIndex.getInstance();
+        if (deploymentIndex == null) {
+            deploymentIndex = DeploymentIndex.getInstance();
         }
-        this.containerIndex = containerIndex;
+        this.deploymentIndex = deploymentIndex;
     }
 
 
@@ -101,7 +102,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 orbRef = (ORBRef) iterator.next();
             }
         }
-        EJBInvocationStream req = new EJBInvocationStream(orbRef);
+        EjbInvocationStream req = new EjbInvocationStream(orbRef);
 
         EJBResponse res = new EJBResponse();
 
@@ -135,7 +136,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
         }
 
         CallContext call = null;
-        EJBContainer container = null;
+        RpcEjbDeployment container = null;
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             try {
@@ -163,7 +164,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 ContextManager.setCurrentCaller(subject);
                 ContextManager.setNextCaller(subject);
 
-                log.debug("setting cl=" + cl + " for " + container.getContainerID());
+                log.debug("setting cl=" + cl + " for " + container.getContainerId());
             } catch (RemoteException e) {
                 replyWithFatalError
                         (out, e, "No such deployment");
@@ -287,7 +288,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     private Object invoke(EJBRequest req, EJBResponse res) throws Throwable {
 
         CallContext call = CallContext.getCallContext();
-        EJBContainer container = call.getContainer();
+        EjbDeployment container = call.getContainer();
 
         // Prepare yourself ...
         // for you are about to enter ...
@@ -295,7 +296,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         InvocationResult result = null;
         try {
-            result = container.invoke((EJBInvocationStream) req);
+            result = container.invoke((EjbInvocationStream) req);
         } catch (Throwable t) {
             RemoteException re;
             if (t instanceof RemoteException) {
@@ -531,16 +532,16 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     }
 
 
-    private EJBContainer getContainer(EJBRequest req) throws RemoteException {
+    private RpcEjbDeployment getContainer(EJBRequest req) throws RemoteException {
 
-        EJBContainer container = null;
+        RpcEjbDeployment container = null;
 
         if (req.getContainerCode() > 0) {
-            container = containerIndex.getContainer(req.getContainerCode());
+            container = deploymentIndex.getDeployment(req.getContainerCode());
             if (container == null) {
                 throw new RemoteException("The deployement with this ID is null");
             }
-            req.setContainerID((String) container.getContainerID());
+            req.setContainerID((String) container.getContainerId());
             return container;
         }
 
@@ -549,7 +550,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
         }
 
 
-        int idCode = containerIndex.getContainerIndex(req.getContainerID());
+        int idCode = deploymentIndex.getDeploymentIndex(req.getContainerID());
 
         if (idCode == -1) {
             throw new RemoteException("No such deployment id and code: id=" + req.getContainerID() + ": code=" + req.getContainerCode());
@@ -557,11 +558,11 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         req.setContainerCode(idCode);
 
-        if (req.getContainerCode() < 0 || req.getContainerCode() >= containerIndex.length()) {
+        if (req.getContainerCode() < 0 || req.getContainerCode() >= deploymentIndex.length()) {
             throw new RemoteException("Invalid deployment id and code: id=" + req.getContainerID() + ": code=" + req.getContainerCode());
         }
 
-        container = containerIndex.getContainer(req.getContainerCode());
+        container = deploymentIndex.getDeployment(req.getContainerCode());
         if (container == null) {
             throw new RemoteException("The deployement with this ID is null");
         }

@@ -53,7 +53,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 
 /**
  * @version $Revision$ $Date$
@@ -62,7 +62,7 @@ public class BeanPolicy implements TransactionPolicy {
     private static final Log log = LogFactory.getLog(BeanPolicy.class);
     public static final BeanPolicy INSTANCE = new BeanPolicy();
 
-    public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+    public InvocationResult invoke(Interceptor interceptor, EjbInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
         TransactionContext clientContext = transactionContextManager.getContext();
         if (clientContext != null) {
             clientContext.suspend();

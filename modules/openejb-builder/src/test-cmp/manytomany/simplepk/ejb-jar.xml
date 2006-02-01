@@ -24,6 +24,16 @@
                 <field-name>field2</field-name>
             </cmp-field>
             <primkey-field>field1</primkey-field>
+            <query>
+                <!-- CompondPK one-to-many shares the local home interface so we need to declare this useless finder -->
+                <query-method>
+                    <method-name>findByPrimaryKey</method-name>
+                    <method-params>
+                        <method-param>org.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(A) FROM manytomanyA A</ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>B</ejb-name>
@@ -32,6 +42,7 @@
             <ejb-class>org.openejb.deployment.entity.cmp.cmr.manytomany.BBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>manytomanyB</abstract-schema-name>
             <cmp-field>

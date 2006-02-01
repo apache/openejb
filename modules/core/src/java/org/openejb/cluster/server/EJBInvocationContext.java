@@ -59,7 +59,7 @@ import org.openejb.sfsb.StatefulInstanceContext;
 public class EJBInvocationContext implements InvocationContext {
     private final boolean proxiedInvocation;
     private final InstanceCache cache;
-    
+
     public EJBInvocationContext(InstanceCache cache) {
         this.cache = cache;
         this.proxiedInvocation = false;
@@ -71,7 +71,7 @@ public class EJBInvocationContext implements InvocationContext {
     }
 
     public void invoke(PoolableInvocationWrapper wrapper) throws InvocationException {
-        if (false == wrapper instanceof EJBInvocationWrapper) {
+        if (!(wrapper instanceof EJBInvocationWrapper)) {
             throw new IllegalArgumentException(EJBInvocationProxy.class +
                     " is expected.");
         }
@@ -82,13 +82,13 @@ public class EJBInvocationContext implements InvocationContext {
         Object id = sessionUtil.getId();
         InstanceContext context = invWrap.getInstanceContext();
 
-        if (false == context instanceof StatefulInstanceContext) {
+        if (!(context instanceof StatefulInstanceContext)) {
             throw new IllegalStateException("Context should be a " +
                     StatefulInstanceContext.class +
                     ". Was " + context.getClass());
         }
         StatefulInstanceContext sfContext = (StatefulInstanceContext) context;
-        
+
         sfContext.setCache(cache);
         cache.putInactive(id, context);
     }

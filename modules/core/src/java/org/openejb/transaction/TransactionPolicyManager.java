@@ -49,22 +49,82 @@ package org.openejb.transaction;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.SortedMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.openejb.EJBInterfaceType;
+import org.openejb.MethodSpec;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
  * @version $Revision$ $Date$
  */
 public final class TransactionPolicyManager implements Serializable {
-    private final TransactionPolicy[][] transactionPolicy;
+    private static final long serialVersionUID = -2039826921336518779L;
+    private final TransactionPolicyType[][] transactionPolicyType;
+    private final boolean beanManaged;
 
-    public TransactionPolicyManager(TransactionPolicy[][] transactionPolicy) {
-        this.transactionPolicy = transactionPolicy;
+    public TransactionPolicyManager(boolean beanManaged, SortedMap transactionPolicies, InterfaceMethodSignature[] signatures) {
+        this.beanManaged = beanManaged;
+        transactionPolicyType = buildTransactionPolicyIndex(transactionPolicies, signatures);
+    }
+
+    public TransactionPolicyManager(TransactionPolicyType[][] transactionPolicyType) {
+        this.transactionPolicyType = transactionPolicyType;
+        beanManaged = false;
     }
 
     public TransactionPolicy getTransactionPolicy(EJBInterfaceType invocationType, int operationIndex) {
-        return transactionPolicy[invocationType.getOrdinal()][operationIndex];
+        TransactionPolicyType transactionPolicyType = getTransactionPolicyType(invocationType, operationIndex);
+        TransactionPolicy transactionPolicy = TransactionPolicies.getTransactionPolicy(transactionPolicyType);
+        return transactionPolicy;
     }
 
+    public TransactionPolicyType getTransactionPolicyType(EJBInterfaceType invocationType, int operationIndex) {
+        if (beanManaged) {
+            return TransactionPolicyType.Bean;
+        } else {
+            return transactionPolicyType[invocationType.getOrdinal()][operationIndex];
+        }
+    }
+
+    private static TransactionPolicyType[][] buildTransactionPolicyIndex(SortedMap transactionPolicies, InterfaceMethodSignature[] signatures) {
+        TransactionPolicyType[][] transactionPolicyType = new TransactionPolicyType[EJBInterfaceType.MAX_ORDINAL][];
+        transactionPolicyType[EJBInterfaceType.HOME.getOrdinal()] = mapPolicies("Home", signatures, transactionPolicies);
+        transactionPolicyType[EJBInterfaceType.REMOTE.getOrdinal()] = mapPolicies("Remote", signatures, transactionPolicies);
+        transactionPolicyType[EJBInterfaceType.LOCALHOME.getOrdinal()] = mapPolicies("LocalHome", signatures, transactionPolicies);
+        transactionPolicyType[EJBInterfaceType.LOCAL.getOrdinal()] = mapPolicies("Local", signatures, transactionPolicies);
+        transactionPolicyType[EJBInterfaceType.WEB_SERVICE.getOrdinal()] = mapPolicies("ServiceEndpoint", signatures, transactionPolicies);
+        transactionPolicyType[EJBInterfaceType.TIMEOUT.getOrdinal()] = new TransactionPolicyType[signatures.length];
+        Arrays.fill(transactionPolicyType[EJBInterfaceType.TIMEOUT.getOrdinal()], TransactionPolicyType.Supports); //we control the transaction from the top of the stack.
+
+        return transactionPolicyType;
+    }
+
+    private static TransactionPolicyType[] mapPolicies(String intfName, InterfaceMethodSignature[] signatures, SortedMap transactionPolicies) {
+        TransactionPolicyType[] policies = new TransactionPolicyType[signatures.length];
+        for (int index = 0; index < signatures.length; index++) {
+            InterfaceMethodSignature signature = signatures[index];
+            policies[index] = getTransactionPolicy(transactionPolicies, intfName, signature);
+        }
+        return policies;
+    }
+
+    public static TransactionPolicyType getTransactionPolicy(SortedMap transactionPolicies, String methodIntf, InterfaceMethodSignature signature) {
+        if (transactionPolicies != null) {
+            for (Iterator iterator = transactionPolicies.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                MethodSpec methodSpec = (MethodSpec) entry.getKey();
+                TransactionPolicyType transactionPolicyType = (TransactionPolicyType) entry.getValue();
+
+                if (methodSpec.matches(methodIntf, signature.getMethodName(), signature.getParameterTypes())) {
+                    return transactionPolicyType;
+                }
+            }
+        }
+
+        //default
+        return TransactionPolicyType.Required;
+    }
 }

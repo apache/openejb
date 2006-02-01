@@ -50,6 +50,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.ClassLoading;
 
 public class EJBObjectInputStream extends ObjectInputStream {
 

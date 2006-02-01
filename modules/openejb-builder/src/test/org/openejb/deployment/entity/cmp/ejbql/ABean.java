@@ -54,6 +54,8 @@ import javax.ejb.EntityContext;
 import javax.ejb.FinderException;
 import javax.ejb.RemoveException;
 
+import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
+
 
 /**
  *
@@ -78,11 +80,21 @@ public abstract class ABean implements EntityBean {
     public void ejbPostCreate(Integer field1) {
     }
 
+    public CompoundPK ejbCreate(CompoundPK compoundPK)  throws CreateException {
+        setField1(compoundPK.field1);
+        setField2(compoundPK.field2);
+        return null;
+    }
+
+    public void ejbPostCreate(CompoundPK compoundPK) {
+    }
+
     public void setEntityContext(EntityContext ctx) {
         context = ctx;
     }
 
     public void unsetEntityContext() {
+        context = null;
     }
 
     public void ejbActivate() {

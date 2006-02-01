@@ -47,7 +47,6 @@
  */
 package org.openejb.deployment.slsb;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import javax.management.ObjectName;
 
@@ -55,19 +54,16 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.ContainerIndex;
-import org.openejb.deployment.DefaultSLContainerStrategy;
+import org.openejb.DeploymentIndex;
 import org.openejb.deployment.DeploymentHelper;
-import org.openejb.deployment.StatelessContainerBuilder;
-import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.deployment.StatelessBuilder;
 import org.openejb.proxy.EJBProxyReference;
-import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Revision$ $Date$
  */
 public class BasicStatelessContainerTest extends TestCase {
+    ClassLoader classLoader = BasicStatelessContainerTest.class.getClassLoader();
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private Kernel kernel;
     private GBeanData container;
@@ -75,9 +71,10 @@ public class BasicStatelessContainerTest extends TestCase {
     public void testCrossClInvocation() throws Throwable {
         EJBProxyReference proxyReference = EJBProxyReference.createRemote(CONTAINER_NAME.getCanonicalName(),
                         true,
-                MockHome.class.getName(), MockRemote.class.getName());
+                        MockHome.class.getName(),
+                        MockRemote.class.getName());
         proxyReference.setKernel(kernel);
-        proxyReference.setClassLoader(this.getClass().getClassLoader());
+        proxyReference.setClassLoader(classLoader);
         MockHome home = (MockHome) proxyReference.getContent();
         MockRemote remote = home.create();
         assertEquals(2, remote.intMethod(1));
@@ -90,11 +87,11 @@ public class BasicStatelessContainerTest extends TestCase {
     }
 
     public void testLocalInvocation() throws Throwable {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
-        MockLocal remote = home.create();
-        assertEquals(2, remote.intMethod(1));
-        assertEquals(2, remote.intMethod(1));
-        remote.remove();
+        MockLocalHome homeHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocal local = homeHome.create();
+        assertEquals(2, local.intMethod(1));
+        assertEquals(2, local.intMethod(1));
+        local.remove();
     }
 
     public void testTimeout() throws Exception {
@@ -159,37 +156,30 @@ public class BasicStatelessContainerTest extends TestCase {
         super.setUp();
 
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
 
-        StatelessContainerBuilder builder = new StatelessContainerBuilder();
-        builder.setContainerStrategy(new DefaultSLContainerStrategy(builder));
-        builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
-        builder.setEJBName("MockEJB");
+        StatelessBuilder builder = new StatelessBuilder();
+        builder.setContainerId(new ObjectName(":name=MockEJB"));
+        builder.setEjbName("MockEJB");
         builder.setBeanClassName(MockEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
         builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
         builder.setRemoteInterfaceName(MockRemote.class.getName());
         builder.setLocalInterfaceName(MockLocal.class.getName());
+
+        builder.setEjbContainerName(DeploymentHelper.STATELESS_EJB_CONTAINER_NAME);
         builder.setJndiNames(new String[0]);
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
-        builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return TransactionPolicyType.Required;
-            }
-        });
-        builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
+
+        container = builder.createConfiguration();
 
         //start the ejb container
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(CONTAINER_NAME, container);
 
         ObjectName containerIndexname = JMXUtil.getObjectName("geronimo.test:type=ConatainerIndex");
-        GBeanData containerIndex = new GBeanData(containerIndexname, ContainerIndex.GBEAN_INFO);
-        containerIndex.setReferencePattern("EJBContainers", CONTAINER_NAME);
-        kernel.loadGBean(containerIndex, this.getClass().getClassLoader());
+        GBeanData containerIndex = new GBeanData(containerIndexname, DeploymentIndex.GBEAN_INFO);
+        containerIndex.setReferencePattern("EjbDeployments", CONTAINER_NAME);
+        kernel.loadGBean(containerIndex, classLoader);
         kernel.startGBean(containerIndexname);
     }
 
@@ -200,7 +190,7 @@ public class BasicStatelessContainerTest extends TestCase {
 
     private void start(ObjectName name, GBeanData instance) throws Exception {
         instance.setName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
+        kernel.loadGBean(instance, classLoader);
         kernel.startGBean(name);
     }
 

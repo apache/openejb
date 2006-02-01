@@ -92,7 +92,7 @@ import java.io.Serializable;
 
 import javax.ejb.EJBException;
 
-import org.openejb.ContainerNotFoundException;
+import org.openejb.DeploymentNotFoundException;
 
 
 /**
@@ -110,7 +110,7 @@ public class BaseEJB implements Serializable {
      public ProxyInfo getProxyInfo() {
          try {
              return ejbHandler.getProxyInfo();
-         } catch (ContainerNotFoundException e) {
+         } catch (DeploymentNotFoundException e) {
              throw new EJBException("Container not found " + e.getMessage());
          }
      }

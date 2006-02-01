@@ -24,6 +24,7 @@ import javax.ejb.TimerService;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EJBContextImpl;
+import org.openejb.ExtendedEjbDeployment;
 import org.openejb.timer.BasicTimerService;
 import org.openejb.proxy.EJBProxyFactory;
 
@@ -33,6 +34,11 @@ import org.openejb.proxy.EJBProxyFactory;
 public class MockEJBInstanceContext implements EJBInstanceContext {
 
     public static final MockEJBInstanceContext INSTANCE = new MockEJBInstanceContext();
+
+    public ExtendedEjbDeployment getDeployment() {
+        return null;
+    }
+
     public EnterpriseBean getInstance() {
         return null;
     }

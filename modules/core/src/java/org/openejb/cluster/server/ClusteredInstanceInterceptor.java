@@ -48,7 +48,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.EJBInstanceContext;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 
 /**
  * 
@@ -64,7 +64,7 @@ public class ClusteredInstanceInterceptor implements Interceptor {
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         InvocationResult result = next.invoke(invocation);
         
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
         EJBInstanceContext context = ejbInvocation.getEJBInstanceContext();
         if (context instanceof ClusteredEJBInstanceContext) {
             ClusteredEJBInstanceContext clusteredContext = (ClusteredEJBInstanceContext) context;

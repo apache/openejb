@@ -54,7 +54,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.ContainerIndex;
+import org.openejb.DeploymentIndex;
 import org.openejb.corba.ORBRef;
 import org.activeio.xnet.SocketService;
 
@@ -66,10 +66,10 @@ public class EjbServerGBean {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbServerGBean.class, EjbServer.class);
 
         infoFactory.addInterface(SocketService.class);
-        infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("DeploymentIndex", DeploymentIndex.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ORBRefs", ORBRef.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.setConstructor(new String[]{"ContainerIndex", "ORBRefs"});
+        infoFactory.setConstructor(new String[]{"DeploymentIndex", "ORBRefs"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -89,7 +89,7 @@ public class EjbServerGBean {
         ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=EjbServer,name="+name);
 
         GBeanData gbean = new GBeanData(gbeanName, EjbServerGBean.GBEAN_INFO);
-        gbean.setReferencePattern("ContainerIndex", containerIndex);
+        gbean.setReferencePattern("DeploymentIndex", containerIndex);
 
         return gbean;
     }

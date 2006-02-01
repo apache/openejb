@@ -66,6 +66,7 @@ public class MockBMPEJB implements EntityBean, TimedObject {
     private int field;
 
     private static int timeoutCount = 0;
+    private String value;
 
     public Object ejbCreate(Integer id, String value) throws CreateException {
         return id;
@@ -100,6 +101,14 @@ public class MockBMPEJB implements EntityBean, TimedObject {
 
     public int getIntField() {
         return field;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public String getString() {

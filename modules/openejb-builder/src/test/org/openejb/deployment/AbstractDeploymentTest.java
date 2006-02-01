@@ -102,30 +102,29 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testInClassLoaderInvoke() throws Exception {
-        Object statelessHome;
-        Object stateless;
         EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
-                        true,
-                "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
+                true,
+                "org.openejb.test.simple.slsb.SimpleStatelessSessionHome",
+                "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
         proxyReference.setClassLoader(getApplicationClassLoader());
-        statelessHome = proxyReference.getContent();
+        Object statelessHome = proxyReference.getContent();
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
-        stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
         assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
     }
 
     public void testCrossClassLoaderInvoke() throws Exception {
-        Object statelessHome;
-        Object stateless;
+        URLClassLoader classLoader = new URLClassLoader(new URL[] {new File("target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader());
         EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
-                        true,
-                "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
+                true,
+                "org.openejb.test.simple.slsb.SimpleStatelessSessionHome",
+                "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
-        proxyReference.setClassLoader(new URLClassLoader(new URL[] {new File("target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader()));
-        statelessHome = proxyReference.getContent();
+        proxyReference.setClassLoader(classLoader);
+        Object statelessHome = proxyReference.getContent();
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
-        stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
         assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
     }
 

@@ -49,7 +49,7 @@ package org.openejb.entity;
 
 import org.apache.geronimo.core.service.InvocationResult;
 
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
@@ -64,7 +64,7 @@ public class HomeMethod extends AbstractMethodOperation {
         super(beanClass, signature);
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         return invoke(invocation, EJBOperation.EJBHOME);
     }
 }

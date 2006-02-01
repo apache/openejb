@@ -55,8 +55,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.ejb.EJBException;
-
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 

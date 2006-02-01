@@ -54,16 +54,16 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
+import javax.security.auth.Subject;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
-import javax.security.auth.Subject;
 
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.timer.TimerState;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
 
 /**
  * Implementation of SessionContext using the State pattern to determine
@@ -81,7 +81,7 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
         state = states[operation.getOrdinal()];
         assert (state != null) : "Invalid EJBOperation for Stateful SessionBean, ordinal=" + operation;
 
-        if(userTransaction != null) {
+        if (userTransaction != null) {
             if (operation == EJBOperation.EJBCREATE ||
                     operation == EJBOperation.EJBREMOVE ||
                     operation == EJBOperation.EJBACTIVATE ||

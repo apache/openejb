@@ -16,12 +16,17 @@
  */
 package org.openejb.transaction;
 
+import java.io.Serializable;
+import java.util.HashMap;
+
 /**
  * Enumeration of abstract transaction policies, with ordinals, for use as index to determine concrete TransactionPolicies.
  *
  * @version $Rev:  $ $Date$
  */
-public class TransactionPolicyType {
+public class TransactionPolicyType implements Serializable {
+    private static final long serialVersionUID = 613104784490732601L;
+    private static HashMap byName = new HashMap();
 
     public static final TransactionPolicyType NotSupported = new TransactionPolicyType("NotSupported");
     public static final TransactionPolicyType Required = new TransactionPolicyType("Required");
@@ -48,6 +53,7 @@ public class TransactionPolicyType {
     private TransactionPolicyType(String name) {
         this.name = name;
         this.index = last++;
+        byName.put(name, this);
     }
 
     public int getIndex() {
@@ -62,4 +68,15 @@ public class TransactionPolicyType {
         return values.length;
     }
 
+    public String toString() {
+        return name;
+    }
+
+    public static TransactionPolicyType getByName(String name) {
+        return (TransactionPolicyType) byName.get(name);
+    }
+
+    protected Object readResolve() {
+        return values[index];
+    }
 }

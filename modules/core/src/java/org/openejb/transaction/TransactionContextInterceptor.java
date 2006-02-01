@@ -52,7 +52,8 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
+import org.openejb.ExtendedEjbDeployment;
+import org.openejb.EjbInvocation;
 
 /**
  * @version $Revision$ $Date$
@@ -60,23 +61,23 @@ import org.openejb.EJBInvocation;
 public class TransactionContextInterceptor implements Interceptor {
     private final Interceptor next;
     private final TransactionContextManager transactionContextManager;
-    private final TransactionPolicyManager transactionPolicyManager;
 
-    public TransactionContextInterceptor(Interceptor next, TransactionContextManager transactionContextManager, TransactionPolicyManager transactionPolicyManager) {
+    public TransactionContextInterceptor(Interceptor next, TransactionContextManager transactionContextManager) {
         this.next = next;
         this.transactionContextManager = transactionContextManager;
-        this.transactionPolicyManager = transactionPolicyManager;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
+        ExtendedEjbDeployment deployment = (ExtendedEjbDeployment) ejbInvocation.getEjbDeployment();
+        TransactionPolicyManager transactionPolicyManager = deployment.getTransactionPolicyManager();
 
         EJBInterfaceType invocationType = ejbInvocation.getType();
         int methodIndex = ejbInvocation.getMethodIndex();
-
 
         TransactionPolicy policy = transactionPolicyManager.getTransactionPolicy(invocationType, methodIndex);
         assert policy != null: "transaction policy array was not set up correctly, no policy for " + invocation;
         return policy.invoke(next, ejbInvocation, transactionContextManager);
     }
+
 }

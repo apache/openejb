@@ -60,11 +60,6 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
  * @version $Revision$ $Date$
  */
 public interface SecureBuilder extends ResourceEnvironmentBuilder {
-
-    String getContainerId();
-
-    void setContainerId(String containerId);
-
     DefaultPrincipal getDefaultPrincipal();
 
     void setDefaultPrincipal(DefaultPrincipal defaultSubject);
@@ -85,5 +80,5 @@ public interface SecureBuilder extends ResourceEnvironmentBuilder {
 
     void setUseContextHandler(boolean useContextHandler);
 
-    void setPolicyContextID(String policyContextID);
+    void setPolicyContextId(String policyContextId);
 }

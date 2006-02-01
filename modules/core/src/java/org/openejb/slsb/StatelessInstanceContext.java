@@ -44,24 +44,22 @@
  * please see <http://openejb.org/>.
  *
  * ====================================================================
- */
+ */                
 package org.openejb.slsb;
 
 import java.util.Set;
 import javax.ejb.SessionBean;
 import javax.xml.rpc.handler.MessageContext;
 
-import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBOperation;
 import org.openejb.EJBContextImpl;
+import org.openejb.EJBOperation;
+import org.openejb.StatelessEjbDeployment;
+import org.openejb.StatelessEjbContainer;
 import org.openejb.cache.InstancePool;
-import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.BasicTimerService;
 
 /**
  * Wrapper for a Stateless SessionBean.
@@ -69,26 +67,32 @@ import org.openejb.timer.BasicTimerService;
  * @version $Revision$ $Date$
  */
 public final class StatelessInstanceContext extends AbstractInstanceContext {
+    private final StatelessEjbContainer statelessEjbContainer;
     private final StatelessSessionContext sessionContext;
-    private final EJBInvocation setContextInvocation;
-    private final EJBInvocation unsetContextInvocation;
-    private final EJBInvocation ejbCreateInvocation;
-    private final EJBInvocation ejbRemoveInvocation;
 
     private InstancePool pool;
     private MessageContext messageContext;
 
-    public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
-        super(containerId, instance, systemChain, proxyFactory, timerService, unshareableResources, applicationManagedSecurityResources);
-        this.sessionContext = new StatelessSessionContext(this, transactionContextManager, userTransaction);
-        ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);
-        ejbRemoveInvocation = systemMethodIndices.getEJBRemoveInvocation(this);
-        setContextInvocation = systemMethodIndices.getSetContextInvocation(this, sessionContext);
-        unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
-    }
+    public StatelessInstanceContext(StatelessEjbDeployment statelessEjbDeployment,
+            StatelessEjbContainer statelessEjbContainer,
+            SessionBean instance,
+            EJBProxyFactory proxyFactory,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) {
+        super(statelessEjbDeployment, instance, proxyFactory, unshareableResources, applicationManagedSecurityResources);
 
-    public Object getId() {
-        return null;
+        this.statelessEjbContainer = statelessEjbContainer;
+
+        TransactionContextManager transactionContextManager = statelessEjbContainer.getTransactionContextManager();
+
+        UserTransactionImpl userTransaction;
+        if (statelessEjbDeployment.isBeanManagedTransactions()) {
+            userTransaction = statelessEjbContainer.getUserTransaction();
+        } else {
+            userTransaction = null;
+        }
+
+        this.sessionContext = new StatelessSessionContext(this, transactionContextManager, userTransaction);
     }
 
     public void setId(Object id) {
@@ -130,10 +134,6 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
         throw new AssertionError("Cannot flush Stateless Context");
     }
 
-    public StatelessSessionContext getSessionContext() {
-        return sessionContext;
-    }
-
     public void setOperation(EJBOperation operation) {
         sessionContext.setState(operation);
     }
@@ -150,14 +150,7 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
         if (isDead()) {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
-        systemChain.invoke(setContextInvocation);
-    }
-
-    public void unsetContext() throws Throwable {
-        if (isDead()) {
-            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
-        }
-        systemChain.invoke(unsetContextInvocation);
+        statelessEjbContainer.setContext(this, -1, sessionContext);
     }
 
     public void ejbCreate() throws Throwable {
@@ -165,7 +158,7 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
         assert(getInstance() != null);
-        systemChain.invoke(ejbCreateInvocation);
+        statelessEjbContainer.ejbCreate(this, -1);
     }
 
     public void ejbRemove() throws Throwable {
@@ -173,6 +166,6 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
         assert(getInstance() != null);
-        systemChain.invoke(ejbRemoveInvocation);
+        statelessEjbContainer.ejbRemove(this, -1);
     }
 }

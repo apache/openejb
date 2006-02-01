@@ -82,10 +82,10 @@ import org.omg.CORBA.portable.OutputStream;
 import org.omg.CORBA.portable.ResponseHandler;
 import org.omg.CORBA.portable.UnknownException;
 import org.omg.PortableServer.Servant;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbInvocationImpl;
 import org.openejb.corba.util.Util;
 
 /**
@@ -106,27 +106,27 @@ public class StandardServant extends Servant implements InvokeHandler {
 
 
     private final EJBInterfaceType ejbInterfaceType;
-    private final EJBContainer ejbContainer;
+    private final RpcEjbDeployment ejbDeploymentContext;
     private final Object primaryKey;
     private final String[] typeIds;
     private final Map operations;
     private final Context enc;
 
-    public StandardServant(ORB orb, EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer) {
-        this(orb, ejbInterfaceType, ejbContainer, null);
+    public StandardServant(ORB orb, EJBInterfaceType ejbInterfaceType, RpcEjbDeployment ejbDeploymentContext) {
+        this(orb, ejbInterfaceType, ejbDeploymentContext, null);
     }
 
-    public StandardServant(ORB orb, EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer, Object primaryKey) {
+    public StandardServant(ORB orb, EJBInterfaceType ejbInterfaceType, RpcEjbDeployment ejbDeploymentContext, Object primaryKey) {
         this.ejbInterfaceType = ejbInterfaceType;
-        this.ejbContainer = ejbContainer;
+        this.ejbDeploymentContext = ejbDeploymentContext;
         this.primaryKey = primaryKey;
 
         // get the interface class
         Class type;
         if (EJBInterfaceType.HOME == ejbInterfaceType) {
-            type = ejbContainer.getProxyInfo().getHomeInterface();
+            type = ejbDeploymentContext.getProxyInfo().getHomeInterface();
         } else if (EJBInterfaceType.REMOTE == ejbInterfaceType) {
-            type = ejbContainer.getProxyInfo().getRemoteInterface();
+            type = ejbDeploymentContext.getProxyInfo().getRemoteInterface();
         } else {
             throw new IllegalArgumentException("Only home and remote interfaces are supported in this servant: " + ejbInterfaceType);
         }
@@ -152,8 +152,8 @@ public class StandardServant extends Servant implements InvokeHandler {
         return ejbInterfaceType;
     }
 
-    public EJBContainer getEjbContainer() {
-        return ejbContainer;
+    public RpcEjbDeployment getEjbContainer() {
+        return ejbDeploymentContext;
     }
 
     public Object getPrimaryKey() {
@@ -167,7 +167,7 @@ public class StandardServant extends Servant implements InvokeHandler {
     public OutputStream _invoke(String operationName, InputStream _in, ResponseHandler reply) throws SystemException {
         // get the method object
         Method method = (Method) operations.get(operationName);
-        int index = ejbContainer.getMethodIndex(method);
+        int index = ejbDeploymentContext.getMethodIndex(method);
         if (index < 0 &&
                 method.getDeclaringClass() != javax.ejb.EJBObject.class &&
                 method.getDeclaringClass() != javax.ejb.EJBHome.class) {
@@ -179,7 +179,7 @@ public class StandardServant extends Servant implements InvokeHandler {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Context oldContext = RootContext.getComponentContext();
         try {
-            Thread.currentThread().setContextClassLoader(ejbContainer.getClassLoader());
+            Thread.currentThread().setContextClassLoader(ejbDeploymentContext.getClassLoader());
             RootContext.setComponentContext(enc);
 
             // read in all of the arguments
@@ -198,18 +198,18 @@ public class StandardServant extends Servant implements InvokeHandler {
 
                 if (method.getDeclaringClass() == javax.ejb.EJBObject.class) {
                     if (method.equals(GETHANDLE)) {
-                        result = ejbContainer.getEjbObject(primaryKey).getHandle();
+                        result = ejbDeploymentContext.getEjbObject(primaryKey).getHandle();
                     } else if (method.equals(GETPRIMARYKEY)) {
-                        result = ejbContainer.getEjbObject(primaryKey).getPrimaryKey();
+                        result = ejbDeploymentContext.getEjbObject(primaryKey).getPrimaryKey();
                     } else if (method.equals(ISIDENTICAL)) {
                         org.omg.CORBA.Object thisObject = this._this_object();
                         org.omg.CORBA.Object otherObject = (org.omg.CORBA.Object)arguments[0];
                         result = new Boolean(thisObject._is_equivalent(otherObject));
                     } else if (method.equals(GETEJBHOME)) {
-                        result = ejbContainer.getEjbHome();
+                        result = ejbDeploymentContext.getEjbHome();
                     } else if (method.equals(REMOVE)) {
                         try {
-                            ejbContainer.getEjbObject(primaryKey).remove();
+                            ejbDeploymentContext.getEjbObject(primaryKey).remove();
                             result = null;
                         } catch (RemoveException e) {
                             return Util.writeUserException(method, reply, e);
@@ -219,26 +219,26 @@ public class StandardServant extends Servant implements InvokeHandler {
                     }
                 } else if (method.getDeclaringClass() == javax.ejb.EJBHome.class) {
                    if (method.equals(GETEJBMETADATA)) {
-                        result = ejbContainer.getEjbHome().getEJBMetaData();
+                        result = ejbDeploymentContext.getEjbHome().getEJBMetaData();
                     } else if (method.equals(GETHOMEHANDLE)) {
-                        result = ejbContainer.getEjbHome().getHomeHandle();
+                        result = ejbDeploymentContext.getEjbHome().getHomeHandle();
                     } else if (method.equals(REMOVE_W_HAND)) {
                         CORBAHandle handle = (CORBAHandle) arguments[0];
                         try {
-                            if (ejbContainer.getProxyInfo().isStatelessSessionBean()) {
+                            if (ejbDeploymentContext.getProxyInfo().isStatelessSessionBean()) {
                                 if (handle == null) {
                                     throw new RemoveException("Handle is null");
                                 }
-                                Class remoteInterface = ejbContainer.getProxyInfo().getRemoteInterface();
+                                Class remoteInterface = ejbDeploymentContext.getProxyInfo().getRemoteInterface();
                                 if (!remoteInterface.isInstance(handle.getEJBObject())) {
                                     throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
                                 }
                             } else {
                                 // create the invocation object
-                                EJBInvocation invocation = new EJBInvocationImpl(ejbInterfaceType, handle.getPrimaryKey(), index, arguments);
+                                EjbInvocation invocation = new EjbInvocationImpl(ejbInterfaceType, handle.getPrimaryKey(), index, arguments);
 
                                 // invoke the container
-                                InvocationResult invocationResult = ejbContainer.invoke(invocation);
+                                InvocationResult invocationResult = ejbDeploymentContext.invoke(invocation);
 
                                 // process the result
                                 if (invocationResult.isException()) {
@@ -258,7 +258,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                         result = null;
                     } else if (method.equals(REMOVE_W_KEY)) {
                         try {
-                            ejbContainer.getEjbHome().remove(arguments[0]);
+                            ejbDeploymentContext.getEjbHome().remove(arguments[0]);
                             result = null;
                         } catch (RemoveException e) {
                             return Util.writeUserException(method, reply, e);
@@ -268,10 +268,10 @@ public class StandardServant extends Servant implements InvokeHandler {
                     }
                 } else {
                     // create the invocation object
-                    EJBInvocation invocation = new EJBInvocationImpl(ejbInterfaceType, primaryKey, index, arguments);
+                    EjbInvocation invocation = new EjbInvocationImpl(ejbInterfaceType, primaryKey, index, arguments);
 
                     // invoke the container
-                    InvocationResult invocationResult = ejbContainer.invoke(invocation);
+                    InvocationResult invocationResult = ejbDeploymentContext.invoke(invocation);
 
                     // process the result
                     if (invocationResult.isException()) {
@@ -305,11 +305,11 @@ public class StandardServant extends Servant implements InvokeHandler {
                 throw new UnknownException(e);
             } catch (RuntimeException e) {
                 log.debug("RuntimeException", e);
-                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbContainer.getContainerID() + ": " + e.getMessage());
+                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeploymentContext.getContainerId() + ": " + e.getMessage());
                 throw new UnknownException(remoteException);
             } catch (Error e) {
                 log.debug("Error", e);
-                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbContainer.getContainerID() + ": " + e.getMessage());
+                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeploymentContext.getContainerId() + ": " + e.getMessage());
                 throw new UnknownException(remoteException);
             } catch (Throwable e) {
                 log.warn("Unexpected throwable", e);

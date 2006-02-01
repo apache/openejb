@@ -54,15 +54,10 @@ import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
-import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
 import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
-import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.connector.work.GeronimoWorkManagerGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -72,17 +67,19 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
+import org.openejb.slsb.DefaultStatelessEjbContainer;
+import org.openejb.sfsb.DefaultStatefulEjbContainer;
+import org.openejb.entity.bmp.DefaultBmpEjbContainer;
+import org.openejb.entity.cmp.DefaultCmpEjbContainer;
+import org.openejb.mdb.DefaultMdbContainer;
 
 /**
  *
@@ -99,6 +96,11 @@ public class DeploymentHelper {
     //type is random to look for problems.
     private static final J2eeContext raContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, appName, NameFactory.RESOURCE_ADAPTER_MODULE, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
     public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
+    public static final ObjectName STATELESS_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Stateless,j2eeType=EjbContainer");
+    public static final ObjectName STATEFUL_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Stateful,j2eeType=EjbContainer");
+    public static final ObjectName BMP_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Bmp,j2eeType=EjbContainer");
+    public static final ObjectName CMP_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Cmp,j2eeType=EjbContainer");
+    public static final ObjectName MDB_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Mdb,j2eeType=EjbContainer");
     public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
     public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionContextManager");
     public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
@@ -128,7 +130,7 @@ public class DeploymentHelper {
         GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImplGBean.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
+        tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(100));
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
         start(kernel, tmGBean);
 
@@ -138,12 +140,8 @@ public class DeploymentHelper {
         start(kernel, tcmGBean);
 
         GBeanData trackedConnectionAssociator = new GBeanData(TRACKEDCONNECTIONASSOCIATOR_NAME, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
-        DeploymentHelper.start(kernel, trackedConnectionAssociator);
+        start(kernel, trackedConnectionAssociator);
 
-        return kernel;
-    }
-
-    public static void setUpTimer(Kernel kernel) throws Exception {
         GBeanData threadPoolGBean = new GBeanData(THREADPOOL_NAME, ThreadPool.GBEAN_INFO);
         threadPoolGBean.setAttribute("keepAliveTime", new Long(5000));
         threadPoolGBean.setAttribute("poolSize", new Integer(5));
@@ -159,6 +157,41 @@ public class DeploymentHelper {
         GBeanData nonTransactionalTimerGBean = new GBeanData(NONTRANSACTIONALTIMER_NAME, VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
         nonTransactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
         start(kernel, nonTransactionalTimerGBean);
+
+        GBeanData statelessInterceptorStack = new GBeanData(STATELESS_EJB_CONTAINER_NAME, DefaultStatelessEjbContainer.GBEAN_INFO);
+        statelessInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
+        statelessInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
+        statelessInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
+        statelessInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
+        start(kernel, statelessInterceptorStack);
+
+        GBeanData statefulInterceptorStack = new GBeanData(STATEFUL_EJB_CONTAINER_NAME, DefaultStatefulEjbContainer.GBEAN_INFO);
+        statefulInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
+        statefulInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
+        start(kernel, statefulInterceptorStack);
+
+        GBeanData bmpInterceptorStack = new GBeanData(BMP_EJB_CONTAINER_NAME, DefaultBmpEjbContainer.GBEAN_INFO);
+        bmpInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
+        bmpInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
+        bmpInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
+        bmpInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
+        start(kernel, bmpInterceptorStack);
+
+        GBeanData cmpInterceptorStack = new GBeanData(CMP_EJB_CONTAINER_NAME, DefaultCmpEjbContainer.GBEAN_INFO);
+        cmpInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
+        cmpInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
+        cmpInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
+        cmpInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
+        start(kernel, cmpInterceptorStack);
+
+        GBeanData mdbInterceptorStack = new GBeanData(MDB_EJB_CONTAINER_NAME, DefaultMdbContainer.GBEAN_INFO);
+        mdbInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
+        mdbInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
+        mdbInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
+        mdbInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
+        start(kernel, mdbInterceptorStack);
+
+        return kernel;
     }
 
     public static void setUpResourceAdapter(Kernel kernel) throws Exception {

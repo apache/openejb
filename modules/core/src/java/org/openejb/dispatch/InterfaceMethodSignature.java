@@ -58,7 +58,8 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * @version $Revision$ $Date$
  */
-public final class InterfaceMethodSignature implements Serializable {
+public final class InterfaceMethodSignature implements Comparable, Serializable {
+    private static final long serialVersionUID = -3284902678375161698L;
     private static final String[] NOARGS = {};
     private final String methodName;
     private final String[] parameterTypes;
@@ -123,10 +124,6 @@ public final class InterfaceMethodSignature implements Serializable {
     }
 
     public boolean match(Method method) {
-//        if (!isCorrectType(method.getDeclaringClass())) {
-//            return false;
-//        }
-
         if(!methodName.equals(method.getName())) {
             return false;
         }
@@ -143,7 +140,7 @@ public final class InterfaceMethodSignature implements Serializable {
     }
 
     public Method getMethod(Class clazz) {
-        if (clazz == null) { // || !isCorrectType(clazz)) {
+        if (clazz == null) {
             return null;
         }
 
@@ -167,7 +164,7 @@ public final class InterfaceMethodSignature implements Serializable {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof InterfaceMethodSignature == false) {
+        if (!(obj instanceof InterfaceMethodSignature)) {
             return false;
         }
         InterfaceMethodSignature other = (InterfaceMethodSignature) obj;
@@ -175,6 +172,43 @@ public final class InterfaceMethodSignature implements Serializable {
                 isHomeMethod == other.isHomeMethod &&
                 methodName.equals(other.methodName) &&
                 Arrays.equals(parameterTypes, other.parameterTypes);
+    }
+
+    public int compareTo(Object object) {
+        InterfaceMethodSignature methodSignature = (InterfaceMethodSignature) object;
+
+        // home methods come before remote methods
+        if (isHomeMethod && !methodSignature.isHomeMethod) {
+            return -1;
+        }
+        if(!isHomeMethod && methodSignature.isHomeMethod) {
+            return 1;
+        }
+
+        // alphabetic compare of method names
+        int value = methodName.compareTo(methodSignature.methodName);
+        if (value != 0) {
+            return value;
+        }
+
+        // shorter parameter list comes before longer parameter lists
+        if (parameterTypes.length < methodSignature.parameterTypes.length) {
+            return -1;
+        }
+        if (parameterTypes.length > methodSignature.parameterTypes.length) {
+            return 1;
+        }
+
+        // alphabetic compare of each parameter type
+        for (int i = 0; i < parameterTypes.length; i++) {
+            value = parameterTypes[i].compareTo(methodSignature.parameterTypes[i]);
+            if (value != 0) {
+                return value;
+            }
+        }
+
+        // they are the same
+        return 0;
     }
 
     private static String[] convertParameterTypes(Class[] params) {
@@ -188,17 +222,4 @@ public final class InterfaceMethodSignature implements Serializable {
         }
         return types;
     }
-
-//    private boolean isCorrectType(Class clazz) {
-//        if (isHomeMethod) {
-//            if(!EJBHome.class.isAssignableFrom(clazz) && !EJBLocalHome.class.isAssignableFrom(clazz)) {
-//                return false;
-//            }
-//        } else {
-//            if(!EJBObject.class.isAssignableFrom(clazz) && !EJBLocalObject.class.isAssignableFrom(clazz)) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
 }

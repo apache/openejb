@@ -48,45 +48,39 @@
 package org.openejb.entity;
 
 import java.util.Set;
-import javax.ejb.EnterpriseBean;
+import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 
-import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBOperation;
 import org.openejb.EJBContextImpl;
+import org.openejb.EJBOperation;
+import org.openejb.EntityEjbContainer;
+import org.openejb.EntityEjbDeployment;
 import org.openejb.cache.InstancePool;
-import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.BasicTimerService;
 
 /**
  * @version $Revision$ $Date$
  */
 public abstract class EntityInstanceContext extends AbstractInstanceContext {
-    private final EntityContextImpl entityContext;
-    private final EJBInvocation setContextInvocation;
-    private final EJBInvocation unsetContextInvocation;
-    private final EJBInvocation ejbActivateInvocation;
-    private final EJBInvocation ejbPassivateInvocation;
-    private final EJBInvocation loadInvocation;
-    private final EJBInvocation storeInvocation;
+    private final EntityEjbContainer entityEjbContainer;
     private Object id;
     private boolean loaded = false;
     private InstancePool pool;
+    private TransactionContext transactionContext;
+    private final EntityContextImpl entityContext;
 
-    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) {
-        super(containerId, instance, lifecycleInterceptorChain, proxyFactory, timerService, unshareableResources, applicationManagedSecurityResources);
-        entityContext = new EntityContextImpl(this, transactionContextManager);
-        ejbActivateInvocation = systemMethodIndices.getEjbActivateInvocation(this);
-        ejbPassivateInvocation = systemMethodIndices.getEjbPassivateInvocation(this);
-        loadInvocation = systemMethodIndices.getEjbLoadInvocation(this);
-        storeInvocation = systemMethodIndices.getEjbStoreInvocation(this);
-        setContextInvocation = systemMethodIndices.getSetContextInvocation(this, entityContext);
-        unsetContextInvocation = systemMethodIndices.getUnsetContextInvocation(this);
+    public EntityInstanceContext(EntityEjbDeployment entityEjbDeployment,
+            EntityEjbContainer entityEjbContainer,
+            EntityBean instance,
+            EJBProxyFactory proxyFactory,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) {
+        super(entityEjbDeployment, instance, proxyFactory, unshareableResources, applicationManagedSecurityResources);
+        this.entityEjbContainer = entityEjbContainer;
+
+        entityContext = new EntityContextImpl(this, entityEjbContainer.getTransactionContextManager());
     }
 
     public Object getId() {
@@ -121,9 +115,12 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
         return entityContext;
     }
 
+    public TransactionContext getTransactionContext() {
+        return transactionContext;
+    }
+
     public void setTransactionContext(TransactionContext transactionContext) {
-        loadInvocation.setTransactionContext(transactionContext);
-        storeInvocation.setTransactionContext(transactionContext);
+        this.transactionContext = transactionContext;
     }
 
     public boolean isLoaded() {
@@ -195,35 +192,41 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
         if (isDead()) {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
-        systemChain.invoke(setContextInvocation);
+        entityEjbContainer.setContext(this, entityContext);
     }
 
     public void unsetContext() throws Throwable {
         if (isDead()) {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
-        systemChain.invoke(unsetContextInvocation);
+        entityEjbContainer.unsetContext(this);
     }
 
     protected void ejbActivate() throws Throwable {
         if (isDead()) {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
-        systemChain.invoke(ejbActivateInvocation);
+        entityEjbContainer.ejbActivate(this);
+
     }
 
     protected void ejbPassivate() throws Throwable {
         if (isDead()) {
             throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
         }
-        systemChain.invoke(ejbPassivateInvocation);
+        entityEjbContainer.ejbPassivate(this);
     }
 
     protected void ejbLoad() throws Throwable {
-        systemChain.invoke(loadInvocation);
+        entityEjbContainer.load(this, transactionContext);
     }
 
     public void ejbStore() throws Throwable {
-        systemChain.invoke(storeInvocation);
+        entityEjbContainer.store(this, transactionContext);
+    }
+
+    public void afterCommit(boolean status) throws Throwable {
+        super.afterCommit(status);
+        transactionContext = null;
     }
 }

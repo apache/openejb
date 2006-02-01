@@ -53,7 +53,7 @@ import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.webservices.SoapHandler;
-import org.openejb.EJBContainer;
+import org.openejb.RpcEjbDeployment;
 
 public class WSContainer implements GBeanLifecycle {
 
@@ -65,7 +65,7 @@ public class WSContainer implements GBeanLifecycle {
         location = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer,
+    public WSContainer(RpcEjbDeployment ejbDeploymentContext,
                        URI location,
                        URI wsdlURI,
                        SoapHandler soapHandler,
@@ -79,20 +79,20 @@ public class WSContainer implements GBeanLifecycle {
         this.soapHandler = soapHandler;
         this.location = location;
         //for use as a template
-        if (ejbContainer == null) {
+        if (ejbDeploymentContext == null) {
             return;
         }
-        RPCProvider provider = new EJBContainerProvider(ejbContainer);
+        RPCProvider provider = new EJBContainerProvider(ejbDeploymentContext);
         SOAPService service = new SOAPService(null, provider, null);
 
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
         service.setServiceDescription(serviceDesc);
-        Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
+        Class serviceEndpointInterface = ejbDeploymentContext.getProxyInfo().getServiceEndpointInterface();
 
         service.setOption("className", serviceEndpointInterface.getName());
         serviceDesc.setImplClass(serviceEndpointInterface);
 
-        ClassLoader classLoader = ejbContainer.getClassLoader();
+        ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
         AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         if (soapHandler != null) {
             soapHandler.addWebService(location.getPath(), virtualHosts, axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);

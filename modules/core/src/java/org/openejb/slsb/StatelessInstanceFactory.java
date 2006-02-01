@@ -59,6 +59,7 @@ import org.openejb.cache.InstanceFactory;
  * @version $Revision$ $Date$
  */
 public class StatelessInstanceFactory implements InstanceFactory, Serializable {
+    private static final long serialVersionUID = 4525294526104231811L;
     private static final Log log = LogFactory.getLog(StatelessInstanceFactory.class);
 
     private final InstanceContextFactory factory;
@@ -95,7 +96,7 @@ public class StatelessInstanceFactory implements InstanceFactory, Serializable {
         // No should not we call setSessionContext(null);
     }
 
-    private Object readResolve() {
+    protected Object readResolve() {
         return new StatelessInstanceFactory(factory);
     }
 }

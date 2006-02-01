@@ -48,7 +48,7 @@
 package org.openejb.sfsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.openejb.EJBInvocation;
+import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.AbstractMethodOperation;
@@ -63,7 +63,7 @@ public class RemoveMethod extends AbstractMethodOperation {
         super(beanClass, signature);
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+    public InvocationResult execute(EjbInvocation invocation) throws Throwable {
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
         if (result.isNormal()) {
             // flag the context as dead so it does not get put back in the cache

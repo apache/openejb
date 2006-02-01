@@ -48,21 +48,10 @@
 package org.openejb.slsb;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.ejb.Timer;
 
 import junit.framework.TestCase;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInterfaceType;
-import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.SystemMethodIndices;
 
 /**
  *
@@ -70,19 +59,8 @@ import org.openejb.dispatch.SystemMethodIndices;
  * @version $Revision$ $Date$
  */
 public class InvocationTest extends TestCase {
-    private BusinessMethod bizMethod;
     private FastClass fastClass;
     private int index;
-    private final static InterfaceMethodSignature[] signatures = new InterfaceMethodSignature[] {
-        new InterfaceMethodSignature("ejbActivate", false),
-        new InterfaceMethodSignature("ejbLoad", false),
-        new InterfaceMethodSignature("ejbPassivate", false),
-        new InterfaceMethodSignature("ejbStore", false),
-        new InterfaceMethodSignature("ejbCreate", false),
-        new InterfaceMethodSignature("ejbRemove", false),
-        new InterfaceMethodSignature("ejbTimeout", new Class[] {Timer.class}, false),
-        new InterfaceMethodSignature("setSessionContext", new Class[] {SessionContext.class}, false),
-    };
 
     public void testMethodInvoke() throws Exception {
         MockEJB instance = new MockEJB();
@@ -131,35 +109,9 @@ public class InvocationTest extends TestCase {
         System.out.println("FastClass with result: " + ((end - start) * 1000000.0 / 1000000) + "ns");
     }
 
-    public void testBizMethodInvoke() throws Throwable {
-        SessionBean instance = new MockEJB();
-        Object[] args = {new Integer(1)};
-        EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, index, args);
-        StatelessInstanceContext ctx = new StatelessInstanceContext(
-                "containerID",
-                instance,
-                null,
-//                transactionContextManager,
-                null,
-                null,
-                SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), null),
-                null, new HashSet(),
-                new HashSet(),
-                null);
-        invocation.setEJBInstanceContext(ctx);
-        bizMethod.execute(invocation);
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            bizMethod.execute(invocation);
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("BizMethod: " + ((end - start) * 1000000.0 / 1000000) + "ns");
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
         fastClass = FastClass.create(MockEJB.class);
         index = fastClass.getIndex("intMethod", new Class[]{Integer.TYPE});
-        bizMethod = new BusinessMethod(MockEJB.class, new MethodSignature("intMethod", new Class[]{Integer.TYPE}));
     }
 }
