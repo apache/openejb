@@ -72,14 +72,22 @@ public class TranqlCmpField implements CmpField, Comparable {
 
     public Object getValue(CmpInstanceContext ctx) {
         CacheRow cacheRow = (CacheRow) ctx.getCmpData();
+        if (cacheRow == null) throw new NullPointerException("cacheRow is null");
+
         InTxCache inTxCache = (InTxCache) ctx.getTransactionContext().getInTxCache();
+        if (inTxCache == null) throw new NullPointerException("inTxCache is null");
+
         Object value = field.get(inTxCache, cacheRow);
         return value;
     }
 
     public void setValue(CmpInstanceContext ctx, Object value) {
         CacheRow cacheRow = (CacheRow) ctx.getCmpData();
+        if (cacheRow == null) throw new NullPointerException("cacheRow is null");
+
         InTxCache inTxCache = (InTxCache) ctx.getTransactionContext().getInTxCache();
+        if (inTxCache == null) throw new NullPointerException("inTxCache is null");
+
         field.set(inTxCache, cacheRow, value);
     }
 

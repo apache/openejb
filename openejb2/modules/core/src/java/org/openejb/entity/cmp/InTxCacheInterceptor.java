@@ -55,7 +55,6 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.CmpEjbDeployment;
 import org.openejb.EjbDeployment;
 import org.openejb.EjbInvocation;
-import org.openejb.EntityEjbDeployment;
 
 /**
  * This interceptor defines, if required, the InTxCache of the
@@ -77,12 +76,15 @@ public final class InTxCacheInterceptor implements Interceptor {
         TransactionContext transactionContext = ejbInvocation.getTransactionContext();
         if (transactionContext.getInTxCache() == null) {
             EjbDeployment deployment = ejbInvocation.getEjbDeployment();
-            if (!(deployment instanceof EntityEjbDeployment)) {
-                throw new IllegalArgumentException("NewInTxCacheInterceptor can only be used with an EntityEjbDeploymentContext: " + deployment.getClass().getName());
+            if (!(deployment instanceof CmpEjbDeployment)) {
+                throw new IllegalArgumentException("NewInTxCacheInterceptor can only be used with an CmpEjbDeployment: " + deployment.getClass().getName());
             }
 
             CmpEjbDeployment cmpEjbDeploymentContext = ((CmpEjbDeployment) deployment);
+
             Flushable inTxCache = cmpEjbDeploymentContext.getEjbCmpEngine().createInTxCache();
+            if (inTxCache == null) throw new NullPointerException("inTxCache is null");
+
             transactionContext.setInTxCache(inTxCache);
         }
 
