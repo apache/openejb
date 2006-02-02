@@ -117,6 +117,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
             String[] jndiNames,
             String[] localJndiNames,
 
+            boolean securityEnabled,
             String policyContextId,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
@@ -149,6 +150,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 ejbContainer,
                 jndiNames,
                 localJndiNames,
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,
@@ -179,6 +181,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
             String[] jndiNames,
             String[] localJndiNames,
 
+            boolean securityEnabled,
             String policyContextId,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
@@ -215,6 +218,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 ejbContainer,
                 jndiNames,
                 localJndiNames,
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,
@@ -402,6 +406,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
         infoFactory.addAttribute("jndiNames", String[].class, true);
         infoFactory.addAttribute("localJndiNames", String[].class, true);
 
+        infoFactory.addAttribute("securityEnabled", boolean.class, true);
         infoFactory.addAttribute("policyContextId", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addAttribute("runAs", Subject.class, true);
@@ -438,6 +443,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 "jndiNames",
                 "localJndiNames",
 
+                "securityEnabled",
                 "policyContextId",
                 "defaultPrincipal",
                 "runAs",

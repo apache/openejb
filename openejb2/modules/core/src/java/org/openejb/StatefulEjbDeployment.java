@@ -106,6 +106,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
             String[] jndiNames,
             String[] localJndiNames,
 
+            boolean securityEnabled,
             String policyContextId,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
@@ -142,6 +143,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
                 jndiNames,
                 localJndiNames,
 
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,
@@ -176,6 +178,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
             String[] jndiNames,
             String[] localJndiNames,
 
+            boolean securityEnabled,
             String policyContextId,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
@@ -222,6 +225,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
                 jndiNames,
                 localJndiNames,
 
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,
@@ -362,6 +366,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
         infoFactory.addAttribute("jndiNames", String[].class, true);
         infoFactory.addAttribute("localJndiNames", String[].class, true);
 
+        infoFactory.addAttribute("securityEnabled", boolean.class, true);
         infoFactory.addAttribute("policyContextId", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addAttribute("runAs", Subject.class, true);
@@ -396,6 +401,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
                 "jndiNames",
                 "localJndiNames",
 
+                "securityEnabled",
                 "policyContextId",
                 "defaultPrincipal",
                 "runAs",

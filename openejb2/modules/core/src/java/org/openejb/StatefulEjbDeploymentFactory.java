@@ -89,9 +89,12 @@ public class StatefulEjbDeploymentFactory extends RpcEjbDeploymentFactory {
                 (StatefulEjbContainer) ejbContainer,
                 jndiNames,
                 localJndiNames,
+
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,
+                
                 beanManagedTransactions,
                 transactionPolicies,
                 componentContext,

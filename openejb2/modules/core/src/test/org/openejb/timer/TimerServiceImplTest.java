@@ -277,6 +277,10 @@ public class TimerServiceImplTest extends TestCase {
             return new InterfaceMethodSignature[] { new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false)};
         }
 
+        public boolean isSecurityEnabled() {
+            return false;
+        }
+
         public Subject getDefaultSubject() {
             return null;
         }

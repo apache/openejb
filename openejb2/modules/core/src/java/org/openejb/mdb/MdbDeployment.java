@@ -179,6 +179,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
                 classLoader,
                 new MdbSignatureIndexBuilder(endpointInterface, beanClass),
                 ejbContainer,
+                false,
                 policyContextId,
                 null,
                 runAs,

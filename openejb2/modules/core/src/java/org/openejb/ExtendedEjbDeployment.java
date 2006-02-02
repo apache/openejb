@@ -65,6 +65,8 @@ public interface ExtendedEjbDeployment extends EjbDeployment{
 
     VirtualOperation getVirtualOperation(int methodIndex);
 
+    boolean isSecurityEnabled();
+
     String getPolicyContextId();
 
     PermissionManager getPermissionManager();

@@ -67,6 +67,7 @@ public abstract class RpcEjbDeploymentFactory {
     protected EjbContainer ejbContainer;
     protected String[] jndiNames;
     protected String[] localJndiNames;
+    protected boolean securityEnabled;
     protected String policyContextId;
     protected DefaultPrincipal defaultPrincipal;
     protected Subject runAs;
@@ -156,6 +157,14 @@ public abstract class RpcEjbDeploymentFactory {
 
     public void setLocalJndiNames(String[] localJndiNames) {
         this.localJndiNames = localJndiNames;
+    }
+
+    public boolean isSecurityEnabled() {
+        return securityEnabled;
+    }
+
+    public void setSecurityEnabled(boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
     }
 
     public String getPolicyContextId() {
