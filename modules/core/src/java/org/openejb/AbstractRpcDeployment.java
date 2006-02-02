@@ -101,6 +101,7 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
             String[] jndiNames,
             String[] localJndiNames,
 
+            boolean securityEnabled,
             String policyContextId,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
@@ -120,6 +121,7 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
                 classLoader,
                 signatureIndexBuilder,
                 ejbContainer,
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,

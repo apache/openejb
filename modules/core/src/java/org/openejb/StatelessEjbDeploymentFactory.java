@@ -106,6 +106,8 @@ public class StatelessEjbDeploymentFactory extends RpcEjbDeploymentFactory {
                 (StatelessEjbContainer) ejbContainer,
                 jndiNames,
                 localJndiNames,
+
+                securityEnabled,
                 policyContextId,
                 defaultPrincipal,
                 runAs,

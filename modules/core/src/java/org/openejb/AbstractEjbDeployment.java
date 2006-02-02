@@ -101,6 +101,7 @@ public abstract class AbstractEjbDeployment implements EjbDeployment, ExtendedEj
     protected final SortedMap transactionPolicies;
     protected final SystemMethodIndices systemMethodIndices;
     protected final BasicTimerServiceImpl timerService;
+    protected final boolean securityEnabled;
 
     public AbstractEjbDeployment(String containerId,
             String ejbName,
@@ -111,6 +112,7 @@ public abstract class AbstractEjbDeployment implements EjbDeployment, ExtendedEj
 
             EjbContainer ejbContainer,
 
+            boolean securityEnabled,
             String policyContextId,
             DefaultPrincipal defaultPrincipal,
             Subject runAs,
@@ -137,6 +139,7 @@ public abstract class AbstractEjbDeployment implements EjbDeployment, ExtendedEj
 
         this.ejbContainer = ejbContainer;
 
+        this.securityEnabled = securityEnabled;
         this.policyContextId = policyContextId;
         this.runAs = runAs;
 
@@ -346,5 +349,9 @@ public abstract class AbstractEjbDeployment implements EjbDeployment, ExtendedEj
         } catch (ClassNotFoundException e) {
             throw new ClassNotFoundException("Unable to load " + description + " " + className);
         }
+    }
+
+    public boolean isSecurityEnabled() {
+        return securityEnabled;
     }
 }

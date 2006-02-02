@@ -60,8 +60,8 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.security.ContextManager;
 import org.openejb.EJBContextImpl;
-import org.openejb.ExtendedEjbDeployment;
 import org.openejb.EjbInvocation;
+import org.openejb.ExtendedEjbDeployment;
 
 
 /**
@@ -79,7 +79,11 @@ public final class EjbSecurityInterceptor implements Interceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbInvocation ejbInvocation = ((EjbInvocation) invocation);
-        ExtendedEjbDeployment deployment = (ExtendedEjbDeployment) ejbInvocation.getEjbDeployment();
+        ExtendedEjbDeployment deployment = ejbInvocation.getEjbDeployment();
+
+        if (!deployment.isSecurityEnabled()) {
+            return next.invoke(invocation);
+        }
 
         EJBContextImpl context = ejbInvocation.getEJBInstanceContext().getEJBContextImpl();
 
