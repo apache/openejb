@@ -229,7 +229,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + openejbJar.getConfigId(), e);
         }
 
-        List parentId = ServiceConfigBuilder.getParentID(openejbJar.getParentId(), openejbJar.getImportArray());
+        List parentId = ServiceConfigBuilder.toArtifacts(openejbJar.getParentId(), openejbJar.getImportArray());
         if (parentId.isEmpty()) {
             parentId = new ArrayList(defaultParentId);
         }
