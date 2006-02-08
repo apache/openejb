@@ -80,7 +80,6 @@ import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
 import org.openejb.deployment.CMPEntityBuilderTestUtil;
 import org.openejb.deployment.DeploymentHelper;
-import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 import org.openejb.deployment.Schemata;
@@ -91,14 +90,10 @@ import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.cache.FrontEndCache;
 import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
-import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.sql.BaseSQLSchema;
 import org.tranql.sql.SQLSchema;
 
 /**
@@ -174,7 +169,6 @@ public abstract class AbstractCMRTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    KernelHelper.DEFAULT_PARENTID_LIST,
                     kernel,
                     NameFactory.NULL,
                     null,

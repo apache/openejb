@@ -55,6 +55,7 @@ import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -185,7 +186,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return createModule(plan, moduleFile, "ejb", null, true);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, false);
     }
 
@@ -234,7 +235,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             parentId = new ArrayList(defaultParentId);
         }
 
-        return new EJBModule(standAlone, configId, parentId, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+        return new EJBModule(standAlone, configId, moduleFile, targetPath, ejbJar, openejbJar, specDD);
     }
 
     OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJarType ejbJar) throws DeploymentException {

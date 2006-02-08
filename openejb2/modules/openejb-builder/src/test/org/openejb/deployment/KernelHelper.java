@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -44,7 +45,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * @version $Rev:  $ $Date$
+ * @version $Rev$ $Date$
  */
 public class KernelHelper {
     public static final URI[] DEFAULT_PARENTID_ARRAY = new URI[] {URI.create("org/apache/geronimo/Server")};
@@ -64,9 +65,9 @@ public class KernelHelper {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        configurationManager.load((URI) DEFAULT_PARENTID_LIST.get(0));
-        configurationManager.loadGBeans((URI) DEFAULT_PARENTID_LIST.get(0));
-        configurationManager.start((URI) DEFAULT_PARENTID_LIST.get(0));
+        configurationManager.load((Artifact) DEFAULT_PARENTID_LIST.get(0));
+        configurationManager.loadGBeans((Artifact) DEFAULT_PARENTID_LIST.get(0));
+        configurationManager.start((Artifact) DEFAULT_PARENTID_LIST.get(0));
 
         return kernel;
     }
@@ -79,23 +80,18 @@ public class KernelHelper {
             this.kernel = kernel;
         }
 
-        public URI install(URL source) throws IOException, InvalidConfigException {
+        public Artifact install(URL source) throws IOException, InvalidConfigException {
             return null;
         }
 
         public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         }
 
-        public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ObjectName configurationObjectName = null;
-            try {
-                configurationObjectName = Configuration.getConfigurationObjectName(configId);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
+        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             configData.setAttribute("id", configId);
             configData.setAttribute("domain", "test");
@@ -111,7 +107,7 @@ public class KernelHelper {
             return configurationObjectName;
         }
 
-        public boolean containsConfiguration(URI configID) {
+        public boolean containsConfiguration(Artifact configID) {
             return true;
         }
 
