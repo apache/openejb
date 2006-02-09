@@ -71,6 +71,7 @@ import org.apache.geronimo.timer.vm.VMWorkerPersistence;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.Invocation;
 import org.openejb.ExtendedEjbDeployment;
@@ -113,7 +114,8 @@ public class TimerServiceImplTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);
         threadPool = new ThreadPool(5, "TestPool", 10000, this.getClass().getClassLoader(), "test:type=ThreadPool");

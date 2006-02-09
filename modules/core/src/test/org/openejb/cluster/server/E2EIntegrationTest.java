@@ -82,6 +82,7 @@ import org.openejb.StatefulEjbContainer;
  * @version $Revision$ $Date$
  */
 public class E2EIntegrationTest extends TestCase {
+
     private NodeInfo node1;
     private NodeInfo node2;
 

@@ -73,6 +73,7 @@ import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
+import org.apache.geronimo.transaction.manager.XidFactoryImplGBean;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 import org.openejb.slsb.DefaultStatelessEjbContainer;
@@ -101,6 +102,7 @@ public class DeploymentHelper {
     public static final ObjectName BMP_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Bmp,j2eeType=EjbContainer");
     public static final ObjectName CMP_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Cmp,j2eeType=EjbContainer");
     public static final ObjectName MDB_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Mdb,j2eeType=EjbContainer");
+    public static final ObjectName XIDFACTORY_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=" + NameFactory.XID_FACTORY);
     public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
     public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionContextManager");
     public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
@@ -127,10 +129,15 @@ public class DeploymentHelper {
     public static Kernel setUpKernelWithTransactionManager() throws Exception {
         Kernel kernel = KernelHelper.getPreparedKernel();
 
+        GBeanData xidFacGBean = new GBeanData(XIDFACTORY_NAME, XidFactoryImplGBean.GBEAN_INFO);
+        xidFacGBean.setAttribute("tmId", "WHAT DO WE CALL IT?".getBytes());
+        start(kernel, xidFacGBean);
+        
         GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImplGBean.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(100));
+        tmGBean.setReferencePattern("XidFactory", XIDFACTORY_NAME);
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
         start(kernel, tmGBean);
 
