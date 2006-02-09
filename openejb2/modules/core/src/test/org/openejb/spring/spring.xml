@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+
+  <bean id="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImpl">
+  </bean>
+
   <bean id="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
     <constructor-arg index="0" value="100"/>
-    <constructor-arg index="1"><null/></constructor-arg>
+    <constructor-arg index="1" ref="XidFactory"/>
     <constructor-arg index="2"><null/></constructor-arg>
+    <constructor-arg index="3"><null/></constructor-arg>
   </bean>
 
   <bean id="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
