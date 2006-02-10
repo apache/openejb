@@ -46,6 +46,7 @@ package org.openejb.corba.security.config;
 
 import java.util.List;
 import java.util.Properties;
+import java.net.InetSocketAddress;
 
 import org.omg.CORBA.ORB;
 
@@ -65,6 +66,8 @@ public interface ConfigAdapter {
     public Properties translateToProps(TSSConfig config, Properties props) throws ConfigException;
 
     public void postProcess(TSSConfig config, ORB orb) throws ConfigException;
+
+    public InetSocketAddress getDefaultListenAddress(TSSConfig config, ORB orb) throws ConfigException;
 
     public String[] translateToArgs(CSSConfig config, List args) throws ConfigException;
 
