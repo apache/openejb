@@ -46,6 +46,7 @@ package org.openejb.corba;
 
 import java.util.ArrayList;
 import java.util.Properties;
+import java.net.InetSocketAddress;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
@@ -61,6 +62,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.SecurityService;
 
 import org.openejb.corba.security.config.ConfigAdapter;
+import org.openejb.corba.security.config.ConfigException;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.util.Util;
 
@@ -140,6 +142,20 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         this.props = props;
     }
 
+
+    public InetSocketAddress getListenAddress() {
+	try {
+	    if(configAdapter != null) {
+		return configAdapter.getDefaultListenAddress(tssConfig, orb);
+	    } else {
+		log.debug("Don't know what default listen address is for an ORB without a configAdapter");
+	    }
+	} catch (ConfigException e) {
+	    log.debug("Unable to calculate default listen address", e);
+	}
+	return null;
+    }
+
     public void doStart() throws Exception {
 
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
@@ -183,13 +199,14 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CORBABean.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB ORB Adapter", CORBABean.class, NameFactory.CORBA_SERVICE);
 
         infoBuilder.addAttribute("configAdapter", String.class, true);
         infoBuilder.addAttribute("tssConfig", TSSConfig.class, true);
         infoBuilder.addAttribute("args", ArrayList.class, true);
         infoBuilder.addAttribute("props", Properties.class, true);
 
+        infoBuilder.addAttribute("listenAddress", InetSocketAddress.class, false);
         infoBuilder.addAttribute("ORB", ORB.class, false);
         infoBuilder.addAttribute("rootPOA", POA.class, false);
 
