@@ -98,10 +98,15 @@ public class CSSGSSUPMechConfigDynamic implements CSSASMechConfig {
 
             if (creds.size() != 0) {
                 for (Iterator iter = creds.iterator(); iter.hasNext();) {
-                    credential = (NamedUsernamePasswordCredential) iter.next();
-                    if (credential.getName().equals(domain)) break;
+                    NamedUsernamePasswordCredential temp = (NamedUsernamePasswordCredential) iter.next();
+                    if (temp.getName().equals(domain)) {
+                        credential = temp;
+                        break;
+                    }
                 }
-                encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), credential.getName(), new String(credential.getPassword()), domain);
+                if(credential != null) {
+                    encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), credential.getUsername(), new String(credential.getPassword()), domain);
+                }
             }
 
             if (encoding == null) encoding = new byte[0];
