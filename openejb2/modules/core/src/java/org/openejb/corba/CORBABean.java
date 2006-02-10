@@ -46,6 +46,7 @@ package org.openejb.corba;
 
 import java.util.ArrayList;
 import java.util.Properties;
+import java.net.InetSocketAddress;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
@@ -61,6 +62,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.SecurityService;
 
 import org.openejb.corba.security.config.ConfigAdapter;
+import org.openejb.corba.security.config.ConfigException;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.util.Util;
 
@@ -134,6 +136,19 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         this.props = props;
     }
 
+    public InetSocketAddress getListenAddress() {
+        try {
+            if(configAdapter != null) {
+                return configAdapter.getDefaultListenAddress(tssConfig, orb);
+            } else {
+                log.debug("Don't know what default listen address is for an ORB without a configAdapter");
+            }
+        } catch (ConfigException e) {
+            log.debug("Unable to calculate default listen address", e);
+        }
+        return null;
+    }
+
     public void doStart() throws Exception {
 
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
@@ -177,13 +192,14 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CORBABean.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("OpenEJB ORB Adapter", CORBABean.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addAttribute("configAdapter", String.class, true);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);
 
+        infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
         infoFactory.addAttribute("ORB", ORB.class, false);
         infoFactory.addAttribute("rootPOA", POA.class, false);
 
