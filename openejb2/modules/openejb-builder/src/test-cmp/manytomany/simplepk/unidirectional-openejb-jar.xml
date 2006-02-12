@@ -1,10 +1,18 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/deployment/test"
-    parentId="org/apache/geronimo/Server">
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 
+    <environment>
+        <configId>
+            <groupId>foo</groupId>
+            <type>car</type>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+        </configId>
+        <classloader></classloader>
+    </environment>
+    
     <cmp-connection-factory>
         <application>null</application>
         <module>org/apache/geronimo/DefaultDatabase</module>

@@ -61,6 +61,7 @@ import junit.framework.TestCase;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
@@ -68,6 +69,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.xmlbeans.XmlObject;
@@ -139,14 +141,14 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, null, null, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, null, null, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
-                    new URI("test"),
+                    KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
                     kernel,
                     "null",
@@ -183,14 +185,14 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, null, null, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, null, null, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
-                    new URI("test"),
+                    KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
                     kernel,
                     "null",
@@ -228,14 +230,14 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, null, null, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, null, null, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
 
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
-                    new URI("test"),
+                    KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
                     kernel,
                     "null",

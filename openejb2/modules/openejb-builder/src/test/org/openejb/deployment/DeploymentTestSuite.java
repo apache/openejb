@@ -70,6 +70,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
@@ -157,11 +158,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             ObjectName listener = null;
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY, listener, linkData, webServiceBuilder, null, kernel);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, linkData, webServiceBuilder, null, kernel);
             OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY,
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_ENVIRONMENT,
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -193,7 +194,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
             config.setName(CONFIGURATION_OBJECT_NAME);
             config.setAttribute("baseURL", tempDir.toURL());
-            config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID_ARRAY);
+            config.setAttribute("parentId", (Artifact[]) KernelHelper.DEFAULT_ENVIRONMENT.getImports().toArray(new Artifact[KernelHelper.DEFAULT_ENVIRONMENT.getImports().size()]));
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
@@ -255,6 +256,9 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     }
 
     private void tearDown() throws Exception {
+        if (kernel == null) {
+            return;
+        }
         try {
             kernel.stopGBean(CONFIGURATION_OBJECT_NAME);
         } catch (GBeanNotFoundException ignored) {

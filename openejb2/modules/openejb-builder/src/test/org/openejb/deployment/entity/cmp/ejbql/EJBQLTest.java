@@ -85,6 +85,7 @@ import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 import org.openejb.deployment.Schemata;
+import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
@@ -191,7 +192,7 @@ public class EJBQLTest extends TestCase {
 
         try {
             EARContext earContext = new EARContext(tempDir,
-                    new URI("test"),
+                    KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
                     kernel,
                     NameFactory.NULL,

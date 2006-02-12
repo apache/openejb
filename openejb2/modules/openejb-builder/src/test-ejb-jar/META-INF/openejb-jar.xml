@@ -1,9 +1,17 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/deployment/test"
-    parentId="org/apache/geronimo/Server">
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
+
+    <environment>
+        <configId>
+            <groupId>foo</groupId>
+            <type>car</type>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+        </configId>
+        <classloader></classloader>
+    </environment>
 
     <cmp-connection-factory>
         <application>null</application>
@@ -156,7 +164,7 @@
             <gbean-name>test:type=TransactionContextManager</gbean-name>
         </reference>
         <reference name="ManagedConnectionFactoryWrapper">
-            <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>
+            <gbean-name>test:J2EEApplication=null,J2EEServer=server,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>
         </reference>
         <attribute name="tableName">PKGENCMP_SEQ</attribute>
         <attribute name="sequenceName">PKGENCMP</attribute>

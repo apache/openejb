@@ -47,8 +47,8 @@
  ================================================================ -->
 
 <xs:schema
-    xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    targetNamespace="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+    xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar-2.1"
+    targetNamespace="http://www.openejb.org/xml/ns/openejb-jar-2.1"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
     xmlns:security="http://geronimo.apache.org/xml/ns/security-1.1"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"

@@ -20,12 +20,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Collections;
-import java.util.Arrays;
-import javax.management.MalformedObjectNameException;
+import java.util.Map;
+import java.util.HashMap;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
@@ -43,13 +42,26 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.deployment.Environment;
 
 /**
  * @version $Rev$ $Date$
  */
 public class KernelHelper {
-    public static final URI[] DEFAULT_PARENTID_ARRAY = new URI[] {URI.create("org/apache/geronimo/Server")};
-    public static final List DEFAULT_PARENTID_LIST = Arrays.asList(DEFAULT_PARENTID_ARRAY);
+    public static final Environment DEFAULT_ENVIRONMENT = new Environment();
+    public static final Environment ENVIRONMENT = new Environment();
+
+    static {
+        Map nameKeys = new HashMap();
+        nameKeys.put("domain", "test");
+        nameKeys.put("J2EEServer", "server");
+        Artifact defaultConfigId = Artifact.create("geronimo/server/1/car");
+        DEFAULT_ENVIRONMENT.setConfigId(defaultConfigId);
+        DEFAULT_ENVIRONMENT.addNameKeys(nameKeys);
+        Artifact configId = Artifact.create("test/test/1/car");
+        ENVIRONMENT.setConfigId(configId);
+        ENVIRONMENT.addNameKeys(nameKeys);
+    }
 
     public static Kernel getPreparedKernel() throws Exception {
         Kernel kernel = KernelFactory.newInstance().createKernel("bar");
@@ -65,9 +77,10 @@ public class KernelHelper {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        configurationManager.load((Artifact) DEFAULT_PARENTID_LIST.get(0));
-        configurationManager.loadGBeans((Artifact) DEFAULT_PARENTID_LIST.get(0));
-        configurationManager.start((Artifact) DEFAULT_PARENTID_LIST.get(0));
+        Artifact artifact = DEFAULT_ENVIRONMENT.getConfigId();
+        configurationManager.load(artifact);
+        configurationManager.loadGBeans(artifact);
+        configurationManager.start(artifact);
 
         return kernel;
     }
@@ -94,8 +107,10 @@ public class KernelHelper {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             configData.setAttribute("id", configId);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
+            Map nameKeys = new HashMap();
+            nameKeys.put("domain", "test");
+            nameKeys.put("J2EEServer", "server");
+            configData.setAttribute("nameKeys", nameKeys);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
             try {

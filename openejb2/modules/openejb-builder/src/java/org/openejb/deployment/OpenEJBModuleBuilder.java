@@ -50,10 +50,12 @@ package org.openejb.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.GBeanData;
@@ -135,7 +137,7 @@ import java.util.jar.JarFile;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder {
 
-    private final List defaultParentId;
+    private final Environment defaultEnvironment;
     private final ObjectName listener;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -155,12 +157,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         SchemaConversionUtils.registerNamespaceConversions(conversions);
     }
 
-    public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
-        this(defaultParentId, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository, kernel);
+    public OpenEJBModuleBuilder(Environment defaultEnvironment, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
+        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository, kernel);
     }
 
-    public OpenEJBModuleBuilder(URI[] defaultParentId, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) {
-        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
+    public OpenEJBModuleBuilder(Environment defaultEnvironment, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) {
+        this.defaultEnvironment = defaultEnvironment;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
@@ -222,20 +224,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Currently a Geronimo deployment plan is required for an EJB module.  Please provide a plan as a deployer argument or packaged in the EJB JAR at META-INF/openejb-jar.xml");
         }
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(openejbJar.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + openejbJar.getConfigId(), e);
-        }
+        EnvironmentType environmentType = openejbJar.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        List parentId = ServiceConfigBuilder.toArtifacts(openejbJar.getParentId(), openejbJar.getImportArray());
-        if (parentId.isEmpty()) {
-            parentId = new ArrayList(defaultParentId);
-        }
-
-        return new EJBModule(standAlone, configId, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+        return new EJBModule(standAlone, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD);
     }
 
     OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJarType ejbJar) throws DeploymentException {
@@ -290,17 +282,18 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
-        if (null != ejbJar.getId()) {
-            openejbEjbJar.setConfigId(ejbJar.getId());
-        } else {
-            openejbEjbJar.setConfigId(id);
-        }
+        EnvironmentType environmentType = openejbEjbJar.addNewEnvironment();
+        ArtifactType artifact = environmentType.addNewConfigId();
+        //TODO this version is incomplete.
+        artifact.setGroupId("unknown");
+        artifact.setArtifactId(id);
+        artifact.setVersion("1");
+        artifact.setType("car");
         openejbEjbJar.addNewEnterpriseBeans();
         return openejbEjbJar;
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
-        earContext.addParentId(defaultParentId);
         JarFile moduleFile = module.getModuleFile();
         try {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
@@ -309,20 +302,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName());
         }
 
-        // add the dependencies declared in the openejb-jar.xml file
-        OpenejbOpenejbJarType openEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
-        DependencyType[] dependencies = openEjbJar.getDependencyArray();
-        ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
-
-        if (openEjbJar.isSetInverseClassloading()) {
-            earContext.setInverseClassloading(openEjbJar.getInverseClassloading());
-        }
-
-        ClassFilterType[] filters = openEjbJar.getHiddenClassesArray();
-        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-
-        filters = openEjbJar.getNonOverridableClassesArray();
-        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -602,7 +581,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
@@ -610,7 +589,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "WebServiceLinkTemplate", "WebServiceBuilder", "Repository", "kernel"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "listener", "WebServiceLinkTemplate", "WebServiceBuilder", "Repository", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

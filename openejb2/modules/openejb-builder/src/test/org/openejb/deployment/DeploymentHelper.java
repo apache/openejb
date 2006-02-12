@@ -93,10 +93,10 @@ import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 public class DeploymentHelper {
     //these have to match the domain and server set in KernelHelper mock config store
     public static final String j2eeDomainName = "test";
-    public static final String j2eeServerName = "bar";
+    public static final String j2eeServerName = "server";
     private static final String appName = NameFactory.NULL;
     private static final String moduleName = "MockRA";
-    //type is random to look for problems.
+    //type is random to look for problems.                        
     private static final J2eeContext raContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, appName, NameFactory.RESOURCE_ADAPTER_MODULE, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
     public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");

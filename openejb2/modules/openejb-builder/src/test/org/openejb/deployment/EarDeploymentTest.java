@@ -66,7 +66,7 @@ public class
     }
 
     public String getJ2eeApplicationName() {
-        return "org/apache/geronimo/j2ee/deployment/test";
+        return "foo/bar/1/car";
     }
 
     public String getJ2eeModuleName() {

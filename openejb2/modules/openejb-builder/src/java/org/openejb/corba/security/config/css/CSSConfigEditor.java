@@ -95,8 +95,9 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         CSSCssType css;
         if (xmlObject instanceof CSSCssType) {
             css = (CSSCssType) xmlObject;
+        } else {
+            css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         }
-        css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         try {
             SchemaConversionUtils.validateDD(css);
         } catch (XmlException e) {
