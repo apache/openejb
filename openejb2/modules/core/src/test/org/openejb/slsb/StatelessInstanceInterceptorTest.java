@@ -58,6 +58,8 @@ import org.apache.geronimo.core.service.InvocationKey;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
+
 import junit.framework.TestCase;
 
 import org.openejb.cache.InstancePool;
@@ -128,7 +130,8 @@ public class StatelessInstanceInterceptorTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionManager = new TransactionManagerImpl(10 * 1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         mockEJB = new MockEJB();
         pool = new MockPool(mockEJB);
