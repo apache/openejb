@@ -49,20 +49,28 @@ import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.CallbackMethod;
 import org.openejb.EjbCallbackInvocation;
-import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
+import org.openejb.EjbInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
 import org.openejb.slsb.EjbCreateMethod;
 import org.openejb.slsb.RemoveMethod;
+
+import javax.ejb.EnterpriseBean;
+import javax.ejb.MessageDrivenBean;
+import javax.ejb.MessageDrivenContext;
 
 /**
  * @version $Revision$ $Date$
  */
 public class MdbCallbackInterceptor implements Interceptor {
+    private static final SetMessageDrivenContextOperation SET_MESSAGE_DRIVEN_CONTEXT = new SetMessageDrivenContextOperation();
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbCallbackInvocation ejbCallbackInvocation = (EjbCallbackInvocation) invocation;
 
         CallbackMethod callbackMethod = ejbCallbackInvocation.getCallbackMethod();
         if (callbackMethod == CallbackMethod.SET_CONTEXT) {
-            InvocationResult result = SetMessageDrivenContextOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = SET_MESSAGE_DRIVEN_CONTEXT.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.CREATE) {
             InvocationResult result = EjbCreateMethod.INSTANCE.execute(ejbCallbackInvocation);
@@ -74,4 +82,17 @@ public class MdbCallbackInterceptor implements Interceptor {
             throw new AssertionError("Unknown callback method " + callbackMethod);
         }
     }
+
+    private static final class SetMessageDrivenContextOperation extends AbstractCallbackOperation {
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.SETCONTEXT);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((MessageDrivenBean)instance).setMessageDrivenContext((MessageDrivenContext)arguments[0]);
+            return null;
+        }
+    }
+
 }

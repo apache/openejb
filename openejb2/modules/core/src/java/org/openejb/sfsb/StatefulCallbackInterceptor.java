@@ -49,26 +49,34 @@ import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.CallbackMethod;
 import org.openejb.EjbCallbackInvocation;
-import org.openejb.slsb.dispatch.EJBActivateOperation;
-import org.openejb.slsb.dispatch.EJBPassivateOperation;
-import org.openejb.slsb.dispatch.SetSessionContextOperation;
+import org.openejb.EjbInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
+
+import javax.ejb.EnterpriseBean;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatefulCallbackInterceptor implements Interceptor {
+    private static final SetSessionContextOperation SET_SESSION_CONTEXT = new SetSessionContextOperation();
+    private static final EJBActivateOperation EJB_ACTIVATE = new EJBActivateOperation();
+    private static final EJBPassivateOperation EJB_PASSIVATE = new EJBPassivateOperation();
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbCallbackInvocation ejbCallbackInvocation = (EjbCallbackInvocation) invocation;
 
         CallbackMethod callbackMethod = ejbCallbackInvocation.getCallbackMethod();
         if (callbackMethod == CallbackMethod.SET_CONTEXT) {
-            InvocationResult result = SetSessionContextOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = SET_SESSION_CONTEXT.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.ACTIVATE) {
-            InvocationResult result = EJBActivateOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = EJB_ACTIVATE.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.PASSIVATE) {
-            InvocationResult result = EJBPassivateOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = EJB_PASSIVATE.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.AFTER_BEGIN) {
             InvocationResult result = AfterBegin.INSTANCE.execute(ejbCallbackInvocation);
@@ -83,4 +91,38 @@ public class StatefulCallbackInterceptor implements Interceptor {
             throw new AssertionError("Unknown callback method " + callbackMethod);
         }
     }
+
+    private static final class SetSessionContextOperation extends AbstractCallbackOperation {
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.SETCONTEXT);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((SessionBean)instance).setSessionContext((SessionContext)arguments[0]);
+            return null;
+        }
+    }
+
+    private static final class EJBActivateOperation extends AbstractCallbackOperation {
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.EJBACTIVATE);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((SessionBean)instance).ejbActivate();
+            return null;
+        }
+    }
+
+    private static final class EJBPassivateOperation extends AbstractCallbackOperation {
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.EJBACTIVATE);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((SessionBean)instance).ejbPassivate();
+            return null;
+        }
+    }
+
 }
