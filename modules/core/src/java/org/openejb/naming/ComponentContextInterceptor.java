@@ -19,9 +19,9 @@ package org.openejb.naming;
 
 import javax.naming.Context;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.naming.java.RootContext;
 import org.openejb.EjbInvocation;
 import org.openejb.ExtendedEjbDeployment;
@@ -30,7 +30,7 @@ import org.openejb.ExtendedEjbDeployment;
  * An interceptor that pushes the current component's java:comp context into
  * the java: JNDI namespace
  *
- * @version $Rev: 6509 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ComponentContextInterceptor implements Interceptor {
     private final Interceptor next;

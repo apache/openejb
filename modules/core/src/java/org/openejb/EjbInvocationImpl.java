@@ -50,9 +50,9 @@ package org.openejb;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.apache.geronimo.core.service.InvocationKey;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.interceptor.SimpleInvocationResult;
+import org.apache.geronimo.interceptor.InvocationKey;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
 

@@ -53,8 +53,8 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.RpcEjbDeployment;
 import org.openejb.EjbDeployment;
 import org.openejb.dispatch.InterfaceMethodSignature;

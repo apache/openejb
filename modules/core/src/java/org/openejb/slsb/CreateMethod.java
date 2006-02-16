@@ -49,7 +49,7 @@ package org.openejb.slsb;
 
 import java.io.Serializable;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EjbInvocation;
 import org.openejb.dispatch.VirtualOperation;

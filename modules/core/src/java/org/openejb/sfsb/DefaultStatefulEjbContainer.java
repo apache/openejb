@@ -52,9 +52,9 @@ import javax.ejb.SessionContext;
 import javax.ejb.SessionSynchronization;
 import javax.ejb.Timer;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -80,7 +80,6 @@ import org.openejb.EJBInstanceContext;
 import org.openejb.EjbCallbackInvocation;
 import org.openejb.CallbackMethod;
 import org.openejb.ExtendedEjbDeployment;
-import org.openejb.EjbContainer;
 
 
 /**
@@ -93,10 +92,10 @@ public class DefaultStatefulEjbContainer implements StatefulEjbContainer {
     private final UserTransactionImpl userTransaction;
 
     public DefaultStatefulEjbContainer(TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            boolean securityEnabled,
-            boolean doAsCurrentCaller,
-            boolean useContextHandler) throws Exception {
+                                       TrackedConnectionAssociator trackedConnectionAssociator,
+                                       boolean securityEnabled,
+                                       boolean doAsCurrentCaller,
+                                       boolean useContextHandler) throws Exception {
 
         this.transactionContextManager = transactionContextManager;
         this.userTransaction = new UserTransactionImpl(transactionContextManager, trackedConnectionAssociator);

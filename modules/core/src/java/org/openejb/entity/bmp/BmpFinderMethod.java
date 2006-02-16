@@ -57,7 +57,7 @@ import java.util.Iterator;
 import javax.ejb.EntityBean;
 
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EjbInvocation;

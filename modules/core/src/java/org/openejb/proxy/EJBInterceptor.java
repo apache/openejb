@@ -44,7 +44,7 @@
  */
 package org.openejb.proxy;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 
 public interface EJBInterceptor {

@@ -47,7 +47,7 @@
  */
 package org.openejb.mdb;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;

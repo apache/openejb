@@ -48,7 +48,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;

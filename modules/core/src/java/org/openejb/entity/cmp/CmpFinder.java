@@ -50,7 +50,7 @@ package org.openejb.entity.cmp;
 import java.io.Serializable;
 import javax.ejb.FinderException;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.dispatch.VirtualOperation;
 

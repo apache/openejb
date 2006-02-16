@@ -54,10 +54,10 @@ import javax.transaction.Synchronization;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.interceptor.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.Flushable;
@@ -68,7 +68,6 @@ import junit.framework.TestCase;
 import org.openejb.EjbInvocation;
 import org.openejb.EjbInvocationImpl;
 import org.openejb.EJBInterfaceType;
-import org.tranql.cache.InTxCache;
 
 /**
  * @version $Revision$ $Date$

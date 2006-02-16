@@ -63,7 +63,7 @@ import javax.transaction.TransactionRolledbackException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.omg.CORBA.ORB;

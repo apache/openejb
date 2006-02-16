@@ -51,7 +51,7 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.interceptor.SimpleInvocationResult;
 
 /**
  *

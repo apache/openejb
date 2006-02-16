@@ -51,7 +51,7 @@ import javax.ejb.EnterpriseBean;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
