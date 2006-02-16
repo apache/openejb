@@ -48,9 +48,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.core.service.InvocationKey;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.interceptor.InvocationKey;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.interceptor.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
@@ -66,7 +66,7 @@ public class EjbInvocationStream extends EJBRequest implements EjbInvocation {
 
     private ObjectInput in;
 
-    private final EjbInvocation invocationState = new EjbInvocationImpl();
+    private final EjbInvocation invocationState = new EjbInvocationImpl(null, -1, null);
     private EJBInterfaceType interfaceType;
 
     private int methodIndex = -1;
