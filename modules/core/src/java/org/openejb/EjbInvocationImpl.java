@@ -47,13 +47,12 @@
  */
 package org.openejb;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.util.Map;
+import java.util.HashMap;
 
-import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.core.service.InvocationKey;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
 
@@ -62,12 +61,13 @@ import org.apache.geronimo.transaction.context.TransactionContext;
  *
  * @version $Revision$ $Date$
  */
-public class EjbInvocationImpl extends SimpleInvocation implements EjbInvocation {
-    // Fields are immutable, but not final due to readExternal
-    private EJBInterfaceType type;
-    private int index;
-    private Object[] arguments;
-    private Object id;
+public class EjbInvocationImpl implements EjbInvocation {
+
+    private final Map data = new HashMap();
+    private final EJBInterfaceType type;
+    private final int index;
+    private final Object[] arguments;
+    private final Object id;
 
     // The deployment that we are invoking, this is set in the deployment before sending the invocation to the interceptor stack
     private transient ExtendedEjbDeployment ejbDeployment;
@@ -77,12 +77,6 @@ public class EjbInvocationImpl extends SimpleInvocation implements EjbInvocation
 
     // Valid in server-side interceptor stack once a TransactionContext has been created
     private transient TransactionContext transactionContext;
-
-    /**
-     * No-arg constructor needed for Externalizable
-     */
-    public EjbInvocationImpl() {
-    }
 
     public EjbInvocationImpl(EJBInterfaceType type, int index, Object[] arguments) {
         assert type != null : "Interface type may not be null";
@@ -110,6 +104,17 @@ public class EjbInvocationImpl extends SimpleInvocation implements EjbInvocation
         this.arguments = arguments;
         this.id = null;
         this.instanceContext = instanceContext;
+    }
+
+    public Object get(InvocationKey key) {
+        if(data==null) {
+            return null;
+        }
+        return data.get(key);
+    }
+
+    public void put(InvocationKey key, Object value) {
+        data.put(key, value);
     }
 
     public int getMethodIndex() {
@@ -158,21 +163,5 @@ public class EjbInvocationImpl extends SimpleInvocation implements EjbInvocation
 
     public InvocationResult createExceptionResult(Exception exception) {
         return new SimpleInvocationResult(false, exception);
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        out.writeObject(type);
-        out.writeInt(index);
-        out.writeObject(arguments);
-        out.writeObject(id);
-    }
-
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        type = (EJBInterfaceType) in.readObject();
-        index = in.readInt();
-        arguments = (Object[]) in.readObject();
-        id = in.readObject();
     }
 }
