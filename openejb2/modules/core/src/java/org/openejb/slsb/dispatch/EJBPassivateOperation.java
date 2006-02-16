@@ -50,7 +50,7 @@ package org.openejb.slsb.dispatch;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;

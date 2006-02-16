@@ -50,7 +50,7 @@ package org.openejb.sfsb;
 import java.io.Serializable;
 import javax.ejb.SessionSynchronization;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EJBOperation;
 import org.openejb.EjbInvocation;
 import org.openejb.dispatch.VirtualOperation;

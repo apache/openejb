@@ -48,7 +48,7 @@ import java.lang.reflect.Method;
 
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.interceptor.Interceptor;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**

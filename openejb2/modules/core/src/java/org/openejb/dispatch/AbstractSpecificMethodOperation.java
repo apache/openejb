@@ -47,18 +47,11 @@
  */
 package org.openejb.dispatch;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import javax.ejb.EnterpriseBean;
 
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-
-import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.interceptor.InvocationResult;
 
 import org.openejb.EJBInstanceContext;
 import org.openejb.EjbInvocation;

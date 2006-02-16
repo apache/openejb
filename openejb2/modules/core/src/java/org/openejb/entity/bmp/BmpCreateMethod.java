@@ -53,7 +53,7 @@ import java.lang.reflect.Method;
 import javax.ejb.EntityBean;
 
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBOperation;
 import org.openejb.EjbInvocation;

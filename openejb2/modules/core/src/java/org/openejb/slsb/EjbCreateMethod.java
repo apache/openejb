@@ -50,8 +50,8 @@ package org.openejb.slsb;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.interceptor.SimpleInvocationResult;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EjbInvocation;

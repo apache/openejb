@@ -12,7 +12,7 @@ import javax.ejb.NoSuchObjectLocalException;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.DeploymentNotFoundException;
 import org.openejb.EJBComponentType;
 import org.openejb.RpcEjbDeployment;

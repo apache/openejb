@@ -44,9 +44,9 @@
  */
 package org.openejb.cluster.server;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EjbInvocation;
 

@@ -44,7 +44,7 @@
  */
 package org.openejb.cluster.server;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.client.ServerMetaData;
 
 /**

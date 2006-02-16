@@ -59,7 +59,7 @@ import javax.ejb.Handle;
 import javax.naming.Context;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.timer.PersistenceException;

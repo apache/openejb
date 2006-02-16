@@ -48,15 +48,12 @@
 package org.openejb.slsb.dispatch;
 
 import javax.ejb.EnterpriseBean;
-import javax.ejb.EntityBean;
-import javax.ejb.EntityContext;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.entity.dispatch.SetEntityContextOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
 
 /**

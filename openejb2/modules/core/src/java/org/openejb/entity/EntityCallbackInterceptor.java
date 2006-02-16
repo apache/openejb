@@ -52,9 +52,9 @@ import org.openejb.entity.dispatch.SetEntityContextOperation;
 import org.openejb.entity.dispatch.EJBLoadOperation;
 import org.openejb.entity.dispatch.EJBStoreOperation;
 import org.openejb.entity.dispatch.UnsetEntityContextOperation;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.Interceptor;
 
 /**
  * @version $Revision$ $Date$

@@ -67,8 +67,8 @@ import javax.security.auth.Subject;
 
 import net.sf.cglib.reflect.FastClass;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -83,7 +83,7 @@ import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 
 /**
- * @version $Rev:  $ $Date$
+ * @version $Rev$ $Date$
  */
 public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDeployment {
 
