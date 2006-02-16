@@ -63,7 +63,7 @@ import org.openejb.timer.TimerState;
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractSpecificMethodOperation implements VirtualOperation, Serializable {
+public abstract class AbstractCallbackOperation implements VirtualOperation, Serializable {
 
     protected InvocationResult invoke(EjbInvocation invocation, EJBOperation operation) throws Throwable {
         EJBInstanceContext ctx = invocation.getEJBInstanceContext();
