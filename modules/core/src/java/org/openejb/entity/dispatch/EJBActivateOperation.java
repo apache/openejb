@@ -53,7 +53,7 @@ import javax.ejb.EntityBean;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.dispatch.AbstractSpecificMethodOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
 
 /**
  *
@@ -61,7 +61,7 @@ import org.openejb.dispatch.AbstractSpecificMethodOperation;
  * @version $Revision$ $Date$
  *
  * */
-public class EJBActivateOperation extends AbstractSpecificMethodOperation {
+public class EJBActivateOperation extends AbstractCallbackOperation {
 
     public static final EJBActivateOperation INSTANCE = new EJBActivateOperation();
 

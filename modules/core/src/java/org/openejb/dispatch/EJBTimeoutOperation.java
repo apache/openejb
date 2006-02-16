@@ -54,7 +54,7 @@ import javax.ejb.Timer;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.dispatch.AbstractSpecificMethodOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
 
 /**
  *
@@ -62,7 +62,7 @@ import org.openejb.dispatch.AbstractSpecificMethodOperation;
  * @version $Revision$ $Date$
  *
  * */
-public class EJBTimeoutOperation extends AbstractSpecificMethodOperation {
+public class EJBTimeoutOperation extends AbstractCallbackOperation {
 
     public static final EJBTimeoutOperation INSTANCE = new EJBTimeoutOperation();
 

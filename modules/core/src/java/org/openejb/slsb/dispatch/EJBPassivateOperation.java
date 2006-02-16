@@ -53,12 +53,12 @@ import javax.ejb.SessionBean;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.openejb.EjbInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.dispatch.AbstractSpecificMethodOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
 
 /**
  * @version $Revision$ $Date$
  */
-public class EJBPassivateOperation extends AbstractSpecificMethodOperation {
+public class EJBPassivateOperation extends AbstractCallbackOperation {
     public static final EJBPassivateOperation INSTANCE = new EJBPassivateOperation();
 
     private EJBPassivateOperation() {}
