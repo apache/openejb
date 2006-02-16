@@ -49,18 +49,26 @@ import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.Interceptor;
 import org.openejb.CallbackMethod;
 import org.openejb.EjbCallbackInvocation;
-import org.openejb.slsb.dispatch.SetSessionContextOperation;
+import org.openejb.EjbInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
+
+import javax.ejb.EnterpriseBean;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatelessCallbackInterceptor implements Interceptor {
+    private static final SetSessionContextOperation SET_SESSION_CONTEXT = new SetSessionContextOperation();
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbCallbackInvocation ejbCallbackInvocation = (EjbCallbackInvocation) invocation;
 
         CallbackMethod callbackMethod = ejbCallbackInvocation.getCallbackMethod();
         if (callbackMethod == CallbackMethod.SET_CONTEXT) {
-            InvocationResult result = SetSessionContextOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = SET_SESSION_CONTEXT.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.CREATE) {
             InvocationResult result = EjbCreateMethod.INSTANCE.execute(ejbCallbackInvocation);
@@ -72,4 +80,16 @@ public class StatelessCallbackInterceptor implements Interceptor {
             throw new AssertionError("Unknown callback method " + callbackMethod);
         }
     }
+
+    private static final class SetSessionContextOperation extends AbstractCallbackOperation {
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.SETCONTEXT);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((SessionBean)instance).setSessionContext((SessionContext)arguments[0]);
+            return null;
+        }
+    }
+
 }

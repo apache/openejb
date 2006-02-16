@@ -46,44 +46,131 @@ package org.openejb.entity;
 
 import org.openejb.CallbackMethod;
 import org.openejb.EjbCallbackInvocation;
-import org.openejb.entity.dispatch.EJBPassivateOperation;
-import org.openejb.entity.dispatch.EJBActivateOperation;
-import org.openejb.entity.dispatch.SetEntityContextOperation;
-import org.openejb.entity.dispatch.EJBLoadOperation;
-import org.openejb.entity.dispatch.EJBStoreOperation;
-import org.openejb.entity.dispatch.UnsetEntityContextOperation;
+import org.openejb.EjbInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.dispatch.AbstractCallbackOperation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.Interceptor;
+
+import javax.ejb.EnterpriseBean;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
 
 /**
  * @version $Revision$ $Date$
  */
 public class EntityCallbackInterceptor implements Interceptor {
+
+    private static final SetEntityContextOperation SET_ENTITY_CONTEXT = new SetEntityContextOperation();
+    private static final UnsetEntityContextOperation UNSET_ENTITY_CONTEXT = new UnsetEntityContextOperation();
+    private static final EJBActivateOperation EJB_ACTIVATE = new EJBActivateOperation();
+    private static final EJBPassivateOperation EJB_PASSIVATE = new EJBPassivateOperation();
+    private static final EJBLoadOperation EJB_LOAD = new EJBLoadOperation();
+    private static final EJBStoreOperation EJB_STORE = new EJBStoreOperation();
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbCallbackInvocation ejbCallbackInvocation = (EjbCallbackInvocation) invocation;
 
         CallbackMethod callbackMethod = ejbCallbackInvocation.getCallbackMethod();
         if (callbackMethod == CallbackMethod.SET_CONTEXT) {
-            InvocationResult result = SetEntityContextOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = SET_ENTITY_CONTEXT.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.UNSET_CONTEXT) {
-            InvocationResult result = UnsetEntityContextOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = UNSET_ENTITY_CONTEXT.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.ACTIVATE) {
-            InvocationResult result = EJBActivateOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = EJB_ACTIVATE.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.PASSIVATE) {
-            InvocationResult result = EJBPassivateOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = EJB_PASSIVATE.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.LOAD) {
-            InvocationResult result = EJBLoadOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = EJB_LOAD.execute(ejbCallbackInvocation);
             return result;
         } else if (callbackMethod == CallbackMethod.STORE) {
-            InvocationResult result = EJBStoreOperation.INSTANCE.execute(ejbCallbackInvocation);
+            InvocationResult result = EJB_STORE.execute(ejbCallbackInvocation);
             return result;
         } else {
             throw new AssertionError("Unknown callback method " + callbackMethod);
+        }
+    }
+
+    private static final class EJBActivateOperation extends AbstractCallbackOperation {
+
+        private EJBActivateOperation() {}
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.EJBACTIVATE);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((EntityBean)instance).ejbActivate();
+            return null;
+        }
+    }
+
+    private static final class EJBLoadOperation extends AbstractCallbackOperation {
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.EJBLOAD);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((EntityBean)instance).ejbLoad();
+            return null;
+        }
+
+    }
+
+    private static final class EJBPassivateOperation extends AbstractCallbackOperation {
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.EJBACTIVATE);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((EntityBean)instance).ejbPassivate();
+            return null;
+        }
+
+    }
+
+    private static final class EJBStoreOperation extends AbstractCallbackOperation {
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.EJBLOAD);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((EntityBean)instance).ejbStore();
+            return null;
+        }
+
+    }
+
+    private static final class SetEntityContextOperation extends AbstractCallbackOperation {
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.SETCONTEXT);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((EntityBean)instance).setEntityContext((EntityContext)arguments[0]);
+            return null;
+        }
+
+    }
+
+    private static final class UnsetEntityContextOperation extends AbstractCallbackOperation {
+
+        public InvocationResult execute(EjbInvocation invocation) throws Throwable {
+            return invoke(invocation, EJBOperation.SETCONTEXT);
+        }
+
+        protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+            ((EntityBean)instance).unsetEntityContext();
+            return null;
         }
     }
 }
