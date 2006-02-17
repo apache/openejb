@@ -151,7 +151,7 @@
         </message-driven>
 
     </enterprise-beans>
-    <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+    <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
         <reference name="TransactionContextManager">
             <gbean-name>test:type=TransactionContextManager</gbean-name>
         </reference>
@@ -162,7 +162,7 @@
         <attribute name="sequenceName">PKGENCMP</attribute>
         <attribute name="batchSize">1</attribute>
     </gbean>
-    <gbean gbeanName="geronimo.server:name=CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+    <gbean gbeanName="geronimo.server:name=CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
         <reference name="TransactionContextManager">
             <gbean-name>test:type=TransactionContextManager</gbean-name>
         </reference>
