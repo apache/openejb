@@ -86,7 +86,7 @@ import org.openejb.entity.cmp.RelationSchema;
 import org.openejb.entity.cmp.RoleSchema;
 import org.openejb.entity.cmp.SequenceTableKeyGenerator;
 import org.openejb.entity.cmp.SqlPrimaryKeyGenerator;
-import org.openejb.entity.cmp.TranqlModuleCmpEngine;
+import org.openejb.entity.cmp.TranqlModuleCmpEngineGBean;
 import org.openejb.xbeans.ejbjar.OpenejbCmpFieldGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbCmrFieldGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
@@ -122,7 +122,7 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct schema name", e);
         }
-        GBeanData moduleCmpEngine = new GBeanData(moduleCmpEngineName, TranqlModuleCmpEngine.GBEAN_INFO);
+        GBeanData moduleCmpEngine = new GBeanData(moduleCmpEngineName, TranqlModuleCmpEngineGBean.GBEAN_INFO);
 
         // moduleSchema
         moduleCmpEngine.setAttribute("moduleSchema", moduleSchema);

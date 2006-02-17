@@ -44,15 +44,13 @@
  */
 package org.openejb.client;
 
-import javax.management.ObjectName;
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.RootContext;
 import org.openejb.client.naming.java.javaURLContextFactory;
+
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 /**
  * @version $Revision$ $Date$
@@ -75,8 +73,8 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
             JNDIResponse res = new JNDIResponse();
             ResponseInfo resInfo = new ResponseInfo(res);
             JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, appClientModuleName.toString(), "");
-            RequestInfo reqInfo = new RequestInfo(req, new ServerMetaData[] {serverMetaData});
-            
+            RequestInfo reqInfo = new RequestInfo(req, new ServerMetaData[]{serverMetaData});
+
             Client.request(reqInfo, resInfo);
 
             context = (Context) res.getResult();
@@ -86,7 +84,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
             throw namingException;
         }
 
-        if ( context == null ) {
+        if (context == null) {
             throw new IllegalStateException("Server returned a null JNDI context");
         }
 
@@ -104,23 +102,5 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
         return context;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AppClientJNDIContext.class);
-
-        infoFactory.addOperation("startClient", new Class[]{ObjectName.class});
-        infoFactory.addOperation("stopClient", new Class[]{ObjectName.class});
-        infoFactory.addAttribute("host", String.class, true);
-        infoFactory.addAttribute("port", int.class, true);
-        infoFactory.addAttribute("context", Context.class, false);
-        infoFactory.setConstructor(new String[]{"host", "port"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

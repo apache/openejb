@@ -44,14 +44,8 @@
  */
 package org.openejb.entity.cmp;
 
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.Kernel;
 import org.openejb.proxy.ProxyInfo;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
@@ -65,6 +59,9 @@ import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.sql.SQLQueryBuilder;
 import org.tranql.sql.SQLSchema;
 
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 /**
  * @version $Revision$ $Date$
  */
@@ -75,11 +72,11 @@ public class TranqlModuleCmpEngine implements ModuleCmpEngine {
     private final TranqlCommandBuilder tranqlCommandBuilder;
     private final FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
 
-    public TranqlModuleCmpEngine(ModuleSchema moduleSchema, 
-            TransactionManager transactionManager,
-            ConnectionProxyFactory connectionFactory,
-            ClassLoader classLoader,
-            Kernel kernel) throws DeploymentException {
+    public TranqlModuleCmpEngine(ModuleSchema moduleSchema,
+                                 TransactionManager transactionManager,
+                                 ConnectionProxyFactory connectionFactory,
+                                 ClassLoader classLoader,
+                                 Kernel kernel) throws DeploymentException {
         if (moduleSchema == null) {
             throw new NullPointerException("moduleSchema is null");
         }
@@ -129,32 +126,5 @@ public class TranqlModuleCmpEngine implements ModuleCmpEngine {
         return new TranqlEjbCmpEngine(ejb, beanClass, proxyInfo, frontEndCache, cacheTable, tranqlCommandBuilder);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(TranqlModuleCmpEngine.class, "ModuleCmpEngine");
-
-        infoFactory.addAttribute("moduleSchema", ModuleSchema.class, true);
-        infoFactory.addReference("transactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
-        infoFactory.addReference("connectionFactory", ConnectionProxyFactory.class, NameFactory.JCA_CONNECTION_FACTORY);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-
-        infoFactory.setConstructor(new String[]{
-            "moduleSchema",
-            "transactionManager",
-            "connectionFactory",
-            "classLoader",
-            "kernel",
-        });
-
-        infoFactory.addInterface(ModuleCmpEngine.class);
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -44,29 +44,24 @@
  */
 package org.openejb.corba;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Properties;
-
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.transaction.ClientTransactionPolicyConfig;
 import org.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Properties;
 
 
 /**
@@ -170,7 +165,8 @@ public class CSSBean implements GBeanLifecycle {
 
     public org.omg.CORBA.Object getHome(URI nsURI, String name) {
 
-        if (log.isDebugEnabled()) log.debug(description + " - Looking up home from " + nsURI.toString() + " at " + name);
+        if (log.isDebugEnabled())
+            log.debug(description + " - Looking up home from " + nsURI.toString() + " at " + name);
 
         try {
             org.omg.CORBA.Object ref = nssORB.string_to_object(nsURI.toString());
@@ -271,32 +267,4 @@ public class CSSBean implements GBeanLifecycle {
         log.debug("Failed CORBA Client Security Server " + description);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CSSBean.class, NameFactory.CORBA_CSS);
-
-        infoFactory.addAttribute("configAdapter", String.class, true);
-        infoFactory.addAttribute("description", String.class, true);
-        infoFactory.addAttribute("nssConfig", CSSConfig.class, true);
-        infoFactory.addAttribute("cssConfig", CSSConfig.class, true);
-        infoFactory.addAttribute("ORB", ORB.class, false);
-        infoFactory.addAttribute("nssArgs", ArrayList.class, true);
-        infoFactory.addAttribute("cssArgs", ArrayList.class, true);
-        infoFactory.addAttribute("nssProps", Properties.class, true);
-        infoFactory.addAttribute("cssProps", Properties.class, true);
-        infoFactory.addOperation("getHome", new Class[]{URI.class, String.class});
-
-        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoFactory.setConstructor(new String[]{"configAdapter", "ThreadPool", "TransactionContextManager", "classLoader"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -44,18 +44,9 @@
  */
 package org.openejb.cluster.server;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.ejb.EnterpriseBean;
-import javax.servlet.ServletContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.wadi.Collapser;
 import org.codehaus.wadi.Contextualiser;
 import org.codehaus.wadi.InvocationException;
@@ -85,8 +76,12 @@ import org.codehaus.wadi.impl.StandardSessionWrapperFactory;
 import org.openejb.cache.InstanceCache;
 import org.openejb.client.ServerMetaData;
 
+import javax.ejb.EnterpriseBean;
+import javax.servlet.ServletContext;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 
  * @version $Revision$ $Date$
  */
 public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManager {
@@ -103,26 +98,26 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
     private final DefaultEJBContainerAdvertiser advertiser;
 
     public DefaultEJBClusterManager(String clusterName,
-            String clusterUri,
-            String nodeName,
-            String host,
-            int port,
-            int nbPartitions) throws Exception {
+                                    String clusterUri,
+                                    String nodeName,
+                                    String host,
+                                    int port,
+                                    int nbPartitions) throws Exception {
         this.nodeName = nodeName;
-        
+
         server = new ServerMetaData(nodeName, host, port);
-        
+
         contIdToServersMDHolder = new HashMap();
-        
+
         Streamer streamer = new SimpleStreamer();
         Collapser collapser = new HashingCollapser(10, 2000);
         Map mmap = new HashMap();
-        
+
         Contextualiser contextualiser = new ClusterContextualiser(
                 new DummyContextualiser(),
                 collapser,
                 new EJBHybridRelocater(5000, 1000, true));
-        
+
         pool = new SimpleSessionPool(new DistributableSessionFactory());
         recreatorSelector = new RecreatorSelector();
         contextualiser = new MemoryContextualiser(
@@ -133,15 +128,15 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
                 new SessionToContextPoolAdapter(pool),
                 recreatorSelector);
         // TODO add a contextualiser ensuring that the instance is not active.
-        
+
         dispatcher =
-            new ActiveClusterDispatcher(nodeName, clusterName, clusterUri, 5000L);
+                new ActiveClusterDispatcher(nodeName, clusterName, clusterUri, 5000L);
 
         monitor =
-            new DefaultEJBContainerMonitor(dispatcher, new DefaultEJBContainerCallback());
+                new DefaultEJBContainerMonitor(dispatcher, new DefaultEJBContainerCallback());
 
         advertiser = new DefaultEJBContainerAdvertiser(server, dispatcher);
-        
+
         clusteredManager = new ClusteredManager(
                 pool,
                 new DistributableAttributesFactory(),
@@ -161,25 +156,25 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
                 new DummyPartitionManager(nbPartitions),
                 null);
     }
-    
+
     public void addEJBContainer(ClusteredEjbDeployment container) {
         Object containerID = container.getContainerId();
         ClusteredInstanceCache cache = container.getInstanceCache();
         ClusteredInstanceContextFactory factory = container.getInstanceContextFactory();
-        
+
         EJBInstanceContextRecreator recreator = factory.getInstanceContextRecreator();
         recreatorSelector.addMapping(containerID, recreator);
         cache.setEJBClusterManager(this);
         factory.setClusterManager(this);
-        
+
         ServerMetaDataArrayHolder holder;
         synchronized (contIdToServersMDHolder) {
             holder = (ServerMetaDataArrayHolder) contIdToServersMDHolder.get(containerID);
             if (null == holder) {
-                holder =  new ServerMetaDataArrayHolder(new ServerMetaData[] {server});
+                holder = new ServerMetaDataArrayHolder(new ServerMetaData[]{server});
                 contIdToServersMDHolder.put(containerID, holder);
             }
-       }
+        }
         factory.setServersHolder(holder);
 
         advertiser.advertiseJoin(containerID);
@@ -197,7 +192,7 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
 
         advertiser.advertiseLeave(containerID);
     }
-    
+
     public void putInstanceInCache(InstanceCache cache, String beanId) {
         Contextualiser contextualiser = clusteredManager.getContextualiser();
         EJBInvocationContext context = new EJBInvocationContext(cache);
@@ -205,7 +200,7 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
             contextualiser.contextualise(context, beanId, null, null, false);
         } catch (InvocationException e) {
             throw (IllegalStateException)
-                new IllegalStateException("Clustering failure.").initCause(e);
+                    new IllegalStateException("Clustering failure.").initCause(e);
         }
     }
 
@@ -218,11 +213,11 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
         sessionUtil.setContainerId(containerId);
         return id;
     }
-    
+
     public void removeInstance(String beanId) {
         clusteredManager.destroy(beanId);
     }
-    
+
     public void doStart() throws Exception {
         clusteredManager.init(new OpenEJBManagerConfig());
         monitor.start();
@@ -242,24 +237,24 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
             log.error(e);
         }
     }
-    
+
     // TODO refactor WADI to get ride of these servlet contracts.
     private static class OpenEJBManagerConfig implements ManagerConfig {
         public ServletContext getServletContext() {
             return null;
         }
-        
+
         public void callback(StandardManager manager) {
         }
     }
-    
+
     private class DefaultEJBContainerCallback implements EJBContainerCallback {
         private final Map nodeNameToServersMDHolder;
-        
+
         public DefaultEJBContainerCallback() {
             nodeNameToServersMDHolder = new HashMap();
         }
-        
+
         public void fireEJBContainerJoin(ServerMetaData server, Object containerID) {
             if (server.getNodeName().equals(nodeName)) {
                 return;
@@ -306,31 +301,5 @@ public class DefaultEJBClusterManager implements GBeanLifecycle, EJBClusterManag
             return holder;
         }
     }
-    
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB Cluster Manager", DefaultEJBClusterManager.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("clusterName", String.class, true);
-        infoBuilder.addAttribute("clusterUri", String.class, true);
-        infoBuilder.addAttribute("nodeName", String.class, true);
-        infoBuilder.addAttribute("host", String.class, true);
-        infoBuilder.addAttribute("port", Integer.TYPE, true);
-        infoBuilder.addAttribute("nbPartitions", Integer.TYPE, true);
-
-        infoBuilder.addInterface(EJBClusterManager.class);
-        
-        infoBuilder.setConstructor(new String[]{
-                "clusterName",
-                "clusterUri",
-                "nodeName",
-                "host",
-                "port",
-                "nbPartitions"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

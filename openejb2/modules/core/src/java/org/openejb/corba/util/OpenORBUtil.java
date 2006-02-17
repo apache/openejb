@@ -46,12 +46,7 @@ package org.openejb.corba.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
 import org.openejb.corba.CORBABean;
 
 
@@ -93,18 +88,4 @@ public class OpenORBUtil implements GBeanLifecycle {
         log.warn("Failed OpenORBUtil");
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(OpenORBUtil.class, NameFactory.CORBA_SERVICE);
-
-        infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
-        infoFactory.setConstructor(new String[]{"Server"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

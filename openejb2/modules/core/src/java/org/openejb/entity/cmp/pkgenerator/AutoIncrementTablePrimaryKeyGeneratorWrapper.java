@@ -47,15 +47,10 @@
  */
 package org.openejb.entity.cmp.pkgenerator;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
@@ -66,14 +61,14 @@ import org.tranql.pkgenerator.PrimaryKeyGeneratorException;
 import org.tranql.ql.QueryBindingImpl;
 import org.tranql.sql.jdbc.binding.BindingFactory;
 
+import javax.sql.DataSource;
+
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
-    
+
     private final ManagedConnectionFactoryWrapper connectionFactoryWrapper;
     private final String sql;
     private final Class returnType;
@@ -84,7 +79,7 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
         this.sql = sql;
         this.returnType = returnType;
     }
-    
+
     public void doStart() throws Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
         delegate = new AutoIncrementTablePrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new QueryBindingImpl(0, returnType)));
@@ -106,22 +101,4 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
         return delegate.updateCache(cache, id, cacheRow);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
-        infoFactory.addInterface(PrimaryKeyGenerator.class);
-        
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-        infoFactory.addAttribute("sql", String.class, true);
-        infoFactory.addAttribute("returnType", Class.class, true);
-
-        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "sql", "returnType"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

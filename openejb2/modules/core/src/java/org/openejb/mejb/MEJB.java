@@ -48,11 +48,18 @@
 
 package org.openejb.mejb;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.kernel.Kernel;
+import org.openejb.EJBComponentType;
+import org.openejb.EjbDeployment;
+import org.openejb.EjbInvocation;
+import org.openejb.RpcEjbDeployment;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.MethodSignature;
+import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.proxy.ProxyInfo;
 
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
@@ -64,23 +71,11 @@ import javax.management.ObjectName;
 import javax.management.j2ee.Management;
 import javax.management.j2ee.ManagementHome;
 import javax.security.auth.Subject;
-
-import net.sf.cglib.reflect.FastClass;
-
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.openejb.EJBComponentType;
-import org.openejb.RpcEjbDeployment;
-import org.openejb.EjbInvocation;
-import org.openejb.EjbDeployment;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.ProxyInfo;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * @version $Rev$ $Date$
@@ -114,11 +109,11 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDe
         this.ejbName = ejbName;
         fastClass = FastClass.create(MEJB.class);
         LinkedHashMap vopMap = buildSignatures();
-        signatures = (InterfaceMethodSignature[])vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
+        signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         methodMap = new int[signatures.length];
         int i = 0;
-        for (Iterator it = vopMap.values().iterator(); it.hasNext(); ) {
-            methodMap[i++] = ((Integer)it.next()).intValue();
+        for (Iterator it = vopMap.values().iterator(); it.hasNext();) {
+            methodMap[i++] = ((Integer) it.next()).intValue();
         }
         proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, objectName, ManagementHome.class, Management.class, null, null, null, null);
         proxyFactory = new EJBProxyFactory(this);
@@ -225,26 +220,12 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDe
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && !(t instanceof RuntimeException)) {
                 // checked exception - which we simply include in the result
-                return ejbInvocation.createExceptionResult((Exception)t);
+                return ejbInvocation.createExceptionResult((Exception) t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
             }
         }
-    }
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
-        infoBuilder.addInterface(RpcEjbDeployment.class);
-
-        infoBuilder.setConstructor(new String[]{"objectName", "kernel"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

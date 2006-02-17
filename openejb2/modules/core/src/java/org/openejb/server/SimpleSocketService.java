@@ -47,28 +47,23 @@
  */
 package org.openejb.server;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.net.InetAddress;
-import java.net.Socket;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.ClassLoading;
-import org.openejb.DeploymentIndex;
-import org.openejb.OpenEJB;
 import org.activeio.xnet.ServerService;
-import org.activeio.xnet.hba.ServiceAccessController;
-import org.activeio.xnet.hba.IPAddressPermission;
 import org.activeio.xnet.ServiceException;
 import org.activeio.xnet.ServiceLogger;
 import org.activeio.xnet.ServicePool;
 import org.activeio.xnet.SocketService;
+import org.activeio.xnet.hba.IPAddressPermission;
+import org.activeio.xnet.hba.ServiceAccessController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.ClassLoading;
+import org.openejb.DeploymentIndex;
+import org.openejb.OpenEJB;
+
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.net.Socket;
 
 /**
  * @version $Revision$ $Date$
@@ -94,8 +89,8 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
         String name = "ejb";
         int threads = 20;
         int priority = Thread.NORM_PRIORITY;
-        String[] logOnSuccess = new String[]{"HOST","NAME","THREADID","USERID"};
-        String[] logOnFailure = new String[]{"HOST","NAME"};
+        String[] logOnSuccess = new String[]{"HOST", "NAME", "THREADID", "USERID"};
+        String[] logOnFailure = new String[]{"HOST", "NAME"};
 
         service = new ServicePool(service, name, threads, priority);
         service = new ServiceAccessController(name, service, onlyFrom);
@@ -132,26 +127,4 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
         return server.getName();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SimpleSocketService.class);
-
-        infoFactory.addAttribute("serviceClassName", String.class, true);
-        infoFactory.addAttribute("onlyFrom", InetAddress[].class, true);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("name", String.class, false);
-
-        infoFactory.addReference("ContainerIndex", DeploymentIndex.class, NameFactory.GERONIMO_SERVICE);
-
-        infoFactory.addInterface(SocketService.class);
-
-        infoFactory.setConstructor(new String[]{"serviceClassName", "onlyFrom", "ContainerIndex", "classLoader"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

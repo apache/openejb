@@ -76,11 +76,11 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 import org.apache.geronimo.transaction.manager.XidFactoryImplGBean;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
-import org.openejb.slsb.DefaultStatelessEjbContainer;
-import org.openejb.sfsb.DefaultStatefulEjbContainer;
-import org.openejb.entity.bmp.DefaultBmpEjbContainer;
-import org.openejb.entity.cmp.DefaultCmpEjbContainer;
-import org.openejb.mdb.DefaultMdbContainer;
+import org.openejb.slsb.DefaultStatelessEjbContainerGBean;
+import org.openejb.sfsb.DefaultStatefulEjbContainerGBean;
+import org.openejb.entity.bmp.DefaultBmpEjbContainerGBean;
+import org.openejb.entity.cmp.DefaultCmpEjbContainerGBean;
+import org.openejb.mdb.DefaultMdbContainerGBean;
 
 /**
  *
@@ -132,7 +132,7 @@ public class DeploymentHelper {
         GBeanData xidFacGBean = new GBeanData(XIDFACTORY_NAME, XidFactoryImplGBean.GBEAN_INFO);
         xidFacGBean.setAttribute("tmId", "WHAT DO WE CALL IT?".getBytes());
         start(kernel, xidFacGBean);
-        
+
         GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImplGBean.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
@@ -165,33 +165,33 @@ public class DeploymentHelper {
         nonTransactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
         start(kernel, nonTransactionalTimerGBean);
 
-        GBeanData statelessInterceptorStack = new GBeanData(STATELESS_EJB_CONTAINER_NAME, DefaultStatelessEjbContainer.GBEAN_INFO);
+        GBeanData statelessInterceptorStack = new GBeanData(STATELESS_EJB_CONTAINER_NAME, DefaultStatelessEjbContainerGBean.GBEAN_INFO);
         statelessInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         statelessInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
         statelessInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
         statelessInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
         start(kernel, statelessInterceptorStack);
 
-        GBeanData statefulInterceptorStack = new GBeanData(STATEFUL_EJB_CONTAINER_NAME, DefaultStatefulEjbContainer.GBEAN_INFO);
+        GBeanData statefulInterceptorStack = new GBeanData(STATEFUL_EJB_CONTAINER_NAME, DefaultStatefulEjbContainerGBean.GBEAN_INFO);
         statefulInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         statefulInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
         start(kernel, statefulInterceptorStack);
 
-        GBeanData bmpInterceptorStack = new GBeanData(BMP_EJB_CONTAINER_NAME, DefaultBmpEjbContainer.GBEAN_INFO);
+        GBeanData bmpInterceptorStack = new GBeanData(BMP_EJB_CONTAINER_NAME, DefaultBmpEjbContainerGBean.GBEAN_INFO);
         bmpInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         bmpInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
         bmpInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
         bmpInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
         start(kernel, bmpInterceptorStack);
 
-        GBeanData cmpInterceptorStack = new GBeanData(CMP_EJB_CONTAINER_NAME, DefaultCmpEjbContainer.GBEAN_INFO);
+        GBeanData cmpInterceptorStack = new GBeanData(CMP_EJB_CONTAINER_NAME, DefaultCmpEjbContainerGBean.GBEAN_INFO);
         cmpInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         cmpInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
         cmpInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
         cmpInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
         start(kernel, cmpInterceptorStack);
 
-        GBeanData mdbInterceptorStack = new GBeanData(MDB_EJB_CONTAINER_NAME, DefaultMdbContainer.GBEAN_INFO);
+        GBeanData mdbInterceptorStack = new GBeanData(MDB_EJB_CONTAINER_NAME, DefaultMdbContainerGBean.GBEAN_INFO);
         mdbInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         mdbInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
         mdbInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);

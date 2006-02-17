@@ -47,14 +47,8 @@
  */
 package org.openejb;
 
-import java.util.Hashtable;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -65,6 +59,10 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.util.Hashtable;
 
 /**
  * @version $Revision$ $Date$
@@ -162,36 +160,5 @@ public class EJBModuleImpl implements EJBModule {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EJBModuleImpl.class, NameFactory.EJB_MODULE);
-        infoBuilder.addReference("J2EEServer", J2EEServer.class);
-        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
-
-        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("server", String.class, false);
-        infoBuilder.addAttribute("application", String.class, false);
-        infoBuilder.addAttribute("javaVMs", String[].class, false);
-        infoBuilder.addAttribute("ejbs", String[].class, false);
-
-        infoBuilder.addInterface(EJBModule.class);
-
-        infoBuilder.setConstructor(new String[]{
-                "kernel",
-                "objectName",
-                "J2EEServer",
-                "J2EEApplication",
-                "deploymentDescriptor",
-        });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }
