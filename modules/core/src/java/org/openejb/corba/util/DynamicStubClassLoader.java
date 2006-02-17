@@ -44,9 +44,6 @@
  */
 package org.openejb.corba.util;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
 import net.sf.cglib.proxy.Callback;
@@ -57,10 +54,10 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 
 /**
@@ -174,7 +171,8 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
                 return 0;
             }
 
-            if (method.getReturnType().equals(String[].class) && method.getParameterTypes().length ==0 && method.getName() == "_ids"){
+            if (method.getReturnType().equals(String[].class) && method.getParameterTypes().length == 0 && method.getName() == "_ids")
+            {
                 return 2;
             }
 
@@ -213,16 +211,4 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
         log.warn("Failed");
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DynamicStubClassLoader.class, NameFactory.CORBA_SERVICE);
-        infoFactory.addOperation("loadClass", new Class[]{String.class});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -54,7 +54,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.DeploymentIndex;
+import org.openejb.DeploymentIndexGBean;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessBuilder;
 import org.openejb.proxy.EJBProxyReference;
@@ -177,7 +177,7 @@ public class BasicStatelessContainerTest extends TestCase {
         start(CONTAINER_NAME, container);
 
         ObjectName containerIndexname = JMXUtil.getObjectName("geronimo.test:type=ConatainerIndex");
-        GBeanData containerIndex = new GBeanData(containerIndexname, DeploymentIndex.GBEAN_INFO);
+        GBeanData containerIndex = new GBeanData(containerIndexname, DeploymentIndexGBean.GBEAN_INFO);
         containerIndex.setReferencePattern("EjbDeployments", CONTAINER_NAME);
         kernel.loadGBean(containerIndex, classLoader);
         kernel.startGBean(containerIndexname);

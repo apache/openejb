@@ -47,27 +47,8 @@
  */
 package org.openejb.mdb;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeSet;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.resource.spi.UnavailableException;
-import javax.resource.spi.endpoint.MessageEndpoint;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.security.auth.Subject;
-import javax.transaction.xa.XAResource;
-
 import org.apache.geronimo.connector.ActivationSpecWrapper;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
@@ -85,6 +66,22 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.util.SoftLimitedInstancePool;
+
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.resource.spi.UnavailableException;
+import javax.resource.spi.endpoint.MessageEndpoint;
+import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.security.auth.Subject;
+import javax.transaction.xa.XAResource;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeSet;
 
 /**
  * @version $Revision$ $Date$
@@ -110,28 +107,28 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
     private final InstancePool instancePool;
 
     public MdbDeployment(String containerId,
-            String ejbName,
+                         String ejbName,
 
-            String endpointInterfaceName,
-            String beanClassName,
-            ClassLoader classLoader,
+                         String endpointInterfaceName,
+                         String beanClassName,
+                         ClassLoader classLoader,
 
-            ActivationSpecWrapper activationSpecWrapper,
+                         ActivationSpecWrapper activationSpecWrapper,
 
-            MdbContainer ejbContainer,
+                         MdbContainer ejbContainer,
 
-            String policyContextId,
-            Subject runAs,
+                         String policyContextId,
+                         Subject runAs,
 
-            boolean beanManagedTransactions,
-            SortedMap transactionPolicies,
+                         boolean beanManagedTransactions,
+                         SortedMap transactionPolicies,
 
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
+                         Set unshareableResources,
+                         Set applicationManagedSecurityResources,
 
-            Map componentContext,
+                         Map componentContext,
 
-            Kernel kernel) throws Exception {
+                         Kernel kernel) throws Exception {
         this(containerId,
                 ejbName,
                 loadClass(beanClassName, classLoader, "bean class"),
@@ -150,28 +147,28 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
     }
 
     public MdbDeployment(String containerId,
-            String ejbName,
+                         String ejbName,
 
-            Class beanClass,
-            Class endpointInterface,
-            ClassLoader classLoader,
+                         Class beanClass,
+                         Class endpointInterface,
+                         ClassLoader classLoader,
 
-            ActivationSpecWrapper activationSpecWrapper,
+                         ActivationSpecWrapper activationSpecWrapper,
 
-            MdbContainer ejbContainer,
+                         MdbContainer ejbContainer,
 
-            String policyContextId,
-            Subject runAs,
+                         String policyContextId,
+                         Subject runAs,
 
-            boolean beanManagedTransactions,
-            SortedMap transactionPolicies,
+                         boolean beanManagedTransactions,
+                         SortedMap transactionPolicies,
 
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
+                         Set unshareableResources,
+                         Set applicationManagedSecurityResources,
 
-            Map componentContext,
+                         Map componentContext,
 
-            Kernel kernel) throws Exception {
+                         Kernel kernel) throws Exception {
 
         super(containerId,
                 ejbName,
@@ -293,7 +290,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
     }
 
     public MessageEndpoint createEndpoint(XAResource adapterXAResource) throws UnavailableException {
-        NamedXAResource wrapper = adapterXAResource == null? null: new WrapperNamedXAResource(adapterXAResource, containerId);
+        NamedXAResource wrapper = adapterXAResource == null ? null : new WrapperNamedXAResource(adapterXAResource, containerId);
         return endpointFactory.getMessageEndpoint(wrapper);
     }
 
@@ -340,69 +337,5 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
         return methodIndexMap;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MdbDeployment.class, NameFactory.MESSAGE_DRIVEN_BEAN);
-
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("ejbName", String.class, true);
-
-        infoFactory.addAttribute("endpointInterfaceName", String.class, true);
-        infoFactory.addAttribute("beanClassName", String.class, true);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoFactory.addReference("ActivationSpecWrapper", ActivationSpecWrapper.class, NameFactory.JCA_ACTIVATION_SPEC);
-
-        infoFactory.addReference("ejbContainer", MdbContainer.class, "MdbContainer");
-
-        infoFactory.addAttribute("policyContextId", String.class, true);
-        infoFactory.addAttribute("runAs", Subject.class, true);
-
-        infoFactory.addAttribute("beanManagedTransactions", boolean.class, true);
-        infoFactory.addAttribute("transactionPolicies", SortedMap.class, true);
-
-        infoFactory.addAttribute("unshareableResources", Set.class, true);
-        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
-
-        infoFactory.addAttribute("componentContextMap", Map.class, true);
-
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-
-        infoFactory.setConstructor(new String[]{
-            "objectName",
-            "ejbName",
-
-            "endpointInterfaceName",
-            "beanClassName",
-            "classLoader",
-
-            "ActivationSpecWrapper",
-
-            "ejbContainer",
-
-            "policyContextId",
-            "runAs",
-
-            "beanManagedTransactions",
-            "transactionPolicies",
-
-            "unshareableResources",
-            "applicationManagedSecurityResources",
-
-            "componentContextMap",
-
-            "kernel"
-        });
-
-        infoFactory.addInterface(MdbDeployment.class);
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 
 }

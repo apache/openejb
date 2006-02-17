@@ -47,22 +47,26 @@
  */
 package org.openejb.slsb;
 
-import javax.ejb.SessionContext;
-import javax.ejb.Timer;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.openejb.CallbackMethod;
+import org.openejb.ConnectionTrackingInterceptor;
+import org.openejb.EJBInstanceContext;
+import org.openejb.EJBInterfaceType;
+import org.openejb.EjbCallbackInvocation;
+import org.openejb.EjbInvocation;
+import org.openejb.EjbInvocationImpl;
+import org.openejb.ExtendedEjbDeployment;
+import org.openejb.StatelessEjbContainer;
+import org.openejb.SystemExceptionInterceptor;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.naming.ComponentContextInterceptor;
 import org.openejb.security.DefaultSubjectInterceptor;
@@ -70,20 +74,10 @@ import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EjbRunAsInterceptor;
 import org.openejb.security.EjbSecurityInterceptor;
 import org.openejb.security.PolicyContextHandlerEJBInterceptor;
-import org.openejb.slsb.HandlerChainInterceptor;
-import org.openejb.slsb.StatelessCallbackInterceptor;
-import org.openejb.slsb.StatelessInstanceInterceptor;
-import org.openejb.StatelessEjbContainer;
 import org.openejb.transaction.TransactionContextInterceptor;
-import org.openejb.ConnectionTrackingInterceptor;
-import org.openejb.SystemExceptionInterceptor;
-import org.openejb.EJBInstanceContext;
-import org.openejb.EjbCallbackInvocation;
-import org.openejb.CallbackMethod;
-import org.openejb.ExtendedEjbDeployment;
-import org.openejb.EjbInvocation;
-import org.openejb.EjbInvocationImpl;
-import org.openejb.EJBInterfaceType;
+
+import javax.ejb.SessionContext;
+import javax.ejb.Timer;
 
 
 /**
@@ -161,7 +155,6 @@ public class DefaultStatelessEjbContainer implements StatelessEjbContainer {
         invocationChain = new DefaultSubjectInterceptor(invocationChain);
         this.invocationChain = invocationChain;
 
-
         //
         // Callback chain is used for ejb state change callbacks
         //
@@ -223,7 +216,7 @@ public class DefaultStatelessEjbContainer implements StatelessEjbContainer {
     }
 
     public void timeout(ExtendedEjbDeployment deployment, Object id, Timer timer, int ejbTimeoutIndex) {
-        EjbInvocation invocation = new EjbInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeoutIndex, new Object[] {timer});
+        EjbInvocation invocation = new EjbInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeoutIndex, new Object[]{timer});
         invocation.setEjbDeployment(deployment);
 
         // set the transaction context into the invocation object
@@ -245,33 +238,5 @@ public class DefaultStatelessEjbContainer implements StatelessEjbContainer {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultStatelessEjbContainer.class, "StatelessEjbContainer");
-
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoFactory.addReference("TransactedTimer", PersistentTimer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("NontransactedTimer", PersistentTimer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addAttribute("securityEnabled", boolean.class, true);
-        infoFactory.addAttribute("doAsCurrentCaller", boolean.class, true);
-        infoFactory.addAttribute("useContextHandler", boolean.class, true);
-        infoFactory.setConstructor(new String[]{
-            "TransactionContextManager",
-            "TrackedConnectionAssociator",
-            "TransactedTimer",
-            "NontransactedTimer",
-            "securityEnabled",
-            "doAsCurrentCaller",
-            "useContextHandler"});
-
-        infoFactory.addInterface(StatelessEjbContainer.class);
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

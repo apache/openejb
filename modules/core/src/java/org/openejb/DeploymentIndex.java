@@ -44,17 +44,15 @@
  */
 package org.openejb;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 
 
 /**
@@ -209,30 +207,7 @@ public class DeploymentIndex implements ReferenceCollectionListener, GBeanLifecy
         return deployments[index];
     }
 
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DeploymentIndex.class); //name apparently hardcoded
-
-        infoFactory.setConstructor(new String[]{"EjbDeployments"});
-
-        infoFactory.addOperation("getDeploymentIndex", new Class[]{Object.class});
-        infoFactory.addOperation("getDeploymentIndex", new Class[]{String.class});
-        infoFactory.addOperation("getDeploymentIndexByJndiName", new Class[]{String.class});
-        infoFactory.addOperation("getDeployment", new Class[]{String.class});
-        infoFactory.addOperation("getDeployment", new Class[]{Integer.class});
-        infoFactory.addOperation("getDeployment", new Class[]{Integer.TYPE});
-        infoFactory.addOperation("getDeploymentByJndiName", new Class[]{String.class});
-
-        infoFactory.addReference("EjbDeployments", RpcEjbDeployment.class);//many types, specify type in patterns
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }
 
 

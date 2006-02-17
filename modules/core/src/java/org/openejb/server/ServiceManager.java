@@ -392,7 +392,7 @@ public class ServiceManager {
 
         ClassLoader classLoader = ServiceManager.class.getClassLoader();
 
-        GBeanData socketService = new GBeanData(SOCKETSERVICE_NAME, SimpleSocketService.GBEAN_INFO);
+        GBeanData socketService = new GBeanData(SOCKETSERVICE_NAME, SimpleSocketServiceGBean.GBEAN_INFO);
         socketService.setAttribute("serviceClassName", serviceClass.getName());
         socketService.setAttribute("onlyFrom", new InetAddress[]{InetAddress.getByName(host)});
         socketService.setReferencePattern("ContainerIndex", CONTAINER_INDEX);

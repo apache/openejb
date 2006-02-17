@@ -70,7 +70,7 @@ import org.openejb.xbeans.pkgen.EjbCustomGeneratorType;
 import org.openejb.xbeans.pkgen.EjbSequenceTableType;
 import org.openejb.xbeans.pkgen.EjbSqlGeneratorType;
 import org.openejb.xbeans.pkgen.EjbAutoIncrementTableType;
-import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
+import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapperGBean;
 
 /**
  * Process the key-generator element in a deployment descriptor, and create
@@ -119,7 +119,7 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
                 try {
                     ObjectName generatorObjectName = new ObjectName(generatorName);
                     ObjectName wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
-                    keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
+                    keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapperGBean.GBEAN_INFO);
                     keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
                     keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
                 } catch (Exception e) {

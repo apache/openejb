@@ -79,8 +79,8 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.openejb.BmpEjbDeployment;
 import org.openejb.EJBComponentType;
+import org.openejb.BmpEjbDeploymentGBean;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbTssType;
@@ -215,7 +215,7 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
             EntityBeanType entityBean = entityBeans[i];
 
             ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
-            GBeanData gbean = new GBeanData(entityObjectName, BmpEjbDeployment.GBEAN_INFO);
+            GBeanData gbean = new GBeanData(entityObjectName, BmpEjbDeploymentGBean.GBEAN_INFO);
 
             Class homeInterface = null;
             Class remoteInterface = null;

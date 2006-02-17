@@ -44,15 +44,9 @@
  */
 package org.openejb.corba;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -70,6 +64,9 @@ import org.openejb.corba.security.ServerPolicy;
 import org.openejb.corba.security.ServerPolicyFactory;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @version $Revision$ $Date$
@@ -122,6 +119,7 @@ public class TSSBean implements GBeanLifecycle {
     /**
      * TODO: Security policy really shouldn't be inserted if there is not CSI
      * config to put into it.
+     *
      * @throws Exception
      */
     public void doStart() throws Exception {
@@ -137,12 +135,12 @@ public class TSSBean implements GBeanLifecycle {
 
             securityPolicy = orb.create_policy(ServerPolicyFactory.POLICY_TYPE, any);
             Policy[] policies = new Policy[]{
-                securityPolicy,
-                rootPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
-                rootPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
-                rootPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
-                rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
-                rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
+                    securityPolicy,
+                    rootPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
+                    rootPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
+                    rootPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
+                    rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
+                    rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
             localPOA = rootPOA.create_POA(POAName, rootPOA.the_POAManager(), policies);
 
@@ -212,26 +210,6 @@ public class TSSBean implements GBeanLifecycle {
                 log.error(POAName + " - Error unlinking container " + container.getContainerId(), e);
             }
         }
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(TSSBean.class, NameFactory.CORBA_TSS);
-
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("POAName", String.class, true);
-        infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
-        infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addOperation("registerContainer", new Class[] {RpcEjbDeployment.class});
-        infoFactory.addOperation("unregisterContainer", new Class[] {RpcEjbDeployment.class});
-        infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

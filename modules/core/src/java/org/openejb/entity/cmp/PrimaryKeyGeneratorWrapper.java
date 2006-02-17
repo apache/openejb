@@ -47,26 +47,22 @@
  */
 package org.openejb.entity.cmp;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 
 /**
- *
  * @version $Revision$ $Date$
  */
-public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
+public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle {
     private final PrimaryKeyGenerator keyGenerator;
     private final PrimaryKeyGeneratorDelegate keyGeneratorDelegate;
-    
+
     public PrimaryKeyGeneratorWrapper(PrimaryKeyGenerator keyGenerator, PrimaryKeyGeneratorDelegate keyGeneratorDelegate) {
         this.keyGenerator = keyGenerator;
         this.keyGeneratorDelegate = keyGeneratorDelegate;
     }
-    
+
     public void doStart() throws Exception {
         keyGeneratorDelegate.setPrimaryKeyGenerator(keyGenerator);
     }
@@ -79,22 +75,4 @@ public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
         keyGeneratorDelegate.setPrimaryKeyGenerator(null);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(PrimaryKeyGeneratorWrapper.class);
-        infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addAttribute("primaryKeyGeneratorDelegate", PrimaryKeyGeneratorDelegate.class, true);
-
-        infoFactory.setConstructor(new String[]{
-            "PrimaryKeyGenerator",
-            "primaryKeyGeneratorDelegate"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }

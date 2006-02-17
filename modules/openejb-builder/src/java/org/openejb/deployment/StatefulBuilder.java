@@ -52,6 +52,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.openejb.StatefulEjbDeployment;
+import org.openejb.StatefulEjbDeploymentGBean;
 
 /**
  * @version $Revision$ $Date$
@@ -64,7 +65,7 @@ public class StatefulBuilder extends SessionBuilder {
     }
 
     protected GBeanInfo getTargetGBeanInfo() {
-        return StatefulEjbDeployment.GBEAN_INFO;
+        return StatefulEjbDeploymentGBean.GBEAN_INFO;
     }
 
     public GBeanData createConfiguration() throws Exception {

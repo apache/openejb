@@ -91,7 +91,7 @@ import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.xmlbeans.XmlException;
 import org.openejb.EJBComponentType;
-import org.openejb.StatelessEjbDeployment;
+import org.openejb.StatelessEjbDeploymentGBean;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbTssType;
@@ -366,7 +366,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             SessionBeanType sessionBean = sessionBeans[i];
 
             ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
-            GBeanData gbean = new GBeanData(sessionObjectName, StatelessEjbDeployment.GBEAN_INFO);
+            GBeanData gbean = new GBeanData(sessionObjectName, StatelessEjbDeploymentGBean.GBEAN_INFO);
 
             Class homeInterface = null;
             Class remoteInterface = null;

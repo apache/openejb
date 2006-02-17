@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.axis.builder.AxisBuilder;
-import org.openejb.DeploymentIndex;
+import org.openejb.DeploymentIndexGBean;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -201,7 +201,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID_ARRAY);
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
-            GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, DeploymentIndex.GBEAN_INFO);
+            GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, DeploymentIndexGBean.GBEAN_INFO);
             Set ejbContainerNames = new HashSet();
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,*"));
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatefulSessionBean,*"));

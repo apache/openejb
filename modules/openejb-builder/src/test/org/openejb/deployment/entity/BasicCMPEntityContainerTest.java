@@ -53,7 +53,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashSet;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -68,13 +67,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.DeploymentIndex;
+import org.openejb.DeploymentIndexGBean;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.CmpBuilder;
 import org.openejb.entity.cmp.EntitySchema;
 import org.openejb.entity.cmp.ModuleSchema;
-import org.openejb.entity.cmp.TranqlModuleCmpEngine;
+import org.openejb.entity.cmp.TranqlModuleCmpEngineGBean;
 
 /**
  * @version $Revision$ $Date$
@@ -341,7 +340,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         entitySchema.addCmpField("value", "value", String.class, false);
 
         ObjectName moduleCmpEngineObjectName = new ObjectName("openejb.server:name=ModuleCmpEngine");
-        GBeanData moduleCmpEngineBeanData = new GBeanData(moduleCmpEngineObjectName, TranqlModuleCmpEngine.GBEAN_INFO);
+        GBeanData moduleCmpEngineBeanData = new GBeanData(moduleCmpEngineObjectName, TranqlModuleCmpEngineGBean.GBEAN_INFO);
         moduleCmpEngineBeanData.setAttribute("moduleSchema", moduleSchema);
         moduleCmpEngineBeanData.setReferencePattern("transactionManager", DeploymentHelper.TRANSACTIONMANAGER_NAME);
         moduleCmpEngineBeanData.setReferencePattern("connectionFactory", connectionProxyFactoryObjectName);
@@ -363,7 +362,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         container = builder.createConfiguration();
 
-        GBeanData containerIndex = new GBeanData(DeploymentIndex.GBEAN_INFO);
+        GBeanData containerIndex = new GBeanData(DeploymentIndexGBean.GBEAN_INFO);
         containerIndex.setReferencePatterns("EjbDeployments", Collections.singleton(CONTAINER_NAME));
         start(CI_NAME, containerIndex);
 

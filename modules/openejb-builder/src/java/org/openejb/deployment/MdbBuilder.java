@@ -56,7 +56,7 @@ import javax.security.auth.Subject;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.openejb.mdb.MdbDeployment;
+import org.openejb.mdb.MdbDeploymentGBean;
 
 
 /**
@@ -194,7 +194,7 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
     }
 
     public GBeanData createConfiguration() throws Exception {
-        GBeanData gbean = new GBeanData(containerId, MdbDeployment.GBEAN_INFO);
+        GBeanData gbean = new GBeanData(containerId, MdbDeploymentGBean.GBEAN_INFO);
         gbean.setAttribute("ejbName", ejbName);
 
         gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);

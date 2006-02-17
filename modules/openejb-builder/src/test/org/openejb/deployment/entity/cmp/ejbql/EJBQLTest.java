@@ -73,7 +73,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.DeploymentIndex;
+import org.openejb.DeploymentIndexGBean;
 import org.openejb.deployment.CmpSchemaBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.KernelHelper;
@@ -197,7 +197,7 @@ public class EJBQLTest extends TestCase {
             assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(moduleCmpEngineName));
 
 
-            GBeanData containerIndex = new GBeanData(DeploymentIndex.GBEAN_INFO);
+            GBeanData containerIndex = new GBeanData(DeploymentIndexGBean.GBEAN_INFO);
             Set patterns = new HashSet();
             patterns.add(C_NAME_A);
             containerIndex.setReferencePatterns("EjbDeployments", patterns);

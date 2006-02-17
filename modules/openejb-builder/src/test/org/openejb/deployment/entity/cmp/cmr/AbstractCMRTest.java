@@ -72,7 +72,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.DeploymentIndex;
+import org.openejb.DeploymentIndexGBean;
 import org.openejb.deployment.CmpSchemaBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.KernelHelper;
@@ -182,7 +182,7 @@ public abstract class AbstractCMRTest extends TestCase {
             assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(moduleCmpEngineName));
 
 
-            GBeanData containerIndex = new GBeanData(DeploymentIndex.GBEAN_INFO);
+            GBeanData containerIndex = new GBeanData(DeploymentIndexGBean.GBEAN_INFO);
             Set patterns = new HashSet();
             patterns.add(C_NAME_A);
             patterns.add(C_NAME_B);

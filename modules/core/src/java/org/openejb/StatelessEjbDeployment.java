@@ -47,20 +47,6 @@
  */
 package org.openejb;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeSet;
-import javax.ejb.Handle;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.security.auth.Subject;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.J2EEManagedObject;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -78,6 +64,17 @@ import org.openejb.slsb.StatelessInstanceContextFactory;
 import org.openejb.slsb.StatelessInstanceFactory;
 import org.openejb.util.SoftLimitedInstancePool;
 
+import javax.ejb.Handle;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.security.auth.Subject;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeSet;
+
 
 /**
  * @version $Revision$ $Date$
@@ -88,41 +85,41 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
     private final MethodMap dispatchMethodMap;
 
     public StatelessEjbDeployment(String containerId,
-            String ejbName,
+                                  String ejbName,
 
-            String homeInterfaceName,
-            String remoteInterfaceName,
-            String localHomeInterfaceName,
-            String localInterfaceName,
-            String serviceEndpointInterfaceName,
-            String beanClassName,
-            ClassLoader classLoader,
+                                  String homeInterfaceName,
+                                  String remoteInterfaceName,
+                                  String localHomeInterfaceName,
+                                  String localInterfaceName,
+                                  String serviceEndpointInterfaceName,
+                                  String beanClassName,
+                                  ClassLoader classLoader,
 
-            StatelessEjbContainer ejbContainer,
+                                  StatelessEjbContainer ejbContainer,
 
-            String[] jndiNames,
-            String[] localJndiNames,
+                                  String[] jndiNames,
+                                  String[] localJndiNames,
 
-            boolean securityEnabled,
-            String policyContextId,
-            DefaultPrincipal defaultPrincipal,
-            Subject runAs,
+                                  boolean securityEnabled,
+                                  String policyContextId,
+                                  DefaultPrincipal defaultPrincipal,
+                                  Subject runAs,
 
-            boolean beanManagedTransactions,
-            SortedMap transactionPolicies,
+                                  boolean beanManagedTransactions,
+                                  SortedMap transactionPolicies,
 
-            Map componentContext,
+                                  Map componentContext,
 
-            Kernel kernel,
+                                  Kernel kernel,
 
-            TSSBean tssBean,
+                                  TSSBean tssBean,
 
-            // connector stuff
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
+                                  // connector stuff
+                                  Set unshareableResources,
+                                  Set applicationManagedSecurityResources,
 
-            // web services
-            List handlerInfos) throws Exception {
+                                  // web services
+                                  List handlerInfos) throws Exception {
 
         this(containerId,
                 ejbName,
@@ -151,41 +148,41 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
     }
 
     public StatelessEjbDeployment(String containerId,
-            String ejbName,
+                                  String ejbName,
 
-            Class homeInterface,
-            Class remoteInterface,
-            Class localHomeInterface,
-            Class localInterface,
-            Class serviceEndpointInterface,
-            Class beanClass,
-            ClassLoader classLoader,
+                                  Class homeInterface,
+                                  Class remoteInterface,
+                                  Class localHomeInterface,
+                                  Class localInterface,
+                                  Class serviceEndpointInterface,
+                                  Class beanClass,
+                                  ClassLoader classLoader,
 
-            StatelessEjbContainer ejbContainer,
+                                  StatelessEjbContainer ejbContainer,
 
-            String[] jndiNames,
-            String[] localJndiNames,
+                                  String[] jndiNames,
+                                  String[] localJndiNames,
 
-            boolean securityEnabled,
-            String policyContextId,
-            DefaultPrincipal defaultPrincipal,
-            Subject runAs,
+                                  boolean securityEnabled,
+                                  String policyContextId,
+                                  DefaultPrincipal defaultPrincipal,
+                                  Subject runAs,
 
-            boolean beanManagedTransactions,
-            SortedMap transactionPolicies,
+                                  boolean beanManagedTransactions,
+                                  SortedMap transactionPolicies,
 
-            Map componentContext,
+                                  Map componentContext,
 
-            Kernel kernel,
+                                  Kernel kernel,
 
-            TSSBean tssBean,
+                                  TSSBean tssBean,
 
-            // connector stuff
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
+                                  // connector stuff
+                                  Set unshareableResources,
+                                  Set applicationManagedSecurityResources,
 
-            // web services
-            List handlerInfos) throws Exception {
+                                  // web services
+                                  List handlerInfos) throws Exception {
 
         super(containerId,
                 ejbName,
@@ -292,90 +289,4 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
         return handlerInfos;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(StatelessEjbDeployment.class, NameFactory.STATELESS_SESSION_BEAN);
-
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("ejbName", String.class, true);
-
-        infoFactory.addAttribute("homeInterfaceName", String.class, true);
-        infoFactory.addAttribute("remoteInterfaceName", String.class, true);
-        infoFactory.addAttribute("localHomeInterfaceName", String.class, true);
-        infoFactory.addAttribute("localInterfaceName", String.class, true);
-        infoFactory.addAttribute("serviceEndpointInterfaceName", String.class, true);
-        infoFactory.addAttribute("beanClassName", String.class, true);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoFactory.addReference("ejbContainer", StatelessEjbContainer.class, "StatelessEjbContainer");
-
-        infoFactory.addAttribute("jndiNames", String[].class, true);
-        infoFactory.addAttribute("localJndiNames", String[].class, true);
-
-        infoFactory.addAttribute("securityEnabled", boolean.class, true);
-        infoFactory.addAttribute("policyContextId", String.class, true);
-        infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
-        infoFactory.addAttribute("runAs", Subject.class, true);
-
-        infoFactory.addAttribute("beanManagedTransactions", boolean.class, true);
-        infoFactory.addAttribute("transactionPolicies", SortedMap.class, true);
-
-        infoFactory.addAttribute("componentContextMap", Map.class, true);
-
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-
-        infoFactory.addReference("TSSBean", TSSBean.class);
-
-        infoFactory.addAttribute("unshareableResources", Set.class, true);
-        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
-
-        infoFactory.addAttribute("handlerInfos", List.class, true);
-
-        infoFactory.setConstructor(new String[]{
-                "objectName",
-                "ejbName",
-
-                "homeInterfaceName",
-                "remoteInterfaceName",
-                "localHomeInterfaceName",
-                "localInterfaceName",
-                "serviceEndpointInterfaceName",
-                "beanClassName",
-                "classLoader",
-
-                "ejbContainer",
-
-                "jndiNames",
-                "localJndiNames",
-
-                "securityEnabled",
-                "policyContextId",
-                "defaultPrincipal",
-                "runAs",
-
-                "beanManagedTransactions",
-                "transactionPolicies",
-
-                "componentContextMap",
-
-                "kernel",
-
-                "TSSBean",
-
-                "unshareableResources",
-                "applicationManagedSecurityResources",
-
-                "handlerInfos",
-        });
-
-        infoFactory.addInterface(StatelessEjbDeployment.class);
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

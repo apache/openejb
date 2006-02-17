@@ -44,34 +44,30 @@
  */
 package org.openejb.corba;
 
-import java.io.File;
-import java.util.Properties;
-import java.net.InetSocketAddress;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.omg.CORBA.ORB;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.util.Properties;
 
 
 /**
  * Starts the Sun transient cos naming service using NSORB.  This only not run
  * on a Java VM containing the Sun ORB classes.  Add the following to your plan
  * to use this service:
- *
- *  <gbean name="NameServer" class="org.openejb.corba.SunNameService">
- *      <reference name="ServerInfo">
- *          <module>geronimo/j2ee-system/${geronimo_version}/car</module>
- *          <name>ServerInfo</name>
- *      </reference>
- *      <attribute name="dbDir">var/cosnaming.db</attribute>
- *      <attribute name="port">2809</attribute>
- *  </gbean>
+ * <p/>
+ * <gbean name="NameServer" class="org.openejb.corba.SunNameService">
+ * <reference name="ServerInfo">
+ * <module>geronimo/j2ee-system/${geronimo_version}/car</module>
+ * <name>ServerInfo</name>
+ * </reference>
+ * <attribute name="dbDir">var/cosnaming.db</attribute>
+ * <attribute name="port">2809</attribute>
+ * </gbean>
  *
  * @version $Revision$ $Date$
  */
@@ -148,21 +144,4 @@ public class SunNameService implements GBeanLifecycle {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("CORBA Naming Service", SunNameService.class, NameFactory.CORBA_SERVICE);
-
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoFactory.addAttribute("dbDir", String.class, true);
-        infoFactory.addAttribute("port", int.class, true);
-        infoFactory.addAttribute("address", InetSocketAddress.class, false);
-        infoFactory.setConstructor(new String[]{"ServerInfo", "dbDir", "port"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

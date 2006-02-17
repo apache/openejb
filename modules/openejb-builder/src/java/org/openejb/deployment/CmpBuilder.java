@@ -48,7 +48,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.openejb.CmpEjbDeployment;
+import org.openejb.CmpEjbDeploymentGBean;
 
 /**
  * @version $Revision$ $Date$
@@ -66,7 +66,7 @@ public class CmpBuilder extends EntityBuilder {
     }
 
     protected GBeanInfo getTargetGBeanInfo() {
-        return CmpEjbDeployment.GBEAN_INFO;
+        return CmpEjbDeploymentGBean.GBEAN_INFO;
     }
 
 

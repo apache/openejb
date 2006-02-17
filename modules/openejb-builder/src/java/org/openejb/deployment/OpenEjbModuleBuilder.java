@@ -108,7 +108,7 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.openejb.EJBModuleImpl;
+import org.openejb.EJBModuleImplGBean;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
@@ -400,7 +400,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to construct module name", e);
         }
 
-        GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);
+        GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImplGBean.GBEAN_INFO);
         try {
             ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
             if (!earContext.getJ2EEApplicationName().equals("null")) {
