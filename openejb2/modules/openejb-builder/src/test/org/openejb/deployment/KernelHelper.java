@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.net.URI;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Collections;
 import java.util.Map;
@@ -134,6 +136,10 @@ public class KernelHelper {
         }
 
         public File createNewConfigurationDir() {
+            return null;
+        }
+
+        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
             return null;
         }
 
