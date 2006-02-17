@@ -62,10 +62,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 
 /**
  * @version $Revision$ $Date$
@@ -73,8 +71,8 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 public interface DeploymentTestContants {
     public static final ObjectName CONFIGURATION_OBJECT_NAME = IGNORE.createConfigurationObjectName();
     public static final ObjectName CONNECTION_OBJECT_NAME = IGNORE.createConnectionObjectName();
-    public static final String DOMAIN_NAME = DeploymentHelper.j2eeDomainName;
-    public static final String SERVER_NAME = DeploymentHelper.j2eeServerName;
+    public static final String DOMAIN_NAME = DeploymentHelper.DOMAIN_NAME;
+    public static final String SERVER_NAME = DeploymentHelper.SERVER_NAME;
 
     public static final ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
         public Reference createResourceRef(String containerId, Class iface) {

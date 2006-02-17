@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -42,7 +43,6 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.deployment.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -52,15 +52,14 @@ public class KernelHelper {
     public static final Environment ENVIRONMENT = new Environment();
 
     static {
-        Map nameKeys = new HashMap();
-        nameKeys.put("domain", "test");
-        nameKeys.put("J2EEServer", "server");
+        Map Properties = new HashMap();
+        Properties.put(NameFactory.JSR77_BASE_NAME_PROPERTY, DeploymentHelper.BASE_NAME);
         Artifact defaultConfigId = Artifact.create("geronimo/server/1/car");
         DEFAULT_ENVIRONMENT.setConfigId(defaultConfigId);
-        DEFAULT_ENVIRONMENT.addNameKeys(nameKeys);
+        DEFAULT_ENVIRONMENT.addProperties(Properties);
         Artifact configId = Artifact.create("test/test/1/car");
         ENVIRONMENT.setConfigId(configId);
-        ENVIRONMENT.addNameKeys(nameKeys);
+        ENVIRONMENT.addProperties(Properties);
     }
 
     public static Kernel getPreparedKernel() throws Exception {
