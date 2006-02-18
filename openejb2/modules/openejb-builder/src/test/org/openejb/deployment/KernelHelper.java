@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -89,6 +90,7 @@ public class KernelHelper {
 
     public static class MockConfigStore implements ConfigurationStore {
         private final Kernel kernel;
+        private static final Map locations = new HashMap();
 
         public MockConfigStore(Kernel kernel) {
             this.kernel = kernel;
@@ -98,7 +100,7 @@ public class KernelHelper {
             return null;
         }
 
-        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
@@ -134,12 +136,22 @@ public class KernelHelper {
             return null;
         }
 
-        public File createNewConfigurationDir() {
-            return null;
+        public File createNewConfigurationDir(Artifact configId) {
+            try {
+                File file = DeploymentUtil.createTempDir();
+                locations.put(configId, file);
+                return file;
+            } catch (IOException e) {
+                return null;
+            }
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return null;
+            File file = (File) locations.get(configId);
+            if (file == null) {
+                throw new NoSuchConfigException("nothing for configid " + configId);
+            }
+            return new URL(file.toURL(), uri.toString());
         }
 
         public final static GBeanInfo GBEAN_INFO;

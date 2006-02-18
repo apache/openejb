@@ -70,9 +70,11 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
@@ -91,6 +93,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     private Kernel kernel;
     private DataSource dataSource;
     private ClassLoader applicationClassLoader;
+    private ConfigurationStore configurationStore = new KernelHelper.MockConfigStore(null);
 
     protected DeploymentTestSuite(Class testClass, File moduleFile) {
         super(new TestSuite(testClass));
@@ -183,7 +186,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             try {
                 jarFile =DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, tempDir);
+                configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, configurationStore);
             } finally {
                 if (jarFile != null) {
                     jarFile.close();
@@ -194,7 +197,9 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
             config.setName(CONFIGURATION_OBJECT_NAME);
             config.setAttribute("baseURL", tempDir.toURL());
-            config.setAttribute("parentId", (Artifact[]) KernelHelper.DEFAULT_ENVIRONMENT.getImports().toArray(new Artifact[KernelHelper.DEFAULT_ENVIRONMENT.getImports().size()]));
+            config.setAttribute("environment", configurationData.getEnvironment());
+            config.setReferencePattern("ConfigurationStore", JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"));
+
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
