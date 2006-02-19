@@ -49,25 +49,24 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.Kernel;
 import org.openejb.dispatch.MethodSignature;
+import org.tranql.builder.DynamicCommandBuilder;
+import org.tranql.builder.GlobalSchemaBuilder;
+import org.tranql.builder.StaticCommandBuilder;
 import org.tranql.cache.CacheFlushStrategyFactory;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.cache.SimpleFlushStrategyFactory;
-import org.tranql.cache.cache.CacheFactory;
-import org.tranql.cache.cache.ReadCommittedCacheFactory;
-import org.tranql.cache.cache.ReadUncommittedCacheFactory;
-import org.tranql.cache.cache.RepeatableReadCacheFactory;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
@@ -79,6 +78,10 @@ import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
 import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
+import org.tranql.intertxcache.CacheFactory;
+import org.tranql.intertxcache.ReadCommittedCacheFactory;
+import org.tranql.intertxcache.ReadUncommittedCacheFactory;
+import org.tranql.intertxcache.RepeatableReadCacheFactory;
 import org.tranql.pkgenerator.SQLPrimaryKeyGenerator;
 import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
 import org.tranql.ql.QueryBindingImpl;
@@ -94,8 +97,6 @@ import org.tranql.sql.JoinTable;
 import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
 import org.tranql.sql.TypeConverter;
-import org.tranql.sql.DynamicCommandBuilder;
-import org.tranql.sql.StaticCommandBuilder;
 import org.tranql.sql.UpdateCommandBuilder;
 import org.tranql.sql.jdbc.SQLTypeLoader;
 import org.tranql.sql.jdbc.binding.BindingFactory;
@@ -186,7 +187,7 @@ public class TranqlSchemaBuilder {
             processEnterpriseBeans();
             processRelationships();
             processGroups();
-            GlobalSchemaLoader loader = new GlobalSchemaLoader(globalSchema, ejbSchema, sqlSchema);
+            GlobalSchemaBuilder loader = new GlobalSchemaBuilder(globalSchema, ejbSchema, sqlSchema);
             loader.build();
             processEnterpriseBeanCaches();
         } catch (Exception e) {
@@ -528,13 +529,13 @@ public class TranqlSchemaBuilder {
                 String[] cmpFieldsArray = (String[]) cmpFields.toArray(new String[cmpFields.size()]);
 
                 Map cmrFields = group.getCmrFields();
-                PrefetchGroupDictionary.EndTableDesc[] endTableDescs = new PrefetchGroupDictionary.EndTableDesc[cmrFields.size()];
+                PrefetchGroupDictionary.AssociationEndDesc[] endTableDescs = new PrefetchGroupDictionary.AssociationEndDesc[cmrFields.size()];
                 int i = 0;
                 for (Iterator iterator2 = cmrFields.entrySet().iterator(); iterator2.hasNext();) {
                     Map.Entry entry2 = (Map.Entry) iterator2.next();
                     String cmrFieldName = (String) entry2.getKey();
                     String cmrGroupName = (String) entry2.getValue();
-                    endTableDescs[i++] = new PrefetchGroupDictionary.EndTableDesc(cmrFieldName, cmrGroupName);
+                    endTableDescs[i++] = new PrefetchGroupDictionary.AssociationEndDesc(cmrFieldName, cmrGroupName);
                 }
                 groupDictionary.addPrefetchGroup(groupName, ejbName, cmpFieldsArray, endTableDescs);
             }

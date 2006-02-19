@@ -51,10 +51,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+
 import javax.ejb.FinderException;
 
+import org.tranql.builder.IdentityDefinerBuilder;
 import org.tranql.ejb.EJBQLQuery;
-import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommand;

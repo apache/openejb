@@ -55,18 +55,17 @@
  */
 package org.openejb.entity.cmp;
 
+import org.tranql.builder.IdentityDefinerBuilder;
 import org.tranql.cache.InTxCache;
 import org.tranql.ejb.EJBQLQuery;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.Row;
 import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.ql.Query;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
 import org.tranql.schema.Entity;
-import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 public abstract class TranqlSelectQuery implements SelectQuery {
     private final EJBQLQuery ejbqlQuery;
@@ -123,15 +122,7 @@ public abstract class TranqlSelectQuery implements SelectQuery {
             command = remoteCommand;
         }
 
-        PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();
-        if (groupHandler != null) {
-            PrefetchGroupHandler newHandler = new PrefetchGroupHandler(groupHandler, resultHandler);
-            return newHandler.execute(cache, command, new Row(args), results);
-        }
-        if (idDefiner != null) {
-            resultHandler = new CacheFiller(resultHandler, idDefiner, idInjector, cache);
-        }
-
-        return command.execute(resultHandler, new Row(args), results);
+        resultHandler = new CacheFiller(resultHandler, idDefiner, idInjector, cache);
+        return command.execute(cache, resultHandler, new Row(args), results);
     }
 }

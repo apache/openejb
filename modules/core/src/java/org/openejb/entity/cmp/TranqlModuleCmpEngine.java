@@ -44,23 +44,23 @@
  */
 package org.openejb.entity.cmp;
 
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.proxy.ProxyInfo;
+import org.tranql.builder.IdentityDefinerBuilder;
+import org.tranql.builder.SQLQueryBuilder;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.cache.Cache;
-import org.tranql.cache.cache.FrontEndCache;
-import org.tranql.cache.cache.FrontEndCacheDelegate;
-import org.tranql.cache.cache.FrontEndToCacheAdaptor;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
-import org.tranql.identity.IdentityDefinerBuilder;
-import org.tranql.sql.SQLQueryBuilder;
+import org.tranql.intertxcache.Cache;
+import org.tranql.intertxcache.FrontEndCache;
+import org.tranql.intertxcache.FrontEndCacheDelegate;
+import org.tranql.intertxcache.FrontEndToCacheAdaptor;
 import org.tranql.sql.SQLSchema;
-
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
 
 /**
  * @version $Revision$ $Date$

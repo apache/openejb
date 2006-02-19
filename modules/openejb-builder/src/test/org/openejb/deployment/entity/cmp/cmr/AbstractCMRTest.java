@@ -163,7 +163,7 @@ public abstract class AbstractCMRTest extends TestCase {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
             // create module cmp enging GBeanData
-            EJBModule ejbModule = new EJBModule(true, configId, null, null, tempDir.getAbsolutePath(), ejbJarType, openejbJarType, "");
+            EJBModule ejbModule = new EJBModule(true, configId, null, null, tempDir.getAbsoluteFile().toURI().toString(), ejbJarType, openejbJarType, "");
             CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
             cmpSchemaBuilder.addBeans(earContext, j2eeContext, ejbModule, cl);
             ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
