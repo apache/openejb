@@ -178,7 +178,7 @@ public class EJBQLTest extends TestCase {
             ClassLoader cl = this.getClass().getClassLoader();
 
             // create module cmp enging GBeanData
-            EJBModule ejbModule = new EJBModule(true, configId, null, null, tempDir.getAbsolutePath(), ejbJarType, openejbJarType, "");
+            EJBModule ejbModule = new EJBModule(true, configId, null, null, tempDir.getAbsoluteFile().toURI().toString(), ejbJarType, openejbJarType, "");
             CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
             cmpSchemaBuilder.addBeans(earContext, j2eeContext, ejbModule, cl);
             ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();

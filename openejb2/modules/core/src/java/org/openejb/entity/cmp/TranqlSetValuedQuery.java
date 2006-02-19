@@ -49,10 +49,11 @@ package org.openejb.entity.cmp;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import javax.ejb.FinderException;
 
+import org.tranql.builder.IdentityDefinerBuilder;
 import org.tranql.ejb.EJBQLQuery;
-import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommand;

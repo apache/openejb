@@ -48,19 +48,18 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.transaction.TransactionManager;
 
+import org.tranql.builder.IdentityDefinerBuilder;
+import org.tranql.builder.SQLQueryBuilder;
+import org.tranql.cache.CacheFlushStrategyFactory;
 import org.tranql.cache.CacheRowAccessor;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.EmptySlotLoader;
 import org.tranql.cache.FaultHandler;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.QueryFaultHandler;
-import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.cache.CacheFaultHandler;
-import org.tranql.cache.cache.CacheFieldFaultTransform;
-import org.tranql.cache.cache.FindByPKCacheQueryCommand;
-import org.tranql.cache.cache.FrontEndCache;
 import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldIdentityExtractorAccessor;
@@ -86,8 +85,11 @@ import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.ReferenceAccessor;
 import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
+import org.tranql.intertxcache.CacheFaultHandler;
+import org.tranql.intertxcache.CacheFieldFaultTransform;
+import org.tranql.intertxcache.FindByPKCacheQueryCommand;
+import org.tranql.intertxcache.FrontEndCache;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.schema.Association;
@@ -95,7 +97,6 @@ import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
 import org.tranql.schema.Entity;
 import org.tranql.schema.FKAttribute;
-import org.tranql.sql.SQLQueryBuilder;
 
 /**
  * @version $Revision$ $Date$

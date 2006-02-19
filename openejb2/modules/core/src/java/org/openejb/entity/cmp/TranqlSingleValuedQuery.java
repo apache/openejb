@@ -50,11 +50,11 @@ package org.openejb.entity.cmp;
 import javax.ejb.FinderException;
 import javax.ejb.ObjectNotFoundException;
 
+import org.tranql.builder.IdentityDefinerBuilder;
 import org.tranql.ejb.EJBQLQuery;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.FieldTransformException;
 import org.tranql.field.Row;
-import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
