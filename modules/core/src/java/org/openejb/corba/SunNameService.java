@@ -84,7 +84,7 @@ public class SunNameService implements GBeanLifecycle {
     public SunNameService(ServerInfo serverInfo, String dbDir, int port) throws Exception {
         this.port = port;
 
-        File dir = serverInfo.resolve(dbDir);
+        File dir = serverInfo.resolveServer(dbDir);
         if (!dir.isDirectory()) {
             dir.mkdirs();
         }
