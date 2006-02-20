@@ -69,7 +69,7 @@
 
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
-            <xs:element ref="sys:environment"/>
+            <xs:element ref="sys:environment" minOccurs="0"/>
 
             <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
             <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>

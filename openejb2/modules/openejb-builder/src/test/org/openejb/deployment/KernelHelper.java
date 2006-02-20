@@ -36,6 +36,8 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -72,9 +74,19 @@ public class KernelHelper {
         kernel.loadGBean(store, KernelHelper.class.getClassLoader());
         kernel.startGBean(store.getName());
 
+        GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(manager, KernelHelper.class.getClassLoader());
+        kernel.startGBean(manager.getName());
+
+        GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        resolver.setReferencePattern("ArtifactManager", manager.getName());
+//            resolver.setReferencePattern("Repositories", repository.getName());
+        kernel.loadGBean(resolver, KernelHelper.class.getClassLoader());
+        kernel.startGBean(resolver.getName());
+
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
-        configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+        configurationManagerData.setReferencePattern("Stores", store.getName());
         kernel.loadGBean(configurationManagerData, KernelHelper.class.getClassLoader());
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
@@ -114,6 +126,7 @@ public class KernelHelper {
             environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+            configData.setAttribute("configurationStore", this);
 
             try {
                 kernel.loadGBean(configData, Configuration.class.getClassLoader());

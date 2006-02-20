@@ -198,8 +198,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             config.setName(CONFIGURATION_OBJECT_NAME);
             config.setAttribute("baseURL", tempDir.toURL());
             config.setAttribute("environment", configurationData.getEnvironment());
-            config.setReferencePattern("ConfigurationStore", JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"));
-
+//            config.setReferencePattern("ConfigurationStore", JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"));
+            config.setReferencePattern("Repositories", new ObjectName("*:name=Repository,*"));
+            config.setReferencePattern("ArtifactManager", new ObjectName("*:name=ArtifactManager,*"));
+            config.setReferencePattern("ArtifactResolver", new ObjectName("*:name=ArtifactResolver,*"));
+            config.setAttribute("configurationStore", configurationStore);
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
