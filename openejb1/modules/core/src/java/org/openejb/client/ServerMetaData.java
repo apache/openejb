@@ -50,6 +50,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 
 /**
@@ -59,114 +62,40 @@ import java.net.UnknownHostException;
  */
 public class ServerMetaData implements Externalizable{
 
-    
-    private transient int port;
-
-    /**
-     * Stores the server's IP as an InetAddress instead of a String. Creating a 
-     * socket with a string creates a new InetAddress object anyway.  Storing it
-     * here save us from having to do it more than once
-     */
-    private transient InetAddress address;
+    private transient URI location;
 
     public ServerMetaData(){
-
     }
-    
-    public ServerMetaData(String host, int port) throws UnknownHostException{
-        this.setAddress(InetAddress.getByName( host ));
-        this.setPort(port);
+
+    public ServerMetaData(URI location)  {
+        this.location = location;
     }
 
     public int getPort(){
-        return port;
+        return location.getPort();
     }
 
-    public InetAddress getAddress(){
-        return address;
-    }
-
-    public void setPort(int port){
-        this.port = port;
-    }
-
-    public void setAddress(InetAddress address){
-        this.address = address;
+    public String getHost() {
+        return location.getHost();
     }
 
 
+    public URI getLocation() {
+        return location;
+    }
 
-    /**
-     * The object implements the readExternal method to restore its
-     * contents by calling the methods of DataInput for primitive
-     * types and readObject for objects, strings and arrays.  The
-     * readExternal method must read the values in the same sequence
-     * and with the same types as were written by writeExternal.
-     *
-     * @param in the stream to read data from in order to restore the object
-     * @exception IOException if I/O errors occur
-     * @exception ClassNotFoundException If the class for an object being
-     *              restored cannot be found.
-     */
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
-        // byte[] IP = new byte[4];
-        
-        // IP[0] = in.readByte();
-        // IP[1] = in.readByte();
-        // IP[2] = in.readByte();
-        // IP[3] = in.readByte();
-        StringBuffer IP = new StringBuffer(15);
-
-        IP.append( in.readByte() ).append('.');
-        IP.append( in.readByte() ).append('.');
-        IP.append( in.readByte() ).append('.');
-        IP.append( in.readByte() );
-     ///IP.append( in.readUnsignedByte() ).append('.');
-     ///IP.append( in.readUnsignedByte() ).append('.');
-     ///IP.append( in.readUnsignedByte() ).append('.');
-     ///IP.append( in.readUnsignedByte() );
-        
-     ///IP += in.readUnsignedByte() + '.';
-     ///IP += in.readUnsignedByte() + '.';
-     ///IP += in.readUnsignedByte() + '.';
-     ///IP += in.readUnsignedByte();
-//        System.out.println(IP.toString());        
+        String uri = (String) in.readObject();
         try{
-            setAddress(InetAddress.getByName( IP.toString() ));
-        } catch (java.net.UnknownHostException e){
-            throw new IOException("Cannot read in the host address "+IP+": The host is unknown");
+            location = new URI(uri);
+        } catch (URISyntaxException e) {
+            throw (IOException)new IOException("cannot create uri from '"+uri+"'").initCause(e);
         }
-        
-        setPort(in.readInt());
-        
     }
-    
-    /**
-     * The object implements the writeExternal method to save its contents
-     * by calling the methods of DataOutput for its primitive values or
-     * calling the writeObject method of ObjectOutput for objects, strings,
-     * and arrays.
-     *
-     * @serialData Overriding methods should use this tag to describe
-     *             the data layout of this Externalizable object.
-     *             List the sequence of element types and, if possible,
-     *             relate the element to a public/protected field and/or
-     *             method of this Externalizable class.
-     *
-     * @param out the stream to write the object to
-     * @exception IOException Includes any I/O exceptions that may occur
-     */
+
     public void writeExternal(ObjectOutput out) throws IOException {
-        byte[] addr = getAddress().getAddress();
-        
-        out.writeByte(addr[0]);
-        out.writeByte(addr[1]);
-        out.writeByte(addr[2]);
-        out.writeByte(addr[3]);
-        
-        out.writeInt(getPort());
+        out.writeObject(location.toString());
     }
 
 }
-
 
