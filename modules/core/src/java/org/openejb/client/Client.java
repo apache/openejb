@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 public class Client {
 
     public static Response request(Request req, Response res, ServerMetaData server) throws RemoteException {
-        if ( server == null ) throw new IllegalArgumentException("Server instance cannot be null");
+        if ( server == null ) throw new IllegalArgumentException("Client request error: ServerMetaData cannot be null");
 
         OutputStream out       = null;
         ObjectOutput objectOut = null;
@@ -74,9 +74,9 @@ public class Client {
             try{
                 conn = ConnectionManager.getConnection( server );
             } catch (IOException e){
-                throw new RemoteException("Cannot access server: "+server.getAddress()+":"+server.getPort()+" Exception: ", e );
+                throw new RemoteException("Cannot access server: "+server.getHost()+":"+server.getPort()+" Exception: ", e );
             } catch (Throwable e){
-                throw new RemoteException("Cannot access server: "+server.getAddress()+":"+server.getPort()+" due to an unkown exception in the OpenEJB client: ", e );
+                throw new RemoteException("Cannot access server: "+server.getHost()+":"+server.getPort()+" due to an unkown exception in the OpenEJB client: ", e );
             }
 
             /*----------------------------------*/

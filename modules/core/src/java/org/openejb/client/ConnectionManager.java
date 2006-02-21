@@ -46,6 +46,7 @@ package org.openejb.client;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.net.URI;
 
 
 /**
@@ -68,13 +69,18 @@ public class ConnectionManager {
     }
 
     public static Connection getConnection(ServerMetaData server) throws IOException{
+        URI location = server.getLocation();
+        if (location.getScheme().equals("http")){
+            return new HttpConnectionFactory().getConnection(server);
+        } else {
         return factory.getConnection(server);
+    }
     }
 
     public static void setFactory(String factoryName) throws IOException{
         installFactory(factoryName);
     }
-    
+
     public static ConnectionFactory getFactory() {
         return factory;
     }
@@ -84,10 +90,10 @@ public class ConnectionManager {
     }
 
     private static void installFactory(String factoryName) throws IOException{
-       
+
         Class factoryClass = null;
         ConnectionFactory factory = null;
-        
+
         try {
             ClassLoader cl = getContextClassLoader();
             factoryClass = Class.forName(factoryName, true, cl);
@@ -100,7 +106,7 @@ public class ConnectionManager {
         } catch ( Exception e ) {
             throw new IOException("No ConnectionFactory Can be installed. Unable to instantiate the class "+factoryName);
         }
-        
+
         try {
             // TODO:3: At some point we may support a mechanism for
             //         actually specifying properties for the Factories
@@ -108,11 +114,11 @@ public class ConnectionManager {
         } catch ( Exception e ) {
             throw new IOException("No ConnectionFactory Can be installed. Unable to initialize the class "+factoryName);
         }
-        
+
         ConnectionManager.factory = factory;
         ConnectionManager.factoryName = factoryName;
     }
-    
+
     public static ClassLoader getContextClassLoader() {
         return (ClassLoader) java.security.AccessController.doPrivileged(
             new java.security.PrivilegedAction() {

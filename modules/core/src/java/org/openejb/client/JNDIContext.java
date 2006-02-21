@@ -45,10 +45,9 @@
 package org.openejb.client;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Hashtable;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -159,37 +158,27 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
         String userID    = (String) env.get(Context.SECURITY_PRINCIPAL);
         String psswrd    = (String) env.get(Context.SECURITY_CREDENTIALS);
-        Object serverURL = env.get(Context.PROVIDER_URL);
+        Object serverURI = env.get(Context.PROVIDER_URL);
 
-        if (serverURL == null) serverURL = "localhost:4201";
+        if (serverURI == null) serverURI = "foo://localhost:4201";
         if (userID == null) userID = "anonymous";
         if (psswrd == null) psswrd = "anon";
-        //if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
-        //if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
-        //if (serverURL == null) throw new ConfigurationException("Context property cannot be null: "+Context.PROVIDER_URL);
-        
-        URL url;
-        if ( serverURL instanceof String ) {
-            try {
-                url = new URL( "http://"+serverURL );
-            } catch (Exception e){
-                e.printStackTrace();
-                throw new ConfigurationException("Invalid provider URL: "+serverURL);
-            }
-        } else if ( serverURL instanceof URL ) {
-            url = (URL)serverURL;
-        } else {
-            throw new ConfigurationException("Invalid provider URL: "+serverURL);
-        }
-        
+
+        String uriString = (String) serverURI;
+        URI location = null;
         try {
-            server = new ServerMetaData();
-            server.setAddress(InetAddress.getByName( url.getHost() ));
-            server.setPort(url.getPort());
-        } catch (UnknownHostException  e){
-            throw new ConfigurationException("Invalid provider URL:"+serverURL+": host unkown: "+e.getMessage());
+            location = new URI(uriString);
+        } catch (Exception e) {
+            if (uriString.indexOf("://") == -1) {
+                try {
+                    location = new URI("foo://"+uriString);
+                } catch (URISyntaxException giveUp) {
+                    // Was worth a try, let's give up and throw the original exception.
+                    throw (ConfigurationException)new ConfigurationException("Context property value error for "+Context.PROVIDER_URL + " :"+e.getMessage()).initCause(e);
+                }
+            }
         }
-        
+        this.server = new ServerMetaData(location);
         //TODO:1: Either aggressively initiate authentication or wait for the 
         //        server to send us an authentication challange.
         authenticate(userID, psswrd);
