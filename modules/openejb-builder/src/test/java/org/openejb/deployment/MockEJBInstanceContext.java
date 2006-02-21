@@ -29,7 +29,7 @@ import org.openejb.timer.BasicTimerService;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
- * @version $Rev:  $ $Date$
+ * @version $Rev$ $Date$
  */
 public class MockEJBInstanceContext implements EJBInstanceContext {
 

@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * @version $Rev:  $ $Date$
+ * @version $Rev$ $Date$
  */
 public class KernelHelper {
     public static final URI[] DEFAULT_PARENTID_ARRAY = new URI[] {URI.create("org/apache/geronimo/Server")};
