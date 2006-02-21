@@ -99,6 +99,8 @@ public class TestRunner extends junit.textui.TestRunner {
 				runLocalTests();
 			} else if (args[0].equals("remote")) {
 				runRemoteTests();
+			} else if (args[0].equals("http")) {
+				runRemoteHttpTests();
 			} else {
 				printHelp();
 
@@ -145,13 +147,25 @@ public class TestRunner extends junit.textui.TestRunner {
 		System.out.println("_________________________________________________");
 	}
 
+	private static void runRemoteHttpTests() {
+		System.setProperty("openejb.test.server",
+				"org.openejb.test.RemoteHttpTestServer");
+		System.setProperty("openejb.test.database",
+				"org.openejb.test.InstantDbTestDatabase");
+
+		System.out.println("_________________________________________________");
+		System.out
+				.println("|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|\n");
+		System.out.println("Running EJB compliance tests on HTTP/Remote Server");
+		System.out.println("_________________________________________________");
+	}
+
 	private static void printHelp() {
 		String header = "OpenEJB Compliance Tests ";
 		try {
 			JarUtils.setHandlerSystemProperty();
 			Properties versionInfo = new Properties();
-			versionInfo.load(new URL("resource:/openejb-version.properties")
-					.openConnection().getInputStream());
+			versionInfo.load(new URL("resource:/openejb-version.properties").openConnection().getInputStream());
 			header += versionInfo.get("version");
 		} catch (java.io.IOException e) {
 		}

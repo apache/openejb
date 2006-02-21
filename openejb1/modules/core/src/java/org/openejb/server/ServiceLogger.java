@@ -107,6 +107,10 @@ public class ServiceLogger implements ServerService {
         next.stop();
     }
 
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
+        throw new UnsupportedOperationException("service(in,out)");
+    }
+
     /**
      * log_on_success 
      * -----------------
@@ -151,6 +155,7 @@ public class ServiceLogger implements ServerService {
     private void logIncoming(){
         logger.info("incomming request");
     }
+
     private void logSuccess(){
         logger.info("successful request");
     }

@@ -71,7 +71,11 @@ public class AdminDaemon implements ServerService {
     public void init(Properties props) throws Exception {
     }
 
-    
+
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
+        throw new UnsupportedOperationException("service(in,out)");
+    }
+
     public void service(Socket socket) throws ServiceException,IOException {
         InputStream in = null;
         InetAddress clientIP = null;

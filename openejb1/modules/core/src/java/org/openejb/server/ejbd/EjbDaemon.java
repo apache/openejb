@@ -109,9 +109,18 @@ public class EjbDaemon implements org.openejb.spi.ApplicationServer, ResponseCod
         InputStream  in  = socket.getInputStream();
         OutputStream out = socket.getOutputStream();
 
-        /**
-         * The ObjectInputStream used to receive incoming messages from the client.
-         */
+        try {
+            service(in, out);
+        } finally {
+            try {
+                if (socket != null) socket.close();
+            } catch (Throwable t) {
+                logger.error("Encountered problem while closing connection with client: " + t.getMessage());
+            }
+        }
+    }
+
+    public void service(InputStream in, OutputStream out) throws IOException {
         ObjectInputStream ois = null;
         /**
          * The ObjectOutputStream used to send outgoing response messages to the client.
@@ -163,13 +172,9 @@ public class EjbDaemon implements org.openejb.spi.ApplicationServer, ResponseCod
             try {
                 if ( oos != null ) {
                     oos.flush();
-                    oos.close();
                 }
-                if ( ois    != null ) ois.close();
-                if ( in     != null ) in.close();
-                if ( socket != null ) socket.close();
             } catch ( Throwable t ) {
-                logger.error("Encountered problem while closing connection with client: "+t.getMessage());
+                logger.error("Encountered problem while flushing connection with client: " + t.getMessage());
             }
         }
     }

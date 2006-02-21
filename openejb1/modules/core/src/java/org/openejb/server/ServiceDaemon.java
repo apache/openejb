@@ -66,6 +66,7 @@ public class ServiceDaemon implements ServerService, Runnable {
     Properties props;
     String ip;
     int port;
+    String name;
 
     ServerSocket serverSocket;
 
@@ -91,6 +92,7 @@ public class ServiceDaemon implements ServerService, Runnable {
 
         String p = props.getProperty("port");
         ip = props.getProperty("bind");
+        name = props.getProperty("name");
 
         port = Integer.parseInt(p);
         // Then call the next guy
@@ -108,6 +110,9 @@ public class ServiceDaemon implements ServerService, Runnable {
             try {
 //                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
                 serverSocket = new ServerSocket(port, 20);                
+                port = serverSocket.getLocalPort();
+                ip = serverSocket.getInetAddress().getHostAddress();
+
                 Thread d = new Thread(this);
                 d.setName("service." + next.getName() + "@" + d.hashCode());
                 d.setDaemon(true);
@@ -144,6 +149,10 @@ public class ServiceDaemon implements ServerService, Runnable {
         }
     }
 
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
+        throw new UnsupportedOperationException("service(in,out)");
+    }
+
     public synchronized void service(final Socket socket)
         throws ServiceException, IOException {
         Thread d = new Thread(new Runnable() {
@@ -174,7 +183,7 @@ public class ServiceDaemon implements ServerService, Runnable {
 	 * Gets the name of the service. Used for display purposes only
 	 */
     public String getName() {
-        return next.getName();
+        return name;
     }
 
     /**

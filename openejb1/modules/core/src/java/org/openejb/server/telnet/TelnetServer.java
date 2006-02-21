@@ -63,6 +63,10 @@ public class TelnetServer implements org.openejb.server.ServerService {
     public void init(Properties props) throws Exception {
     }
     
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
+        throw new UnsupportedOperationException("service(in,out)");
+    }
+
     public void service(Socket socket) throws ServiceException, IOException {
         InputStream telnetIn = null;
         PrintStream telnetOut = null;
