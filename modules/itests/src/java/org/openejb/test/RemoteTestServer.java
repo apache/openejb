@@ -55,53 +55,56 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.openejb.util.JarUtils;
+import org.openejb.client.RemoteInitialContextFactory;
 
 /**
  * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class RemoteTestServer implements org.openejb.test.TestServer {
-    
+
     static{
         System.setProperty("noBanner", "true");
     }
-    
+
     /**
      * Has the remote server's instance been already running ?
      */
     private boolean serverHasAlreadyBeenStarted = true;
-    
+
     private Properties properties;
-    
+
     public void init(Properties props){
         properties = props;
-        
+
         props.put("test.server.class","org.openejb.test.RemoteTestServer");
         props.put("java.naming.factory.initial","org.openejb.client.RemoteInitialContextFactory");
         props.put("java.naming.provider.url","127.0.0.1:4201");
         props.put("java.naming.security.principal","testuser");
         props.put("java.naming.security.credentials","testpassword");
-        
-        
     }
-    
+
+    public Properties getProperties() {
+        return properties;
+    }
+
     public void destroy(){
     }
-    
+
     public void start(){
         if (!connect()) {
             try{
                 System.out.println("[] START SERVER");
                 serverHasAlreadyBeenStarted = false;
                 String version = null;
-                
+
                 JarUtils.setHandlerSystemProperty();
                 Properties versionInfo = new Properties();
                 versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
                 version = (String)versionInfo.get( "version" );
-                
+
                 Process server = Runtime.getRuntime().exec("java -jar lib" + File.separator + "openejb-core-" + version + ".jar start -nowait");
-                
+
                 // Pipe the processes STDOUT to ours
                 InputStream out = server.getInputStream();
                 Thread serverOut = new Thread(new Pipe(out, System.out));
@@ -131,7 +134,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         String java = System.getProperty("java.home")+s+"bin"+s+"java";
         String classpath = System.getProperty("java.class.path");
         String openejbHome = System.getProperty("openejb.home");
-        
+
 
         String[] cmd = new String[ 5 ];
         cmd[ 0 ] = java;
@@ -142,9 +145,9 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         for (int i=0; i < cmd.length; i++){
             //System.out.println("[] "+cmd[i]);
         }
-        
+
         Process remoteServerProcess = Runtime.getRuntime().exec( cmd );
-        
+
         // it seems as if OpenEJB wouldn't start up till the output stream was read
         final java.io.InputStream is = remoteServerProcess.getInputStream();
         final java.io.OutputStream out = new FileOutputStream("logs/testsuite.out");
@@ -166,7 +169,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         });
         serverOut.setDaemon(true);
         serverOut.start();
-        
+
         final java.io.InputStream is2 = remoteServerProcess.getErrorStream();
         Thread serverErr = new Thread(new Runnable(){
                 public void run() {
@@ -192,10 +195,10 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         if ( !serverHasAlreadyBeenStarted ) {
             try{
                 System.out.println("[] STOP SERVER");
-        
+
                 Socket socket = new Socket("localhost", 4200);
                 OutputStream out = socket.getOutputStream();
-        
+
                 out.write( "Stop".getBytes() );
 
             } catch (Exception e){
@@ -211,7 +214,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     private boolean connect() {
         return connect( 1 );
     }
-    
+
     private boolean connect(int tries) {
         //System.out.println("CONNECT "+ tries);
         try{
@@ -230,7 +233,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
                 return connect(--tries);
             }
         }
-        
+
         return true;
     }
 

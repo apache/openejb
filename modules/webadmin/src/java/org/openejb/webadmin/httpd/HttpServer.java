@@ -73,6 +73,10 @@ public class HttpServer implements ServerService{
 
     private static final Logger logger = Logger.getInstance( "OpenEJB.server", "org.openejb.server.util.resources" );
     private InitialContext jndiContext;
+
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
+        throw new UnsupportedOperationException("service(in,out)");
+    }
     
     public void service(Socket socket) throws ServiceException, IOException {
         /**

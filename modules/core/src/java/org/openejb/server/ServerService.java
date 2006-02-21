@@ -72,6 +72,8 @@ public interface ServerService extends Service {
     
     public void stop() throws ServiceException;
 
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException;
+
     public void service(Socket socket) throws ServiceException, IOException;
 
 

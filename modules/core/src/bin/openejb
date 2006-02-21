@@ -118,6 +118,11 @@ _test_server()
    java -jar $OPENEJB_HOME/lib/openejb-core-*.jar test remote
 }
 #============================================================
+_test_http()
+{
+   java -jar $OPENEJB_HOME/lib/openejb-core-*.jar test http
+}
+#============================================================
 _command_test()
 {
 case $2 in
@@ -126,6 +131,9 @@ case $2 in
     ;;
     "remote")
         _test_server
+    ;;
+    "http")
+        _test_http
     ;;
     "--help")
         _test_help
@@ -145,6 +153,7 @@ _test_noargs()
 {
    _test_intravm
    _test_server
+   _test_http
 }
 #============================================================
 case $1 in

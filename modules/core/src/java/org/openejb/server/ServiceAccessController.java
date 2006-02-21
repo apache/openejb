@@ -109,11 +109,11 @@ public class ServiceAccessController implements ServerService {
         next.service(socket);
     }
 
+    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
+        throw new UnsupportedOperationException("service(in,out)");
+    }
 
-    /**
-     * Gets the name of the service.
-     * Used for display purposes only
-     */ 
+    
     public String getName(){
         return next.getName();
     }

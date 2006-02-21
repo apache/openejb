@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact dev@openejb.org.
+ *    please contact openejb@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://www.openejb.org/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -40,98 +40,44 @@
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
+ * $Id: HttpSession.java,v 1.1 2004/12/17 05:10:23 dblevins Exp $
  */
-package org.openejb.server;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.*;
+package org.openejb.server.httpd;
 
 /**
- *  The Server will call the following methods.
- * 
- *    newInstance()
- *    init( port, properties)
- *    start()
- *    stop()
- * 
- * All ServerService implementations must have a no argument 
- * constructor.
- * 
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class ServicePool implements ServerService {
-    
-    ServerService next;
+public interface HttpSession {
 
-    public ServicePool(ServerService next){
-        this.next = next;
-    }
+    public void removeAttribute(String name);
 
     /**
-     * Pulls out the access log information
-     * 
-     * @param props
-     * 
-     * @exception ServiceException
+     * Returns the object bound with the specified name in this session, or
+     * <code>null</code> if no object is bound under the name.
+     *
+     * @param name a string specifying the name of the object
+     *
+     * @return the object with the specified name
      */
-    public void init(Properties props) throws Exception{
-        // Do our stuff
-        
-        // Then call the next guy
-        next.init(props);
-    }
-    
-    public void start() throws ServiceException{
-        // Do our stuff
-        
-        // Then call the next guy
-        next.start();
-    }
-    
-    public void stop() throws ServiceException{
-        // Do our stuff
-        
-        // Then call the next guy
-        next.stop();
-    }
-
-    public void service(Socket socket) throws ServiceException, IOException{
-        // Do our stuff
-        // Check authorization
-
-        // Then call the next guy
-        next.service(socket);
-    }
-
-    public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
-        throw new UnsupportedOperationException("service(in,out)");
-    }
+    public Object getAttribute(String name);
 
     /**
-     * Gets the name of the service.
-     * Used for display purposes only
-     */ 
-    public String getName(){
-        return next.getName();
-    }
-
-    /**
-     * Gets the ip number that the 
-     * daemon is listening on.
+     * Binds an object to this session, using the name specified. If an object
+     * of the same name is already bound to the session, the object is
+     * replaced.
+     *
+     * @param name the name to which the object is bound; cannot be null
+     * @param value the object to be bound
      */
-    public String getIP(){
-        return next.getIP();
-    }
-    
-    /**
-     * Gets the port number that the 
-     * daemon is listening on.
-     */
-    public int getPort(){
-        return next.getPort();
-    }
+    public void setAttribute(String name, Object value);
 
+    /**
+     * Returns a string containing the unique identifier assigned to this
+     * session. The identifier is assigned by the ejb container and is
+     * implementation dependent.
+     *
+     * @return a string specifying the identifier assigned to this session
+     */
+    public String getId();
 }
+
+

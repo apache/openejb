@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact dev@openejb.org.
+ *    please contact info@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://www.openejb.org/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -38,66 +38,27 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
+ * $Id: file,v 1.1 2005/02/18 23:22:00 user Exp $
  */
-package org.openejb.server.ejbd;
 
+package org.openejb.server.httpd;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.Properties;
-
-import org.openejb.util.Messages;
-import org.openejb.util.Logger;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerFederation;
-import org.openejb.client.RequestMethods;
+import org.openejb.server.ServerService;
 
 /**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- * @since 11/25/2001
+ * @version $Revision$ $Date$
  */
-public class EjbServer implements org.openejb.server.ServerService {
-    
-    EjbDaemon server;
+public class ServerServiceAdapter implements HttpListener {
 
-    public void init(Properties props) throws Exception {
-        server = EjbDaemon.getEjbDaemon();
-        server.init(props);
-    }
-    
-    public void start() throws ServiceException {
-    }
-    
-    public void stop() throws ServiceException {
-    }
-    
-    public String getName() {
-        return "ejbd";
-    }
-    
-    public int getPort() {
-        return 0;
+    private final ServerService service;
+
+    public ServerServiceAdapter(ServerService service) {
+        this.service = service;
     }
 
-    public void service(Socket socket) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(server);
-        server.service(socket);
+    public void onMessage(HttpRequest request, HttpResponse response) throws Exception {
+        service.service(request.getInputStream(), response.getOutputStream());
     }
-
-    public void service(InputStream inputStream, OutputStream outputStream) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(server);
-        server.service(inputStream, outputStream);
-    }
-
-    public String getIP() {
-        return "";
-    }
-
 }
