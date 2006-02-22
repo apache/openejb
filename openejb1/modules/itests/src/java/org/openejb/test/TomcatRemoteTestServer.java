@@ -23,12 +23,25 @@ import java.util.Properties;
 /**
  * @version $Revision$ $Date$
  */
-public class RemoteHttpTestServer extends RemoteTestServer {
-    public void init(Properties props){
-        super.init(props);
-        props.put("test.server.class", org.openejb.test.RemoteHttpTestServer.class.getName());
+public class TomcatRemoteTestServer implements TestServer {
+    private Properties properties;
+
+    public void init(Properties props) {
+        properties = props;
+        props.put("test.server.class", TomcatRemoteTestServer.class.getName());
         props.put("java.naming.factory.initial", RemoteInitialContextFactory.class.getName());
-        props.put("java.naming.provider.url","http://127.0.0.1:4204");
+        props.put("java.naming.provider.url","http://127.0.0.1:8080/openejb/remote");
     }
 
+    public void start() {
+        System.out.println("Note: Tomcat should be started before running these tests");
+    }
+
+    public void stop() {
+    }
+
+
+    public Properties getContextEnvironment(){
+        return (Properties)properties.clone();
+    }
 }

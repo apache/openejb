@@ -56,7 +56,7 @@ import junit.framework.TestResult;
 import org.openejb.util.JarUtils;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -101,6 +101,8 @@ public class TestRunner extends junit.textui.TestRunner {
 				runRemoteTests();
 			} else if (args[0].equals("http")) {
 				runRemoteHttpTests();
+			} else if (args[0].equals("tomcat")) {
+				runTomcatRemoteHttpTests();
 			} else {
 				printHelp();
 
@@ -157,6 +159,17 @@ public class TestRunner extends junit.textui.TestRunner {
 		System.out
 				.println("|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|\n");
 		System.out.println("Running EJB compliance tests on HTTP/Remote Server");
+		System.out.println("_________________________________________________");
+	}
+
+	private static void runTomcatRemoteHttpTests() {
+		System.setProperty("openejb.test.server", TomcatRemoteTestServer.class.getName());
+		System.setProperty("openejb.test.database", "org.openejb.test.InstantDbTestDatabase");
+
+		System.out.println("_________________________________________________");
+		System.out
+				.println("|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|\n");
+		System.out.println("Running EJB compliance tests on HTTP/Tomcat Server");
 		System.out.println("_________________________________________________");
 	}
 

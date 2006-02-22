@@ -531,18 +531,21 @@
       <j:set var="tomcat.branch" value="5"/>
       <j:set var="tomcat.version" value="5.5.15"/>
       <j:set var="tomcat.prefix" value="apache"/>
+      <attainGoal name="tomcat.env"/>
     </goal>
 
     <goal name="tomcat50">
       <j:set var="tomcat.branch" value="5"/>
       <j:set var="tomcat.version" value="5.0.30"/>
       <j:set var="tomcat.prefix" value="jakarta"/>
+      <attainGoal name="tomcat.env"/>
     </goal>
 
     <goal name="tomcat4">
       <j:set var="tomcat.branch" value="4"/>
       <j:set var="tomcat.version" value="4.1.31"/>
       <j:set var="tomcat.prefix" value="jakarta"/>
+      <attainGoal name="tomcat.env"/>
     </goal>
 
     <goal name="setup:tomcat">
@@ -613,6 +616,11 @@
       <exec executable="${tomcat.home}/bin/shutdown.sh" />
     </goal>
 
+    <goal name="tomcat.env">
+      <j:set var="targetDir" value="${basedir}/target/"/>
+      <j:set var="tomcat.home" value="${targetDir}/${tomcat.prefix}-tomcat-${tomcat.version}"/>
+      <j:set var="openejb.home" value="${targetDir}/openejb-${pom.currentVersion}" />
+    </goal>
 
     <goal name="setup:loader-webapp">
       <!-- Unzip webapp and set openejb.home -->
@@ -621,6 +629,9 @@
       <replace file="${tomcat.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
     </goal>
     <goal name="setup:webapp-example">
+      <j:set var="targetDir" value="${basedir}/target/"/>
+      <j:set var="tomcat.home" value="${targetDir}/${tomcat.prefix}-tomcat-${tomcat.version}"/>
+      <j:set var="openejb.home" value="${targetDir}/openejb-${pom.currentVersion}" />
       <!-- Unzip webapp and set openejb.home -->
       <mkdir dir="${tomcat.home}/webapps/openejb"/>
       <unjar src="${openejb.home}/war/openejb-webapp-examples-${pom.currentVersion}.war" dest="${tomcat.home}/webapps/movies"/>
