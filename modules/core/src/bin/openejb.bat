@@ -27,4 +27,4 @@ goto EOF
 
 :openejbHomeSet
 
-java -jar %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar %*
+java %JAVA_OPTS% -jar %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar %*
