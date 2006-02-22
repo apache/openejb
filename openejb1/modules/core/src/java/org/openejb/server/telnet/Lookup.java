@@ -127,11 +127,11 @@ public class Lookup extends Command
     {
         try
         {
-            NamingEnumeration enum = null;
+            NamingEnumeration enumeration = null;
             try
             {
 
-                enum = ctx.list( name );
+                enumeration = ctx.list( name );
             }
             catch ( NameNotFoundException e )
             {
@@ -147,15 +147,15 @@ public class Lookup extends Command
                 return;
             }
 
-            if ( enum == null )
+            if ( enumeration == null )
             {
                 return;
             }
 
-            while ( enum.hasMore() )
+            while ( enumeration.hasMore() )
             {
 
-                NameClassPair entry = ( NameClassPair ) enum.next();
+                NameClassPair entry = ( NameClassPair ) enumeration.next();
                 String eName = entry.getName();
                 Class eClass = null;
 

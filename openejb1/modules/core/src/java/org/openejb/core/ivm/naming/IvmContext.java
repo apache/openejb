@@ -275,7 +275,7 @@ public class IvmContext implements Context, java.io.Serializable{
         if(obj.getClass() == IvmContext.class)
             return new MyListEnumeration(((IvmContext)obj).mynode);
         else {
-            return null; // should be simple enum of one element
+            return null; // should be simple enumeration of one element
         }
     }
     public NamingEnumeration list(Name name)
@@ -288,7 +288,7 @@ public class IvmContext implements Context, java.io.Serializable{
         if(obj.getClass() == IvmContext.class)
             return new MyListEnumeration(((IvmContext)obj).mynode);
         else {
-            return null; // should be simple enum of one element
+            return null; // should be simple enumeration of one element
         }
     }
     public NamingEnumeration listBindings(Name name)

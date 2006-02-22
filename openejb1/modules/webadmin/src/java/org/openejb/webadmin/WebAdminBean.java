@@ -357,15 +357,15 @@ public abstract class WebAdminBean implements HttpBean {
         try{
             Context ctx = org.openejb.OpenEJB.getJNDIContext();
             ctx = (Context) ctx.lookup("openejb/ejb");
-            NamingEnumeration enum = ctx.list("");
-            //System.out.println("\n\nENUM "+enum);
-            
-            if ( enum == null){
+            NamingEnumeration enumeration = ctx.list("");
+            //System.out.println("\n\nENUM "+enumeration);
+
+            if ( enumeration == null){
                 return sections;
             }
 
-            while (enum.hasMore()) {
-                NameClassPair entry = (NameClassPair)enum.next();
+            while (enumeration.hasMore()) {
+                NameClassPair entry = (NameClassPair)enumeration.next();
                 //System.out.println("ITEM NAME  "+entry.getName());
                 //System.out.println("ITEM CLASS "+entry.getClassName());
                 if ( !entry.getClassName().equals("org.openejb.core.ivm.naming.IvmContext") ) {
@@ -387,14 +387,14 @@ public abstract class WebAdminBean implements HttpBean {
     private String[] getSubsections(Context ctx){
         ArrayList sections = new ArrayList();
         try{
-            NamingEnumeration enum = ctx.list("");
+            NamingEnumeration enumeration = ctx.list("");
             
-            if ( enum == null){
+            if ( enumeration == null){
                 return new String[0];
             }
 
-            while (enum.hasMore()) {
-                NameClassPair entry = (NameClassPair)enum.next();
+            while (enumeration.hasMore()) {
+                NameClassPair entry = (NameClassPair)enumeration.next();
                 //System.out.println("ITEM NAME  "+entry.getName());
                 //System.out.println("ITEM CLASS "+entry.getClassName());
                 if ( !entry.getClassName().equals("org.openejb.core.stateless.EncReference") ) {
@@ -476,30 +476,22 @@ public abstract class WebAdminBean implements HttpBean {
     
     /** called on a stateful sessionbean after the bean is
      * deserialized from storage and put back into use.      
-     * @throws EJBException if an exeption is thrown
-     * @throws RemoteException if an exception is thrown
-     */    
+     */
     public void ejbActivate() {}
 
     /** called on a stateful sessionbean before the bean is 
      * removed from memory and serialized to a temporary store.  
      * This method is never called on a stateless sessionbean
-     * @throws EJBException if an exception is thrown
-     * @throws RemoteException if an exception is thrown
-     */    
+     */
     public void ejbPassivate() {}
 
     /** called when the bean is about to be garbage collected
-     * @throws EJBException if an exception is thrown
-     * @throws RemoteException if an exception is thrown
-     */    
+     */
     public void ejbRemove() {}
 
     /** sets the session context
      * @param sessionContext the session context
-     * @throws EJBException if an exception is thrown
-     * @throws RemoteException if an exception is thrown
-     */    
+     */
     public void setSessionContext(SessionContext sessionContext) {
         ejbContext = sessionContext;
         if (sections == null) {

@@ -163,10 +163,10 @@ public class PseudoTransactionService implements TransactionService {
         
         // the transaciton must be NOT be rolleback for this method to execute.
         private void doBeforeCompletion(){
-            Enumeration enum = registeredSynchronizations.elements();
-            while(enum.hasMoreElements()){
+            Enumeration enumeration = registeredSynchronizations.elements();
+            while(enumeration.hasMoreElements()){
                 try{
-                Synchronization sync = (Synchronization)enum.nextElement();
+                Synchronization sync = (Synchronization)enumeration.nextElement();
                 sync.beforeCompletion();
                 }catch(RuntimeException re){
                     re.printStackTrace();
@@ -174,10 +174,10 @@ public class PseudoTransactionService implements TransactionService {
             }
         }
         private void doAfterCompletion(int status){
-            Enumeration enum = registeredSynchronizations.elements();
-            while(enum.hasMoreElements()){
+            Enumeration enumeration = registeredSynchronizations.elements();
+            while(enumeration.hasMoreElements()){
                 try{
-                Synchronization sync = (Synchronization)enum.nextElement();
+                Synchronization sync = (Synchronization)enumeration.nextElement();
                 sync.afterCompletion(status);
                 }catch(RuntimeException re){
                     re.printStackTrace();

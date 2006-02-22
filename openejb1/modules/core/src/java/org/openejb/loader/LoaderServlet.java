@@ -121,10 +121,10 @@ public class LoaderServlet extends HttpServlet {
         p.setProperty("openejb.loader","tomcat");
 
         // Load in each init-param as a property
-        Enumeration enum = config.getInitParameterNames();
+        Enumeration enumeration = config.getInitParameterNames();
         System.out.println("OpenEJB init-params:");
-        while (enum.hasMoreElements()) {
-            String name = (String) enum.nextElement();
+        while (enumeration.hasMoreElements()) {
+            String name = (String) enumeration.nextElement();
             String value = config.getInitParameter(name);
             p.put(name, value);
             System.out.println("\tparam-name: " + name + ", param-value: " + value);
