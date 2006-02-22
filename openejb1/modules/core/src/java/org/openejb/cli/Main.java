@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
@@ -69,6 +70,21 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
+		ArrayList argsList = new ArrayList();
+		
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].indexOf("-D") == -1) {
+				argsList.add(args[i]);
+			} else {
+				String prop = args[i].substring(args[i].indexOf("-D") + 2, args[i].indexOf("="));
+				String val = args[i].substring(args[i].indexOf("=") + 1);
+				
+				System.setProperty(prop, val);
+			}
+		}
+		
+		args = (String[])argsList.toArray(new String[argsList.size()]);
+		
 		init();
 		
 		if (args.length > 0) {
@@ -81,11 +97,22 @@ public class Main {
 			} else {
 				String mainClass = null;
 				Class clazz = null;
+				boolean help = false;
 				
-				try {
-					props = finder.doFindCommandProperies(args[0]);
-				} catch (IOException e1) {
-					e1.printStackTrace();
+				if (args[0].equals("help")) {
+					if (args.length < 2) {
+						printAvailableCommands();
+					}
+					
+					try {
+						props = finder.doFindCommandProperies(args[1]);
+					} catch (IOException e1) {
+						System.out.println("Unavailable command: " + args[1]);
+						
+						printAvailableCommands();
+					}
+					
+					help = true;
 				}
 				
 				if (props != null) {
@@ -108,18 +135,24 @@ public class Main {
 					e.printStackTrace();
 				}
 				
-				String[] trimmedArgs = null;
+				argsList = new ArrayList();
+				int startPoint = 1;
 				
-				if (args.length > 1) {
-					trimmedArgs = new String[args.length - 1];
+				if (help) {
+					startPoint = 2;
 					
-					System.arraycopy(args, 1, trimmedArgs, 0, args.length - 1);
-				} else {
-					trimmedArgs = new String[0];
+					argsList.add("--help");
 				}
 				
+				
+				for (int i = startPoint; i < args.length; i++) {
+					argsList.add(args[i]);
+				}
+				
+				args = (String[])argsList.toArray(new String[argsList.size()]);
+				
 				try {
-					mainMethod.invoke(clazz, new Object[] { trimmedArgs });
+					mainMethod.invoke(clazz, new Object[] { args });
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
@@ -176,5 +209,7 @@ public class Main {
 		System.out.println("For updates and additional information, visit");
 		System.out.println("http://www.openejb.org\n");
 		System.out.println("Bug Reports to <user@openejb.org>");
+		
+		System.exit(1);
 	}
 }

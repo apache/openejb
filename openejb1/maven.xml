@@ -390,6 +390,10 @@
                 <include name="*.cmd"/>
             </fixcrlf>
             
+    	<replace file="${aggregate.dir}/bin/openejb" 
+    		             token="@REPLACED-BY-MAVEN-XML@"
+    		             value="${pom.currentVersion}"/>
+        	
 	    <replace file="${aggregate.dir}/bin/openejb.bat" 
 	             token="@REPLACED-BY-MAVEN-XML@"
 	             value="${pom.currentVersion}"/>
