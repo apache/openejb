@@ -68,7 +68,12 @@
     -->
     
     <load-on-startup>0</load-on-startup>
-  
+
   </servlet>
+
+  <servlet-mapping>
+    <servlet-name>loader</servlet-name>
+    <url-pattern>/remote/*</url-pattern>
+  </servlet-mapping>
 
 </web-app>
