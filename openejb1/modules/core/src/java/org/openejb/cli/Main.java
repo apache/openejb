@@ -165,8 +165,6 @@ public class Main {
 			System.out.println("Usage: openejb command [command-options-and-arguments]\n");
 			
 			printAvailableCommands();
-			
-			System.exit(1);
 		}
 	}
 
@@ -209,7 +207,7 @@ public class Main {
 		System.out.println("For updates and additional information, visit");
 		System.out.println("http://www.openejb.org\n");
 		System.out.println("Bug Reports to <user@openejb.org>");
-		
-		System.exit(1);
+
+    System.exit(0);
 	}
 }
