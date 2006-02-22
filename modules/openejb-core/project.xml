@@ -143,8 +143,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-corba_2.3_spec</artifactId>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
@@ -417,8 +417,8 @@
     <!-- =================== -->
 
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <unitTestSourceDirectory>src/test/java</unitTestSourceDirectory>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>**/*Test.java</include>
@@ -428,7 +428,7 @@
             </excludes>
             <resources>
                 <resource>
-                    <directory>${basedir}/src/test/java</directory>
+                    <directory>${basedir}/src/test</directory>
                     <includes>
                         <include>**/*.xml</include>
                     </includes>
