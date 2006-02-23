@@ -1,0 +1,23 @@
+<openejb>
+
+  <Container id="Default CMP Container" ctype="CMP_ENTITY">
+    Global_TX_Database  META-INF/cmp.global-database.xml
+    Local_TX_Database   META-INF/cmp.local-database.xml
+  </Container>
+
+  <Container id="Default BMP Container" ctype="BMP_ENTITY"/>
+
+  <Container id="Default Stateful Container" ctype="STATEFUL"/>
+
+  <Container id="Default Stateless Container" ctype="STATELESS"/>
+
+  <Connector id="Default JDBC Database">
+    JdbcDriver org.enhydra.instantdb.jdbc.idbDriver
+    JdbcUrl jdbc:idb:META-INF/instantdb.properties
+    UserName Admin
+    Password pass
+  </Connector>
+
+  <Deployments dir="."/>
+
+</openejb>
