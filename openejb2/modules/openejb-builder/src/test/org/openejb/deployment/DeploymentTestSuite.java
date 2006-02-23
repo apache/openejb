@@ -47,6 +47,30 @@
  */
 package org.openejb.deployment;
 
+import junit.extensions.TestDecorator;
+import junit.framework.Protectable;
+import junit.framework.TestResult;
+import junit.framework.TestSuite;
+import org.apache.geronimo.axis.builder.AxisBuilder;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.openejb.ContainerIndex;
+import org.openejb.server.axis.WSContainerGBean;
+import org.tranql.sql.jdbc.JDBCUtil;
+
+import javax.management.ObjectName;
+import javax.sql.DataSource;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -56,32 +80,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
-import javax.management.ObjectName;
-import javax.sql.DataSource;
-
-import junit.extensions.TestDecorator;
-import junit.framework.Protectable;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.axis.builder.AxisBuilder;
-import org.openejb.ContainerIndex;
-import org.openejb.server.axis.WSContainerGBean;
-import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
  * @version $Revision$ $Date$
@@ -196,9 +194,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             // start the configuration
             GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
             config.setName(CONFIGURATION_OBJECT_NAME);
-            config.setAttribute("baseURL", tempDir.toURL());
             config.setAttribute("environment", configurationData.getEnvironment());
-//            config.setReferencePattern("ConfigurationStore", JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"));
             config.setReferencePattern("Repositories", new ObjectName("*:name=Repository,*"));
             config.setReferencePattern("ArtifactManager", new ObjectName("*:name=ArtifactManager,*"));
             config.setReferencePattern("ArtifactResolver", new ObjectName("*:name=ArtifactResolver,*"));
