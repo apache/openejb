@@ -642,4 +642,27 @@
       <replace file="${tomcat.home}/webapps/movies/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
     </goal>
 
+    <goal name="test:local">
+      <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
+      <java jar="${openejb.jar}" fork="yes">
+	<arg value="test"/>
+	<arg value="local"/>
+      </java>
+    </goal>
+
+    <goal name="test:remote">
+      <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
+      <java jar="${openejb.jar}" fork="yes">
+	<arg value="test"/>
+	<arg value="remote"/>
+      </java>
+    </goal>
+
+    <goal name="test:httpejb">
+      <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
+      <java jar="${openejb.jar}" fork="yes">
+	<arg value="test"/>
+	<arg value="httpejb"/>
+      </java>
+    </goal>
 </project>
