@@ -57,4 +57,6 @@ if $cygwin; then
   OPENEJB_HOME=`cygpath --path --windows "$OPENEJB_HOME"`
 fi
 
+echo OPENEJB_HOME=$OPENEJB_HOME
+
 java $JAVA_OPTS -jar $OPENEJB_HOME/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar "$@"
