@@ -612,7 +612,12 @@
 
     <goal name="start:tomcat">
       <exec executable="${tomcat.home}/bin/startup.sh">
-	<env key="JAVA_OPTS" value="-Dopenejb.home=${openejb.home} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+      </exec>
+    </goal>
+
+    <goal name="start:tomcat-debug">
+      <exec executable="${tomcat.home}/bin/startup.sh">
+      	<env key="JAVA_OPTS" value="-Dopenejb.home=${openejb.home} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
       </exec>
     </goal>
 
@@ -632,6 +637,14 @@
       <unjar src="${openejb.home}/war/openejb-loader-${pom.currentVersion}.war" dest="${tomcat.home}/webapps/openejb"/>
       <replace file="${tomcat.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
     </goal>
+
+    <goal name="setup:itests-webapp">
+      <!-- Unzip webapp and set openejb.home -->
+      <mkdir dir="${tomcat.home}/webapps/itests"/>
+      <unjar src="${basedir}/modules/itests-webapp/target/openejb-itests-webapp.war" dest="${tomcat.home}/webapps/itests"/>
+      <replace file="${tomcat.home}/webapps/itests/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
+    </goal>
+
     <goal name="setup:webapp-example">
       <j:set var="targetDir" value="${basedir}/target/"/>
       <j:set var="tomcat.home" value="${targetDir}/${tomcat.prefix}-tomcat-${tomcat.version}"/>
@@ -645,24 +658,50 @@
     <goal name="test:local">
       <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
       <java jar="${openejb.jar}" fork="yes">
-	<arg value="test"/>
-	<arg value="local"/>
+        <arg value="test"/>
+        <arg value="local"/>
       </java>
     </goal>
 
     <goal name="test:remote">
       <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
       <java jar="${openejb.jar}" fork="yes">
-	<arg value="test"/>
-	<arg value="remote"/>
+        <arg value="test"/>
+        <arg value="remote"/>
       </java>
     </goal>
 
-    <goal name="test:httpejb">
+    <goal name="test:http">
       <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
       <java jar="${openejb.jar}" fork="yes">
-	<arg value="test"/>
-	<arg value="httpejb"/>
+        <arg value="test"/>
+        <arg value="http"/>
       </java>
+    </goal>
+
+    <goal name="test:tomcat">
+      <attainGoal name="setup:tomcat"/>
+      <attainGoal name="setup:loader-webapp"/>
+      <attainGoal name="start:tomcat"/>
+      <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
+      <java jar="${openejb.jar}" fork="yes">
+        <arg value="test"/>
+        <arg value="tomcat"/>
+        <sysproperty key="remote.servlet.url" value="http://127.0.0.1:8080/openejb/remote"/>
+      </java>
+      <attainGoal name="stop:tomcat"/>
+    </goal>
+
+    <goal name="test:tomcat-webapp">
+      <attainGoal name="setup:tomcat"/>
+      <attainGoal name="setup:itests-webapp"/>
+      <attainGoal name="start:tomcat"/>
+      <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
+      <java jar="${openejb.jar}" fork="yes">
+        <arg value="test"/>
+        <arg value="tomcat"/>
+        <sysproperty key="remote.serlvet.url" value="http://127.0.0.1:8080/itests/remote"/>
+      </java>
+      <attainGoal name="stop:tomcat"/>
     </goal>
 </project>

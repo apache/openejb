@@ -18,6 +18,7 @@ package org.openejb.test;
 
 import org.openejb.client.RemoteInitialContextFactory;
 
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -25,23 +26,63 @@ import java.util.Properties;
  */
 public class TomcatRemoteTestServer implements TestServer {
     private Properties properties;
+    private String servletUrl;
 
     public void init(Properties props) {
         properties = props;
+        servletUrl = System.getProperty("remote.serlvet.url", "http://127.0.0.1:8080/openejb/remote");
         props.put("test.server.class", TomcatRemoteTestServer.class.getName());
         props.put("java.naming.factory.initial", RemoteInitialContextFactory.class.getName());
-        props.put("java.naming.provider.url","http://127.0.0.1:8080/openejb/remote");
+        props.put("java.naming.provider.url", servletUrl);
     }
 
     public void start() {
         System.out.println("Note: Tomcat should be started before running these tests");
+        if (!connect()) {
+            throw new IllegalStateException("Unable to connect to Tomcat at localhost port 8080");
+        }
+
+        // Wait a wee bit longer for good measure
+        try {
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void stop() {
     }
 
 
-    public Properties getContextEnvironment(){
-        return (Properties)properties.clone();
+    public Properties getContextEnvironment() {
+        return (Properties) properties.clone();
+    }
+
+    private boolean connect() {
+        return connect(10);
+    }
+
+    private boolean connect(int tries) {
+        //System.out.println("CONNECT "+ tries);
+        try {
+            URL url = new URL(servletUrl);
+            url.openStream();
+        } catch (Exception e) {
+            System.out.println("Attempting to connect to " + servletUrl);
+            //System.out.println(e.getMessage());
+            if (tries < 2) {
+                return false;
+            } else {
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e2) {
+                    e.printStackTrace();
+                }
+                return connect(--tries);
+            }
+        }
+
+        return true;
     }
 }
