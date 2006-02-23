@@ -6,57 +6,32 @@
 #   This script is the central entry point to 
 #   all of OpenEJB's functions.
 #  
-#   Contributed by:
+#   Tested on OS X, Linux and Windows XP (Cygwin)
 #
-#    - David Blevins <david.blevins@visi.com>
-#    - Daniel S. Haischt <daniel.haischt@daniel-s-haischt.biz>
+#
+#   Created by Jeremy Whitlock
+#              <jcscoobyrs@codehaus.org>
 #             
 #               
 # ___________________________________________________________
 # $Id$
 #============================================================
 
+
 cygwin=false
 case "`uname`" in
-CYGWIN*) cygwin=true;;
+    CYGWIN*) cygwin=true;;
 esac
 
-if [ -z "$OPENEJB_HOME" -o ! -d "$OPENEJB_HOME" ] ; then
-  # find OpenEJB
-  if [ -d /opt/openejb ] ; then
-    OPENEJB_HOME=/opt/openejb
-  fi
-
-  if [ -d "${HOME}/opt/openejb" ] ; then
-    OPENEJB_HOME="${HOME}/opt/openejb"
-  fi
-
-  ## resolve links - $0 may be a link to openejb's home
-  PRG="$0"
-  progname=`basename "$0"`
-
-  # need this for relative symlinks
-  while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '/.*' > /dev/null; then
-      PRG="$link"
-    else
-      PRG=`dirname "$PRG"`"/$link"
-    fi
-  done
-
-
-  OPENEJB_HOME=`dirname "$PRG"`/..
-
-  # make it fully qualified
-  OPENEJB_HOME=`cd "$OPENEJB_HOME" && pwd`
-fi
+COMMAND=${0:1}
+WD=$PWD
+OPENEJB_HOME=$WD${COMMAND%/bin/openejb}
 
 if $cygwin; then
   OPENEJB_HOME=`cygpath --path --windows "$OPENEJB_HOME"`
 fi
 
 echo OPENEJB_HOME=$OPENEJB_HOME
+
 
 java $JAVA_OPTS -jar $OPENEJB_HOME/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar "$@"
