@@ -6,11 +6,12 @@ REM
 REM   This script is the central entry point to 
 REM   all of OpenEJB's functions.
 REM  
-REM   Tested on Windows 2000
+REM   Tested on Windows 2000, Windows XP
+REM             Windows XP (Cygwin)
 REM
 REM
-REM   Created by David Blevins 
-REM             <david.blevins@visi.com>
+REM   Created by Jeremy Whitlock
+REM             <jcscoobyrs@codehaus.org>
 REM _______________________________________________
 REM $Id$
 REM================================================
@@ -18,7 +19,7 @@ REM================================================
 SETLOCAL
 
 SET COMMAND=%0
-SET OPENEJB_HOME=%COMMAND:~0,-15%
+SET OPENEJB_HOME=%COMMAND:~0,-16%
 
 echo OPENEJB_HOME=%OPENEJB_HOME%
 

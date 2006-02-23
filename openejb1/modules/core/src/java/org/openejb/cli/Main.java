@@ -39,33 +39,36 @@ public class Main {
 	public static void setupClasspath() {
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		URL classURL = Thread.currentThread().getContextClassLoader().getResource(basePath + "start");
-        String propsString = classURL.getFile();
-        URL jarURL = null;
-        File jarFile = null;
         
-        propsString = propsString.substring(0, propsString.indexOf("!"));
-        
-        try {
-			jarURL = new URL(propsString);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-        jarFile = new File(jarURL.getFile());
-        
-        if (jarFile.getName().indexOf("openejb-core") > -1) {
-        	File lib = jarFile.getParentFile();
-        	File home = lib.getParentFile();
-        	
-        	System.setProperty("openejb.home", home.getAbsolutePath());
-        }
-		
-		File lib = new File(System.getProperty("openejb.home") + File.separator + "lib");
-		SystemClassPath systemCP = new SystemClassPath();
-		
-		try {
-			systemCP.addJarsToPath(lib);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (classURL != null) {
+			String propsString = classURL.getFile();
+	        URL jarURL = null;
+	        File jarFile = null;
+	        
+	        propsString = propsString.substring(0, propsString.indexOf("!"));
+	        
+	        try {
+				jarURL = new URL(propsString);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+	        jarFile = new File(jarURL.getFile());
+	        
+	        if (jarFile.getName().indexOf("openejb-core") > -1) {
+	        	File lib = jarFile.getParentFile();
+	        	File home = lib.getParentFile();
+	        	
+	        	System.setProperty("openejb.home", home.getAbsolutePath());
+	        }
+			
+			File lib = new File(System.getProperty("openejb.home") + File.separator + "lib");
+			SystemClassPath systemCP = new SystemClassPath();
+			
+			try {
+				systemCP.addJarsToPath(lib);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -87,84 +90,90 @@ public class Main {
 		
 		init();
 		
-		if (args.length > 0) {
-			Properties props = null;
-			
-			if (args[0].equals("--help")) {
-				System.out.println("Usage: openejb help [command]");
-				
-				printAvailableCommands();
-			} else {
-				String mainClass = null;
-				Class clazz = null;
-				boolean help = false;
-				
-				if (args[0].equals("help")) {
-					if (args.length < 2) {
-						printAvailableCommands();
-					}
-					
-					try {
-						props = finder.doFindCommandProperies(args[1]);
-					} catch (IOException e1) {
-						System.out.println("Unavailable command: " + args[1]);
-						
-						printAvailableCommands();
-					}
-					
-					help = true;
-				}
-				
-				if (props != null) {
-					mainClass = props.getProperty("main.class");
-				}
-				
-				try {
-					clazz = Thread.currentThread().getContextClassLoader().loadClass(mainClass);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-				
-				Method mainMethod = null;
-				
-				try {
-					mainMethod = clazz.getMethod("main", new Class[]{String[].class});
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					e.printStackTrace();
-				}
-				
-				argsList = new ArrayList();
-				int startPoint = 1;
-				
-				if (help) {
-					startPoint = 2;
-					
-					argsList.add("--help");
-				}
-				
-				
-				for (int i = startPoint; i < args.length; i++) {
-					argsList.add(args[i]);
-				}
-				
-				args = (String[])argsList.toArray(new String[argsList.size()]);
-				
-				try {
-					mainMethod.invoke(clazz, new Object[] { args });
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-			}
-		} else {
-			System.out.println("Usage: openejb command [command-options-and-arguments]\n");
+		if (args.length == 0 || args[0].equals("--help")) {
+			System.out.println("Usage: openejb help [command]");
 			
 			printAvailableCommands();
+			
+			return;
+		}
+			
+		Properties props = null;
+		boolean help = false;
+		int argIndex = 0;
+		
+		if (args[0].equals("help")) {
+			if (args.length < 2) {
+				printAvailableCommands();
+				
+				return;
+			}
+			
+			help = true;
+			
+			argIndex = 1;
+		}
+		
+		String commandName = args[argIndex];
+		
+		try {
+			props = finder.doFindCommandProperies(commandName);
+		} catch (IOException e1) {
+			System.out.println("Unavailable command: " + commandName);
+			
+			printAvailableCommands();
+			
+			return;
+		}
+		
+		if (props == null) {
+            System.out.println("Unavailable command: " + commandName);
+            printAvailableCommands();
+            return;
+        }
+
+        String mainClass = props.getProperty("main.class");
+        if (mainClass == null) {
+            throw new NullPointerException("Command "+commandName+" did not specify a main.class property");
+        }
+
+        Class clazz = null;
+        try {
+            clazz = Thread.currentThread().getContextClassLoader().loadClass(mainClass);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Command "+commandName+" main.class does not exist: "+mainClass);
+        }
+
+        Method mainMethod = null;
+        try {
+            mainMethod = clazz.getMethod("main", new Class[]{String[].class});
+        } catch (Exception e) {
+            throw new IllegalStateException("Main class of command "+commandName+" does not have a static main method: "+mainClass);
+        }
+		
+		argsList = new ArrayList();
+		int startPoint = 1;
+		
+		if (help) {
+			startPoint = 2;
+			
+			argsList.add("--help");
+		}
+		
+		for (int i = startPoint; i < args.length; i++) {
+			argsList.add(args[i]);
+		}
+		
+		args = (String[])argsList.toArray(new String[argsList.size()]);
+		
+		try {
+			mainMethod.invoke(clazz, new Object[] { args });
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -207,7 +216,5 @@ public class Main {
 		System.out.println("For updates and additional information, visit");
 		System.out.println("http://www.openejb.org\n");
 		System.out.println("Bug Reports to <user@openejb.org>");
-
-    System.exit(0);
 	}
 }
