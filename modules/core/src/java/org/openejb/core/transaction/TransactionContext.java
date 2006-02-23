@@ -48,6 +48,9 @@ import javax.transaction.Transaction;
 
 import org.openejb.core.ThreadContext;
 
+import java.util.Map;
+import java.util.HashMap;
+
 /**
  * 
  * @author <a href="mailto=david.blevins@visi.com">David Blevins</a>
@@ -58,12 +61,14 @@ public class TransactionContext {
     public Transaction clientTx;
     public Transaction currentTx;
     public ThreadContext callContext;
-
+    public final Map context = new HashMap();
     public TransactionContext(){
     }
 
     public TransactionContext(ThreadContext callContext){
         this.callContext = callContext;
     }
+
+
 }
 

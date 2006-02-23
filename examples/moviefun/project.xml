@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Rev: 155800 $ $Date$ -->
+<!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -24,11 +24,24 @@
     <!-- ============ -->
 
     <dependencies>
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee</artifactId>
-            <version>1.4-rc4</version>
-        </dependency>
+      <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+          <version>1.0</version>
+          <properties>
+            <war.bundle>true</war.bundle>
+          </properties>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-ejb_2.1_spec</artifactId>
+          <version>1.0</version>
+          <properties>
+            <war.bundle>true</war.bundle>
+          </properties>
+      </dependency>
+
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-loader</artifactId>

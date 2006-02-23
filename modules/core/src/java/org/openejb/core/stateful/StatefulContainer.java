@@ -300,7 +300,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
         // txScopeHandler.afterInvoke( ) peformed in the finally clause
         TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy( callMethod );
         TransactionContext txContext = new TransactionContext( callContext );
-
+        txContext.context.put(StatefulInstanceManager.class, instanceManager);
         try {
             txPolicy.beforeInvoke( bean, txContext );
         } catch ( org.openejb.ApplicationException e ) {

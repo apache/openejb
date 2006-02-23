@@ -18,8 +18,6 @@ import org.openejb.core.transaction.TransactionPolicy;
  */
 public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
     
-    protected StatefulContainer statefulContainer;
-
     public StatefulBeanManagedTxPolicy(TransactionContainer container){
         this();
         if(container instanceof org.openejb.Container &&
@@ -27,8 +25,6 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
             throw new IllegalArgumentException();
         }
         this.container = container;
-        this.statefulContainer = (StatefulContainer)container;
-        
     }
 
     public StatefulBeanManagedTxPolicy(){
@@ -66,13 +62,14 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
      */
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         try {
-        
+
+            StatefulInstanceManager instanceManager = (StatefulInstanceManager) context.context.get(StatefulInstanceManager.class);
             // if no transaction ---> suspend returns null
             context.clientTx = suspendTransaction();
 
             // Get any previously started transaction
             Object primaryKey = context.callContext.getPrimaryKey();
-            Object possibleBeanTx = statefulContainer.getInstanceManager().getAncillaryState( primaryKey );
+            Object possibleBeanTx = instanceManager.getAncillaryState( primaryKey );
             if ( possibleBeanTx instanceof Transaction ) {
                 context.currentTx =  (Transaction)possibleBeanTx;
                 resumeTransaction( context.currentTx );
@@ -116,7 +113,8 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
             // Remeber the instance's transaction
 
             Object primaryKey = context.callContext.getPrimaryKey();
-            statefulContainer.getInstanceManager().setAncillaryState( primaryKey, context.currentTx );
+            StatefulInstanceManager instanceManager = (StatefulInstanceManager) context.context.get(StatefulInstanceManager.class);
+            instanceManager.setAncillaryState( primaryKey, context.currentTx );
 
         } catch ( org.openejb.OpenEJBException e ) {
             handleSystemException( e.getRootCause(), instance, context );
