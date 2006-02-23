@@ -45,6 +45,8 @@
 
 package org.openejb.loader;
 
+import sun.misc.URLClassPath;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -70,6 +72,7 @@ public class TomcatClassPath extends BasicURLClassPath {
      */
     private Method addRepositoryMethod;
     private Method addURLMethod;
+    private Method getLoaderMethod;
 
 
     public TomcatClassPath() {
@@ -86,6 +89,10 @@ public class TomcatClassPath extends BasicURLClassPath {
                 addURLMethod = getAddURLMethod();
             } catch (Exception tomcat5Exception) {
                 throw new RuntimeException("Failed accessing classloader for Tomcat 4 or 5", tomcat5Exception);
+            }
+            try {
+                getLoaderMethod = getLoaderMethod();
+            } catch (Exception e) {
             }
         }
     }
@@ -125,15 +132,28 @@ public class TomcatClassPath extends BasicURLClassPath {
     }
 
     public void _addJarToPath(URL jar) throws Exception {
-        String path = jar.toExternalForm();
-        this.addRepository(path);
-    }
-
-    public void addRepository(String path) throws Exception {
         if (addRepositoryMethod != null){
+            String path = jar.toExternalForm();
             addRepositoryMethod.invoke(getClassLoader(), new Object[]{path});
         } else {
-            addURLMethod.invoke(getClassLoader(), new Object[]{new File(path).toURL()});
+            addURLMethod.invoke(getClassLoader(), new Object[]{jar});
+            int index = 0;
+            while (getLoader(index++) != null);
+        }
+    }
+
+    private Object getLoader(int i) {
+        if (getLoaderMethod == null){
+            return null;
+        }
+
+        try {
+            sun.misc.URLClassPath cp = getURLClassPath((URLClassLoader) getClassLoader());
+            Object object = getLoaderMethod.invoke(cp, new Object[]{new Integer(i)});
+            return object;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -181,6 +201,23 @@ public class TomcatClassPath extends BasicURLClassPath {
                 try {
                     Class clazz = URLClassLoader.class;
                     method = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
+                    method.setAccessible(true);
+                    return method;
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
+                return method;
+            }
+        });
+    }
+
+    private java.lang.reflect.Method getLoaderMethod() throws Exception {
+        return (java.lang.reflect.Method) AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                java.lang.reflect.Method method = null;
+                try {
+                    Class clazz = URLClassPath.class;
+                    method = clazz.getDeclaredMethod("getLoader", new Class[]{Integer.TYPE});
                     method.setAccessible(true);
                     return method;
                 } catch (Exception e2) {
