@@ -55,7 +55,9 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.openejb.util.JarUtils;
+import org.openejb.util.FileUtils;
 import org.openejb.client.RemoteInitialContextFactory;
+import org.openejb.loader.SystemInstance;
 
 /**
  * 
@@ -102,8 +104,11 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
                 Properties versionInfo = new Properties();
                 versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
                 version = (String)versionInfo.get( "version" );
+                FileUtils home = SystemInstance.get().getHome();
+                File lib = home.getDirectory("lib");
+                File openejbJar = new File(lib, "openejb-core-" + version + ".jar");
 
-                Process server = Runtime.getRuntime().exec("java -jar lib" + File.separator + "openejb-core-" + version + ".jar start -nowait");
+                Process server = Runtime.getRuntime().exec("java -jar "+openejbJar.getAbsolutePath()+" start -nowait");
 
                 // Pipe the processes STDOUT to ours
                 InputStream out = server.getInputStream();
