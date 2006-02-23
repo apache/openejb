@@ -565,16 +565,20 @@
       <!-- Download tomcat if it isn't in the repo -->
       <u:file var="fileAsFile" name="${tomcat.dist}"/>
       <j:if test="${!(fileAsFile.exists())}">
-	<mkdir dir="${maven.repo.local}/tomcat/distributions"/>
-	<get src="${tomcat.download}" dest="${tomcat.dist}"/>
+        <mkdir dir="${maven.repo.local}/tomcat/distributions"/>
+        <get src="${tomcat.download}" dest="${tomcat.dist}"/>
       </j:if>      
 
       <!-- Unzip if not unzipped -->
       <u:file var="fileAsFile" name="${tomcat.home}"/>
       <j:if test="${!(fileAsFile.exists())}">
-	<unjar src="${tomcat.dist}" dest="${targetDir}"/>
-	<chmod dir="${tomcat.home}/bin" perm="u+x" includes="**/*.sh"/>
+        <unjar src="${tomcat.dist}" dest="${targetDir}"/>
+        <chmod dir="${tomcat.home}/bin" perm="u+x" includes="**/*.sh"/>
       </j:if>      
+    </goal>
+
+    <goal name="delete:tomcat">
+      <delete dir="${tomcat.home}"/>
     </goal>
 
     <goal name="setup:tomcat-src">
@@ -586,8 +590,8 @@
       <!-- Download tomcat if it isn't in the repo -->
       <u:file var="fileAsFile" name="${tomcat.dist}"/>
       <j:if test="${!(fileAsFile.exists())}">
-	<mkdir dir="${maven.repo.local}/tomcat/distributions"/>
-	<get src="${tomcat.download}" dest="${tomcat.dist}"/>
+        <mkdir dir="${maven.repo.local}/tomcat/distributions"/>
+        <get src="${tomcat.download}" dest="${tomcat.dist}"/>
       </j:if>      
 
       <unjar src="${tomcat.dist}" dest="${basedir}"/>
@@ -704,4 +708,51 @@
       </java>
       <attainGoal name="stop:tomcat"/>
     </goal>
+
+    <goal name="test:tomcat-all">
+      <attainGoal name="tomcat4"/>
+      <attainGoal name="test:tomcat"/>
+      <attainGoal name="delete:tomcat"/>
+      <attainGoal name="test:tomcat-webapp"/>
+      <attainGoal name="delete:tomcat"/>
+
+      <attainGoal name="tomcat50"/>
+      <attainGoal name="test:tomcat"/>
+      <attainGoal name="delete:tomcat"/>
+      <attainGoal name="test:tomcat-webapp"/>
+      <attainGoal name="delete:tomcat"/>
+
+      <attainGoal name="tomcat55"/>
+      <attainGoal name="test:tomcat"/>
+      <attainGoal name="delete:tomcat"/>
+      <attainGoal name="test:tomcat-webapp"/>
+      <attainGoal name="delete:tomcat"/>
+    </goal>
+
+    <goal name="test:all">
+      <attainGoal name="test:local"/>
+      <attainGoal name="test:remote"/>
+      <attainGoal name="test:http"/>
+      <attainGoal name="test:tomcat-all"/>
+    </goal>
+
+    <goal name="test:all-jdk1.4">
+      <attainGoal name="test:local"/>
+      <attainGoal name="test:remote"/>
+      <attainGoal name="test:http"/>
+
+      <attainGoal name="tomcat4"/>
+      <attainGoal name="test:tomcat"/>
+      <attainGoal name="delete:tomcat"/>
+      <attainGoal name="test:tomcat-webapp"/>
+      <attainGoal name="delete:tomcat"/>
+
+      <attainGoal name="tomcat50"/>
+      <attainGoal name="test:tomcat"/>
+      <attainGoal name="delete:tomcat"/>
+      <attainGoal name="test:tomcat-webapp"/>
+      <attainGoal name="delete:tomcat"/>
+
+    </goal>
+
 </project>
