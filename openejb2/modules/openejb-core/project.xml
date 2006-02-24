@@ -417,8 +417,8 @@
     <!-- =================== -->
 
     <build>
-        <sourceDirectory>src/java</sourceDirectory>
-        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test/java</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>**/*Test.java</include>
@@ -428,7 +428,7 @@
             </excludes>
             <resources>
                 <resource>
-                    <directory>${basedir}/src/test</directory>
+                    <directory>${basedir}/src/test/java</directory>
                     <includes>
                         <include>**/*.xml</include>
                     </includes>
