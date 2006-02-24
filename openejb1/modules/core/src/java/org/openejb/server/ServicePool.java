@@ -48,6 +48,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.openejb.*;
+import org.openejb.util.Logger;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  *  The Server will call the following methods.
@@ -63,8 +69,11 @@ import org.openejb.*;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ServicePool implements ServerService {
-    
-    ServerService next;
+
+    private Logger log = Logger.getInstance(ServicePool.class.getName(), ServicePool.class.getName());
+    private ServerService next;
+    private Executor executor;
+
 
     public ServicePool(ServerService next){
         this.next = next;
@@ -78,8 +87,28 @@ public class ServicePool implements ServerService {
      * @exception ServiceException
      */
     public void init(Properties props) throws Exception{
+
         // Do our stuff
-        
+        String threadsString = props.getProperty("threads", "200");
+        int threads = Integer.parseInt(threadsString);
+        final String name = props.getProperty("name", "unknown");
+
+        ThreadPoolExecutor p = new ThreadPoolExecutor(threads, threads, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+        p.setThreadFactory(new ThreadFactory() {
+            private volatile int id = 0;
+
+            public Thread newThread(Runnable arg0) {
+                Thread thread = new Thread(arg0, name + " " + getNextID());
+                return thread;
+            }
+
+            private int getNextID() {
+                return id++;
+            }
+
+        });
+        executor = p;
+
         // Then call the next guy
         next.init(props);
     }
@@ -98,12 +127,41 @@ public class ServicePool implements ServerService {
         next.stop();
     }
 
-    public void service(Socket socket) throws ServiceException, IOException{
-        // Do our stuff
-        // Check authorization
+    public void service(final Socket socket) throws ServiceException, IOException{
+        final Runnable service = new Runnable() {
+            public void run() {
+                try {
+                    next.service(socket);
+                } catch (SecurityException e) {
+                    log.error("Security error: " + e.getMessage(), e);
+                } catch (Throwable e) {
+                    log.error("Unexpected error", e);
+                } finally {
+                    try {
+                        if (socket != null) {
+                            socket.close();
+                        }
+                    } catch (Throwable t) {
+                        log.warning("Error while closing connection with client", t);
+                    }
+                }
+            }
+        };
 
-        // Then call the next guy
-        next.service(socket);
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        Runnable ctxCL = new Runnable() {
+            public void run() {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(tccl);
+                try {
+                    service.run();
+                } finally {
+                    Thread.currentThread().setContextClassLoader(cl);
+                }
+            }
+        };
+
+        executor.execute(ctxCL);
     }
 
     public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
