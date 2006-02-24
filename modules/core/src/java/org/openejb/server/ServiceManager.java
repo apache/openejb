@@ -162,6 +162,19 @@ public class ServiceManager {
                 properties.put(interfase, impl);
                 String rawProperties = resourceFinder.findString(interfase.getName() + "/" + name);
                 properties.put(Properties.class, rawProperties);
+
+                // Override with system properties
+                String prefix = name + ".";
+                Properties sysProps = System.getProperties();
+                for (Iterator iterator1 = sysProps.entrySet().iterator(); iterator1.hasNext();) {
+                    Map.Entry entry1 = (Map.Entry) iterator1.next();
+                    String key = (String) entry1.getKey();
+                    String value = (String) entry1.getValue();
+                    if (key.startsWith(prefix)){
+                        key = key.replaceFirst(prefix, "");
+                        properties.setProperty(key, value);
+                    }
+                }
             }
             return services;
         }

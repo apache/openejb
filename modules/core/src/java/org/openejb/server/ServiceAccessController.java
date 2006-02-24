@@ -167,7 +167,7 @@ public class ServiceAccessController implements ServerService {
 
             String ipString = props.getProperty("only_from");
             if (ipString != null) {
-                StringTokenizer st = new StringTokenizer(ipString, ",");
+                StringTokenizer st = new StringTokenizer(ipString, " ,");
                 while (st.hasMoreTokens()) {
                     String address = null;
                     InetAddress ip = null;
