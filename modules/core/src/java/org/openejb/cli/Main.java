@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -28,105 +28,101 @@ public class Main {
 	private static String basePath = "META-INF/org.openejb.cli/";
 	private static String locale = "";
 	private static String descriptionBase = "description";
-	
-	public static void init() {
-		finder = new CommandFinder(basePath);
-		locale = Locale.getDefault().getLanguage();
-		
-		setupClasspath();
-	}
-	
-	public static void setupClasspath() {
-		ClassLoader current = Thread.currentThread().getContextClassLoader();
-		URL classURL = Thread.currentThread().getContextClassLoader().getResource(basePath + "start");
-        
-		if (classURL != null) {
-			String propsString = classURL.getFile();
-	        URL jarURL = null;
-	        File jarFile = null;
-	        
-	        propsString = propsString.substring(0, propsString.indexOf("!"));
-	        
-	        try {
-				jarURL = new URL(propsString);
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-	        jarFile = new File(jarURL.getFile());
-	        
-	        if (jarFile.getName().indexOf("openejb-core") > -1) {
-	        	File lib = jarFile.getParentFile();
-	        	File home = lib.getParentFile();
-	        	
-	        	System.setProperty("openejb.home", home.getAbsolutePath());
-	        }
-			
-			File lib = new File(System.getProperty("openejb.home") + File.separator + "lib");
-			SystemClassPath systemCP = new SystemClassPath();
-			
-			try {
-				systemCP.addJarsToPath(lib);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
-	public static void main(String[] args) {
-		ArrayList argsList = new ArrayList();
-		
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].indexOf("-D") == -1) {
-				argsList.add(args[i]);
-			} else {
-				String prop = args[i].substring(args[i].indexOf("-D") + 2, args[i].indexOf("="));
-				String val = args[i].substring(args[i].indexOf("=") + 1);
-				
-				System.setProperty(prop, val);
-			}
-		}
-		
-		args = (String[])argsList.toArray(new String[argsList.size()]);
-		
-		init();
-		
-		if (args.length == 0 || args[0].equals("--help")) {
-			System.out.println("Usage: openejb help [command]");
-			
-			printAvailableCommands();
-			
-			return;
-		}
-			
-		Properties props = null;
-		boolean help = false;
-		int argIndex = 0;
-		
-		if (args[0].equals("help")) {
-			if (args.length < 2) {
-				printAvailableCommands();
-				
-				return;
-			}
-			
-			help = true;
-			
-			argIndex = 1;
-		}
-		
-		String commandName = args[argIndex];
-		
-		try {
-			props = finder.doFindCommandProperies(commandName);
-		} catch (IOException e1) {
-			System.out.println("Unavailable command: " + commandName);
-			
-			printAvailableCommands();
-			
-			return;
-		}
-		
-		if (props == null) {
+    private static void setupHome() {
+        try {
+            URL classURL = Thread.currentThread().getContextClassLoader().getResource(basePath + "start");
+
+            if (classURL != null) {
+                String propsString = classURL.getFile();
+
+                propsString = propsString.substring(0, propsString.indexOf("!"));
+
+                URI uri = new URI(propsString);
+
+                File jarFile = new File(uri);
+
+                if (jarFile.getName().indexOf("openejb-core") > -1) {
+                    File lib = jarFile.getParentFile();
+                    File home = lib.getParentFile();
+
+                    System.setProperty("openejb.home", home.getAbsolutePath());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error setting openejb.home :"+e.getClass() +": "+e.getMessage());
+        }
+    }
+
+    private static void setupClasspath()  {
+        try {
+            File lib = new File(System.getProperty("openejb.home") + File.separator + "lib");
+            SystemClassPath systemCP = new SystemClassPath();
+            systemCP.addJarsToPath(lib);
+        } catch (Exception e) {
+            System.err.println("Error setting up the classpath: "+e.getClass() +": "+e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        ArrayList argsList = new ArrayList();
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].indexOf("-D") == -1) {
+                argsList.add(args[i]);
+            } else {
+                String prop = args[i].substring(args[i].indexOf("-D") + 2, args[i].indexOf("="));
+                String val = args[i].substring(args[i].indexOf("=") + 1);
+
+                System.setProperty(prop, val);
+            }
+        }
+
+        args = (String[])argsList.toArray(new String[argsList.size()]);
+
+        finder = new CommandFinder(basePath);
+        locale = Locale.getDefault().getLanguage();
+
+        setupHome();
+        setupClasspath();
+
+        if (args.length == 0 || args[0].equals("--help")) {
+            System.out.println("Usage: openejb help [command]");
+
+            printAvailableCommands();
+
+            return;
+        }
+
+        Properties props = null;
+        boolean help = false;
+        int argIndex = 0;
+
+        if (args[0].equals("help")) {
+            if (args.length < 2) {
+                printAvailableCommands();
+
+                return;
+            }
+
+            help = true;
+
+            argIndex = 1;
+        }
+
+        String commandName = args[argIndex];
+
+        try {
+            props = finder.doFindCommandProperies(commandName);
+        } catch (IOException e1) {
+            System.out.println("Unavailable command: " + commandName);
+
+            printAvailableCommands();
+
+            return;
+        }
+
+        if (props == null) {
             System.out.println("Unavailable command: " + commandName);
             printAvailableCommands();
             return;
@@ -150,32 +146,32 @@ public class Main {
         } catch (Exception e) {
             throw new IllegalStateException("Main class of command "+commandName+" does not have a static main method: "+mainClass);
         }
-		
-		argsList = new ArrayList();
-		int startPoint = 1;
-		
-		if (help) {
-			startPoint = 2;
-			
-			argsList.add("--help");
-		}
-		
-		for (int i = startPoint; i < args.length; i++) {
-			argsList.add(args[i]);
-		}
-		
-		args = (String[])argsList.toArray(new String[argsList.size()]);
-		
-		try {
-			mainMethod.invoke(clazz, new Object[] { args });
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}
+
+        argsList = new ArrayList();
+        int startPoint = 1;
+
+        if (help) {
+            startPoint = 2;
+
+            argsList.add("--help");
+        }
+
+        for (int i = startPoint; i < args.length; i++) {
+            argsList.add(args[i]);
+        }
+
+        args = (String[])argsList.toArray(new String[argsList.size()]);
+
+        try {
+            mainMethod.invoke(clazz, new Object[] { args });
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
 
 	private static void printAvailableCommands() {
 		System.out.println("COMMANDS:");
