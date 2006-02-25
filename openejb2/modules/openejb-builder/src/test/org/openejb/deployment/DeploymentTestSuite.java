@@ -91,7 +91,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     private Kernel kernel;
     private DataSource dataSource;
     private ClassLoader applicationClassLoader;
-    private ConfigurationStore configurationStore = new KernelHelper.MockConfigStore(null);
+    private ConfigurationStore configurationStore = new KernelHelper.MockConfigStore();
 
     protected DeploymentTestSuite(Class testClass, File moduleFile) {
         super(new TestSuite(testClass));
