@@ -754,5 +754,8 @@
       <attainGoal name="delete:tomcat"/>
 
     </goal>
+<!-- Try this if things get rough
+java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -jar target/openejb-1.0-SNAPSHOT/lib/openejb-core-1.0-SNAPSHOT.jar start
+-->
 
 </project>
