@@ -68,11 +68,12 @@ public class Main {
         ArrayList argsList = new ArrayList();
 
         for (int i = 0; i < args.length; i++) {
-            if (args[i].indexOf("-D") == -1) {
-                argsList.add(args[i]);
+            String arg = args[i];
+            if (arg.indexOf("-D") == -1) {
+                argsList.add(arg);
             } else {
-                String prop = args[i].substring(args[i].indexOf("-D") + 2, args[i].indexOf("="));
-                String val = args[i].substring(args[i].indexOf("=") + 1);
+                String prop = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
+                String val = arg.substring(arg.indexOf("=") + 1);
 
                 System.setProperty(prop, val);
             }

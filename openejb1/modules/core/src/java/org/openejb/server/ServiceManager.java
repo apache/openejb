@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Properties;
@@ -163,18 +162,6 @@ public class ServiceManager {
                 String rawProperties = resourceFinder.findString(interfase.getName() + "/" + name);
                 properties.put(Properties.class, rawProperties);
 
-                // Override with system properties
-                String prefix = name + ".";
-                Properties sysProps = System.getProperties();
-                for (Iterator iterator1 = sysProps.entrySet().iterator(); iterator1.hasNext();) {
-                    Map.Entry entry1 = (Map.Entry) iterator1.next();
-                    String key = (String) entry1.getKey();
-                    String value = (String) entry1.getValue();
-                    if (key.startsWith(prefix)){
-                        key = key.replaceFirst(prefix, "");
-                        properties.setProperty(key, value);
-                    }
-                }
             }
             return services;
         }
@@ -233,6 +220,7 @@ public class ServiceManager {
     private void overrideProperties(String serviceName, Properties serviceProperties) throws IOException {
         FileUtils base = SystemInstance.get().getBase();
 
+        // Override with file from conf dir
         File conf = base.getDirectory("conf");
         if (conf.exists()) {
             File serviceConfig = new File(conf, serviceName + ".properties");
@@ -253,13 +241,27 @@ public class ServiceManager {
                 }
             }
         }
+
+        // Override with system properties
+        String prefix = serviceName + ".";
+        Properties sysProps = System.getProperties();
+        for (Iterator iterator1 = sysProps.entrySet().iterator(); iterator1.hasNext();) {
+            Map.Entry entry1 = (Map.Entry) iterator1.next();
+            String key = (String) entry1.getKey();
+            String value = (String) entry1.getValue();
+            if (key.startsWith(prefix)){
+                key = key.replaceFirst(prefix, "");
+                serviceProperties.setProperty(key, value);
+            }
+        }
+
     }
 
     private boolean isEnabled(Properties props) throws ServiceException {
         // if it should be started, continue
-        String dissabled = props.getProperty("dissabled", "");
+        String disabled = props.getProperty("disabled", "");
 
-        if (dissabled.equalsIgnoreCase("yes") || dissabled.equalsIgnoreCase("true")) {
+        if (disabled.equalsIgnoreCase("yes") || disabled.equalsIgnoreCase("true")) {
             return false;
         } else {
             return true;

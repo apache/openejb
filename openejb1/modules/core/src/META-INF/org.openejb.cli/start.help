@@ -11,16 +11,7 @@ encounters something it didn't expect, or when OpenEJB wants to
 let you know something may not work as you expected it.
 
 OPTIONS
- -h host    Binds the Remote Server to the specified host address.     
-            Default host address is 127.0.0.1.
-  
- -p port    Binds the Remote Server to the specified port. 
-            Default port is 4201.
-  
- -t int     Sets the number of concurrent threads the Remote 
-            server should use to service requests from clients.
-            Default number of threads is 20.
-  
+
  -d dir     Sets the OPENEJB_HOME to the specified directory.
 
  -l file    Sets the log4j configuration to the specified file.
@@ -33,9 +24,6 @@ OPTIONS
 
  -examples  Show examples of how to use the options.
 
- --admin-ip A comma delimited list of hosts and IP addresses that
-            are allowed to administer this server.
-
  --local-copy=[true|false]
             
             When set to true, the container system will marshall
@@ -45,6 +33,31 @@ OPTIONS
             values without copying or marshalling as is required
             for EJB 2.0 Local interfaces.  Default is true.
 
+CONFIG OVERRIDES
+
+The following -D are available for each Server Service available,
+such as ejbd, httpejb, admin, webadmin.  Each service has a set
+of standard properties available.  These can be set with the
+format as such:
+
+ -D<service>.<property>=<value>
+
+The following properties are can be configured:
+
+ bind       Binds the service to the specified host address.
+            Default host address is 127.0.0.1.
+
+ port       Binds the service to the specified port.
+            Default port depends on the service.
+
+ threads    Sets the number of concurrent threads the service
+            should use to service requests from clients.
+            Default number of threads is depends on the service.
+
+ only_from  A comma delimited list of hosts and IP addresses that
+            are allowed to administer this server.
+
+ disabled   When set to "true" ensures the serivce is not started.
 
 See http://www.openejb.org/remote-server.html for more information.
 
