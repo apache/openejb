@@ -239,7 +239,7 @@
                 </copy>
             </u:available>
         </define:tag>
-        
+
         <define:tag name="mkdir">
             <mkdir dir="${dir}"/>
         </define:tag>
@@ -364,6 +364,23 @@
 
         <!-- Cleanse some stuff -->
         <u:available file="${aggregate.dir}/bin" xmlns="jelly:ant">
+            <!-- Fix CRLF -->
+            <fixcrlf srcdir="${aggregate.dir}/bin" eol="lf" eof="remove">
+                <include name="*"/>
+                <exclude name="*.bat"/>
+                <exclude name="*.cmd"/>
+            </fixcrlf>
+            <fixcrlf srcdir="${aggregate.dir}/bin" eol="crlf">
+                <include name="*.bat"/>
+                <include name="*.cmd"/>
+            </fixcrlf>
+
+            <replace file="${aggregate.dir}/bin/openejb"
+                           token="@REPLACED-BY-MAVEN-XML@"
+                           value="${pom.currentVersion}"/>
+            <replace file="${aggregate.dir}/bin/openejb.bat"
+                     token="@REPLACED-BY-MAVEN-XML@"
+                     value="${pom.currentVersion}"/>
             <!-- Fix permissions -->
             <chmod perm="ugo+x">
                 <fileset dir="${aggregate.dir}/bin">
@@ -379,25 +396,8 @@
                 </fileset>
             </chmod>
 
-            <!-- Fix CRLF -->
-            <fixcrlf srcdir="${aggregate.dir}/bin" eol="lf" eof="remove">
-                <include name="*"/>
-                <exclude name="*.bat"/>
-                <exclude name="*.cmd"/>
-            </fixcrlf>
-            <fixcrlf srcdir="${aggregate.dir}/bin" eol="crlf">
-                <include name="*.bat"/>
-                <include name="*.cmd"/>
-            </fixcrlf>
-            
-    	<replace file="${aggregate.dir}/bin/openejb" 
-    		             token="@REPLACED-BY-MAVEN-XML@"
-    		             value="${pom.currentVersion}"/>
-        	
-	    <replace file="${aggregate.dir}/bin/openejb.bat" 
-	             token="@REPLACED-BY-MAVEN-XML@"
-	             value="${pom.currentVersion}"/>
         </u:available>
+
         <copy todir="${aggregate.dir}">
             <fileset dir=".">
                 <include name="CREDITS.txt"/>
@@ -498,7 +498,7 @@
             include="*.jar"
             exclude="openejb-webadmin-${pom.currentVersion}.jar"/>
     </goal>
-    
+
     <!-- =============================== -->
     <!-- Documentation & Site Generation -->
     <!-- =============================== -->
@@ -567,14 +567,14 @@
       <j:if test="${!(fileAsFile.exists())}">
         <mkdir dir="${maven.repo.local}/tomcat/distributions"/>
         <get src="${tomcat.download}" dest="${tomcat.dist}"/>
-      </j:if>      
+      </j:if>
 
       <!-- Unzip if not unzipped -->
       <u:file var="fileAsFile" name="${tomcat.home}"/>
       <j:if test="${!(fileAsFile.exists())}">
         <unjar src="${tomcat.dist}" dest="${targetDir}"/>
         <chmod dir="${tomcat.home}/bin" perm="u+x" includes="**/*.sh"/>
-      </j:if>      
+      </j:if>
     </goal>
 
     <goal name="delete:tomcat">
@@ -592,7 +592,7 @@
       <j:if test="${!(fileAsFile.exists())}">
         <mkdir dir="${maven.repo.local}/tomcat/distributions"/>
         <get src="${tomcat.download}" dest="${tomcat.dist}"/>
-      </j:if>      
+      </j:if>
 
       <unjar src="${tomcat.dist}" dest="${basedir}"/>
 
@@ -612,7 +612,7 @@
 	  <pathelement location="${catalina.dir}/bin/bootstrap.jar"/>
 	</classpath>
       </java>
--->      
+-->
 
     <goal name="start:tomcat">
       <exec executable="${tomcat.home}/bin/startup.sh">
