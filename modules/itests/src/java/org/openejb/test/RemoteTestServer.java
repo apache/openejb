@@ -108,7 +108,10 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
                 File lib = home.getDirectory("lib");
                 File openejbJar = new File(lib, "openejb-core-" + version + ".jar");
 
-                Process server = Runtime.getRuntime().exec("java -jar "+openejbJar.getAbsolutePath()+" start -nowait");
+                //DMB: If you don't use an array, you get problems with jar paths containing spaces
+                // the command won't parse correctly
+                String[] args = {"java", "-jar", openejbJar.getAbsolutePath(), "start"};
+                Process server = Runtime.getRuntime().exec(args);
 
                 // Pipe the processes STDOUT to ours
                 InputStream out = server.getInputStream();
@@ -116,8 +119,6 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
 
                 serverOut.setDaemon(true);
                 serverOut.start();
-
-
 
                 // Pipe the processes STDERR to ours
                 InputStream err = server.getErrorStream();
