@@ -64,8 +64,6 @@ public class Embedder {
 
     private String NOT_DIRECTORY = "The path specified is not a directory.";
 
-    private String NO_DIST = "The path specified is not correct, it does not contain a 'dist' directory.";
-
     private String NO_LIBS = "The path specified is not correct, it does not contain any OpenEJB libraries.";
 
     // TODO: move this part back into the LoaderServlet
@@ -87,7 +85,7 @@ public class Embedder {
             // The openejb.home must contain a 'lib' directory
             File openejbHomeLibs = new File(openejbHome, "lib");
             if (!openejbHomeLibs.exists())
-                handleError(BAD_HOME + homePath, NO_DIST, INSTRUCTIONS);
+                handleError(BAD_HOME + homePath, NO_LIBS, INSTRUCTIONS);
 
             // The openejb.home there must be openejb*.jar files in the 'dist'
             // directory
