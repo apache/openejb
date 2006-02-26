@@ -16,6 +16,18 @@
  */
 package org.openejb.deployment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.management.ObjectName;
+
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,18 +47,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-
-import javax.management.ObjectName;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -100,15 +100,9 @@ public class KernelHelper {
 
 
     public static class MockConfigStore implements ConfigurationStore {
-        private final Kernel kernel;
         private static final Map locations = new HashMap();
 
-        public MockConfigStore(Kernel kernel) {
-            this.kernel = kernel;
-        }
-
-        public Artifact install(URL source) throws IOException, InvalidConfigException {
-            return null;
+        public MockConfigStore() {
         }
 
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
@@ -168,8 +162,6 @@ public class KernelHelper {
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
-            infoBuilder.addAttribute("kernel", Kernel.class, false);
-            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
