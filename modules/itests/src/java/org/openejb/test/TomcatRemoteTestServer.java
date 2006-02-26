@@ -17,9 +17,6 @@
 package org.openejb.test;
 
 import org.openejb.client.RemoteInitialContextFactory;
-import org.openejb.util.JarUtils;
-import org.openejb.util.FileUtils;
-import org.openejb.loader.SystemInstance;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,7 +24,6 @@ import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.net.Socket;
 import java.util.Properties;
 
 /**
@@ -43,7 +39,7 @@ public class TomcatRemoteTestServer implements TestServer {
     public void init(Properties props) {
         properties = props;
         servletUrl = System.getProperty("remote.serlvet.url", "http://127.0.0.1:8080/openejb/remote");
-        props.put("test.server.class", TomcatRemoteTestServer.class.getName());
+//        props.put("test.server.class", TomcatRemoteTestServer.class.getName());
         props.put("java.naming.factory.initial", RemoteInitialContextFactory.class.getName());
         props.put("java.naming.provider.url", servletUrl);
 
@@ -66,6 +62,11 @@ public class TomcatRemoteTestServer implements TestServer {
 
         try{
             System.out.println("[] START TOMCAT SERVER");
+            System.out.println("CATALINA_HOME = "+tomcatHome.getAbsolutePath());
+
+            String systemInfo = "Java " + System.getProperty("java.version") + "; " + System.getProperty("os.name") + "/" + System.getProperty("os.version");
+            System.out.println("SYSTEM_INFO   = "+systemInfo);
+
             serverHasAlreadyBeenStarted = false;
 
             FilePathBuilder tomcat = new FilePathBuilder(tomcatHome);
@@ -83,7 +84,6 @@ public class TomcatRemoteTestServer implements TestServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void stop(){
@@ -91,6 +91,8 @@ public class TomcatRemoteTestServer implements TestServer {
             try{
                 System.out.println("[] STOP TOMCAT SERVER");
                 execBootstrap("stop", System.out);
+
+                disconnect(10);
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -120,6 +122,23 @@ public class TomcatRemoteTestServer implements TestServer {
         return (Properties) properties.clone();
     }
 
+    private boolean disconnect(int tries) {
+        if (connect()){
+            tries--;
+            if (tries < 1) {
+                return false;
+            } else {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                }
+                disconnect(tries);
+            }
+        }
+
+        return true;
+    }
+
     private boolean connect() {
         return connect(1);
     }
@@ -130,7 +149,6 @@ public class TomcatRemoteTestServer implements TestServer {
             URL url = new URL(servletUrl);
             url.openStream();
         } catch (Exception e) {
-            System.out.println("Attempting to connect to " + servletUrl);
             tries--;
             //System.out.println(e.getMessage());
             if (tries < 1) {

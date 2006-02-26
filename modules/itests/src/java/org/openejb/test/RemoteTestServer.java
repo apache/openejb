@@ -79,7 +79,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     public void init(Properties props){
         properties = props;
 
-        props.put("test.server.class","org.openejb.test.RemoteTestServer");
+//        props.put("test.server.class","org.openejb.test.RemoteTestServer");
         props.put("java.naming.factory.initial","org.openejb.client.RemoteInitialContextFactory");
         props.put("java.naming.provider.url","127.0.0.1:4201");
         props.put("java.naming.security.principal","testuser");
@@ -97,6 +97,12 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         if (!connect()) {
             try{
                 System.out.println("[] START SERVER");
+                FileUtils home = SystemInstance.get().getHome();
+
+                System.out.println("OPENEJB_HOME = "+home.getDirectory().getAbsolutePath());
+                String systemInfo = "Java " + System.getProperty("java.version") + "; " + System.getProperty("os.name") + "/" + System.getProperty("os.version");
+                System.out.println("SYSTEM_INFO  = "+systemInfo);
+
                 serverHasAlreadyBeenStarted = false;
                 String version = null;
 
@@ -104,7 +110,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
                 Properties versionInfo = new Properties();
                 versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
                 version = (String)versionInfo.get( "version" );
-                FileUtils home = SystemInstance.get().getHome();
+
                 File lib = home.getDirectory("lib");
                 File openejbJar = new File(lib, "openejb-core-" + version + ".jar");
 

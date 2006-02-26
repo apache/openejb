@@ -100,6 +100,7 @@
                 <directory>${basedir}/src</directory>
                 <includes>
                     <include>htdocs/**</include>
+                    <include>META-INF/**</include>
                 </includes>
             </resource>
             <resource>

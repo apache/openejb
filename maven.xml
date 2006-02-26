@@ -751,12 +751,13 @@
       <attainGoal name="delete:tomcat"/>
       <attainGoal name="test:tomcat-webapp"/>
       <attainGoal name="delete:tomcat"/>
-
-      <attainGoal name="tomcat55"/>
-      <attainGoal name="test:tomcat"/>
-      <attainGoal name="delete:tomcat"/>
-      <attainGoal name="test:tomcat-webapp"/>
-      <attainGoal name="delete:tomcat"/>
+      <j:if test="${systemScope['java.version'].startsWith('1.5')}">
+        <attainGoal name="tomcat55"/>
+        <attainGoal name="test:tomcat"/>
+        <attainGoal name="delete:tomcat"/>
+        <attainGoal name="test:tomcat-webapp"/>
+        <attainGoal name="delete:tomcat"/>
+      </j:if>
     </goal>
 
     <goal name="test:all">
