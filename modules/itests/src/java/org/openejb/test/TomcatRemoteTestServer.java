@@ -19,10 +19,10 @@ package org.openejb.test;
 import org.openejb.client.RemoteInitialContextFactory;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Properties;
 
@@ -44,28 +44,28 @@ public class TomcatRemoteTestServer implements TestServer {
         props.put("java.naming.provider.url", servletUrl);
 
         String homeProperty = System.getProperty("tomcat.home");
-        if (homeProperty == null){
+        if (homeProperty == null) {
             throw new IllegalStateException("The system property tomcat.home must be defined.");
         }
 
         tomcatHome = new File(homeProperty);
 
         if (!tomcatHome.exists()) {
-            throw new IllegalStateException("The tomcat.home directory does not exist: "+tomcatHome.getAbsolutePath());
+            throw new IllegalStateException("The tomcat.home directory does not exist: " + tomcatHome.getAbsolutePath());
         }
     }
 
     public void start() {
-        if (connect()){
+        if (connect()) {
             return;
         }
 
-        try{
+        try {
             System.out.println("[] START TOMCAT SERVER");
-            System.out.println("CATALINA_HOME = "+tomcatHome.getAbsolutePath());
+            System.out.println("CATALINA_HOME = " + tomcatHome.getAbsolutePath());
 
             String systemInfo = "Java " + System.getProperty("java.version") + "; " + System.getProperty("os.name") + "/" + System.getProperty("os.version");
-            System.out.println("SYSTEM_INFO   = "+systemInfo);
+            System.out.println("SYSTEM_INFO   = " + systemInfo);
 
             serverHasAlreadyBeenStarted = false;
 
@@ -73,9 +73,9 @@ public class TomcatRemoteTestServer implements TestServer {
             OutputStream catalinaOut = new FileOutputStream(tomcat.l("logs").f("catalina.out"));
 
             execBootstrap("start", catalinaOut);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Cannot start the server: "+e.getClass().getName()+": "+e.getMessage(), e);
+            throw new RuntimeException("Cannot start the server: " + e.getClass().getName() + ": " + e.getMessage(), e);
         }
         connect(10);
         // Wait a wee bit longer for good measure
@@ -86,14 +86,14 @@ public class TomcatRemoteTestServer implements TestServer {
         }
     }
 
-    public void stop(){
-        if ( !serverHasAlreadyBeenStarted ) {
-            try{
+    public void stop() {
+        if (!serverHasAlreadyBeenStarted) {
+            try {
                 System.out.println("[] STOP TOMCAT SERVER");
                 execBootstrap("stop", System.out);
 
                 disconnect(10);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -123,7 +123,7 @@ public class TomcatRemoteTestServer implements TestServer {
     }
 
     private boolean disconnect(int tries) {
-        if (connect()){
+        if (connect()) {
             tries--;
             if (tries < 1) {
                 return false;
@@ -170,30 +170,33 @@ public class TomcatRemoteTestServer implements TestServer {
         FilePathBuilder tomcat = new FilePathBuilder(tomcatHome);
         FilePathBuilder tomcatBin = tomcat.l("bin");
 
+        FilePathBuilder javaHome = new FilePathBuilder(System.getProperty("java.home"));
         String path = tomcatHome.getAbsolutePath();
 
+        String s = File.pathSeparator;
+
         if (path.indexOf("tomcat-5.5") != -1) {
-            return new String[]{ "java",
+            return new String[]{javaHome.l("bin").s("java"),
                     "-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager",
                     "-Djava.util.logging.config.file=" + tomcat.l("conf").l("logging.properties"),
                     "-Djava.endorsed.dirs=" + tomcat.l("common").l("endorsed"),
-                    "-classpath", tomcatBin.l("bootstrap.jar") +":" + tomcatBin.l("commons-logging-api.jar"),
+                    "-classpath", tomcatBin.l("bootstrap.jar") + s + tomcatBin.l("commons-logging-api.jar"),
                     "-Dcatalina.base=" + tomcat,
                     "-Dcatalina.home=" + tomcat,
                     "-Djava.io.tmpdir=" + tomcat.l("temp"),
                     "org.apache.catalina.startup.Bootstrap", command};
         } else if (path.indexOf("tomcat-5.0") != -1) {
-            return new String[]{ "java",
+            return new String[]{javaHome.l("bin").s("java"),
                     "-Djava.endorsed.dirs=" + tomcat.l("common").l("endorsed"),
-                    "-classpath", tomcatBin.l("bootstrap.jar") +":" + tomcatBin.l("commons-logging-api.jar"),
+                    "-classpath", tomcatBin.l("bootstrap.jar") + s + tomcatBin.l("commons-logging-api.jar") + s + javaHome.l("lib").s("tools.jar"),
                     "-Dcatalina.base=" + tomcat,
                     "-Dcatalina.home=" + tomcat,
                     "-Djava.io.tmpdir=" + tomcat.l("temp"),
                     "org.apache.catalina.startup.Bootstrap", command};
         } else if (path.indexOf("tomcat-4.1") != -1) {
-            return new String[]{ "java",
+            return new String[]{javaHome.l("bin").s("java"),
                     "-Djava.endorsed.dirs=" + tomcat.l("common").l("endorsed"),
-                    "-classpath", tomcatBin.l("bootstrap.jar") +"",
+                    "-classpath", tomcatBin.s("bootstrap.jar") + s + javaHome.l("lib").s("tools.jar"),
                     "-Dcatalina.base=" + tomcat,
                     "-Dcatalina.home=" + tomcat,
                     "-Djava.io.tmpdir=" + tomcat.l("temp"),
@@ -210,12 +213,20 @@ public class TomcatRemoteTestServer implements TestServer {
             this.file = file;
         }
 
-        public FilePathBuilder l(String name){
+        public FilePathBuilder(String filePath) {
+            this.file = new File(filePath);
+        }
+
+        public FilePathBuilder l(String name) {
             return new FilePathBuilder(f(name));
         }
 
-        public File f(String name){
+        public File f(String name) {
             return new File(file, name);
+        }
+
+        public String s(String name) {
+            return new File(file, name).getAbsolutePath();
         }
 
         public String toString() {
@@ -234,21 +245,20 @@ public class TomcatRemoteTestServer implements TestServer {
         }
 
         public void run() {
-            try{
+            try {
                 int i = is.read();
-                out.write( i );
+                out.write(i);
 
-                while ( i != -1 ){
+                while (i != -1) {
                     i = is.read();
-                    out.write( i );
+                    out.write(i);
                 }
 
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
 
 /**
 
