@@ -50,6 +50,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.Properties;
+import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.TestResult;
 
@@ -113,14 +115,29 @@ public class TestRunner extends junit.textui.TestRunner {
 				TestRunner aTestRunner = new TestRunner();
 				TestResult r = aTestRunner
 						.start(new String[] { "org.openejb.test.ClientTestSuite" });
-				if (!r.wasSuccessful())
+
+                System.out.println("");
+                System.out.println("_________________________________________________");
+                System.out.println("CLIENT JNDI PROPERTIES");
+                Properties env = TestManager.getServer().getContextEnvironment();
+                for (Iterator iterator = env.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    String key = (String) entry.getKey();
+                    Object value = entry.getValue();
+                    System.out.println(key+" = "+value);
+                }
+                System.out.println("_________________________________________________");
+
+                if (!r.wasSuccessful())
 					System.exit(FAILURE_EXIT);
 				System.exit(SUCCESS_EXIT);
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 				System.exit(EXCEPTION_EXIT);
 			}
-		}
+
+
+        }
 	}
 
 	private static void runLocalTests() {
