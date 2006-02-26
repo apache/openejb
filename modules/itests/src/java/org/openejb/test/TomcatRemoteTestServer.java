@@ -69,10 +69,8 @@ public class TomcatRemoteTestServer implements TestServer {
 
             serverHasAlreadyBeenStarted = false;
 
-            FilePathBuilder tomcat = new FilePathBuilder(tomcatHome);
-            OutputStream catalinaOut = new FileOutputStream(tomcat.l("logs").f("catalina.out"));
 
-            execBootstrap("start", catalinaOut);
+            execBootstrap("start");
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Cannot start the server: " + e.getClass().getName() + ": " + e.getMessage(), e);
@@ -90,7 +88,7 @@ public class TomcatRemoteTestServer implements TestServer {
         if (!serverHasAlreadyBeenStarted) {
             try {
                 System.out.println("[] STOP TOMCAT SERVER");
-                execBootstrap("stop", System.out);
+                execBootstrap("stop");
 
                 disconnect(10);
             } catch (Exception e) {
@@ -99,9 +97,12 @@ public class TomcatRemoteTestServer implements TestServer {
         }
     }
 
-    private void execBootstrap(String command, OutputStream catalinaOut) throws IOException {
+    private void execBootstrap(String command) throws IOException {
         String[] bootstrapCommand = getBootstrapCommand(tomcatHome, command);
         Process server = Runtime.getRuntime().exec(bootstrapCommand);
+
+        FilePathBuilder tomcat = new FilePathBuilder(tomcatHome);
+        OutputStream catalinaOut = new FileOutputStream(tomcat.l("logs").f("catalina.out"));
 
         // Pipe the processes STDOUT to ours
         InputStream out = server.getInputStream();
@@ -112,7 +113,7 @@ public class TomcatRemoteTestServer implements TestServer {
 
         // Pipe the processes STDERR to ours
         InputStream err = server.getErrorStream();
-        Thread serverErr = new Thread(new Pipe(err, System.err));
+        Thread serverErr = new Thread(new Pipe(err, catalinaOut));
 
         serverErr.setDaemon(true);
         serverErr.start();
