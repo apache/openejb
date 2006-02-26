@@ -39,8 +39,8 @@
   <preGoal name="jar:jar">
     <mkdir dir="${basedir}/target/resources"/>
     <copy file="${basedir}/src/webapp/WEB-INF/web.xml" todir="${basedir}/target/resources"/>
-    <replace file="${basedir}/target/resources/web.xml" token="@OPENEJB_HOME@" 
-             value="${basedir}/../../target/openejb-${pom.currentVersion}"/>
+    <!--<replace file="${basedir}/target/resources/web.xml" token="@OPENEJB_HOME@" -->
+             <!--value="${basedir}/../../target/openejb-${pom.currentVersion}"/>-->
 
     <war destfile="${basedir}/target/openejb-loader-${pom.currentVersion}.war" webxml="${basedir}/target/resources/web.xml">
       <fileset dir="${basedir}/src/webapp">

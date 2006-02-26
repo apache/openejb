@@ -35,8 +35,6 @@
    </ant:jar>
 
     <copy file="${basedir}/../webadmin/src/webapp/WEB-INF/web.xml" todir="${basedir}/target"/>
-    <replace file="${basedir}/target/web.xml" token="@OPENEJB_HOME@"
-             value="${basedir}/../../target/openejb-${pom.currentVersion}"/>
 
     <war destfile="${basedir}/target/openejb-loader-${pom.currentVersion}.war" webxml="${basedir}/target/web.xml">
       <lib dir="${basedir}/target/">
