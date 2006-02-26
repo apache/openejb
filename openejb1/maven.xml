@@ -714,27 +714,29 @@
     <goal name="test:tomcat">
       <attainGoal name="setup:tomcat"/>
       <attainGoal name="setup:loader-webapp"/>
-      <attainGoal name="start:tomcat"/>
+      <!--<attainGoal name="start:tomcat"/>-->
       <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
       <java jar="${openejb.jar}" fork="yes">
         <arg value="test"/>
         <arg value="tomcat"/>
+        <sysproperty key="tomcat.home" value="${tomcat.home}"/>
         <sysproperty key="remote.servlet.url" value="http://127.0.0.1:8080/openejb/remote"/>
       </java>
-      <attainGoal name="stop:tomcat"/>
+      <!--<attainGoal name="stop:tomcat"/>-->
     </goal>
 
     <goal name="test:tomcat-webapp">
       <attainGoal name="setup:tomcat"/>
       <attainGoal name="setup:itests-webapp"/>
-      <attainGoal name="start:tomcat"/>
+      <!--<attainGoal name="start:tomcat"/>-->
       <j:set var="openejb.jar" value="target/openejb-${pom.currentVersion}/lib/openejb-core-${pom.currentVersion}.jar"/>
       <java jar="${openejb.jar}" fork="yes">
         <arg value="test"/>
         <arg value="tomcat"/>
+        <sysproperty key="tomcat.home" value="${tomcat.home}"/>
         <sysproperty key="remote.serlvet.url" value="http://127.0.0.1:8080/itests/remote"/>
       </java>
-      <attainGoal name="stop:tomcat"/>
+      <!--<attainGoal name="stop:tomcat"/>-->
     </goal>
 
     <goal name="test:tomcat-all">

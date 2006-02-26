@@ -244,46 +244,28 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     }
 
     private static final class Pipe implements Runnable {
-
-
-
         private final InputStream is;
-
         private final OutputStream out;
 
         private Pipe(InputStream is, OutputStream out) {
-
             super();
-
             this.is = is;
-
             this.out = out;
-
         }
 
         public void run() {
-
             try{
-
                 int i = is.read();
-
                 out.write( i );
 
                 while ( i != -1 ){
-
                     i = is.read();
-
                     out.write( i );
-
                 }
 
             } catch (Exception e){
-
                 e.printStackTrace();
-
             }
-
         }
-
     }
 }
