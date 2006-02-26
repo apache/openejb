@@ -26,7 +26,6 @@ import java.util.Properties;
 public class RemoteHttpTestServer extends RemoteTestServer {
     public void init(Properties props){
         super.init(props);
-        props.put("test.server.class", org.openejb.test.RemoteHttpTestServer.class.getName());
         props.put("java.naming.factory.initial", RemoteInitialContextFactory.class.getName());
         props.put("java.naming.provider.url","http://127.0.0.1:4204");
     }
