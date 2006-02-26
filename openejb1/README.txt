@@ -9,19 +9,9 @@ Installation
  
  If you are reading this, you've already unpacked the OpenEJB release.  
  In that case, congratulations, you've installed OpenEJB.  
- 
- If you've unpacked OpenEJB into the directory C:\openejb, for example.
- Than this directory is your OPENEJB_HOME directory.  The OPENEJB_HOME
- directory is refered to in various parts of the documentation, so it's
- good to remeber where it is.
 
- Add OPENEJB_HOME/bin directory to your PATH environment variable:
-
-   set PATH=%OPENEJB_HOME%/bin;%PATH%
-
- or
-
-   export PATH=$OPENEJB_HOME/bin:$PATH
+ The scripts for starting, stopping, and deploying in openejb are located
+ in the bin directory under where OpenEJB was installed. 
 
 ___________________
 Using OpenEJB
@@ -33,11 +23,11 @@ Using OpenEJB
  
  For Windows users, that looks like this:
   
-   C:\openejb> openejb help
+   C:\openejb\bin> openejb help
  
  For UNIX/Linux/Mac OS X users, that looks like this:
  
-   [user@host openejb]# openejb help
+   [user@host openejb/bin]# openejb help
  
  You really only need to know two commands to use OpenEJB, deploy
  and start.  Both are completely documented and have examples.

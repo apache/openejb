@@ -615,18 +615,46 @@
 -->
 
     <goal name="start:tomcat">
-      <exec executable="${tomcat.home}/bin/startup.sh">
-      </exec>
+      <j:choose>
+        <j:when test="${systemScope['os.name'].startsWith('Windows')}">
+          <exec executable="${tomcat.home}/bin/startup.bat" os="Windows NT,Windows 2000,Windows XP">
+            <env key="CATALINA_HOME" value="${tomcat.home}"/>
+          </exec>
+        </j:when>
+        <j:otherwise>
+          <exec executable="${tomcat.home}/bin/startup.sh"/>
+        </j:otherwise>
+      </j:choose>
     </goal>
 
     <goal name="start:tomcat-debug">
-      <exec executable="${tomcat.home}/bin/startup.sh">
-      	<env key="JAVA_OPTS" value="-Dopenejb.home=${openejb.home} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
-      </exec>
+      <j:choose>
+        <j:when test="${systemScope['os.name'].startsWith('Windows')}">
+          <exec executable="${tomcat.home}/bin/startup.bat" os="Windows NT,Windows 2000,Windows XP">
+            <env key="JAVA_OPTS" value="-Dopenejb.home=${openejb.home} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+            <env key="CATALINA_HOME" value="${tomcat.home}"/>
+          </exec>
+        </j:when>
+        <j:otherwise>
+          <exec executable="${tomcat.home}/bin/startup.sh">
+            <env key="JAVA_OPTS" value="-Dopenejb.home=${openejb.home} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+          </exec>
+        </j:otherwise>
+      </j:choose>
     </goal>
 
     <goal name="stop:tomcat">
-      <exec executable="${tomcat.home}/bin/shutdown.sh" />
+      <j:choose>
+        <j:when test="${systemScope['os.name'].startsWith('Windows')}">
+          <exec executable="${tomcat.home}/bin/shutdown.bat"
+                os="Windows NT,Windows 2000,Windows XP">
+            <env key="CATALINA_HOME" value="${tomcat.home}"/>
+          </exec>
+        </j:when>
+        <j:otherwise>
+          <exec executable="${tomcat.home}/bin/shutdown.sh" />
+        </j:otherwise>
+      </j:choose>
     </goal>
 
     <goal name="tomcat.env">
