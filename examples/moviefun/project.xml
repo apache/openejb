@@ -45,7 +45,7 @@
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-loader</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
