@@ -1,7 +1,7 @@
 ===============================================
 OpenEJB -- EJB Container System and EJB Server
 
-OpenEJB v1.0-beta1      http://www.openejb.org/
+OpenEJB v1.0           http://www.openejb.org/
 -----------------------------------------------
 ___________________
 Installation
