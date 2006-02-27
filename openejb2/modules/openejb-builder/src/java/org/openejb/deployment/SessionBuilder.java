@@ -325,6 +325,12 @@ class SessionBuilder extends BeanBuilder {
 
             }
         }
+        if(tssBeanObjectName != null && openejbSessionBean.getJndiNameArray().length == 0) {
+            throw new DeploymentException("Cannot expose a session bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+        }
+        if(tssBeanObjectName != null && (!sessionBean.isSetRemote() || !sessionBean.isSetHome())) {
+            throw new DeploymentException("A session bean without a remote interface cannot be exposed via CORBA");
+        }
 
         GBeanData sessionGBean;
         try {

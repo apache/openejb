@@ -49,6 +49,9 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import com.sun.corba.se.internal.core.EndPoint;
 import org.apache.commons.logging.Log;
@@ -218,6 +221,26 @@ public class SunORBConfigAdapter implements ConfigAdapter {
             }
         }
 
+    }
+
+    public InetSocketAddress getDefaultListenAddress(TSSConfig config, ORB orb) throws ConfigException {
+        OpenEJBORB o = (OpenEJBORB) orb;
+        try {
+            if (config != null) {
+                TSSTransportMechConfig transportMech = config.getTransport_mech();
+                if (transportMech != null) {
+                    if (transportMech instanceof TSSSSLTransportConfig) {
+                        TSSSSLTransportConfig sslConfig = (TSSSSLTransportConfig) transportMech;
+                        return new InetSocketAddress(InetAddress.getLocalHost(), sslConfig.getPort());
+                    }
+                }
+            } else {
+                return new InetSocketAddress(InetAddress.getLocalHost(), 6882);
+            }
+        } catch (UnknownHostException e) {
+            throw new ConfigException("Unable to calculate default listen host", e);
+        }
+        return null; // If they configured a protocol other than SSL that we don't currently support
     }
 
     public String[] translateToArgs(CSSConfig config, List args) throws ConfigException {

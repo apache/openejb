@@ -102,7 +102,7 @@ import org.openejb.proxy.ReplacementStrategy;
  * <p/>
  * Note: #getORB() and #getCodec() rely on UtilInitializer to initialze the ORB and codec.
  *
- * @version $Rev: $ $Date$
+ * @version $Rev$ $Date$
  * @see UtilInitializer
  */
 public final class Util {
@@ -330,7 +330,7 @@ public final class Util {
 
             // create and encode a GSSUP initial context token
             InitialContextToken init_token = new InitialContextToken();
-            init_token.username = (user + "@" + target).getBytes("UTF-8");
+            init_token.username = user.getBytes("UTF-8");
 
             init_token.password = pwd.getBytes("UTF-8");
 

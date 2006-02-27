@@ -185,7 +185,14 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setFrontEndCacheDelegate(cacheDelegate);
 
         try {
-            GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), getTssBeanObjectName(openejbEntityBean, earContext));
+            ObjectName tssBeanObjectName = getTssBeanObjectName(openejbEntityBean, earContext);
+            if(tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
+                throw new DeploymentException("Cannot expose an entity bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+            }
+            if(tssBeanObjectName != null && (!entityBean.isSetRemote() || !entityBean.isSetHome())) {
+                throw new DeploymentException("An entity bean without a remote interface cannot be exposed via CORBA");
+            }
+            GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJB named '" + ejbName + "': "+e.getMessage(), e);
