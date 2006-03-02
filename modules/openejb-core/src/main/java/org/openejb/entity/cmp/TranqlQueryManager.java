@@ -40,17 +40,27 @@
  *
  * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
+ * $Id: TranqlEjbCmpEngine.java 2465 2006-02-19 06:35:14Z gdamour $
  */
 package org.openejb.entity.cmp;
 
-import org.openejb.proxy.ProxyInfo;
+import org.tranql.cache.GlobalSchema;
+import org.tranql.dynamicquery.BasicQueryManager;
+import org.tranql.ejb.EJBSchema;
+import org.tranql.sql.SQLSchema;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Revision: 2465 $ $Date: 2006-02-19 17:35:14 +1100 (Sun, 19 Feb 2006) $
  */
-public interface ModuleCmpEngine {
-    EjbCmpEngine getEjbCmpEngine(String ejbName, Class beanClass, ProxyInfo proxyInfo) throws Exception;
+public class TranqlQueryManager implements QueryManager {
+    private final org.tranql.dynamicquery.QueryManager queryManager;
     
-    QueryManager getQueryManager();
+    public TranqlQueryManager(EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema) {
+        queryManager = new BasicQueryManager(ejbSchema, sqlSchema, globalSchema);
+    }
+
+    public Query createQuery(String ejbql, Class[] types) {
+        org.tranql.dynamicquery.Query query = queryManager.createQuery(ejbql, types);
+        return new TranqlQuery(query);
+    }
 }

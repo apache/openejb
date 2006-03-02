@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -61,6 +62,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
@@ -107,7 +109,7 @@ import org.openejb.xbeans.pkgen.EjbSqlGeneratorType;
  * @version $Revision$ $Date$
  */
 public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
-    public void addBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
         OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
         EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
 
@@ -130,8 +132,19 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         // transactionManager
         moduleCmpEngine.setReferencePattern("transactionManager", earContext.getTransactionManagerObjectName());
 
+        // TransactionContextManager
 
+        earContext.addGBean(moduleCmpEngine);
+        ejbModule.setModuleCmpEngineName(moduleCmpEngineName);
+    }
+
+    public void addBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
+        ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
+        RefContext refContext = earContext.getRefContext();
+        GBeanData moduleCmpEngine = refContext.locateComponentData(moduleCmpEngineName, earContext);
+        
         // connectionFactory
+        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
         GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
         if (connectionFactoryLocator == null) {
             throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
@@ -139,11 +152,6 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         ObjectName connectionFactoryObjectName = OpenEjbModuleBuilder.getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext);
         //TODO this uses connection factory rather than datasource for the type.
         moduleCmpEngine.setReferencePattern("connectionFactory", connectionFactoryObjectName);
-
-        // TransactionContextManager
-
-        earContext.addGBean(moduleCmpEngine);
-        ejbModule.setModuleCmpEngineName(moduleCmpEngineName);
     }
 
     public ModuleSchema buildModuleSchema(J2eeContext moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl) throws DeploymentException {

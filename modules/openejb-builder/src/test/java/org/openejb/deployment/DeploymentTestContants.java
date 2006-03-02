@@ -48,22 +48,23 @@
 package org.openejb.deployment;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.List;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.xml.namespace.QName;
-import javax.naming.Reference;
+import java.util.Map;
 
-import org.apache.geronimo.kernel.config.Configuration;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.kernel.config.Configuration;
 
 /**
  * @version $Revision$ $Date$

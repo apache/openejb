@@ -53,11 +53,13 @@ import java.net.URI;
 import java.sql.Connection;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -73,13 +75,14 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.DeploymentIndexGBean;
+import org.openejb.deployment.CmpBuilder;
 import org.openejb.deployment.CmpSchemaBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
-import org.openejb.deployment.CmpBuilder;
 import org.openejb.deployment.TranqlCmpSchemaBuilder;
 import org.openejb.deployment.XmlBeansHelper;
+import org.openejb.deployment.entity.cmp.RefContextUtil;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
@@ -96,7 +99,7 @@ public abstract class AbstractCMRTest extends TestCase {
     protected static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
     protected static final ObjectName C_NAME_A;
     protected static final ObjectName C_NAME_B;
-
+    
     static {
         try {
             C_NAME_A = NameFactory.getEjbComponentName(null, null, null, null, "A", NameFactory.ENTITY_BEAN, j2eeContext);
@@ -144,6 +147,8 @@ public abstract class AbstractCMRTest extends TestCase {
 
         File tempDir = DeploymentUtil.createTempDir();
 
+        RefContextUtil refContextUtil = new RefContextUtil();
+        
         try {
             URI configId = new URI("test");
             EARContext earContext = new EARContext(tempDir,
@@ -158,13 +163,14 @@ public abstract class AbstractCMRTest extends TestCase {
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
                     null,
-                    null);
+                    refContextUtil.build());
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
             // create module cmp enging GBeanData
             EJBModule ejbModule = new EJBModule(true, configId, null, null, tempDir.getAbsoluteFile().toURI().toString(), ejbJarType, openejbJarType, "");
             CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
+            cmpSchemaBuilder.initContext(earContext, j2eeContext, ejbModule, cl);
             cmpSchemaBuilder.addBeans(earContext, j2eeContext, ejbModule, cl);
             ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
             GBeanData moduleCmpEngineGBeanData = earContext.getGBeanInstance(moduleCmpEngineName);
