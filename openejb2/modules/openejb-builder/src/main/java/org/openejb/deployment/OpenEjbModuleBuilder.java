@@ -361,7 +361,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         xmlBeansSessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
         xmlBeansEntityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
         xmlBeansMdbBuilder.initContext(cl, enterpriseBeans);
-
+        cmpSchemaBuilder.initContext(earContext, moduleJ2eeContext, ejbModule, cl);
     }
 
     public XmlBeansEntityBuilder getBmpEntityBuilder() {

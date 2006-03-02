@@ -68,6 +68,7 @@ import org.tranql.sql.SQLSchema;
 public class TranqlModuleCmpEngine implements ModuleCmpEngine {
     private EJBSchema ejbSchema;
     private GlobalSchema globalSchema;
+    private SQLSchema sqlSchema;
     private TransactionManager transactionManager;
     private final TranqlCommandBuilder tranqlCommandBuilder;
     private final FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
@@ -105,7 +106,7 @@ public class TranqlModuleCmpEngine implements ModuleCmpEngine {
         tranqlSchemaBuilder.buildSchema();
         this.globalSchema = tranqlSchemaBuilder.getGlobalSchema();
         this.ejbSchema = tranqlSchemaBuilder.getEjbSchema();
-        SQLSchema sqlSchema = tranqlSchemaBuilder.getSqlSchema();
+        this.sqlSchema = tranqlSchemaBuilder.getSqlSchema();
 
         SQLQueryBuilder queryBuilder = new SQLQueryBuilder(ejbSchema, sqlSchema, globalSchema);
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
@@ -126,5 +127,7 @@ public class TranqlModuleCmpEngine implements ModuleCmpEngine {
         return new TranqlEjbCmpEngine(ejb, beanClass, proxyInfo, frontEndCache, cacheTable, tranqlCommandBuilder);
     }
 
-
+    public QueryManager getQueryManager() {
+        return new TranqlQueryManager(ejbSchema, sqlSchema, globalSchema);
+    }
 }

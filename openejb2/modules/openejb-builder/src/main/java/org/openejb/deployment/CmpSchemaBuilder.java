@@ -44,18 +44,20 @@
  */
 package org.openejb.deployment;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.entity.cmp.ModuleSchema;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 /**
  * @version $Revision$ $Date$
  */
 public interface CmpSchemaBuilder {
+    void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException;
+    
     void addBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException;
 
     ModuleSchema buildModuleSchema(J2eeContext moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl) throws DeploymentException;
