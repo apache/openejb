@@ -73,27 +73,27 @@ public class KernelHelper {
         kernel.loadGBean(store, KernelHelper.class.getClassLoader());
         kernel.startGBean(store.getName());
 
-        GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(manager, KernelHelper.class.getClassLoader());
-        kernel.startGBean(manager.getName());
+        GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(artifactManager, KernelHelper.class.getClassLoader());
+        kernel.startGBean(artifactManager.getName());
 
-        GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-        resolver.setReferencePattern("ArtifactManager", manager.getName());
-//            resolver.setReferencePattern("Repositories", repository.getName());
-        kernel.loadGBean(resolver, KernelHelper.class.getClassLoader());
-        kernel.startGBean(resolver.getName());
+        GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
+        kernel.loadGBean(artifactResolver, KernelHelper.class.getClassLoader());
+        kernel.startGBean(artifactResolver.getName());
 
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerData.setReferencePattern("Stores", store.getName());
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
         kernel.loadGBean(configurationManagerData, KernelHelper.class.getClassLoader());
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
         Artifact artifact = DEFAULT_ENVIRONMENT.getConfigId();
-        configurationManager.load(artifact);
-        configurationManager.loadGBeans(artifact);
-        configurationManager.start(artifact);
+        configurationManager.loadConfiguration(artifact);
+        configurationManager.startConfiguration(artifact);
 
         return kernel;
     }

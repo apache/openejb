@@ -69,7 +69,6 @@ import org.apache.geronimo.deployment.DeploymentContext;
  * @version $Revision$ $Date$
  */
 public interface DeploymentTestContants {
-    public static final ObjectName CONFIGURATION_OBJECT_NAME = IGNORE.createConfigurationObjectName();
     public static final ObjectName CONNECTION_OBJECT_NAME = IGNORE.createConnectionObjectName();
     public static final String DOMAIN_NAME = DeploymentHelper.DOMAIN_NAME;
     public static final String SERVER_NAME = DeploymentHelper.SERVER_NAME;

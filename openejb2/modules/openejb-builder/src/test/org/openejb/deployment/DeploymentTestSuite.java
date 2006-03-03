@@ -47,6 +47,18 @@
  */
 package org.openejb.deployment;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.jar.JarFile;
+import javax.management.ObjectName;
+import javax.sql.DataSource;
+
 import junit.extensions.TestDecorator;
 import junit.framework.Protectable;
 import junit.framework.TestResult;
@@ -61,25 +73,14 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.openejb.ContainerIndex;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
-
-import javax.management.ObjectName;
-import javax.sql.DataSource;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.jar.JarFile;
 
 /**
  * @version $Revision$ $Date$
@@ -92,6 +93,8 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     private DataSource dataSource;
     private ClassLoader applicationClassLoader;
     private ConfigurationStore configurationStore = new KernelHelper.MockConfigStore();
+    private ConfigurationManager configurationManager;
+    private Configuration configuration;
 
     protected DeploymentTestSuite(Class testClass, File moduleFile) {
         super(new TestSuite(testClass));
@@ -191,15 +194,6 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 }
             }
 
-            // start the configuration
-            GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-            config.setName(CONFIGURATION_OBJECT_NAME);
-            config.setAttribute("environment", configurationData.getEnvironment());
-            config.setReferencePattern("Repositories", new ObjectName("*:name=Repository,*"));
-            config.setReferencePattern("ArtifactManager", new ObjectName("*:name=ArtifactManager,*"));
-            config.setReferencePattern("ArtifactResolver", new ObjectName("*:name=ArtifactResolver,*"));
-            config.setAttribute("configurationStore", configurationStore);
-
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
             Set ejbContainerNames = new HashSet();
@@ -238,16 +232,14 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 JDBCUtil.close(connection);
             }
 
-            // load the configuration
-            kernel.loadGBean(config, cl);
-            kernel.startGBean(CONFIGURATION_OBJECT_NAME);
 
             // start the configuration
-            kernel.invoke(CONFIGURATION_OBJECT_NAME, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-            kernel.invoke(CONFIGURATION_OBJECT_NAME, "startRecursiveGBeans");
+            configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            configuration = configurationManager.loadConfiguration(configurationData, configurationStore);
+            configurationManager.startConfiguration(configuration);
 
-            assertRunning(kernel, CONFIGURATION_OBJECT_NAME);
-            applicationClassLoader = (ClassLoader) kernel.getAttribute(CONFIGURATION_OBJECT_NAME, "configurationClassLoader");
+            // get the configuration classloader
+            applicationClassLoader = configuration.getConfigurationClassLoader();
         } catch (Error e) {
             DeploymentUtil.recursiveDelete(tempDir);
             throw e;
@@ -264,8 +256,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             return;
         }
         try {
-            kernel.stopGBean(CONFIGURATION_OBJECT_NAME);
-        } catch (GBeanNotFoundException ignored) {
+            configurationManager.stopConfiguration(configuration);
+        } catch (Exception ignored) {
+        }
+        try {
+            configurationManager.unloadConfiguration(configuration);
+        } catch (Exception ignored) {
         }
         try {
             kernel.stopGBean(CONNECTION_OBJECT_NAME);
