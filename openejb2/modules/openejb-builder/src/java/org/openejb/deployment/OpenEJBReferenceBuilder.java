@@ -63,6 +63,7 @@ import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.proxy.EJBProxyReference;
@@ -114,7 +115,7 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         return buildRemoteReference(objectName, session, home, remote);
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
+    public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException {
         return new CORBAProxyReference(corbaURL, objectName, containerName, home);
     }
 
