@@ -303,7 +303,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = earContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
         URI moduleUri = module.getModuleURI();
 
@@ -349,7 +349,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
      * creating GBeans for all the EJBs in the JAR, etc.
      */
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = earContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
 
         DataSourceDelegate delegate = new DataSourceDelegate();
@@ -382,7 +382,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         try {
             ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
             if (!earContext.getJ2EEApplicationName().equals("null")) {
-                ejbModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getApplicationObjectName());
+                ejbModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getApplicationName());
             }
 
             ejbModuleGBeanData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
@@ -519,7 +519,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
+        J2eeContext j2eeContext = earContext.getModuleName();
         try {
             if (resourceLocator.isSetResourceLink()) {
                 String containerId = refContext.getConnectionFactoryContainerId(uri, resourceLocator.getResourceLink(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, earContext);

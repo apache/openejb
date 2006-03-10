@@ -192,7 +192,7 @@ class SessionBuilder extends BeanBuilder {
     private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, Map portInfoMap, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ObjectName listener) throws DeploymentException {
 
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
+        J2eeContext j2eeContext = earContext.getModuleName();
         OpenejbWebServiceSecurityType webServiceSecurity = openejbSessionBean == null ? null : openejbSessionBean.getWebServiceSecurity();
 
         //this code belongs here
@@ -308,7 +308,7 @@ class SessionBuilder extends BeanBuilder {
                 String tssBeanLink = openejbSessionBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
+                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getModuleName(), earContext, "TSS GBean");
             } else if (openejbSessionBean.isSetTss()) {
                 OpenejbTssType tss = openejbSessionBean.getTss();
                 try {
@@ -318,7 +318,7 @@ class SessionBuilder extends BeanBuilder {
                             getStringValue(tss.getModule()),
                             getStringValue(tss.getName()),
                             NameFactory.CORBA_TSS,
-                            earContext.getJ2eeContext());
+                            earContext.getModuleName());
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Invalid object name for tss bean", e);
                 }

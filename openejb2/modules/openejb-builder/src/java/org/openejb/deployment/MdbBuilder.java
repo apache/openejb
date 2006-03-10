@@ -298,7 +298,7 @@ class MdbBuilder extends BeanBuilder {
                     resourceLocator.getModule(),
                     resourceLocator.getName(),
                     NameFactory.JCA_RESOURCE_ADAPTER,
-                    earContext.getJ2eeContext());
+                    earContext.getModuleName());
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource adapter object name", e);
         }

@@ -166,7 +166,7 @@ class EntityBuilder extends BeanBuilder {
                 //todo check this is correct
                 URI moduleURI = URI.create("");
                 String moduleType = null;
-                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
+                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getModuleName(), earContext, "TSS GBean");
             } else if (openejbEntityBean.isSetTss()) {
                 OpenejbTssType tss = openejbEntityBean.getTss();
                 try {
@@ -176,7 +176,7 @@ class EntityBuilder extends BeanBuilder {
                         getStringValue(tss.getModule()),
                         getStringValue(tss.getName()),
                         getStringValue(NameFactory.CORBA_TSS),
-                        earContext.getJ2eeContext());
+                        earContext.getModuleName());
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Invalid object name for tss bean", e);
                 }
