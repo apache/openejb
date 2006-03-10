@@ -49,7 +49,6 @@ package org.openejb.deployment.entity.cmp.cmr;
 
 
 import java.io.File;
-import java.net.URI;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -170,13 +169,15 @@ public abstract class AbstractCMRTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
+                    null,
                     kernel,
                     NameFactory.NULL,
                     null,
                     null,
                     null,
                     null,
-                    null, null);
+                    null,
+                    null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Schemata schemata = builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, pkGen, ds);

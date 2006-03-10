@@ -291,7 +291,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return openejbEjbJar;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
         try {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output

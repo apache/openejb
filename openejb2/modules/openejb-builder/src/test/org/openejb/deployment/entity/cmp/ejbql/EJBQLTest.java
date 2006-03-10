@@ -56,6 +56,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collections;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -194,13 +195,15 @@ public class EJBQLTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
+                    Collections.singleton(repository),
                     kernel,
                     NameFactory.NULL,
                     null,
                     null,
                     null,
                     null,
-                    null, null);
+                    null,
+                    null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Schemata schemata = builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, pkGen, ds);
