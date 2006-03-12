@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 import javax.naming.Reference;
 import javax.management.ObjectName;
 
@@ -63,9 +64,10 @@ import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.corba.proxy.CORBAProxyReference;
@@ -75,9 +77,9 @@ import org.openejb.corba.CORBAHandleDelegate;
  * @version $Revision$ $Date$
  */
 public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
-    private final static ObjectName STATELESS = JMXUtil.getObjectName("*:j2eeType=StatelessSessionBean,*");
-    private final static ObjectName STATEFUL = JMXUtil.getObjectName("*:j2eeType=StatefulSessionBean,*");
-    private final static ObjectName ENTITY = JMXUtil.getObjectName("*:j2eeType=EntityBean,*");
+    private final static AbstractNameQuery STATELESS = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN));
+    private final static AbstractNameQuery STATEFUL = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN));
+    private final static AbstractNameQuery ENTITY = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN));
 
     public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean session, String localHome, String local) throws DeploymentException {
         if (gbeanData != null) {
@@ -115,8 +117,8 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         return buildRemoteReference(objectName, session, home, remote);
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException {
-        return new CORBAProxyReference(corbaURL, objectName, containerName, home);
+    public Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+        return new CORBAProxyReference(configId, containerNameQuery, nsCorbaloc, objectName, home);
     }
 
     public Object createHandleDelegateReference() {
@@ -153,15 +155,15 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         }
         Collection matches = new ArrayList();
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            GBeanData data = null;
+            AbstractName abstractName = (AbstractName) iterator.next();
+            GBeanData data;
             try {
-                data = context.getGBeanInstance(objectName);
+                data = context.getGBeanInstance(abstractName);
             } catch (GBeanNotFoundException e) {
                 throw new DeploymentException("We just got this ejb name out of a query! It must be there!");
             }
             if (matchesProxyInfo(data, isRemote, home, remote)) {
-                matches.add(objectName);
+                matches.add(abstractName);
             }
         }
         if (matches.isEmpty()) {

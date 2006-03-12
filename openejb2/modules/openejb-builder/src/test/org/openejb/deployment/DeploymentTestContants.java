@@ -63,6 +63,7 @@ import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
@@ -74,11 +75,11 @@ public interface DeploymentTestContants {
     public static final String SERVER_NAME = DeploymentHelper.SERVER_NAME;
 
     public static final ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
-        public Reference createResourceRef(String containerId, Class iface) {
+        public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
         }
 
-        public Reference createAdminObjectRef(String containerId, Class iface) {
+        public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
         }
 
