@@ -140,6 +140,10 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
 
     public void addBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
         ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
+        if (null == moduleCmpEngineName) {
+            return;
+        }
+        
         RefContext refContext = earContext.getRefContext();
         GBeanData moduleCmpEngine = refContext.locateComponentData(moduleCmpEngineName, earContext);
         
