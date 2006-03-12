@@ -49,14 +49,12 @@ package org.openejb.deployment.entity.cmp.ejbql;
 
 
 import java.io.File;
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Collections;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -195,7 +193,6 @@ public class EJBQLTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
-                    Collections.singleton(repository),
                     kernel,
                     NameFactory.NULL,
                     null,
