@@ -170,7 +170,7 @@ public abstract class AbstractCMRTest extends TestCase {
                     KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
                     kernel,
-                    NameFactory.NULL,
+                    serverName, NameFactory.NULL,
                     null,
                     null,
                     null,

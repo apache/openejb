@@ -378,9 +378,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         GBeanData ejbModuleGBeanData = new GBeanData(moduleBaseName, EJBModuleImpl.GBEAN_INFO);
         try {
-            ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
-            if (!earContext.getJ2EEApplicationName().equals("null")) {
-                ejbModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getApplicationName());
+            ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
+            if (!module.isStandAlone()) {
+                ejbModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getModuleName());
             }
 
             ejbModuleGBeanData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

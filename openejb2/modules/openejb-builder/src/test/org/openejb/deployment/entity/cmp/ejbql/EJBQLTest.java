@@ -194,7 +194,7 @@ public class EJBQLTest extends TestCase {
                     KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
                     kernel,
-                    NameFactory.NULL,
+                    serverName, NameFactory.NULL,
                     null,
                     null,
                     null,
