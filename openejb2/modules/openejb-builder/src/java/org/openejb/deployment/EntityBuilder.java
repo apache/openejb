@@ -57,6 +57,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -187,7 +188,7 @@ class EntityBuilder extends BeanBuilder {
 
     public AbstractName createEJBObjectName(AbstractName moduleBaseName, EntityBeanType entityBean) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
-        return NameFactory.getChildName(moduleBaseName, NameFactory.ENTITY_BEAN, ejbName, null);
+        return Naming.createChildName(moduleBaseName, NameFactory.ENTITY_BEAN, ejbName);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {

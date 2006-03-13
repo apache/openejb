@@ -69,6 +69,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -228,7 +229,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Could not construct standalone ejb module name", e);
             }
         } else {
-            moduleName = NameFactory.getChildName(earName, NameFactory.EJB_MODULE, targetPath, null);
+            moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, targetPath);
         }
 
         return new EJBModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD);

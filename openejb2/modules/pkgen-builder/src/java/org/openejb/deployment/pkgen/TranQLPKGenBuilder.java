@@ -49,7 +49,6 @@ package org.openejb.deployment.pkgen;
 
 import java.util.Map;
 import java.util.HashMap;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
@@ -65,8 +64,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.openejb.xbeans.pkgen.EjbCustomGeneratorType;
 import org.openejb.xbeans.pkgen.EjbSequenceTableType;
@@ -120,8 +119,8 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
                 keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                 GBeanData keyGenerator;
                 try {
-                    AbstractName generatorObjectName = NameFactory.getChildName(baseName, "KeyGenerator", generatorName, null);
-                    AbstractName wrapperGeneratorObjectName = NameFactory.getChildName(generatorObjectName, "PKGenWrapper", generatorName, null);
+                    AbstractName generatorObjectName = Naming.createChildName(baseName, "KeyGenerator", generatorName);
+                    AbstractName wrapperGeneratorObjectName = Naming.createChildName(generatorObjectName, "PKGenWrapper", generatorName);
                     keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
                     keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
                     keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);

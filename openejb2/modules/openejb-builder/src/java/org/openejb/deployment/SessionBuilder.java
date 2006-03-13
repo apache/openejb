@@ -91,6 +91,7 @@ import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.xmlbeans.XmlException;
 import org.openejb.EJBComponentType;
 import org.openejb.GenericEJBContainer;
@@ -119,7 +120,7 @@ class SessionBuilder extends BeanBuilder {
     private AbstractName createEJBObjectName(AbstractName moduleBaseName, SessionBeanType sessionBean) {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
         String type = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim()) ? NameFactory.STATELESS_SESSION_BEAN : NameFactory.STATEFUL_SESSION_BEAN;
-        return NameFactory.getChildName(moduleBaseName, type, ejbName, null);
+        return Naming.createChildName(moduleBaseName, type, ejbName);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -192,7 +193,7 @@ class SessionBuilder extends BeanBuilder {
 
         //this code belongs here
         AbstractName linkName;
-            linkName = NameFactory.getChildName(sessionName, NameFactory.WEB_SERVICE_LINK, ejbName, null);
+            linkName = Naming.createChildName(sessionName, NameFactory.WEB_SERVICE_LINK, ejbName);
 
         GBeanData linkData = new GBeanData(linkDataTemplate);
         linkData.setAbstractName(linkName);
