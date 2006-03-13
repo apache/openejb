@@ -56,6 +56,8 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -63,13 +65,12 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -109,7 +110,6 @@ import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.SQLSchema;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
@@ -136,15 +136,13 @@ import java.util.jar.JarFile;
 public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     private final Environment defaultEnvironment;
-    private final ObjectName listener;
+    private final AbstractNameQuery listener;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
     private final WebServiceBuilder webServiceBuilder;
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
-    private final Repository repository;
-    private final Kernel kernel;
     private static QName OPENEJBJAR_QNAME = OpenejbOpenejbJarDocument.type.getDocumentElementName();
     private static final String OPENEJBJAR_NAMESPACE = OPENEJBJAR_QNAME.getNamespaceURI();
 
@@ -155,11 +153,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         SchemaConversionUtils.registerNamespaceConversions(conversions);
     }
 
-    public OpenEJBModuleBuilder(Environment defaultEnvironment, ObjectName listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) throws GBeanNotFoundException {
-        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder, repository, kernel);
+    public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Kernel kernel) throws GBeanNotFoundException {
+        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder);
     }
 
-    public OpenEJBModuleBuilder(Environment defaultEnvironment, ObjectName listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Repository repository, Kernel kernel) {
+    public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder) {
         this.defaultEnvironment = defaultEnvironment;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
@@ -168,14 +166,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.webServiceBuilder = webServiceBuilder;
-        this.repository = repository;
-        this.kernel = kernel;
     }
 
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
-        ObjectName webServiceLinkTemplateName = kernel.getProxyManager().getProxyTarget(webServiceLinkTemplate);
-        GBeanData linkTemplate = kernel.getGBeanData(webServiceLinkTemplateName);
-        return linkTemplate;
+        AbstractName webServiceLinkTemplateName = kernel.getProxyManager().getProxyTarget(webServiceLinkTemplate);
+        return kernel.getGBeanData(webServiceLinkTemplateName);
     }
 
     public TransactionImportPolicyBuilder getTransactionImportPolicyBuilder() {
@@ -183,14 +178,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "ejb", null, true);
+        return createModule(plan, moduleFile, "ejb", null, true, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -218,18 +213,29 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
-        if(openejbJar == null) { // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
+        if (openejbJar == null)
+        { // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
             throw new DeploymentException("Currently a Geronimo deployment plan is required for an EJB module.  Please provide a plan as a deployer argument or packaged in the EJB JAR at META-INF/openejb-jar.xml");
         }
 
         EnvironmentType environmentType = openejbJar.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        AbstractName moduleName;
+        if (earName == null) {
+            try {
+                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.EJB, null);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct standalone ejb module name", e);
+            }
+        } else {
+            moduleName = NameFactory.getChildName(earName, NameFactory.EJB_MODULE, targetPath, null);
+        }
 
-        return new EJBModule(standAlone, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+        return new EJBModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD);
     }
 
     OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJarType ejbJar) throws DeploymentException {
-        OpenejbOpenejbJarType openejbJar = null;
+        OpenejbOpenejbJarType openejbJar;
         XmlObject rawPlan = null;
         try {
             // load the openejb-jar.xml from either the supplied plan or from the earFile
@@ -245,6 +251,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                     }
                 }
             } catch (IOException e) {
+                //no plan, create a default
             }
 
             // if we got one extract, adjust, and validate it otherwise create a default one
@@ -303,8 +310,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getModuleName();
-        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
+        AbstractName moduleBaseName = module.getModuleName();
         URI moduleUri = module.getModuleURI();
 
         EJBModule ejbModule = (EJBModule) module;
@@ -322,8 +328,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
-        sessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
-        entityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
+        sessionBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
+        entityBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
         mdbBuilder.initContext(cl, enterpriseBeans);
 
     }
@@ -349,8 +355,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
      * creating GBeans for all the EJBs in the JAR, etc.
      */
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getModuleName();
-        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
+        AbstractName moduleBaseName = module.getModuleName();
 
         DataSourceDelegate delegate = new DataSourceDelegate();
         TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
@@ -363,22 +368,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         EjbJarType ejbJar = (EjbJarType) module.getSpecDD();
 
         // @todo need a better schema name
-        Schemata schemata = cmpEntityBuilder.buildSchemata(earContext, moduleJ2eeContext, ejbModule.getName(), ejbJar, openejbEjbJar, cl, pkgen, delegate, tmDelegate);
+        Schemata schemata = cmpEntityBuilder.buildSchemata(earContext, moduleBaseName, ejbModule.getName(), ejbJar, openejbEjbJar, cl, pkgen, delegate, tmDelegate);
         EJBSchema ejbSchema = schemata.getEjbSchema();
         SQLSchema sqlSchema = schemata.getSqlSchema();
         GlobalSchema globalSchema = schemata.getGlobalSchema();
 
         GbeanType[] gbeans = openejbEjbJar.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
+        ServiceConfigBuilder.addGBeans(gbeans, cl, moduleBaseName, earContext);
 
-        ObjectName ejbModuleObjectName = null;
-        try {
-            ejbModuleObjectName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Unable to construct module name", e);
-        }
-
-        GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);
+        GBeanData ejbModuleGBeanData = new GBeanData(moduleBaseName, EJBModuleImpl.GBEAN_INFO);
         try {
             ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
             if (!earContext.getJ2EEApplicationName().equals("null")) {
@@ -389,20 +387,20 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
             GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
             if (connectionFactoryLocator != null) {
-                ObjectName connectionFactoryObjectName = getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext);
+                AbstractNameQuery connectionFactoryNameQuery = getResourceContainerId(connectionFactoryLocator, earContext);
                 //TODO this uses connection factory rather than datasource for the type.
-                ejbModuleGBeanData.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
+                ejbModuleGBeanData.setReferencePattern("ConnectionFactory", connectionFactoryNameQuery);
                 ejbModuleGBeanData.setAttribute("Delegate", delegate);
-            } else if (false == ejbSchema.getEntities().isEmpty()) {
+            } else if (!ejbSchema.getEntities().isEmpty()) {
                 throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
             }
 
             ejbModuleGBeanData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             ejbModuleGBeanData.setAttribute("TMDelegate", tmDelegate);
+            earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getName(), e);
         }
-        earContext.addGBean(ejbModuleGBeanData);
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
         Set beans = new HashSet();
@@ -472,7 +470,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         Map portInfoMap = Collections.EMPTY_MAP;
         JarFile jarFile = ejbModule.getModuleFile();
-        URL wsDDUrl = null;
+        URL wsDDUrl;
         try {
             wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
             portInfoMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
@@ -500,15 +498,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap());
         //TODO go back to the commented version when possible
 //          String contextID = ejbModuleObjectName.getCanonicalName();
-        String policyContextID = ejbModuleObjectName.getCanonicalName().replaceAll("[,: ]", "_");
+        String policyContextID = moduleBaseName.toString().replaceAll("[,: ]", "_");
 
-        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID, portInfoMap);
+        sessionBuilder.buildBeans(earContext, moduleBaseName, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID, portInfoMap);
 
-        entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, componentPermissions, transactionPolicyHelper, enterpriseBeans, policyContextID);
+        entityBuilder.buildBeans(earContext, moduleBaseName, cl, ejbModule, openejbBeans, componentPermissions, transactionPolicyHelper, enterpriseBeans, policyContextID);
 
-        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, enterpriseBeans, tmDelegate, componentPermissions, policyContextID);
+        cmpEntityBuilder.buildBeans(earContext, moduleBaseName, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, enterpriseBeans, tmDelegate, componentPermissions, policyContextID);
 
-        mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, componentPermissions, policyContextID);
+        mdbBuilder.buildBeans(earContext, moduleBaseName, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, componentPermissions, policyContextID);
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
     }
@@ -517,35 +515,18 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return OPENEJBJAR_NAMESPACE;
     }
 
-    private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getModuleName();
-        try {
-            if (resourceLocator.isSetResourceLink()) {
-                String containerId = refContext.getConnectionFactoryContainerId(uri, resourceLocator.getResourceLink(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, earContext);
-                return ObjectName.getInstance(containerId);
-            } else if (resourceLocator.isSetTargetName()) {
-                String containerId = resourceLocator.getTargetName();
-                return ObjectName.getInstance(containerId);
-            }
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct connector name", e);
+    private static AbstractNameQuery getResourceContainerId(GerResourceLocatorType resourceLocator, EARContext earContext) throws GBeanNotFoundException {
+        AbstractNameQuery resourceQuery;
+        if (resourceLocator.isSetResourceLink()) {
+            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(null, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, resourceLocator.getResourceLink().trim());
+        } else {
+            //construct name from components
+            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         }
-        //construct name from components
-        try {
-            return NameFactory.getComponentName(resourceLocator.getDomain(),
-                    resourceLocator.getServer(),
-                    resourceLocator.getApplication(),
-                    NameFactory.JCA_RESOURCE,
-                    resourceLocator.getModule(),
-                    resourceLocator.getName(),
-                    //todo determine type from iface class
-//                        resourceLocator.getType(),
-                    NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
-                    j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct cmp datasource object name", e);
-        }
+        Configuration configuration = earContext.getConfiguration();
+        //throws GBeanNotFoundException if not satisfied
+        configuration.findGBean(resourceQuery);
+        return resourceQuery;
     }
 
 
@@ -580,14 +561,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true);
-        infoBuilder.addAttribute("listener", ObjectName.class, true);
+        infoBuilder.addAttribute("listener", AbstractNameQuery.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "listener", "WebServiceLinkTemplate", "WebServiceBuilder", "Repository", "kernel"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "listener", "WebServiceLinkTemplate", "WebServiceBuilder", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

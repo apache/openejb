@@ -162,7 +162,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             ObjectName listener = null;
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, linkData, webServiceBuilder, null, kernel);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, linkData, webServiceBuilder);
             OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();

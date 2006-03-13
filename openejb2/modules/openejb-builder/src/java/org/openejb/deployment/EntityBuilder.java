@@ -47,21 +47,16 @@
  */
 package org.openejb.deployment;
 
-import java.net.URI;
-import java.security.Permissions;
-import java.util.Map;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.transaction.UserTransaction;
-
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -85,7 +80,11 @@ import org.openejb.GenericEJBContainer;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbTssType;
+
+import javax.transaction.UserTransaction;
+import java.net.URI;
+import java.security.Permissions;
+import java.util.Map;
 
 
 class EntityBuilder extends BeanBuilder {
@@ -93,7 +92,7 @@ class EntityBuilder extends BeanBuilder {
         super(builder);
     }
 
-    public void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, String policyContextID) throws DeploymentException {
+    public void buildBeans(EARContext earContext, AbstractName moduleBaseName, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, String policyContextID) throws DeploymentException {
         // BMP Entity Beans
         EntityBeanType[] bmpEntityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < bmpEntityBeans.length; i++) {
@@ -104,19 +103,24 @@ class EntityBuilder extends BeanBuilder {
             }
 
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue().trim());
-            ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
+            AbstractName entityObjectName = createEJBObjectName(moduleBaseName, entityBean);
 
             GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, componentPermissions, transactionPolicyHelper, cl, policyContextID);
-            earContext.addGBean(entityGBean);
+            try {
+                earContext.addGBean(entityGBean);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("duplicate entity bean", e);
+            }
         }
     }
 
-    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, String policyContextID) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, AbstractName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, String policyContextID) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue().trim();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(cl);
-        builder.setContainerId(containerObjectName.getCanonicalName());
+        //TODO configid need canonical form
+        builder.setContainerId(containerObjectName.toString());
         builder.setEJBName(ejbName);
         builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
         builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()));
@@ -135,70 +139,55 @@ class EntityBuilder extends BeanBuilder {
 
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 
-        ObjectName tssBeanObjectName = getTssBeanObjectName(openejbEntityBean, earContext);
-        if(tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
+        AbstractNameQuery tssBeanObjectName = getTssBeanQuery(openejbEntityBean, ejbModule, earContext, entityBean);
+        if (tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
             throw new DeploymentException("Cannot expose an entity bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
         }
-        if(tssBeanObjectName != null && (!entityBean.isSetRemote() || !entityBean.isSetHome())) {
+        if (tssBeanObjectName != null && (!entityBean.isSetRemote() || !entityBean.isSetHome())) {
             throw new DeploymentException("An entity bean without a remote interface cannot be exposed via CORBA");
         }
 
         try {
-            GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
-            return gbean;
+            return builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
         }
     }
 
-    protected ObjectName getTssBeanObjectName(OpenejbEntityBeanType openejbEntityBean, EARContext earContext) throws DeploymentException {
-        ObjectName tssBeanObjectName = null;
+    protected AbstractNameQuery getTssBeanQuery(OpenejbEntityBeanType openejbEntityBean, EJBModule ejbModule, EARContext earContext, EntityBeanType entityBean) throws DeploymentException {
+        AbstractNameQuery tssBeanObjectName = null;
         if (openejbEntityBean != null) {
-            if (openejbEntityBean.isSetTssTargetName()) {
-                String tssName = openejbEntityBean.getTssTargetName().trim();
-                try {
-                    tssBeanObjectName = ObjectName.getInstance(tssName);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Invalid object name for tss bean", e);
-                }
-            } else if (openejbEntityBean.isSetTssLink()) {
+            if (openejbEntityBean.isSetTssLink()) {
                 String tssBeanLink = openejbEntityBean.getTssLink().trim();
-                //todo check this is correct
-                URI moduleURI = URI.create("");
-                String moduleType = null;
-                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getModuleName(), earContext, "TSS GBean");
-            } else if (openejbEntityBean.isSetTss()) {
-                OpenejbTssType tss = openejbEntityBean.getTss();
+                URI moduleURI = ejbModule.getModuleURI();
+                String moduleType = NameFactory.EJB_MODULE;
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(moduleURI == null? null: moduleURI.toString(), moduleType, tssBeanLink);
                 try {
-                    tssBeanObjectName = NameFactory.getComponentName(getStringValue(tss.getDomain()),
-                        getStringValue(tss.getServer()),
-                        getStringValue(tss.getApplication()),
-                        getStringValue(tss.getModule()),
-                        getStringValue(tss.getName()),
-                        getStringValue(NameFactory.CORBA_TSS),
-                        earContext.getModuleName());
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Invalid object name for tss bean", e);
+                    earContext.getConfiguration().findGBean(tssBeanObjectName);
+                } catch (GBeanNotFoundException e) {
+                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink);
+                    try {
+                        earContext.getConfiguration().findGBean(tssBeanObjectName);
+                    } catch (GBeanNotFoundException e1) {
+                        throw new DeploymentException("No tss bean found", e);
+                    }
                 }
+            } else if (openejbEntityBean.isSetTss()) {
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbEntityBean.getTss(), NameFactory.CORBA_TSS);
             }
+        }
+        if (tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
+            throw new DeploymentException("Cannot expose a session bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+        }
+        if (tssBeanObjectName != null && (!entityBean.isSetRemote() || !entityBean.isSetHome())) {
+            throw new DeploymentException("A session bean without a remote interface cannot be exposed via CORBA");
         }
         return tssBeanObjectName;
     }
 
-    private String getStringValue(String in) {
-        if (in == null) {
-            return null;
-        }
-        return in.trim();
-    }
-
-    public ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, EntityBeanType entityBean) throws DeploymentException {
+    public AbstractName createEJBObjectName(AbstractName moduleBaseName, EntityBeanType entityBean) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
-        try {
-            return NameFactory.getComponentName(null, null, null, null, null, ejbName, NameFactory.ENTITY_BEAN, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct ejb object name: " + ejbName, e);
-        }
+        return NameFactory.getChildName(moduleBaseName, NameFactory.ENTITY_BEAN, ejbName, null);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -244,15 +233,13 @@ class EntityBuilder extends BeanBuilder {
         ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
     }
 
-    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    public void initContext(EARContext earContext, AbstractName moduleBaseName, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
         // Entity Beans
-        RefContext refContext = earContext.getRefContext();
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
-            String ejbName = entityBean.getEjbName().getStringValue();
 
-            ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
+            AbstractName entityObjectName = createEJBObjectName(moduleBaseName, entityBean);
             GBeanData gbean = new GBeanData(entityObjectName, GenericEJBContainer.GBEAN_INFO);
 
             Class homeInterface = null;
@@ -283,16 +270,17 @@ class EntityBuilder extends BeanBuilder {
 //                String objectName = entityObjectName.getCanonicalName();
 //                refContext.addEJBLocalId(moduleUri, ejbName, objectName, false, localHome, local);
             }
-            int componentType = entityBean.getPersistenceType().getStringValue().trim().equals("Bean")? EJBComponentType.BMP_ENTITY: EJBComponentType.CMP_ENTITY;
+            int componentType = entityBean.getPersistenceType().getStringValue().trim().equals("Bean") ? EJBComponentType.BMP_ENTITY : EJBComponentType.CMP_ENTITY;
             String className = entityBean.getPrimKeyClass().getStringValue().trim();
-                    Class primaryKeyClass = null;
+            Class primaryKeyClass;
             try {
                 primaryKeyClass = ClassLoading.loadClass(className, cl);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load primary key class: " + className + " for entity: " + entityObjectName);
             }
             ProxyInfo proxyInfo = new ProxyInfo(componentType,
-                    entityObjectName.getCanonicalName(),
+                    //TODO configid Need canonical form
+                    entityObjectName.toString(),
                     homeInterface,
                     remoteInterface,
                     localHomeInterface,
@@ -300,7 +288,11 @@ class EntityBuilder extends BeanBuilder {
                     null,
                     primaryKeyClass);
             gbean.setAttribute("proxyInfo", proxyInfo);
-            earContext.addGBean(gbean);
+            try {
+                earContext.addGBean(gbean);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("Could not add entity bean to context", e);
+            }
         }
     }
 

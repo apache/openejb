@@ -49,6 +49,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -74,15 +75,15 @@ public class SoapHttpListenerGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+    public static AbstractName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
         GBeanData gbean = createGBean(name);
         kernel.loadGBean(gbean, SoapHttpListener.class.getClassLoader());
         kernel.startGBean(gbean.getName());
-        return gbean.getName();
+        return gbean.getAbstractName();
     }
 
     public static GBeanData createGBean(String name) {
-        ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=SoapHttpListener,name=" + name);
+        AbstractName gbeanName = null;//JMXUtil.getObjectName("openejb:type=SoapHttpListener,name=" + name);
 
         GBeanData gbean = new GBeanData(gbeanName, SoapHttpListenerGBean.GBEAN_INFO);
 

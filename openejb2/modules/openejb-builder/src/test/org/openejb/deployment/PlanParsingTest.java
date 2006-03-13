@@ -4,7 +4,6 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
@@ -16,7 +15,7 @@ public class PlanParsingTest extends TestCase {
     File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
-        builder = new OpenEJBModuleBuilder(null, null, null, null, repository, null);
+        builder = new OpenEJBModuleBuilder(null, null, null, null);
     }
 
     public void testResourceRef() throws Exception {

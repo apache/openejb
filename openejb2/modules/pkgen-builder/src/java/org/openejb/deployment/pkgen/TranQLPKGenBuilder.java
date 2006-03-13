@@ -62,8 +62,11 @@ import org.tranql.sql.jdbc.binding.BindingFactory;
 import org.tranql.ql.QueryBindingImpl;
 import org.tranql.ql.QueryException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.openejb.xbeans.pkgen.EjbCustomGeneratorType;
 import org.openejb.xbeans.pkgen.EjbSequenceTableType;
@@ -107,24 +110,29 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
      * @return The configured PrimaryKeyGenerator
      */
     public PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, TransactionManager tm, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException {
+        AbstractName baseName = earContext.getModuleName();
         //todo: Handle a PK Class with multiple fields?
         if(config.isSetCustomGenerator()) {
             EjbCustomGeneratorType custom = config.getCustomGenerator();
-            String generatorName = custom.getGeneratorName();
+            String generatorName = custom.getGeneratorName().trim();
             PrimaryKeyGeneratorDelegate keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
             if ( null == keyGeneratorDelegate ) {
                 keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                 GBeanData keyGenerator;
                 try {
-                    ObjectName generatorObjectName = new ObjectName(generatorName);
-                    ObjectName wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
+                    AbstractName generatorObjectName = NameFactory.getChildName(baseName, "KeyGenerator", generatorName, null);
+                    AbstractName wrapperGeneratorObjectName = NameFactory.getChildName(generatorObjectName, "PKGenWrapper", generatorName, null);
                     keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
                     keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
                     keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
                 }
-                earContext.addGBean(keyGenerator);
+                try {
+                    earContext.addGBean(keyGenerator);
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new DeploymentException("Could not add pk generator wrapper to context", e);
+                }
 
                 keyGenerators.put(generatorName, keyGeneratorDelegate);
             }

@@ -48,6 +48,8 @@ import java.util.Map;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -126,15 +128,15 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
 
     EJBContainer createContainer() throws Exception;
 
-    GBeanData createConfiguration(ObjectName containerObjectName, ObjectName transactionContextManagerObjectName, ObjectName trackedConnectionAssociatorObjectName, ObjectName tssBeanObjectName) throws Exception;
+    GBeanData createConfiguration(AbstractName containerObjectName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery trackedConnectionAssociatorObjectName, AbstractNameQuery tssBeanObjectName) throws Exception;
 
-    ObjectName getTransactedTimerName();
+    AbstractNameQuery getTransactedTimerName();
 
-    void setTransactedTimerName(ObjectName transactedTimerName);
+    void setTransactedTimerName(AbstractNameQuery transactedTimerName);
 
-    ObjectName getNonTransactedTimerName();
+    AbstractNameQuery getNonTransactedTimerName();
 
-    void setNonTransactedTimerName(ObjectName nonTransactedTimerName);
+    void setNonTransactedTimerName(AbstractNameQuery nonTransactedTimerName);
 
     TransactionImportPolicyBuilder getTransactionImportPolicyBuilder();
 

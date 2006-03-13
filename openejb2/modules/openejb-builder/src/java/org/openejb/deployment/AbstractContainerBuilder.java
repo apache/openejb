@@ -47,15 +47,8 @@
  */
 package org.openejb.deployment;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -80,6 +73,14 @@ import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.util.SoftLimitedInstancePool;
+
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.security.auth.Subject;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Revision$ $Date$
@@ -113,8 +114,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private TransactionContextManager transactionContextManager;
     private TrackedConnectionAssociator trackedConnectionAssociator;
 
-    private ObjectName transactedTimerName;
-    private ObjectName nonTransactedTimerName;
+    private AbstractNameQuery transactedTimerName;
+    private AbstractNameQuery nonTransactedTimerName;
 
     //corba tx import
 
@@ -328,19 +329,19 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
-    public ObjectName getTransactedTimerName() {
+    public AbstractNameQuery getTransactedTimerName() {
         return transactedTimerName;
     }
 
-    public void setTransactedTimerName(ObjectName transactedTimerName) {
+    public void setTransactedTimerName(AbstractNameQuery transactedTimerName) {
         this.transactedTimerName = transactedTimerName;
     }
 
-    public ObjectName getNonTransactedTimerName() {
+    public AbstractNameQuery getNonTransactedTimerName() {
         return nonTransactedTimerName;
     }
 
-    public void setNonTransactedTimerName(ObjectName nonTransactedTimerName) {
+    public void setNonTransactedTimerName(AbstractNameQuery nonTransactedTimerName) {
         this.nonTransactedTimerName = nonTransactedTimerName;
     }
 
@@ -350,9 +351,9 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return (EJBContainer) buildIt(true);
     }
 
-    public GBeanData createConfiguration(ObjectName containerObjectName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName tssBeanObjectName) throws Exception {
+    public GBeanData createConfiguration(AbstractName containerObjectName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery tssBeanObjectName) throws Exception {
         GBeanData gbean = (GBeanData) buildIt(false);
-        gbean.setName(containerObjectName);
+        gbean.setAbstractName(containerObjectName);
         gbean.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
         gbean.setReferencePattern("TrackedConnectionAssociator", connectionTrackerObjectName);
         if (tssBeanObjectName != null) {
@@ -408,8 +409,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         if (homeInterface == null) {
             return null;
         } else {
-            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Home", homeInterface, true, transactionPolicySource, classLoader);
-            return policy;
+            return transactionImportPolicyBuilder.buildTransactionImportPolicy("Home", homeInterface, true, transactionPolicySource, classLoader);
         }
     }
 
@@ -422,8 +422,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         if (remoteInterface == null) {
             return null;
         } else {
-            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Remote", remoteInterface, false, transactionPolicySource, classLoader);
-            return policy;
+            return transactionImportPolicyBuilder.buildTransactionImportPolicy("Remote", remoteInterface, false, transactionPolicySource, classLoader);
         }
     }
 
@@ -435,7 +434,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         Class localInterface = loadOptionalClass(localInterfaceName, classLoader);
         Class serviceInterface = loadOptionalClass(serviceEndpointName, classLoader);
         Class primaryKeyClass = loadOptionalClass(primaryKeyClassName, classLoader);
-        ProxyInfo proxyInfo = new ProxyInfo(getEJBComponentType(),
+        return new ProxyInfo(getEJBComponentType(),
                 containerId,
                 homeInterface,
                 remoteInterface,
@@ -443,7 +442,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 localInterface,
                 serviceInterface,
                 primaryKeyClass);
-        return proxyInfo;
     }
 
     protected SoftLimitedInstancePool createInstancePool(InstanceFactory instanceFactory) {
@@ -494,7 +492,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                                             InstanceContextFactory contextFactory,
                                             InterceptorBuilder interceptorBuilder,
                                             InstancePool pool,
-                                            ObjectName timerName) throws Exception {
+                                            AbstractNameQuery timerName) throws Exception {
 
         GBeanData gbean = buildGBeanData();
         gbean.setAttribute("containerID", getContainerId());
@@ -517,8 +515,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return gbean;
     }
 
-    protected ObjectName getTimerName(Class beanClass) {
-        ObjectName timerName = null;
+    protected AbstractNameQuery getTimerName(Class beanClass) {
+        AbstractNameQuery timerName = null;
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
             TransactionPolicy transactionPolicy = TransactionPolicies.getTransactionPolicy(getTransactionPolicySource().getTransactionPolicy("timeout", signature));

@@ -54,6 +54,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -386,9 +387,9 @@ public class ServiceManager {
     }
 
     public static void setUpServerService(Kernel kernel, String type, String host, int port, Class serviceClass) throws Exception {
-        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName(":type=SocketService,name="+type);
-        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName(":type=ServiceDaemon,name="+type);
-        ObjectName CONTAINER_INDEX = JMXUtil.getObjectName(":type=ContainerIndex,*");
+        AbstractName SOCKETSERVICE_NAME = null;//JMXUtil.getObjectName(":type=SocketService,name="+type);
+        AbstractName SERVICEDAEMON_NAME = null;//JMXUtil.getObjectName(":type=ServiceDaemon,name="+type);
+        AbstractName CONTAINER_INDEX = null;//JMXUtil.getObjectName(":type=ContainerIndex,*");
 
         ClassLoader classLoader = ServiceManager.class.getClassLoader();
 

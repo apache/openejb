@@ -160,7 +160,7 @@ public abstract class AbstractCMRTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
         File tempDir = DeploymentUtil.createTempDir();

@@ -47,14 +47,8 @@
  */
 package org.openejb.deployment;
 
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.openejb.EJBComponentType;
-import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -63,12 +57,17 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.slsb.BusinessMethod;
 import org.openejb.slsb.CreateMethod;
 import org.openejb.slsb.EJBCreateMethod;
+import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.slsb.RemoveMethod;
 import org.openejb.slsb.StatelessInstanceContextFactory;
 import org.openejb.slsb.StatelessInstanceFactory;
 import org.openejb.slsb.StatelessInterceptorBuilder;
-import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
+
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 
 /**
  * @version $Revision$ $Date$
@@ -112,7 +111,7 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        ObjectName timerName = getTimerName(beanClass);
+        AbstractNameQuery timerName = getTimerName(beanClass);
 
         if (buildContainer) {
             //TODO add timer to sig.

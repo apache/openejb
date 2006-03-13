@@ -47,12 +47,7 @@
  */
 package org.openejb.deployment;
 
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
@@ -76,6 +71,11 @@ import org.openejb.entity.dispatch.EJBPassivateOperation;
 import org.openejb.entity.dispatch.EJBStoreOperation;
 import org.openejb.entity.dispatch.SetEntityContextOperation;
 import org.openejb.entity.dispatch.UnsetEntityContextOperation;
+
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 
 /**
  * @version $Revision$ $Date$
@@ -121,7 +121,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        ObjectName timerName = getTimerName(beanClass);
+        AbstractNameQuery timerName = getTimerName(beanClass);
 
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);

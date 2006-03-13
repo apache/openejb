@@ -47,17 +47,8 @@
  */
 package org.openejb.deployment;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
@@ -150,7 +141,15 @@ import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Schema;
 import org.tranql.sql.SQLQueryBuilder;
 import org.tranql.sql.SQLSchema;
-import org.tranql.sql.Table;
+
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @version $Revision$ $Date$
@@ -340,7 +339,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
-        ObjectName timerName = getTimerName(beanClass);
+        AbstractNameQuery timerName = getTimerName(beanClass);
 
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
@@ -765,7 +764,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
-            ObjectName timerName) throws Exception {
+            AbstractNameQuery timerName) throws Exception {
         GBeanData gbean = super.createConfiguration(cl, signatures, contextFactory, interceptorBuilder, pool, timerName);
         
         gbean.setAttribute("frontEndCacheDelegate", cache);

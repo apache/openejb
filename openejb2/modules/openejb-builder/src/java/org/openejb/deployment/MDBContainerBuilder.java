@@ -47,15 +47,8 @@
  */
 package org.openejb.deployment;
 
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -77,6 +70,14 @@ import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.util.SoftLimitedInstancePool;
 
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.security.auth.Subject;
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * @version $Revision$ $Date$
@@ -86,7 +87,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
 
     private String containerId;
     private String ejbName;
-    private ObjectName activationSpecName;
+    private AbstractName activationSpecName;
     private String beanClassName;
     private String endpointInterfaceName;
     private Subject runAs;
@@ -100,8 +101,8 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     private UserTransactionImpl userTransaction;
     private TransactionPolicySource transactionPolicySource;
     private ClassLoader classLoader;
-    private ObjectName transactedTimerName;
-    private ObjectName nonTransactedTimerName;
+    private AbstractNameQuery transactedTimerName;
+    private AbstractNameQuery nonTransactedTimerName;
 
 
     public String getContainerId() {
@@ -120,11 +121,11 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         this.ejbName = ejbName;
     }
 
-    public ObjectName getActivationSpecName() {
+    public AbstractName getActivationSpecName() {
         return activationSpecName;
     }
 
-    public void setActivationSpecName(ObjectName activationSpecName) {
+    public void setActivationSpecName(AbstractName activationSpecName) {
         this.activationSpecName = activationSpecName;
     }
 
@@ -240,19 +241,19 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         this.classLoader = classLoader;
     }
 
-    public ObjectName getTransactedTimerName() {
+    public AbstractNameQuery getTransactedTimerName() {
         return transactedTimerName;
     }
 
-    public void setTransactedTimerName(ObjectName transactedTimerName) {
+    public void setTransactedTimerName(AbstractNameQuery transactedTimerName) {
         this.transactedTimerName = transactedTimerName;
     }
 
-    public ObjectName getNonTransactedTimerName() {
+    public AbstractNameQuery getNonTransactedTimerName() {
         return nonTransactedTimerName;
     }
 
-    public void setNonTransactedTimerName(ObjectName nonTransactedTimerName) {
+    public void setNonTransactedTimerName(AbstractNameQuery nonTransactedTimerName) {
         this.nonTransactedTimerName = nonTransactedTimerName;
     }
 
@@ -287,7 +288,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
             deliveryTransacted[i] = transactionPolicyType == TransactionPolicyType.Required;
         }
 
-        ObjectName timerName = null;
+        AbstractNameQuery timerName = null;
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
             TransactionPolicyType transactionPolicy = transactionPolicySource.getTransactionPolicy("timeout", signature);
