@@ -79,6 +79,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
+import org.apache.geronimo.management.MessageDrivenBean;
 import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -88,7 +89,7 @@ import org.openejb.timer.BasicTimerServiceImpl;
 /**
  * @version $Revision$ $Date$
  */
-public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
+public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, MessageDrivenBean {
     private final ActivationSpecWrapper activationSpecWrapper;
     private final ClassLoader classLoader;
     private final EndpointFactory endpointFactory;
@@ -101,6 +102,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     private final TransactionContextManager transactionContextManager;
     private final Map methodIndexMap;
     private final BasicTimerServiceImpl timerService;
+    private final String objectName;
 
     public MDBContainer(String containerId,
             String ejbName,
@@ -131,6 +133,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
         this.classLoader = classLoader;
 
+        this.objectName = objectName;
         this.containerId = containerId;
         this.ejbName = ejbName;
         this.signatures = signatures;
@@ -270,6 +273,21 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         return methodIndexMap;
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -297,6 +315,8 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
         infoFactory.addOperation("getTimerById", new Class[]{Long.class});
+
+        infoFactory.addInterface(MessageDrivenBean.class);
         
         infoFactory.setConstructor(new String[]{
             "containerId",

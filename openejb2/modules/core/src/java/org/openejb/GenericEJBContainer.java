@@ -47,21 +47,6 @@
  */
 package org.openejb;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.util.Map;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
-import javax.ejb.Handle;
-import javax.ejb.Timer;
-import javax.management.ObjectName;
-import javax.naming.Context;
-import javax.security.auth.Subject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
@@ -72,9 +57,11 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.EJB;
+import org.apache.geronimo.management.J2EEManagedObject;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -82,23 +69,36 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.management.J2EEManagedObject;
-
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
+import org.openejb.corba.TSSBean;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.timer.BasicTimerServiceImpl;
-import org.openejb.corba.TSSBean;
+
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
+import javax.ejb.Timer;
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.security.auth.Subject;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
  * @version $Revision$ $Date$
  */
-public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEManagedObject {
+public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, EJB {
 
     private static Log log = LogFactory.getLog(GenericEJBContainer.class);
 
@@ -492,6 +492,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, J2EEMa
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
 
         infoFactory.addOperation("getTimerById", new Class[]{Long.class});
+
+        infoFactory.addInterface(EJB.class);
 
         infoFactory.setConstructor(new String[]{
             "containerID",
