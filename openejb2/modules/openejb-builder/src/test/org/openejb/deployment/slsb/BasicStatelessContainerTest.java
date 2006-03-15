@@ -72,7 +72,7 @@ public class BasicStatelessContainerTest extends TestCase {
     private GBeanData container;
 
     public void testCrossClInvocation() throws Throwable {
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(CONTAINER_NAME.getCanonicalName(),
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(configurationId, CONTAINER_NAME.getCanonicalName(),
                         true,
                 MockHome.class.getName(), MockRemote.class.getName());
         proxyReference.setKernel(kernel);

@@ -47,6 +47,8 @@
  */
 package org.openejb.client.naming;
 
+import org.apache.geronimo.gbean.AbstractNameQuery;
+
 import javax.naming.RefAddr;
 
 /**
@@ -54,9 +56,9 @@ import javax.naming.RefAddr;
  */
 public class RemoteEJBRefAddr extends RefAddr {
     private final static String TYPE = RemoteEJBRefAddr.class.getName();
-    private final String containerId;
+    private final AbstractNameQuery containerId;
 
-    public RemoteEJBRefAddr(String containerId) {
+    public RemoteEJBRefAddr(AbstractNameQuery containerId) {
         super(TYPE);
         this.containerId = containerId;
     }

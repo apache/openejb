@@ -162,11 +162,11 @@ class EntityBuilder extends BeanBuilder {
                 String tssBeanLink = openejbEntityBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(moduleURI == null? null: moduleURI.toString(), moduleType, tssBeanLink);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), moduleType, tssBeanLink);
                 try {
                     earContext.getConfiguration().findGBean(tssBeanObjectName);
                 } catch (GBeanNotFoundException e) {
-                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink);
+                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, null, tssBeanLink);
                     try {
                         earContext.getConfiguration().findGBean(tssBeanObjectName);
                     } catch (GBeanNotFoundException e1) {
@@ -231,7 +231,7 @@ class EntityBuilder extends BeanBuilder {
 
         Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
         builder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
+        ENCConfigBuilder.setResourceEnvironment(ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
     }
 
     public void initContext(EARContext earContext, AbstractName moduleBaseName, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {

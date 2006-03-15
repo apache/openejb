@@ -47,46 +47,30 @@
  */
 package org.openejb.deployment;
 
-import java.net.URI;
-import java.util.Set;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedEJBRefException;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.client.naming.RemoteEJBObjectFactory;
 import org.openejb.client.naming.RemoteEJBRefAddr;
-import org.openejb.corba.CORBAHandleDelegate;
-import org.openejb.corba.proxy.CORBAProxyReference;
-import org.openejb.proxy.ProxyInfo;
+
+import javax.naming.Reference;
 
 
 /**
  */
 public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
 
-    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) {
+    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
         throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
     }
 
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
-        throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
-    }
-
-    protected Reference buildRemoteReference(String objectName, boolean session, String home, String remote) {
-        RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
+    protected Reference buildRemoteReference(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean session, String home, String remote) {
+        RemoteEJBRefAddr addr = new RemoteEJBRefAddr(abstractNameQuery);
         Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
         return reference;
     }
@@ -103,4 +87,5 @@ public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

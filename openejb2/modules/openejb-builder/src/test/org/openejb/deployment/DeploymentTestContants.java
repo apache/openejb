@@ -87,7 +87,7 @@ public interface DeploymentTestContants {
             return DeploymentHelper.RESOURCE_ADAPTER_NAME;
         }
 
-        public GBeanData locateActivationSpecInfo(GBeanData resourceAdapterModuleName, String messageListenerInterface) {
+        public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterModuleName, String messageListenerInterface, Configuration configuration) {
             return DeploymentHelper.ACTIVATION_SPEC_INFO;
         }
 

@@ -103,6 +103,7 @@ public class RemoteEJBObjectFactory implements ObjectFactory {
             throw new IllegalStateException("Reference address must be a RemoteEJBRefAddr: " + addr);
         }
 
+        //TODO configid BROKEN
         String containerId = (String) addr.getContent();
         JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, containerId);
 

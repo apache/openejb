@@ -86,7 +86,6 @@ import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
@@ -235,23 +234,16 @@ class MdbBuilder extends BeanBuilder {
                                                String messageListenerInterfaceName,
                                                String containerId) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
-        AbstractNameQuery resourceAdapterNameQuery = getResourceAdapterId(resourceAdapter);
-        AbstractName resourceModuleName;
-        try {
-            AbstractName resourceAdapterName = earContext.getConfiguration().findGBean(resourceAdapterNameQuery);
-            resourceModuleName = getParent(getParent(resourceAdapterName, NameFactory.JCA_RESOURCE), NameFactory.RESOURCE_ADAPTER_MODULE);
-
-        } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("Can not find resource adapter for message driven bean", e);
-        }
-        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceModuleName, messageListenerInterfaceName, earContext);
+        AbstractNameQuery resourceAdapterModuleQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.RESOURCE_ADAPTER_MODULE);
+        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceAdapterModuleQuery, messageListenerInterfaceName, earContext.getConfiguration());
 
         if (activationSpecInfo == null) {
-            throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterNameQuery + " and message listener type: " + messageListenerInterfaceName);
+            throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterModuleQuery + " and message listener type: " + messageListenerInterfaceName);
         }
         activationSpecInfo = new GBeanData(activationSpecInfo);
         activationSpecInfo.setAttribute("containerId", containerId);
-        activationSpecInfo.setReferencePattern("ResourceAdapterWrapper", resourceAdapterNameQuery);
+        AbstractNameQuery resourceAdapterInstanceQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.JCA_RESOURCE_ADAPTER);
+        activationSpecInfo.setReferencePattern("ResourceAdapterWrapper", resourceAdapterInstanceQuery);
         if (openejbActivationConfigProperties != null) {
             for (int i = 0; i < openejbActivationConfigProperties.length; i++) {
                 OpenejbActivationConfigPropertyType activationConfigProperty = openejbActivationConfigProperties[i];
@@ -298,12 +290,12 @@ class MdbBuilder extends BeanBuilder {
         return new AbstractName(childName.getArtifact(), nameMap, parentObjectName);
     }
 
-    private static AbstractNameQuery getResourceAdapterId(GerResourceLocatorType resourceLocator) {
+    private static AbstractNameQuery getResourceAdapterNameQuery(GerResourceLocatorType resourceLocator, String type) {
         if (resourceLocator.isSetResourceLink()) {
-            return ENCConfigBuilder.buildAbstractNameQuery(null, NameFactory.JCA_RESOURCE_ADAPTER, resourceLocator.getResourceLink().trim());
+            return ENCConfigBuilder.buildAbstractNameQuery(null, null, type, resourceLocator.getResourceLink().trim());
         }
         //construct name from components
-        return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_RESOURCE_ADAPTER);
+        return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), type);
     }
 
     protected void processEnvironmentRefs(MDBContainerBuilder builder, EARContext earContext, EJBModule ejbModule, MessageDrivenBeanType messageDrivenBean, OpenejbMessageDrivenBeanType openejbMessageDrivenBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -341,7 +333,7 @@ class MdbBuilder extends BeanBuilder {
 
         Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
         builder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
+        ENCConfigBuilder.setResourceEnvironment(ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
 
     }
 

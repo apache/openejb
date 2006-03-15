@@ -104,7 +104,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     public void testInClassLoaderInvoke() throws Exception {
         Object statelessHome;
         Object stateless;
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(configurationId, STATELESS_BEAN_NAME.getCanonicalName(),
                         true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
@@ -118,7 +118,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     public void testCrossClassLoaderInvoke() throws Exception {
         Object statelessHome;
         Object stateless;
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(configurationId, STATELESS_BEAN_NAME.getCanonicalName(),
                         true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
