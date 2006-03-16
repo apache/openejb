@@ -91,7 +91,6 @@ import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.xmlbeans.XmlException;
 import org.openejb.EJBComponentType;
 import org.openejb.GenericEJBContainer;
@@ -117,10 +116,10 @@ class SessionBuilder extends BeanBuilder {
         this.webServiceBuilder = webServiceBuilder;
     }
 
-    private AbstractName createEJBObjectName(AbstractName moduleBaseName, SessionBeanType sessionBean) {
+    private AbstractName createEJBObjectName(EARContext earContext, AbstractName moduleBaseName, SessionBeanType sessionBean) {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
         String type = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim()) ? NameFactory.STATELESS_SESSION_BEAN : NameFactory.STATEFUL_SESSION_BEAN;
-        return Naming.createChildName(moduleBaseName, type, ejbName);
+        return earContext.getNaming().createChildName(moduleBaseName, type, ejbName);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -174,7 +173,7 @@ class SessionBuilder extends BeanBuilder {
             SessionBeanType sessionBean = sessionBeans[i];
 
             OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType) openejbBeans.get(sessionBean.getEjbName().getStringValue());
-            AbstractName sessionName = createEJBObjectName(moduleBaseName, sessionBean);
+            AbstractName sessionName = createEJBObjectName(earContext, moduleBaseName, sessionBean);
             assert sessionName != null: "StatelesSessionBean object name is null";
             addEJBContainerGBean(earContext, ejbModule, componentPermissions, cl, sessionName, sessionBean, openejbSessionBean, transactionPolicyHelper, policyContextID);
 
@@ -193,7 +192,7 @@ class SessionBuilder extends BeanBuilder {
 
         //this code belongs here
         AbstractName linkName;
-            linkName = Naming.createChildName(sessionName, NameFactory.WEB_SERVICE_LINK, ejbName);
+            linkName = earContext.getNaming().createChildName(sessionName, NameFactory.WEB_SERVICE_LINK, ejbName);
 
         GBeanData linkData = new GBeanData(linkDataTemplate);
         linkData.setAbstractName(linkName);
@@ -378,7 +377,7 @@ class SessionBuilder extends BeanBuilder {
         for (int i = 0; i < sessionBeans.length; i++) {
             SessionBeanType sessionBean = sessionBeans[i];
 
-            AbstractName sessionName = createEJBObjectName(moduleJ2eeContext, sessionBean);
+            AbstractName sessionName = createEJBObjectName(earContext, moduleJ2eeContext, sessionBean);
             GBeanData gbean = new GBeanData(sessionName, GenericEJBContainer.GBEAN_INFO);
 
             Class homeInterface = null;

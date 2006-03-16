@@ -4,15 +4,12 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
-    private Repository repository = null;
-
+    private static final File basedir = new File(System.getProperty("basedir", "."));
     private OpenEJBModuleBuilder builder;
-    File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
         builder = new OpenEJBModuleBuilder(null, null, null, null);

@@ -178,15 +178,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return transactionImportPolicyBuilder;
     }
 
-    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "ejb", null, true, null);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, "ejb", null, true, null, naming);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName, naming);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -229,7 +229,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Could not construct standalone ejb module name", e);
             }
         } else {
-            moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, targetPath);
+            moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
 
         return new EJBModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD);

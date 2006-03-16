@@ -106,7 +106,7 @@ class CMPEntityBuilder extends EntityBuilder {
             }
 
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
-            AbstractName entityObjectName = super.createEJBObjectName(moduleBaseName, entityBean);
+            AbstractName entityObjectName = super.createEJBObjectName(earContext, moduleBaseName, entityBean);
 
             GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, cl, tmDelegate, cacheDelegate, componentPermissions, policyContextID);
 
@@ -126,7 +126,7 @@ class CMPEntityBuilder extends EntityBuilder {
     public Schemata buildSchemata(final EARContext earContext, final AbstractName moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, final PKGenBuilder pkGen, final DataSource dataSource, final TransactionManager tm) throws DeploymentException {
         SchemataBuilder builder = new SchemataBuilder() {
             protected EJBProxyFactory buildEJBProxyFactory(EntityBeanType entityBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {
-                AbstractName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
+                AbstractName entityObjectName = createEJBObjectName(earContext, moduleJ2eeContext, entityBean);
                 //TODO configid need canonical form
                 return (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.toString(),
                         false,

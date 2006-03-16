@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -49,7 +49,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 2527 $ $Date$
  */
 public class KernelHelper {
     public static final Environment DEFAULT_ENVIRONMENT = new Environment();
@@ -83,7 +83,7 @@ public class KernelHelper {
         kernel.startGBean(artifactResolver.getName());
 
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
         configurationManagerData.setReferencePattern("Stores", store.getName());
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());

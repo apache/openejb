@@ -57,7 +57,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -104,7 +103,7 @@ class EntityBuilder extends BeanBuilder {
             }
 
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue().trim());
-            AbstractName entityObjectName = createEJBObjectName(moduleBaseName, entityBean);
+            AbstractName entityObjectName = createEJBObjectName(earContext, moduleBaseName, entityBean);
 
             GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, componentPermissions, transactionPolicyHelper, cl, policyContextID);
             try {
@@ -186,9 +185,9 @@ class EntityBuilder extends BeanBuilder {
         return tssBeanObjectName;
     }
 
-    public AbstractName createEJBObjectName(AbstractName moduleBaseName, EntityBeanType entityBean) throws DeploymentException {
+    public AbstractName createEJBObjectName(EARContext earContext, AbstractName moduleBaseName, EntityBeanType entityBean) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
-        return Naming.createChildName(moduleBaseName, NameFactory.ENTITY_BEAN, ejbName);
+        return earContext.getNaming().createChildName(moduleBaseName, NameFactory.ENTITY_BEAN, ejbName);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -240,7 +239,7 @@ class EntityBuilder extends BeanBuilder {
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
 
-            AbstractName entityObjectName = createEJBObjectName(moduleBaseName, entityBean);
+            AbstractName entityObjectName = createEJBObjectName(earContext, moduleBaseName, entityBean);
             GBeanData gbean = new GBeanData(entityObjectName, GenericEJBContainer.GBEAN_INFO);
 
             Class homeInterface = null;

@@ -86,7 +86,6 @@ import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Naming;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
@@ -109,8 +108,8 @@ class MdbBuilder extends BeanBuilder {
                 throw new DeploymentException("No openejb deployment descriptor for mdb: " + messageDrivenBean.getEjbName().getStringValue() + ". Known beans: " + openejbBeans.keySet().toArray());
             }
             String ejbName = messageDrivenBean.getEjbName().getStringValue().trim();
-            AbstractName messageDrivenObjectName = Naming.createChildName(moduleBaseName, NameFactory.MESSAGE_DRIVEN_BEAN, ejbName);
-            AbstractName activationSpecName = Naming.createChildName(messageDrivenObjectName, NameFactory.JCA_ACTIVATION_SPEC, ejbName);
+            AbstractName messageDrivenObjectName = earContext.getNaming().createChildName(moduleBaseName, NameFactory.MESSAGE_DRIVEN_BEAN, ejbName);
+            AbstractName activationSpecName = earContext.getNaming().createChildName(messageDrivenObjectName, NameFactory.JCA_ACTIVATION_SPEC, ejbName);
 
             //TODO configid need canonical form
             String containerId = messageDrivenObjectName.toString();

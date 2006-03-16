@@ -169,7 +169,6 @@ public abstract class AbstractCMRTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     KernelHelper.ENVIRONMENT,
                     ConfigurationModuleType.EJB,
-                    kernel,
                     serverName, NameFactory.NULL,
                     null,
                     null,

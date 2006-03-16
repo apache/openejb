@@ -65,7 +65,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.Naming;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.openejb.xbeans.pkgen.EjbCustomGeneratorType;
 import org.openejb.xbeans.pkgen.EjbSequenceTableType;
@@ -119,8 +118,8 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
                 keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                 GBeanData keyGenerator;
                 try {
-                    AbstractName generatorObjectName = Naming.createChildName(baseName, "KeyGenerator", generatorName);
-                    AbstractName wrapperGeneratorObjectName = Naming.createChildName(generatorObjectName, "PKGenWrapper", generatorName);
+                    AbstractName generatorObjectName = earContext.getNaming().createChildName(baseName, "KeyGenerator", generatorName);
+                    AbstractName wrapperGeneratorObjectName = earContext.getNaming().createChildName(generatorObjectName, "PKGenWrapper", generatorName);
                     keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
                     keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
                     keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
