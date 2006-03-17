@@ -189,6 +189,7 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
             AbstractName abstractName = (AbstractName) iterator.next();
             GBeanData data;
             try {
+                //TODO consider including interfaces in query
                 data = context.findGBeanData(new AbstractNameQuery(abstractName));
             } catch (GBeanNotFoundException e) {
                 throw new DeploymentException("We just got this ejb name out of a query! It must be there!");
@@ -216,6 +217,7 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
                 throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, matches.size() > 0);
             }
         }
+        //TODO consider including interfaces in query
         return new AbstractNameQuery(match);
     }
 

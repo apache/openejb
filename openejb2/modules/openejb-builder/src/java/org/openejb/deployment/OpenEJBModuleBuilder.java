@@ -223,11 +223,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         AbstractName moduleName;
         if (earName == null) {
-            try {
-                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.EJB, null);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct standalone ejb module name", e);
-            }
+            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, environment.getConfigId().toString());
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
