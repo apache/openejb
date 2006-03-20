@@ -56,7 +56,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.extensions.TestDecorator;
@@ -66,6 +65,8 @@ import junit.framework.TestSuite;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
@@ -136,14 +137,14 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
-        ObjectName serverInfoObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ServerInfo");
+        AbstractName serverInfoObjectName = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ServerInfo", "ServerInfo");
         GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, BasicServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(serverInfoGBean, testClassLoader);
         kernel.startGBean(serverInfoObjectName);
         assertRunning(kernel, serverInfoObjectName);
 
-        ObjectName j2eeServerObjectName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=J2EEServer,name=" + SERVER_NAME);
+        AbstractName j2eeServerObjectName = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "geronimo", "J2EEServer");
         GBeanData j2eeServerGBean = new GBeanData(j2eeServerObjectName, J2EEServerImpl.GBEAN_INFO);
         j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
         kernel.loadGBean(j2eeServerGBean, testClassLoader);
@@ -159,26 +160,29 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         Thread.currentThread().setContextClassLoader(cl);
 
         try {
-            ObjectName listener = null;
+            AbstractNameQuery listener = null;
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, linkData, webServiceBuilder, kernel.getNaming());
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_ENVIRONMENT, listener, linkData, webServiceBuilder);
             OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_ENVIRONMENT,
-                    DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
-                    DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
-                    DeploymentHelper.TRANSACTIONALTIMER_NAME,
-                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+                    new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
+                    new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
+                    new AbstractNameQuery(DeploymentHelper.TRANSACTIONALTIMER_NAME),
+                    new AbstractNameQuery(DeploymentHelper.NONTRANSACTIONALTIMER_NAME),
                     null,
+                    new AbstractNameQuery(j2eeServerObjectName),
                     null, // repository
                     moduleBuilder,
                     ejbReferenceBuilder,
                     null,// web
-                    null, resourceReferenceBuilder, // connector
+                    null,
+                    resourceReferenceBuilder, // connector
                     null, // app client
-                    serviceReferenceBuilder
+                    serviceReferenceBuilder,
+                    kernel.getNaming()
             );
 
             JarFile jarFile = null;
@@ -193,12 +197,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 }
             }
 
-            ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
+            AbstractName containerIndexObjectName = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ContainerIndex", "ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
             Set ejbContainerNames = new HashSet();
-            ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,*"));
-            ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatefulSessionBean,*"));
-            ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,*"));
+            ejbContainerNames.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "StatelessSessionBean")));
+            ejbContainerNames.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "StatefulSessionBean")));
+            ejbContainerNames.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "EntityBean")));
             containerIndexGBean.setReferencePatterns("EJBContainers", ejbContainerNames);
             kernel.loadGBean(containerIndexGBean, cl);
             kernel.startGBean(containerIndexObjectName);
@@ -294,7 +298,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         }
     }
 
-    private static void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
+    private static void assertRunning(Kernel kernel, AbstractName objectName) throws Exception {
         assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
     }
 }

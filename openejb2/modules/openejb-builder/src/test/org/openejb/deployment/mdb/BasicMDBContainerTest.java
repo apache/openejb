@@ -71,7 +71,7 @@ public class BasicMDBContainerTest extends TestCase {
 
         MDBContainerBuilder builder = new MDBContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(DeploymentHelper.CONTAINER_NAME.getCanonicalName());
+        builder.setContainerId(DeploymentHelper.CONTAINER_NAME.toURI().toString());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockEJB.class.getName());
         builder.setEndpointInterfaceName("javax.jms.MessageListener");
@@ -84,7 +84,7 @@ public class BasicMDBContainerTest extends TestCase {
         });
         builder.setComponentContext(new HashMap());
         container = builder.createConfiguration();
-        container.setName(DeploymentHelper.CONTAINER_NAME);
+        container.setAbstractName(DeploymentHelper.CONTAINER_NAME);
 
         //start the ejb container
         container.setReferencePattern("TransactionContextManager", DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME);

@@ -49,12 +49,12 @@ package org.openejb.deployment.slsb;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
@@ -64,17 +64,17 @@ import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Revision: 2558 $ $Date$
  */
 public class BasicStatelessContainerTest extends TestCase {
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private Kernel kernel;
-    private GBeanData container;
 
     public void testCrossClInvocation() throws Throwable {
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(configurationId, CONTAINER_NAME.getCanonicalName(),
-                        true,
-                MockHome.class.getName(), MockRemote.class.getName());
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(DeploymentHelper.ARTIFACT,
+                new AbstractNameQuery(DeploymentHelper.CONTAINER_NAME),
+                true,
+                MockHome.class.getName(),
+                MockRemote.class.getName());
         proxyReference.setKernel(kernel);
         proxyReference.setClassLoader(this.getClass().getClassLoader());
         MockHome home = (MockHome) proxyReference.getContent();
@@ -83,13 +83,13 @@ public class BasicStatelessContainerTest extends TestCase {
     }
 
     public void testRemoteInvocation() throws Throwable {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
+        MockHome home = (MockHome) kernel.getAttribute(DeploymentHelper.CONTAINER_NAME, "ejbHome");
         MockRemote remote = home.create();
         assertEquals(2, remote.intMethod(1));
     }
 
     public void testLocalInvocation() throws Throwable {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(DeploymentHelper.CONTAINER_NAME, "ejbLocalHome");
         MockLocal remote = home.create();
         assertEquals(2, remote.intMethod(1));
         assertEquals(2, remote.intMethod(1));
@@ -97,7 +97,7 @@ public class BasicStatelessContainerTest extends TestCase {
     }
 
     public void testTimeout() throws Exception {
-        MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(DeploymentHelper.CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = localHome.create();
         local.startTimer();
         Thread.sleep(200L);
@@ -106,7 +106,7 @@ public class BasicStatelessContainerTest extends TestCase {
     }
 
     public void testRemoteSpeed() throws Throwable {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
+        MockHome home = (MockHome) kernel.getAttribute(DeploymentHelper.CONTAINER_NAME, "ejbHome");
         MockRemote remote = home.create();
         remote.intMethod(1);
         for (int i = 0; i < 1000; i++) {
@@ -115,7 +115,7 @@ public class BasicStatelessContainerTest extends TestCase {
     }
 
     public void testLocalSpeed() throws Throwable {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(DeploymentHelper.CONTAINER_NAME, "ejbLocalHome");
 
         MockLocal local = home.create();
         Integer integer = new Integer(1);
@@ -162,7 +162,7 @@ public class BasicStatelessContainerTest extends TestCase {
 
         StatelessContainerBuilder builder = new StatelessContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
+        builder.setContainerId(DeploymentHelper.CONTAINER_NAME.toURI().toString());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
@@ -178,31 +178,35 @@ public class BasicStatelessContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
+        GBeanData container = builder.createConfiguration(DeploymentHelper.CONTAINER_NAME,
+                new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
+                new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
+                null);
 
         //start the ejb container
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-        start(CONTAINER_NAME, container);
+        start(DeploymentHelper.CONTAINER_NAME, container);
 
-        ObjectName containerIndexname = JMXUtil.getObjectName("geronimo.test:type=ConatainerIndex");
+        AbstractName containerIndexname = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ConatainerIndex", "ConatainerIndex");
         GBeanData containerIndex = new GBeanData(containerIndexname, ContainerIndex.GBEAN_INFO);
-        containerIndex.setReferencePattern("EJBContainers", CONTAINER_NAME);
+        containerIndex.setReferencePattern("EJBContainers", DeploymentHelper.CONTAINER_NAME);
         kernel.loadGBean(containerIndex, this.getClass().getClassLoader());
         kernel.startGBean(containerIndexname);
     }
 
     protected void tearDown() throws Exception {
-        stop(CONTAINER_NAME);
+        stop(DeploymentHelper.CONTAINER_NAME);
         kernel.shutdown();
+        super.tearDown();
     }
 
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
+    private void start(AbstractName name, GBeanData instance) throws Exception {
+        instance.setAbstractName(name);
         kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 
-    private void stop(ObjectName name) throws Exception {
+    private void stop(AbstractName name) throws Exception {
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
     }

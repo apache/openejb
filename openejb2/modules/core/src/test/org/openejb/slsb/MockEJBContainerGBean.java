@@ -96,33 +96,33 @@ public class MockEJBContainerGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(ejbJarURL, ejbName, ejbClass, home, remote, localHome, local, serviceEndpoint);
-        kernel.loadGBean(gbean, MockEJBContainer.class.getClassLoader());
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-    
-    public static ObjectName addGBean(Kernel kernel, URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint, ClassLoader cl) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(ejbJarURL, ejbName, ejbClass, home, remote, localHome, local, serviceEndpoint);
-        kernel.loadGBean(gbean, cl);
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-
-    public static GBeanData createGBean(URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) {
-        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + ejbName);
-
-        GBeanData gbean = new GBeanData(gbeanName, MockEJBContainerGBean.GBEAN_INFO);
-        gbean.setAttribute("ejbJarURL", ejbJarURL);
-        gbean.setAttribute("ejbName", ejbName);
-        gbean.setAttribute("ejbClass", ejbClass);
-        gbean.setAttribute("home", home);
-        gbean.setAttribute("remote", remote);
-        gbean.setAttribute("localHome", localHome);
-        gbean.setAttribute("local", local);
-        gbean.setAttribute("serviceEndpoint", serviceEndpoint);
-
-        return gbean;
-    }
+//    public static ObjectName addGBean(Kernel kernel, URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+//        GBeanData gbean = createGBean(ejbJarURL, ejbName, ejbClass, home, remote, localHome, local, serviceEndpoint);
+//        kernel.loadGBean(gbean, MockEJBContainer.class.getClassLoader());
+//        kernel.startGBean(gbean.getName());
+//        return gbean.getName();
+//    }
+//
+//    public static ObjectName addGBean(Kernel kernel, URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint, ClassLoader cl) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+//        GBeanData gbean = createGBean(ejbJarURL, ejbName, ejbClass, home, remote, localHome, local, serviceEndpoint);
+//        kernel.loadGBean(gbean, cl);
+//        kernel.startGBean(gbean.getName());
+//        return gbean.getName();
+//    }
+//
+//    public static GBeanData createGBean(URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) {
+//        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + ejbName);
+//
+//        GBeanData gbean = new GBeanData(gbeanName, MockEJBContainerGBean.GBEAN_INFO);
+//        gbean.setAttribute("ejbJarURL", ejbJarURL);
+//        gbean.setAttribute("ejbName", ejbName);
+//        gbean.setAttribute("ejbClass", ejbClass);
+//        gbean.setAttribute("home", home);
+//        gbean.setAttribute("remote", remote);
+//        gbean.setAttribute("localHome", localHome);
+//        gbean.setAttribute("local", local);
+//        gbean.setAttribute("serviceEndpoint", serviceEndpoint);
+//
+//        return gbean;
+//    }
 }

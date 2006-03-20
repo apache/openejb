@@ -48,31 +48,29 @@
 package org.openejb.deployment;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.List;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
+import java.util.Map;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Revision$ $Date$
  */
 public interface DeploymentTestContants {
-    public static final ObjectName CONNECTION_OBJECT_NAME = IGNORE.createConnectionObjectName();
-    public static final String DOMAIN_NAME = DeploymentHelper.DOMAIN_NAME;
-    public static final String SERVER_NAME = DeploymentHelper.SERVER_NAME;
+    public static final AbstractName CONNECTION_OBJECT_NAME = IGNORE.createConnectionObjectName();
 
     public static final ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
         public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
@@ -83,24 +81,8 @@ public interface DeploymentTestContants {
             return null;
         }
 
-        public ObjectName locateResourceName(ObjectName query) {
-            return DeploymentHelper.RESOURCE_ADAPTER_NAME;
-        }
-
         public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterModuleName, String messageListenerInterface, Configuration configuration) {
             return DeploymentHelper.ACTIVATION_SPEC_INFO;
-        }
-
-        public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData) {
-            return null;
-        }
-
-        public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName) {
-            return null;
-        }
-
-        public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) {
-            return null;
         }
     };
 
@@ -112,22 +94,15 @@ public interface DeploymentTestContants {
     };
 
     public static class IGNORE {
-        private static ObjectName createConfigurationObjectName()  {
-            try {
-                return Configuration.getConfigurationObjectName(URI.create("test-ejb-jar"));
-            } catch (MalformedObjectNameException e) {
-                return null;
-            }
+        private static AbstractName createConnectionObjectName() {
+            Naming naming = new Jsr77Naming();
+            Artifact artifact = new Artifact("geronimo", "defaultDatabase", "1.1", "car");
+            AbstractName appName = naming.createRootName(artifact, NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            AbstractName moduleName = naming.createChildName(appName, artifact.toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
+            AbstractName resourceAdapterName = naming.createChildName(moduleName, artifact.toString(), NameFactory.RESOURCE_ADAPTER);
+            AbstractName jcaResourceName = naming.createChildName(resourceAdapterName, artifact.toString(), NameFactory.JCA_RESOURCE);
+            AbstractName jcaConnectionFactoryName = naming.createChildName(jcaResourceName, "DefaultDatasource", NameFactory.JCA_CONNECTION_FACTORY);
+            return naming.createChildName(jcaConnectionFactoryName, "DefaultDatasource", NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         }
-
-        private static ObjectName createConnectionObjectName() {
-            try {
-                J2eeContext j2eeContext = new J2eeContextImpl(DOMAIN_NAME, SERVER_NAME, NameFactory.NULL, NameFactory.RESOURCE_ADAPTER_MODULE, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
-                return NameFactory.getComponentName(null, null, NameFactory.NULL, NameFactory.JCA_RESOURCE, "org/apache/geronimo/DefaultDatabase", "DefaultDatasource", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
-            } catch (MalformedObjectNameException e) {
-                return null;
-            }
-        }
-
     }
 }

@@ -49,16 +49,14 @@
 package org.openejb.deployment;
 
 import javax.sql.DataSource;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.deployment.pkgen.PKGenBuilder;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.sql.SQLSchema;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 /**
  *
@@ -80,7 +78,7 @@ public class CMPEntityBuilderTestUtil extends TestCase {
         this.delegate = new CMPEntityBuilder(builder);
     }
     
-    public Schemata buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
+    public Schemata buildCMPSchema(EARContext earContext, AbstractName moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
         return delegate.buildSchemata(earContext, moduleJ2eeContext, "Test", ejbJar, openejbEjbJar, cl, pkGen, dataSource, null);
     }
     

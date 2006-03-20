@@ -52,9 +52,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 
 public class HttpServerGBean {
 
@@ -74,15 +72,9 @@ public class HttpServerGBean {
         return GBEAN_INFO;
     }
 
-    public static AbstractName addGBean(Kernel kernel, String name, AbstractName listener) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        ClassLoader classLoader = HttpServer.class.getClassLoader();
-        AbstractName SERVICE_NAME = null;//JMXUtil.getObjectName("openejb:type=HttpServer,name=" + name);
-
-        GBeanData gbean = new GBeanData(SERVICE_NAME, HttpServerGBean.GBEAN_INFO);
+    public static AbstractName addGBean(ConfigurationData configuration, String name, AbstractName listener) {
+        GBeanData gbean = configuration.addGBean(name, HttpServerGBean.GBEAN_INFO);
         gbean.setReferencePattern("Listener", listener);
-
-        kernel.loadGBean(gbean, classLoader);
-        kernel.startGBean(SERVICE_NAME);
-        return SERVICE_NAME;
+        return gbean.getAbstractName();
     }
 }

@@ -51,7 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
+import java.util.LinkedHashMap;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
@@ -59,15 +59,18 @@ import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
 import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.connector.work.GeronimoWorkManagerGBean;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
@@ -84,37 +87,30 @@ import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
  *
  * */
 public class DeploymentHelper {
-    //these have to match the domain and server set in KernelHelper mock config store
-    public static final String DOMAIN_NAME = "test";
-    public static final String SERVER_NAME = "server";
-    public static final String BASE_NAME = DOMAIN_NAME + ":J2EEServer=" + SERVER_NAME;
-    private static final String appName = NameFactory.NULL;
-    private static final String moduleName = "MockRA";
-    //type is random to look for problems.                        
-    private static final J2eeContext raContext = new J2eeContextImpl(DOMAIN_NAME, SERVER_NAME, appName, NameFactory.RESOURCE_ADAPTER_MODULE, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
-    public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    public static final ObjectName XIDFACTORY_NAME = JMXUtil.getObjectName(DOMAIN_NAME + ":type=" + NameFactory.XID_FACTORY);
-    public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(DOMAIN_NAME + ":type=TransactionManager");
-    public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(DOMAIN_NAME + ":type=TransactionContextManager");
-    public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
-    public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
+    private static final Naming naming = new Jsr77Naming();
+    public static final Artifact ARTIFACT = new Artifact("test", "test", "", "test");
 
-    public static final ObjectName RESOURCE_ADAPTER_MODULE_NAME;
-    public static final ObjectName RESOURCE_ADAPTER_NAME;
-    public static final ObjectName ACTIVATIONSPEC_NAME;
-    public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(SERVER_NAME + ":type=ThreadPool,name=DefaultThreadPool");
-    public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(SERVER_NAME + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
-    public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(SERVER_NAME + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
+    public static final AbstractName CONTAINER_NAME = naming.createRootName(ARTIFACT, "testEjb", "EJBContainer");
+    public static final AbstractName XIDFACTORY_NAME = naming.createRootName(ARTIFACT, NameFactory.XID_FACTORY, NameFactory.XID_FACTORY);
+    public static final AbstractName TRANSACTIONMANAGER_NAME = naming.createRootName(ARTIFACT, "TransactionManager", "TransactionManager");
+    public static final AbstractName TRANSACTIONCONTEXTMANAGER_NAME = naming.createRootName(ARTIFACT, "TransactionContextManager", "TransactionContextManager");
+    public static final AbstractName TRACKEDCONNECTIONASSOCIATOR_NAME = naming.createRootName(ARTIFACT, "TrackedConnectionAssociator", "TrackedConnectionAssociator");
+    public static final AbstractName WORKMANAGER_NAME = naming.createRootName(ARTIFACT, "WorkManager", "WorkManager");
+
+    public static final AbstractName RESOURCE_ADAPTER_MODULE_NAME  = naming.createRootName(ARTIFACT, "test.rar", NameFactory.RESOURCE_ADAPTER_MODULE);
+    public static final AbstractName RESOURCE_ADAPTER_NAME = naming.createRootName(ARTIFACT, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER);
+    public static final AbstractName ACTIVATIONSPEC_NAME = naming.createRootName(ARTIFACT, "MockRA", NameFactory.JCA_ACTIVATION_SPEC);
+    public static final AbstractName THREADPOOL_NAME = naming.createRootName(ARTIFACT, "ThreadPool", "ThreadPool");
+    public static final AbstractName TRANSACTIONALTIMER_NAME = naming.createRootName(ARTIFACT, "TransactionalThreaPooledTimer", "ThreadPooledTimer");
+    public static final AbstractName NONTRANSACTIONALTIMER_NAME = naming.createRootName(ARTIFACT, "NonTransactionalThreaPooledTimer", "ThreadPooledTimer");
     public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapperGBean.getGBeanInfo());
 
-    static {
-        try {
-            RESOURCE_ADAPTER_MODULE_NAME = NameFactory.getModuleName(null, null, null, null, null, raContext);
-            RESOURCE_ADAPTER_NAME = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER, raContext);
-            ACTIVATIONSPEC_NAME = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, "MockRA", NameFactory.JCA_ACTIVATION_SPEC, raContext);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
+    public static AbstractNameQuery createEjbNameQuery(String name, String j2eeType, String ejbModule) {
+        Map properties = new LinkedHashMap();
+        properties.put("name", name);
+        properties.put("j2eeType", j2eeType);
+        properties.put("EJBModule", ejbModule);
+        return new AbstractNameQuery(null, properties);
     }
 
     public static Kernel setUpKernelWithTransactionManager() throws Exception {
@@ -183,7 +179,7 @@ public class DeploymentHelper {
 
         GBeanData activationSpecGBean = new GBeanData(ACTIVATIONSPEC_NAME, ActivationSpecWrapperGBean.getGBeanInfo());
         activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
-        activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.getCanonicalName());
+        activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.toURI().toString());
         activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", RESOURCE_ADAPTER_NAME);
         start(kernel, activationSpecGBean);
     }
@@ -199,7 +195,7 @@ public class DeploymentHelper {
         stop(kernel, WORKMANAGER_NAME);
     }
 
-    public static void stop(Kernel kernel, ObjectName name) throws Exception {
+    public static void stop(Kernel kernel, AbstractName name) throws Exception {
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
     }

@@ -62,6 +62,8 @@ import junit.framework.TestCase;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
@@ -100,171 +102,171 @@ import org.tranql.sql.SQLSchema;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractCMRTest extends TestCase {
-    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
-    private static final String j2eeDomainName = "openejb.server";
-    private static final String j2eeServerName = "TestOpenEJBServer";
-    private static final J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, NameFactory.EJB_MODULE, "MockModule", "testapp", NameFactory.J2EE_MODULE);
-    protected static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
-    protected static final ObjectName C_NAME_A;
-    protected static final ObjectName C_NAME_B;
-
-    static {
-        try {
-            C_NAME_A = NameFactory.getEjbComponentName(null, null, null, null, "A", NameFactory.ENTITY_BEAN, j2eeContext);
-            C_NAME_B = NameFactory.getEjbComponentName(null, null, null, null, "B", NameFactory.ENTITY_BEAN, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    private Repository repository = null;
-    protected Kernel kernel;
-    protected DataSource ds;
-    protected EJBSchema ejbSchema;
-    protected SQLSchema sqlSchema;
-    protected GlobalSchema cacheSchema;
-    protected Object ahome;
-    protected Object bhome;
-    private TransactionManager tm;
-
-    protected TransactionContext newTransactionContext() throws Exception {
-        return (TransactionContext) kernel.invoke(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, "newContainerTransactionContext", null, null);
-    }
-
-
-    protected abstract void buildDBSchema(Connection c) throws Exception;
-
-    protected abstract String getEjbJarDD();
-
-    protected abstract String getOpenEjbJarDD();
-
-    protected abstract EJBClass getA();
-
-    protected abstract EJBClass getB();
-
-    protected void setUp() throws Exception {
-        ds = new AxionDataSource("jdbc:axiondb:testdb");
-        Connection c = ds.getConnection("root", null);
-        buildDBSchema(c);
-
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
-
-        tm = (TransactionManager) kernel.getProxyManager().createProxy(DeploymentHelper.TRANSACTIONMANAGER_NAME, TransactionManager.class);
-        TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
-
-        tmDelegate.setTransactionManager(tm);
-
-        File ejbJarFile = new File(basedir, getEjbJarDD());
-        File openejbJarFile = new File(basedir, getOpenEjbJarDD());
-        EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
-        OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
-
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null);
-        CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
-        TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
-        File tempDir = DeploymentUtil.createTempDir();
-
-        try {
-            EARContext earContext = new EARContext(tempDir,
-                    KernelHelper.ENVIRONMENT,
-                    ConfigurationModuleType.EJB,
-                    serverName, NameFactory.NULL,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
-
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Schemata schemata = builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, pkGen, ds);
-
-            ejbSchema = schemata.getEjbSchema();
-            sqlSchema = schemata.getSqlSchema();
-            cacheSchema = schemata.getGlobalSchema();
-            
-            GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
-            Set patterns = new HashSet();
-            patterns.add(C_NAME_A);
-            patterns.add(C_NAME_B);
-            containerIndex.setReferencePatterns("EJBContainers", patterns);
-            start(CI_NAME, containerIndex);
-
-            ObjectName connectionProxyFactoryObjectName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-            GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
-            kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
-            kernel.startGBean(connectionProxyFactoryObjectName);
-
-            FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
-            
-            setUpContainer(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, tmDelegate, cacheDelegate);
-            setUpContainer(ejbSchema.getEJB("B"), getB().bean, getB().home, getB().local, C_NAME_B, tmDelegate, cacheDelegate);
-
-            ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
-            bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
-        } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
-        }
-    }
-
-
-    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate) throws Exception {
-        CMPContainerBuilder builder = new CMPContainerBuilder();
-        builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(containerName.getCanonicalName());
-        builder.setEJBName(ejb.getName());
-        builder.setBeanClassName(beanClass.getName());
-        builder.setHomeInterfaceName(null);
-        builder.setLocalHomeInterfaceName(homeClass.getName());
-        builder.setRemoteInterfaceName(null);
-        builder.setLocalInterfaceName(localClass.getName());
-        builder.setPrimaryKeyClassName(ejb.getPrimaryKeyClass().getName());
-
-        builder.setJndiNames(new String[0]);
-        builder.setLocalJndiNames(new String[0]);
-        builder.setUnshareableResources(new HashSet());
-        builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return TransactionPolicyType.Required;
-            }
-        });
-
-        builder.setEJBSchema(ejbSchema);
-        builder.setSQLSchema(sqlSchema);
-        builder.setGlobalSchema(cacheSchema);
-        builder.setComponentContext(new HashMap());
-        builder.setTransactionManagerDelegate(tmDelegate);
-        builder.setFrontEndCacheDelegate(cacheDelegate);
-
-        GBeanData container = builder.createConfiguration(containerName, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
-
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-        start(containerName, container);
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.getProxyManager().destroyProxy(tm);
-        kernel.shutdown();
-        java.sql.Connection c = ds.getConnection();
-        c.createStatement().execute("SHUTDOWN");
-    }
-
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
-    }
-
-    protected class EJBClass {
-        public EJBClass(Class bean, Class home, Class local) {
-            this.bean = bean;
-            this.home = home;
-            this.local = local;
-        };
-        public Class bean;
-        public Class home;
-        public Class local;
-    }
+    public void testNothing() {}
+//    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
+//    private static final String j2eeDomainName = "openejb.server";
+//    private static final String j2eeServerName = "TestOpenEJBServer";
+//    private static final J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, NameFactory.EJB_MODULE, "MockModule", "testapp", NameFactory.J2EE_MODULE);
+//    protected static final AbstractName CI_NAME = JMXUtil.getAbstractName("openejb.server:role=ContainerIndex");
+//    protected static final AbstractNameQuery C_NAME_A = DeploymentHelper.createEjbNameQuery("A", NameFactory.ENTITY_BEAN, "MockModule");
+//    protected static final AbstractNameQuery C_NAME_B = DeploymentHelper.createEjbNameQuery("B", NameFactory.ENTITY_BEAN, "MockModule");
+//
+//    private Repository repository = null;
+//    protected Kernel kernel;
+//    protected DataSource ds;
+//    protected EJBSchema ejbSchema;
+//    protected SQLSchema sqlSchema;
+//    protected GlobalSchema cacheSchema;
+//    protected Object ahome;
+//    protected Object bhome;
+//    private TransactionManager tm;
+//
+//    protected TransactionContext newTransactionContext() throws Exception {
+//        return (TransactionContext) kernel.invoke(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, "newContainerTransactionContext", null, null);
+//    }
+//
+//
+//    protected abstract void buildDBSchema(Connection c) throws Exception;
+//
+//    protected abstract String getEjbJarDD();
+//
+//    protected abstract String getOpenEjbJarDD();
+//
+//    protected abstract EJBClass getA();
+//
+//    protected abstract EJBClass getB();
+//
+//    protected void setUp() throws Exception {
+//        ds = new AxionDataSource("jdbc:axiondb:testdb");
+//        Connection c = ds.getConnection("root", null);
+//        buildDBSchema(c);
+//
+//        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
+//        DeploymentHelper.setUpTimer(kernel);
+//
+//        tm = (TransactionManager) kernel.getProxyManager().createProxy(DeploymentHelper.TRANSACTIONMANAGER_NAME, TransactionManager.class);
+//        TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
+//
+//        tmDelegate.setTransactionManager(tm);
+//
+//        File ejbJarFile = new File(basedir, getEjbJarDD());
+//        File openejbJarFile = new File(basedir, getOpenEjbJarDD());
+//        EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
+//        OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
+//
+//        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null);
+//        CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
+//        TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
+//        File tempDir = DeploymentUtil.createTempDir();
+//
+//        try {
+//            EARContext earContext = new EARContext(tempDir,
+//                    KernelHelper.ENVIRONMENT,
+//                    ConfigurationModuleType.EJB,
+//                    kernel.getNaming(),
+//                    repostory,
+//                    configurationStore,
+//                    serverName,
+//                    NameFactory.NULL,
+//                    null,
+//                    null,
+//                    null,
+//                    null,
+//                    null,
+//                    null);
+//
+//            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+//            Schemata schemata = builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, pkGen, ds);
+//
+//            ejbSchema = schemata.getEjbSchema();
+//            sqlSchema = schemata.getSqlSchema();
+//            cacheSchema = schemata.getGlobalSchema();
+//
+//            GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
+//            Set patterns = new HashSet();
+//            patterns.add(C_NAME_A);
+//            patterns.add(C_NAME_B);
+//            containerIndex.setReferencePatterns("EJBContainers", patterns);
+//            start(CI_NAME, containerIndex);
+//
+//            AbstractName connectionProxyFactoryAbstractName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+//            GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryAbstractName, MockConnectionProxyFactory.GBEAN_INFO);
+//            kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
+//            kernel.startGBean(connectionProxyFactoryAbstractName);
+//
+//            FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
+//
+//            setUpContainer(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, tmDelegate, cacheDelegate);
+//            setUpContainer(ejbSchema.getEJB("B"), getB().bean, getB().home, getB().local, C_NAME_B, tmDelegate, cacheDelegate);
+//
+//            ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
+//            bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
+//        } finally {
+//            DeploymentUtil.recursiveDelete(tempDir);
+//        }
+//    }
+//
+//
+//    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class localClass, AbstractName containerName, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate) throws Exception {
+//        CMPContainerBuilder builder = new CMPContainerBuilder();
+//        builder.setClassLoader(this.getClass().getClassLoader());
+//        builder.setContainerId(containerName.toURI().toString());
+//        builder.setEJBName(ejb.getName());
+//        builder.setBeanClassName(beanClass.getName());
+//        builder.setHomeInterfaceName(null);
+//        builder.setLocalHomeInterfaceName(homeClass.getName());
+//        builder.setRemoteInterfaceName(null);
+//        builder.setLocalInterfaceName(localClass.getName());
+//        builder.setPrimaryKeyClassName(ejb.getPrimaryKeyClass().getName());
+//
+//        builder.setJndiNames(new String[0]);
+//        builder.setLocalJndiNames(new String[0]);
+//        builder.setUnshareableResources(new HashSet());
+//        builder.setTransactionPolicySource(new TransactionPolicySource() {
+//            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+//                return TransactionPolicyType.Required;
+//            }
+//        });
+//
+//        builder.setEJBSchema(ejbSchema);
+//        builder.setSQLSchema(sqlSchema);
+//        builder.setGlobalSchema(cacheSchema);
+//        builder.setComponentContext(new HashMap());
+//        builder.setTransactionManagerDelegate(tmDelegate);
+//        builder.setFrontEndCacheDelegate(cacheDelegate);
+//
+//        GBeanData container = builder.createConfiguration(containerName,
+//                new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
+//                new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
+//                null);
+//
+//        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
+//        start(containerName, container);
+//    }
+//
+//    protected void tearDown() throws Exception {
+//        kernel.getProxyManager().destroyProxy(tm);
+//        kernel.shutdown();
+//        java.sql.Connection c = ds.getConnection();
+//        c.createStatement().execute("SHUTDOWN");
+//        super.tearDown();
+//    }
+//
+//    private void start(AbstractName name, GBeanData instance) throws Exception {
+//        instance.setAbstractName(name);
+//        kernel.loadGBean(instance, this.getClass().getClassLoader());
+//        kernel.startGBean(name);
+//    }
+//
+//    protected class EJBClass {
+//        public EJBClass(Class bean, Class home, Class local) {
+//            this.bean = bean;
+//            this.home = home;
+//            this.local = local;
+//        }
+//        public Class bean;
+//        public Class home;
+//        public Class local;
+//    }
 }
 

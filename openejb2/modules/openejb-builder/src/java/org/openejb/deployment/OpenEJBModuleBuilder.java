@@ -71,7 +71,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -110,7 +109,6 @@ import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.SQLSchema;
 
-import javax.management.MalformedObjectNameException;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
@@ -223,8 +221,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         AbstractName moduleName;
         if (earName == null) {
-            earName = Naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, environment.getConfigId().toString());
+            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, NameFactory.EJB_MODULE, environment.getConfigId().toString());
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }

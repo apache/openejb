@@ -57,21 +57,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
+import org.openejb.deployment.DeploymentTestContants;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
@@ -97,11 +95,7 @@ import org.tranql.sql.sql92.SQL92Schema;
  * @version $Revision$ $Date$
  */
 public class BasicCMPEntityContainerTest extends TestCase {
-    private static final String j2eeDomainName = "openejb.server";
-    private static final String j2eeServerName = "TestOpenEJBServer";
-    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, "testapp", NameFactory.EJB_MODULE, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("openejb.server:ejb=Mock");
-    private static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
+    private static final AbstractName CONTAINER_NAME = new AbstractName(DeploymentHelper.ARTIFACT, Collections.singletonMap("ejb", "Mock"));
     private Kernel kernel;
     private GBeanData container;
 
@@ -288,7 +282,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
             // expected
         } catch (Throwable e) {
             e.printStackTrace();
-            ;
             fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
         }
 
@@ -404,7 +397,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
+        builder.setContainerId(CONTAINER_NAME.toURI().toString());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockCMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
@@ -431,7 +424,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setFrontEndCacheDelegate(new FrontEndCacheDelegate());
 //        builder.setConnectionFactoryName("defaultDatasource");
 
-        EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
+        EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.toURI().toString(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
         EJB ejb = new EJB("MockEJB", "MOCK", Integer.class, proxyFactory, null, false);
         CMPField pkField = new CMPField("id", Integer.class, true);
         ejb.addCMPField(pkField);
@@ -454,16 +447,18 @@ public class BasicCMPEntityContainerTest extends TestCase {
         CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
         globalSchema.addCacheTable(cacheTable);
 
-        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
+        container = builder.createConfiguration(CONTAINER_NAME,
+                new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
+                new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
+                null);
 
         GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
         containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
-        start(CI_NAME, containerIndex);
+        start(new AbstractName(DeploymentHelper.ARTIFACT, Collections.singletonMap("role", "ContainerIndex")), containerIndex);
 
-        ObjectName connectionProxyFactoryObjectName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-        GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
+        GBeanData connectionProxyFactoryGBean = new GBeanData(DeploymentTestContants.CONNECTION_OBJECT_NAME, MockConnectionProxyFactory.GBEAN_INFO);
         kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
-        kernel.startGBean(connectionProxyFactoryObjectName);
+        kernel.startGBean(DeploymentTestContants.CONNECTION_OBJECT_NAME);
 
         //start the ejb container
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
@@ -476,15 +471,16 @@ public class BasicCMPEntityContainerTest extends TestCase {
         kernel.shutdown();
         java.sql.Connection c = ds.getConnection();
         c.createStatement().execute("SHUTDOWN");
+        super.tearDown();
     }
 
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
+    private void start(AbstractName name, GBeanData instance) throws Exception {
+        instance.setAbstractName(name);
         kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 
-    private void stop(ObjectName name) throws Exception {
+    private void stop(AbstractName name) throws Exception {
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
     }

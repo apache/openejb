@@ -26,12 +26,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
@@ -42,7 +42,7 @@ import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
@@ -56,37 +56,33 @@ public class KernelHelper {
     public static final Environment ENVIRONMENT = new Environment();
 
     static {
-        Map Properties = new HashMap();
-        Properties.put(NameFactory.JSR77_BASE_NAME_PROPERTY, DeploymentHelper.BASE_NAME);
         Artifact defaultConfigId = Artifact.create("geronimo/server/1/car");
         DEFAULT_ENVIRONMENT.setConfigId(defaultConfigId);
-        DEFAULT_ENVIRONMENT.addProperties(Properties);
         Artifact configId = Artifact.create("test/test/1/car");
         ENVIRONMENT.setConfigId(configId);
-        ENVIRONMENT.addProperties(Properties);
     }
 
     public static Kernel getPreparedKernel() throws Exception {
         Kernel kernel = KernelFactory.newInstance().createKernel("bar");
         kernel.boot();
-        GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
+        GBeanData store = new GBeanData(kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ConfigurationStore", "ConfigurationStore"), MockConfigStore.GBEAN_INFO);
         kernel.loadGBean(store, KernelHelper.class.getClassLoader());
         kernel.startGBean(store.getName());
 
-        GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        GBeanData artifactManager = new GBeanData(kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ArtifactManager", "ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
         kernel.loadGBean(artifactManager, KernelHelper.class.getClassLoader());
         kernel.startGBean(artifactManager.getName());
 
-        GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
+        GBeanData artifactResolver = new GBeanData(kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ArtifactResolver", "ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getAbstractName());
         kernel.loadGBean(artifactResolver, KernelHelper.class.getClassLoader());
         kernel.startGBean(artifactResolver.getName());
 
-        ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
+        AbstractName configurationManagerName = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ConfigurationManager", "ConfigurationManager");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
-        configurationManagerData.setReferencePattern("Stores", store.getName());
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
+        configurationManagerData.setReferencePattern("Stores", store.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getAbstractName());
         kernel.loadGBean(configurationManagerData, KernelHelper.class.getClassLoader());
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
@@ -112,14 +108,14 @@ public class KernelHelper {
         }
 
         public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
+            AbstractName configurationObjectName = Configuration.getConfigurationAbstractName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
             environment.setConfigId(configId);
             environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            configData.setAttribute("configurationStore", this);
+            configData.setAttribute("moduleType", ConfigurationModuleType.CAR);
 
             return configData;
         }

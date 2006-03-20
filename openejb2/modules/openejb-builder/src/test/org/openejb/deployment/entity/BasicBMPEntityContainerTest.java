@@ -47,15 +47,16 @@
  */
 package org.openejb.deployment.entity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.ejb.EJBObject;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -66,7 +67,7 @@ import org.openejb.transaction.TransactionPolicyType;
  * @version $Revision$ $Date$
  */
 public class BasicBMPEntityContainerTest extends TestCase {
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
+    private static final AbstractName CONTAINER_NAME = new AbstractName(DeploymentHelper.ARTIFACT, Collections.singletonMap("ejb", "Mock"));
     private Kernel kernel;
     private GBeanData container;
 
@@ -80,7 +81,6 @@ public class BasicBMPEntityContainerTest extends TestCase {
         assertTrue(ejbObject1.isIdentical(ejbObject1));
 
         EJBObject ejbObject2 = home.findByPrimaryKey(new Integer(2));
-        ;
         assertEquals(new Integer(2), ejbObject2.getPrimaryKey());
         assertTrue(ejbObject2.isIdentical(ejbObject2));
 
@@ -136,7 +136,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
+        builder.setContainerId(CONTAINER_NAME.toURI().toString());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockBMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
@@ -153,7 +153,10 @@ public class BasicBMPEntityContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
+        container = builder.createConfiguration(CONTAINER_NAME,
+                new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
+                new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
+                null);
 
         //start the ejb container
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
@@ -163,15 +166,16 @@ public class BasicBMPEntityContainerTest extends TestCase {
     protected void tearDown() throws Exception {
         stop(CONTAINER_NAME);
         kernel.shutdown();
+        super.tearDown();
     }
 
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
+    private void start(AbstractName name, GBeanData instance) throws Exception {
+        instance.setAbstractName(name);
         kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 
-    private void stop(ObjectName name) throws Exception {
+    private void stop(AbstractName name) throws Exception {
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
     }
