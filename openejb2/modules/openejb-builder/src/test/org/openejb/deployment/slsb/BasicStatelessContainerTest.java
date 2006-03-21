@@ -55,6 +55,11 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
@@ -185,7 +190,12 @@ public class BasicStatelessContainerTest extends TestCase {
 
         //start the ejb container
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-        start(DeploymentHelper.CONTAINER_NAME, container);
+        container.setAbstractName(DeploymentHelper.CONTAINER_NAME);
+        ConfigurationData config = new ConfigurationData(new Artifact("some", "test", "42", "car"), kernel.getNaming());
+        config.addGBean(container);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        Configuration configuration = configurationManager.loadConfiguration(config);
+        configurationManager.startConfiguration(configuration);
 
         AbstractName containerIndexname = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ConatainerIndex", "ConatainerIndex");
         GBeanData containerIndex = new GBeanData(containerIndexname, ContainerIndex.GBEAN_INFO);
@@ -198,12 +208,6 @@ public class BasicStatelessContainerTest extends TestCase {
         stop(DeploymentHelper.CONTAINER_NAME);
         kernel.shutdown();
         super.tearDown();
-    }
-
-    private void start(AbstractName name, GBeanData instance) throws Exception {
-        instance.setAbstractName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
     }
 
     private void stop(AbstractName name) throws Exception {

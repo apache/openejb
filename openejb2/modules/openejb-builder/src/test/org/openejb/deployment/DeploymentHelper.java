@@ -47,12 +47,12 @@
  */
 package org.openejb.deployment;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashMap;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
@@ -60,8 +60,8 @@ import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.connector.work.GeronimoWorkManagerGBean;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -69,7 +69,6 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
@@ -122,7 +121,7 @@ public class DeploymentHelper {
         
         GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImplGBean.GBEAN_INFO);
         Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        rmpatterns.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "JCAManagedConnectionFactory")));
         tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tmGBean.setReferencePattern("XidFactory", XIDFACTORY_NAME);
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);

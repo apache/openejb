@@ -506,7 +506,9 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setAttribute("userTransaction", getUserTransaction());
         gbean.setAttribute("jndiNames", getJndiNames());
         gbean.setAttribute("localJndiNames", getLocalJndiNames());
-        gbean.setReferencePattern("Timer", timerName);
+        if (timerName != null) {
+            gbean.setReferencePattern("Timer", timerName);
+        }
         gbean.setAttribute("defaultPrincipal", getDefaultPrincipal());
         gbean.setAttribute("runAsSubject", getRunAs());
         gbean.setAttribute("homeTxPolicyConfig", getHomeTxPolicyConfig());
