@@ -44,14 +44,16 @@
  */
 package org.openejb;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -59,8 +61,6 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -200,13 +200,14 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
 
         // try to fault in the container using the kernel directly
         if ((index == null)) {
-            ObjectName name = null;
+            AbstractName name;
             try {
-                name = new ObjectName(containerID);
-            } catch (MalformedObjectNameException e) {
-                log.error("contianerId is not a valid ObjectName: " + containerID);
+                name = new AbstractName(new URI(containerID));
+            } catch (URISyntaxException e) {
+                log.error("containerId is not a valid URI: " + containerID);
+                return -1;
             }
-            EJBContainer ejbContainer = null;
+            EJBContainer ejbContainer;
             try {
                 ejbContainer = (EJBContainer) kernel.getProxyManager().createProxy(name, EJBContainer.class);
             } catch (Exception e) {

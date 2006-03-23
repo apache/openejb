@@ -47,7 +47,6 @@
  */
 package org.openejb.deployment;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -348,12 +347,12 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     protected abstract int getEJBComponentType();
 
     public EJBContainer createContainer() throws Exception {
-        return (EJBContainer) buildIt(true);
+        return (EJBContainer) buildIt(null);
     }
 
-    public GBeanData createConfiguration(AbstractName containerObjectName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery tssBeanObjectName) throws Exception {
-        GBeanData gbean = (GBeanData) buildIt(false);
-        gbean.setAbstractName(containerObjectName);
+    public GBeanData createConfiguration(AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery tssBeanObjectName, GBeanData gbean) throws Exception {
+        buildIt(gbean);
+//        gbean.setAbstractName(containerObjectName);
         gbean.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
         gbean.setReferencePattern("TrackedConnectionAssociator", connectionTrackerObjectName);
         if (tssBeanObjectName != null) {
@@ -362,7 +361,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return gbean;
     }
 
-    protected abstract Object buildIt(boolean buildContainer) throws Exception;
+    protected abstract Object buildIt(GBeanData gbeanData) throws Exception;
 
     protected InterceptorBuilder initializeInterceptorBuilder(InterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
         interceptorBuilder.setContainerId(containerId);
@@ -484,17 +483,17 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 Thread.currentThread().getContextClassLoader());
     }
 
-    protected GBeanData buildGBeanData() {
-        return new GBeanData(GenericEJBContainer.GBEAN_INFO);
-    }
+//    protected GBeanData buildGBeanData() {
+//        return new GBeanData(GenericEJBContainer.GBEAN_INFO);
+//    }
     
-    protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
-                                            InstanceContextFactory contextFactory,
-                                            InterceptorBuilder interceptorBuilder,
-                                            InstancePool pool,
-                                            AbstractNameQuery timerName) throws Exception {
+    protected GBeanData createConfiguration(GBeanData gbean, ClassLoader cl, InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool,
+            AbstractNameQuery timerName) throws Exception {
 
-        GBeanData gbean = buildGBeanData();
+//        buildGBeanData();
         gbean.setAttribute("containerID", getContainerId());
         gbean.setAttribute("ejbName", getEJBName());
         gbean.setAttribute("proxyInfo", createProxyInfo());

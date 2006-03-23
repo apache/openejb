@@ -47,18 +47,19 @@
  */
 package org.openejb.deployment;
 
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.entity.cmp.ConnectionProxyFactory;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class MockConnectionProxyFactory implements ConnectionProxyFactory {
+public class MockConnectionProxyFactory implements ConnectionFactorySource {
+
     public Object $getResource() {
         return new AxionDataSource("jdbc:axiondb:testdb");
     }
@@ -68,7 +69,7 @@ public class MockConnectionProxyFactory implements ConnectionProxyFactory {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockConnectionProxyFactory.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
-        infoFactory.addInterface(ConnectionProxyFactory.class);
+        infoFactory.addInterface(ConnectionFactorySource.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

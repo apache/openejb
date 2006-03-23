@@ -51,7 +51,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -67,24 +67,22 @@ import org.tranql.ql.QueryBindingImpl;
 import org.tranql.sql.jdbc.binding.BindingFactory;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
-    
-    private final ManagedConnectionFactoryWrapper connectionFactoryWrapper;
+
+    private final ConnectionFactorySource connectionFactoryWrapper;
     private final String sql;
     private final Class returnType;
     private PrimaryKeyGenerator delegate;
 
-    public AutoIncrementTablePrimaryKeyGeneratorWrapper(ManagedConnectionFactoryWrapper connectionFactoryWrapper, String sql, Class returnType) {
+    public AutoIncrementTablePrimaryKeyGeneratorWrapper(ConnectionFactorySource connectionFactoryWrapper, String sql, Class returnType) {
         this.connectionFactoryWrapper = connectionFactoryWrapper;
         this.sql = sql;
         this.returnType = returnType;
     }
-    
+
     public void doStart() throws Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
         delegate = new AutoIncrementTablePrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new QueryBindingImpl(0, returnType)));
@@ -111,8 +109,8 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
-        
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("sql", String.class, true);
         infoFactory.addAttribute("returnType", Class.class, true);
 

@@ -48,6 +48,7 @@
 package org.openejb.deployment;
 
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBComponentType;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
@@ -90,7 +91,7 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         this.handlerChainConfiguration = handlerChainConfiguration;
     }
 
-    protected Object buildIt(boolean buildContainer) throws Exception {
+    protected Object buildIt(GBeanData gbeanData) throws Exception {
         // get the bean class
         ClassLoader classLoader = getClassLoader();
         Class beanClass = classLoader.loadClass(getBeanClassName());
@@ -113,11 +114,11 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
 
         AbstractNameQuery timerName = getTimerName(beanClass);
 
-        if (buildContainer) {
+        if (gbeanData == null) {
             //TODO add timer to sig.
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
+            return createConfiguration(gbeanData, classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 

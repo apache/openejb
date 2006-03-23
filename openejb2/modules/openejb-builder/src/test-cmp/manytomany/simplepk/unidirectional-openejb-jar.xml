@@ -13,9 +13,7 @@
     </environment>
     
     <cmp-connection-factory>
-        <application>null</application>
-        <module>org/apache/geronimo/DefaultDatabase</module>
-        <name>DefaultDatasource</name>
+        <resource-link>DefaultDatasource</resource-link>
     </cmp-connection-factory>
 
     <enterprise-beans>

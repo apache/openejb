@@ -70,6 +70,7 @@ import org.openejb.sfsb.StatefulInterceptorBuilder;
 import org.openejb.slsb.dispatch.EJBActivateOperation;
 import org.openejb.slsb.dispatch.EJBPassivateOperation;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Revision$ $Date$
@@ -79,7 +80,7 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         return EJBComponentType.STATEFUL;
     }
 
-    protected Object buildIt(boolean buildContainer) throws Exception {
+    protected Object buildIt(GBeanData gbeanData) throws Exception {
         // get the bean class
         ClassLoader classLoader = getClassLoader();
         Class beanClass = classLoader.loadClass(getBeanClassName());
@@ -101,18 +102,18 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        if (buildContainer) {
+        if (gbeanData == null) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
             //stateful has no timers
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, null);
+            return createConfiguration(gbeanData, classLoader, signatures, contextFactory, interceptorBuilder, pool, null);
         }
     }
 
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
-        Method setSessionContext = null;
+        Method setSessionContext;
         try {
             Class sessionContextClass = getClassLoader().loadClass("javax.ejb.SessionContext");
             setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{sessionContextClass});

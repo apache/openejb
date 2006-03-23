@@ -243,7 +243,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         factory = cacheTable.getCacheFactory();
     }
     
-    protected Object buildIt(boolean buildContainer) throws Exception {
+    protected Object buildIt(GBeanData gbeanData) throws Exception {
         initialize();
 
         // get the bean classes
@@ -299,7 +299,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 break;
             }
         }
-        if (false == found) {
+        if (!found) {
             finders.put(pkFinder, commands);
         }
 
@@ -341,10 +341,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         InstancePool pool = createInstancePool(instanceFactory);
         AbstractNameQuery timerName = getTimerName(beanClass);
 
-        if (buildContainer) {
+        if (gbeanData == null) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         }
-        return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
+        return createConfiguration(gbeanData, classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
     }
 
     private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessor) throws QueryException {
@@ -724,9 +724,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return vopMap;
     }
     
-    protected GBeanData buildGBeanData() {
-        return new GBeanData(CMPEJBContainer.GBEAN_INFO);
-    }
+//    protected GBeanData buildGBeanData() {
+//        return new GBeanData(CMPEJBContainer.GBEAN_INFO);
+//    }
     
     protected EJBContainer createContainer(InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
@@ -760,12 +760,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 factory);
     }
     
-    protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
+    protected GBeanData createConfiguration(GBeanData gbean, ClassLoader cl, InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
             AbstractNameQuery timerName) throws Exception {
-        GBeanData gbean = super.createConfiguration(cl, signatures, contextFactory, interceptorBuilder, pool, timerName);
+        super.createConfiguration(gbean, cl, signatures, contextFactory, interceptorBuilder, pool, timerName);
         
         gbean.setAttribute("frontEndCacheDelegate", cache);
         gbean.setAttribute("cacheFactory", factory);

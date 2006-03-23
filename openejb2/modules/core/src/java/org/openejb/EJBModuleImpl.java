@@ -47,6 +47,13 @@
  */
 package org.openejb;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -59,14 +66,8 @@ import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.entity.cmp.ConnectionProxyFactory;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.query.ConnectionFactoryDelegate;
-
-import javax.management.ObjectName;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
 
 /**
  * @version $Revision$ $Date$
@@ -76,14 +77,14 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
     private final J2EEApplication application;
     private final String deploymentDescriptor;
     private final ConnectionFactoryDelegate delegate;
-    private final ConnectionProxyFactory connectionFactory;
+    private final ConnectionFactorySource connectionFactory;
     private final TransactionManagerDelegate tmDelegate;
     private final TransactionContextManager transactionContextManager;
     private final String objectName;
 
     private final Collection ejbs;
 
-    public EJBModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory, TransactionManagerDelegate tmDelegate, TransactionContextManager transactionContextManager, Collection ejbs) {
+    public EJBModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionFactorySource connectionFactory, TransactionManagerDelegate tmDelegate, TransactionContextManager transactionContextManager, Collection ejbs) {
         this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
@@ -207,12 +208,11 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-        infoBuilder.addReference("ConnectionFactory", ConnectionProxyFactory.class, NameFactory.JCA_CONNECTION_FACTORY);
+        infoBuilder.addReference("ConnectionFactory", ConnectionFactorySource.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoBuilder.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoBuilder.addAttribute("TMDelegate", TransactionManagerDelegate.class, true);
 
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("server", String.class, false);
         infoBuilder.addAttribute("application", String.class, false);

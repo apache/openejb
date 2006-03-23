@@ -52,7 +52,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -75,13 +75,13 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
     private static final Log log = LogFactory.getLog(SequenceTablePrimaryKeyGeneratorWrapper.class);
 
     private final TransactionContextManager transactionContextManager;
-    private final ManagedConnectionFactoryWrapper connectionFactoryWrapper;
+    private final ConnectionFactorySource connectionFactoryWrapper;
     private final String tableName;
     private final String sequenceName;
     private final int batchSize;
     private SequenceTablePrimaryKeyGenerator delegate; 
 
-    public SequenceTablePrimaryKeyGeneratorWrapper(TransactionContextManager transactionContextManager, ManagedConnectionFactoryWrapper connectionFactoryWrapper, String tableName, String sequenceName, int batchSize) {
+    public SequenceTablePrimaryKeyGeneratorWrapper(TransactionContextManager transactionContextManager, ConnectionFactorySource connectionFactoryWrapper, String tableName, String sequenceName, int batchSize) {
         this.transactionContextManager = transactionContextManager;
         this.connectionFactoryWrapper = connectionFactoryWrapper;
         this.tableName = tableName;
@@ -115,11 +115,11 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SequenceTablePrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SequenceTablePrimaryKeyGeneratorWrapper.class, NameFactory.KEY_GENERATOR);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("tableName", String.class, true);
         infoFactory.addAttribute("sequenceName", String.class, true);
         infoFactory.addAttribute("batchSize", int.class, true);

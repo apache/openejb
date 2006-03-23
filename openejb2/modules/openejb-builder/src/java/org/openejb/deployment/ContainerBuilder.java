@@ -128,7 +128,7 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
 
     EJBContainer createContainer() throws Exception;
 
-    GBeanData createConfiguration(AbstractName containerObjectName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery trackedConnectionAssociatorObjectName, AbstractNameQuery tssBeanObjectName) throws Exception;
+    GBeanData createConfiguration(AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery trackedConnectionAssociatorObjectName, AbstractNameQuery tssBeanObjectName, GBeanData gbeanData) throws Exception;
 
     AbstractNameQuery getTransactedTimerName();
 

@@ -222,7 +222,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = naming.createChildName(earName, NameFactory.EJB_MODULE, environment.getConfigId().toString());
+            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
         } else {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
@@ -326,6 +326,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         sessionBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
         entityBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
+        cmpEntityBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
         mdbBuilder.initContext(cl, enterpriseBeans);
 
     }
@@ -514,7 +515,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private static AbstractNameQuery getResourceContainerId(GerResourceLocatorType resourceLocator, EARContext earContext) throws GBeanNotFoundException {
         AbstractNameQuery resourceQuery;
         if (resourceLocator.isSetResourceLink()) {
-            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(null, null, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, resourceLocator.getResourceLink().trim());
+            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         } else {
             //construct name from components
             resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);

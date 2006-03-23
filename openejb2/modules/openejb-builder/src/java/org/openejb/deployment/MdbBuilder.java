@@ -108,11 +108,11 @@ class MdbBuilder extends BeanBuilder {
                 throw new DeploymentException("No openejb deployment descriptor for mdb: " + messageDrivenBean.getEjbName().getStringValue() + ". Known beans: " + openejbBeans.keySet().toArray());
             }
             String ejbName = messageDrivenBean.getEjbName().getStringValue().trim();
-            AbstractName messageDrivenObjectName = earContext.getNaming().createChildName(moduleBaseName, NameFactory.MESSAGE_DRIVEN_BEAN, ejbName);
-            AbstractName activationSpecName = earContext.getNaming().createChildName(messageDrivenObjectName, NameFactory.JCA_ACTIVATION_SPEC, ejbName);
+            AbstractName messageDrivenAbstractName = earContext.getNaming().createChildName(moduleBaseName, ejbName, NameFactory.MESSAGE_DRIVEN_BEAN);
+            AbstractName activationSpecName = earContext.getNaming().createChildName(messageDrivenAbstractName, ejbName, NameFactory.JCA_ACTIVATION_SPEC);
 
             //TODO configid need canonical form
-            String containerId = messageDrivenObjectName.toString();
+            String containerId = messageDrivenAbstractName.toURI().toString();
             addActivationSpecWrapperGBean(earContext,
                     ejbModule.getModuleURI(),
                     activationSpecName,
@@ -122,7 +122,7 @@ class MdbBuilder extends BeanBuilder {
                     getMessagingType(messageDrivenBean),
                     containerId);
             GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
-            messageDrivenGBean.setAbstractName(messageDrivenObjectName);
+            messageDrivenGBean.setAbstractName(messageDrivenAbstractName);
             try {
                 earContext.addGBean(messageDrivenGBean);
             } catch (GBeanAlreadyExistsException e) {
@@ -275,23 +275,9 @@ class MdbBuilder extends BeanBuilder {
         }
     }
 
-    private AbstractName getParent(AbstractName childName, String typeKey) throws DeploymentException {
-        Map nameMap = childName.getName();
-        String name = (String) nameMap.remove(typeKey);
-        nameMap.put(NameFactory.J2EE_TYPE, typeKey);
-        nameMap.put(NameFactory.J2EE_NAME, name);
-        ObjectName parentObjectName;
-        try {
-            parentObjectName = ObjectName.getInstance(childName.getObjectName().getDomain(), new Hashtable(nameMap));
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct parent name", e);
-        }
-        return new AbstractName(childName.getArtifact(), nameMap, parentObjectName);
-    }
-
     private static AbstractNameQuery getResourceAdapterNameQuery(GerResourceLocatorType resourceLocator, String type) {
         if (resourceLocator.isSetResourceLink()) {
-            return ENCConfigBuilder.buildAbstractNameQuery(null, null, type, resourceLocator.getResourceLink().trim());
+            return ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), type);
         }
         //construct name from components
         return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), type);

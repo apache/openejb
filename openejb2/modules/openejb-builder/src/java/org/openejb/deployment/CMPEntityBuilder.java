@@ -47,19 +47,24 @@
  */
 package org.openejb.deployment;
 
+import java.util.Map;
+
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbNameType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.openejb.deployment.pkgen.PKGenBuilder;
+import org.openejb.entity.cmp.CMPEJBContainer;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
@@ -72,10 +77,6 @@ import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.sql.SQLSchema;
-
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-import java.util.Map;
 
 
 /**
@@ -90,6 +91,13 @@ class CMPEntityBuilder extends EntityBuilder {
         super(builder);
     }
 
+    protected String getBeanType() {
+        return "Container";
+    }
+
+    protected GBeanData getGBeanData(AbstractName entityObjectName) {
+        return new GBeanData(entityObjectName, CMPEJBContainer.GBEAN_INFO);
+    }
     /**
      * Create GBeans for all the CMP entity beans in the EJB JAR.
      */
@@ -108,13 +116,14 @@ class CMPEntityBuilder extends EntityBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
             AbstractName entityObjectName = super.createEJBObjectName(earContext, moduleBaseName, entityBean);
 
-            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, cl, tmDelegate, cacheDelegate, componentPermissions, policyContextID);
+//            GBeanData entityGBean =
+            createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, cl, tmDelegate, cacheDelegate, componentPermissions, policyContextID);
 
-            try {
-                earContext.addGBean(entityGBean);
-            } catch (GBeanAlreadyExistsException e) {
-                throw new DeploymentException("Could not add cmp entity bean to context", e);
-            }
+//            try {
+//                earContext.addGBean(entityGBean);
+//            } catch (GBeanAlreadyExistsException e) {
+//                throw new DeploymentException("Could not add cmp entity bean to context", e);
+//            }
         }
     }
 
@@ -126,9 +135,9 @@ class CMPEntityBuilder extends EntityBuilder {
     public Schemata buildSchemata(final EARContext earContext, final AbstractName moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, final PKGenBuilder pkGen, final DataSource dataSource, final TransactionManager tm) throws DeploymentException {
         SchemataBuilder builder = new SchemataBuilder() {
             protected EJBProxyFactory buildEJBProxyFactory(EntityBeanType entityBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {
-                AbstractName entityObjectName = createEJBObjectName(earContext, moduleJ2eeContext, entityBean);
+                AbstractName entityAbstractName = createEJBObjectName(earContext, moduleJ2eeContext, entityBean);
                 //TODO configid need canonical form
-                return (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.toString(),
+                return (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityAbstractName.toURI().toString(),
                         false,
                         remoteInterfaceName,
                         homeInterfaceName,
@@ -160,12 +169,12 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
 
-    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, AbstractName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, AbstractName containerAbstractName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, TransactionManagerDelegate tmDelegate, FrontEndCacheDelegate cacheDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
         String ejbName = getString(entityBean.getEjbName());
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(cl);
         //TODO configid need canonical form
-        builder.setContainerId(containerObjectName.toString());
+        builder.setContainerId(containerAbstractName.toURI().toString());
         builder.setEJBName(ejbName);
         builder.setBeanClassName(getString(entityBean.getEjbClass()));
         builder.setHomeInterfaceName(getString(entityBean.getHome()));
@@ -193,7 +202,8 @@ class CMPEntityBuilder extends EntityBuilder {
 
         try {
             AbstractNameQuery tssBeanObjectName = getTssBeanQuery(openejbEntityBean, ejbModule, earContext, entityBean);
-            return builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
+            GBeanData gbeanData = earContext.getGBeanInstance(containerAbstractName);
+            return builder.createConfiguration(earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName, gbeanData);
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJB named '" + ejbName + "': "+e.getMessage(), e);
         }

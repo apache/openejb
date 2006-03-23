@@ -53,6 +53,7 @@ import java.security.Permissions;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
+
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
@@ -119,7 +120,7 @@ class SessionBuilder extends BeanBuilder {
     private AbstractName createEJBObjectName(EARContext earContext, AbstractName moduleBaseName, SessionBeanType sessionBean) {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
         String type = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim()) ? NameFactory.STATELESS_SESSION_BEAN : NameFactory.STATEFUL_SESSION_BEAN;
-        return earContext.getNaming().createChildName(moduleBaseName, type, ejbName);
+        return earContext.getNaming().createChildName(moduleBaseName, ejbName, type);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -192,7 +193,7 @@ class SessionBuilder extends BeanBuilder {
 
         //this code belongs here
         AbstractName linkName;
-            linkName = earContext.getNaming().createChildName(sessionName, NameFactory.WEB_SERVICE_LINK, ejbName);
+        linkName = earContext.getNaming().createChildName(sessionName, ejbName, NameFactory.WEB_SERVICE_LINK);
 
         GBeanData linkData = new GBeanData(linkDataTemplate);
         linkData.setAbstractName(linkName);
@@ -225,7 +226,7 @@ class SessionBuilder extends BeanBuilder {
         }
     }
 
-    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, AbstractName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
+    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, AbstractName sessionAbstractName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
         ContainerBuilder builder;
@@ -244,7 +245,7 @@ class SessionBuilder extends BeanBuilder {
         }
         builder.setClassLoader(cl);
         //TODO configID need a canonical form!!
-        builder.setContainerId(sessionObjectName.toString());
+        builder.setContainerId(sessionAbstractName.toURI().toString());
         builder.setEJBName(ejbName);
         builder.setBeanClassName(sessionBean.getEjbClass().getStringValue());
         builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getHome()));
@@ -291,13 +292,12 @@ class SessionBuilder extends BeanBuilder {
 
         processEnvironmentRefs(builder, earContext, ejbModule, sessionBean, openejbSessionBean, userTransaction, cl);
 
-        AbstractNameQuery tssBeanObjectName = null;
+        AbstractNameQuery tssBeanObjectName;
         tssBeanObjectName = getTssBeanQuery(openejbSessionBean, ejbModule, earContext, sessionBean);
 
-        GBeanData sessionGBean;
         try {
-            sessionGBean = builder.createConfiguration(sessionObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
-            earContext.addGBean(sessionGBean);
+            GBeanData sessionGBean = earContext.getGBeanInstance(sessionAbstractName);
+            builder.createConfiguration(earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName, sessionGBean);
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
         }
@@ -310,11 +310,11 @@ class SessionBuilder extends BeanBuilder {
                 String tssBeanLink = openejbSessionBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), moduleType, tssBeanLink);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null ? null : moduleURI.toString(), tssBeanLink, moduleType);
                 try {
                     earContext.getConfiguration().findGBean(tssBeanObjectName);
                 } catch (GBeanNotFoundException e) {
-                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, null, tssBeanLink);
+                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null);
                     try {
                         earContext.getConfiguration().findGBean(tssBeanObjectName);
                     } catch (GBeanNotFoundException e1) {

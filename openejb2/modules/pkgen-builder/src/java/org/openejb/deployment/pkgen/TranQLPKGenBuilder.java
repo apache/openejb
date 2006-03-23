@@ -62,9 +62,12 @@ import org.tranql.ql.QueryBindingImpl;
 import org.tranql.ql.QueryException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.openejb.xbeans.pkgen.EjbCustomGeneratorType;
 import org.openejb.xbeans.pkgen.EjbSequenceTableType;
@@ -118,10 +121,10 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
                 keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                 GBeanData keyGenerator;
                 try {
-                    AbstractName generatorObjectName = earContext.getNaming().createChildName(baseName, "KeyGenerator", generatorName);
-                    AbstractName wrapperGeneratorObjectName = earContext.getNaming().createChildName(generatorObjectName, "PKGenWrapper", generatorName);
+                    AbstractNameQuery generatorNameQuery = buildAbstractNameQuery(null, null, generatorName, NameFactory.KEY_GENERATOR);
+                    AbstractName wrapperGeneratorObjectName = earContext.getNaming().createChildName(baseName, generatorName, "PKGenWrapper");
                     keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
-                    keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
+                    keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorNameQuery);
                     keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
@@ -144,8 +147,7 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
             String tableName = seq.getTableName();
             String sequenceName = seq.getSequenceName();
             int batchSize = seq.getBatchSize();
-            SequenceTablePrimaryKeyGenerator generator = new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
-            return generator;
+            return new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
         } else if(config.isSetAutoIncrementTable()) {
             EjbAutoIncrementTableType auto = config.getAutoIncrementTable();
             String sql = auto.getSql();
@@ -155,4 +157,19 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
         }
         throw new UnsupportedOperationException("Not implemented");
     }
+
+
+    //copied from  ENCConfigBuilder, which is NOT where it should be
+    public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type) {
+        Map nameMap = new HashMap();
+        nameMap.put("name", name);
+        if (type != null) {
+            nameMap.put("j2eeType", type);
+        }
+        if (module != null) {
+            nameMap.put("module", module);
+        }
+        return new AbstractNameQuery(configId, nameMap);
+    }
+
 }

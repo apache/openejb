@@ -44,12 +44,18 @@
  */
 package org.openejb.deployment.mdb;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MDBContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -59,23 +65,19 @@ import org.openejb.transaction.TransactionPolicyType;
 /**
  * @version $Revision$ $Date$
  */
-public class BasicMDBContainerTest extends TestCase {
-    private Kernel kernel;
-    private GBeanData container;
+public class BasicMDBContainerTest extends DeploymentHelper {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
-        DeploymentHelper.setUpResourceAdapter(kernel);
 
         MDBContainerBuilder builder = new MDBContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(DeploymentHelper.CONTAINER_NAME.toURI().toString());
+        builder.setContainerId(CONTAINER_NAME.toURI().toString());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockEJB.class.getName());
         builder.setEndpointInterfaceName("javax.jms.MessageListener");
-        builder.setActivationSpecName(DeploymentHelper.ACTIVATIONSPEC_NAME);
+        //TODO configid merge remove method from builder??
+//        builder.setActivationSpecName(activationSpecName);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
             public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
@@ -83,23 +85,25 @@ public class BasicMDBContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration();
-        container.setAbstractName(DeploymentHelper.CONTAINER_NAME);
+        GBeanData container = builder.createConfiguration();
+        container.setReferencePattern("ActivationSpecWrapper", activationSpecName);
 
-        //start the ejb container
-        container.setReferencePattern("TransactionContextManager", DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME);
-        container.setReferencePattern("TrackedConnectionAssociator", DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-        kernel.loadGBean(container, getClass().getClassLoader());
-        kernel.startGBean(DeploymentHelper.CONTAINER_NAME);
+        container.setAbstractName(CONTAINER_NAME);
+
+        container.setReferencePattern("Timer", txTimerName);
+        container.setReferencePattern("TransactionContextManager", tcmName);
+        container.setReferencePattern("TrackedConnectionAssociator", ctcName);
+
+        ConfigurationData config = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
+        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        config.addGBean(container);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        Configuration configuration = configurationManager.loadConfiguration(config);
+        configurationManager.startConfiguration(configuration);
     }
 
     protected void tearDown() throws Exception {
-        DeploymentHelper.stop(kernel, DeploymentHelper.CONTAINER_NAME);
-        DeploymentHelper.stop(kernel, DeploymentHelper.TRANSACTIONMANAGER_NAME);
-        DeploymentHelper.stop(kernel, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
-        DeploymentHelper.tearDownAdapter(kernel);
-        kernel.shutdown();
+        super.tearDown();
     }
 
 

@@ -309,7 +309,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         GBeanData gbean = new GBeanData(MDBContainer.GBEAN_INFO);
         gbean.setAttribute("containerId", containerId);
         gbean.setAttribute("ejbName", ejbName);
-        gbean.setReferencePattern("ActivationSpecWrapper", activationSpecName);
+//        gbean.setReferencePattern("ActivationSpecWrapper", activationSpecName);
         gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);
         gbean.setAttribute("signatures", signatures);
         gbean.setAttribute("deliveryTransacted", deliveryTransacted);
@@ -318,7 +318,10 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         gbean.setAttribute("componentContext", getComponentContext());
         gbean.setAttribute("instancePool", pool);
         gbean.setAttribute("userTransaction", userTransaction);
-        gbean.setReferencePattern("Timer", timerName);
+        if (timerName != null) {
+            //todo configid really not required?
+            gbean.setReferencePattern("Timer", timerName);
+        }
         return gbean;
     }
 

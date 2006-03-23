@@ -48,6 +48,7 @@
 package org.openejb.deployment;
 
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
@@ -101,7 +102,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         return interceptorBuilder;
     }
 
-    protected Object buildIt(boolean buildContainer) throws Exception {
+    protected Object buildIt(GBeanData gbeanData) throws Exception {
         // get the bean class
         ClassLoader classLoader = getClassLoader();
         Class beanClass = classLoader.loadClass(getBeanClassName());
@@ -123,10 +124,10 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
         AbstractNameQuery timerName = getTimerName(beanClass);
 
-        if (buildContainer) {
+        if (gbeanData == null) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
+            return createConfiguration(gbeanData, classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 

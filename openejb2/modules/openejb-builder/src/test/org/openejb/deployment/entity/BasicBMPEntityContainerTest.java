@@ -57,20 +57,24 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
+import org.openejb.GenericEJBContainer;
 
 /**
  * @version $Revision$ $Date$
  */
-public class BasicBMPEntityContainerTest extends TestCase {
-    private static final AbstractName CONTAINER_NAME = new AbstractName(DeploymentHelper.ARTIFACT, Collections.singletonMap("ejb", "Mock"));
-    private Kernel kernel;
-    private GBeanData container;
-
+public class BasicBMPEntityContainerTest extends DeploymentHelper {
 
     public void testSimpleConfig() throws Throwable {
         MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
@@ -131,8 +135,6 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
@@ -153,30 +155,25 @@ public class BasicBMPEntityContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration(CONTAINER_NAME,
-                new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
-                new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
-                null);
+        GBeanData container = new GBeanData(CONTAINER_NAME, GenericEJBContainer.GBEAN_INFO);
 
-        //start the ejb container
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-        start(CONTAINER_NAME, container);
+                builder.createConfiguration(
+                new AbstractNameQuery(tcmName),
+                new AbstractNameQuery(ctcName),
+                null,
+                container);
+
+        container.setReferencePattern("Timer", txTimerName);
+        ConfigurationData config = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
+        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        config.addGBean(container);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        Configuration configuration = configurationManager.loadConfiguration(config);
+        configurationManager.startConfiguration(configuration);
     }
 
     protected void tearDown() throws Exception {
-        stop(CONTAINER_NAME);
-        kernel.shutdown();
         super.tearDown();
     }
 
-    private void start(AbstractName name, GBeanData instance) throws Exception {
-        instance.setAbstractName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
-    }
-
-    private void stop(AbstractName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
-    }
 }

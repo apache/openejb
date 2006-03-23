@@ -110,7 +110,7 @@ public class EJBProxyReference extends ConfigurationAwareReference {
             } catch (GBeanNotFoundException e) {
                 throw new NameNotFoundException("Could not resolve abstract name query " + abstractNameQuery + " in configuration " + getConfiguration().getId());
             }
-            String containerId = configurationName.getObjectName().getCanonicalName();
+            String containerId = configurationName.toURI().toString();
             proxyFactory = new EJBProxyFactory(containerId,
                     isSessionBean,
                     remoteInterface,

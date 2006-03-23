@@ -49,9 +49,10 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev: 2527 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class KernelHelper {
+    //TODO configId delete this, some disabled tests still use it.
     public static final Environment DEFAULT_ENVIRONMENT = new Environment();
     public static final Environment ENVIRONMENT = new Environment();
 
@@ -62,37 +63,6 @@ public class KernelHelper {
         ENVIRONMENT.setConfigId(configId);
     }
 
-    public static Kernel getPreparedKernel() throws Exception {
-        Kernel kernel = KernelFactory.newInstance().createKernel("bar");
-        kernel.boot();
-        GBeanData store = new GBeanData(kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ConfigurationStore", "ConfigurationStore"), MockConfigStore.GBEAN_INFO);
-        kernel.loadGBean(store, KernelHelper.class.getClassLoader());
-        kernel.startGBean(store.getName());
-
-        GBeanData artifactManager = new GBeanData(kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ArtifactManager", "ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(artifactManager, KernelHelper.class.getClassLoader());
-        kernel.startGBean(artifactManager.getName());
-
-        GBeanData artifactResolver = new GBeanData(kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ArtifactResolver", "ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getAbstractName());
-        kernel.loadGBean(artifactResolver, KernelHelper.class.getClassLoader());
-        kernel.startGBean(artifactResolver.getName());
-
-        AbstractName configurationManagerName = kernel.getNaming().createRootName(DeploymentHelper.ARTIFACT, "ConfigurationManager", "ConfigurationManager");
-        GBeanData configurationManagerData = new GBeanData(configurationManagerName, KernelConfigurationManager.GBEAN_INFO);
-        configurationManagerData.setReferencePattern("Stores", store.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getAbstractName());
-        kernel.loadGBean(configurationManagerData, KernelHelper.class.getClassLoader());
-        kernel.startGBean(configurationManagerName);
-        ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
-
-        Artifact artifact = DEFAULT_ENVIRONMENT.getConfigId();
-        configurationManager.loadConfiguration(artifact);
-        configurationManager.startConfiguration(artifact);
-
-        return kernel;
-    }
 
 
     public static class MockConfigStore implements ConfigurationStore {

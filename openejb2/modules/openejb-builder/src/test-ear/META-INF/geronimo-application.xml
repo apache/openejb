@@ -24,6 +24,14 @@
             <version>1</version>
             <type>car</type>
         </configId>
+        <dependencies>
+            <dependency>
+                <groupId>test</groupId>
+                <artifactId>base</artifactId>
+                <version>1</version>
+                <type>car</type>
+            </dependency>
+        </dependencies>
     </environment>
     
 </application>

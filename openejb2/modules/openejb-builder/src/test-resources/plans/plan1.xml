@@ -13,9 +13,7 @@
     </environment>
 
     <cmp-connection-factory>
-        <application>null</application>
-        <module>org/apache/geronimo/DefaultDatabase</module>
-        <name>DefaultDatasource</name>
+        <resource-link>DefaultDatasource</resource-link>
     </cmp-connection-factory>
 
     <enterprise-beans>
@@ -24,7 +22,7 @@
             <jndi-name>client/test/simple/SimpleStatelessSessionHome</jndi-name>
             <resource-ref>
                 <ref-name>ref</ref-name>
-                <target-name>target</target-name>
+                <resource-link>target</resource-link>
             </resource-ref>
         </session>
         <message-driven>

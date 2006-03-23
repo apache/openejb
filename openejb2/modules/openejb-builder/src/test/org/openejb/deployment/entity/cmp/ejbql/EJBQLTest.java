@@ -86,7 +86,7 @@ import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 import org.openejb.deployment.Schemata;
-import org.openejb.deployment.KernelHelper;
+//import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;

@@ -55,6 +55,9 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.io.Serializable;
+import java.io.PrintWriter;
+
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.sql.DataSource;
@@ -65,8 +68,15 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
+import org.openejb.entity.cmp.CMPEJBContainer;
 import org.openejb.deployment.CMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.DeploymentTestContants;
@@ -94,10 +104,7 @@ import org.tranql.sql.sql92.SQL92Schema;
 /**
  * @version $Revision$ $Date$
  */
-public class BasicCMPEntityContainerTest extends TestCase {
-    private static final AbstractName CONTAINER_NAME = new AbstractName(DeploymentHelper.ARTIFACT, Collections.singletonMap("ejb", "Mock"));
-    private Kernel kernel;
-    private GBeanData container;
+public class BasicCMPEntityContainerTest extends DeploymentHelper {
 
     private DataSource ds;
 
@@ -344,7 +351,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         super.setUp();
 
         // initialize the database
-        ds = new AxionDataSource("jdbc:axiondb:testdb");
+        ds = new WrapperDataSource();
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
         try {
@@ -391,8 +398,8 @@ public class BasicCMPEntityContainerTest extends TestCase {
 //        cmpConfig.relations = new CMRelation[]{};
 //        cmpConfig.schema = "Mock";
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpTimer(kernel);
+//        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
+//        DeploymentHelper.setUpTimer(kernel);
 
 
         CMPContainerBuilder builder = new CMPContainerBuilder();
@@ -447,41 +454,59 @@ public class BasicCMPEntityContainerTest extends TestCase {
         CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
         globalSchema.addCacheTable(cacheTable);
 
-        container = builder.createConfiguration(CONTAINER_NAME,
-                new AbstractNameQuery(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME),
-                new AbstractNameQuery(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME),
-                null);
+        GBeanData container = new GBeanData(CONTAINER_NAME, CMPEJBContainer.GBEAN_INFO);
+                builder.createConfiguration(
+                new AbstractNameQuery(tcmName),
+                new AbstractNameQuery(ctcName),
+                null, container);
 
-        GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
-        containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
-        start(new AbstractName(DeploymentHelper.ARTIFACT, Collections.singletonMap("role", "ContainerIndex")), containerIndex);
-
-        GBeanData connectionProxyFactoryGBean = new GBeanData(DeploymentTestContants.CONNECTION_OBJECT_NAME, MockConnectionProxyFactory.GBEAN_INFO);
-        kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
-        kernel.startGBean(DeploymentTestContants.CONNECTION_OBJECT_NAME);
-
-        //start the ejb container
-        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-
-        start(CONTAINER_NAME, container);
+        container.setReferencePattern("Timer", txTimerName);
+        ConfigurationData config = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
+        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        config.addGBean(container);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        Configuration configuration = configurationManager.loadConfiguration(config);
+        configurationManager.startConfiguration(configuration);
     }
 
     protected void tearDown() throws Exception {
-        stop(CONTAINER_NAME);
-        kernel.shutdown();
         java.sql.Connection c = ds.getConnection();
         c.createStatement().execute("SHUTDOWN");
         super.tearDown();
     }
 
-    private void start(AbstractName name, GBeanData instance) throws Exception {
-        instance.setAbstractName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
-    }
+    private static class WrapperDataSource implements DataSource, Serializable {
+        private transient DataSource ds;
 
-    private void stop(AbstractName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
+        public Connection getConnection() throws SQLException {
+            return getDs().getConnection();
+        }
+
+        public Connection getConnection(String string, String string1) throws SQLException {
+            return getDs().getConnection(string, string1);
+        }
+
+        public PrintWriter getLogWriter() throws SQLException {
+            return getDs().getLogWriter();
+        }
+
+        public void setLogWriter(PrintWriter printWriter) throws SQLException {
+            getDs().setLogWriter(printWriter);
+        }
+
+        public void setLoginTimeout(int i) throws SQLException {
+            getDs().setLoginTimeout(i);
+        }
+
+        public int getLoginTimeout() throws SQLException {
+            return getDs().getLoginTimeout();
+        }
+
+        private DataSource getDs() {
+            if (ds == null) {
+                ds = new AxionDataSource("jdbc:axiondb:testdb");
+            }
+            return ds;
+        }
     }
 }

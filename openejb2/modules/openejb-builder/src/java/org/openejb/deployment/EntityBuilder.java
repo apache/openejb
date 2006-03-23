@@ -105,22 +105,23 @@ class EntityBuilder extends BeanBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue().trim());
             AbstractName entityObjectName = createEJBObjectName(earContext, moduleBaseName, entityBean);
 
-            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, componentPermissions, transactionPolicyHelper, cl, policyContextID);
-            try {
-                earContext.addGBean(entityGBean);
-            } catch (GBeanAlreadyExistsException e) {
-                throw new DeploymentException("duplicate entity bean", e);
-            }
+//            GBeanData entityGBean =
+              createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, componentPermissions, transactionPolicyHelper, cl, policyContextID);
+//            try {
+//                earContext.addGBean(entityGBean);
+//            } catch (GBeanAlreadyExistsException e) {
+//                throw new DeploymentException("duplicate entity bean", e);
+//            }
         }
     }
 
-    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, AbstractName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, String policyContextID) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, AbstractName containerAbstractName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, String policyContextID) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue().trim();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(cl);
         //TODO configid need canonical form
-        builder.setContainerId(containerObjectName.toString());
+        builder.setContainerId(containerAbstractName.toURI().toString());
         builder.setEJBName(ejbName);
         builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
         builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()));
@@ -148,7 +149,8 @@ class EntityBuilder extends BeanBuilder {
         }
 
         try {
-            return builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
+            GBeanData gbeanData = earContext.getGBeanInstance(containerAbstractName);
+            return builder.createConfiguration(earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName, gbeanData);
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
         }
@@ -161,11 +163,11 @@ class EntityBuilder extends BeanBuilder {
                 String tssBeanLink = openejbEntityBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), moduleType, tssBeanLink);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), tssBeanLink, moduleType);
                 try {
                     earContext.getConfiguration().findGBean(tssBeanObjectName);
                 } catch (GBeanNotFoundException e) {
-                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, null, tssBeanLink);
+                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null);
                     try {
                         earContext.getConfiguration().findGBean(tssBeanObjectName);
                     } catch (GBeanNotFoundException e1) {
@@ -187,7 +189,7 @@ class EntityBuilder extends BeanBuilder {
 
     public AbstractName createEJBObjectName(EARContext earContext, AbstractName moduleBaseName, EntityBeanType entityBean) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
-        return earContext.getNaming().createChildName(moduleBaseName, NameFactory.ENTITY_BEAN, ejbName);
+        return earContext.getNaming().createChildName(moduleBaseName, ejbName, NameFactory.ENTITY_BEAN);
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -238,9 +240,12 @@ class EntityBuilder extends BeanBuilder {
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
+            if (!getBeanType().equals(entityBean.getPersistenceType().getStringValue().trim())) {
+                continue;
+            }
 
             AbstractName entityObjectName = createEJBObjectName(earContext, moduleBaseName, entityBean);
-            GBeanData gbean = new GBeanData(entityObjectName, GenericEJBContainer.GBEAN_INFO);
+            GBeanData gbean = getGBeanData(entityObjectName);
 
             Class homeInterface = null;
             Class remoteInterface = null;
@@ -294,6 +299,14 @@ class EntityBuilder extends BeanBuilder {
                 throw new DeploymentException("Could not add entity bean to context", e);
             }
         }
+    }
+
+    protected String getBeanType() {
+        return "Bean";
+    }
+
+    protected GBeanData getGBeanData(AbstractName entityObjectName) {
+        return new GBeanData(entityObjectName, GenericEJBContainer.GBEAN_INFO);
     }
 
     protected void addSecurity(EARContext earContext, String ejbName, ContainerBuilder builder, ClassLoader cl, EJBModule ejbModule, EntityBeanType entityBean, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {

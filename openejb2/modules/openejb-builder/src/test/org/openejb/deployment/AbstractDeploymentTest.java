@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
+import java.util.Iterator;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.io.File;
@@ -68,6 +69,7 @@ import org.openejb.proxy.EJBProxyReference;
  */
 public abstract class AbstractDeploymentTest extends TestCase implements DeploymentTestContants {
 
+    public DeploymentHelper deploymentHelper = new DeploymentHelper();
     public abstract Kernel getKernel();
     public abstract ClassLoader getApplicationClassLoader();
     public abstract String getJ2eeApplicationName();
@@ -87,7 +89,6 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         properties.put("j2eeType", "J2EEApplication");
         properties.put("name", getJ2eeApplicationName());
         AbstractNameQuery query = new AbstractNameQuery(null, properties);
-        assertRunning(getKernel(), query);
 
         if (!getJ2eeApplicationName().equals("null")) {
             assertRunning(getKernel(), query);
@@ -120,7 +121,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
 
         Object statelessHome;
         Object stateless;
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(DeploymentHelper.ARTIFACT,
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(deploymentHelper.baseId,
                 new AbstractNameQuery(statelessBeanName),
                 true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome",
@@ -139,7 +140,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
 
         Object statelessHome;
         Object stateless;
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(DeploymentHelper.ARTIFACT,
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(deploymentHelper.baseId,
                 new AbstractNameQuery(statelessBeanName),
                 true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome",
@@ -193,7 +194,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("PKGenCMPEntity", "EntityBean", getJ2eeModuleName());
         AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
-        assertRunning(getKernel(), new AbstractNameQuery(null, Collections.singletonMap("name", "CMPPKGenerator")));
+        assertAllRunning(getKernel(), new AbstractNameQuery(null, Collections.singletonMap("name", "CMPPKGenerator")));
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
@@ -207,7 +208,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("PKGenCMPEntity2", "EntityBean", getJ2eeModuleName());
         AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
-        assertRunning(getKernel(), new AbstractNameQuery(null, Collections.singletonMap("name", "CMPPKGenerator2")));
+        assertAllRunning(getKernel(), new AbstractNameQuery(null, Collections.singletonMap("name", "CMPPKGenerator2")));
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
@@ -265,12 +266,21 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         AbstractName abstractName = findSingle(kernel, query);
         assertEquals("should be running: " + abstractName, State.RUNNING_INDEX, kernel.getGBeanState(abstractName));
     }
+    public static void assertAllRunning(Kernel kernel, AbstractNameQuery query) throws Exception {
+        Set names = kernel.listGBeans(query);
+        if (names.isEmpty()) {
+            fail("No matches for " + query);
+        }
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            assertEquals("should be running: " + abstractName, State.RUNNING_INDEX, kernel.getGBeanState(abstractName));
+        }
+    }
 
     private static AbstractName findSingle(Kernel kernel, AbstractNameQuery query) {
         Set names = kernel.listGBeans(query);
         assertEquals("should only match one name but matched " + names, 1, names.size());
-        AbstractName abstractName = (AbstractName) names.iterator().next();
-        return abstractName;
+        return (AbstractName) names.iterator().next();
     }
 
     public static void assertRunning(Kernel kernel, AbstractName abstractName) throws Exception {

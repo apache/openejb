@@ -55,7 +55,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -78,13 +78,13 @@ import org.tranql.sql.jdbc.binding.BindingFactory;
 public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SQLPrimaryKeyGeneratorWrapper.class);
     
-    private final ManagedConnectionFactoryWrapper connectionFactoryWrapper;
+    private final ConnectionFactorySource connectionFactoryWrapper;
     private final String initSql;
     private final String sql;
     private final Class returnType;
     private PrimaryKeyGenerator delegate;
 
-    public SQLPrimaryKeyGeneratorWrapper(ManagedConnectionFactoryWrapper connectionFactoryWrapper, String initSql, String sql, Class returnType) {
+    public SQLPrimaryKeyGeneratorWrapper(ConnectionFactorySource connectionFactoryWrapper, String initSql, String sql, Class returnType) {
         this.connectionFactoryWrapper = connectionFactoryWrapper;
         this.initSql = initSql;
         this.sql = sql;
@@ -134,7 +134,7 @@ public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBean
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SQLPrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("initSQL", String.class, true);
         infoFactory.addAttribute("sql", String.class, true);
         infoFactory.addAttribute("returnType", Class.class, true);
