@@ -73,7 +73,6 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -123,6 +122,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import java.util.jar.JarFile;
 
 
@@ -294,7 +294,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return openejbEjbJar;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
         try {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
@@ -328,7 +328,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         entityBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
         cmpEntityBuilder.initContext(earContext, moduleBaseName, moduleUri, cl, enterpriseBeans);
         mdbBuilder.initContext(cl, enterpriseBeans);
-
+        /**
+         * Build the security configuration.  Attempt to auto generate role mappings.
+         */
+        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
+        if (openejbEjbJar.isSetSecurity()) {
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(openejbEjbJar.getSecurity(), cl);
+            earContext.setSecurityConfiguration(securityConfiguration);
+        }
     }
 
     public CMPEntityBuilder getCmpEntityBuilder() {
@@ -351,7 +358,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
      * Does the meaty work of processing the deployment information and
      * creating GBeans for all the EJBs in the JAR, etc.
      */
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repositories) throws DeploymentException {
         AbstractName moduleBaseName = module.getModuleName();
 
         DataSourceDelegate delegate = new DataSourceDelegate();
@@ -481,14 +488,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
         } else {
             transactionPolicyHelper = new TransactionPolicyHelper();
-        }
-
-        /**
-         * Build the security configuration.  Attempt to auto generate role mappings.
-         */
-        if (openejbEjbJar.isSetSecurity()) {
-            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(openejbEjbJar.getSecurity(), cl);
-            earContext.setSecurityConfiguration(securityConfiguration);
         }
 
 

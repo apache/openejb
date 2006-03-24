@@ -53,6 +53,7 @@ import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.jar.JarFile;
+import java.util.Collections;
 
 import javax.sql.DataSource;
 
@@ -157,7 +158,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             try {
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, deploymentHelper.configStore);
+                configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
             } finally {
                 if (jarFile != null) {
                     jarFile.close();
