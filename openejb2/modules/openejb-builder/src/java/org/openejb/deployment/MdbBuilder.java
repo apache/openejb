@@ -111,7 +111,6 @@ class MdbBuilder extends BeanBuilder {
             AbstractName messageDrivenAbstractName = earContext.getNaming().createChildName(moduleBaseName, ejbName, NameFactory.MESSAGE_DRIVEN_BEAN);
             AbstractName activationSpecName = earContext.getNaming().createChildName(messageDrivenAbstractName, ejbName, NameFactory.JCA_ACTIVATION_SPEC);
 
-            //TODO configid need canonical form
             String containerId = messageDrivenAbstractName.toURI().toString();
             addActivationSpecWrapperGBean(earContext,
                     ejbModule.getModuleURI(),
@@ -233,15 +232,15 @@ class MdbBuilder extends BeanBuilder {
                                                String messageListenerInterfaceName,
                                                String containerId) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
-        AbstractNameQuery resourceAdapterModuleQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.RESOURCE_ADAPTER_MODULE);
-        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceAdapterModuleQuery, messageListenerInterfaceName, earContext.getConfiguration());
+//        AbstractNameQuery resourceAdapterModuleQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.RESOURCE_ADAPTER_MODULE);
+        AbstractNameQuery resourceAdapterInstanceQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.JCA_RESOURCE_ADAPTER);
+        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceAdapterInstanceQuery, messageListenerInterfaceName, earContext.getConfiguration());
 
         if (activationSpecInfo == null) {
-            throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterModuleQuery + " and message listener type: " + messageListenerInterfaceName);
+            throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterInstanceQuery + " and message listener type: " + messageListenerInterfaceName);
         }
         activationSpecInfo = new GBeanData(activationSpecInfo);
         activationSpecInfo.setAttribute("containerId", containerId);
-        AbstractNameQuery resourceAdapterInstanceQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.JCA_RESOURCE_ADAPTER);
         activationSpecInfo.setReferencePattern("ResourceAdapterWrapper", resourceAdapterInstanceQuery);
         if (openejbActivationConfigProperties != null) {
             for (int i = 0; i < openejbActivationConfigProperties.length; i++) {
