@@ -112,7 +112,6 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public class DeploymentHelper extends TestCase {
-
     public static final Environment DEFAULT_ENVIRONMENT = new Environment();
     public static final Environment ENVIRONMENT = new Environment();
 
@@ -135,6 +134,7 @@ public class DeploymentHelper extends TestCase {
 
     protected Kernel kernel;
     public AbstractName ctcName;
+    public AbstractName tmName;
     public AbstractName tcmName;
     public AbstractName txTimerName;
     public AbstractName nonTxTimerName;
@@ -150,6 +150,7 @@ public class DeploymentHelper extends TestCase {
     protected final AbstractName CONTAINER_NAME = new AbstractName(testConfigurationArtifact, Collections.singletonMap("ejb", "Mock"));
 
     protected void setUp() throws Exception {
+        super.setUp();
         defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
         cl = this.getClass().getClassLoader();
         kernel = KernelFactory.newInstance().createKernel("test");
@@ -181,11 +182,12 @@ public class DeploymentHelper extends TestCase {
         xidFactory.setAttribute("tmId", "tmId".getBytes());
 
         GBeanData tm = bootstrap.addGBean("TransactionManager", TransactionManagerImplGBean.GBEAN_INFO);
+        tmName = tm.getAbstractName();
         tm.setReferencePattern("XidFactory", xidFactory.getAbstractName());
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
 
         GBeanData tcm = bootstrap.addGBean("TransactionContextManager", TransactionContextManagerGBean.GBEAN_INFO);
-        tcm.setReferencePattern("TransactionManager", tm.getAbstractName());
+        tcm.setReferencePattern("TransactionManager", tmName);
         tcmName = tcm.getAbstractName();
         ctcName = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO).getAbstractName();
 
@@ -256,17 +258,12 @@ public class DeploymentHelper extends TestCase {
     }
 
 
-    private AbstractName createConnectionObjectName(Artifact artifact) {
-        AbstractName jcaResourceName = createJCAResourceName(artifact);
-        AbstractName jcaConnectionFactoryName = naming.createChildName(jcaResourceName, "DefaultDatasource", NameFactory.JCA_CONNECTION_FACTORY);
-        return naming.createChildName(jcaConnectionFactoryName, "DefaultDatasource", NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-    }
     private AbstractName createJCAResourceAdapterName(Artifact artifact) {
         AbstractName jcaResourceName = createJCAResourceName(artifact);
         return naming.createChildName(jcaResourceName, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER);
     }
 
-    private AbstractName createJCAResourceName(Artifact artifact) {
+    protected AbstractName createJCAResourceName(Artifact artifact) {
         AbstractName moduleName = createResourceAdapterModuleName(artifact);
         AbstractName resourceAdapterName = naming.createChildName(moduleName, artifact.toString(), NameFactory.RESOURCE_ADAPTER);
         AbstractName jcaResourceName = naming.createChildName(resourceAdapterName, artifact.toString(), NameFactory.JCA_RESOURCE);
@@ -281,6 +278,7 @@ public class DeploymentHelper extends TestCase {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
+        super.tearDown();
     }
 
     public static class MockConfigStore implements ConfigurationStore {
@@ -396,7 +394,6 @@ public class DeploymentHelper extends TestCase {
         }
     }
 
-    /////////////////////////////
     public static AbstractNameQuery createEjbNameQuery(String name, String j2eeType, String ejbModule) {
         Map properties = new LinkedHashMap();
         properties.put("name", name);
@@ -404,5 +401,4 @@ public class DeploymentHelper extends TestCase {
         properties.put("EJBModule", ejbModule);
         return new AbstractNameQuery(null, properties);
     }
-
 }

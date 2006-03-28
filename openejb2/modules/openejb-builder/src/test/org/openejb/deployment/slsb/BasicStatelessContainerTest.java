@@ -50,7 +50,6 @@ package org.openejb.deployment.slsb;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -179,18 +178,23 @@ public class BasicStatelessContainerTest extends DeploymentHelper {
             }
         });
         builder.setComponentContext(new HashMap());
+
+        // Generate the GBeanData
         GBeanData container = new GBeanData(CONTAINER_NAME, GenericEJBContainer.GBEAN_INFO);
-                builder.createConfiguration(
+        builder.createConfiguration(
                 new AbstractNameQuery(tcmName),
                 new AbstractNameQuery(ctcName),
-                null, container);
-
-        //start the ejb container
+                null,
+                container);
         container.setReferencePattern("Timer", txTimerName);
         container.setAbstractName(CONTAINER_NAME);
+
+        // Wrap the GBeanData in a configuration
         ConfigurationData config = new ConfigurationData(new Artifact("some", "test", "42", "car"), kernel.getNaming());
         config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
         config.addGBean(container);
+
+        // Start the configuration
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         Configuration configuration = configurationManager.loadConfiguration(config);
         configurationManager.startConfiguration(configuration);
