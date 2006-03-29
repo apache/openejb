@@ -209,7 +209,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
             }
             EJBContainer ejbContainer;
             try {
-                ejbContainer = (EJBContainer) kernel.getProxyManager().createProxy(name, EJBContainer.class);
+                ejbContainer = (EJBContainer) kernel.getGBean(name);
             } catch (Exception e) {
                 // couldn't find the container
                 log.debug("Container not found: " + containerID, e);

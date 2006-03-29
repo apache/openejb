@@ -197,7 +197,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(globalSchema);
-        builder.setTransactionManagerDelegate(tmDelegate);
+        builder.setTransactionManager(tmDelegate);
         builder.setFrontEndCacheDelegate(cacheDelegate);
 
         try {

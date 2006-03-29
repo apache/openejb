@@ -124,10 +124,6 @@ public class DeploymentHelper extends TestCase {
 
     public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapperGBean.getGBeanInfo());
 
-    private String DOMAIN_NAME = "geronimo.test";
-    private String SERVER_NAME = "geronimo";
-    private String BASE_NAME = DOMAIN_NAME + ":J2EEServer=" + SERVER_NAME;
-
     public Naming naming = new Jsr77Naming();
     public Artifact baseId = new Artifact("test", "base", "1", "car");
     public final AbstractName serverName = naming.createRootName(baseId, "Server", "J2EEServer");
@@ -151,7 +147,6 @@ public class DeploymentHelper extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
         cl = this.getClass().getClassLoader();
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
@@ -316,7 +311,6 @@ public class DeploymentHelper extends TestCase {
             } else {
                 Environment environment = new Environment();
                 environment.setConfigId(configId);
-                environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
                 configData.setAttribute("environment", environment);
                 configData.setAttribute("moduleType", ConfigurationModuleType.WAR);
                 configData.setAttribute("gBeanState", NO_OBJECTS_OS);

@@ -161,7 +161,7 @@ public class EJBQLTest extends DeploymentHelper {
         Connection c = ds.getConnection("root", null);
         buildDBSchema(c);
 
-        tm = (TransactionManager) kernel.getProxyManager().createProxy(tmName, TransactionManager.class);
+        tm = (TransactionManager) kernel.getGBean(tmName);
         TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
 
         tmDelegate.setTransactionManager(tm);
@@ -200,7 +200,6 @@ public class EJBQLTest extends DeploymentHelper {
             cacheSchema = schemata.getGlobalSchema();
 
             AbstractName connectionProxyFactoryAbstractName = naming.createChildName(createJCAResourceName(testConfigurationArtifact), "testcf", NameFactory.JCA_RESOURCE_ADAPTER);
-//                    NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
             GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryAbstractName, MockConnectionProxyFactory.GBEAN_INFO);
             kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
             kernel.startGBean(connectionProxyFactoryAbstractName);
@@ -241,7 +240,7 @@ public class EJBQLTest extends DeploymentHelper {
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(cacheSchema);
         builder.setComponentContext(new HashMap());
-        builder.setTransactionManagerDelegate(tmDelegate);
+        builder.setTransactionManager(tmDelegate);
         builder.setFrontEndCacheDelegate(cacheDelegate);
 
         GBeanData container = new GBeanData(containerA, CMPEJBContainer.GBEAN_INFO);
@@ -251,7 +250,7 @@ public class EJBQLTest extends DeploymentHelper {
                 container);
 
         container.setReferencePattern("Timer", txTimerName);
-        container.setAbstractName(containerA);
+        container.setAbstractName(containerName);
 
         // Wrap the GBeanData in a configuration
         ConfigurationData config = new ConfigurationData(new Artifact("some", "test", "42", "car"), kernel.getNaming());
@@ -265,7 +264,6 @@ public class EJBQLTest extends DeploymentHelper {
     }
 
     protected void tearDown() throws Exception {
-        kernel.getProxyManager().destroyProxy(tm);
         kernel.shutdown();
         java.sql.Connection c = ds.getConnection();
         c.createStatement().execute("SHUTDOWN");

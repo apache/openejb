@@ -121,7 +121,6 @@ import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.SingleValuedCMRAccessor;
 import org.tranql.ejb.SingleValuedCMRFaultHandler;
-import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.ReferenceAccessor;
@@ -144,6 +143,7 @@ import org.tranql.sql.SQLSchema;
 
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
+import javax.transaction.TransactionManager;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -160,7 +160,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     private SQLSchema sqlSchema;
     private GlobalSchema globalSchema;
     private EJB ejb;
-    private TransactionManagerDelegate tm;
+    private TransactionManager tm;
     private FrontEndCacheDelegate cache;
     private CacheFactory factory;
     private boolean reentrant;
@@ -201,11 +201,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         this.globalSchema = globalSchema;
     }
 
-    public TransactionManagerDelegate getTransactionManagerDelegate() {
+    public TransactionManager getTransactionManager() {
         return tm;
     }
 
-    public void setTransactionManagerDelegate(TransactionManagerDelegate tm) {
+    public void setTransactionManager(TransactionManager tm) {
         this.tm = tm;
     }
 

@@ -168,7 +168,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
-        AbstractName webServiceLinkTemplateName = kernel.getProxyManager().getProxyTarget(webServiceLinkTemplate);
+        AbstractName webServiceLinkTemplateName = kernel.getAbstractNameFor(webServiceLinkTemplate);
         return kernel.getGBeanData(webServiceLinkTemplateName);
     }
 
@@ -403,7 +403,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             ejbModuleGBeanData.setAttribute("TMDelegate", tmDelegate);
             earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getName(), e);
+            throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);
         }
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();

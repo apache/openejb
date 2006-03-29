@@ -45,18 +45,11 @@
 package org.openejb.server.ejbd;
 
 import org.activeio.xnet.SocketService;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
 import org.openejb.ContainerIndex;
 import org.openejb.corba.ORBRef;
-
-import javax.management.ObjectName;
 
 public class EjbServerGBean {
 
@@ -76,21 +69,5 @@ public class EjbServerGBean {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static ObjectName addGBean(Kernel kernel, String name, AbstractName containerIndex) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name, containerIndex);
-        kernel.loadGBean(gbean, EjbServer.class.getClassLoader());
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-
-    public static GBeanData createGBean(String name, AbstractName containerIndex) {
-        AbstractName gbeanName = null;//JMXUtil.getObjectName("openejb:type=EjbServer,name="+name);
-
-        GBeanData gbean = new GBeanData(gbeanName, EjbServerGBean.GBEAN_INFO);
-        gbean.setReferencePattern("ContainerIndex", containerIndex);
-
-        return gbean;
     }
 }
