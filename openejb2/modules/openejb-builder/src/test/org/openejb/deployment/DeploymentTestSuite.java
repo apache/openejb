@@ -54,6 +54,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.jar.JarFile;
 import java.util.Collections;
+import java.rmi.MarshalledObject;
 
 import javax.sql.DataSource;
 
@@ -159,6 +160,9 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
                 configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
+                // copy the configuration to force gbeans to serialize
+                configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();
+                configurationData.setConfigurationStore(deploymentHelper.configStore);
             } finally {
                 if (jarFile != null) {
                     jarFile.close();
@@ -189,7 +193,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
 
             // start the configuration
-            Configuration configuration = deploymentHelper.configurationManager.loadConfiguration(configurationData, deploymentHelper.configStore);
+            Configuration configuration = deploymentHelper.configurationManager.loadConfiguration(configurationData);
             deploymentHelper.configurationManager.startConfiguration(configuration);
 
             // get the configuration classloader
