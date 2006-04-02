@@ -254,15 +254,14 @@ public class OneToManyCompoundPKTest extends AbstractCMRTest {
         c.close();
     }
 
-// todo not reliable
-//    public void testASetBExistingANewB() throws Exception {
-//        TransactionContext ctx = prepareExistingANewB();
-//        Set bSet = a.getB();
-//        bSet.add(b);
-//        ctx.commit();
-//
-//        assertStateExistingANewB();
-//    }
+    public void testASetBExistingANewB() throws Exception {
+        TransactionContext ctx = prepareExistingANewB();
+        Set bSet = a.getB();
+        bSet.add(b);
+        ctx.commit();
+
+        assertStateExistingANewB();
+    }
 
     public void testBSetAExistingANewB() throws Exception {
         TransactionContext ctx = prepareExistingANewB();

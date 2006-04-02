@@ -148,14 +148,14 @@ public class OneToOneTest extends AbstractCMRTest {
         c.close();
     }
 
-// todo not reliable
-//    public void testASetBNewAB() throws Exception {
-//        TransactionContext ctx = prepareNewAB();
-//        a.setB(b);
-//        ctx.commit();
-//
-//        assertStateNewAB();
-//    }
+    
+    public void testASetBNewAB() throws Exception {
+        TransactionContext ctx = prepareNewAB();
+        a.setB(b);
+        ctx.commit();
+
+        assertStateNewAB();
+    }
 
     public void testBSetANewAB() throws Exception {
         TransactionContext ctx = prepareNewAB();

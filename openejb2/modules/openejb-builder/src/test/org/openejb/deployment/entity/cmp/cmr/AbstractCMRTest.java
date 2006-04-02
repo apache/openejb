@@ -49,6 +49,7 @@ package org.openejb.deployment.entity.cmp.cmr;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,6 +68,8 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -176,9 +179,11 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
 
             FrontEndCacheDelegate cacheDelegate = new FrontEndCacheDelegate();
 
-            setUpContainer(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, transactionManager, cacheDelegate);
-            setUpContainer(ejbSchema.getEJB("B"), getB().bean, getB().home, getB().local, C_NAME_B, transactionManager, cacheDelegate);
+            GBeanData gBeanA = buildGBeanData(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, transactionManager, cacheDelegate);
+            GBeanData gBeanB = buildGBeanData(ejbSchema.getEJB("B"), getB().bean, getB().home, getB().local, C_NAME_B, transactionManager, cacheDelegate);
 
+            buildAndStartConfiguration("testEJBModule", new GBeanData[] {gBeanA, gBeanB});
+            
             ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
             bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
         } finally {
@@ -187,7 +192,7 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
     }
 
 
-    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class localClass, AbstractName containerName, TransactionManager transactionManager, FrontEndCacheDelegate cacheDelegate) throws Exception {
+    private GBeanData buildGBeanData(EJB ejb, Class beanClass, Class homeClass, Class localClass, AbstractName containerName, TransactionManager transactionManager, FrontEndCacheDelegate cacheDelegate) throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(containerName.toURI().toString());
@@ -224,10 +229,16 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
         container.setReferencePattern("Timer", txTimerName);
         container.setAbstractName(containerName);
 
+        return container;
+    }
+
+    private void buildAndStartConfiguration(String name, GBeanData containers[]) throws NoSuchConfigException, IOException, InvalidConfigException {
         // Wrap the GBeanData in a configuration
-        ConfigurationData config = new ConfigurationData(new Artifact("test", ejb.getName(), "42", "car"), kernel.getNaming());
+        ConfigurationData config = new ConfigurationData(new Artifact("test", name, "42", "car"), kernel.getNaming());
         config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
-        config.addGBean(container);
+        for (int i = 0; i < containers.length; i++) {
+            config.addGBean(containers[i]);
+        }
 
         // Start the configuration
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
