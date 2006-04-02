@@ -323,7 +323,7 @@ public class DeploymentHelper extends TestCase {
             }
         }
 
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
             File file = (File) locations.get(configId);
             if (file == null) {
                 return baseURL;
