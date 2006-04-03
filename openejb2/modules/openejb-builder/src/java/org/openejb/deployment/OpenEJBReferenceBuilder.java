@@ -72,6 +72,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @version $Revision$ $Date$
@@ -136,34 +138,28 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         return new CORBAHandleDelegate.HandleDelegateReference();
     }
 
-    public Reference createEJBRemoteRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote, Configuration configuration) throws DeploymentException {
+    public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
         AbstractNameQuery match;
         if (query != null) {
             checkRemoteProxyInfo(query, home, remote, configuration);
             match = query;
         } else if (name != null) {
-            //TODO configid HARD PART GOES HERE
-            match = null;
+            match = getMatch(refName, configuration, name, requiredModule, true, isSession, home, remote);
         } else {
-            boolean isRemote = true;
-            String refName = null;//TODO consider whether to supply this info
-            match = getImplicitMatch(isSession, configuration, isRemote, home, remote, refName, optionalModule);
+            match = getImplicitMatch(refName, configuration, optionalModule, true, isSession, home, remote);
         }
         return buildRemoteReference(configuration.getId(), match, isSession, home, remote);
     }
 
-    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
+    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         AbstractNameQuery match;
         if (query != null) {
             checkLocalProxyInfo(query, localHome, local, configuration);
             match = query;
         } else if (name != null) {
-            //TODO configid HARD PART GOES HERE
-            match = null;
+            match = getMatch(refName, configuration, name, requiredModule, false, isSession, localHome, local);
         } else {
-            boolean isRemote = true;
-            String refName = null;//TODO consider whether to supply this info
-            match = getImplicitMatch(isSession, configuration, isRemote, localHome, local, refName, optionalModule);
+            match = getImplicitMatch(refName, configuration, optionalModule, false, isSession, localHome, local);
         }
         return buildLocalReference(configuration.getId(), match, isSession, localHome, local);
     }
@@ -176,7 +172,52 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         return EJBProxyReference.createRemote(configurationId, abstractNameQuery, session, home, remote);
     }
 
-    private AbstractNameQuery getImplicitMatch(boolean isSession, Configuration context, boolean isRemote, String home, String remote, String refName, String module) throws DeploymentException {
+    private AbstractNameQuery getMatch(String refName, Configuration context, String name, String module, boolean isRemote, boolean isSession, String home, String remote) throws DeploymentException {
+        Map nameQuery = new HashMap();
+        nameQuery.put(NameFactory.J2EE_NAME, name);
+        if (module != null) {
+            nameQuery.put(NameFactory.EJB_MODULE, module);
+        }
+        Set gbeans = new HashSet();
+        if (isSession) {
+            Map q = new HashMap(nameQuery);
+            q.putAll(STATELESS);
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q)));
+
+            q = new HashMap(nameQuery);
+            q.putAll(STATEFUL);
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q)));
+        } else {
+            nameQuery.putAll(ENTITY);
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), nameQuery)));
+        }
+
+        Collection matches = new ArrayList();
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            GBeanData data;
+            try {
+                data = context.findGBeanData(new AbstractNameQuery(abstractName));
+            } catch (GBeanNotFoundException e) {
+                throw new DeploymentException("We just got this ejb name out of a query! It must be there!");
+            }
+            if (matchesProxyInfo(data, isRemote, home, remote)) {
+                matches.add(abstractName);
+            }
+        }
+        if (matches.isEmpty()) {
+            throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, false);
+        }
+        AbstractName match;
+        if (matches.size() == 1) {
+            match = (AbstractName) matches.iterator().next();
+        } else {
+            throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, matches.size() > 0);
+        }
+        return new AbstractNameQuery(match);
+    }
+
+    private AbstractNameQuery getImplicitMatch(String refName, Configuration context, String module, boolean isRemote, boolean isSession, String home, String remote) throws DeploymentException {
         Set gbeans;
         if (isSession) {
             gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), STATELESS));
@@ -189,7 +230,6 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
             AbstractName abstractName = (AbstractName) iterator.next();
             GBeanData data;
             try {
-                //TODO consider including interfaces in query
                 data = context.findGBeanData(new AbstractNameQuery(abstractName));
             } catch (GBeanNotFoundException e) {
                 throw new DeploymentException("We just got this ejb name out of a query! It must be there!");
@@ -217,7 +257,6 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
                 throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, matches.size() > 0);
             }
         }
-        //TODO consider including interfaces in query
         return new AbstractNameQuery(match);
     }
 

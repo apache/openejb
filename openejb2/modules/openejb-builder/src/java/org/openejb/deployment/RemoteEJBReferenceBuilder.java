@@ -65,7 +65,7 @@ import javax.naming.Reference;
  */
 public class RemoteEJBReferenceBuilder extends OpenEJBReferenceBuilder {
 
-    public Reference createEJBLocalRef(String requiredModule, String optionalModule, String name, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local, Configuration configuration) throws DeploymentException {
+    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
     }
 
