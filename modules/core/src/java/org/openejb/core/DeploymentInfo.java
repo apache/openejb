@@ -138,6 +138,8 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private HashMap securityRoleReferenceMap     = new HashMap();
     private HashSet methodsWithRemoteReturnTypes = null;
 	private EJBLocalHome ejbLocalHomeRef;
+    private String jarPath;
+
 
     /**
      * Constructs a DeploymentInfo object to represent the specified bean's 
@@ -1011,4 +1013,12 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     //
     // Castor CMP Container Specific
     //==================================
+
+    public void setJarPath(String jarPath) {
+        this.jarPath = jarPath;
+    }
+
+    public String getJarPath() {
+        return jarPath;
+    }
 }

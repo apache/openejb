@@ -101,9 +101,9 @@ public class ConfigUtils {
         } catch (FileNotFoundException e) {
             throw new OpenEJBException(messages.format("conf.1900", confFile, e.getLocalizedMessage()));
         } catch (MarshalException e) {
-            if (e.getException() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 throw new OpenEJBException(messages.format("conf.1110", confFile, e.getLocalizedMessage()));
-            } else if (e.getException() instanceof UnknownHostException) {
+            } else if (e.getCause() instanceof UnknownHostException) {
                 throw new OpenEJBException(messages.format("conf.1121", confFile, e.getLocalizedMessage()));
             } else {
                 throw new OpenEJBException(messages.format("conf.1120", confFile, e.getLocalizedMessage()));
@@ -145,7 +145,7 @@ public class ConfigUtils {
         } catch (IOException e) {
             throw new OpenEJBException(messages.format("conf.1040", confFile, e.getLocalizedMessage()));
         } catch (MarshalException e) {
-            if (e.getException() instanceof IOException) {
+            if (e.getCause() instanceof IOException) {
                 throw new OpenEJBException(messages.format("conf.1040", confFile, e.getLocalizedMessage()));
             } else {
                 throw new OpenEJBException(messages.format("conf.1050", confFile, e.getLocalizedMessage()));

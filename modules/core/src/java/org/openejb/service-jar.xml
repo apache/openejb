@@ -34,35 +34,31 @@
     provider-type="Container" 
     class-name="org.openejb.alt.containers.castor_cmp11.CastorCMP11_EntityContainer" >
 
-#  The default size of the method ready bean pools. 
-#  Every bean class gets its own pool of this size.
+    # The default size of the method ready bean pools.
+    # Every bean class gets its own pool of this size.
 
-PoolSize  100
+    PoolSize 100
 
-#  The name of the database.xml file that is used for global or 
-#  container managed transactions.  This will be used when the 
-#  TransactionManager is managing the transaction, such as when 
-#  the tx attribute is Supports (client has tx), RequiresNew, 
-#  Required or Manditory.
-#  
-#  Specifies the configuration for obtaining database connections
-#  and the mapping.xml schema which describes how beans map to 
-#  the database.
+    Engine  instantdb
 
-Global_TX_Database  conf/default.cmp_global_tx_database.xml
+    ConnectorName  Default JDBC Database
 
-#  The name of the database.xml file that is used for local or 
-#  unspecified transaction contexts.  This will be used when 
-#  the TransactionManager is not managing the transaction, such 
-#  as when the tx attribute is Supports (no client tx), 
-#  NotSupported, or Never.
-#  
-#  Specifies the configuration for obtaining database connections 
-#  and the mapping.xml schema which describes how beans map to 
-#  the database.
+    # Driver class name
 
-Local_TX_Database   conf/default.cmp_local_tx_database.xml
+    JdbcDriver org.enhydra.instantdb.jdbc.idbDriver
 
+    # Url for creating connections
+
+    JdbcUrl jdbc:idb:conf/instantdb.properties
+
+    # Default user name
+
+    UserName Admin
+
+    # Default password
+
+    Password pass
+  
 </ServiceProvider>
 
 <!--
@@ -213,7 +209,7 @@ JdbcDriver   org.enhydra.instantdb.jdbc.idbDriver
 
 #  Url for creating connections
 
-JdbcUrl      jdbc:idb:conf/default.idb_database.conf
+JdbcUrl jdbc:idb:conf/instantdb.properties
 
 #  Default user name
 

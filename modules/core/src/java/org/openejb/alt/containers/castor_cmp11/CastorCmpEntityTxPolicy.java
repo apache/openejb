@@ -6,6 +6,7 @@ import javax.ejb.EnterpriseBean;
 
 import org.exolab.castor.jdo.Database;
 import org.exolab.castor.jdo.JDO;
+import org.exolab.castor.jdo.JDOManager;
 import org.openejb.ApplicationException;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
@@ -35,8 +36,7 @@ public class CastorCmpEntityTxPolicy extends org.openejb.core.transaction.Transa
     protected TransactionPolicy policy;
     protected CastorCMP11_EntityContainer cmpContainer;
     
-    protected JDO jdo_ForLocalTransaction = null;
-    
+    protected JDOManager jdo_ForLocalTransaction = null;
 
     public CastorCmpEntityTxPolicy(TransactionPolicy policy){
         this.policy     = policy;
@@ -45,7 +45,7 @@ public class CastorCmpEntityTxPolicy extends org.openejb.core.transaction.Transa
 
         this.cmpContainer = getCastorContainer(container);
         
-        this.jdo_ForLocalTransaction  = cmpContainer.jdo_ForLocalTransaction;
+        this.jdo_ForLocalTransaction = cmpContainer.getLocalTxJDO();
     }
 
     private CastorCMP11_EntityContainer getCastorContainer(TransactionContainer container) {
@@ -60,10 +60,8 @@ public class CastorCmpEntityTxPolicy extends org.openejb.core.transaction.Transa
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         policy.beforeInvoke( instance, context );
 
-        DeploymentInfo deploymentInfo = context.callContext.getDeploymentInfo();
-        ClassLoader classLoader = deploymentInfo.getBeanClass().getClassLoader();
-        cmpContainer.jdo_ForLocalTransaction.setClassLoader(classLoader);
-        cmpContainer.jdo_ForGlobalTransaction.setClassLoader(classLoader);
+//        DeploymentInfo deploymentInfo = context.callContext.getDeploymentInfo();
+//        ClassLoader classLoader = deploymentInfo.getBeanClass().getClassLoader();
 
         Database db = null;
         try{

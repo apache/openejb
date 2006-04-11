@@ -48,34 +48,35 @@ import java.rmi.RemoteException;
 
 import javax.ejb.EJBObject;
 
-import org.exolab.castor.jdo.conf.Database;
+
 import org.exolab.castor.mapping.xml.MappingRoot;
+import org.castor.jdo.conf.Database;
 
 /**
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public interface CMPMappingDataObject extends EJBObject {
-	public Database getGlobalDatabase() throws RemoteException;
+    public Database getGlobalDatabase() throws RemoteException;
 
-	public String getGlobalDatabaseFileName() throws RemoteException;
+    public String getGlobalDatabaseFileName() throws RemoteException;
 
-	public Database getLocalDatabase() throws RemoteException;
+    public Database getLocalDatabase() throws RemoteException;
 
-	public String getLocalDatabaseFileName() throws RemoteException;
+    public String getLocalDatabaseFileName() throws RemoteException;
 
-	public MappingRoot getMappingRoot() throws RemoteException;
+    public MappingRoot getMappingRoot() throws RemoteException;
 
-	public String getMappingRootFileName() throws RemoteException;
+    public String getMappingRootFileName() throws RemoteException;
 
-	public void setGlobalDatabase(Database database) throws RemoteException;
+    public void setGlobalDatabase(Database database) throws RemoteException;
 
-	public void setGlobalDatabaseFileName(String string) throws RemoteException;
+    public void setGlobalDatabaseFileName(String string) throws RemoteException;
 
-	public void setLocalDatabase(Database database) throws RemoteException;
+    public void setLocalDatabase(Database database) throws RemoteException;
 
-	public void setLocalDatabaseFileName(String string) throws RemoteException;
+    public void setLocalDatabaseFileName(String string) throws RemoteException;
 
-	public void setMappingRoot(MappingRoot root) throws RemoteException;
+    public void setMappingRoot(MappingRoot root) throws RemoteException;
 
-	public void setMappingRootFileName(String string) throws RemoteException;
+    public void setMappingRootFileName(String string) throws RemoteException;
 }

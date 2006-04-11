@@ -692,6 +692,10 @@
       <java jar="${openejb.jar}" fork="yes">
         <arg value="test"/>
         <arg value="local"/>
+        <!--<jvmarg value="-Xdebug"/>-->
+        <!--<jvmarg value="-Xnoagent"/>-->
+        <!--<jvmarg value="-Djava.compiler=NONE"/>-->
+        <!--<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>-->
       </java>
     </goal>
 
