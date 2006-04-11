@@ -52,6 +52,11 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Map;
+import java.util.Iterator;
+import java.util.Collection;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -61,9 +66,10 @@ import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
 import org.exolab.castor.jdo.Database;
-import org.exolab.castor.jdo.JDO;
+import org.exolab.castor.jdo.JDOManager;
 import org.exolab.castor.jdo.OQLQuery;
 import org.exolab.castor.jdo.QueryResults;
 import org.exolab.castor.mapping.AccessMode;
@@ -76,13 +82,13 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
+import org.openejb.spi.SecurityService;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
-import org.openejb.loader.SystemInstance;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
@@ -183,46 +189,15 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     // the unique id for this container
     Object containerID = null;
 
-    /**
-     * The name of the database.xml file that is used for global or container managed transactions.
-     * This will be used when the TransactionManager is managing the transaction, such as when the
-     * tx attribute is Supports (client has tx), RequiresNew, Required or Manditory.
-     * specifies the configuration for obtaining a database connections and the mapping.xml
-     * schema which describes how beans map to the database.
-     */
-    protected String Global_TX_Database = null;
-
-    /**
-     * The name of the database.xml file that is used for local or unspecified transaction contexts.
-     * This will be used when the TransactionManager is not managing the transaction, such as when the
-     * tx attribute is Supports (no client tx), NotSupported, or Never.
-     * specifies the configuration for obtaining a database connections and the mapping.xml
-     * schema which describes how beans map to the database.
-     */
-    protected String Local_TX_Database = null;
-
-    /**
-     * This is a handle into a specific Castor JDO instance for a specific
-     * database mapping that has been configured to work with the transaciton manager.
-     */
-    protected JDO jdo_ForGlobalTransaction;
-
-    /**
-     * This is a handle into a specific Castor JDO instance for a specific
-     * database mapping that has been configured to manage its own transactions.
-     */
-    protected JDO jdo_ForLocalTransaction;
-
-    // manages the transactional scope according to the bean's transaction attributes
-    //CastorTransactionScopeHandler txScopeHandle;
-
-    // Manages the synchronization wrappers
     java.util.Hashtable syncWrappers = new java.util.Hashtable();
 
     // this map contains the Java language initial values for all all data types
     protected HashMap resetMap;
 
     private Properties props;
+
+    private JDOManager localJdoManager;
+    private JDOManager globalJdoManager;
 
     //DMB:TODO:1: make logger for life cycle info.
 
@@ -242,77 +217,28 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * @see org.openejb.Container
      */
     public void init( Object id, HashMap registry, Properties properties ) throws org.openejb.OpenEJBException {
-        containerID = id;
-        deploymentRegistry = registry;
-
-        this.props = properties;
-
         SafeToolkit toolkit = SafeToolkit.getToolkit( "CastorCMP11_EntityContainer" );
         SafeProperties safeProps = toolkit.getSafeProperties( properties );
 
-        poolsize = safeProps.getPropertyAsInt(EnvProps.IM_POOL_SIZE, 100 );
-        Global_TX_Database = safeProps.getProperty(EnvProps.GLOBAL_TX_DATABASE);
-        Local_TX_Database = safeProps.getProperty(EnvProps.LOCAL_TX_DATABASE);
+        int poolsize = safeProps.getPropertyAsInt(EnvProps.IM_POOL_SIZE, 100);
+        String engine = safeProps.getProperty("Engine");
+        String resourceName = safeProps.getProperty("ConnectorName");
+        String driverClassName = safeProps.getProperty("JdbcDriver");
+        String driverUrl = safeProps.getProperty("JdbcUrl");
+        String username = safeProps.getProperty("UserName");
+        String password = safeProps.getProperty("Password");
+        init(id, registry, poolsize, engine, resourceName, driverClassName, driverUrl, username, password);
+    }
 
-        File gTxDb = null;
-        File lTxDb = null;
-        try {
-            gTxDb = SystemInstance.get().getBase().getFile( Global_TX_Database );
-        } catch ( Exception e ) {
-            throw new OpenEJBException("Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. " + e.getMessage());
-        }
+    private void init(Object id, HashMap registry, int poolsize, String engine, String resourceName, String driverClassName, String driverUrl, String username, String password) throws OpenEJBException {
+        this.containerID = id;
+        this.deploymentRegistry = registry;
 
-        try {
-            lTxDb = SystemInstance.get().getBase().getFile( Local_TX_Database );
-        } catch ( Exception e ) {
-            throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. " + e.getMessage());
+        if (registry.size() == 0){
+            return;
         }
-
-        if (!gTxDb.exists()) {
-            throw new OpenEJBException(id+": The "+EnvProps.GLOBAL_TX_DATABASE+" file does not exit: "+gTxDb.getAbsolutePath());
-        }
-        if (!lTxDb.exists()) {
-            throw new OpenEJBException(id+": The "+EnvProps.LOCAL_TX_DATABASE+" file does not exit: "+lTxDb.getAbsolutePath());
-        }
-        if (gTxDb.equals(lTxDb)) {
-            throw new OpenEJBException(id+": The "+EnvProps.LOCAL_TX_DATABASE+" and "+EnvProps.GLOBAL_TX_DATABASE+" files cannot be the same: "+lTxDb.getAbsolutePath());
-        }
-
-        /*
-         * Castor JDO obtains a reference to the TransactionManager throught the InitialContext.
-         * The new InitialContext will use the deployment's JNDI Context, which is normal inside
-         * the container system, so we need to bind the TransactionManager to the deployment's name space
-         * The biggest problem with this is that the bean itself may access the TransactionManager if it
-         * knows the JNDI name, so we bind the TransactionManager into dynamically created transient name
-         * space based every time the container starts. It nearly impossible for the bean to anticipate
-         * and use the binding directly.  It may be possible, however, to locate it using a Context listing method.
-         */
 
         String transactionManagerJndiName = "java:openejb/TransactionManager";
-
-        /*
-         * This container uses two different JDO objects. One whose transactions are managed by a tx manager
-         * and which is not. The following code configures both.
-         */
-        jdo_ForGlobalTransaction = new JDO();
-
-        jdo_ForGlobalTransaction.setDatabasePooling( true );
-        jdo_ForGlobalTransaction.setConfiguration( gTxDb.getAbsolutePath() );
-        jdo_ForGlobalTransaction.setDatabaseName(EnvProps.GLOBAL_TX_DATABASE);
-        jdo_ForGlobalTransaction.setCallbackInterceptor( this );
-        jdo_ForGlobalTransaction.setInstanceFactory( this );
-        jdo_ForGlobalTransaction.setLogInterceptor( new CMPLogger(EnvProps.GLOBAL_TX_DATABASE) );
-
-        // Make sure the DB is registered as a as synchronization object before the transaction begins.
-        jdo_ForLocalTransaction = new JDO();
-
-
-        jdo_ForLocalTransaction.setConfiguration( lTxDb.getAbsolutePath() );
-        jdo_ForLocalTransaction.setDatabaseName(EnvProps.LOCAL_TX_DATABASE);
-        jdo_ForLocalTransaction.setCallbackInterceptor( this );
-        jdo_ForLocalTransaction.setInstanceFactory( this );
-        jdo_ForLocalTransaction.setLogInterceptor( new CMPLogger(EnvProps.LOCAL_TX_DATABASE) );
-
 
         /*
          * This block of code is necessary to avoid a chicken and egg problem.
@@ -324,116 +250,64 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
          * In addition the loop is leveraged for other oprations like creating
          * the method ready pool and the keyGenerator pool.
          */
-        org.openejb.DeploymentInfo[] deploys = this.deployments();
+        DeploymentInfo[] deploys = this.deployments();
 
-        /*
-         * the JndiTxReference will dynamically obtian a reference to the TransactionManger the first
-         * time it used. The same Reference is shared by all deployments, which is not a problem.
-         */
+        Map mappings = new HashMap();
         JndiTxReference txReference = new JndiTxReference();
         for ( int x = 0; x < deploys.length; x++ ) {
             org.openejb.core.DeploymentInfo di = ( org.openejb.core.DeploymentInfo ) deploys[x];
             di.setContainer( this );
 
-            // also added this line to create the Method Ready Pool for each deployment
-            methodReadyPoolMap.put( di.getDeploymentID(), new LinkedListStack( poolsize / 2 ) );
-            KeyGenerator kg = null;
+            URL url = null;
             try {
-                kg = KeyGeneratorFactory.createKeyGenerator( di );
-                di.setKeyGenerator( kg );
-            } catch ( Exception e ) {
-                logger.error( "Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e );
-                throw new org.openejb.SystemException( "Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e );
-            }
+                String jarPath = di.getJarPath();
+                File file = new File(jarPath);
 
-            // bind the TransactionManager to the dynamically generated JNDI name
-            try {
-                di.getJndiEnc().bind( transactionManagerJndiName, txReference );
-            } catch ( Exception e ) {
-                logger.error( "Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e );
-                throw new org.openejb.SystemException( "Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e );
-            }
-
-            try {
-                /**
-                 * The following code adds a findByPrimaryKey query-statement to the list of queries
-                 * held by the deployment descriptor. The container is required to generate this query
-                 * automatically, which is what this code does.
-                 */
-                StringBuffer findByPrimarKeyQuery = new StringBuffer("SELECT e FROM " + di.getBeanClass().getName() + " e WHERE ");
-
-                if ( kg.isKeyComplex() ) {
-
-                    Field[] pkFields = di.getPrimaryKeyClass().getFields();
-                    for ( int i = 1; i <= pkFields.length; i++ ) {
-                        findByPrimarKeyQuery.append("e." + pkFields[i - 1].getName() + " = $" + i);
-                        if ( ( i + 1 ) <= pkFields.length )
-                            findByPrimarKeyQuery.append(" AND ");
-                    }
-
+                if (file.isDirectory()){
+                    file = new File(file, "META-INF");
+                    file = new File(file, "cmp.mapping.xml");
+                    url = file.toURL();
                 } else {
-                    findByPrimarKeyQuery.append("e." + di.getPrimaryKeyField().getName() + " = $1");
+                    url = file.toURL();
+                    url = new URL("jar:"+ url.toExternalForm() + "!/META-INF/cmp.mapping.xml");
                 }
-
-                if (di.getHomeInterface() != null) {
-                    Method findByPrimaryKeyMethod = di.getHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
-                    di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery.toString() );
-                }
-                if (di.getLocalHomeInterface() != null) {
-                    Method findByPrimaryKeyMethod = di.getLocalHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
-                    di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery.toString() );
-                }
-            } catch ( Exception e ) {
-                throw new org.openejb.SystemException( "Could not generate a query statement for the findByPrimaryKey method of the deployment = " + di.getDeploymentID(), e );
+                mappings.put(url.toExternalForm(), url);
+            } catch (MalformedURLException e) {
+                throw new OpenEJBException("Error locating mapping file "+url+" for deployment "+di.getDeploymentID(), e);
             }
+            methodReadyPoolMap.put(di.getDeploymentID(), new LinkedListStack(poolsize / 2));
+
+            bindTransactionManagerReference(di, transactionManagerJndiName, txReference);
+
+            configureKeyGenerator(di);
         }
-        resetMap = new HashMap();
-        resetMap.put( byte.class, new Byte( ( byte ) 0 ) );
-        resetMap.put( boolean.class, new Boolean( false ) );
-        resetMap.put( char.class, new Character( ( char ) 0 ) );
-        resetMap.put( short.class, new Short( ( short ) 0 ) );
-        resetMap.put( int.class, new Integer( 0 ) );
-        resetMap.put( long.class, new Long( 0 ) );
-        resetMap.put( float.class, new Float( 0 ) );
-        resetMap.put( double.class, new Double( 0.0 ) );
-    }
 
-    boolean initialized;
 
-    /**
-     * I keep forgetting why I put this block outside the init method.
-     * Caused by: java.lang.NullPointerException
-     *  at org.openejb.OpenEJB.getJNDIContext(OpenEJB.java:415)
-     *  at org.openejb.core.ivm.naming.java.javaURLContextFactory.getContext(javaURLContextFactory.java:111)
-     *  at org.openejb.core.ivm.naming.java.javaURLContextFactory.getObjectInstance(javaURLContextFactory.java:87)
-     *  at javax.naming.spi.NamingManager.getURLObject(NamingManager.java:579)
-     *
-     * That's the reason.  A dependency problem.  Castor JDO depends on looking up the
-     * datasource from JNDI, which has not been fully constructed till after the containers
-     * are constructed.
-     */
-    protected void postInit() {
-        if (initialized) return;
-
-        Properties systemProperties = System.getProperties();
-        synchronized(systemProperties) {
-            String userDir = systemProperties.getProperty("user.dir");
             try{
-                File base = SystemInstance.get().getBase().getDirectory();
-                systemProperties.setProperty("user.dir", base.getAbsolutePath());
-                ClassLoader classLoader = deployments()[0].getBeanClass().getClassLoader();
-                jdo_ForLocalTransaction.setClassLoader(classLoader);
-                jdo_ForLocalTransaction.getDatabase();
-                jdo_ForGlobalTransaction.setClassLoader(classLoader);
-                jdo_ForGlobalTransaction.getDatabase();
-            } catch (Throwable e){
-                logger.fatal("Castor JDO initialization failed: "+e.getMessage(), e);
-                throw (IllegalStateException) new IllegalStateException("Castor JDO initialization failed").initCause(e);
-            } finally {
-                systemProperties.setProperty("user.dir",userDir);
+            JDOManagerBuilder jdoManagerBuilder = new JDOManagerBuilder(engine, transactionManagerJndiName);
+//            File mappingFile = new File("/Users/dblevins/work/openejb3/container/openejb-core/target/test-classes/conf/default.cmp_mapping.xml");
+
+            Collection urls = mappings.values();
+            for (Iterator iterator = urls.iterator(); iterator.hasNext();) {
+                URL url = (URL) iterator.next();
+                logger.debug("Mapping file: "+url.toExternalForm());
+                jdoManagerBuilder.addMapping(url);
             }
-            initialized = true;
+
+            globalJdoManager = jdoManagerBuilder.buildGlobalJDOManager("java:openejb/connector/"+resourceName);
+            globalJdoManager.setDatabasePooling(true);
+            globalJdoManager.setCallbackInterceptor(this);
+            globalJdoManager.setInstanceFactory(this);
+
+            localJdoManager = jdoManagerBuilder.buildLocalJDOManager(driverClassName, driverUrl, username, password);
+            localJdoManager.setCallbackInterceptor(this);
+            localJdoManager.setInstanceFactory(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new OpenEJBException("Unable to construct the Castor JDOManager objects: "+e.getClass().getName()+": "+e.getMessage(), e);
         }
+
+        buildResetMap();
     }
     //===============================
     // begin Container Implementation
@@ -513,7 +387,6 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      */
     public Object invoke( Object deployID, Method callMethod, Object[] args, Object primKey, Object securityIdentity )
     throws org.openejb.OpenEJBException {
-        postInit();
         try {
             org.openejb.core.DeploymentInfo deployInfo = ( org.openejb.core.DeploymentInfo ) this.getDeploymentInfo( deployID );
 
@@ -1400,7 +1273,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                 hashmap.
 
              */
-            return jdo_ForGlobalTransaction.getDatabase();
+            return globalJdoManager.getDatabase();
         }
     }
 
@@ -1572,6 +1445,14 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     public void updated( Object object ) {
     }
 
+    public JDOManager getGlobalTxJDO() {
+        return globalJdoManager;
+    }
+
+    public JDOManager getLocalTxJDO() {
+        return localJdoManager;
+    }
+
     public static class Key {
         Object deploymentID, primaryKey;
         Transaction transaction;
@@ -1626,7 +1507,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         }
 
     }
-    
+
     /*
      *  (non-Javadoc)
      * @see org.exolab.castor.persist.spi.CallbackInterceptor#loaded(java.lang.Object, org.exolab.castor.mapping.AccessMode)
@@ -1635,4 +1516,72 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
 		return loaded(loaded, mode.getId());
 	}
 
+    private void buildResetMap() {
+        resetMap = new HashMap();
+        resetMap.put(byte.class, new Byte((byte) 0));
+        resetMap.put(boolean.class, new Boolean(false));
+        resetMap.put(char.class, new Character((char) 0));
+        resetMap.put(short.class, new Short((short) 0));
+        resetMap.put(int.class, new Integer(0));
+        resetMap.put(long.class, new Long(0));
+        resetMap.put(float.class, new Float(0));
+        resetMap.put(double.class, new Double(0.0));
+    }
+
+    /**
+     * Castor JDO obtains a reference to the TransactionManager throught the InitialContext.
+     * The new InitialContext will use the deployment's JNDI Context, which is normal inside
+     * the container system, so we need to bind the TransactionManager to the deployment's name space
+     * The biggest problem with this is that the bean itself may access the TransactionManager if it
+     * knows the JNDI name, so we bind the TransactionManager into dynamically created transient name
+     * space based every time the container starts. It nearly impossible for the bean to anticipate
+     * and use the binding directly.  It may be possible, however, to locate it using a Context listing method.
+     */
+    private void bindTransactionManagerReference(org.openejb.core.DeploymentInfo di, String transactionManagerJndiName, JndiTxReference txReference) throws org.openejb.SystemException {
+        try {
+            di.getJndiEnc().bind(transactionManagerJndiName, txReference);
+        } catch (Exception e) {
+            logger.error("Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e);
+            throw new org.openejb.SystemException("Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e);
+        }
+    }
+
+    private void configureKeyGenerator(org.openejb.core.DeploymentInfo di) throws org.openejb.SystemException {
+        KeyGenerator kg = null;
+        try {
+            kg = KeyGeneratorFactory.createKeyGenerator(di);
+            di.setKeyGenerator(kg);
+        } catch (Exception e) {
+            logger.error("Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e);
+            throw new org.openejb.SystemException("Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e);
+        }
+
+        try {
+            StringBuffer findByPrimarKeyQuery = new StringBuffer("SELECT e FROM " + di.getBeanClass().getName() + " e WHERE ");
+
+            if (kg.isKeyComplex()) {
+
+                Field[] pkFields = di.getPrimaryKeyClass().getFields();
+                for (int i = 1; i <= pkFields.length; i++) {
+                    findByPrimarKeyQuery.append("e." + pkFields[i - 1].getName() + " = $" + i);
+                    if ((i + 1) <= pkFields.length)
+                        findByPrimarKeyQuery.append(" AND ");
+                }
+
+            } else {
+                findByPrimarKeyQuery.append("e." + di.getPrimaryKeyField().getName() + " = $1");
+            }
+
+            if (di.getHomeInterface() != null) {
+                Method findByPrimaryKeyMethod = di.getHomeInterface().getMethod("findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()});
+                di.addQuery(findByPrimaryKeyMethod, findByPrimarKeyQuery.toString());
+            }
+            if (di.getLocalHomeInterface() != null) {
+                Method findByPrimaryKeyMethod = di.getLocalHomeInterface().getMethod("findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()});
+                di.addQuery(findByPrimaryKeyMethod, findByPrimarKeyQuery.toString());
+            }
+        } catch (Exception e) {
+            throw new org.openejb.SystemException("Could not generate a query statement for the findByPrimaryKey method of the deployment = " + di.getDeploymentID(), e);
+        }
+    }
 }

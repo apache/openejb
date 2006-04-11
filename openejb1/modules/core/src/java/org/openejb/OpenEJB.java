@@ -448,4 +448,12 @@ public final class OpenEJB {
             }
         });
     }
+
+    public static void setContainerSystem(ContainerSystem containerSystem) {
+        OpenEJB.containerSystem = containerSystem;
+    }
+
+    public static void setTransactionManager(TransactionManager transactionManager) {
+        OpenEJB.transactionManager = transactionManager;
+    }
 }

@@ -47,7 +47,7 @@ package org.openejb.webadmin.main;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
-import org.exolab.castor.jdo.conf.Database;
+import org.castor.jdo.conf.Database;
 import org.exolab.castor.mapping.xml.MappingRoot;
 
 /**

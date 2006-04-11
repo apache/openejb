@@ -1,8 +1,13 @@
 <openejb>
 
   <Container id="Default CMP Container" ctype="CMP_ENTITY">
-    Global_TX_Database  META-INF/cmp.global-database.xml
-    Local_TX_Database   META-INF/cmp.local-database.xml
+    PoolSize    100
+    Engine      instantdb
+    ConnectorName  Default JDBC Database
+    JdbcDriver  org.enhydra.instantdb.jdbc.idbDriver
+    JdbcUrl     jdbc:idb:META-INF/instantdb.properties
+    UserName    Admin
+    Password    pass
   </Container>
 
   <Container id="Default BMP Container" ctype="BMP_ENTITY"/>
@@ -12,10 +17,10 @@
   <Container id="Default Stateless Container" ctype="STATELESS"/>
 
   <Connector id="Default JDBC Database">
-    JdbcDriver org.enhydra.instantdb.jdbc.idbDriver
-    JdbcUrl jdbc:idb:META-INF/instantdb.properties
-    UserName Admin
-    Password pass
+    JdbcDriver  org.enhydra.instantdb.jdbc.idbDriver
+    JdbcUrl     jdbc:idb:META-INF/instantdb.properties
+    UserName    Admin
+    Password    pass
   </Connector>
 
   <Deployments dir="."/>
