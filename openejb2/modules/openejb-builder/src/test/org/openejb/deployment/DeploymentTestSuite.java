@@ -160,7 +160,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             try {
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                List configurationDatas = earConfigBuilder.buildConfiguration(plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
+                List configurationDatas = earConfigBuilder.buildConfiguration(false, plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
                 configurationData = (ConfigurationData) configurationDatas.get(0);
                 // copy the configuration to force gbeans to serialize
                 configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();

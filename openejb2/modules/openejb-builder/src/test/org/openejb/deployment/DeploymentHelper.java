@@ -199,9 +199,9 @@ public class DeploymentHelper extends TestCase {
 
         //resourceadapter
         GBeanData geronimoWorkManagerGBean = bootstrap.addGBean("WorkManager", GeronimoWorkManagerGBean.getGBeanInfo());
-        geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
-        geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
-        geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setReferencePattern("SyncPool", threadPoolGBean.getAbstractName());
+        geronimoWorkManagerGBean.setReferencePattern("StartPool", threadPoolGBean.getAbstractName());
+        geronimoWorkManagerGBean.setReferencePattern("ScheduledPool", threadPoolGBean.getAbstractName());
         geronimoWorkManagerGBean.setReferencePattern("TransactionContextManager", tcmName);
 
         Map activationSpecInfoMap = new HashMap();
@@ -303,6 +303,10 @@ public class DeploymentHelper extends TestCase {
 
         public boolean containsConfiguration(Artifact configID) {
             return true;
+        }
+
+        public AbstractName getAbstractName() {
+            return null;
         }
 
         public String getObjectName() {
