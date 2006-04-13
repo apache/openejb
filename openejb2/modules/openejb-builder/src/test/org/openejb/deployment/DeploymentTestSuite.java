@@ -64,6 +64,7 @@ import junit.framework.Protectable;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import org.apache.geronimo.axis.builder.AxisBuilder;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -157,15 +158,19 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
             JarFile jarFile = null;
             ConfigurationData configurationData = null;
+            DeploymentContext context = null;
             try {
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                List configurationDatas = earConfigBuilder.buildConfiguration(false, plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
-                configurationData = (ConfigurationData) configurationDatas.get(0);
+                context = earConfigBuilder.buildConfiguration(false, plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
+                configurationData = (ConfigurationData) context.getConfigurationData();
                 // copy the configuration to force gbeans to serialize
                 configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();
                 configurationData.setConfigurationStore(deploymentHelper.configStore);
             } finally {
+                if (context != null) {
+                    context.close();
+                }
                 if (jarFile != null) {
                     jarFile.close();
                 }
