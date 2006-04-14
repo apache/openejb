@@ -46,12 +46,18 @@ package org.openejb.server.ejbd;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
+import java.util.Set;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
@@ -169,6 +175,17 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             if (index <= 0) {
                 // name not found... check if an object name was sent directly
                 index = containerIndex.getContainerIndex(name);
+            }
+            if (index <=0) {
+                //treat it as an abstractnameQuery and try to resolve it.
+                AbstractNameQuery abstractNameQuery = new AbstractNameQuery(URI.create(name));
+                Kernel kernel = KernelRegistry.getSingleKernel();
+                Set results = kernel.listGBeans(abstractNameQuery);
+                if (results.size() != 1) {
+                    throw new NamingException("Name query " + abstractNameQuery + " not satisfied in kernel, matches: " + results);
+                }
+                AbstractName target = (AbstractName) results.iterator().next();
+                index = containerIndex.getContainerIndex(target.toString());
             }
             if (index > 0) {
                 EJBContainer deployment = containerIndex.getContainer(index);
