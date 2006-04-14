@@ -59,6 +59,7 @@ import javax.naming.spi.ObjectFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.openejb.client.Client;
 import org.openejb.client.EJBHomeHandler;
 import org.openejb.client.EJBHomeProxy;
@@ -104,10 +105,10 @@ public class RemoteEJBObjectFactory implements ObjectFactory {
         }
 
         //TODO configid BROKEN
-        String containerId = (String) addr.getContent();
-        JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, containerId);
+        AbstractNameQuery containerId = (AbstractNameQuery) addr.getContent();
+        JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, containerId.toString());
 
-        JNDIResponse res = null;
+        JNDIResponse res;
         ServerMetaData server;
         try{
             server = new ServerMetaData(RemoteEJBObjectFactory.IP, RemoteEJBObjectFactory.PORT);
