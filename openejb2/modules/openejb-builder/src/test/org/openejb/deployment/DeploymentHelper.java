@@ -49,7 +49,6 @@ package org.openejb.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -57,10 +56,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
@@ -86,6 +83,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
@@ -272,7 +270,7 @@ public class DeploymentHelper extends TestCase {
         super.tearDown();
     }
 
-    public static class MockConfigStore implements ConfigurationStore {
+    public static class MockConfigStore extends NullConfigurationStore {
         private static final Map locations = new HashMap();
         private Map configs = new HashMap();
 
@@ -306,18 +304,6 @@ public class DeploymentHelper extends TestCase {
             return true;
         }
 
-        public AbstractName getAbstractName() {
-            return null;
-        }
-
-        public String getObjectName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
-        }
-
         public File createNewConfigurationDir(Artifact configId) {
             try {
                 File file = DeploymentUtil.createTempDir();
@@ -344,10 +330,6 @@ public class DeploymentHelper extends TestCase {
             infoBuilder.setConstructor(new String[] {"baseURL"});
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
-        }
-
-        public void exportConfiguration(Artifact arg0, OutputStream arg1) throws IOException, NoSuchConfigException {
-            throw new UnsupportedOperationException();
         }
     }
 
