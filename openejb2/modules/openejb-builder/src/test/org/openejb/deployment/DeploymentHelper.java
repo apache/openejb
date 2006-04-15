@@ -49,6 +49,7 @@ package org.openejb.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -343,6 +344,10 @@ public class DeploymentHelper extends TestCase {
             infoBuilder.setConstructor(new String[] {"baseURL"});
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
+        }
+
+        public void exportConfiguration(Artifact arg0, OutputStream arg1) throws IOException, NoSuchConfigException {
+            throw new UnsupportedOperationException();
         }
     }
 
