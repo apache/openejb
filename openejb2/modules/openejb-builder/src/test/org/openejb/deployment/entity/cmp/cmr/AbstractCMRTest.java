@@ -156,6 +156,7 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
 
         try {
             EARContext earContext = new EARContext(tempDir,
+                    null,
                     new Environment(testConfigurationArtifact),
                     ConfigurationModuleType.EJB,
                     kernel.getNaming(),
