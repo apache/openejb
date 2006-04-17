@@ -177,14 +177,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "ejb", null, true, null, naming);
+        return createModule(plan, moduleFile, "ejb", null, null, null, naming);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName, naming);
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName, Naming naming) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -211,6 +211,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Error parsing ejb-jar.xml", e);
         }
 
+        boolean standAlone = earEnvironment == null;
         OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
         if (openejbJar == null)
         { // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
@@ -219,6 +220,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         EnvironmentType environmentType = openejbJar.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        if (earEnvironment != null) {
+            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
+            environment = earEnvironment;
+        }
+
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
