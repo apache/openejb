@@ -54,7 +54,6 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.jar.JarFile;
 import java.util.Collections;
-import java.util.List;
 import java.rmi.MarshalledObject;
 
 import javax.sql.DataSource;
@@ -71,7 +70,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
@@ -163,7 +161,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
                 context = earConfigBuilder.buildConfiguration(false, plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
-                configurationData = (ConfigurationData) context.getConfigurationData();
+                configurationData = context.getConfigurationData();
                 // copy the configuration to force gbeans to serialize
                 configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();
                 configurationData.setConfigurationStore(deploymentHelper.configStore);
@@ -200,11 +198,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
 
             // start the configuration
-            Configuration configuration = deploymentHelper.configurationManager.loadConfiguration(configurationData);
-            deploymentHelper.configurationManager.startConfiguration(configuration);
+            deploymentHelper.configurationManager.loadConfiguration(configurationData);
+            deploymentHelper.configurationManager.startConfiguration(configurationData.getId());
 
             // get the configuration classloader
-            applicationClassLoader = configuration.getConfigurationClassLoader();
+            applicationClassLoader = deploymentHelper.configurationManager.getConfiguration(configurationData.getId()).getConfigurationClassLoader();
         } catch (Error e) {
             DeploymentUtil.recursiveDelete(tempDir);
             throw e;

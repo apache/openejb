@@ -68,7 +68,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -254,14 +253,15 @@ public class EJBQLTest extends DeploymentHelper {
         container.setAbstractName(containerName);
 
         // Wrap the GBeanData in a configuration
-        ConfigurationData config = new ConfigurationData(new Artifact("some", "test", "42", "car"), kernel.getNaming());
-        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
-        config.addGBean(container);
+        Artifact configurationId = new Artifact("some", "test", "42", "car");
+        ConfigurationData configurationData = new ConfigurationData(configurationId, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        configurationData.addGBean(container);
 
         // Start the configuration
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration = configurationManager.loadConfiguration(config);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationId);
     }
 
     protected void tearDown() throws Exception {

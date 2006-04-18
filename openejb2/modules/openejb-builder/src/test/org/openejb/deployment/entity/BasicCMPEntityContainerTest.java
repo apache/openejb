@@ -47,41 +47,32 @@
  */
 package org.openejb.deployment.entity;
 
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.rmi.NoSuchObjectException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.io.Serializable;
-import java.io.PrintWriter;
-
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.ContainerIndex;
-import org.openejb.entity.cmp.CMPEJBContainer;
 import org.openejb.deployment.CMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
-import org.openejb.deployment.DeploymentTestContants;
-import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.entity.cmp.CMPEJBContainer;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
@@ -461,12 +452,12 @@ public class BasicCMPEntityContainerTest extends DeploymentHelper {
                 null, container);
 
         container.setReferencePattern("Timer", txTimerName);
-        ConfigurationData config = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
-        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
-        config.addGBean(container);
+        ConfigurationData configurationData = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        configurationData.addGBean(container);
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration = configurationManager.loadConfiguration(config);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(testConfigurationArtifact);
     }
 
     protected void tearDown() throws Exception {
@@ -476,6 +467,7 @@ public class BasicCMPEntityContainerTest extends DeploymentHelper {
     }
 
     private static class WrapperDataSource implements DataSource, Serializable {
+        private static final long serialVersionUID = -1035588858939680910L;
         private transient DataSource ds;
 
         public Connection getConnection() throws SQLException {

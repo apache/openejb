@@ -44,13 +44,10 @@
  */
 package org.openejb.deployment.mdb;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -94,12 +91,12 @@ public class BasicMDBContainerTest extends DeploymentHelper {
         container.setReferencePattern("TransactionContextManager", tcmName);
         container.setReferencePattern("TrackedConnectionAssociator", ctcName);
 
-        ConfigurationData config = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
-        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
-        config.addGBean(container);
+        ConfigurationData configurationData = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        configurationData.addGBean(container);
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration = configurationManager.loadConfiguration(config);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(testConfigurationArtifact);
     }
 
     protected void tearDown() throws Exception {

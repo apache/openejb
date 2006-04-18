@@ -50,7 +50,6 @@ package org.openejb.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -81,6 +80,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
+import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
@@ -314,12 +314,13 @@ public class DeploymentHelper extends TestCase {
             }
         }
 
-        public URL resolve(Artifact configId, String moduleName, URI uri) throws NoSuchConfigException, MalformedURLException {
+        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
             File file = (File) locations.get(configId);
             if (file == null) {
-                return baseURL;
+                throw new NoSuchConfigException(configId);
             }
-            return new URL(file.toURL(), uri.toString());
+            Set matches = IOUtil.search(file, pattern);
+            return matches;
         }
 
         public final static GBeanInfo GBEAN_INFO;

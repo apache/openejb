@@ -47,23 +47,17 @@
  */
 package org.openejb.deployment.entity;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.ejb.EJBObject;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -164,12 +158,12 @@ public class BasicBMPEntityContainerTest extends DeploymentHelper {
                 container);
 
         container.setReferencePattern("Timer", txTimerName);
-        ConfigurationData config = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
-        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
-        config.addGBean(container);
+        ConfigurationData configurationData = new ConfigurationData(testConfigurationArtifact, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        configurationData.addGBean(container);
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration = configurationManager.loadConfiguration(config);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(testConfigurationArtifact);
     }
 
     protected void tearDown() throws Exception {

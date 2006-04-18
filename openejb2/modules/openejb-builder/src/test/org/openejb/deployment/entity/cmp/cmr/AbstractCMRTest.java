@@ -49,7 +49,6 @@ package org.openejb.deployment.entity.cmp.cmr;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,12 +62,11 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -233,18 +231,19 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
         return container;
     }
 
-    private void buildAndStartConfiguration(String name, GBeanData containers[]) throws NoSuchConfigException, IOException, InvalidConfigException {
+    private void buildAndStartConfiguration(String name, GBeanData containers[]) throws NoSuchConfigException, LifecycleException {
         // Wrap the GBeanData in a configuration
-        ConfigurationData config = new ConfigurationData(new Artifact("test", name, "42", "car"), kernel.getNaming());
-        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        Artifact configurationId = new Artifact("test", name, "42", "car");
+        ConfigurationData configurationData = new ConfigurationData(configurationId, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
         for (int i = 0; i < containers.length; i++) {
-            config.addGBean(containers[i]);
+            configurationData.addGBean(containers[i]);
         }
 
         // Start the configuration
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration = configurationManager.loadConfiguration(config);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationId);
     }
 
     protected void tearDown() throws Exception {

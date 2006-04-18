@@ -52,20 +52,19 @@ import java.util.HashSet;
 
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.openejb.GenericEJBContainer;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
-import org.openejb.GenericEJBContainer;
 
 /**
  * @version $Revision$ $Date$
@@ -190,14 +189,15 @@ public class BasicStatelessContainerTest extends DeploymentHelper {
         container.setAbstractName(CONTAINER_NAME);
 
         // Wrap the GBeanData in a configuration
-        ConfigurationData config = new ConfigurationData(new Artifact("some", "test", "42", "car"), kernel.getNaming());
-        config.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
-        config.addGBean(container);
+        Artifact configurationId = new Artifact("some", "test", "42", "car");
+        ConfigurationData configurationData = new ConfigurationData(configurationId, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(baseId, ImportType.ALL));
+        configurationData.addGBean(container);
 
         // Start the configuration
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        Configuration configuration = configurationManager.loadConfiguration(config);
-        configurationManager.startConfiguration(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationId);
     }
 
     protected void tearDown() throws Exception {
