@@ -18,7 +18,7 @@ REM================================================
 
 SETLOCAL
 
-SET COMMAND=%0
+SET COMMAND=%CD%/%0
 SET OPENEJB_HOME=%COMMAND:~0,-16%
 
 echo OPENEJB_HOME=%OPENEJB_HOME%
