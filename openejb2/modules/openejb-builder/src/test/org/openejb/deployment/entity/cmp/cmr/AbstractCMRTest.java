@@ -73,6 +73,10 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -152,6 +156,8 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
         File tempDir = DeploymentUtil.createTempDir();
 
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
         try {
             EARContext earContext = new EARContext(tempDir,
                     null,
@@ -160,6 +166,7 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
                     kernel.getNaming(),
                     Collections.singleton(repository),
                     Collections.singleton(configStore),
+                    artifactResolver,
                     new AbstractNameQuery(serverName),
                     moduleName,
                     new AbstractNameQuery(tcmName),

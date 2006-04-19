@@ -70,6 +70,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
@@ -157,10 +161,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             JarFile jarFile = null;
             ConfigurationData configurationData = null;
             DeploymentContext context = null;
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             try {
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                context = earConfigBuilder.buildConfiguration(false, earConfigBuilder.getConfigurationID(plan, jarFile), plan, jarFile, Collections.singleton(deploymentHelper.configStore), deploymentHelper.configStore);
+                context = earConfigBuilder.buildConfiguration(false, earConfigBuilder.getConfigurationID(plan, jarFile), plan, jarFile, Collections.singleton(deploymentHelper.configStore), artifactResolver, deploymentHelper.configStore);
                 configurationData = context.getConfigurationData();
                 // copy the configuration to force gbeans to serialize
                 configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();
