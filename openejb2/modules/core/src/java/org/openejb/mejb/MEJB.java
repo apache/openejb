@@ -61,6 +61,7 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.MBeanServer;
 import javax.management.j2ee.Management;
 import javax.management.j2ee.ManagementHome;
 import javax.security.auth.Subject;
@@ -71,7 +72,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInvocation;
@@ -96,8 +97,13 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
     private final FastClass fastClass;
     private final String ejbName;
 
-    public MEJB(String objectName, Kernel kernel) {
-        super(objectName, kernel);
+    // todo remove this as soon as Geronimo supports factory beans
+    public MEJB(String objectName, MBeanServerReference mbeanServerReference) {
+        this(objectName, mbeanServerReference.getMBeanServer());
+    }
+
+    public MEJB(String objectName, MBeanServer mbeanServer) {
+        super(objectName, mbeanServer);
         this.objectName = objectName;
         String ejbName;
         try {
@@ -227,7 +233,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
             return ejbInvocation.createResult(fastClass.invoke(methodIndex, this, ejbInvocation.getArguments()));
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
-            if (t instanceof Exception && t instanceof RuntimeException == false) {
+            if (t instanceof Exception && !(t instanceof RuntimeException)) {
                 // checked exception - which we simply include in the result
                 return ejbInvocation.createExceptionResult((Exception)t);
             } else {
@@ -240,9 +246,9 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
-        infoBuilder.addInterface(EJBContainer.class);
+        infoBuilder.addReference("MBeanServerReference", MBeanServerReference.class);
 
-        infoBuilder.setConstructor(new String[]{"objectName", "kernel"});
+        infoBuilder.setConstructor(new String[]{"objectName", "MBeanServerReference"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

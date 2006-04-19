@@ -59,7 +59,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.ExecutorTaskFactory;
 import org.apache.geronimo.timer.ThreadPooledTimer;
@@ -70,15 +70,9 @@ import org.apache.geronimo.timer.vm.VMWorkerPersistence;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.XidFactoryImpl;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.Invocation;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
-import org.openejb.dispatch.VirtualOperation;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.security.PermissionManager;
-import org.openejb.transaction.TransactionPolicyManager;
 
 /**
  *
@@ -93,7 +87,7 @@ public class TimerServiceImplTest extends TestCase {
 
     private static final String key = "testThreadPooledTimer";
     private static final String kernelName = "testKernel";
-    private static final ObjectName timerSourceName = JMXUtil.getObjectName("test:type=TimerService");
+    private static final ObjectName timerSourceName = ObjectNameUtil.getObjectName("test:type=TimerService");
     private final ClassLoader classLoader = this.getClass().getClassLoader();
     private ThreadPool threadPool;
     private ThreadPooledTimer threadPooledTimer;
@@ -110,7 +104,7 @@ public class TimerServiceImplTest extends TestCase {
     private Serializable userKey = "test user info";
 
     protected void setUp() throws Exception {
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, 
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000,
                 new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);

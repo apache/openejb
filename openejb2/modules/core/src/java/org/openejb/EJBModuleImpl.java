@@ -59,8 +59,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
@@ -86,7 +85,7 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
 
     public EJBModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionFactorySource connectionFactory, TransactionManagerDelegate tmDelegate, TransactionContextManager transactionContextManager, Collection ejbs) {
         this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.server = server;
