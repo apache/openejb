@@ -108,13 +108,11 @@ class SessionBuilder extends BeanBuilder {
 
     private final static String DEFAULT_AUTH_REALM_NAME = "Geronimo Web Service";
 
-    private final WebServiceBuilder webServiceBuilder;
     private final GBeanData linkDataTemplate;
 
-    public SessionBuilder(OpenEJBModuleBuilder builder, GBeanData linkDataTemplate, WebServiceBuilder webServiceBuilder) {
+    public SessionBuilder(OpenEJBModuleBuilder builder, GBeanData linkDataTemplate) {
         super(builder);
         this.linkDataTemplate = linkDataTemplate;
-        this.webServiceBuilder = webServiceBuilder;
     }
 
     private AbstractName createEJBObjectName(EARContext earContext, AbstractName moduleBaseName, SessionBeanType sessionBean) {
@@ -199,7 +197,7 @@ class SessionBuilder extends BeanBuilder {
         linkData.setAbstractName(linkName);
         Object portInfo = portInfoMap.get(ejbName);
         //let the webServiceBuilder configure its part
-        webServiceBuilder.configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
+        moduleBuilder.getWebServiceBuilder().configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
         //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());

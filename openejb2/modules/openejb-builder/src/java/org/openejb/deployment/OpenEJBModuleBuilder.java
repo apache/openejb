@@ -61,6 +61,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -140,7 +141,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
-    private final WebServiceBuilder webServiceBuilder;
+    private final SingleElementCollection webServiceBuilder;
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private static QName OPENEJBJAR_QNAME = OpenejbOpenejbJarDocument.type.getDocumentElementName();
     private static final String OPENEJBJAR_NAMESPACE = OPENEJBJAR_QNAME.getNamespaceURI();
@@ -152,19 +153,27 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         SchemaConversionUtils.registerNamespaceConversions(conversions);
     }
 
-    public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, Object webServiceLinkTemplate, WebServiceBuilder webServiceBuilder, Kernel kernel) throws GBeanNotFoundException {
-        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), webServiceBuilder);
+    public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, Object webServiceLinkTemplate, Collection webServiceBuilder, Kernel kernel) throws GBeanNotFoundException {
+        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), new SingleElementCollection(webServiceBuilder));
     }
 
     public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder) {
+        this(defaultEnvironment, listener, linkTemplate, new SingleElementCollection(webServiceBuilder));
+    }
+
+    private OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, SingleElementCollection webServiceBuilder) {
         this.defaultEnvironment = defaultEnvironment;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
-        this.sessionBuilder = new SessionBuilder(this, linkTemplate, webServiceBuilder);
+        this.sessionBuilder = new SessionBuilder(this, linkTemplate);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.webServiceBuilder = webServiceBuilder;
+    }
+
+    public WebServiceBuilder getWebServiceBuilder() {
+        return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
@@ -483,7 +492,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         URL wsDDUrl;
         try {
             wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-            portInfoMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
+            portInfoMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
         } catch (MalformedURLException e) {
             //there is no webservices file
         }
@@ -576,4 +585,5 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }
