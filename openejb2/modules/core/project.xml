@@ -143,8 +143,8 @@
         </dependency>
     
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-corba_2.3_spec</artifactId>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba-2.3</artifactId>
             <version>${geronimo_spec_corba_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
