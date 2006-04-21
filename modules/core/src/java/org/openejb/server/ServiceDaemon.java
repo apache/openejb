@@ -108,8 +108,7 @@ public class ServiceDaemon implements ServerService, Runnable {
             stop = false;
             // Do our stuff
             try {
-//                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
-                serverSocket = new ServerSocket(port, 20);                
+                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
                 port = serverSocket.getLocalPort();
                 ip = serverSocket.getInetAddress().getHostAddress();
 
