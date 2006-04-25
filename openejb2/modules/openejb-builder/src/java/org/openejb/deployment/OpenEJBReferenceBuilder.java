@@ -134,10 +134,6 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         return new CORBAProxyReference(configuration.getId(), containerNameQuery, nsCorbaloc, objectName, home);
     }
 
-    public Object createHandleDelegateReference() {
-        return new CORBAHandleDelegate.HandleDelegateReference();
-    }
-
     public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
         AbstractNameQuery match;
         if (query != null) {

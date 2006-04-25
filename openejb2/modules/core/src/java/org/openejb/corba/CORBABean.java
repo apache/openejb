@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.net.InetSocketAddress;
 
+import javax.ejb.spi.HandleDelegate;
+
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -112,6 +114,10 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
 
     public ORB getORB() {
         return orb;
+    }
+
+    public HandleDelegate getHandleDelegate() {
+        return new CORBAHandleDelegate();
     }
 
     public POA getRootPOA() {
@@ -202,6 +208,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
         infoFactory.addAttribute("ORB", ORB.class, false);
         infoFactory.addAttribute("rootPOA", POA.class, false);
+
+        infoFactory.addAttribute("handleDelegate", HandleDelegate.class, false);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
