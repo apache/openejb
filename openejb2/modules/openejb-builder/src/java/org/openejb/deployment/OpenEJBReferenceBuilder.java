@@ -47,6 +47,18 @@
  */
 package org.openejb.deployment;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Reference;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.AbstractName;
@@ -59,21 +71,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.openejb.corba.CORBAHandleDelegate;
 import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.proxy.ProxyInfo;
-
-import javax.naming.Reference;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * @version $Revision$ $Date$
@@ -109,7 +109,9 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         try {
             gbeanData = configuration.findGBeanData(query);
         } catch (GBeanNotFoundException e) {
-            throw new DeploymentException("Could not locate ejb matching " + query + " in configuration " + configuration.getId());
+            return;
+            //we can't check anything, hope for the best.
+//            throw new DeploymentException("Could not locate ejb matching " + query + " in configuration " + configuration.getId());
         }
         ProxyInfo proxyInfo = (ProxyInfo) gbeanData.getAttribute("proxyInfo");
         if (proxyInfo == null) {
