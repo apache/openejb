@@ -174,12 +174,13 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         } else {
             int index = containerIndex.getContainerIndexByJndiName(name);
             if (index <= 0) {
-                // name not found... check if an object name was sent directly
-                index = containerIndex.getContainerIndex(name);
+                // name not found... check if an abstract name was sent directly
+                index = containerIndex.getContainerIndex(req.getRequestString());
             }
             if (index <=0) {
-                //treat it as an abstractnameQuery and try to resolve it.
-                AbstractNameQuery abstractNameQuery = new AbstractNameQuery(URI.create(name));
+                //treat it as an abstractnameQuery and try to resolve it.  Don't remove a leading /
+                URI uri = URI.create(req.getRequestString());
+                AbstractNameQuery abstractNameQuery = new AbstractNameQuery(uri);
                 Kernel kernel = KernelRegistry.getSingleKernel();
                 Set results = kernel.listGBeans(abstractNameQuery);
                 if (results.size() != 1) {
@@ -206,6 +207,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
 
         }
     }
+
     private void replyWithFatalError(ObjectOutputStream out, Throwable error, String message) {
         log.error(message, error);
 

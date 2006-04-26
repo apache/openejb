@@ -206,6 +206,9 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
             } catch (URISyntaxException e) {
                 log.error("containerId is not a valid URI: " + containerID);
                 return -1;
+            } catch (IllegalArgumentException e) {
+                //not a valid abstract name
+                return -1;
             }
             EJBContainer ejbContainer;
             try {
