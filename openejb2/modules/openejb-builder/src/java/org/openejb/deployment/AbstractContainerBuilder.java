@@ -517,18 +517,26 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     }
 
     protected AbstractNameQuery getTimerName(Class beanClass) {
-        AbstractNameQuery timerName = null;
-        if (TimedObject.class.isAssignableFrom(beanClass)) {
-            InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
-            TransactionPolicy transactionPolicy = TransactionPolicies.getTransactionPolicy(getTransactionPolicySource().getTransactionPolicy("timeout", signature));
-            boolean isTransacted = transactionPolicy == ContainerPolicy.Required || transactionPolicy == ContainerPolicy.RequiresNew;
-            if (isTransacted) {
-                timerName = getTransactedTimerName();
-            } else {
-                timerName = getNonTransactedTimerName();
-            }
+        // use reflection to determine if class implements TimedObject
+        // todo remove the reflection code when we adjust the class loaders so deployment sees the same classes as the deployers
+        Class timedObjectClass = null;
+        try {
+            timedObjectClass = beanClass.getClassLoader().loadClass("javax.ejb.TimedObject");
+        } catch (ClassNotFoundException e) {
+            return null;
         }
-        return timerName;
+        if (!timedObjectClass.isAssignableFrom(beanClass)) {
+            return null;
+        }
+
+        InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
+        TransactionPolicy transactionPolicy = TransactionPolicies.getTransactionPolicy(getTransactionPolicySource().getTransactionPolicy("timeout", signature));
+        boolean isTransacted = transactionPolicy == ContainerPolicy.Required || transactionPolicy == ContainerPolicy.RequiresNew;
+        if (isTransacted) {
+            return getTransactedTimerName();
+        } else {
+            return getNonTransactedTimerName();
+        }
     }
 
 }
