@@ -204,13 +204,13 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
             }
         }
         if (matches.isEmpty()) {
-            throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, false);
+            throw new UnresolvedEJBRefException(refName, !isRemote, isSession, home, remote, false);
         }
         AbstractName match;
         if (matches.size() == 1) {
             match = (AbstractName) matches.iterator().next();
         } else {
-            throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, matches.size() > 0);
+            throw new UnresolvedEJBRefException(refName, !isRemote, isSession, home, remote, matches.size() > 0);
         }
         return new AbstractNameQuery(match);
     }
