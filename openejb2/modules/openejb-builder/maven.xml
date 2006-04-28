@@ -7,6 +7,13 @@
     xmlns:ant="jelly:ant"
     xmlns:xmlbeans="xmlbeans2:maven">
 
+    <!-- Construct dependency lists for inclusion in generated jar. -->
+<!-- TODO THIS SHOULD BE ENABLED it doesn't work for me right now????
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+    </postGoal>
+-->
+
     <preGoal name="java:compile">
         <xmlbeans:schema2java
             maven.xmlbeans2.sourceschema="schema/openejb-jar-2.1.xsd,schema/corba-tss-config-2.0.xsd,schema/corba-css-config-2.0.xsd"/>

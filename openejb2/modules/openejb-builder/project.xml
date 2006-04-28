@@ -48,6 +48,9 @@
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
