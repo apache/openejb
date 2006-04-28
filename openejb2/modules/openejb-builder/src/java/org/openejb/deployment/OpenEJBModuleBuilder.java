@@ -529,10 +529,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     private static AbstractNameQuery getResourceContainerId(GerResourceLocatorType resourceLocator, EARContext earContext) throws GBeanNotFoundException {
         AbstractNameQuery resourceQuery;
         if (resourceLocator.isSetResourceLink()) {
-            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else {
             //construct name from components
-            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
         Configuration configuration = earContext.getConfiguration();
         //throws GBeanNotFoundException if not satisfied

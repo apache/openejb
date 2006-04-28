@@ -64,7 +64,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -308,11 +307,11 @@ class SessionBuilder extends BeanBuilder {
                 String tssBeanLink = openejbSessionBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null ? null : moduleURI.toString(), tssBeanLink, moduleType);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null ? null : moduleURI.toString(), tssBeanLink, moduleType, NameFactory.EJB_MODULE);
                 try {
                     earContext.getConfiguration().findGBean(tssBeanObjectName);
                 } catch (GBeanNotFoundException e) {
-                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null);
+                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null, NameFactory.EJB_MODULE);
                     try {
                         earContext.getConfiguration().findGBean(tssBeanObjectName);
                     } catch (GBeanNotFoundException e1) {
@@ -320,7 +319,7 @@ class SessionBuilder extends BeanBuilder {
                     }
                 }
             } else if (openejbSessionBean.isSetTss()) {
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbSessionBean.getTss(), NameFactory.CORBA_TSS);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbSessionBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE);
             }
         }
         if (tssBeanObjectName != null && openejbSessionBean.getJndiNameArray().length == 0) {

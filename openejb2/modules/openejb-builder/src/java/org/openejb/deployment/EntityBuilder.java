@@ -163,11 +163,11 @@ class EntityBuilder extends BeanBuilder {
                 String tssBeanLink = openejbEntityBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), tssBeanLink, moduleType);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), tssBeanLink, moduleType, NameFactory.EJB_MODULE);
                 try {
                     earContext.getConfiguration().findGBean(tssBeanObjectName);
                 } catch (GBeanNotFoundException e) {
-                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null);
+                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null, NameFactory.EJB_MODULE);
                     try {
                         earContext.getConfiguration().findGBean(tssBeanObjectName);
                     } catch (GBeanNotFoundException e1) {
@@ -175,7 +175,7 @@ class EntityBuilder extends BeanBuilder {
                     }
                 }
             } else if (openejbEntityBean.isSetTss()) {
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbEntityBean.getTss(), NameFactory.CORBA_TSS);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbEntityBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE);
             }
         }
         if (tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {

@@ -51,9 +51,6 @@ import java.beans.Introspector;
 import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
-import java.util.Hashtable;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -276,10 +273,10 @@ class MdbBuilder extends BeanBuilder {
 
     private static AbstractNameQuery getResourceAdapterNameQuery(GerResourceLocatorType resourceLocator, String type) {
         if (resourceLocator.isSetResourceLink()) {
-            return ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), type);
+            return ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), type, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
         //construct name from components
-        return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), type);
+        return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), type, NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 
     protected void processEnvironmentRefs(MDBContainerBuilder builder, EARContext earContext, EJBModule ejbModule, MessageDrivenBeanType messageDrivenBean, OpenejbMessageDrivenBeanType openejbMessageDrivenBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
