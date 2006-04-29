@@ -71,6 +71,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.openejb.EJBComponentType;
@@ -89,7 +90,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
     private static final int CREATE_INDEX = -1;
     private static final String DEFAULT_EJB_NAME = "ejb/mgmt/MEJB";
 
-    private final String objectName;
+    private final String containerId;
     private final InterfaceMethodSignature[] signatures;
     private final int[] methodMap;
     private final EJBProxyFactory proxyFactory;
@@ -98,16 +99,16 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
     private final String ejbName;
 
     // todo remove this as soon as Geronimo supports factory beans
-    public MEJB(String objectName, MBeanServerReference mbeanServerReference) {
-        this(objectName, mbeanServerReference.getMBeanServer());
+    public MEJB(AbstractName abstractName, MBeanServerReference mbeanServerReference) {
+        this(abstractName.toString(), mbeanServerReference.getMBeanServer());
     }
 
-    public MEJB(String objectName, MBeanServer mbeanServer) {
-        super(objectName, mbeanServer);
-        this.objectName = objectName;
+    public MEJB(String containerId, MBeanServer mbeanServer) {
+        super(containerId, mbeanServer);
+        this.containerId = containerId;
         String ejbName;
         try {
-            ObjectName oname = ObjectName.getInstance(objectName);
+            ObjectName oname = ObjectName.getInstance(containerId);
             ejbName = oname.getKeyProperty("name");
             if (ejbName == null) {
                 ejbName = DEFAULT_EJB_NAME;
@@ -124,7 +125,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         for (Iterator it = vopMap.values().iterator(); it.hasNext(); ) {
             methodMap[i++] = ((Integer)it.next()).intValue();
         }
-        proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, objectName, ManagementHome.class, Management.class, null, null, null, null);
+        proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, containerId, ManagementHome.class, Management.class, null, null, null, null);
         proxyFactory = new EJBProxyFactory(this);
     }
 
@@ -147,7 +148,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
     }
 
     public Object getContainerID() {
-        return objectName;
+        return containerId;
     }
 
     public String getEjbName() {
@@ -248,7 +249,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
         infoBuilder.addReference("MBeanServerReference", MBeanServerReference.class);
 
-        infoBuilder.setConstructor(new String[]{"objectName", "MBeanServerReference"});
+        infoBuilder.setConstructor(new String[]{"abstractName", "MBeanServerReference"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

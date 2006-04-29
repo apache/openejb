@@ -105,6 +105,10 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
     }
 
     private void checkRemoteProxyInfo(AbstractNameQuery query, String home, String remote, Configuration configuration) throws DeploymentException {
+        if (remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome")) {
+            // Don't verify the MEJB because it doesn't have a proxyInfo attribute
+            return;
+        }
         GBeanData gbeanData;
         try {
             gbeanData = configuration.findGBeanData(query);
