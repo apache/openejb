@@ -43,8 +43,14 @@
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_dependency_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${pom.currentVersion}</version>
@@ -213,8 +219,8 @@
             <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
@@ -451,13 +457,19 @@
                     <include>*.properties</include>
                 </includes>
             </resource>
-          <resource>
-            <targetPath>META-INF/schema</targetPath>
-            <directory>${basedir}/src/schema</directory>
-            <includes>
-              <include>openejb-jar.xsd</include>
-            </includes>
-          </resource>
+            <resource>
+                <directory>${basedir}/target/etc</directory>
+                <includes>
+                    <include>META-INF/geronimo-dependency.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <targetPath>META-INF/schema</targetPath>
+                <directory>${basedir}/src/schema</directory>
+                <includes>
+                    <include>openejb-jar.xsd</include>
+                </includes>
+            </resource>
         </resources>
         <unitTest>
             <includes>
