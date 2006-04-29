@@ -4,6 +4,11 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 
 /**
  */
@@ -12,7 +17,7 @@ public class PlanParsingTest extends TestCase {
     private OpenEJBModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new OpenEJBModuleBuilder(null, null, null, null);
+        builder = new OpenEJBModuleBuilder((Environment)null, (AbstractNameQuery)null, (GBeanData) null, (WebServiceBuilder)null, (Kernel)null);
     }
 
     public void testResourceRef() throws Exception {

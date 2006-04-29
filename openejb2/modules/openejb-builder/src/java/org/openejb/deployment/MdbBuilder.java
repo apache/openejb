@@ -50,23 +50,31 @@ package org.openejb.deployment;
 import java.beans.Introspector;
 import java.net.URI;
 import java.security.Permissions;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
+import javax.resource.spi.ActivationSpec;
+import javax.resource.spi.InvalidPropertyException;
 import javax.transaction.UserTransaction;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
@@ -82,16 +90,17 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 
 
 class MdbBuilder extends BeanBuilder {
+    private Kernel kernel;
 
-    public MdbBuilder(OpenEJBModuleBuilder builder) {
+    public MdbBuilder(OpenEJBModuleBuilder builder, Kernel kernel) {
         super(builder);
+        this.kernel = kernel;
     }
 
     protected void buildBeans(EARContext earContext, AbstractName moduleBaseName, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
@@ -116,7 +125,10 @@ class MdbBuilder extends BeanBuilder {
                     messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
                     openejbMessageDrivenBean.getResourceAdapter(),
                     getMessagingType(messageDrivenBean),
-                    containerId);
+                    containerId,
+                    messageDrivenBean.isSetMessageDestinationLink() ? messageDrivenBean.getMessageDestinationLink().getStringValue() : null,
+                    messageDrivenBean.isSetMessageDestinationType() ? messageDrivenBean.getMessageDestinationType().getStringValue() : null,
+                    messageDrivenBean.getEjbName().getStringValue());
             GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
             messageDrivenGBean.setAbstractName(messageDrivenAbstractName);
             try {
@@ -227,7 +239,10 @@ class MdbBuilder extends BeanBuilder {
                                                ActivationConfigPropertyType[] activationConfigProperties,
                                                GerResourceLocatorType resourceAdapter,
                                                String messageListenerInterfaceName,
-                                               String containerId) throws DeploymentException {
+                                               String containerId,
+                                               String destinationLink,
+                                               String destinationType,
+                                               String ejbName) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
 //        AbstractNameQuery resourceAdapterModuleQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.RESOURCE_ADAPTER_MODULE);
         AbstractNameQuery resourceAdapterInstanceQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.JCA_RESOURCE_ADAPTER);
@@ -239,36 +254,114 @@ class MdbBuilder extends BeanBuilder {
         activationSpecInfo = new GBeanData(activationSpecInfo);
         activationSpecInfo.setAttribute("containerId", containerId);
         activationSpecInfo.setReferencePattern("ResourceAdapterWrapper", resourceAdapterInstanceQuery);
+        String activationSpecClass = (String) activationSpecInfo.getAttribute("activationSpecClass");
+        Object testSpec;
+        try {
+            testSpec = earContext.getClassLoader().loadClass(activationSpecClass).newInstance();
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to load JMS ActivationSpec class "+activationSpecClass+" for message-driven bean "+ejbName+" in "+containerId);
+        }
+        Map specValues = new HashMap();
+        // 1. Lowest Priority.  Set any properties we can from the generic elements on the message-driven-bean (mostly provider-specific stuff)
+        if(activationSpecClass.equals("org.activemq.ra.ActiveMQActivationSpec")) {
+            if(destinationLink != null) {
+                String physicalName = getActiveMQPhysicalNameForLink(destinationLink, refContext, earContext.getConfiguration());
+                if(physicalName != null) {
+                    specValues.put("destination", physicalName);
+                }
+            }
+        }
+        if(destinationType != null) {
+            specValues.put("destinationType", destinationType);
+        }
+        // 2. Medium Priority.  Set any properties explicitly included in ejb-jar.xml
+        for (int i = 0; i < activationConfigProperties.length; i++) {
+            ActivationConfigPropertyType activationConfigProperty = activationConfigProperties[i];
+            String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue().trim();
+            String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue().trim();
+            specValues.put(propertyName, propertyValue);
+        }
+        // 3. Highest Priority.  Set any properties configured in openejb-jar.xml
         if (openejbActivationConfigProperties != null) {
             for (int i = 0; i < openejbActivationConfigProperties.length; i++) {
                 OpenejbActivationConfigPropertyType activationConfigProperty = openejbActivationConfigProperties[i];
                 String propertyName = activationConfigProperty.getActivationConfigPropertyName();
+                if(propertyName != null) propertyName = propertyName.trim();
                 String propertyValue = activationConfigProperty.getActivationConfigPropertyValue();
-                try {
-                    activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
-                } catch (Exception e) {
-                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getAttribute("activationSpecClass"), e);
-                }
-            }
-
-        } else {
-            for (int i = 0; i < activationConfigProperties.length; i++) {
-                ActivationConfigPropertyType activationConfigProperty = activationConfigProperties[i];
-                String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue().trim();
-                String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue().trim();
-                try {
-                    activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
-                } catch (Exception e) {
-                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getAttribute("activationSpecClass"), e);
-                }
+                if(propertyValue != null) propertyValue = propertyValue.trim();
+                String name = Introspector.decapitalize(propertyName);
+                specValues.put(name, propertyValue);
             }
         }
+        // 4. Apply Settings
+        for (Iterator it = specValues.keySet().iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            String value = (String) specValues.get(name);
+            if(activationSpecInfo.getGBeanInfo().getAttribute(name) != null) {
+                try {
+                    activationSpecInfo.setAttribute(name, value);
+                    testSpec.getClass().getMethod("set"+Character.toUpperCase(name.charAt(0))+name.substring(1), new Class[]{String.class}).invoke(testSpec, new Object[]{value});
+                } catch (Exception e) {
+                    throw new DeploymentException("Could not set property: " + name + " to value: " + value + " on activationSpec: " + activationSpecClass + " for message-driven bean "+ejbName, e);
+                }
+            } else {
+                throw new DeploymentException("Invalid activation-config-property; JMS ActivationSpec "+activationSpecClass+" does not have property '"+name+"' for message-driven bean "+ejbName+" in "+containerId);
+            }
+        }
+        // 5. Validate
+        try {
+            testSpec.getClass().getMethod("validate", new Class[0]).invoke(testSpec, new Object[0]);
+        } catch (InvocationTargetException e) {
+            Throwable chained = e.getCause();
+            if(chained.getClass().getName().equals("javax.resource.spi.InvalidPropertyException")) {
+                throw new DeploymentException("JMS settings for message-driven bean "+ejbName+" are not valid: "+chained.getMessage(), chained);
+//                throw new DeploymentException((e.getInvalidPropertyDescriptors().length == 0 ? "" : e.getInvalidPropertyDescriptors().length+" ") +
+//                        "JMS settings for message-driven bean "+ejbName+" are not valid: "+e.getMessage(), e);
+            }
+            throw new DeploymentException("Unexpected exception while validation JMS settings on "+ejbName, e);
+        } catch (Exception e) {
+            throw new DeploymentException("Unexpected exception while validation JMS settings on "+ejbName, e);
+        }
+
         activationSpecInfo.setAbstractName(activationSpecName);
         try {
             earContext.addGBean(activationSpecInfo);
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add activation spec gbean to context", e);
         }
+    }
+
+    private String getActiveMQPhysicalNameForLink(String link, RefContext context, Configuration earConfig) throws DeploymentException {
+        GerMessageDestinationType destination = (GerMessageDestinationType) context.getMessageDestination(link);
+        String linkName = link;
+        String moduleURI = null;
+        if (destination != null) {
+            if (destination.isSetAdminObjectLink()) {
+                if (destination.isSetAdminObjectModule()) {
+                    moduleURI = destination.getAdminObjectModule().trim();
+                }
+                linkName = destination.getAdminObjectLink().trim();
+            }
+        } else {
+            //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination
+            int pos = linkName.indexOf('#');
+            if (pos > -1) {
+                //AMM -- see comment in ENCConfigBuilder.addMessageDestinationRefs
+                //moduleURI = linkName.substring(0, pos);
+                linkName = linkName.substring(pos + 1);
+            }
+        }
+        AbstractNameQuery containerId = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
+        try {
+            AbstractName adminObjectName = earConfig.findGBean(containerId);
+            String physical = (String) kernel.getAttribute(adminObjectName, "PhysicalName");
+            if(physical != null) {
+                return physical;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static AbstractNameQuery getResourceAdapterNameQuery(GerResourceLocatorType resourceLocator, String type) {

@@ -56,6 +56,7 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -154,21 +155,21 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, Object webServiceLinkTemplate, Collection webServiceBuilder, Kernel kernel) throws GBeanNotFoundException {
-        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), new SingleElementCollection(webServiceBuilder));
+        this(defaultEnvironment, listener, getLinkData(kernel, webServiceLinkTemplate), new SingleElementCollection(webServiceBuilder), kernel);
     }
 
-    public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder) {
-        this(defaultEnvironment, listener, linkTemplate, new SingleElementCollection(webServiceBuilder));
+    public OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, WebServiceBuilder webServiceBuilder, Kernel kernel) {
+        this(defaultEnvironment, listener, linkTemplate, new SingleElementCollection(webServiceBuilder), null);
     }
 
-    private OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, SingleElementCollection webServiceBuilder) {
+    private OpenEJBModuleBuilder(Environment defaultEnvironment, AbstractNameQuery listener, GBeanData linkTemplate, SingleElementCollection webServiceBuilder, Kernel kernel) {
         this.defaultEnvironment = defaultEnvironment;
         this.listener = listener;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
         this.sessionBuilder = new SessionBuilder(this, linkTemplate);
         this.entityBuilder = new EntityBuilder(this);
-        this.mdbBuilder = new MdbBuilder(this);
+        this.mdbBuilder = new MdbBuilder(this, kernel);
         this.webServiceBuilder = webServiceBuilder;
     }
 
@@ -185,15 +186,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return transactionImportPolicyBuilder;
     }
 
-    public Module createModule(File plan, JarFile moduleFile, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, "ejb", null, null, null, naming);
+    public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, "ejb", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -232,6 +233,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         if (earEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
             environment = earEnvironment;
+            if(!environment.getConfigId().isResolved()) {
+                throw new IllegalStateException("EJB module ID should be fully resolved (not "+environment.getConfigId()+")");
+            }
+        } else {
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
         }
 
         AbstractName moduleName;
@@ -298,13 +304,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
-        EnvironmentType environmentType = openejbEjbJar.addNewEnvironment();
-        ArtifactType artifact = environmentType.addNewConfigId();
-        //TODO this version is incomplete.
-        artifact.setGroupId("unknown");
-        artifact.setArtifactId(id);
-        artifact.setVersion("1");
-        artifact.setType("car");
         openejbEjbJar.addNewEnterpriseBeans();
         return openejbEjbJar;
     }

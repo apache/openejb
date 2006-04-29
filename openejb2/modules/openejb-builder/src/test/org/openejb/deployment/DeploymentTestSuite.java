@@ -64,6 +64,7 @@ import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -136,7 +137,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         try {
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(DeploymentHelper.DEFAULT_ENVIRONMENT, new AbstractNameQuery(deploymentHelper.listenerName), linkData, webServiceBuilder);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(DeploymentHelper.DEFAULT_ENVIRONMENT, new AbstractNameQuery(deploymentHelper.listenerName), linkData, webServiceBuilder, deploymentHelper.kernel);
             OpenEJBReferenceBuilder ejbReferenceBuilder = new OpenEJBReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
@@ -165,8 +166,8 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             try {
                 jarFile = DeploymentUtil.createJarFile(moduleFile);
-                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                context = earConfigBuilder.buildConfiguration(false, earConfigBuilder.getConfigurationID(plan, jarFile), plan, jarFile, Collections.singleton(deploymentHelper.configStore), artifactResolver, deploymentHelper.configStore);
+                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile, new ModuleIDBuilder());
+                context = earConfigBuilder.buildConfiguration(false, earConfigBuilder.getConfigurationID(plan, jarFile, new ModuleIDBuilder()), plan, jarFile, Collections.singleton(deploymentHelper.configStore), artifactResolver, deploymentHelper.configStore);
                 configurationData = context.getConfigurationData();
                 // copy the configuration to force gbeans to serialize
                 configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();

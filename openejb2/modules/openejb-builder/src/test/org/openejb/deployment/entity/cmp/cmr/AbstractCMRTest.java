@@ -61,6 +61,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -77,6 +78,7 @@ import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -151,7 +153,7 @@ public abstract class AbstractCMRTest extends DeploymentHelper {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder((Environment)null, (AbstractNameQuery)null, (GBeanData) null, (WebServiceBuilder)null, (Kernel)null);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
         File tempDir = DeploymentUtil.createTempDir();
