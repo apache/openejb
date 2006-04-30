@@ -74,6 +74,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.proxy.ProxyInfo;
+import org.openejb.EJBContainer;
 
 /**
  * @version $Revision$ $Date$
@@ -144,7 +145,7 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         AbstractNameQuery match;
         if (query != null) {
             checkRemoteProxyInfo(query, home, remote, configuration);
-            match = query;
+            match = new AbstractNameQuery(query.getArtifact(), query.getName(), EJBContainer.class.getName());
         } else if (name != null) {
             match = getMatch(refName, configuration, name, requiredModule, true, isSession, home, remote);
         } else {
@@ -157,7 +158,7 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         AbstractNameQuery match;
         if (query != null) {
             checkLocalProxyInfo(query, localHome, local, configuration);
-            match = query;
+            match = new AbstractNameQuery(query.getArtifact(), query.getName(), EJBContainer.class.getName());
         } else if (name != null) {
             match = getMatch(refName, configuration, name, requiredModule, false, isSession, localHome, local);
         } else {
@@ -184,14 +185,14 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
         if (isSession) {
             Map q = new HashMap(nameQuery);
             q.putAll(STATELESS);
-            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q)));
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q, EJBContainer.class.getName())));
 
             q = new HashMap(nameQuery);
             q.putAll(STATEFUL);
-            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q)));
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q, EJBContainer.class.getName())));
         } else {
             nameQuery.putAll(ENTITY);
-            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), nameQuery)));
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), nameQuery, EJBContainer.class.getName())));
         }
 
         Collection matches = new ArrayList();
@@ -222,10 +223,10 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
     private AbstractNameQuery getImplicitMatch(String refName, Configuration context, String module, boolean isRemote, boolean isSession, String home, String remote) throws DeploymentException {
         Set gbeans;
         if (isSession) {
-            gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), STATELESS));
-            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), STATEFUL)));
+            gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), STATELESS, EJBContainer.class.getName()));
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), STATEFUL, EJBContainer.class.getName())));
         } else {
-            gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), ENTITY));
+            gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), ENTITY, EJBContainer.class.getName()));
         }
         Collection matches = new ArrayList();
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
