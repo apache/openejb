@@ -48,15 +48,15 @@
 package org.openejb.deployment;
 
 import java.beans.Introspector;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.security.Permissions;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.lang.reflect.InvocationTargetException;
-import javax.resource.spi.ActivationSpec;
-import javax.resource.spi.InvalidPropertyException;
 import javax.transaction.UserTransaction;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -66,6 +66,7 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -96,6 +97,7 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 
 
 class MdbBuilder extends BeanBuilder {
+    private final static Log log = LogFactory.getLog(MdbBuilder.class);
     private Kernel kernel;
 
     public MdbBuilder(OpenEJBModuleBuilder builder, Kernel kernel) {
@@ -265,7 +267,7 @@ class MdbBuilder extends BeanBuilder {
         // 1. Lowest Priority.  Set any properties we can from the generic elements on the message-driven-bean (mostly provider-specific stuff)
         if(activationSpecClass.equals("org.activemq.ra.ActiveMQActivationSpec")) {
             if(destinationLink != null) {
-                String physicalName = getActiveMQPhysicalNameForLink(destinationLink, refContext, earContext.getConfiguration());
+                String physicalName = getActiveMQPhysicalNameForLink(destinationLink, refContext, earContext.getConfiguration(), ejbName);
                 if(physicalName != null) {
                     specValues.put("destination", physicalName);
                 }
@@ -331,7 +333,7 @@ class MdbBuilder extends BeanBuilder {
         }
     }
 
-    private String getActiveMQPhysicalNameForLink(String link, RefContext context, Configuration earConfig) throws DeploymentException {
+    private String getActiveMQPhysicalNameForLink(String link, RefContext context, Configuration earConfig, String ejbName) throws DeploymentException {
         GerMessageDestinationType destination = (GerMessageDestinationType) context.getMessageDestination(link);
         String linkName = link;
         String moduleURI = null;
@@ -351,15 +353,40 @@ class MdbBuilder extends BeanBuilder {
                 linkName = linkName.substring(pos + 1);
             }
         }
-        AbstractNameQuery containerId = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
+        AbstractNameQuery adminObjectQuery = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
         try {
-            AbstractName adminObjectName = earConfig.findGBean(containerId);
-            String physical = (String) kernel.getAttribute(adminObjectName, "PhysicalName");
+            AbstractName adminObjectName;
+            try {
+                adminObjectName = earConfig.findGBean(adminObjectQuery);
+            } catch (GBeanNotFoundException e) {
+                // There is no matching admin object, so this must be a destination that's created on the fly
+                log.debug("MDB "+ejbName+" uses message-destination-link "+linkName+" which I can't find an AdminObject for, so I assume a destination named "+linkName+" will be created automatically");
+                return link;
+            }
+            String physical = null;
+            try { // See if the admin object is in the same EAR (or at least dependency tree?)
+                GBeanData data = earConfig.findGBeanData(new AbstractNameQuery(adminObjectName));
+                physical = (String) data.getAttribute("PhysicalName");
+            } catch (GBeanNotFoundException e) { // If not, try the server
+                try {
+                    physical = (String) kernel.getAttribute(adminObjectName, "PhysicalName");
+                } catch (GBeanNotFoundException e2) {
+                    // There is an admin object, but it's not running so we can't get its physical name
+                    // In this case, the user must set it as an activation config parameter
+                    log.warn("Unable to identify physical destination name for JMS destination "+linkName+" for " +
+                            "message-driven bean "+ejbName+".  This is not expected, but not necessarily a " +
+                            "disaster either.  If you get a deployment error after this, it means you must " +
+                            "configure the destination in the activation-config section for this MDB in " +
+                            "openejb-jar.xml.");
+                }
+            }
             if(physical != null) {
+                log.debug("MDB "+ejbName+" uses message-destination-link "+linkName+" which I tracked down to the physical destination name "+physical);
                 return physical;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error while looking up physical destination name for destination "+linkName+
+                    " for message-driven bean "+ejbName, e);
         }
         return null;
     }
