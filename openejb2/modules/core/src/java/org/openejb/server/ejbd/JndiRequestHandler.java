@@ -174,20 +174,8 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         } else {
             int index = containerIndex.getContainerIndexByJndiName(name);
             if (index <= 0) {
-                // name not found... check if an abstract name was sent directly
+                // name not found... check if an abstract name or name query was sent directly
                 index = containerIndex.getContainerIndex(req.getRequestString());
-            }
-            if (index <=0) {
-                //treat it as an abstractnameQuery and try to resolve it.  Don't remove a leading /
-                URI uri = URI.create(req.getRequestString());
-                AbstractNameQuery abstractNameQuery = new AbstractNameQuery(uri);
-                Kernel kernel = KernelRegistry.getSingleKernel();
-                Set results = kernel.listGBeans(abstractNameQuery);
-                if (results.size() != 1) {
-                    throw new NamingException("Name query " + abstractNameQuery + " not satisfied in kernel, matches: " + results);
-                }
-                AbstractName target = (AbstractName) results.iterator().next();
-                index = containerIndex.getContainerIndex(target.toString());
             }
             if (index > 0) {
                 EJBContainer deployment = containerIndex.getContainer(index);

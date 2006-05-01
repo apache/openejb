@@ -45,15 +45,16 @@
 package org.openejb;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -148,11 +149,12 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         jndiNameToIndex.clear();
     }
 
-    public synchronized void addContainer(EJBContainer container) {
+    public synchronized Integer addContainer(EJBContainer container) {
         container = container.getUnmanagedReference();
         Object containerID = container.getContainerID();
-        if (containerIdToIndex.containsKey(containerID)) {
-            return;
+        Integer index;
+        if ((index = (Integer) containerIdToIndex.get(containerID)) != null) {
+            return index;
         }
 
         int i = containers.length;
@@ -162,8 +164,10 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         containers = newArray;
 
         containers[i] = container;
-        containerIdToIndex.put(containerID, new Integer(i));
+        index = new Integer(i);
+        containerIdToIndex.put(containerID, index);
         addJNDINames(container, i);
+        return index;
     }
 
     public synchronized void removeContainer(EJBContainer container) {
@@ -200,16 +204,14 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
 
         // try to fault in the container using the kernel directly
         if ((index == null)) {
-            AbstractName name;
-            try {
-                name = new AbstractName(new URI(containerID));
-            } catch (URISyntaxException e) {
-                log.error("containerId is not a valid URI: " + containerID);
-                return -1;
-            } catch (IllegalArgumentException e) {
-                //not a valid abstract name
+            URI uri = URI.create(containerID);
+            AbstractNameQuery abstractNameQuery = new AbstractNameQuery(uri);
+            Set results = kernel.listGBeans(abstractNameQuery);
+            if (results.size() != 1) {
+                log.error( "Name query " + abstractNameQuery + " not satisfied in kernel, matches: " + results);
                 return -1;
             }
+            AbstractName name = (AbstractName) results.iterator().next();
             EJBContainer ejbContainer;
             try {
                 ejbContainer = (EJBContainer) kernel.getGBean(name);
@@ -218,11 +220,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
                 log.debug("Container not found: " + containerID, e);
                 return -1;
             }
-            addContainer(ejbContainer);
-            index = (Integer) containerIdToIndex.get(containerID);
-            if (index == null) {
-                log.error("added ejb container to index but index value was null: " + containerID);
-            }
+            index = addContainer(ejbContainer);
         }
 
         if (index == null) {
