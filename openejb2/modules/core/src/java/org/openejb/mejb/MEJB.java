@@ -246,7 +246,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, "MEJB");
         infoBuilder.addReference("MBeanServerReference", MBeanServerReference.class);
 
         infoBuilder.setConstructor(new String[]{"abstractName", "MBeanServerReference"});

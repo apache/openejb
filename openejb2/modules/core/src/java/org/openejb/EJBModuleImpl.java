@@ -133,7 +133,9 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         return server.getJavaVMs();
     }
 
-    public String[] getEJBs() {
+    public String[] getEjbs() {
+        if (ejbs == null) return new String[0];
+
         ArrayList copy;
         synchronized (ejbs) {
             copy = new ArrayList(ejbs);
@@ -211,12 +213,6 @@ public class EJBModuleImpl implements GBeanLifecycle, EJBModule {
         infoBuilder.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoBuilder.addAttribute("TMDelegate", TransactionManagerDelegate.class, true);
-
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("server", String.class, false);
-        infoBuilder.addAttribute("application", String.class, false);
-        infoBuilder.addAttribute("javaVMs", String[].class, false);
-        infoBuilder.addAttribute("ejbs", String[].class, false);
 
         infoBuilder.addReference("EJBCollection", EJB.class);
 

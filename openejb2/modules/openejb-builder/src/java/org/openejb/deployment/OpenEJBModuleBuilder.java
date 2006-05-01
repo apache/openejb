@@ -63,6 +63,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -94,6 +95,7 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
+import org.openejb.EJBContainer;
 import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
 import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
@@ -415,6 +417,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
             ejbModuleGBeanData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             ejbModuleGBeanData.setAttribute("TMDelegate", tmDelegate);
+
+            ejbModuleGBeanData.setReferencePatterns("EJBCollection",
+                    new ReferencePatterns(new AbstractNameQuery(null,
+                            Collections.singletonMap(NameFactory.EJB_MODULE, moduleBaseName.getNameProperty(NameFactory.J2EE_NAME)),
+                            EJBContainer.class.getName())));
+
             earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);
