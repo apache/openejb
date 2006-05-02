@@ -319,8 +319,11 @@ class MdbBuilder extends BeanBuilder {
                 throw new DeploymentException("JMS settings for message-driven bean "+ejbName+" are not valid: "+chained.getMessage(), chained);
 //                throw new DeploymentException((e.getInvalidPropertyDescriptors().length == 0 ? "" : e.getInvalidPropertyDescriptors().length+" ") +
 //                        "JMS settings for message-driven bean "+ejbName+" are not valid: "+e.getMessage(), e);
+            } else if(chained instanceof UnsupportedOperationException) {
+                log.warn("JMS ActivationSpec for message-driven bean "+ejbName+" does not support validation.  Unable to tell whether settings for MDB are correct during deployment.  It may die at runtime, sorry.");
+            } else {
+                throw new DeploymentException("Unexpected exception while validation JMS settings on "+ejbName, e);
             }
-            throw new DeploymentException("Unexpected exception while validation JMS settings on "+ejbName, e);
         } catch (Exception e) {
             throw new DeploymentException("Unexpected exception while validation JMS settings on "+ejbName, e);
         }
