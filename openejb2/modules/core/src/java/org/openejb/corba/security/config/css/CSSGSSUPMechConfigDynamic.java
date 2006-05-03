@@ -44,15 +44,13 @@
  */
 package org.openejb.corba.security.config.css;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.apache.geronimo.security.ContextManager;
-
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.openejb.corba.security.config.tss.TSSASMechConfig;
 import org.openejb.corba.security.config.tss.TSSGSSUPMechConfig;
 import org.openejb.corba.util.Util;

@@ -64,6 +64,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import javax.ejb.spi.HandleDelegate;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -115,6 +116,7 @@ public final class Util {
     private static Codec codec;
     private static HandleDelegate handleDelegate;
     private static CorbaApplicationServer corbaApplicationServer = new CorbaApplicationServer();
+
     public static ORB getORB() {
         assert orb != null;
         return orb;
@@ -330,7 +332,7 @@ public final class Util {
 
             // create and encode a GSSUP initial context token
             InitialContextToken init_token = new InitialContextToken();
-            init_token.username = user.getBytes("UTF-8");
+            init_token.username = (user + "@" + target).getBytes("UTF-8");
 
             init_token.password = pwd.getBytes("UTF-8");
 
@@ -368,7 +370,7 @@ public final class Util {
      * @return Return true when decoding was successful, false otherwise.
      */
     public static boolean decodeGSSUPToken(Codec codec, byte[] token_arr,
-                                           InitialContextToken gssup_tok) {
+            InitialContextToken gssup_tok) {
         boolean result = false;
         if (gssup_tok != null) {
             ByteArrayInputStream bais = new ByteArrayInputStream(token_arr);
@@ -400,7 +402,17 @@ public final class Util {
                             if (token != null) {
                                 gssup_tok.username = token.username;
                                 gssup_tok.password = token.password;
-                                gssup_tok.target_name = decodeGSSExportName(token.target_name).getBytes("UTF-8");
+                                String targetName = decodeGSSExportName(token.target_name);
+                                gssup_tok.target_name = targetName.getBytes("UTF-8");
+
+                                String userName = new String(gssup_tok.username, "UTF-8");
+                                int end = userName.length() - targetName.length() - 1;
+                                if (userName.charAt(end) == '@') {
+                                    if (userName.endsWith(targetName)) {
+                                        userName = userName.substring(0, end);
+                                        gssup_tok.username = userName.getBytes("UTF-8");
+                                    }
+                                }
 
                                 result = true;
                             }
@@ -425,8 +437,8 @@ public final class Util {
     }
 
     private static final char[] HEXCHAR = {
-        '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+            '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
     public static void writeObject(Class type, Object object, OutputStream out) {
@@ -448,7 +460,7 @@ public final class Util {
             out.write_longlong(((Long) object).longValue());
         } else if (type == Short.TYPE) {
             out.write_short(((Short) object).shortValue());
-        }  else {
+        } else {
             // object types must bbe written in the context of the corba application server
             // which properly write replaces our objects for corba
             ApplicationServer oldApplicationServer = ServerFederation.getApplicationServer();
@@ -623,7 +635,8 @@ public final class Util {
             String verb;
             if (methodName.startsWith("get") && methodName.length() > 3 && method.getReturnType() != void.class) {
                 verb = "get";
-            } else if (methodName.startsWith("is") && methodName.length() > 2 && method.getReturnType() == boolean.class) {
+            } else
+            if (methodName.startsWith("is") && methodName.length() > 2 && method.getReturnType() == boolean.class) {
                 verb = "is";
             } else {
                 continue;
@@ -646,7 +659,8 @@ public final class Util {
             }
 
             String propertyName;
-            if (methodName.length() > verb.length() + 1 && Character.isUpperCase(methodName.charAt(verb.length() + 1))) {
+            if (methodName.length() > verb.length() + 1 && Character.isUpperCase(methodName.charAt(verb.length() + 1)))
+            {
                 propertyName = methodName.substring(verb.length());
             } else {
                 propertyName = Character.toLowerCase(methodName.charAt(verb.length())) + methodName.substring(verb.length() + 1);
@@ -822,7 +836,7 @@ public final class Util {
 
     /**
      * Return the a string containing an underscore '_' index of each uppercase character in the iiop name.
-     *
+     * <p/>
      * This is used for distinction of names that only differ by case, since corba does not support case sensitive names.
      */
     private static String upperCaseIndexString(String iiopName) {
@@ -838,7 +852,7 @@ public final class Util {
 
     /**
      * Replaces any occurnace of the specified "oldChar" with the nes string.
-     *
+     * <p/>
      * This is used to replace occurances if '$' in corba names since '$' is a special character
      */
     private static String replace(String source, char oldChar, String newString) {
@@ -856,12 +870,12 @@ public final class Util {
 
     /**
      * Return the a string containing a double underscore '__' list of parameter types encoded using the Java to IDL rules.
-     *
+     * <p/>
      * This is used for distinction of methods that only differ by parameter lists.
      */
     private static String buildOverloadParameterString(Class[] parameterTypes) {
         String name = "";
-        if (parameterTypes.length ==0) {
+        if (parameterTypes.length == 0) {
             name += "__";
         } else {
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -976,80 +990,80 @@ public final class Util {
     private static final Set keywords;
 
     static {
-       specialTypeNames = new HashMap();
-       specialTypeNames.put("boolean", "boolean");
-       specialTypeNames.put("char", "wchar");
-       specialTypeNames.put("byte", "octet");
-       specialTypeNames.put("short", "short");
-       specialTypeNames.put("int", "long");
-       specialTypeNames.put("long", "long_long");
-       specialTypeNames.put("float", "float");
-       specialTypeNames.put("double", "double");
-       specialTypeNames.put("java.lang.Class", "ClassDesc");
-       specialTypeNames.put("java.lang.String", "WStringValue");
-       specialTypeNames.put("org.omg.CORBA.Object", "Object");
+        specialTypeNames = new HashMap();
+        specialTypeNames.put("boolean", "boolean");
+        specialTypeNames.put("char", "wchar");
+        specialTypeNames.put("byte", "octet");
+        specialTypeNames.put("short", "short");
+        specialTypeNames.put("int", "long");
+        specialTypeNames.put("long", "long_long");
+        specialTypeNames.put("float", "float");
+        specialTypeNames.put("double", "double");
+        specialTypeNames.put("java.lang.Class", "ClassDesc");
+        specialTypeNames.put("java.lang.String", "WStringValue");
+        specialTypeNames.put("org.omg.CORBA.Object", "Object");
 
-       specialTypePackages = new HashMap();
-       specialTypePackages.put("boolean", "");
-       specialTypePackages.put("char", "");
-       specialTypePackages.put("byte", "");
-       specialTypePackages.put("short", "");
-       specialTypePackages.put("int", "");
-       specialTypePackages.put("long", "");
-       specialTypePackages.put("float", "");
-       specialTypePackages.put("double", "");
-       specialTypePackages.put("java.lang.Class", "javax.rmi.CORBA");
-       specialTypePackages.put("java.lang.String", "CORBA");
-       specialTypePackages.put("org.omg.CORBA.Object", "");
+        specialTypePackages = new HashMap();
+        specialTypePackages.put("boolean", "");
+        specialTypePackages.put("char", "");
+        specialTypePackages.put("byte", "");
+        specialTypePackages.put("short", "");
+        specialTypePackages.put("int", "");
+        specialTypePackages.put("long", "");
+        specialTypePackages.put("float", "");
+        specialTypePackages.put("double", "");
+        specialTypePackages.put("java.lang.Class", "javax.rmi.CORBA");
+        specialTypePackages.put("java.lang.String", "CORBA");
+        specialTypePackages.put("org.omg.CORBA.Object", "");
 
-       keywords = new HashSet();
-       keywords.add("abstract");
-       keywords.add("any");
-       keywords.add("attribute");
-       keywords.add("boolean");
-       keywords.add("case");
-       keywords.add("char");
-       keywords.add("const");
-       keywords.add("context");
-       keywords.add("custom");
-       keywords.add("default");
-       keywords.add("double");
-       keywords.add("enum");
-       keywords.add("exception");
-       keywords.add("factory");
-       keywords.add("false");
-       keywords.add("fixed");
-       keywords.add("float");
-       keywords.add("in");
-       keywords.add("inout");
-       keywords.add("interface");
-       keywords.add("long");
-       keywords.add("module");
-       keywords.add("native");
-       keywords.add("object");
-       keywords.add("octet");
-       keywords.add("oneway");
-       keywords.add("out");
-       keywords.add("private");
-       keywords.add("public");
-       keywords.add("raises");
-       keywords.add("readonly");
-       keywords.add("sequence");
-       keywords.add("short");
-       keywords.add("string");
-       keywords.add("struct");
-       keywords.add("supports");
-       keywords.add("switch");
-       keywords.add("true");
-       keywords.add("truncatable");
-       keywords.add("typedef");
-       keywords.add("union");
-       keywords.add("unsigned");
-       keywords.add("valuebase");
-       keywords.add("valuetype");
-       keywords.add("void");
-       keywords.add("wchar");
-       keywords.add("wstring");
+        keywords = new HashSet();
+        keywords.add("abstract");
+        keywords.add("any");
+        keywords.add("attribute");
+        keywords.add("boolean");
+        keywords.add("case");
+        keywords.add("char");
+        keywords.add("const");
+        keywords.add("context");
+        keywords.add("custom");
+        keywords.add("default");
+        keywords.add("double");
+        keywords.add("enum");
+        keywords.add("exception");
+        keywords.add("factory");
+        keywords.add("false");
+        keywords.add("fixed");
+        keywords.add("float");
+        keywords.add("in");
+        keywords.add("inout");
+        keywords.add("interface");
+        keywords.add("long");
+        keywords.add("module");
+        keywords.add("native");
+        keywords.add("object");
+        keywords.add("octet");
+        keywords.add("oneway");
+        keywords.add("out");
+        keywords.add("private");
+        keywords.add("public");
+        keywords.add("raises");
+        keywords.add("readonly");
+        keywords.add("sequence");
+        keywords.add("short");
+        keywords.add("string");
+        keywords.add("struct");
+        keywords.add("supports");
+        keywords.add("switch");
+        keywords.add("true");
+        keywords.add("truncatable");
+        keywords.add("typedef");
+        keywords.add("union");
+        keywords.add("unsigned");
+        keywords.add("valuebase");
+        keywords.add("valuetype");
+        keywords.add("void");
+        keywords.add("wchar");
+        keywords.add("wstring");
     }
 
 }
