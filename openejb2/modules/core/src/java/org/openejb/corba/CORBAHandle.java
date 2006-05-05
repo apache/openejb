@@ -72,6 +72,9 @@ import org.omg.CORBA.ORB;
  * @version $Revision$ $Date$
  */
 public class CORBAHandle implements Handle, Serializable {
+
+    private static final long serialVersionUID = -3390719015323727224L;
+
     private String ior;
     private Object primaryKey;
 

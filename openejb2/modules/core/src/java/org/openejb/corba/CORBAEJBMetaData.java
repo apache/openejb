@@ -52,6 +52,9 @@ import javax.rmi.PortableRemoteObject;
  * @version $Revision$ $Date$
  */
 public class CORBAEJBMetaData implements EJBMetaData, java.io.Serializable {
+
+    private static final long serialVersionUID = 8085488135161906381L;
+
     public final static byte ENTITY = 1;
     public final static byte STATEFUL = 2;
     public final static byte STATELESS = 3;

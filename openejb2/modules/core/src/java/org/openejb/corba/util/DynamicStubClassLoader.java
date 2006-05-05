@@ -174,7 +174,7 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
                 return 0;
             }
 
-            if (method.getReturnType().equals(String[].class) && method.getParameterTypes().length ==0 && method.getName() == "_ids"){
+            if (method.getReturnType().equals(String[].class) && method.getParameterTypes().length ==0 && method.getName().equals("_ids")){
                 return 2;
             }
 
