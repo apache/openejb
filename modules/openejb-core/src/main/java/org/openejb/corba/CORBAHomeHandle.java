@@ -71,6 +71,9 @@ import org.omg.CORBA.ORB;
  * @version $Revision$ $Date$
  */
 public class CORBAHomeHandle implements HomeHandle, Serializable {
+
+    private static final long serialVersionUID = -5537884768260058215L;
+
     private String ior;
 
     public CORBAHomeHandle(String ior) {
