@@ -4,12 +4,12 @@
         xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 
     <environment>
-        <configId>
+        <moduleId>
             <groupId>foo</groupId>
             <artifactId>bar</artifactId>
             <version>1</version>
             <type>car</type>
-        </configId>
+        </moduleId>
         <dependencies>
             <dependency>
                 <groupId>test</groupId>

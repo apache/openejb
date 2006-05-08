@@ -18,12 +18,12 @@
 
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
     <environment>
-        <configId>
+        <moduleId>
             <groupId>foo</groupId>
             <artifactId>bar</artifactId>
             <version>1</version>
             <type>car</type>
-        </configId>
+        </moduleId>
         <dependencies>
             <dependency>
                 <groupId>test</groupId>
