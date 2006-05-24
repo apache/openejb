@@ -91,7 +91,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         this.configAdapter = null;
     }
 
-    public CORBABean(String configAdapter, ClassLoader classLoader, Executor threadPool, SecurityService securityService, SunNameService nameService) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CORBABean(String configAdapter, ClassLoader classLoader, Executor threadPool) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
         if (configAdapter != null) {
@@ -99,8 +99,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         } else {
             this.configAdapter = null;
         }
-        //security service included to force start order.
-        //name service included to force start order.
     }
 
     public TSSConfig getTssConfig() {
@@ -213,10 +211,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("SecurityService", SecurityService.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("NameService", SunNameService.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool", "SecurityService", "NameService"});
+        infoFactory.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

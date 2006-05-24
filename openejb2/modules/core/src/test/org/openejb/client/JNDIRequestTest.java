@@ -87,4 +87,17 @@ public class JNDIRequestTest extends TestCase {
 
         copy.readExternal(in);
     }
+
+    private void externalize(Externalizable original, Externalizable copy) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(baos);
+
+        original.writeExternal(out);
+        out.close();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream in = new ObjectInputStream(bais);
+
+        copy.readExternal(in);
+    }
 }

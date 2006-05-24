@@ -120,7 +120,7 @@ public class TSSConfigEditorTest extends TestCase {
         try {
             XmlObject xmlObject = getXmlObject(TEST_XML3);
             TSSConfigEditor editor = new TSSConfigEditor();
-            TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null);
+            editor.getValue(xmlObject, null, null);
             fail("Should fail");
         } catch (DeploymentException e) {
         }
@@ -161,7 +161,7 @@ public class TSSConfigEditorTest extends TestCase {
         ClassLoader classLoader = getClass().getClassLoader();
         ThreadPool threadPool = new ThreadPool(10, "foo", 1000, classLoader, "test:type=ThreadPool");
         String configAdapter = "org.openejb.corba.sunorb.SunORBConfigAdapter";
-        CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool, null, null);
+        CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool);
         ArrayList args = new ArrayList();
         corbaBean.setArgs(args);
         Properties properties = new Properties();

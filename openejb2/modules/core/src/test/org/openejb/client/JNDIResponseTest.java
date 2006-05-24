@@ -56,7 +56,7 @@ import javax.naming.Binding;
 
 import junit.framework.TestCase;
 
-public class JNDIResponseTest extends TestCase {
+public class JNDIResponseTest extends AbstractProtocolTest {
     private Context context;
 
     public void setUp() throws Exception {
@@ -76,19 +76,12 @@ public class JNDIResponseTest extends TestCase {
         response.setResponseCode(ResponseCodes.JNDI_CONTEXT_TREE);
         response.setResult(context);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(baos);
-        response.writeExternal(out);
-        out.close();
+        JNDIResponse copy = new JNDIResponse();
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream in = new ObjectInputStream(bais);
+        externalize(response, copy);
 
-        response = new JNDIResponse();
-        response.readExternal(in);
-
-        assertEquals("Response codes are not equal",response.getResponseCode(),ResponseCodes.JNDI_CONTEXT_TREE);
-        Object result = response.getResult();
+        assertEquals("Response codes are not equal", copy.getResponseCode(),ResponseCodes.JNDI_CONTEXT_TREE);
+        Object result = copy.getResult();
 
         assertTrue("Result not instance of Context", result instanceof Context);
         compare(context, (Context)result);
