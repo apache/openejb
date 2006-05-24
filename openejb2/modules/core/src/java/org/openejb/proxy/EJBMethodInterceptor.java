@@ -12,6 +12,8 @@ import javax.ejb.NoSuchObjectLocalException;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.ContainerNotFoundException;
 import org.openejb.EJBComponentType;
@@ -71,6 +73,20 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
      */
     private transient boolean crossClassLoader;
 
+    private final static org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+
+    //TODO : This is pretty much a hack to introduce the ability to change from pass-by-value and pass-by-reference
+    // This really should be on a bean by bean basis.
+    static String localCopyProperty = null;
+    static boolean openejbLocalcopy = true;
+    static {
+        localCopyProperty = System.getProperty("openejb.localcopy");
+        if (localCopyProperty == null) localCopyProperty = "true";
+        boolean openejbLocalcopy = localCopyProperty.equals("true") ? true : false;
+        log.info("OPENEJB: Calls to remote interfaces will "+(openejbLocalcopy?"":"not ")+"have their values copied.");
+    }
+
+
     public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap) {
         this(proxyFactory, type, container, operationMap, null);
     }
@@ -93,7 +109,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
         }
 
-        shouldCopy = !interfaceType.isLocal();
+        shouldCopy = !interfaceType.isLocal() && openejbLocalcopy;
     }
 
     public EJBProxyFactory getProxyFactory() {

@@ -77,20 +77,24 @@ public class SerializationHandler {
 
     public static void copyArgs(Object[] objects) throws IOException, ClassNotFoundException {
         for (int i = 0; i < objects.length; i++) {
+            Object copy;
             Object originalObject = objects[i];
-            Object copy = copyObj(originalObject);
-            // connect a coppied stub to the same orb as the original stub
+            copy = copyObj(originalObject);
             if (copy instanceof javax.rmi.CORBA.Stub) {
                 ORB orb = ((javax.rmi.CORBA.Stub)originalObject)._orb();
                 if (orb != null) {
+                    // connect a coppied stub to the same orb as the original stub
                     ((javax.rmi.CORBA.Stub)copy).connect(orb);
                 }
+                objects[i] = copy;
             }
-            objects[i] = copy;
         }
     }
 
     public static Object copyObj(Object object) throws IOException, ClassNotFoundException {
+        Object quickCopyObject = quickCopy(object);
+        if (quickCopyObject != null) return quickCopyObject;
+
         MarshalledObject obj = new MarshalledObject(object);
         return obj.get();
     }
@@ -106,6 +110,9 @@ public class SerializationHandler {
     }
 
     public static Object copyObj(ClassLoader classLoader, Object object) throws IOException, ClassNotFoundException {
+        Object quickCopyObject = quickCopy(object);
+        if (quickCopyObject != null) return quickCopyObject;
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(object);
@@ -114,6 +121,69 @@ public class SerializationHandler {
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         ObjectInputStreamExt ois = new ObjectInputStreamExt(bais, classLoader);
         return ois.readObject();
+    }
+
+    /**
+     * quickCopy does a quick analysis of the object to be copied.  If it is a primitive then the object is simply
+     * returned since the object is immutable.  In the case of a primitive array a clone operation is performed to
+     * create a quick copy rather than the more expensive serialization.
+     *
+     * @param object
+     * @return null if object should undergo normal serialization.  Otherwise the object reference to return.
+     */
+    private static Object quickCopy(Object object) {
+        try {
+            // Get the object's class once for efficiency.
+            Class ooc = object.getClass();
+
+            /*
+            ** If this object is a primitive type it's immutable...let's return it.
+            */
+            if ((ooc == String.class    ) ||
+                (ooc == Integer.class   ) ||
+                (ooc == Long.class      ) ||
+                (ooc == Boolean.class   ) ||
+                (ooc == Byte.class      ) ||
+                (ooc == Character.class ) ||
+                (ooc == Float.class     ) ||
+                (ooc == Double.class    ) ||
+                (ooc == Short.class)) {
+              return object;
+            }
+
+            Class oct = ooc.getComponentType();
+
+            /*
+            **  Is the passed object an array?  If so it will either be an array of primitives
+            **  or an array of some type of object.  If its a primitive we'll clone it and call it a day.
+            */
+            if ( ooc.isArray() ) {
+                /*
+                ** We've gotten to this point because the object we've been passed is an array of primitives.
+                ** As such we will invoke clone to make the copy and call it a day.  No need to do a recurisive
+                ** invocation so once the copy is made we're outta here.
+                */
+                if (oct != null && oct.isPrimitive()) {
+                    Object copiedObject = null;
+                    while (true) {
+                        if (oct == int.class)     { int[]     t = (int[])    ( (int[])     object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == long.class)    { long[]    t = (long[])   ( (long[])    object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == float.class)   { float[]   t = (float[])  ( (float[])   object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == double.class)  { double[]  t = (double[]) ( (double[])  object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == boolean.class) { boolean[] t = (boolean[])( (boolean[]) object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == byte.class)    { byte[]    t = (byte[])   ( (byte[])    object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == short.class)   { short[]   t = (short[])  ( (short[])   object).clone() ;  copiedObject = (Object) t;  break; }
+                        if (oct == char.class)    { char[]    t = (char[])   ( (char[])    object).clone() ;  copiedObject = (Object) t;  break; }
+
+                        return null;  // We should never get to this point.  If we do there is a new primitive type that we don't know about.
+                    }
+                    return copiedObject;
+                }
+            }
+        } catch (Exception e) {
+            // Something bad happened...let normal copying occur
+        }
+        return null;
     }
 }
 
