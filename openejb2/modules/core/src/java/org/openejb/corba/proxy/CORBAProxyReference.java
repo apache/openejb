@@ -85,12 +85,12 @@ public final class CORBAProxyReference extends ConfigurationAwareReference {
 
     public Object getContent() throws NameNotFoundException {
 
-        if (log.isDebugEnabled()) log.debug("Obtaining home from " + nsCorbaloc.toString() + ", " + objectName + ", " + abstractNameQuery + ", " + home);
+        if (log.isDebugEnabled()) log.debug("Obtaining home from " + nsCorbaloc.toString() + ", " + objectName + ", " + abstractNameQueries + ", " + home);
         AbstractName containerName;
         try {
             containerName = resolveTargetName();
         } catch (GBeanNotFoundException e) {
-            throw (NameNotFoundException)new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQuery).initCause(e);
+            throw (NameNotFoundException)new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQueries).initCause(e);
         }
         Kernel kernel = getKernel();
         Object proxy;

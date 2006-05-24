@@ -80,6 +80,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.j2ee.ActivationConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
@@ -399,7 +400,7 @@ class MdbBuilder extends BeanBuilder {
             return ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), type, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
         //construct name from components
-        return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), type, NameFactory.RESOURCE_ADAPTER_MODULE);
+        return ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), type, NameFactory.RESOURCE_ADAPTER_MODULE, null);
     }
 
     protected void processEnvironmentRefs(MDBContainerBuilder builder, EARContext earContext, EJBModule ejbModule, MessageDrivenBeanType messageDrivenBean, OpenejbMessageDrivenBeanType openejbMessageDrivenBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
@@ -424,6 +425,8 @@ class MdbBuilder extends BeanBuilder {
         ServiceRefType[] serviceRefs = messageDrivenBean.getServiceRefArray();
         GerServiceRefType[] openejbServiceRefs = null;
 
+        GerGbeanRefType[] openejbGbeanRefs = null;
+
         //get arrays from openejb plan if present
         if (openejbMessageDrivenBean != null) {
             openejbEjbRefs = openejbMessageDrivenBean.getEjbRefArray();
@@ -431,13 +434,26 @@ class MdbBuilder extends BeanBuilder {
             openejbResourceRefs = openejbMessageDrivenBean.getResourceRefArray();
             openejbResourceEnvRefs = openejbMessageDrivenBean.getResourceEnvRefArray();
             openejbServiceRefs = openejbMessageDrivenBean.getServiceRefArray();
+            openejbGbeanRefs = openejbMessageDrivenBean.getGbeanRefArray();
         }
 
         MessageDestinationRefType[] messageDestinationRefs = messageDrivenBean.getMessageDestinationRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
+        Map context = ENCConfigBuilder.buildComponentContext(earContext,
+                null,
+                ejbModule,
+                userTransaction,
+                envEntries,
+                ejbRefs, openejbEjbRefs,
+                ejbLocalRefs, openejbEjbLocalRefs,
+                resourceRefs, openejbResourceRefs,
+                resourceEnvRefs, openejbResourceEnvRefs,
+                messageDestinationRefs,
+                serviceRefs, openejbServiceRefs,
+                openejbGbeanRefs,
+                cl);
         builder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
+        ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
 
     }
 

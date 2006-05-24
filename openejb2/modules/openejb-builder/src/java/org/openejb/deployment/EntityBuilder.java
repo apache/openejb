@@ -65,6 +65,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
@@ -175,7 +176,7 @@ class EntityBuilder extends BeanBuilder {
                     }
                 }
             } else if (openejbEntityBean.isSetTss()) {
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbEntityBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbEntityBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE, null);
             }
         }
         if (tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
@@ -214,12 +215,16 @@ class EntityBuilder extends BeanBuilder {
         ServiceRefType[] serviceRefs = entityBean.getServiceRefArray();
         GerServiceRefType[] openejbServiceRefs = null;
 
+        GerGbeanRefType[] openejbGbeanRefs = null;
+
+
         if (openejbEntityBean != null) {
             openejbEjbRefs = openejbEntityBean.getEjbRefArray();
             openejbEjbLocalRefs = openejbEntityBean.getEjbLocalRefArray();
             openejbResourceRefs = openejbEntityBean.getResourceRefArray();
             openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
             openejbServiceRefs = openejbEntityBean.getServiceRefArray();
+            openejbGbeanRefs = openejbEntityBean.getGbeanRefArray();
             builder.setJndiNames(openejbEntityBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
         } else {
@@ -230,9 +235,21 @@ class EntityBuilder extends BeanBuilder {
 
         MessageDestinationRefType[] messageDestinationRefs = entityBean.getMessageDestinationRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
+        Map context = ENCConfigBuilder.buildComponentContext(earContext,
+                null,
+                ejbModule,
+                userTransaction,
+                envEntries,
+                ejbRefs, openejbEjbRefs,
+                ejbLocalRefs, openejbEjbLocalRefs,
+                resourceRefs, openejbResourceRefs,
+                resourceEnvRefs, openejbResourceEnvRefs,
+                messageDestinationRefs,
+                serviceRefs, openejbServiceRefs,
+                openejbGbeanRefs,
+                cl);
         builder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
+        ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
     }
 
     public void initContext(EARContext earContext, AbstractName moduleBaseName, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {

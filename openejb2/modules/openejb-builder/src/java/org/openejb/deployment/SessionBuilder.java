@@ -74,6 +74,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
@@ -142,12 +143,15 @@ class SessionBuilder extends BeanBuilder {
         ServiceRefType[] serviceRefs = sessionBean.getServiceRefArray();
         GerServiceRefType[] openejbServiceRefs = null;
 
+        GerGbeanRefType[] openejbGbeanRefs = null;
+
         if (openejbSessionBean != null) {
             openejbEjbRefs = openejbSessionBean.getEjbRefArray();
             openejbEjbLocalRefs = openejbSessionBean.getEjbLocalRefArray();
             openejbResourceRefs = openejbSessionBean.getResourceRefArray();
             openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
             openejbServiceRefs = openejbSessionBean.getServiceRefArray();
+            openejbGbeanRefs = openejbSessionBean.getGbeanRefArray();
             builder.setJndiNames(openejbSessionBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbSessionBean.getLocalJndiNameArray());
         } else {
@@ -158,9 +162,21 @@ class SessionBuilder extends BeanBuilder {
 
         MessageDestinationRefType[] messageDestinationRefs = sessionBean.getMessageDestinationRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, null, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
+        Map context = ENCConfigBuilder.buildComponentContext(earContext,
+                null,
+                ejbModule,
+                userTransaction,
+                envEntries,
+                ejbRefs, openejbEjbRefs,
+                ejbLocalRefs, openejbEjbLocalRefs,
+                resourceRefs, openejbResourceRefs,
+                resourceEnvRefs, openejbResourceEnvRefs,
+                messageDestinationRefs,
+                serviceRefs, openejbServiceRefs,
+                openejbGbeanRefs,
+                cl);
         builder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
+        ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
 
     }
 
@@ -319,7 +335,7 @@ class SessionBuilder extends BeanBuilder {
                     }
                 }
             } else if (openejbSessionBean.isSetTss()) {
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbSessionBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE);
+                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbSessionBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE, null);
             }
         }
         if (tssBeanObjectName != null && openejbSessionBean.getJndiNameArray().length == 0) {

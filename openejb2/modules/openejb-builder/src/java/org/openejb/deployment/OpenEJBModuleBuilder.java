@@ -52,7 +52,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -539,7 +538,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(null, null, resourceLocator.getResourceLink().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, NameFactory.RESOURCE_ADAPTER_MODULE);
         } else {
             //construct name from components
-            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, NameFactory.RESOURCE_ADAPTER_MODULE);
+            resourceQuery = ENCConfigBuilder.buildAbstractNameQuery(resourceLocator.getPattern(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, NameFactory.RESOURCE_ADAPTER_MODULE, null);
         }
         Configuration configuration = earContext.getConfiguration();
         //throws GBeanNotFoundException if not satisfied
