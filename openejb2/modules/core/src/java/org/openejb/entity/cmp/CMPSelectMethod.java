@@ -63,7 +63,6 @@ import org.tranql.ql.Query;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
-import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 /**
  *
@@ -74,7 +73,6 @@ import org.tranql.sql.prefetch.PrefetchGroupHandler;
 public abstract class CMPSelectMethod implements InstanceOperation {
     protected final QueryCommand command;
     protected final FieldTransform resultAccessor;
-    private final PrefetchGroupHandler groupHandler;
     private final boolean flushCache;
     private final IdentityDefiner idDefiner;
     private final IdentityDefiner idInjector;
@@ -87,7 +85,6 @@ public abstract class CMPSelectMethod implements InstanceOperation {
 
         Query query = command.getQuery();
         resultAccessor = query.getResultAccessors()[0];
-        groupHandler = query.getPrefetchGroupHandler();
     }
 
     protected Object execute(CMPInstanceContext instCtx, ResultHandler handler, Object[] args, Object ctx) throws QueryException {
@@ -96,13 +93,9 @@ public abstract class CMPSelectMethod implements InstanceOperation {
             cache.flush();
         }
 
-        if (null != groupHandler) {
-            PrefetchGroupHandler newHandler = new PrefetchGroupHandler(groupHandler, handler);
-            return newHandler.execute(cache, command, new Row(args), ctx);
-        }
         if (null != idDefiner) {
             handler = new CacheFiller(handler, idDefiner, idInjector, cache);
         }
-        return command.execute(handler, new Row(args), ctx);
+        return command.execute(cache, handler, new Row(args), ctx);
     }
 }

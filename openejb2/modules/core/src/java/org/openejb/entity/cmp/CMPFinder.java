@@ -57,7 +57,6 @@ import org.tranql.identity.IdentityDefiner;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
-import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 /**
  * @version $Revision$ $Date$
@@ -89,14 +88,9 @@ public abstract class CMPFinder implements VirtualOperation, Serializable {
 
         QueryCommand command = getCommand(invocation);
         Row arguments = new Row(invocation.getArguments());
-        PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();
-        if (null != groupHandler) {
-            groupHandler = new PrefetchGroupHandler(groupHandler, handler);
-            return groupHandler.execute(cache, command, arguments, ctx);
-        }
         handler = new CacheFiller(handler, idDefiner, idInjector, cache);
         try {
-            return command.execute(handler, arguments, ctx);
+            return command.execute(cache, handler, arguments, ctx);
         } catch (IllegalStateException e) {
             throw new QueryException("Unable to execute finder; perhaps the cmp-connection-factory was not configured correctly?  Error message is: "+e.getMessage());
             // The handling for this is kind of awkward -- the user configured a bad cmp-connection-factory

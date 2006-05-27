@@ -81,16 +81,14 @@ import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.PrefetchGroup;
 import org.openejb.xbeans.ejbjar.OpenejbGroupType.CmrField;
 import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
+import org.tranql.builder.DynamicCommandBuilder;
+import org.tranql.builder.GlobalSchemaBuilder;
+import org.tranql.builder.StaticCommandBuilder;
 import org.tranql.cache.CacheFlushStrategyFactory;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.cache.SimpleFlushStrategyFactory;
-import org.tranql.cache.cache.CacheFactory;
-import org.tranql.cache.cache.ReadCommittedCacheFactory;
-import org.tranql.cache.cache.ReadUncommittedCacheFactory;
-import org.tranql.cache.cache.RepeatableReadCacheFactory;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
@@ -102,6 +100,10 @@ import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
 import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
+import org.tranql.intertxcache.CacheFactory;
+import org.tranql.intertxcache.ReadCommittedCacheFactory;
+import org.tranql.intertxcache.ReadUncommittedCacheFactory;
+import org.tranql.intertxcache.RepeatableReadCacheFactory;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.schema.Association.JoinDefinition;
@@ -115,9 +117,9 @@ import org.tranql.sql.JoinTable;
 import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
 import org.tranql.sql.TypeConverter;
+import org.tranql.sql.UpdateCommandBuilder;
 import org.tranql.sql.jdbc.SQLTypeLoader;
 import org.tranql.sql.prefetch.PrefetchGroupDictionary;
-import org.tranql.sql.prefetch.PrefetchGroupDictionary.EndTableDesc;
 
 
 /**
@@ -177,7 +179,8 @@ public abstract class SchemataBuilder {
             processEnterpriseBeans(ejbJar, openejbEjbJar, cl);
             processRelationships(ejbJar, openejbEjbJar);
             processGroups(openejbEjbJar);
-            GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
+            GlobalSchemaBuilder loader = new GlobalSchemaBuilder(globalSchema, ejbSchema, sqlSchema);
+            loader.build();
             processEnterpriseBeanCaches(openejbEjbJar);
         } catch (Exception e) {
             throw new DeploymentException("Could not deploy module", e);
@@ -227,7 +230,7 @@ public abstract class SchemataBuilder {
                 String groupName = group.getGroupName();
                 String[] cmpFields = group.getCmpFieldNameArray();
                 CmrField[] cmrFields = group.getCmrFieldArray();
-                EndTableDesc[] endTableDescs = new EndTableDesc[cmrFields.length];
+                PrefetchGroupDictionary.AssociationEndDesc[] endTableDescs = new PrefetchGroupDictionary.AssociationEndDesc[cmrFields.length];
                 for (int k = 0; k < cmrFields.length; k++) {
                     String cmrFieldName = cmrFields[k].getCmrFieldName();
                     String cmrGroupName;
@@ -236,7 +239,7 @@ public abstract class SchemataBuilder {
                     } else {
                         cmrGroupName = groupName;
                     }
-                    endTableDescs[k] = new EndTableDesc(cmrFieldName, cmrGroupName);
+                    endTableDescs[k] = new PrefetchGroupDictionary.AssociationEndDesc(cmrFieldName, cmrGroupName);
                 }
                 groupDictionary.addPrefetchGroup(groupName, ejbName, cmpFields, endTableDescs);
             }
@@ -372,6 +375,14 @@ public abstract class SchemataBuilder {
 
             Table table = new Table(ejbName, openEjbEntity.getTableName());
 
+            UpdateCommandBuilder commandBuilder;
+            if (openEjbEntity.isSetStaticSql()) {
+                commandBuilder = new StaticCommandBuilder(ejbName, ejbSchema, sqlSchema, globalSchema);
+            } else {
+                commandBuilder = new DynamicCommandBuilder(ejbName, ejbSchema, sqlSchema, globalSchema);
+            }
+            table.setCommandBuilder(commandBuilder);
+            
             Set pkFieldNames;
             if ( unknownPK && openEjbEntity.isSetPrimkeyField() ) {
                 pkFieldNames = new HashSet(1);

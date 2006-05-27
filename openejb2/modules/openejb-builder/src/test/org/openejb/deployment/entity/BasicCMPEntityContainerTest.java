@@ -56,11 +56,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
+
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -76,16 +78,16 @@ import org.openejb.entity.cmp.CMPEJBContainer;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
+import org.tranql.builder.EJBQueryBuilder;
+import org.tranql.builder.IdentityDefinerBuilder;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
-import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.identity.IdentityDefinerBuilder;
+import org.tranql.intertxcache.FrontEndCacheDelegate;
 import org.tranql.query.SchemaMapper;
 import org.tranql.query.UpdateCommand;
 import org.tranql.sql.Column;

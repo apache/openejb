@@ -47,6 +47,17 @@
  */
 package org.openejb.deployment;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -86,17 +97,14 @@ import org.openejb.entity.dispatch.SetEntityContextOperation;
 import org.openejb.entity.dispatch.UnsetEntityContextOperation;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
+import org.tranql.builder.IdentityDefinerBuilder;
+import org.tranql.builder.SQLQueryBuilder;
 import org.tranql.cache.CacheRowAccessor;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.EmptySlotLoader;
 import org.tranql.cache.FaultHandler;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.QueryFaultHandler;
-import org.tranql.cache.cache.CacheFactory;
-import org.tranql.cache.cache.CacheFaultHandler;
-import org.tranql.cache.cache.CacheFieldFaultTransform;
-import org.tranql.cache.cache.FindByPKCacheQueryCommand;
-import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldIdentityExtractorAccessor;
@@ -126,9 +134,13 @@ import org.tranql.field.FieldTransform;
 import org.tranql.field.ReferenceAccessor;
 import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
+import org.tranql.intertxcache.CacheFactory;
+import org.tranql.intertxcache.CacheFaultHandler;
+import org.tranql.intertxcache.CacheFieldFaultTransform;
+import org.tranql.intertxcache.FindByPKCacheQueryCommand;
+import org.tranql.intertxcache.FrontEndCacheDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
@@ -138,18 +150,7 @@ import org.tranql.schema.Attribute;
 import org.tranql.schema.Entity;
 import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Schema;
-import org.tranql.sql.SQLQueryBuilder;
 import org.tranql.sql.SQLSchema;
-
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.transaction.TransactionManager;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @version $Revision$ $Date$

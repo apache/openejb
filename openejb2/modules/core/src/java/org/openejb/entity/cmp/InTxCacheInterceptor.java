@@ -50,14 +50,14 @@ package org.openejb.entity.cmp;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.Flushable;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBInvocation;
+import org.tranql.cache.CacheFlushStrategy;
 import org.tranql.cache.CacheFlushStrategyFactory;
 import org.tranql.cache.InTxCache;
-import org.tranql.cache.CacheFlushStrategy;
-import org.tranql.cache.cache.FrontEndCache;
-import org.tranql.cache.cache.InTxCacheTracker;
+import org.tranql.intertxcache.FrontEndCache;
+import org.tranql.intertxcache.InTxCacheTracker;
 
 /**
  * This interceptor defines, if required, the InTxCache of the

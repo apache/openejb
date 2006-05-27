@@ -53,6 +53,7 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
@@ -63,6 +64,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -70,15 +72,14 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -99,9 +100,9 @@ import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.cache.FrontEndCacheDelegate;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
+import org.tranql.intertxcache.FrontEndCacheDelegate;
 import org.tranql.sql.SQLSchema;
 
 /**

@@ -72,11 +72,11 @@ import org.openejb.cache.InstancePool;
 import org.openejb.corba.TSSBean;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.ProxyInfo;
-import org.tranql.cache.cache.Cache;
-import org.tranql.cache.cache.CacheFactory;
-import org.tranql.cache.cache.FrontEndCache;
-import org.tranql.cache.cache.FrontEndCacheDelegate;
-import org.tranql.cache.cache.FrontEndToCacheAdaptor;
+import org.tranql.intertxcache.Cache;
+import org.tranql.intertxcache.CacheFactory;
+import org.tranql.intertxcache.FrontEndCache;
+import org.tranql.intertxcache.FrontEndCacheDelegate;
+import org.tranql.intertxcache.FrontEndToCacheAdaptor;
 
 
 

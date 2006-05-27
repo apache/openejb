@@ -49,7 +49,6 @@ package org.openejb.entity.cmp;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-
 import org.openejb.AbstractInterceptorBuilder;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
@@ -62,7 +61,7 @@ import org.openejb.security.EJBSecurityInterceptor;
 import org.openejb.security.PolicyContextHandlerEJBInterceptor;
 import org.openejb.transaction.TransactionContextInterceptor;
 import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.cache.FrontEndCache;
+import org.tranql.intertxcache.FrontEndCache;
 
 /**
  *

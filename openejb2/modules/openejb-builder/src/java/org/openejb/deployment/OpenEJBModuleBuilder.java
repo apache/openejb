@@ -48,21 +48,39 @@
 
 package org.openejb.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.Permissions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -93,8 +111,8 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.openejb.EJBModuleImpl;
 import org.openejb.EJBContainer;
+import org.openejb.EJBModuleImpl;
 import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
 import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
@@ -110,23 +128,6 @@ import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.SQLSchema;
-
-import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.Permissions;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
-import java.util.jar.JarFile;
 
 
 /**
