@@ -77,17 +77,16 @@ public class SerializationHandler {
 
     public static void copyArgs(Object[] objects) throws IOException, ClassNotFoundException {
         for (int i = 0; i < objects.length; i++) {
-            Object copy;
             Object originalObject = objects[i];
-            copy = copyObj(originalObject);
+            Object copy = copyObj(originalObject);
             if (copy instanceof javax.rmi.CORBA.Stub) {
+                // connect a coppied stub to the same orb as the original stub
                 ORB orb = ((javax.rmi.CORBA.Stub)originalObject)._orb();
                 if (orb != null) {
-                    // connect a coppied stub to the same orb as the original stub
                     ((javax.rmi.CORBA.Stub)copy).connect(orb);
                 }
-                objects[i] = copy;
             }
+            objects[i] = copy;
         }
     }
 
