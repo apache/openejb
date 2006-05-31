@@ -143,7 +143,9 @@ public abstract class SchemataBuilder {
         try {
             if (openejbEjbJar.isSetEjbQlCompilerFactory()) {
                 String className = openejbEjbJar.getEjbQlCompilerFactory().toString();
-                Class clazz = cl.loadClass(className);
+                //TODO we need resolve class loading issues.  Currently we're going to default to the current classloader for Alternate Syntax and EJBQLFactories
+                //  Class clazz = cl.loadClass(className);
+                Class clazz = Class.forName(className);
                 Constructor constructor = clazz.getConstructor(null);
                 Object factory = constructor.newInstance(null);
                 if (false == factory instanceof EJBQLCompilerFactory) {
@@ -159,7 +161,9 @@ public abstract class SchemataBuilder {
         try {
             if (openejbEjbJar.isSetDbSyntaxFactory()) {
                 String className = openejbEjbJar.getDbSyntaxFactory().toString();
-                Class clazz = cl.loadClass(className);
+                //TODO we need resolve class loading issues.  Currently we're going to default to the current classloader for Alternate Syntax and EJBQLFactories
+                //  Class clazz = cl.loadClass(className);
+                Class clazz = Class.forName(className);
                 Constructor constructor = clazz.getConstructor(null);
                 Object factory = constructor.newInstance(null);
                 if (false == factory instanceof DBSyntaxFactory) {
