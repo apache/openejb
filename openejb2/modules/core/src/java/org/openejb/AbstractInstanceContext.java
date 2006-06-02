@@ -156,7 +156,7 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     }
 
     public String toString() {
-        return "[InstanceContext: container=" + getContainerId() + ", id=" + getId() + "]";
+        return "[InstanceContext: container=" + getContainerId() + ", id=" + getId() + "Hashcode=" + hashCode() + "]";
     }
 
 }

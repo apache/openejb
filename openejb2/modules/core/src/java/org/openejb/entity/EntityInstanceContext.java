@@ -160,6 +160,8 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
                 if (id != null) {
                     ejbPassivate();
                 }
+                loaded = false;
+                setTransactionContext(null);
                 if (pool != null) {
                     pool.release(this);
                 }
@@ -170,9 +172,6 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
                 pool.remove(this);
             }
             throw t;
-        } finally {
-            loaded = false;
-            setTransactionContext(null);
         }
     }
 
