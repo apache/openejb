@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBException;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
@@ -47,7 +46,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     /**
      * Map from interface method ids to vop ids.
      */
-    private volatile transient int[] operationMap;
+    private transient int[] operationMap;
 
     /**
      * Metadata for the proxy
@@ -80,12 +79,11 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     // This really should be on a bean by bean basis.
     static String localCopyProperty = null;
     static boolean openejbLocalcopy = true;
-
     static {
         localCopyProperty = System.getProperty("openejb.localcopy");
         if (localCopyProperty == null) localCopyProperty = "true";
         boolean openejbLocalcopy = localCopyProperty.equals("true") ? true : false;
-        log.info("OPENEJB: Calls to remote interfaces will " + (openejbLocalcopy ? "" : "not ") + "have their values copied.");
+        log.info("OPENEJB: Calls to remote interfaces will "+(openejbLocalcopy?"":"not ")+"have their values copied.");
     }
 
 
@@ -181,24 +179,15 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
 
     private EJBInvocation createEJBInvocation(Method method, MethodProxy methodProxy, Object[] args) throws Throwable {
         // fault in the operation map if we don't have it yet
-        //make a local copy to avoid accessing main memory more than once
-        int[] operationMap = this.operationMap;
         if (operationMap == null) {
-            synchronized (this) {
-                //Note that operationMap is volatile, so this double checked locking should work
-                //according to William Pugh, at least for jdk >= 1.5
-                if (this.operationMap == null) {
-                    try {
-                        loadContainerInfo();
-                    } catch (ContainerNotFoundException e) {
-                        if (!interfaceType.isLocal()) {
-                            throw new NoSuchObjectException(e.getMessage());
-                        } else {
-                            throw new NoSuchObjectLocalException(e.getMessage());
-                        }
-                    }
+            try {
+                loadContainerInfo();
+            } catch (ContainerNotFoundException e) {
+                if (!interfaceType.isLocal()) {
+                    throw new NoSuchObjectException(e.getMessage());
+                } else {
+                    throw new NoSuchObjectLocalException(e.getMessage());
                 }
-                operationMap = this.operationMap;
             }
         }
 
@@ -206,16 +195,14 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         Object id = primaryKey;
 
         // todo lookup id of remove to make this faster
-        if ((interfaceType == EJBInterfaceType.REMOTE || interfaceType == EJBInterfaceType.LOCAL) && proxyInfo.getComponentType() == EJBComponentType.STATELESS && method.getName().equals("remove"))
-        {
+        if ((interfaceType == EJBInterfaceType.REMOTE || interfaceType == EJBInterfaceType.LOCAL) && proxyInfo.getComponentType() == EJBComponentType.STATELESS && method.getName().equals("remove")) {
             // remove on a stateless bean does nothing
             return null;
         }
 
         int methodIndex = operationMap[methodProxy.getSuperIndex()];
         if (methodIndex < 0) throw new AssertionError("Unknown method: method=" + method);
-        if ((interfaceType == EJBInterfaceType.HOME || interfaceType == EJBInterfaceType.LOCALHOME) && method.getName().equals("remove"))
-        {
+        if ((interfaceType == EJBInterfaceType.HOME || interfaceType == EJBInterfaceType.LOCALHOME) && method.getName().equals("remove")) {
 
             if (args.length != 1) {
                 throw new RemoteException().initCause(new EJBException("Expected one argument"));

@@ -338,7 +338,6 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
     }
 
     private void locateContainer() throws ContainerNotFoundException {
-        //TODO WARNING there may be synchronization problems with this method, see GERONIMO-2079 where one was fixed.
         ContainerIndex containerIndex = ContainerIndex.getInstance();
         EJBContainer c = containerIndex.getContainer(containerId);
         if (c == null) {
