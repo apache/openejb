@@ -49,7 +49,7 @@
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
         <tranqlVersion>1.3-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
-        <xmlbeansMavenPluginVersion>2.0</xmlbeansMavenPluginVersion>
+        <xmlbeansMavenPluginVersion>2.0.1-SNAPSHOT</xmlbeansMavenPluginVersion>
   </properties>
 
   <modules>
