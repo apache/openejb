@@ -61,6 +61,8 @@ import org.openejb.ContainerNotFoundException;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFactory {
+    private static final long serialVersionUID = -3095014837800918826L;
+
     private static final Class[] sessionBaseClasses =
             new Class[]{SessionEJBObject.class, SessionEJBHome.class, SessionEJBLocalObject.class, SessionEJBLocalHome.class};
 
@@ -79,18 +81,11 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
     private transient final CglibEJBProxyFactory localFactory;
     private transient final CglibEJBProxyFactory localHomeFactory;
 
-    private transient EJBContainer container;
-
-    private transient int[] remoteMap;
-    private transient int[] homeMap;
-    private transient int[] localMap;
-    private transient int[] localHomeMap;
-
-    private transient Map legacyMethodMap;
+    private transient InterfaceMaps interfaceMaps;
 
     public EJBProxyFactory(EJBContainer container) {
         this(container.getProxyInfo());
-        setContainer(container);
+        interfaceMaps = new InterfaceMaps(container);
     }
 
     public EJBProxyFactory(ProxyInfo proxyInfo) {
@@ -133,37 +128,34 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
     }
 
     public String getEJBName() {
-        return container.getEjbName();
+        InterfaceMaps interfaceMaps = getInterfaceMaps();
+        return interfaceMaps.getContainer().getEjbName();
     }
 
     EJBContainer getContainer() throws ContainerNotFoundException {
-        if (container == null) {
-            locateContainer();
-        }
-        return container;
+        InterfaceMaps interfaceMaps = getInterfaceMaps();
+        return interfaceMaps.getContainer();
     }
 
-    private void setContainer(EJBContainer container) {
-        assert container != null: "container is null";
-        this.container = container;
+    private synchronized InterfaceMaps getInterfaceMaps() {
+        InterfaceMaps interfaceMaps = this.interfaceMaps;
+        if (interfaceMaps == null) {
+            ContainerIndex containerIndex = ContainerIndex.getInstance();
 
-        ProxyInfo proxyInfo = container.getProxyInfo();
-        InterfaceMethodSignature[] signatures = container.getSignatures();
+            EJBContainer container = null;
+            try {
+                container = containerIndex.getContainer(containerId);
+            } catch (ContainerNotFoundException e) {
+            }
 
-        // build the legacy map
-        Map map = new HashMap();
-        addLegacyMethods(map, proxyInfo.getRemoteInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getHomeInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getLocalInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getLocalHomeInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getServiceEndpointInterface(), signatures);
-        legacyMethodMap = Collections.unmodifiableMap(map);
+            if (container == null) {
+                throw new IllegalStateException("Contianer not found: " + containerId);
+            }
 
-        remoteMap = createOperationsMap(remoteFactory, signatures);
-        homeMap = createOperationsMap(homeFactory, signatures);
-
-        localMap = createOperationsMap(localFactory, signatures);
-        localHomeMap = createOperationsMap(localHomeFactory, signatures);
+            interfaceMaps = new InterfaceMaps(container);
+            this.interfaceMaps = interfaceMaps;
+        }
+        return interfaceMaps;
     }
 
     public ClassLoader getClassLoader() {
@@ -175,25 +167,24 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
     }
 
     int[] getOperationMap(EJBInterfaceType type) throws ContainerNotFoundException {
-        if (container == null) {
-            locateContainer();
-        }
+        EJBProxyFactory.InterfaceMaps interfaceMaps = getInterfaceMaps();
 
         if (type == EJBInterfaceType.REMOTE) {
-            return remoteMap;
+            return interfaceMaps.remoteMap;
         } else if (type == EJBInterfaceType.HOME) {
-            return homeMap;
+            return interfaceMaps.homeMap;
         } else if (type == EJBInterfaceType.LOCAL) {
-            return localMap;
+            return interfaceMaps.localMap;
         } else if (type == EJBInterfaceType.LOCALHOME) {
-            return localHomeMap;
+            return interfaceMaps.localHomeMap;
         } else {
             throw new IllegalArgumentException("Unsupported interface type " + type);
         }
     }
 
     public int getMethodIndex(Method method) {
-        Integer index = (Integer) legacyMethodMap.get(method);
+        EJBProxyFactory.InterfaceMaps interfaceMaps = getInterfaceMaps();
+        Integer index = (Integer) interfaceMaps.legacyMethodMap.get(method);
         if (index == null) {
             index = new Integer(-1);
         }
@@ -218,11 +209,12 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         if (remoteFactory == null) {
             throw new IllegalStateException("getEJBObject is not allowed if no remote interface is defined");
         }
+        EJBProxyFactory.InterfaceMaps interfaceMaps = getInterfaceMaps();
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.REMOTE,
-                container,
-                remoteMap,
+                interfaceMaps.container,
+                interfaceMaps.remoteMap,
                 primaryKey);
         return (EJBObject) remoteFactory.create(handler);
     }
@@ -237,11 +229,12 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         if (homeFactory == null) {
             throw new IllegalStateException("getEJBHome is not allowed if no remote interface is defined");
         }
+        EJBProxyFactory.InterfaceMaps interfaceMaps = getInterfaceMaps();
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.HOME,
-                container,
-                homeMap);
+                interfaceMaps.container,
+                interfaceMaps.homeMap);
         return (EJBHome) homeFactory.create(handler);
     }
 
@@ -256,11 +249,12 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         if (localFactory == null) {
             throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
         }
+        EJBProxyFactory.InterfaceMaps interfaceMaps = getInterfaceMaps();
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.LOCAL,
-                container,
-                localMap,
+                interfaceMaps.container,
+                interfaceMaps.localMap,
                 primaryKey);
         return (EJBLocalObject) localFactory.create(handler);
     }
@@ -276,17 +270,13 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         if (localFactory == null) {
             throw new IllegalStateException("getEJBLocalHome is not allowed if no local interface is defined");
         }
+        EJBProxyFactory.InterfaceMaps interfaceMaps = getInterfaceMaps();
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.LOCALHOME,
-                container,
-                localHomeMap);
+                interfaceMaps.container,
+                interfaceMaps.localHomeMap);
         return (EJBLocalHome) localHomeFactory.create(handler);
-    }
-
-    private int[] createOperationsMap(CglibEJBProxyFactory factory, InterfaceMethodSignature[] signatures) {
-        if (factory == null) return new int[0];
-        return EJBProxyHelper.getOperationMap(factory.getType(), signatures, false);
     }
 
     private CglibEJBProxyFactory getFactory(int interfaceType, Class interfaceClass) {
@@ -337,16 +327,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         }
     }
 
-    private void locateContainer() throws ContainerNotFoundException {
-        ContainerIndex containerIndex = ContainerIndex.getInstance();
-        EJBContainer c = containerIndex.getContainer(containerId);
-        if (c == null) {
-            throw new IllegalStateException("Contianer not found: " + containerId);
-        }
-        setContainer(c);
-    }
-
-    private Object readResolve() {
+    protected Object readResolve() {
         return new EJBProxyFactory(
                 containerId,
                 isSessionBean,
@@ -354,5 +335,66 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
                 homeInterface,
                 localInterface,
                 localHomeInterface);
+    }
+
+    private final class InterfaceMaps {
+        private final EJBContainer container;
+        private final int[] remoteMap;
+        private final int[] homeMap;
+        private final int[] localMap;
+        private final int[] localHomeMap;
+        private final Map legacyMethodMap;
+
+        public InterfaceMaps(EJBContainer container) {
+            if (container == null) throw new NullPointerException("container is null");
+            this.container = container;
+
+            ProxyInfo proxyInfo = container.getProxyInfo();
+            InterfaceMethodSignature[] signatures = container.getSignatures();
+
+            // build the legacy map
+            Map map = new HashMap();
+            addLegacyMethods(map, proxyInfo.getRemoteInterface(), signatures);
+            addLegacyMethods(map, proxyInfo.getHomeInterface(), signatures);
+            addLegacyMethods(map, proxyInfo.getLocalInterface(), signatures);
+            addLegacyMethods(map, proxyInfo.getLocalHomeInterface(), signatures);
+            addLegacyMethods(map, proxyInfo.getServiceEndpointInterface(), signatures);
+            legacyMethodMap = Collections.unmodifiableMap(map);
+
+            remoteMap = createOperationsMap(remoteFactory, signatures);
+            homeMap = createOperationsMap(homeFactory, signatures);
+
+            localMap = createOperationsMap(localFactory, signatures);
+            localHomeMap = createOperationsMap(localHomeFactory, signatures);
+        }
+
+        public EJBContainer getContainer() {
+            return container;
+        }
+
+        public int[] getRemoteMap() {
+            return remoteMap;
+        }
+
+        public int[] getHomeMap() {
+            return homeMap;
+        }
+
+        public int[] getLocalMap() {
+            return localMap;
+        }
+
+        public int[] getLocalHomeMap() {
+            return localHomeMap;
+        }
+
+        public Map getLegacyMethodMap() {
+            return legacyMethodMap;
+        }
+
+        private int[] createOperationsMap(CglibEJBProxyFactory factory, InterfaceMethodSignature[] signatures) {
+            if (factory == null) return new int[0];
+            return EJBProxyHelper.getOperationMap(factory.getType(), signatures, false);
+        }
     }
 }

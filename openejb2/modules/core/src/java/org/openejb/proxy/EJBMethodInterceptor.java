@@ -23,6 +23,8 @@ import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 
 public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
+    private static final long serialVersionUID = -5271735029122675779L;
+
     /**
      * Proxy factory for this proxy
      */
@@ -37,6 +39,12 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
      * Primary key of this proxy, or null if this is a home proxy.
      */
     private final Object primaryKey;
+
+    /**
+     * Has this interceptor been initialized.  Interceptor is uninitialized between deserialization and
+     * the first method call.
+     */
+    private transient boolean initialized;
 
     /**
      * The container we are invokeing
@@ -82,7 +90,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     static {
         localCopyProperty = System.getProperty("openejb.localcopy");
         if (localCopyProperty == null) localCopyProperty = "true";
-        boolean openejbLocalcopy = localCopyProperty.equals("true") ? true : false;
+        boolean openejbLocalcopy = localCopyProperty.equals("true");
         log.info("OPENEJB: Calls to remote interfaces will "+(openejbLocalcopy?"":"not ")+"have their values copied.");
     }
 
@@ -107,6 +115,8 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             // this lets really stupid clients get access to the primary key of the proxy, which is readily
             // available from several other sources
             this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
+
+            initialized = true;
         }
 
         shouldCopy = !interfaceType.isLocal() && openejbLocalcopy;
@@ -117,9 +127,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     }
 
     public ProxyInfo getProxyInfo() throws ContainerNotFoundException {
-        if (proxyInfo == null) {
-            loadContainerInfo();
-        }
+        initialize();
         return proxyInfo;
     }
 
@@ -128,6 +136,17 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     }
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        // make sure the interceptor has been initialized
+        try {
+            initialize();
+        } catch (ContainerNotFoundException e) {
+            if (!interfaceType.isLocal()) {
+                throw new NoSuchObjectException(e.getMessage());
+            } else {
+                throw new NoSuchObjectLocalException(e.getMessage());
+            }
+        }
+
         EJBInvocation invocation = createEJBInvocation(method, methodProxy, args);
         if (invocation == null) {
             return null;
@@ -178,19 +197,6 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     }
 
     private EJBInvocation createEJBInvocation(Method method, MethodProxy methodProxy, Object[] args) throws Throwable {
-        // fault in the operation map if we don't have it yet
-        if (operationMap == null) {
-            try {
-                loadContainerInfo();
-            } catch (ContainerNotFoundException e) {
-                if (!interfaceType.isLocal()) {
-                    throw new NoSuchObjectException(e.getMessage());
-                } else {
-                    throw new NoSuchObjectLocalException(e.getMessage());
-                }
-            }
-        }
-
         // extract the primary key from home ejb remove invocations
         Object id = primaryKey;
 
@@ -260,7 +266,14 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
     }
 
-    private void loadContainerInfo() throws ContainerNotFoundException {
+    private void initialize() throws ContainerNotFoundException {
+        // only initialize once... there is a race condition but it doesn't matter since
+        // initialization only copies data fro the proxy factory and the values of that data doesn't change
+        if (initialized) return;
+
+        //
+        // Copy all info out of the proxy factory, since access is synchronized in the proxy factory
+        //
         container = proxyFactory.getContainer();
         operationMap = proxyFactory.getOperationMap(interfaceType);
 
@@ -272,6 +285,8 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         // this lets really stupid clients get access to the primary key of the proxy, which is readily
         // available from several other sources
         this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
+
+        initialized = true;
     }
 
     private static boolean isCrossClassLoader(ClassLoader source, ClassLoader target) {
