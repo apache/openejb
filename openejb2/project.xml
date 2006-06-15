@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+
+    <pomVersion>3</pomVersion>
+    <extend>etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <build>
+        <sourceDirectory></sourceDirectory>
+        <unitTestSourceDirectory></unitTestSourceDirectory>
+    </build>
+</project>

@@ -1,0 +1,10 @@
+*.iml
+.project
+.classpath
+maven.log
+junit*.properties
+target
+bin
+scout.log
+velocity.log
+.settings
