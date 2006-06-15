@@ -1,6 +1,0 @@
-<project>
-  <goal name="process-root-pom">
-    <replace file="openejb/profiles.xml" token="@maven.repo.local@" value="${maven.repo.local}" />
-    <replace file="openejb/pom.xml" token="@maven.repo.local@" value="${maven.repo.local}" />
-  </goal>
-</project>
