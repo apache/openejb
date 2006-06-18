@@ -43,11 +43,20 @@
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_dependency_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
@@ -59,12 +68,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-interceptor</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 
@@ -216,17 +219,8 @@
             <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-            <version>2.3-rc4</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
@@ -429,6 +423,17 @@
             <version>${ant_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+        </dependency>
     </dependencies>
 
     <!-- =================== -->
@@ -452,13 +457,19 @@
                     <include>*.properties</include>
                 </includes>
             </resource>
-          <resource>
-            <targetPath>META-INF/schema</targetPath>
-            <directory>${basedir}/src/schema</directory>
-            <includes>
-              <include>openejb-jar.xsd</include>
-            </includes>
-          </resource>
+            <resource>
+                <directory>${basedir}/target/etc</directory>
+                <includes>
+                    <include>META-INF/geronimo-dependency.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <targetPath>META-INF/schema</targetPath>
+                <directory>${basedir}/src/schema</directory>
+                <includes>
+                    <include>openejb-jar.xsd</include>
+                </includes>
+            </resource>
         </resources>
         <unitTest>
             <includes>

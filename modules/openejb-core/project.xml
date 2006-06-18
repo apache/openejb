@@ -33,12 +33,6 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-interceptor</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -86,6 +80,12 @@
         </dependency>
 
         <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${geronimo_version}</version>
@@ -95,6 +95,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -107,6 +110,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -141,7 +147,7 @@
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
-
+    
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
@@ -223,17 +229,23 @@
             <version>${tranql_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+            </properties>
         </dependency>
-        <!-- should be in tranql's dependency list -->
+        <!-- TODO this should be a transitive dependency of tranql, not here -->
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+            </properties>
         </dependency>
+
+        <dependency>
+            <groupId>axion</groupId>
+            <artifactId>axion</artifactId>
+            <version>${axion_version}</version>
+         </dependency>
 
         <dependency>
             <groupId>castor</groupId>
@@ -256,6 +268,25 @@
          </dependency>
 
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-primitives</groupId>
+            <artifactId>commons-primitives</artifactId>
+            <version>${commons_primitives_version}</version>
+         </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${concurrent_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j_version}</version>
@@ -266,6 +297,12 @@
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>${mx4j_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>regexp</groupId>
+            <artifactId>regexp</artifactId>
+            <version>${regexp_version}</version>
         </dependency>
 
         <dependency>
@@ -306,110 +343,6 @@
             <version>${xmlbeans_version}</version>
         </dependency>
 
-        <!-- EJB Clustering -->
-        <dependency>
-            <groupId>activecluster</groupId>
-            <artifactId>activecluster</artifactId>
-            <version>${wadi_activecluster_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>wadi</groupId>
-            <artifactId>wadi-core</artifactId>
-            <version>${wadi_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-            <version>${activeio_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-    
-        <dependency>
-            <groupId>axion</groupId>
-            <artifactId>axion</artifactId>
-            <version>${axion_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-core</artifactId>
-            <version>${activemq_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${commons_logging_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>${commons_collections_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-primitives</groupId>
-            <artifactId>commons-primitives</artifactId>
-            <version>${commons_primitives_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>${backport_util_concurrent_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>${concurrent_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>regexp</groupId>
-            <artifactId>regexp</artifactId>
-            <version>${regexp_version}</version>
-            <properties>
-                <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>${spring_version}</version>
-            <type>test</type>
-        </dependency>
-
     </dependencies>
 
     <!-- =================== -->
@@ -426,21 +359,6 @@
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/src/test/java</directory>
-                    <includes>
-                        <include>**/*.xml</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/src/schema</directory>
-                    <includes>
-                        <include>*.xsd</include>
-                        <include>*.dtd</include>
-                    </includes>
-                </resource>
-            </resources>
         </unitTest>
     </build>
 </project>

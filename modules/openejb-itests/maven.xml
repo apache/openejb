@@ -219,9 +219,7 @@
         </j:forEach>
 
         <ant:delete dir="${maven.build.dir}/geronimo-${geronimo_version}"/>
-        <deploy:unpackServer 
-            geronimoArtifactId="geronimo-jetty-j2ee"
-            geronimoVersion="${geronimo_version}"/>
+        <deploy:unpackServer geronimoVersion="${geronimo_version}"/>
         <ant:copy todir="${maven.build.dir}/geronimo-${geronimo_version}/var/certstores">
             <ant:fileset dir="src/test-resources" includes="keystore,truststore"/>
         </ant:copy>
@@ -241,7 +239,7 @@
             username="system"
             password="manager"
             maxtries="125"
-            id="geronimo/jetty-deployer/${geronimo_version}/car"/>
+            id="geronimo/jetty-runtime-deployer/${geronimo_version}/car"/>
         <echo message="runtime deployer has started"/>
         <u:sleep millis="7000"/>
         <deploy:distribute
