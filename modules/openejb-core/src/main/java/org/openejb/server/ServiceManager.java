@@ -49,19 +49,18 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
-import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.util.Messages;
 import org.activeio.xnet.ServerService;
-import org.activeio.xnet.ServiceException;
 import org.activeio.xnet.ServiceDaemon;
 import org.activeio.xnet.ServiceDaemonGBean;
+import org.activeio.xnet.ServiceException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.openejb.util.Messages;
 
 
 /**
@@ -386,9 +385,9 @@ public class ServiceManager {
     }
 
     public static void setUpServerService(Kernel kernel, String type, String host, int port, Class serviceClass) throws Exception {
-        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName(":type=SocketService,name="+type);
-        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName(":type=ServiceDaemon,name="+type);
-        ObjectName CONTAINER_INDEX = JMXUtil.getObjectName(":type=ContainerIndex,*");
+        AbstractName SOCKETSERVICE_NAME = null; //JMXUtil.getObjectName(":type=SocketService,name="+type);
+        AbstractName SERVICEDAEMON_NAME = null; //JMXUtil.getObjectName(":type=ServiceDaemon,name="+type);
+        AbstractName CONTAINER_INDEX = null; //JMXUtil.getObjectName(":type=ContainerIndex,*");
 
         ClassLoader classLoader = ServiceManager.class.getClassLoader();
 

@@ -46,15 +46,9 @@
 package org.openejb.server.httpd;
 
 import java.net.Socket;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class HttpServerGBean {
@@ -73,17 +67,5 @@ public class HttpServerGBean {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static ObjectName addGBean(Kernel kernel, String name, ObjectName listener) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        ClassLoader classLoader = HttpServer.class.getClassLoader();
-        ObjectName SERVICE_NAME = JMXUtil.getObjectName("openejb:type=HttpServer,name=" + name);
-
-        GBeanData gbean = new GBeanData(SERVICE_NAME, HttpServerGBean.GBEAN_INFO);
-        gbean.setReferencePattern("Listener", listener);
-
-        kernel.loadGBean(gbean, classLoader);
-        kernel.startGBean(SERVICE_NAME);
-        return SERVICE_NAME;
     }
 }

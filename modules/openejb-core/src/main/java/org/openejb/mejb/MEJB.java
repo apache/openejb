@@ -51,7 +51,7 @@ package org.openejb.mejb;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.openejb.EJBComponentType;
 import org.openejb.EjbDeployment;
 import org.openejb.EjbInvocation;
@@ -68,6 +68,7 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.MBeanServer;
 import javax.management.j2ee.Management;
 import javax.management.j2ee.ManagementHome;
 import javax.security.auth.Subject;
@@ -93,8 +94,13 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDe
     private final FastClass fastClass;
     private final String ejbName;
 
-    public MEJB(String objectName, Kernel kernel) {
-        super(objectName, kernel);
+    // todo remove this as soon as Geronimo supports factory beans
+    public MEJB(String objectName, MBeanServerReference mbeanServerReference) {
+        this(objectName, mbeanServerReference.getMBeanServer());
+    }
+
+    public MEJB(String objectName, MBeanServer mbeanServer) {
+        super(objectName, mbeanServer);
         this.objectName = objectName;
         String ejbName;
         try {

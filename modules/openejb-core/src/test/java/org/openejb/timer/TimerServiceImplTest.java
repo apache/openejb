@@ -59,7 +59,6 @@ import javax.security.auth.Subject;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.TestCase;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.ExecutorTaskFactory;
 import org.apache.geronimo.timer.ThreadPooledTimer;
@@ -74,6 +73,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.openejb.ExtendedEjbDeployment;
 import org.openejb.EjbContainer;
 import org.openejb.EjbDeployment;
@@ -94,7 +94,7 @@ public class TimerServiceImplTest extends TestCase {
     private static final long DELAY = 1000L;
 
     private static final String kernelName = "testKernel";
-    private static final ObjectName timerSourceName = JMXUtil.getObjectName("test:type=TimerService");
+    private static final ObjectName timerSourceName = ObjectNameUtil.getObjectName("test:type=TimerService");
     private ThreadPool threadPool;
     private ThreadPooledTimer threadPooledTimer;
 

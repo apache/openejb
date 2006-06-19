@@ -19,7 +19,7 @@ package org.openejb.mejb;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.openejb.RpcEjbDeployment;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 
 /**
  * @version $Revision$ $Date$
@@ -30,9 +30,9 @@ public final class MEJBGBean {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJBGBean.class, MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
-        infoBuilder.addInterface(RpcEjbDeployment.class);
+        infoBuilder.addReference("MBeanServerReference", MBeanServerReference.class);
 
-        infoBuilder.setConstructor(new String[]{"objectName", "kernel"});
+        infoBuilder.setConstructor(new String[]{"objectName", "MBeanServerReference"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

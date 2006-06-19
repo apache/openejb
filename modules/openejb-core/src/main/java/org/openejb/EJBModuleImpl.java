@@ -47,46 +47,38 @@
  */
 package org.openejb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import javax.management.ObjectName;
+
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.ObjectNameUtil;
+import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.util.Hashtable;
 
 /**
  * @version $Revision$ $Date$
  */
 public class EJBModuleImpl implements EJBModule {
-    private final static Log log = LogFactory.getLog(EJBModuleImpl.class);
-    private final Kernel kernel;
-    private final J2eeContext moduleContext;
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
-    private final String[] J2EE_TYPES = {NameFactory.ENTITY_BEAN, NameFactory.STATELESS_SESSION_BEAN, NameFactory.STATEFUL_SESSION_BEAN, NameFactory.MESSAGE_DRIVEN_BEAN};
     private final String objectName;
 
-    public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
-        this.objectName = objectName;
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
-        verifyObjectName(myObjectName);
-        moduleContext = J2eeContextImpl.newContext(myObjectName, NameFactory.EJB_MODULE);
+    private final Collection ejbs;
 
-        this.kernel = kernel;
+    public EJBModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, Collection ejbs) {
+        this.objectName = objectName;
+        ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
+
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
+        this.ejbs = ejbs;
     }
 
     public String getObjectName() {
@@ -124,13 +116,18 @@ public class EJBModuleImpl implements EJBModule {
         return server.getJavaVMs();
     }
 
-    public String[] getEJBs() {
-        try {
-            return Util.getObjectNames(kernel, moduleContext, J2EE_TYPES);
-        } catch (MalformedObjectNameException e) {
-            log.error(e);
-            return null;
+    public String[] getEjbs() {
+        if (ejbs == null) return new String[0];
+
+        ArrayList copy;
+        synchronized (ejbs) {
+            copy = new ArrayList(ejbs);
         }
+        String[] result = new String[copy.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = ((EJB) copy.get(i)).getObjectName();
+        }
+        return result;
     }
 
     /**
@@ -159,6 +156,4 @@ public class EJBModuleImpl implements EJBModule {
             throw new InvalidObjectNameException("EJBModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
         }
     }
-
-
 }

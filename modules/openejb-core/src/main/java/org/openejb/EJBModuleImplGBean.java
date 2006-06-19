@@ -22,7 +22,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.EJB;
 
 /**
  * @version $Revision$ $Date$
@@ -32,27 +32,22 @@ public final class EJBModuleImplGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EJBModuleImplGBean.class, EJBModuleImpl.class, NameFactory.EJB_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EJBModuleImpl.class, NameFactory.EJB_MODULE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
 
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("server", String.class, false);
-        infoBuilder.addAttribute("application", String.class, false);
-        infoBuilder.addAttribute("javaVMs", String[].class, false);
-        infoBuilder.addAttribute("ejbs", String[].class, false);
+        infoBuilder.addReference("EJBCollection", EJB.class);
 
         infoBuilder.addInterface(EJBModule.class);
 
         infoBuilder.setConstructor(new String[]{
-                "kernel",
                 "objectName",
                 "J2EEServer",
                 "J2EEApplication",
                 "deploymentDescriptor",
+                "EJBCollection"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

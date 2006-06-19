@@ -44,30 +44,24 @@
  */
 package org.openejb.slsb;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.io.Serializable;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
-import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.SimpleInvocationResult;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.EJBComponentType;
-import org.openejb.RpcEjbDeployment;
 import org.openejb.EjbDeployment;
+import org.openejb.RpcEjbDeployment;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
@@ -215,26 +209,25 @@ public class MockEjbDeployment implements RpcEjbDeployment {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + name);
-
-        GBeanData gbean1 = new GBeanData(gbeanName, MockEjbDeployment.GBEAN_INFO);
-
-        GBeanData gbean = gbean1;
-        kernel.loadGBean(gbean, MockEjbDeployment.class.getClassLoader());
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-    
-    public static ObjectName addGBean(Kernel kernel, String name, ClassLoader cl) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + name);
-
-        GBeanData gbean1 = new GBeanData(gbeanName, MockEjbDeployment.GBEAN_INFO);
-
-        GBeanData gbean = gbean1;
-        kernel.loadGBean(gbean, cl);
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-
+//    public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+//        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + name);
+//
+//        GBeanData gbean1 = new GBeanData(gbeanName, MockEjbDeployment.GBEAN_INFO);
+//
+//        GBeanData gbean = gbean1;
+//        kernel.loadGBean(gbean, MockEjbDeployment.class.getClassLoader());
+//        kernel.startGBean(gbean.getName());
+//        return gbean.getName();
+//    }
+//
+//    public static ObjectName addGBean(Kernel kernel, String name, ClassLoader cl) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+//        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + name);
+//
+//        GBeanData gbean1 = new GBeanData(gbeanName, MockEjbDeployment.GBEAN_INFO);
+//
+//        GBeanData gbean = gbean1;
+//        kernel.loadGBean(gbean, cl);
+//        kernel.startGBean(gbean.getName());
+//        return gbean.getName();
+//    }
 }

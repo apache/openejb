@@ -44,15 +44,8 @@
  */
 package org.openejb.server.soap;
 
-import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
@@ -72,20 +65,5 @@ public class SoapHttpListenerGBean {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name);
-        kernel.loadGBean(gbean, SoapHttpListener.class.getClassLoader());
-        kernel.startGBean(gbean.getName());
-        return gbean.getName();
-    }
-
-    public static GBeanData createGBean(String name) {
-        ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=SoapHttpListener,name=" + name);
-
-        GBeanData gbean = new GBeanData(gbeanName, SoapHttpListenerGBean.GBEAN_INFO);
-
-        return gbean;
     }
 }

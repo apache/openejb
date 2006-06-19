@@ -49,15 +49,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.net.URI;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractName;
 import org.openejb.dispatch.MethodSignature;
 import org.tranql.builder.DynamicCommandBuilder;
 import org.tranql.builder.GlobalSchemaBuilder;
@@ -292,13 +292,8 @@ public class TranqlSchemaBuilder {
         //todo: Handle a PK Class with multiple fields?
         if (primaryKeyGenerator instanceof CustomPrimaryKeyGenerator) {
             CustomPrimaryKeyGenerator custom = (CustomPrimaryKeyGenerator) primaryKeyGenerator;
-            String generatorName = custom.getGeneratorName();
-            ObjectName generatorObjectName = null;
-            try {
-                generatorObjectName = new ObjectName(generatorName);
-            } catch (MalformedObjectNameException e) {
-                throw new IllegalArgumentException("CustomPrimaryKeyGenerator name is not a valid ObjectName: " + generatorName);
-            }
+            URI generatorName = custom.getGeneratorName();
+            AbstractName generatorObjectName = new AbstractName(generatorName);
             org.tranql.pkgenerator.PrimaryKeyGenerator generator = (org.tranql.pkgenerator.PrimaryKeyGenerator) kernel.getProxyManager().createProxy(generatorObjectName, org.tranql.pkgenerator.PrimaryKeyGenerator.class);
             return generator;
         } else if (primaryKeyGenerator instanceof SqlPrimaryKeyGenerator) {
@@ -410,9 +405,7 @@ public class TranqlSchemaBuilder {
         // get the right ejb and table
         String rightEntityName = rightRole.getEjbName();
         EJB rightEjb = ejbSchema.getEJB(rightEntityName);
-        ;
         Table rightTable = sqlSchema.getTable(rightEntityName);
-        ;
 
         // get the middle ejb and table
         String middleEjbName = manyToManyRelationSchema.getManyToManyTableName();

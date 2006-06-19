@@ -46,12 +46,13 @@ package org.openejb.server.ejbd;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.openejb.DeploymentIndex;
 import org.openejb.RpcEjbDeployment;
@@ -69,7 +70,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
     private final DeploymentIndex deploymentIndex;
     private static final Log log = LogFactory.getLog(JndiRequestHandler.class);
 
-    JndiRequestHandler(DeploymentIndex deploymentIndex) throws NamingException {
+    JndiRequestHandler(DeploymentIndex deploymentIndex) {
         this.deploymentIndex = deploymentIndex;
     }
 
@@ -94,8 +95,9 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             if (req.getClientModuleID() != null) {
                 contextClassLoader = thread.getContextClassLoader();
                 try {
-                    ObjectName objectName = new ObjectName(req.getClientModuleID());
-                    ClassLoader classLoader = KernelRegistry.getSingleKernel().getClassLoaderFor(objectName);
+                    URI uri = new URI(req.getClientModuleID());
+                    AbstractName abstractName = new AbstractName(uri);
+                    ClassLoader classLoader = KernelRegistry.getSingleKernel().getClassLoaderFor(abstractName);
                     thread.setContextClassLoader(classLoader);
                 } catch (Throwable e) {
                     replyWithFatalError(out, e, "Failed to set the correct classloader");
@@ -153,8 +155,9 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
 
         if (req.getClientModuleID() != null) {
             try {
-                ObjectName objectName = new ObjectName(req.getClientModuleID());
-                Object context = KernelRegistry.getSingleKernel().getAttribute(objectName, "componentContext");
+                URI uri = new URI(req.getClientModuleID());
+                AbstractName abstractName = new AbstractName(uri);
+                Object context = KernelRegistry.getSingleKernel().getAttribute(abstractName, "componentContext");
 
                 res.setResponseCode(JNDI_CONTEXT_TREE);
                 res.setResult(context);

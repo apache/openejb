@@ -26,6 +26,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-interceptor</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-dependency-plugin</artifactId>
             <version>${geronimo_dependency_plugin_version}</version>
             <type>plugin</type>
@@ -343,6 +349,110 @@
             <version>${xmlbeans_version}</version>
         </dependency>
 
+        <!-- EJB Clustering -->
+        <dependency>
+            <groupId>activecluster</groupId>
+            <artifactId>activecluster</artifactId>
+            <version>${wadi_activecluster_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>wadi</groupId>
+            <artifactId>wadi-core</artifactId>
+            <version>${wadi_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axion</groupId>
+            <artifactId>axion</artifactId>
+            <version>${axion_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>${commons_collections_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-primitives</groupId>
+            <artifactId>commons-primitives</artifactId>
+            <version>${commons_primitives_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport_util_concurrent_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${concurrent_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>regexp</groupId>
+            <artifactId>regexp</artifactId>
+            <version>${regexp_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>${spring_version}</version>
+            <type>test</type>
+        </dependency>
+
     </dependencies>
 
     <!-- =================== -->
@@ -359,6 +469,14 @@
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                </resource>
+            </resources>
         </unitTest>
     </build>
 </project>

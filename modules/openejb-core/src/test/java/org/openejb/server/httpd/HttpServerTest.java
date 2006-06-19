@@ -44,27 +44,18 @@
  */
 package org.openejb.server.httpd;
 
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
+
 import junit.framework.TestCase;
 import org.activeio.xnet.ServerService;
 import org.activeio.xnet.ServiceDaemon;
 import org.activeio.xnet.StandardServiceStack;
-import org.activeio.xnet.StandardServiceStackGBean;
 import org.activeio.xnet.SyncChannelServerDaemon;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.pool.ThreadPool;
-
-import javax.management.ObjectName;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
 
 public class HttpServerTest extends TestCase {
 
@@ -141,82 +132,82 @@ public class HttpServerTest extends TestCase {
         }
     }
 
-    public void testHttpServerGBean() throws Exception {
-        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
-        kernel.boot();
-
-        ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
-        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
-        ServerService service = (ServerService) kernel.getProxyManager().createProxy(server, ServerService.class);
-
-        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader(), "openejb:type=ThreadPool,name=Test");
-
-        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, threadPool, service);
-        HttpURLConnection connection = null;
-
-        try {
-            serviceStack.setSoTimeout(100);
-            serviceStack.doStart();
-
-            int port = serviceStack.getPort();
-            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
-            connection = (HttpURLConnection) url.openConnection();
-
-            int responseCode = connection.getResponseCode();
-            assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
-        } finally {
-            connection.disconnect();
-            serviceStack.doStop();
-            kernel.shutdown();
-        }
-    }
-
-    public void testGBeanServiceStack() throws Exception {
-        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
-        kernel.boot();
-
-        ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
-        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
-
-        ClassLoader cl = ThreadPool.class.getClassLoader();
-        ObjectName executor = JMXUtil.getObjectName("openejb:name=ThreadPool");
-        GBeanData gbean = new GBeanData(executor, ThreadPool.GBEAN_INFO);
-        gbean.setAttribute("poolSize", new Integer(1));
-        gbean.setAttribute("poolName", "Test");
-        gbean.setAttribute("keepAliveTime", new Long(1000));
-        kernel.loadGBean(gbean, cl);
-        kernel.startGBean(executor);
-
-        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTP", 0, "localhost", null, null, null, executor, server);
-
-        assertRunning(kernel, listener);
-        assertRunning(kernel, server);
-        assertRunning(kernel, stack);
-
-        HttpURLConnection connection = null;
-
-        try {
-            kernel.setAttribute(stack, "soTimeout", new Integer(100));
-            int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
-            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
-
-            connection = (HttpURLConnection) url.openConnection();
-            int responseCode = connection.getResponseCode();
-            System.out.println("responseCode = " + responseCode);
-            assertEquals("HTTP response code should be 204", responseCode, HttpURLConnection.HTTP_NO_CONTENT);
-        } catch (Exception e) {
-            System.out.println("exception " + e.getMessage());
-        } finally {
-            connection.disconnect();
-            kernel.stopGBean(stack);
-            kernel.shutdown();
-        }
-    }
-
-
-    private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
-    }
+//    public void testHttpServerGBean() throws Exception {
+//        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
+//        kernel.boot();
+//
+//        ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
+//        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
+//        ServerService service = (ServerService) kernel.getProxyManager().createProxy(server, ServerService.class);
+//
+//        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader(), "openejb:type=ThreadPool,name=Test");
+//
+//        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, threadPool, service);
+//        HttpURLConnection connection = null;
+//
+//        try {
+//            serviceStack.setSoTimeout(100);
+//            serviceStack.doStart();
+//
+//            int port = serviceStack.getPort();
+//            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
+//            connection = (HttpURLConnection) url.openConnection();
+//
+//            int responseCode = connection.getResponseCode();
+//            assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
+//        } finally {
+//            connection.disconnect();
+//            serviceStack.doStop();
+//            kernel.shutdown();
+//        }
+//    }
+//
+//    public void testGBeanServiceStack() throws Exception {
+//        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
+//        kernel.boot();
+//
+//        ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
+//        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
+//
+//        ClassLoader cl = ThreadPool.class.getClassLoader();
+//        ObjectName executor = JMXUtil.getObjectName("openejb:name=ThreadPool");
+//        GBeanData gbean = new GBeanData(executor, ThreadPool.GBEAN_INFO);
+//        gbean.setAttribute("poolSize", new Integer(1));
+//        gbean.setAttribute("poolName", "Test");
+//        gbean.setAttribute("keepAliveTime", new Long(1000));
+//        kernel.loadGBean(gbean, cl);
+//        kernel.startGBean(executor);
+//
+//        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTP", 0, "localhost", null, null, null, executor, server);
+//
+//        assertRunning(kernel, listener);
+//        assertRunning(kernel, server);
+//        assertRunning(kernel, stack);
+//
+//        HttpURLConnection connection = null;
+//
+//        try {
+//            kernel.setAttribute(stack, "soTimeout", new Integer(100));
+//            int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
+//            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
+//
+//            connection = (HttpURLConnection) url.openConnection();
+//            int responseCode = connection.getResponseCode();
+//            System.out.println("responseCode = " + responseCode);
+//            assertEquals("HTTP response code should be 204", responseCode, HttpURLConnection.HTTP_NO_CONTENT);
+//        } catch (Exception e) {
+//            System.out.println("exception " + e.getMessage());
+//        } finally {
+//            connection.disconnect();
+//            kernel.stopGBean(stack);
+//            kernel.shutdown();
+//        }
+//    }
+//
+//
+//    private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
+//        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
+//    }
 
     public static class TestHttpListener implements HttpListener {
 
@@ -239,16 +230,16 @@ public class HttpServerTest extends TestCase {
             return GBEAN_INFO;
         }
 
-        public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-            ClassLoader classLoader = TestHttpListener.class.getClassLoader();
-            ObjectName SERVICE_NAME = JMXUtil.getObjectName("openejb:type=TestHttpListener,name=" + name);
-
-            GBeanData gbean = new GBeanData(SERVICE_NAME, TestHttpListener.GBEAN_INFO);
-
-            kernel.loadGBean(gbean, classLoader);
-            kernel.startGBean(SERVICE_NAME);
-            return SERVICE_NAME;
-        }
+//        public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+//            ClassLoader classLoader = TestHttpListener.class.getClassLoader();
+//            ObjectName SERVICE_NAME = JMXUtil.getObjectName("openejb:type=TestHttpListener,name=" + name);
+//
+//            GBeanData gbean = new GBeanData(SERVICE_NAME, TestHttpListener.GBEAN_INFO);
+//
+//            kernel.loadGBean(gbean, classLoader);
+//            kernel.startGBean(SERVICE_NAME);
+//            return SERVICE_NAME;
+//        }
 
     }
 

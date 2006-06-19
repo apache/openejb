@@ -46,9 +46,9 @@ package org.openejb.client;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.gbean.AbstractName;
 import org.openejb.client.naming.java.javaURLContextFactory;
 
-import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -67,7 +67,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
         this.port = port;
     }
 
-    public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
         try {
             ServerMetaData serverMetaData = new ServerMetaData("BOOT", host, port);
             JNDIResponse res = new JNDIResponse();
@@ -94,7 +94,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
     }
 
-    public void stopClient(ObjectName appClientModuleName) throws Exception {
+    public void stopClient(AbstractName appClientModuleName) throws Exception {
         RootContext.setComponentContext(null);
     }
 
