@@ -47,30 +47,33 @@
  */
 package org.openejb.deployment.pkgen;
 
-import java.util.Map;
 import java.util.HashMap;
-import javax.management.ObjectName;
+import java.util.Map;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
-import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
-import org.tranql.pkgenerator.SQLPrimaryKeyGenerator;
-import org.tranql.pkgenerator.PrimaryKeyGenerator;
-import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
-import org.tranql.pkgenerator.AutoIncrementTablePrimaryKeyGenerator;
-import org.tranql.pkgenerator.UUIDPrimaryKeyGenerator;
-import org.tranql.sql.jdbc.binding.BindingFactory;
-import org.tranql.ql.QueryBindingImpl;
-import org.tranql.ql.QueryException;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapperGBean;
+import org.openejb.xbeans.pkgen.EjbAutoIncrementTableType;
 import org.openejb.xbeans.pkgen.EjbCustomGeneratorType;
+import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.openejb.xbeans.pkgen.EjbSequenceTableType;
 import org.openejb.xbeans.pkgen.EjbSqlGeneratorType;
-import org.openejb.xbeans.pkgen.EjbAutoIncrementTableType;
-import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapperGBean;
+import org.tranql.pkgenerator.AutoIncrementTablePrimaryKeyGenerator;
+import org.tranql.pkgenerator.PrimaryKeyGenerator;
+import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.pkgenerator.SQLPrimaryKeyGenerator;
+import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
+import org.tranql.ql.QueryBindingImpl;
+import org.tranql.ql.QueryException;
+import org.tranql.sql.jdbc.binding.BindingFactory;
 
 /**
  * Process the key-generator element in a deployment descriptor, and create
@@ -108,34 +111,33 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
      * @return The configured PrimaryKeyGenerator
      */
     public PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, TransactionManager tm, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException {
+        AbstractName baseName = earContext.getModuleName();
         //todo: Handle a PK Class with multiple fields?
         if(config.isSetCustomGenerator()) {
             EjbCustomGeneratorType custom = config.getCustomGenerator();
-            String generatorName = custom.getGeneratorName();
+            String generatorName = custom.getGeneratorName().trim();
             PrimaryKeyGeneratorDelegate keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
             if ( null == keyGeneratorDelegate ) {
                 keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                 GBeanData keyGenerator;
                 try {
-                    ObjectName generatorObjectName = new ObjectName(generatorName);
-                    ObjectName wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
+                    AbstractNameQuery generatorNameQuery = buildAbstractNameQuery(null, null, generatorName, NameFactory.KEY_GENERATOR);
+                    AbstractName wrapperGeneratorObjectName = earContext.getNaming().createChildName(baseName, generatorName, "PKGenWrapper");
                     keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapperGBean.GBEAN_INFO);
-                    keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
+                    keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorNameQuery);
                     keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
                 }
-                earContext.addGBean(keyGenerator);
+                try {
+                    earContext.addGBean(keyGenerator);
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new DeploymentException("Could not add pk generator wrapper to context", e);
+                }
 
                 keyGenerators.put(generatorName, keyGeneratorDelegate);
             }
             return keyGeneratorDelegate;
-        } else if (config.isSetUuid()) {
-            if (false == pkClass.equals(String.class)) {
-                throw new DeploymentException("The primary key MUST be of the" +
-                        " String type as the UUID generator is used.");
-            }
-            return new UUIDPrimaryKeyGenerator();
         } else if(config.isSetSqlGenerator()) {
             EjbSqlGeneratorType sqlGen = config.getSqlGenerator();
             String sql = sqlGen.getSql();
@@ -145,8 +147,7 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
             String tableName = seq.getTableName();
             String sequenceName = seq.getSequenceName();
             int batchSize = seq.getBatchSize();
-            SequenceTablePrimaryKeyGenerator generator = new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
-            return generator;
+            return new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
         } else if(config.isSetAutoIncrementTable()) {
             EjbAutoIncrementTableType auto = config.getAutoIncrementTable();
             String sql = auto.getSql();
@@ -155,5 +156,18 @@ public class TranQLPKGenBuilder implements PKGenBuilder {
             //todo: need to somehow implement this behavior in TranQL
         }
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    //copied from  ENCConfigBuilder, which is NOT where it should be
+    public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type) {
+        Map nameMap = new HashMap();
+        nameMap.put("name", name);
+        if (type != null) {
+            nameMap.put("j2eeType", type);
+        }
+        if (module != null) {
+            nameMap.put("module", module);
+        }
+        return new AbstractNameQuery(configId, nameMap);
     }
 }
