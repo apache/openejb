@@ -52,18 +52,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
@@ -74,6 +73,9 @@ import org.apache.geronimo.xbeans.j2ee.EjbRelationshipRoleType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.QueryType;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.cmp.AutoIncrementTablePrimaryKeyGenerator;
 import org.openejb.entity.cmp.CmpFieldSchema;
@@ -109,21 +111,13 @@ import org.openejb.xbeans.pkgen.EjbSqlGeneratorType;
  * @version $Revision$ $Date$
  */
 public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
-    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
-        EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
-
-        ModuleSchema moduleSchema = buildModuleSchema(moduleJ2eeContext, ejbModule.getName(), ejbJar, openejbEjbJar, cl);
+    public void initContext(EARContext earContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
+        ModuleSchema moduleSchema = buildModuleSchema(earContext.getNaming(), ejbModule, cl);
         if (moduleSchema.getEntities().isEmpty()) {
             return;
         }
 
-        ObjectName moduleCmpEngineName = null;
-        try {
-            moduleCmpEngineName = NameFactory.getComponentName(null, null, null, null, null, "moduleCmpEngine", "ModuleCmpEngine", moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Unable to construct schema name", e);
-        }
+        AbstractName moduleCmpEngineName = earContext.getNaming().createChildName(ejbModule.getModuleName(), "moduleCmpEngine", "ModuleCmpEngine");
         GBeanData moduleCmpEngine = new GBeanData(moduleCmpEngineName, TranqlModuleCmpEngineGBean.GBEAN_INFO);
 
         // moduleSchema
@@ -134,32 +128,49 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
 
         // TransactionContextManager
 
-        earContext.addGBean(moduleCmpEngine);
+        try {
+            earContext.addGBean(moduleCmpEngine);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Unable to initialize TranQL module CMP engine", e);
+        }
         ejbModule.setModuleCmpEngineName(moduleCmpEngineName);
     }
 
-    public void addBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
-        ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
+    public void addBeans(EARContext earContext, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
+        AbstractName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
         if (null == moduleCmpEngineName) {
             return;
         }
-        
-        RefContext refContext = earContext.getRefContext();
-        GBeanData moduleCmpEngine = refContext.locateComponentData(moduleCmpEngineName, earContext);
-        
+
+        GBeanData moduleCmpEngine = null;
+        try {
+            moduleCmpEngine = earContext.getGBeanInstance(moduleCmpEngineName);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("No module CMP engine defined: moduleCmpEngineName=" + moduleCmpEngineName);
+        }
+
         // connectionFactory
         OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
         GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
         if (connectionFactoryLocator == null) {
             throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
         }
-        ObjectName connectionFactoryObjectName = OpenEjbModuleBuilder.getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext);
+
+        AbstractNameQuery connectionFactoryObjectName = null;
+        try {
+            connectionFactoryObjectName = OpenEjbModuleBuilder.getResourceContainerId(connectionFactoryLocator, earContext);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException(e);
+        }
         //TODO this uses connection factory rather than datasource for the type.
         moduleCmpEngine.setReferencePattern("connectionFactory", connectionFactoryObjectName);
     }
 
-    public ModuleSchema buildModuleSchema(J2eeContext moduleJ2eeContext, String moduleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl) throws DeploymentException {
-        ModuleSchema moduleSchema = new ModuleSchema(moduleName);
+    public ModuleSchema buildModuleSchema(Naming naming, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
+        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
+        EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
+
+        ModuleSchema moduleSchema = new ModuleSchema(ejbModule.getName());
         if (openejbEjbJar.isSetEnforceForeignKeyConstraints()) {
             moduleSchema.setEnforceForeignKeyConstraints(openejbEjbJar.isSetEnforceForeignKeyConstraints());
         }
@@ -171,7 +182,7 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         }
 
         try {
-            processEnterpriseBeans(moduleSchema, ejbJar, openejbEjbJar, cl, moduleJ2eeContext);
+            processEnterpriseBeans(naming, moduleSchema, ejbModule, cl);
             processRelationships(moduleSchema, ejbJar, openejbEjbJar);
         } catch (Exception e) {
             throw new DeploymentException("Could not deploy module", e);
@@ -180,7 +191,10 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         return moduleSchema;
     }
 
-    private void processEnterpriseBeans(ModuleSchema moduleSchema, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, J2eeContext moduleJ2eeContext) throws DeploymentException {
+    private void processEnterpriseBeans(Naming naming, ModuleSchema moduleSchema, EJBModule ejbModule, ClassLoader cl) throws DeploymentException {
+        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
+        EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
+
         // index openejb descriptors
         Map openEjbEntities = new HashMap();
         OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
@@ -210,13 +224,8 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
             EntitySchema entitySchema = moduleSchema.addEntity(ejbName);
 
             // containerId
-            ObjectName containerId;
-            try {
-                containerId = NameFactory.getComponentName(null, null, null, null, null, ejbName, NameFactory.ENTITY_BEAN, moduleJ2eeContext);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct ejb object name: " + ejbName, e);
-            }
-            entitySchema.setContainerId(containerId.getCanonicalName());
+            AbstractName containerId = naming.createChildName(ejbModule.getModuleName(), ejbName, NameFactory.ENTITY_BEAN);
+            entitySchema.setContainerId(containerId.toString());
 
             // cmp2
             boolean cmp2 = isCMP2(entityBean);
@@ -518,15 +527,13 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
 
             // generatorName
             String generatorName = custom.getGeneratorName();
-
-            // verify generator name is a valid object name
+            URI generatorNameUri = null;
             try {
-                new ObjectName(generatorName);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("CustomPrimaryKeyGenerator name is not a valid ObjectName: " + generatorName);
+                generatorNameUri = new URI(generatorName);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("CustomPrimaryKeyGenerator name is not a valid URI: " + generatorName);
             }
-
-            return new CustomPrimaryKeyGenerator(generatorName);
+            return new CustomPrimaryKeyGenerator(generatorNameUri);
         } else if(config.isSetSqlGenerator()) {
             EjbSqlGeneratorType sqlGen = config.getSqlGenerator();
 

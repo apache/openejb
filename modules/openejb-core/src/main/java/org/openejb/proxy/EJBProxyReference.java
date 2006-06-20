@@ -47,21 +47,26 @@
  */
 package org.openejb.proxy;
 
-import org.apache.geronimo.naming.reference.SimpleAwareReference;
+import org.apache.geronimo.naming.reference.ConfigurationAwareReference;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+
+import javax.naming.NameNotFoundException;
 
 /**
  * @version $Revision$ $Date$
  */
-public class EJBProxyReference extends SimpleAwareReference {
-    public static EJBProxyReference createRemote(String containerId, boolean sessionBean, String homeInterfaceName, String remoteInterfaceName) {
-        return new EJBProxyReference(containerId, sessionBean, homeInterfaceName, remoteInterfaceName, null, null, false);
+public class EJBProxyReference extends ConfigurationAwareReference {
+    public static EJBProxyReference createRemote(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean sessionBean, String homeInterfaceName, String remoteInterfaceName) {
+        return new EJBProxyReference(configurationId, abstractNameQuery, sessionBean, homeInterfaceName, remoteInterfaceName, null, null, false);
     }
 
-    public static EJBProxyReference createLocal(String containerId, boolean sessionBean, String localHomeInterfaceName, String localInterfaceName) {
-        return new EJBProxyReference(containerId, sessionBean, null, null, localHomeInterfaceName, localInterfaceName, true);
+    public static EJBProxyReference createLocal(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean sessionBean, String localHomeInterfaceName, String localInterfaceName) {
+        return new EJBProxyReference(configurationId, abstractNameQuery, sessionBean, null, null, localHomeInterfaceName, localInterfaceName, true);
     }
 
-    private final String containerId;
     private final boolean isSessionBean;
     private final String remoteInterfaceName;
     private final String homeInterfaceName;
@@ -71,8 +76,8 @@ public class EJBProxyReference extends SimpleAwareReference {
 
     private transient EJBProxyFactory proxyFactory;
 
-    private EJBProxyReference(String containerId, boolean sessionBean, String homeInterfaceName, String remoteInterfaceName, String localHomeInterfaceName, String localInterfaceName, boolean local) {
-        this.containerId = containerId;
+    private EJBProxyReference(Artifact configurationId, AbstractNameQuery containerQuery, boolean sessionBean, String homeInterfaceName, String remoteInterfaceName, String localHomeInterfaceName, String localInterfaceName, boolean local) {
+        super(configurationId, containerQuery);
         isSessionBean = sessionBean;
         this.remoteInterfaceName = remoteInterfaceName;
         this.homeInterfaceName = homeInterfaceName;
@@ -81,7 +86,7 @@ public class EJBProxyReference extends SimpleAwareReference {
         isLocal = local;
     }
 
-    public Object getContent() {
+    public Object getContent() throws NameNotFoundException {
         EJBProxyFactory proxyFactory = getEJBProxyFactory();
         if (isLocal) {
             return proxyFactory.getEJBLocalHome();
@@ -90,7 +95,7 @@ public class EJBProxyReference extends SimpleAwareReference {
         }
     }
 
-    private EJBProxyFactory getEJBProxyFactory() {
+    private EJBProxyFactory getEJBProxyFactory() throws NameNotFoundException {
         if (proxyFactory == null) {
             ClassLoader cl = getClassLoader();
             Class remoteInterface = loadClass(cl, remoteInterfaceName);
@@ -98,6 +103,14 @@ public class EJBProxyReference extends SimpleAwareReference {
             Class localInterface = loadClass(cl, localInterfaceName);
             Class localHomeInterface = loadClass(cl, localHomeInterfaceName);
 
+
+            AbstractName configurationName;
+            try {
+                configurationName = resolveTargetName();
+            } catch (GBeanNotFoundException e) {
+                throw new NameNotFoundException("Could not resolve abstract name query " + abstractNameQueries + " in configuration " + getConfiguration().getId());
+            }
+            String containerId = configurationName.toURI().toString();
             proxyFactory = new EJBProxyFactory(containerId,
                     isSessionBean,
                     remoteInterface,
@@ -117,9 +130,5 @@ public class EJBProxyReference extends SimpleAwareReference {
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("ejb" + (isLocal ? "-local" : "") + "-ref class not found: " + name);
         }
-    }
-
-    public String getContainerId() {
-        return containerId;
     }
 }

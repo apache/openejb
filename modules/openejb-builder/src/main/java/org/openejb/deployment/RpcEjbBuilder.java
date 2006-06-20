@@ -47,11 +47,13 @@ package org.openejb.deployment;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Map;
-import javax.management.ObjectName;
+import java.net.URI;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 
@@ -59,14 +61,14 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
  * @version $Revision$ $Date$
  */
 public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
-    protected ObjectName containerId;
+    protected String containerId;
     private String ejbName;
     protected String homeInterfaceName;
     protected String remoteInterfaceName;
     protected String localHomeInterfaceName;
     protected String localInterfaceName;
     private String beanClassName;
-    private ObjectName ejbContainerName;
+    private AbstractName ejbContainerName;
     private String[] jndiNames;
     private String[] localJndiNames;
     private String policyContextId;
@@ -74,11 +76,11 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
     private Subject runAs;
     private SortedMap transactionPolicies;
     private Map componentContext;
-    private ObjectName tssBeanName;
+    private AbstractNameQuery tssBeanQuery;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
 
-    public void setContainerId(ObjectName containerId) {
+    public void setContainerId(String containerId) {
         this.containerId = containerId;
     }
 
@@ -122,7 +124,7 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
         this.localInterfaceName = localInterfaceName;
     }
 
-    public void setEjbContainerName(ObjectName ejbContainerName) {
+    public void setEjbContainerName(AbstractName ejbContainerName) {
         this.ejbContainerName = ejbContainerName;
     }
 
@@ -181,8 +183,8 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
         this.runAs = runAs;
     }
 
-    public void setTssBeanName(ObjectName tssBeanName) {
-        this.tssBeanName = tssBeanName;
+    public void setTssBeanQuery(AbstractNameQuery tssBeanQuery) {
+        this.tssBeanQuery = tssBeanQuery;
     }
 
     public void setComponentContext(Map componentContext) {
@@ -210,7 +212,9 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
     }
 
     public GBeanData createConfiguration() throws Exception {
-        GBeanData gbean = new GBeanData(containerId, getTargetGBeanInfo());
+        URI uri = new URI(containerId);
+        AbstractName abstractName = new AbstractName(uri);
+        GBeanData gbean = new GBeanData(abstractName, getTargetGBeanInfo());
 
         gbean.setAttribute("ejbName", ejbName);
 
@@ -233,8 +237,8 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
 
         gbean.setAttribute("componentContextMap", componentContext);
 
-        if (tssBeanName != null) {
-            gbean.setReferencePattern("TSSBean", tssBeanName);
+        if (tssBeanQuery != null) {
+            gbean.setReferencePattern("TSSBean", tssBeanQuery);
         }
 
         gbean.setAttribute("unshareableResources", unshareableResources);

@@ -48,45 +48,58 @@
 package org.openejb.corba.proxy;
 
 import java.net.URI;
-import javax.management.ObjectName;
+import javax.naming.NameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.reference.SimpleAwareReference;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.naming.reference.ConfigurationAwareReference;
+
 
 /**
  * @version $Revision$ $Date$
  */
-public final class CORBAProxyReference extends SimpleAwareReference {
+public final class CORBAProxyReference extends ConfigurationAwareReference {
+
     private final static Log log = LogFactory.getLog(CORBAProxyReference.class);
 
     private final URI nsCorbaloc;
     private final String objectName;
-    private final ObjectName containerName;
     private final String home;
 
-    public CORBAProxyReference(URI corbaUri, String objectName, ObjectName containerName, String home) {
-        this.nsCorbaloc = corbaUri;
+    public CORBAProxyReference(Artifact configId, AbstractNameQuery abstractNameQuery, URI nsCorbaloc, String objectName, String home) {
+        super(configId, abstractNameQuery);
+        this.nsCorbaloc = nsCorbaloc;
         this.objectName = objectName;
-        this.containerName = containerName;
         this.home = home;
-
-        if (log.isDebugEnabled()) log.debug("<init> " + corbaUri.toString() + ", " + objectName + ", " + containerName + ", " + home);
+        if (log.isDebugEnabled()) {
+            log.debug("<init> " + nsCorbaloc.toString() + ", " + objectName + ", " + abstractNameQuery + ", " + home);
+        }
     }
 
     public String getClassName() {
         return home;
     }
 
-    public Object getContent() {
+    public Object getContent() throws NameNotFoundException {
 
-        if (log.isDebugEnabled()) log.debug("Obtaining home from " + nsCorbaloc.toString() + ", " + objectName + ", " + containerName + ", " + home);
-
-        Kernel kernel = getKernel();
-        Object proxy = null;
+        if (log.isDebugEnabled()) {
+            log.debug("Obtaining home from " + nsCorbaloc.toString() + ", " + objectName + ", " + abstractNameQueries + ", " + home);
+        }
+        AbstractName containerName;
         try {
+            containerName = resolveTargetName();
+        } catch (GBeanNotFoundException e) {
+            throw (NameNotFoundException) new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQueries).initCause(e);
+        }
+        Kernel kernel = getKernel();
+        Object proxy;
+        try {
+            //TODO configid objectname might well be wrong kind of thing.
             proxy = kernel.invoke(containerName, "getHome", new Object[]{nsCorbaloc, objectName}, new String[]{URI.class.getName(), String.class.getName()});
         } catch (Exception e) {
             log.error("Could not get proxy from " + containerName, e);

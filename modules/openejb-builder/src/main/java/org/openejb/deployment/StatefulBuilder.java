@@ -47,20 +47,18 @@
  */
 package org.openejb.deployment;
 
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.openejb.StatefulEjbDeployment;
 import org.openejb.StatefulEjbDeploymentGBean;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatefulBuilder extends SessionBuilder {
-    private ObjectName ejbClusterManagerName;
+    private AbstractName ejbClusterManagerName;
 
-    public void setEjbClusterManagerName(ObjectName ejbClusterManagerName) {
+    public void setEjbClusterManagerName(AbstractName ejbClusterManagerName) {
         this.ejbClusterManagerName = ejbClusterManagerName;
     }
 

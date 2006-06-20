@@ -139,7 +139,7 @@ public class CmpEntityBuilderTest extends TestCase {
 
         J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
         CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
-        ModuleSchema moduleSchema = cmpSchemaBuilder.buildModuleSchema(moduleJ2eeContext, "test", ejbJarType, openejbJarType, cl);
+        ModuleSchema moduleSchema = cmpSchemaBuilder.buildModuleSchema(moduleJ2eeContext, "test", ejbJarType, openejbJarType, cl, moduleJ2eeContext.getNaming());
 
         TranqlSchemaBuilder tranqlSchemaBuilder = new TranqlSchemaBuilder(moduleSchema,
                 null,

@@ -44,20 +44,19 @@
  */
 package org.openejb.deployment;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
 import org.openejb.CmpEjbDeploymentGBean;
 
 /**
  * @version $Revision$ $Date$
  */
 public class CmpBuilder extends EntityBuilder {
-    private ObjectName moduleCmpEngineName;
+    private AbstractName moduleCmpEngineName;
     private boolean cmp2;
 
-    public void setModuleCmpEngineName(ObjectName moduleCmpEngineName) {
+    public void setModuleCmpEngineName(AbstractName moduleCmpEngineName) {
         this.moduleCmpEngineName = moduleCmpEngineName;
     }
 

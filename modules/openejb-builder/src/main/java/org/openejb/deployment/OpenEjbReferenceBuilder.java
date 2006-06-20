@@ -48,172 +48,234 @@
 package org.openejb.deployment;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import javax.naming.Reference;
-import javax.management.ObjectName;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import javax.naming.Reference;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.proxy.ProxyInfo;
-import org.openejb.corba.proxy.CORBAProxyReference;
+import org.openejb.RpcEjbDeployment;
 
 /**
  * @version $Revision$ $Date$
  */
 public class OpenEjbReferenceBuilder implements EJBReferenceBuilder {
-    private final static ObjectName STATELESS = JMXUtil.getObjectName("*:j2eeType=StatelessSessionBean,*");
-    private final static ObjectName STATEFUL = JMXUtil.getObjectName("*:j2eeType=StatefulSessionBean,*");
-    private final static ObjectName ENTITY = JMXUtil.getObjectName("*:j2eeType=EntityBean,*");
+    private final static Map STATELESS = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN);
+    private final static Map STATEFUL = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN);
+    private final static Map ENTITY = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN);
 
-    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean session, String localHome, String local) throws DeploymentException {
-        if (gbeanData != null) {
-            // exception will be thrown if interfaces don't match
-            matchesProxyInfo(gbeanData, false, localHome, local, true);
+    private void checkLocalProxyInfo(AbstractNameQuery query, String localHome, String local, Configuration configuration) throws DeploymentException {
+        GBeanData gbeanData;
+        try {
+            gbeanData = configuration.findGBeanData(query);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("Could not locate ejb matching " + query + " in configuration " + configuration.getId());
         }
-        return buildLocalReference(objectName, session, localHome, local);
-    }
-
-    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean session, String home, String remote) throws DeploymentException {
-        if (gbeanData != null) {
-            // exception will be thrown if interfaces don't match
-            matchesProxyInfo(gbeanData, true, home, remote, true);
+        ProxyInfo proxyInfo = (ProxyInfo) gbeanData.getAttribute("proxyInfo");
+        if (proxyInfo == null) {
+            throw new IllegalStateException("BUG! no proxy info found in gbeanData: " + gbeanData);
         }
-        return buildRemoteReference(objectName, session, home, remote);
+        if (!proxyInfo.getLocalHomeInterface().getName().equals(localHome)
+                || !proxyInfo.getLocalInterface().getName().equals(local)) {
+            throw new DeploymentException("Reference interfaces do not match bean interfaces:\n" +
+                    "reference localHome: " + localHome + "\n" +
+                    "ejb localHome: " + proxyInfo.getLocalHomeInterface().getName() + "\n" +
+                    "reference local: " + local + "\n" +
+                    "ejb local: " + proxyInfo.getLocalInterface().getName());
+        }
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
-        return new CORBAProxyReference(corbaURL, objectName, containerName, home);
+    private void checkRemoteProxyInfo(AbstractNameQuery query, String home, String remote, Configuration configuration) throws DeploymentException {
+        if (remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome")) {
+            // Don't verify the MEJB because it doesn't have a proxyInfo attribute
+            return;
+        }
+        GBeanData gbeanData;
+        try {
+            gbeanData = configuration.findGBeanData(query);
+        } catch (GBeanNotFoundException e) {
+            return;
+            //we can't check anything, hope for the best.
+//            throw new DeploymentException("Could not locate ejb matching " + query + " in configuration " + configuration.getId());
+        }
+        ProxyInfo proxyInfo = (ProxyInfo) gbeanData.getAttribute("proxyInfo");
+        if (proxyInfo == null) {
+            throw new IllegalStateException("BUG! no proxy info found in gbeanData: " + gbeanData);
+        }
+        if (!proxyInfo.getHomeInterface().getName().equals(home)
+                || !proxyInfo.getRemoteInterface().getName().equals(remote)) {
+            throw new DeploymentException("Reference interfaces do not match bean interfaces:\n" +
+                    "reference home: " + home + "\n" +
+                    "ejb home: " + proxyInfo.getHomeInterface().getName() + "\n" +
+                    "reference remote: " + remote + "\n" +
+                    "ejb remote: " + proxyInfo.getRemoteInterface().getName());
+        }
     }
 
-    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
-        boolean isRemote = true;
-        ObjectName match = getImplicitMatch(isSession, context, isRemote, home, remote, refName, module);
-        return buildRemoteReference(match.getCanonicalName(), isSession, home, remote);
+    public Reference createCORBAReference(Configuration configuration, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+        try {
+            configuration.findGBean(containerNameQuery);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("Could not find css bean matching " + containerNameQuery + " from configuration " + configuration.getId());
+        }
+        return new CORBAProxyReference(configuration.getId(), containerNameQuery, nsCorbaloc, objectName, home);
     }
 
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
-        boolean isRemote = false;
-        ObjectName match = getImplicitMatch(isSession, context, isRemote, localHome, local, refName, module);
-        return buildLocalReference(match.getCanonicalName(), isSession, localHome, local);
-    }
-
-    protected Reference buildLocalReference(String objectName, boolean session, String localHome, String local) {
-        return EJBProxyReference.createLocal(objectName, session, localHome, local);
-    }
-
-    protected Reference buildRemoteReference(String objectName, boolean session, String home, String remote) {
-        return EJBProxyReference.createRemote(objectName, session, home, remote);
-    }
-
-    private ObjectName getImplicitMatch(boolean isSession, NamingContext context, boolean isRemote, String home, String remote, String refName, URI module) throws DeploymentException {
-        Set gbeans;
-        if (isSession) {
-            gbeans = context.listGBeans(STATELESS);
-            gbeans.addAll(context.listGBeans(STATEFUL));
+    public Reference createEJBRemoteRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String home, String remote) throws DeploymentException {
+        AbstractNameQuery match;
+        if (query != null) {
+            checkRemoteProxyInfo(query, home, remote, configuration);
+            match = new AbstractNameQuery(query.getArtifact(), query.getName(), RpcEjbDeployment.class.getName());
+        } else if (name != null) {
+            match = getMatch(refName, configuration, name, requiredModule, true, isSession, home, remote);
         } else {
-            gbeans = context.listGBeans(ENTITY);
+            match = getImplicitMatch(refName, configuration, optionalModule, true, isSession, home, remote);
         }
+        return buildRemoteReference(configuration.getId(), match, isSession, home, remote);
+    }
+
+    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
+        AbstractNameQuery match;
+        if (query != null) {
+            checkLocalProxyInfo(query, localHome, local, configuration);
+            match = new AbstractNameQuery(query.getArtifact(), query.getName(), RpcEjbDeployment.class.getName());
+        } else if (name != null) {
+            match = getMatch(refName, configuration, name, requiredModule, false, isSession, localHome, local);
+        } else {
+            match = getImplicitMatch(refName, configuration, optionalModule, false, isSession, localHome, local);
+        }
+        return buildLocalReference(configuration.getId(), match, isSession, localHome, local);
+    }
+
+    protected Reference buildLocalReference(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean session, String localHome, String local) {
+        return EJBProxyReference.createLocal(configurationId, abstractNameQuery, session, localHome, local);
+    }
+
+    protected Reference buildRemoteReference(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean session, String home, String remote) {
+        return EJBProxyReference.createRemote(configurationId, abstractNameQuery, session, home, remote);
+    }
+
+    private AbstractNameQuery getMatch(String refName, Configuration context, String name, String module, boolean isRemote, boolean isSession, String home, String remote) throws DeploymentException {
+        Map nameQuery = new HashMap();
+        nameQuery.put(NameFactory.J2EE_NAME, name);
+        if (module != null) {
+            nameQuery.put(NameFactory.EJB_MODULE, module);
+        }
+        Set gbeans = new HashSet();
+        if (isSession) {
+            Map q = new HashMap(nameQuery);
+            q.putAll(STATELESS);
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q, RpcEjbDeployment.class.getName())));
+
+            q = new HashMap(nameQuery);
+            q.putAll(STATEFUL);
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), q, RpcEjbDeployment.class.getName())));
+        } else {
+            nameQuery.putAll(ENTITY);
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), nameQuery, RpcEjbDeployment.class.getName())));
+        }
+
         Collection matches = new ArrayList();
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            GBeanData data = null;
+            AbstractName abstractName = (AbstractName) iterator.next();
+            GBeanData data;
             try {
-                data = context.getGBeanInstance(objectName);
+                data = context.findGBeanData(new AbstractNameQuery(abstractName));
             } catch (GBeanNotFoundException e) {
                 throw new DeploymentException("We just got this ejb name out of a query! It must be there!");
             }
-            if (matchesProxyInfo(data, isRemote, home, remote, false)) {
-                matches.add(objectName);
+            if (matchesProxyInfo(data, isRemote, home, remote)) {
+                matches.add(abstractName);
+            }
+        }
+        if (matches.isEmpty()) {
+            throw new UnresolvedEJBRefException(refName, !isRemote, isSession, home, remote, false);
+        }
+        AbstractName match;
+        if (matches.size() == 1) {
+            match = (AbstractName) matches.iterator().next();
+        } else {
+            throw new UnresolvedEJBRefException(refName, !isRemote, isSession, home, remote, matches.size() > 0);
+        }
+        return new AbstractNameQuery(match);
+    }
+
+    private AbstractNameQuery getImplicitMatch(String refName, Configuration context, String module, boolean isRemote, boolean isSession, String home, String remote) throws DeploymentException {
+        Set gbeans;
+        if (isSession) {
+            gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), STATELESS, RpcEjbDeployment.class.getName()));
+            gbeans.addAll(context.findGBeans(new AbstractNameQuery(context.getId(), STATEFUL, RpcEjbDeployment.class.getName())));
+        } else {
+            gbeans = context.findGBeans(new AbstractNameQuery(context.getId(), ENTITY, RpcEjbDeployment.class.getName()));
+        }
+        Collection matches = new ArrayList();
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            GBeanData data;
+            try {
+                data = context.findGBeanData(new AbstractNameQuery(abstractName));
+            } catch (GBeanNotFoundException e) {
+                throw new DeploymentException("We just got this ejb name out of a query! It must be there!");
+            }
+            if (matchesProxyInfo(data, isRemote, home, remote)) {
+                matches.add(abstractName);
             }
         }
         if (matches.isEmpty()) {
             throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, false);
         }
-        ObjectName match;
+        AbstractName match;
         if (matches.size() == 1) {
-            match = (ObjectName) matches.iterator().next();
+            match = (AbstractName) matches.iterator().next();
         } else {
             for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-                ObjectName objectName = (ObjectName) iterator.next();
-                if (!(objectName.getKeyProperty(NameFactory.EJB_MODULE).equals(module.getPath()))) {
+                AbstractName objectName = (AbstractName) iterator.next();
+                if (!(objectName.getName().get(NameFactory.EJB_MODULE).equals(module))) {
                     iterator.remove();
                 }
             }
             if (matches.size() == 1) {
-                match = (ObjectName) matches.iterator().next();
+                match = (AbstractName) matches.iterator().next();
             } else {
                 throw new UnresolvedEJBRefException(refName, false, isSession, home, remote, matches.size() > 0);
             }
         }
-        return match;
+        return new AbstractNameQuery(match);
     }
 
-    private boolean matchesProxyInfo(GBeanData data, boolean isRemote, String home, String remote, boolean requiredMatch) throws DeploymentException {
-        String[] proxyInfoData = getProxyInfoData(data, isRemote);
-        if (matches(proxyInfoData[0], home) && matches(proxyInfoData[1], remote)) {
-            return true;
-        }
-        if (!requiredMatch) return false;
-
+    private boolean matchesProxyInfo(GBeanData data, boolean isRemote, String home, String remote) {
+        ProxyInfo proxyInfo = (ProxyInfo) data.getAttribute("proxyInfo");
         if (isRemote) {
-            throw new DeploymentException("Reference interfaces do not match bean interfaces:\n" +
-                    "reference home: " + home + "\n" +
-                    "ejb home: " + proxyInfoData[0] + "\n" +
-                    "reference remote: " + remote + "\n" +
-                    "ejb remote: " + proxyInfoData[1]);
-
+            return matches(proxyInfo.getHomeInterface(), home)
+                    && matches(proxyInfo.getRemoteInterface(), remote);
         } else {
-            throw new DeploymentException("Reference interfaces do not match bean interfaces:\n" +
-                    "reference localHome: " + home + "\n" +
-                    "ejb localHome: " + proxyInfoData[0] + "\n" +
-                    "reference local: " + remote + "\n" +
-                    "ejb local: " + proxyInfoData[1]);
+            return matches(proxyInfo.getLocalHomeInterface(), home)
+                    && matches(proxyInfo.getLocalInterface(), remote);
         }
     }
 
-    private String[] getProxyInfoData(GBeanData data, boolean isRemote) {
-        Object proxyInfoAttribute = data.getAttribute("proxyInfo");
-        if (proxyInfoAttribute == null) {
-            if (isRemote) {
-                String homeInterface = (String) data.getAttribute("homeInterfaceName");
-                String remoteInterface = (String) data.getAttribute("remoteInterfaceName");
-                return new String[] { homeInterface, remoteInterface };
-            } else {
-                String localHomeInterface = (String) data.getAttribute("localHomeInterfaceName");
-                String localInterface = (String) data.getAttribute("localInterfaceName");
-                return new String[] { localHomeInterface, localInterface };
-            }
-        } else if (proxyInfoAttribute instanceof ProxyInfo) {
-            ProxyInfo proxyInfo = (ProxyInfo) proxyInfoAttribute;
-            if (isRemote) {
-                return new String[] { getClassName(proxyInfo.getHomeInterface()), getClassName(proxyInfo.getRemoteInterface())};
-            } else {
-                return new String[] { getClassName(proxyInfo.getLocalHomeInterface()), getClassName(proxyInfo.getLocalInterface())};
-            }
-        } else {
-            throw new IllegalStateException("BUG! unknown proxy info attribute type: " + proxyInfoAttribute.getClass());
-        }
-    }
-
-    private static String getClassName(Class clazz) {
-        if (clazz == null) return null;
-        return clazz.getName();
-    }
-
-    private boolean matches(String clazz, String name) {
-        return clazz != null && clazz.equals(name);
+    private boolean matches(Class clazz, String name) {
+        return clazz != null && clazz.getName().equals(name);
     }
 
     public static final GBeanInfo GBEAN_INFO;

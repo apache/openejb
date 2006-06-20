@@ -47,41 +47,29 @@
  */
 package org.openejb.deployment;
 
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.Collections;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.openejb.client.ServerMetaData;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.client.naming.RemoteEJBReference;
 
 
 /**
  */
 public class RemoteEjbReferenceBuilder extends OpenEjbReferenceBuilder {
-    private final ServerMetaData server;
 
-    public RemoteEjbReferenceBuilder(String host, int port) throws UnknownHostException {
-        server = new ServerMetaData("BOOT", host, port);
-    }
-
-    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) {
+    public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
     }
 
-    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
-        throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
-    }
-
-    protected Reference buildRemoteReference(String objectName, boolean session, String home, String remote) {
-        Reference reference = new RemoteEJBReference(objectName, Collections.singletonList(server));
+    protected Reference buildRemoteReference(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean session, String home, String remote) {
+        Reference reference = new RemoteEJBReference(abstractNameQuery.toString());
         return reference;
     }
 
@@ -90,11 +78,6 @@ public class RemoteEjbReferenceBuilder extends OpenEjbReferenceBuilder {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteEjbReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
-
-        infoFactory.addAttribute("host", String.class, true);
-        infoFactory.addAttribute("port", int.class, true);
-
-        infoFactory.setConstructor(new String[]{"host", "port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

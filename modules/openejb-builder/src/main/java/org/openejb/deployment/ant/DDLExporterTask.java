@@ -55,9 +55,13 @@ import java.lang.reflect.Constructor;
 import javax.sql.DataSource;
 
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.tools.ant.AntClassLoader;
@@ -73,8 +77,6 @@ import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.ddl.DDLCommandBuilder;
 import org.tranql.ddl.DDLGenerator;
-import org.tranql.ddl.DDLGenerator.ExecutionStrategy;
-import org.tranql.ddl.DDLGenerator.GenerationStrategy;
 import org.tranql.ejb.EJBProxyFactory;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.sql.SQLSchema;
@@ -169,11 +171,14 @@ public class DDLExporterTask extends Task {
                             OpenejbOpenejbJarType.type);
 
             // fake j2ee context
-            J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "GeronimoServer", "null", NameFactory.EJB_MODULE, "Module", null, null);
+            Naming naming = new Jsr77Naming();
+            AbstractName earName = naming.createRootName(new Artifact("fakeGroup", "fackArtifact", "1", "fake"), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            AbstractName moduleName = naming.createChildName(earName, NameFactory.EJB_MODULE, "module");
+            EJBModule ejbModule = new EJBModule(true, moduleName, new Environment(new Artifact("fakeGroup", "fackArtifact", "1", "fake")), null, null, ejbJarType, openejbJarType, null);
 
             // get the ModuleSchema
             CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
-            ModuleSchema moduleSchema = cmpSchemaBuilder.buildModuleSchema(moduleJ2eeContext, "test", ejbJarType, openejbJarType, cl);
+            ModuleSchema moduleSchema = cmpSchemaBuilder.buildModuleSchema(naming, ejbModule, cl);
 
             // build the tranql schema objects
             // use a subclass of the tranql builder that does not create pk generators or proxy factories
@@ -205,14 +210,14 @@ public class DDLExporterTask extends Task {
         OutputStream out = null;
         try {
             out = new BufferedOutputStream(new FileOutputStream(output));
-            ExecutionStrategy exec = new DDLGenerator.WriterExecutionStrategy(new PrintWriter(out));
-            GenerationStrategy gen;
+            DDLGenerator.ExecutionStrategy exec = new DDLGenerator.WriterExecutionStrategy(new PrintWriter(out));
+            DDLGenerator.GenerationStrategy gen;
             if (type.equals("drop")) {
                 gen = new DDLGenerator.DropStrategy(exec);
             } else if (type.equals("create") || type.equals("create-constraint")) {
                 gen = new DDLGenerator.CreateStrategy(exec);
             } else if (type.equals("drop-create") || type.equals("drop-create-constraint")) {
-                GenerationStrategy strategies[] = new GenerationStrategy[]{
+                DDLGenerator.GenerationStrategy strategies[] = new DDLGenerator.GenerationStrategy[]{
                     new DDLGenerator.DropStrategy(exec),
                     new DDLGenerator.CreateStrategy(exec)
                 };

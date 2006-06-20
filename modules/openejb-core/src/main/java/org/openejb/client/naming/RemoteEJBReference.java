@@ -98,6 +98,10 @@ public class RemoteEJBReference extends SimpleReference {
     public RemoteEJBReference() {
     }
 
+    public RemoteEJBReference(String containerId) {
+        this.containerId = containerId;
+    }
+
     public RemoteEJBReference(String containerId, List servers) {
         this.containerId = containerId;
         this.servers = servers;

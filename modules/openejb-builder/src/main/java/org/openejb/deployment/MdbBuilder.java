@@ -50,10 +50,11 @@ package org.openejb.deployment;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Map;
-import javax.management.ObjectName;
+import java.net.URI;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.openejb.mdb.MdbDeploymentGBean;
@@ -63,15 +64,15 @@ import org.openejb.mdb.MdbDeploymentGBean;
  * @version $Revision$ $Date$
  */
 public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
-    private ObjectName containerId;
+    private String containerId;
     private String ejbName;
 
     private String endpointInterfaceName;
     private String beanClassName;
 
-    private ObjectName activationSpecName;
+    private AbstractName activationSpecName;
 
-    private ObjectName ejbContainerName;
+    private AbstractName ejbContainerName;
 
     private String policyContextId;
     private Subject runAs;
@@ -84,7 +85,7 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
 
     private Map componentContext;
 
-    public void setContainerId(ObjectName containerId) {
+    public void setContainerId(String containerId) {
         this.containerId = containerId;
     }
 
@@ -100,11 +101,11 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
         this.beanClassName = beanClassName;
     }
 
-    public void setActivationSpecName(ObjectName activationSpecName) {
+    public void setActivationSpecName(AbstractName activationSpecName) {
         this.activationSpecName = activationSpecName;
     }
 
-    public void setEjbContainerName(ObjectName ejbContainerName) {
+    public void setEjbContainerName(AbstractName ejbContainerName) {
         this.ejbContainerName = ejbContainerName;
     }
 
@@ -194,7 +195,9 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
     }
 
     public GBeanData createConfiguration() throws Exception {
-        GBeanData gbean = new GBeanData(containerId, MdbDeploymentGBean.GBEAN_INFO);
+        URI uri = new URI(containerId);
+        AbstractName abstractName = new AbstractName(uri);
+        GBeanData gbean = new GBeanData(abstractName, MdbDeploymentGBean.GBEAN_INFO);
         gbean.setAttribute("ejbName", ejbName);
 
         gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);

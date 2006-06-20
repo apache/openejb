@@ -54,17 +54,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.jar.JarFile;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -90,26 +89,28 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.xmlbeans.XmlException;
 import org.openejb.EJBComponentType;
 import org.openejb.StatelessEjbDeploymentGBean;
+import org.openejb.StatefulEjbDeploymentGBean;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbTssType;
 import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
 
 
 public class XmlBeansSessionBuilder extends XmlBeanBuilder {
     private final static String DEFAULT_AUTH_REALM_NAME = "Geronimo Web Service";
 
-    private final ObjectName defaultStatelessEjbContainer;
-    private final ObjectName defaultStatefulEjbContainer;
+    private final AbstractName defaultStatelessEjbContainer;
+    private final AbstractName defaultStatefulEjbContainer;
     private final GBeanData linkDataTemplate;
     private final WebServiceBuilder webServiceBuilder;
 
     public XmlBeansSessionBuilder(OpenEjbModuleBuilder moduleBuilder,
-            ObjectName defaultStatelessEjbContainer,
-            ObjectName defaultStatefulEjbContainer,
+            AbstractName defaultStatelessEjbContainer,
+            AbstractName defaultStatefulEjbContainer,
             GBeanData linkDataTemplate,
             WebServiceBuilder webServiceBuilder) {
         super(moduleBuilder);
@@ -119,65 +120,54 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         this.linkDataTemplate = linkDataTemplate;
     }
 
-    private ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, SessionBeanType sessionBean) throws DeploymentException {
+    private AbstractName createEjbName(EARContext earContext, AbstractName moduleBaseName, SessionBeanType sessionBean) {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
-        String type = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim())? NameFactory.STATELESS_SESSION_BEAN: NameFactory.STATEFUL_SESSION_BEAN;
-        try {
-            return NameFactory.getEjbComponentName(null, null, null, null, ejbName, type, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct ejb object name: " + ejbName, e);
-        }
+        String type = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim()) ? NameFactory.STATELESS_SESSION_BEAN : NameFactory.STATEFUL_SESSION_BEAN;
+        return earContext.getNaming().createChildName(moduleBaseName, ejbName, type);
     }
 
-
-    public void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, ComponentPermissions componentPermissions, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ObjectName listener, String policyContextID, Map portInfoMap) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, AbstractName moduleBaseName, ClassLoader cl, EJBModule ejbModule, ComponentPermissions componentPermissions, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, AbstractNameQuery listener, String policyContextID, Map portInfoMap) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
             SessionBeanType sessionBean = sessionBeans[i];
 
             OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType) openejbBeans.get(sessionBean.getEjbName().getStringValue());
-            ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
-            assert sessionObjectName != null: "StatelesSessionBean object name is null";
-            addEJBContainerGBean(earContext, ejbModule, componentPermissions, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, policyContextID);
+            AbstractName sessionName = createEjbName(earContext, moduleBaseName, sessionBean);
+            assert sessionName != null: "StatelesSessionBean object name is null";
+            addEJBContainerGBean(earContext, ejbModule, componentPermissions, cl, sessionName, sessionBean, openejbSessionBean, transactionPolicyHelper, policyContextID);
 
             boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim());
             boolean isServiceEndpoint = sessionBean.isSetServiceEndpoint();
             if (isStateless && isServiceEndpoint) {
-                addWSContainerGBean(earContext, ejbModule, cl, portInfoMap, sessionObjectName, sessionBean, openejbSessionBean, listener);
+                addWSContainerGBean(earContext, sessionName, ejbModule, cl, portInfoMap, sessionBean, openejbSessionBean, listener);
             }
         }
     }
 
-    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, Map portInfoMap, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ObjectName listener) throws DeploymentException {
+    private void addWSContainerGBean(EARContext earContext, AbstractName sessionName, EJBModule ejbModule, ClassLoader cl, Map portInfoMap, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, AbstractNameQuery listener) throws DeploymentException {
 
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
         OpenejbWebServiceSecurityType webServiceSecurity = openejbSessionBean == null ? null : openejbSessionBean.getWebServiceSecurity();
 
         //this code belongs here
-        ObjectName linkName = null;
-        try {
-            linkName = NameFactory.getComponentName(null, null, null, null, null, ejbName, NameFactory.WEB_SERVICE_LINK, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct web service link name", e);
-        }
+        AbstractName linkName = earContext.getNaming().createChildName(sessionName, ejbName, NameFactory.WEB_SERVICE_LINK);
 
         GBeanData linkData = new GBeanData(linkDataTemplate);
-        linkData.setName(linkName);
+        linkData.setAbstractName(linkName);
         Object portInfo = portInfoMap.get(ejbName);
         //let the webServiceBuilder configure its part
         webServiceBuilder.configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
         //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
-            linkData.setAttribute("realmName", webServiceSecurity.isSetRealmName()? webServiceSecurity.getRealmName().trim(): DEFAULT_AUTH_REALM_NAME);
+            linkData.setAttribute("realmName", webServiceSecurity.isSetRealmName() ? webServiceSecurity.getRealmName().trim() : DEFAULT_AUTH_REALM_NAME);
             linkData.setAttribute("transportGuarantee", webServiceSecurity.getTransportGuarantee().toString());
             linkData.setAttribute("authMethod", webServiceSecurity.getAuthMethod().toString());
         }
 
         linkData.setReferencePattern("WebServiceContainer", listener);
-        linkData.setReferencePattern("EJBContainer", sessionObjectName);
+        linkData.setReferencePattern("EJBContainer", sessionName);
 
         if (openejbSessionBean != null) {
             String[] virtualHosts = openejbSessionBean.getWebServiceVirtualHostArray();
@@ -187,10 +177,14 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             linkData.setAttribute("virtualHosts", virtualHosts);
         }
 
-        earContext.addGBean(linkData);
+        try {
+            earContext.addGBean(linkData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add link gbean to context", e);
+        }
     }
 
-    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
+    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, AbstractName sessionAbstractName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
 
         XmlBeansSecurityBuilder xmlBeansSecurityBuilder = new XmlBeansSecurityBuilder();
@@ -212,19 +206,19 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             StatefulBuilder statefulBuilder = new StatefulBuilder();
             statefulBuilder.setEjbContainerName(defaultStatefulEjbContainer);
 
-            if (openejbSessionBean != null && openejbSessionBean.isSetEjbClusterReference()) {
-                ObjectName clusterObjectName;
-                try {
-                    String name = openejbSessionBean.getEjbClusterReference().getTargetName();
-                    clusterObjectName = ObjectName.getInstance(name);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Invalid object name for ejb-cluster-reference", e);
-                }
-                statefulBuilder.setEjbClusterManagerName(clusterObjectName);
-            }
+//            if (openejbSessionBean != null && openejbSessionBean.isSetEjbClusterReference()) {
+//                AbstractName clusterName;
+//                try {
+//                    String name = openejbSessionBean.getEjbClusterReference().getTargetName();
+//                    clusterName = ObjectName.getInstance(name);
+//                } catch (MalformedObjectNameException e) {
+//                    throw new DeploymentException("Invalid object name for ejb-cluster-reference", e);
+//                }
+//                statefulBuilder.setEjbClusterManagerName(clusterName);
+//            }
             sessionBuilder = statefulBuilder;
         }
-        sessionBuilder.setContainerId(sessionObjectName);
+        sessionBuilder.setContainerId(sessionAbstractName.toString());
         sessionBuilder.setEjbName(ejbName);
 
         sessionBuilder.setHomeInterfaceName(OpenEjbModuleBuilder.getJ2eeStringValue(sessionBean.getHome()));
@@ -270,8 +264,8 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         }
 
         // tssBean
-        ObjectName tssBeanName = getTssBeanName(openejbSessionBean, ejbModule, earContext);
-        sessionBuilder.setTssBeanName(tssBeanName);
+        AbstractNameQuery tssBeanQuery = getTssBeanQuery(openejbSessionBean, ejbModule, earContext, sessionBean);
+        sessionBuilder.setTssBeanQuery(tssBeanQuery);
 
         // componentContext, unshareableResources and applicationManagedSecurityResources
         processEnvironmentRefs(sessionBuilder, earContext, ejbModule, sessionBean, openejbSessionBean, cl);
@@ -280,12 +274,18 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         try {
             sessionGBean = sessionBuilder.createConfiguration();
         } catch (Throwable e) {
-            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
+            throw new DeploymentException("Unable to initialize ejb deployment GBean: ejbName" + ejbName, e);
         }
-        earContext.addGBean(sessionGBean);
+
+        try {
+            earContext.removeGBean(sessionGBean.getAbstractName());
+            earContext.addGBean(sessionGBean);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to replace ejb deployment GBean: ejbName" + ejbName, e);
+        }
     }
 
-    private void processEnvironmentRefs(SessionBuilder sessionBuilder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ClassLoader cl) throws DeploymentException {
+    public void processEnvironmentRefs(SessionBuilder sessionBuilder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ClassLoader cl) throws DeploymentException {
         // env entries
         EnvEntryType[] envEntries = sessionBean.getEnvEntryArray();
 
@@ -308,7 +308,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         GerServiceRefType[] openejbServiceRefs = null;
 
         GerGbeanRefType[] gBeanRefs = null;
-        
+
         if (openejbSessionBean != null) {
             openejbEjbRefs = openejbSessionBean.getEjbRefArray();
             openejbEjbLocalRefs = openejbSessionBean.getEjbLocalRefArray();
@@ -320,20 +320,20 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
 
         MessageDestinationRefType[] messageDestinationRefs = sessionBean.getMessageDestinationRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, 
-                null, 
-                ejbModule, 
-                null, envEntries, 
-                ejbRefs, openejbEjbRefs, 
-                ejbLocalRefs, openejbEjbLocalRefs, 
-                resourceRefs, openejbResourceRefs, 
-                resourceEnvRefs, openejbResourceEnvRefs, 
-                messageDestinationRefs, 
+        Map context = ENCConfigBuilder.buildComponentContext(earContext,
+                null,
+                ejbModule,
+                null, envEntries,
+                ejbRefs, openejbEjbRefs,
+                ejbLocalRefs, openejbEjbLocalRefs,
+                resourceRefs, openejbResourceRefs,
+                resourceEnvRefs, openejbResourceEnvRefs,
+                messageDestinationRefs,
                 serviceRefs, openejbServiceRefs,
                 gBeanRefs,
                 cl);
         sessionBuilder.setComponentContext(context);
-        ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), sessionBuilder, resourceRefs, openejbResourceRefs);
+        ENCConfigBuilder.setResourceEnvironment(sessionBuilder, resourceRefs, openejbResourceRefs);
     }
 
     private List createHandlerInfos(JarFile moduleFile, String ejbName, ClassLoader cl) throws DeploymentException {
@@ -374,14 +374,19 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         return handlerInfos;
     }
 
-    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    public void initContext(EARContext earContext, AbstractName moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
             SessionBeanType sessionBean = sessionBeans[i];
 
-            ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
-            GBeanData gbean = new GBeanData(sessionObjectName, StatelessEjbDeploymentGBean.GBEAN_INFO);
+            AbstractName sessionName = createEjbName(earContext, moduleJ2eeContext, sessionBean);
+            GBeanData gbean;
+            if ("Stateless".equals(sessionBean.getSessionType().getStringValue().trim())) {
+                gbean = new GBeanData(sessionName, StatelessEjbDeploymentGBean.GBEAN_INFO);
+            } else {
+                gbean = new GBeanData(sessionName, StatefulEjbDeploymentGBean.GBEAN_INFO);
+            }
 
             Class homeInterface = null;
             Class remoteInterface = null;
@@ -406,7 +411,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             }
             int componentType = sessionBean.getSessionType().getStringValue().trim().equals("Stateless")? EJBComponentType.STATELESS: EJBComponentType.STATEFUL;
             ProxyInfo proxyInfo = new ProxyInfo(componentType,
-                    sessionObjectName.getCanonicalName(),
+                    sessionName.toString(),
                     homeInterface,
                     remoteInterface,
                     localHomeInterface,
@@ -414,41 +419,42 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
                     null,
                     null);
             gbean.setAttribute("proxyInfo", proxyInfo);
-            earContext.addGBean(gbean);
+            try {
+                earContext.addGBean(gbean);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("duplicate session bean name", e);
+            }
         }
     }
 
-    private ObjectName getTssBeanName(OpenejbSessionBeanType openejbSessionBean, EJBModule ejbModule, EARContext earContext) throws DeploymentException {
-        ObjectName tssBeanObjectName = null;
+    private AbstractNameQuery getTssBeanQuery(OpenejbSessionBeanType openejbSessionBean, EJBModule ejbModule, EARContext earContext, SessionBeanType sessionBean) throws DeploymentException {
+        AbstractNameQuery tssBeanName = null;
         if (openejbSessionBean != null) {
-            if (openejbSessionBean.isSetTssTargetName()) {
-                String tssName = openejbSessionBean.getTssTargetName().trim();
-                try {
-                    tssBeanObjectName = ObjectName.getInstance(tssName);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Invalid object name for tss bean", e);
-                }
-            } else if (openejbSessionBean.isSetTssLink()) {
+            if (openejbSessionBean.isSetTssLink()) {
                 String tssBeanLink = openejbSessionBean.getTssLink().trim();
                 URI moduleURI = ejbModule.getModuleURI();
                 String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = earContext.getRefContext().locateComponentName(tssBeanLink, moduleURI, moduleType, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
-            } else if (openejbSessionBean.isSetTss()) {
-                OpenejbTssType tss = openejbSessionBean.getTss();
+                tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null ? null : moduleURI.toString(), tssBeanLink, moduleType, NameFactory.EJB_MODULE);
                 try {
-                    tssBeanObjectName = NameFactory.getComponentName(getStringValue(tss.getDomain()),
-                            getStringValue(tss.getServer()),
-                            getStringValue(tss.getApplication()),
-                            getStringValue(tss.getModule()),
-                            getStringValue(tss.getName()),
-                            NameFactory.CORBA_TSS,
-                            earContext.getJ2eeContext());
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Invalid object name for tss bean", e);
+                    earContext.getConfiguration().findGBean(tssBeanName);
+                } catch (GBeanNotFoundException e) {
+                    tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null, NameFactory.EJB_MODULE);
+                    try {
+                        earContext.getConfiguration().findGBean(tssBeanName);
+                    } catch (GBeanNotFoundException e1) {
+                        throw new DeploymentException("No tss bean found", e);
+                    }
                 }
-
+            } else if (openejbSessionBean.isSetTss()) {
+                tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(openejbSessionBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE, null);
             }
         }
-        return tssBeanObjectName;
+        if (tssBeanName != null && openejbSessionBean.getJndiNameArray().length == 0) {
+            throw new DeploymentException("Cannot expose a session bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+        }
+        if (tssBeanName != null && (!sessionBean.isSetRemote() || !sessionBean.isSetHome())) {
+            throw new DeploymentException("A session bean without a remote interface cannot be exposed via CORBA");
+        }
+        return tssBeanName;
     }
 }
