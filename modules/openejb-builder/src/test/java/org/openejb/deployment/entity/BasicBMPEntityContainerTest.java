@@ -49,22 +49,20 @@ package org.openejb.deployment.entity;
 
 import java.util.HashSet;
 import javax.ejb.EJBObject;
-import javax.management.ObjectName;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.deployment.DeploymentHelper;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.openejb.deployment.BmpBuilder;
+import org.openejb.deployment.DeploymentHelper;
 
 /**
  * @version $Revision$ $Date$
  */
-public class BasicBMPEntityContainerTest extends TestCase {
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private Kernel kernel;
-
+public class BasicBMPEntityContainerTest extends DeploymentHelper {
     public void testSimpleConfig() throws Throwable {
         MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         assertEquals(5 + 1, home.intMethod(5));
@@ -74,7 +72,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
         assertTrue(ejbObject1.isIdentical(ejbObject1));
 
         EJBObject ejbObject2 = home.findByPrimaryKey(new Integer(2));
-        ;
+
         assertEquals(new Integer(2), ejbObject2.getPrimaryKey());
         assertTrue(ejbObject2.isIdentical(ejbObject2));
 
@@ -125,10 +123,9 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
 
         BmpBuilder builder = new BmpBuilder();
-        builder.setContainerId(CONTAINER_NAME);
+        builder.setContainerId(CONTAINER_NAME.toString());
         builder.setEjbName("MockEJB");
         builder.setBeanClassName(MockBMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
@@ -137,32 +134,20 @@ public class BasicBMPEntityContainerTest extends TestCase {
         builder.setLocalInterfaceName(MockLocal.class.getName());
         builder.setPrimaryKeyClassName(Integer.class.getName());
 
-        builder.setEjbContainerName(DeploymentHelper.BMP_EJB_CONTAINER_NAME);
+        builder.setEjbContainerName(bmpEjbContainerName);
 
         builder.setJndiNames(new String[0]);
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
 
-        GBeanData container = builder.createConfiguration();
+        GBeanData deployment = builder.createConfiguration();
 
         //start the ejb container
-        start(CONTAINER_NAME, container);
-    }
-
-    protected void tearDown() throws Exception {
-        stop(CONTAINER_NAME);
-        kernel.shutdown();
-        super.tearDown();
-    }
-
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
-    }
-
-    private void stop(ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
+        ConfigurationData configurationData = new ConfigurationData(TEST_CONFIGURATION_ID, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(BOOTSTRAP_ID, ImportType.ALL));
+        configurationData.addGBean(deployment);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(TEST_CONFIGURATION_ID);
     }
 }

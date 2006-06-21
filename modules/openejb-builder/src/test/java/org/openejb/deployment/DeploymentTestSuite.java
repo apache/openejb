@@ -50,33 +50,34 @@ package org.openejb.deployment;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.rmi.MarshalledObject;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.jar.JarFile;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.extensions.TestDecorator;
 import junit.framework.Protectable;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
+import org.apache.geronimo.axis.builder.AxisBuilder;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.axis.builder.AxisBuilder;
-import org.openejb.DeploymentIndexGBean;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -84,10 +85,10 @@ import org.tranql.sql.jdbc.JDBCUtil;
  * @version $Revision$ $Date$
  */
 public class DeploymentTestSuite extends TestDecorator implements DeploymentTestContants {
+    private DeploymentHelper deploymentHelper = new DeploymentHelper();
     private final File moduleFile;
 
     private File tempDir;
-    private Kernel kernel;
     private DataSource dataSource;
     private ClassLoader applicationClassLoader;
 
@@ -97,7 +98,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     }
 
     public Kernel getKernel() {
-        return kernel;
+        return deploymentHelper.kernel;
     }
 
     public ClassLoader getApplicationClassLoader() {
@@ -119,7 +120,6 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     }
 
     private void setUp() throws Exception {
-        ClassLoader testClassLoader = getClass().getClassLoader();
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null) {
             str = ":org.apache.geronimo.naming";
@@ -128,20 +128,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         }
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-
-        ObjectName serverInfoObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ServerInfo");
-        GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
-        start(serverInfoGBean, testClassLoader);
-
-        ObjectName j2eeServerObjectName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=J2EEServer,name=" + SERVER_NAME);
-        GBeanData j2eeServerGBean = new GBeanData(j2eeServerObjectName, J2EEServerImpl.GBEAN_INFO);
-        j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
-        start(j2eeServerGBean, testClassLoader);
-
-        //load mock resource adapter for mdb
-        DeploymentHelper.setUpResourceAdapter(kernel);
+        deploymentHelper.setUp();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{moduleFile.toURL()}, oldCl);
@@ -149,70 +136,69 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         Thread.currentThread().setContextClassLoader(cl);
 
         try {
-            ObjectName listener = null;
+            Environment defaultEnvironment = new Environment(Artifact.create("geronimo/server/1/car"));
+            defaultEnvironment.addDependency(DeploymentHelper.BOOTSTRAP_ID, ImportType.ALL);
+
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEjbModuleBuilder moduleBuilder = new OpenEjbModuleBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY,
-                    DeploymentHelper.STATELESS_EJB_CONTAINER_NAME,
-                    DeploymentHelper.STATEFUL_EJB_CONTAINER_NAME,
-                    DeploymentHelper.BMP_EJB_CONTAINER_NAME,
-                    DeploymentHelper.CMP_EJB_CONTAINER_NAME,
-                    DeploymentHelper.MDB_EJB_CONTAINER_NAME,
-                    listener,
+            OpenEjbModuleBuilder moduleBuilder = new OpenEjbModuleBuilder(defaultEnvironment,
+                    deploymentHelper.statelessEjbContainerName,
+                    deploymentHelper.statefulEjbContainerName,
+                    deploymentHelper.bmpEjbContainerName,
+                    deploymentHelper.cmpEjbContainerName,
+                    deploymentHelper.mdbEjbContainerName,
+                    null,
                     linkData,
                     webServiceBuilder,
                     null);
             OpenEjbReferenceBuilder ejbReferenceBuilder = new OpenEjbReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID_ARRAY,
-                    DeploymentHelper.TRANSACTIONMANAGER_NAME,
-                    DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
-                    DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
-                    DeploymentHelper.TRANSACTIONALTIMER_NAME,
-                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultEnvironment,
+                    new AbstractNameQuery(deploymentHelper.tmName),
+                    new AbstractNameQuery(deploymentHelper.tcmName),
+                    new AbstractNameQuery(deploymentHelper.ctcName),
+                    new AbstractNameQuery(deploymentHelper.txTimerName),
+                    new AbstractNameQuery(deploymentHelper.nonTxTimerName),
                     null,
+                    new AbstractNameQuery(deploymentHelper.serverName),
                     null, // repository
                     moduleBuilder,
                     ejbReferenceBuilder,
                     null,// web
-                    null, resourceReferenceBuilder, // connector
+                    null,
+                    resourceReferenceBuilder, // connector
                     null, // app client
                     serviceReferenceBuilder,
-                    kernel
+                    deploymentHelper.naming
             );
 
             JarFile jarFile = null;
             ConfigurationData configurationData = null;
+            DeploymentContext context = null;
+            ArtifactManager artifactManager = new DefaultArtifactManager();
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             try {
-                jarFile =DeploymentUtil.createJarFile(moduleFile);
-                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, tempDir);
+                jarFile = DeploymentUtil.createJarFile(moduleFile);
+                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile, new ModuleIDBuilder());
+                Artifact configurationId = earConfigBuilder.getConfigurationID(plan, jarFile, new ModuleIDBuilder());
+                context = earConfigBuilder.buildConfiguration(false, configurationId, plan, jarFile, Collections.singleton(deploymentHelper.configStore), artifactResolver, deploymentHelper.configStore);
+                configurationData = context.getConfigurationData();
+                configurationData.getEnvironment().addDependency(DeploymentHelper.BOOTSTRAP_ID, ImportType.ALL);
+
+                // copy the configuration to force gbeans to serialize
+                configurationData = (ConfigurationData) new MarshalledObject(configurationData).get();
+                configurationData.setConfigurationStore(deploymentHelper.configStore);
             } finally {
+                if (context != null) {
+                    context.close();
+                }
                 if (jarFile != null) {
                     jarFile.close();
                 }
             }
 
-            // start the configuration
-            GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-            config.setName(CONFIGURATION_OBJECT_NAME);
-            config.setAttribute("baseURL", tempDir.toURL());
-            config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID_ARRAY);
-
-            ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
-            GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, DeploymentIndexGBean.GBEAN_INFO);
-            Set ejbContainerNames = new HashSet();
-            ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,*"));
-            ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatefulSessionBean,*"));
-            ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,*"));
-            containerIndexGBean.setReferencePatterns("EjbDeployments", ejbContainerNames);
-            start(containerIndexGBean, cl);
-
-            GBeanData connectionProxyFactoryGBean = new GBeanData(CONNECTION_OBJECT_NAME, MockConnectionProxyFactory.GBEAN_INFO);
-            start(connectionProxyFactoryGBean, cl);
-
-            dataSource = (DataSource) kernel.invoke(CONNECTION_OBJECT_NAME, "$getResource");
+            dataSource = (DataSource) deploymentHelper.kernel.invoke(deploymentHelper.dataSourceName, "$getResource");
             Connection connection = null;
             Statement statement = null;
             try {
@@ -234,15 +220,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 JDBCUtil.close(connection);
             }
 
-            // load the configuration
-            start(config, cl);
-
             // start the configuration
-            kernel.invoke(CONFIGURATION_OBJECT_NAME, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-            kernel.invoke(CONFIGURATION_OBJECT_NAME, "startRecursiveGBeans");
+            deploymentHelper.configurationManager.loadConfiguration(configurationData);
+            deploymentHelper.configurationManager.startConfiguration(configurationData.getId());
 
-            assertRunning(kernel, CONFIGURATION_OBJECT_NAME);
-            applicationClassLoader = (ClassLoader) kernel.getAttribute(CONFIGURATION_OBJECT_NAME, "configurationClassLoader");
+            // get the configuration classloader
+            applicationClassLoader = deploymentHelper.configurationManager.getConfiguration(configurationData.getId()).getConfigurationClassLoader();
         } catch (Error e) {
             DeploymentUtil.recursiveDelete(tempDir);
             throw e;
@@ -254,33 +237,14 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         }
     }
 
-    private void start(GBeanData gbeanData, ClassLoader classLoader) throws Exception {
-        kernel.loadGBean(gbeanData, classLoader);
-        kernel.startGBean(gbeanData.getName());
-        assertRunning(kernel, gbeanData.getName());
-    }
-
     private void tearDown() throws Exception {
-        try {
-            kernel.stopGBean(CONFIGURATION_OBJECT_NAME);
-        } catch (GBeanNotFoundException ignored) {
-        }
-        try {
-            kernel.stopGBean(CONNECTION_OBJECT_NAME);
-        } catch (GBeanNotFoundException ignored) {
-        }
         DeploymentUtil.recursiveDelete(tempDir);
 
         try {
-            DeploymentHelper.tearDownAdapter(kernel);
+            deploymentHelper.tearDown();
         } catch (Exception ignored) {
+            //we tried
         }
-
-        try {
-            kernel.shutdown();
-        } catch (Exception ignored) {
-        }
-        kernel = null;
 
         if (dataSource != null) {
             Connection connection = null;
@@ -297,7 +261,4 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         }
     }
 
-    private static void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
-    }
 }

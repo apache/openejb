@@ -1,14 +1,26 @@
 <?xml version="1.0"?>
 
-<openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/deployment/test"
-    parentId="org/apache/geronimo/Server">
+<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
+
+    <environment>
+        <moduleId>
+            <groupId>foo</groupId>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>test</groupId>
+                <artifactId>base</artifactId>
+                <version>1</version>
+                <type>car</type>
+            </dependency>
+        </dependencies>
+    </environment>
 
     <cmp-connection-factory>
-        <application>null</application>
-        <module>org/apache/geronimo/DefaultDatabase</module>
-        <name>DefaultDatasource</name>
+        <resource-link>DefaultDatasource</resource-link>
     </cmp-connection-factory>
 
     <enterprise-beans>
@@ -49,7 +61,7 @@
             </cmp-field-mapping>
             <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
                 <custom-generator>
-                    <generator-name>geronimo.server:name=CMPPKGenerator</generator-name>
+                    <generator-name>CMPPKGenerator</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
                 </custom-generator>
             </key-generator>
@@ -71,7 +83,7 @@
             </cmp-field-mapping>
             <key-generator>
                 <custom-generator>
-                    <generator-name>geronimo.server:name=CMPPKGenerator2</generator-name>
+                    <generator-name>CMPPKGenerator2</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
                 </custom-generator>
             </key-generator>
@@ -151,26 +163,22 @@
         </message-driven>
 
     </enterprise-beans>
-    <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
+    <gbean name="CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
         <reference name="TransactionContextManager">
-            <gbean-name>test:type=TransactionContextManager</gbean-name>
+            <name>TransactionContextManager</name>
         </reference>
         <reference name="ManagedConnectionFactoryWrapper">
-            <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>
+            <name>DefaultDatasource</name>
         </reference>
         <attribute name="tableName">PKGENCMP_SEQ</attribute>
         <attribute name="sequenceName">PKGENCMP</attribute>
         <attribute name="batchSize">1</attribute>
     </gbean>
-    <gbean gbeanName="geronimo.server:name=CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
+    <gbean name="CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
         <reference name="TransactionContextManager">
-            <gbean-name>test:type=TransactionContextManager</gbean-name>
+            <name>TransactionContextManager</name>
         </reference>
         <reference name="ManagedConnectionFactoryWrapper">
-            <application>null</application>
-            <moduleType>JCAResource</moduleType>
-            <module>org/apache/geronimo/DefaultDatabase</module>
-            <type>JCAManagedConnectionFactory</type>
             <name>DefaultDatasource</name>
         </reference>
         <attribute name="tableName">PKGENCMP_SEQ</attribute>

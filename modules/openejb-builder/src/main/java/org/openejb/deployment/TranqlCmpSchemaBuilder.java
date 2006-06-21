@@ -52,8 +52,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
@@ -147,6 +145,24 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
             moduleCmpEngine = earContext.getGBeanInstance(moduleCmpEngineName);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("No module CMP engine defined: moduleCmpEngineName=" + moduleCmpEngineName);
+        }
+
+        // add depenencies on custom pk generator gbeans
+        ModuleSchema moduleSchema = (ModuleSchema) moduleCmpEngine.getAttribute("moduleSchema");
+        Map entities = moduleSchema.getEntities();
+        for (Iterator iterator = entities.values().iterator(); iterator.hasNext();) {
+            EntitySchema entity = (EntitySchema) iterator.next();
+            PrimaryKeyGenerator primaryKeyGenerator = entity.getPrimaryKeyGenerator();
+            if (primaryKeyGenerator instanceof CustomPrimaryKeyGenerator) {
+                CustomPrimaryKeyGenerator customPrimaryKeyGenerator = (CustomPrimaryKeyGenerator) primaryKeyGenerator;
+                String generatorName = customPrimaryKeyGenerator.getGeneratorName();
+
+                Map nameMap = new HashMap();
+                nameMap.put("name", generatorName);
+                nameMap.put("j2eeType", NameFactory.KEY_GENERATOR);
+                AbstractNameQuery generatorQuery = new AbstractNameQuery(null, nameMap/*, org.tranql.pkgenerator.PrimaryKeyGenerator.class.getName()*/);
+                moduleCmpEngine.addDependency(generatorQuery);
+            }
         }
 
         // connectionFactory
@@ -527,13 +543,7 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
 
             // generatorName
             String generatorName = custom.getGeneratorName();
-            URI generatorNameUri = null;
-            try {
-                generatorNameUri = new URI(generatorName);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("CustomPrimaryKeyGenerator name is not a valid URI: " + generatorName);
-            }
-            return new CustomPrimaryKeyGenerator(generatorNameUri);
+            return new CustomPrimaryKeyGenerator(generatorName);
         } else if(config.isSetSqlGenerator()) {
             EjbSqlGeneratorType sqlGen = config.getSqlGenerator();
 

@@ -16,11 +16,11 @@
  */
 package org.openejb.entity.cmp.pkgenerator;
 
+import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 
 /**
@@ -31,11 +31,11 @@ public final class SequenceTablePrimaryKeyGeneratorWrapperGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SequenceTablePrimaryKeyGeneratorWrapperGBean.class, SequenceTablePrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SequenceTablePrimaryKeyGeneratorWrapperGBean.class, SequenceTablePrimaryKeyGeneratorWrapper.class, NameFactory.KEY_GENERATOR);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
 
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ConnectionFactorySource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("tableName", String.class, true);
         infoFactory.addAttribute("sequenceName", String.class, true);
         infoFactory.addAttribute("batchSize", int.class, true);

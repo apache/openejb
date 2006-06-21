@@ -48,53 +48,66 @@
 package org.openejb.deployment;
 
 import java.util.Set;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.io.File;
 import javax.ejb.EJBHome;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.openejb.proxy.EJBProxyReference;
 
 /**
  * @version $Revision$ $Date$
  */
 public abstract class AbstractDeploymentTest extends TestCase implements DeploymentTestContants {
-    private final ObjectName STATELESS_BEAN_NAME = JMXUtil.getObjectName(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleStatelessSession");
-
+    public DeploymentHelper deploymentHelper = new DeploymentHelper();
     public abstract Kernel getKernel();
     public abstract ClassLoader getApplicationClassLoader();
     public abstract String getJ2eeApplicationName();
     public abstract String getJ2eeModuleName();
 
     public void testEJBModuleObject() throws Exception {
-        ObjectName moduleName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EJBModule,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",name=" + getJ2eeModuleName());
-        assertRunning(getKernel(), moduleName);
+        Map properties = new HashMap();
+        properties.put("J2EEApplication", getJ2eeApplicationName());
+        properties.put("j2eeType", "EJBModule");
+        properties.put("name", getJ2eeModuleName());
+        AbstractNameQuery query = new AbstractNameQuery(null, properties);
+        assertRunning(getKernel(), query);
     }
 
     public void testApplicationObject() throws Exception {
-        ObjectName applicationObjectName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=J2EEApplication,name=" + getJ2eeApplicationName() + ",J2EEServer=" + SERVER_NAME);
+        Map properties = new HashMap();
+        properties.put("j2eeType", "J2EEApplication");
+        properties.put("name", getJ2eeApplicationName());
+        AbstractNameQuery query = new AbstractNameQuery(null, properties);
+
         if (!getJ2eeApplicationName().equals("null")) {
-            assertRunning(getKernel(), applicationObjectName);
+            assertRunning(getKernel(), query);
         } else {
-            Set applications = getKernel().listGBeans(applicationObjectName);
+            Set applications = getKernel().listGBeans(query);
             assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
         }
     }
 
     public void testStatelessContainer() throws Exception {
-        assertRunning(getKernel(), STATELESS_BEAN_NAME);
+        AbstractNameQuery statelessBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleStatelessSession", "StatelessSessionBean", getJ2eeModuleName());
+        AbstractName statelessBeanName = findSingle(getKernel(), statelessBeanQuery);
+        assertRunning(getKernel(), statelessBeanName);
 
         // use reflection to invoke a method on the stateless bean, because we don't have access to the classes here
-        Object statelessHome = getKernel().getAttribute(STATELESS_BEAN_NAME, "ejbHome");
+        Object statelessHome = getKernel().getAttribute(statelessBeanName, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
         Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
         assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
-        Object statelessLocalHome = getKernel().getAttribute(STATELESS_BEAN_NAME, "ejbLocalHome");
+        Object statelessLocalHome = getKernel().getAttribute(statelessBeanName, "ejbLocalHome");
         Object statelessLocal = statelessLocalHome.getClass().getMethod("create", null).invoke(statelessLocalHome, null);
         statelessLocal.getClass().getMethod("startTimer", null).invoke(statelessLocal, null);
         Thread.sleep(200L);
@@ -102,34 +115,46 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testInClassLoaderInvoke() throws Exception {
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
+        AbstractNameQuery statelessBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleStatelessSession", "StatelessSessionBean", getJ2eeModuleName());
+        AbstractName statelessBeanName = findSingle(getKernel(), statelessBeanQuery);
+
+        Object statelessHome;
+        Object stateless;
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(deploymentHelper.BOOTSTRAP_ID,
+                new AbstractNameQuery(statelessBeanName),
                 true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome",
                 "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
         proxyReference.setClassLoader(getApplicationClassLoader());
-        Object statelessHome = proxyReference.getContent();
+        statelessHome = proxyReference.getContent();
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
-        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+        stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
         assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
     }
 
     public void testCrossClassLoaderInvoke() throws Exception {
-        URLClassLoader classLoader = new URLClassLoader(new URL[] {new File("target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader());
-        EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
+        AbstractNameQuery statelessBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleStatelessSession", "StatelessSessionBean", getJ2eeModuleName());
+        AbstractName statelessBeanName = findSingle(getKernel(), statelessBeanQuery);
+
+        Object statelessHome;
+        Object stateless;
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(deploymentHelper.BOOTSTRAP_ID,
+                new AbstractNameQuery(statelessBeanName),
                 true,
                 "org.openejb.test.simple.slsb.SimpleStatelessSessionHome",
                 "org.openejb.test.simple.slsb.SimpleStatelessSession");
         proxyReference.setKernel(getKernel());
-        proxyReference.setClassLoader(classLoader);
-        Object statelessHome = proxyReference.getContent();
+        proxyReference.setClassLoader(new URLClassLoader(new URL[] {new File("target/test-ejb-jar.jar").toURL()}, getClass().getClassLoader()));
+        statelessHome = proxyReference.getContent();
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
-        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+        stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
         assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
     }
 
     public void testStatefulContainer() throws Exception {
-        ObjectName statefulBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatefulSessionBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleStatefulSession");
+        AbstractNameQuery statefulBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleStatefulSession", "StatefulSessionBean", getJ2eeModuleName());
+        AbstractName statefulBeanName = findSingle(getKernel(), statefulBeanQuery);
         assertRunning(getKernel(), statefulBeanName);
 
         Object statefulHome = getKernel().getAttribute(statefulBeanName, "ejbHome");
@@ -140,7 +165,8 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testBMPContainer() throws Exception {
-        ObjectName bmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleBMPEntity");
+        AbstractNameQuery bmpBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleBMPEntity", "EntityBean", getJ2eeModuleName());
+        AbstractName bmpBeanName = findSingle(getKernel(), bmpBeanQuery);
         assertRunning(getKernel(), bmpBeanName);
 
         Object bmpHome = getKernel().getAttribute(bmpBeanName, "ejbHome");
@@ -151,7 +177,8 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testCMPContainer() throws Exception {
-        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleCMPEntity");
+        AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleCMPEntity", "EntityBean", getJ2eeModuleName());
+        AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
@@ -163,9 +190,10 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testPKGenCustomDBName() throws Exception {
-        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity");
+        AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("PKGenCMPEntity", "EntityBean", getJ2eeModuleName());
+        AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
-        assertRunning(getKernel(), new ObjectName("geronimo.server:name=CMPPKGenerator"));
+        assertAllRunning(getKernel(), new AbstractNameQuery(null, Collections.singletonMap("name", "CMPPKGenerator")));
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
@@ -176,9 +204,10 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testPKGenCustomDBParts() throws Exception {
-        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity2");
+        AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("PKGenCMPEntity2", "EntityBean", getJ2eeModuleName());
+        AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
-        assertRunning(getKernel(), new ObjectName("geronimo.server:name=CMPPKGenerator2"));
+        assertAllRunning(getKernel(), new AbstractNameQuery(null, Collections.singletonMap("name", "CMPPKGenerator2")));
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
@@ -189,7 +218,8 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testPKGenSequence() throws Exception {
-        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity3");
+        AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("PKGenCMPEntity3", "EntityBean", getJ2eeModuleName());
+        AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
@@ -213,7 +243,8 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 */
     public void testPKGenSQL() throws Exception {
-        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity5");
+        AbstractNameQuery cmpBeanQuery = DeploymentHelper.createEjbNameQuery("PKGenCMPEntity5", "EntityBean", getJ2eeModuleName());
+        AbstractName cmpBeanName = findSingle(getKernel(), cmpBeanQuery);
         assertRunning(getKernel(), cmpBeanName);
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
@@ -225,11 +256,33 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testMDBContainer() throws Exception {
-        ObjectName mdbBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=MessageDrivenBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleMessageDriven");
+        AbstractNameQuery mdbBeanQuery = DeploymentHelper.createEjbNameQuery("SimpleMessageDriven", "MessageDrivenBean", getJ2eeModuleName());
+        AbstractName mdbBeanName = findSingle(getKernel(), mdbBeanQuery);
         assertRunning(getKernel(), mdbBeanName);
     }
 
-    public static void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
+    public static void assertRunning(Kernel kernel, AbstractNameQuery query) throws Exception {
+        AbstractName abstractName = findSingle(kernel, query);
+        assertEquals("should be running: " + abstractName, State.RUNNING_INDEX, kernel.getGBeanState(abstractName));
+    }
+    public static void assertAllRunning(Kernel kernel, AbstractNameQuery query) throws Exception {
+        Set names = kernel.listGBeans(query);
+        if (names.isEmpty()) {
+            fail("No matches for " + query);
+        }
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            assertEquals("should be running: " + abstractName, State.RUNNING_INDEX, kernel.getGBeanState(abstractName));
+        }
+    }
+
+    private static AbstractName findSingle(Kernel kernel, AbstractNameQuery query) {
+        Set names = kernel.listGBeans(query);
+        assertEquals("should only match one name but matched " + names, 1, names.size());
+        return (AbstractName) names.iterator().next();
+    }
+
+    public static void assertRunning(Kernel kernel, AbstractName abstractName) throws Exception {
+        assertEquals("should be running: " + abstractName, State.RUNNING_INDEX, kernel.getGBeanState(abstractName));
     }
 }

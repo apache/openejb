@@ -44,26 +44,24 @@
  */
 package org.openejb.entity.cmp;
 
-import java.net.URI;
-
 /**
  * @version $Revision$ $Date$
  */
 public class CustomPrimaryKeyGenerator implements PrimaryKeyGenerator {
-    private URI generatorName;
+    private String generatorName;
 
     public CustomPrimaryKeyGenerator() {
     }
 
-    public CustomPrimaryKeyGenerator(URI generatorName) {
+    public CustomPrimaryKeyGenerator(String generatorName) {
         this.generatorName = generatorName;
     }
 
-    public URI getGeneratorName() {
+    public String getGeneratorName() {
         return generatorName;
     }
 
-    public void setGeneratorName(URI generatorName) {
+    public void setGeneratorName(String generatorName) {
         this.generatorName = generatorName;
     }
 }

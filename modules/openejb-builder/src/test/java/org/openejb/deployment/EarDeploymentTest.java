@@ -55,9 +55,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * @version $Revision$ $Date$
  */
-public class
-        EarDeploymentTest extends AbstractDeploymentTest {
-
+public class EarDeploymentTest extends AbstractDeploymentTest {
     private static final DeploymentTestSuite SUITE =
             new DeploymentTestSuite(EarDeploymentTest.class, new File("target/test-ear.ear"));
 
@@ -66,7 +64,7 @@ public class
     }
 
     public String getJ2eeApplicationName() {
-        return "org/apache/geronimo/j2ee/deployment/test";
+        return "foo/bar/1/car";
     }
 
     public String getJ2eeModuleName() {

@@ -29,7 +29,7 @@ public final class DeploymentIndexGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DeploymentIndexGBean.class, DeploymentIndex.class); //name apparently hardcoded
 
-        infoFactory.setConstructor(new String[]{"EjbDeployments"});
+        infoFactory.setConstructor(new String[]{"EjbDeployments", "kernel"});
 
         infoFactory.addOperation("getDeploymentIndex", new Class[]{Object.class});
         infoFactory.addOperation("getDeploymentIndex", new Class[]{String.class});

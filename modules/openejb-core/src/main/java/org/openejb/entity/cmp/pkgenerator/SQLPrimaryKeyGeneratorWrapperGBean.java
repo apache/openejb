@@ -30,7 +30,7 @@ public final class SQLPrimaryKeyGeneratorWrapperGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SQLPrimaryKeyGeneratorWrapperGBean.class, SQLPrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SQLPrimaryKeyGeneratorWrapperGBean.class, SQLPrimaryKeyGeneratorWrapper.class, NameFactory.KEY_GENERATOR);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);

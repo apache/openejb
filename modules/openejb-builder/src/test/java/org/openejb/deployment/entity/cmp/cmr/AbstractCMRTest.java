@@ -48,189 +48,41 @@
 package org.openejb.deployment.entity.cmp.cmr;
 
 
-import java.io.File;
-import java.net.URI;
-import java.sql.Connection;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.sql.DataSource;
-
-import junit.framework.TestCase;
-
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.DeploymentIndexGBean;
-import org.openejb.deployment.CmpBuilder;
-import org.openejb.deployment.CmpSchemaBuilder;
-import org.openejb.deployment.DeploymentHelper;
-import org.openejb.deployment.KernelHelper;
-import org.openejb.deployment.MockConnectionProxyFactory;
-import org.openejb.deployment.TranqlCmpSchemaBuilder;
-import org.openejb.deployment.XmlBeansHelper;
-import org.openejb.deployment.entity.cmp.RefContextUtil;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.sql.SQLSchema;
+import org.openejb.deployment.entity.cmp.AbstractCmpTest;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class AbstractCMRTest extends TestCase {
-    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
-    private static final String j2eeDomainName = "openejb.server";
-    private static final String j2eeServerName = "TestOpenEJBServer";
-    private static final J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, NameFactory.EJB_MODULE, "MockModule", "testapp", NameFactory.J2EE_MODULE);
-    protected static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
-    protected static final ObjectName C_NAME_A;
-    protected static final ObjectName C_NAME_B;
-    
-    static {
-        try {
-            C_NAME_A = NameFactory.getEjbComponentName(null, null, null, null, "A", NameFactory.ENTITY_BEAN, j2eeContext);
-            C_NAME_B = NameFactory.getEjbComponentName(null, null, null, null, "B", NameFactory.ENTITY_BEAN, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError(e);
-        }
-    }
+public abstract class AbstractCMRTest extends AbstractCmpTest {
+    protected final AbstractName C_NAME_A = naming.createChildName(moduleName, "A", NameFactory.ENTITY_BEAN);
+    protected final AbstractName C_NAME_B = naming.createChildName(moduleName, "B", NameFactory.ENTITY_BEAN);
 
-//    private Repository repository = null;
-    protected Kernel kernel;
-    protected DataSource ds;
-    protected EJBSchema ejbSchema;
-    protected SQLSchema sqlSchema;
-    protected GlobalSchema cacheSchema;
     protected Object ahome;
     protected Object bhome;
 
     protected TransactionContext newTransactionContext() throws Exception {
-        return (TransactionContext) kernel.invoke(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, "newContainerTransactionContext", null, null);
+        return (TransactionContext) kernel.invoke(tcmName, "newContainerTransactionContext", null, null);
     }
-
-
-    protected abstract void buildDBSchema(Connection c) throws Exception;
-
-    protected abstract String getEjbJarDD();
-
-    protected abstract String getOpenEjbJarDD();
 
     protected abstract EJBClass getA();
 
     protected abstract EJBClass getB();
 
     protected void setUp() throws Exception {
-        ds = new AxionDataSource("jdbc:axiondb:testdb");
-        Connection c = ds.getConnection("root", null);
-        buildDBSchema(c);
+        super.setUp();
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
+        initCmpModule();
 
-        File ejbJarFile = new File(basedir, getEjbJarDD());
-        File openejbJarFile = new File(basedir, getOpenEjbJarDD());
-        EjbJarType ejbJarType= XmlBeansHelper.loadEjbJar(ejbJarFile);
-        OpenejbOpenejbJarType openejbJarType = XmlBeansHelper.loadOpenEjbJar(openejbJarFile);
+        addCmpEjb("A", getA().bean, null, null, getA().home, getA().local, Integer.class, C_NAME_A);
+        addCmpEjb("B", getB().bean, null, null, getB().home, getB().local, Integer.class, C_NAME_B);
 
-        File tempDir = DeploymentUtil.createTempDir();
+        startConfiguration();
 
-        RefContextUtil refContextUtil = new RefContextUtil();
-        
-        try {
-            URI configId = new URI("test");
-            EARContext earContext = new EARContext(tempDir,
-                    configId,
-                    ConfigurationModuleType.EJB,
-                    KernelHelper.DEFAULT_PARENTID_LIST,
-                    kernel,
-                    NameFactory.NULL,
-                    DeploymentHelper.TRANSACTIONMANAGER_NAME,
-                    DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
-                    DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
-                    DeploymentHelper.TRANSACTIONALTIMER_NAME,
-                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
-                    null,
-                    refContextUtil.build());
-
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
-            // create module cmp enging GBeanData
-            EJBModule ejbModule = new EJBModule(true, configId, null, null, tempDir.getAbsoluteFile().toURI().toString(), ejbJarType, openejbJarType, "");
-            CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
-            cmpSchemaBuilder.initContext(earContext, ejbModule, cl);
-            cmpSchemaBuilder.addBeans(earContext, ejbModule, cl);
-            ObjectName moduleCmpEngineName = ejbModule.getModuleCmpEngineName();
-            GBeanData moduleCmpEngineGBeanData = earContext.getGBeanInstance(moduleCmpEngineName);
-
-            // start the connection factory
-            ObjectName connectionProxyFactoryObjectName = (ObjectName) moduleCmpEngineGBeanData.getReferencePatterns("connectionFactory").iterator().next();
-            GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
-            kernel.loadGBean(connectionProxyFactoryGBean, cl);
-            kernel.startGBean(connectionProxyFactoryObjectName);
-            assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(connectionProxyFactoryObjectName));
-
-            // start the module cmp engine
-            kernel.loadGBean(moduleCmpEngineGBeanData, cl);
-            kernel.startGBean(moduleCmpEngineName);
-            assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(moduleCmpEngineName));
-
-
-            GBeanData containerIndex = new GBeanData(DeploymentIndexGBean.GBEAN_INFO);
-            Set patterns = new HashSet();
-            patterns.add(C_NAME_A);
-            patterns.add(C_NAME_B);
-            containerIndex.setReferencePatterns("EjbDeployments", patterns);
-            start(CI_NAME, containerIndex);
-
-            setUpContainer("A", getA().bean, getA().home, getA().local, Integer.class, C_NAME_A, moduleCmpEngineName);
-            setUpContainer("B", getB().bean, getB().home, getB().local, Integer.class, C_NAME_B, moduleCmpEngineName);
-
-            ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
-            bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
-        } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
-        }
-    }
-
-    private void setUpContainer(String ejbName, Class beanClass, Class localHomeClass, Class localClass, Class primaryKeyClass, ObjectName containerName, ObjectName moduleCmpEngineObjectName) throws Exception {
-        CmpBuilder builder = new CmpBuilder();
-        builder.setContainerId(containerName);
-        builder.setEjbName(ejbName);
-        builder.setEjbContainerName(DeploymentHelper.CMP_EJB_CONTAINER_NAME);
-        builder.setBeanClassName(beanClass.getName());
-        builder.setLocalHomeInterfaceName(localHomeClass.getName());
-        builder.setLocalInterfaceName(localClass.getName());
-        builder.setPrimaryKeyClassName(primaryKeyClass.getName());
-        builder.setModuleCmpEngineName(moduleCmpEngineObjectName);
-        builder.setCmp2(true);
-
-        GBeanData container = builder.createConfiguration();
-        start(containerName, container);
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.shutdown();
-        java.sql.Connection c = ds.getConnection();
-        c.createStatement().execute("SHUTDOWN");
-    }
-
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
+        ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
+        bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
     }
 
     protected class EJBClass {
@@ -238,7 +90,7 @@ public abstract class AbstractCMRTest extends TestCase {
             this.bean = bean;
             this.home = home;
             this.local = local;
-        };
+        }
         public Class bean;
         public Class home;
         public Class local;

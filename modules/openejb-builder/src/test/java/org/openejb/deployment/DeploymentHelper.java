@@ -47,200 +47,360 @@
  */
 package org.openejb.deployment;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
+import junit.framework.TestCase;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
 import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.connector.work.GeronimoWorkManagerGBean;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
+import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.pool.ThreadPool;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 import org.apache.geronimo.transaction.manager.XidFactoryImplGBean;
+import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.openejb.DeploymentIndexGBean;
+import org.openejb.entity.cmp.DefaultCmpEjbContainerGBean;
+import org.openejb.entity.bmp.DefaultBmpEjbContainerGBean;
+import org.openejb.mdb.DefaultMdbContainerGBean;
+import org.openejb.sfsb.DefaultStatefulEjbContainerGBean;
+import org.openejb.slsb.DefaultStatelessEjbContainerGBean;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
-import org.openejb.slsb.DefaultStatelessEjbContainerGBean;
-import org.openejb.sfsb.DefaultStatefulEjbContainerGBean;
-import org.openejb.entity.bmp.DefaultBmpEjbContainerGBean;
-import org.openejb.entity.cmp.DefaultCmpEjbContainerGBean;
-import org.openejb.mdb.DefaultMdbContainerGBean;
 
 /**
- *
- *
  * @version $Revision$ $Date$
- *
- * */
-public class DeploymentHelper {
-    //these have to match the domain and server set in KernelHelper mock config store
-    public static final String j2eeDomainName = "test";
-    public static final String j2eeServerName = "bar";
-    private static final String appName = NameFactory.NULL;
-    private static final String moduleName = "MockRA";
-    //type is random to look for problems.
-    private static final J2eeContext raContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, appName, NameFactory.RESOURCE_ADAPTER_MODULE, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
-    public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    public static final ObjectName STATELESS_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Stateless,j2eeType=EjbContainer");
-    public static final ObjectName STATEFUL_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Stateful,j2eeType=EjbContainer");
-    public static final ObjectName BMP_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Bmp,j2eeType=EjbContainer");
-    public static final ObjectName CMP_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Cmp,j2eeType=EjbContainer");
-    public static final ObjectName MDB_EJB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:name=Mdb,j2eeType=EjbContainer");
-    public static final ObjectName XIDFACTORY_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=" + NameFactory.XID_FACTORY);
-    public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
-    public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionContextManager");
-    public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
-    public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
-
-    public static final ObjectName RESOURCE_ADAPTER_MODULE_NAME;
-    public static final ObjectName RESOURCE_ADAPTER_NAME;
-    public static final ObjectName ACTIVATIONSPEC_NAME;
-    public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPool,name=DefaultThreadPool");
-    public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
-    public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
-    public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapperGBean.getGBeanInfo());
+ */
+public class DeploymentHelper extends TestCase {
+    public static final Artifact BOOTSTRAP_ID = new Artifact("test", "base", "1", "car");
+    public static final Artifact TEST_CONFIGURATION_ID = new Artifact("foo", "bar", "1", "car");
+    public static final Environment TEST_ENVIRONMENT = new Environment(TEST_CONFIGURATION_ID);
 
     static {
-        try {
-            RESOURCE_ADAPTER_MODULE_NAME = NameFactory.getModuleName(null, null, null, null, null, raContext);
-            RESOURCE_ADAPTER_NAME = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER, raContext);
-            ACTIVATIONSPEC_NAME = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, "MockRA", NameFactory.JCA_ACTIVATION_SPEC, raContext);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
+        TEST_ENVIRONMENT.addDependency(BOOTSTRAP_ID, ImportType.ALL);
     }
 
-    public static Kernel setUpKernelWithTransactionManager() throws Exception {
-        Kernel kernel = KernelHelper.getPreparedKernel();
+    public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapperGBean.getGBeanInfo());
 
-        GBeanData xidFacGBean = new GBeanData(XIDFACTORY_NAME, XidFactoryImplGBean.GBEAN_INFO);
-        xidFacGBean.setAttribute("tmId", "WHAT DO WE CALL IT?".getBytes());
-        start(kernel, xidFacGBean);
+    public Naming naming = new Jsr77Naming();
+    public final AbstractName serverName = naming.createRootName(BOOTSTRAP_ID, "Server", "J2EEServer");
 
-        GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImplGBean.GBEAN_INFO);
-        Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(100));
-        tmGBean.setReferencePattern("XidFactory", XIDFACTORY_NAME);
-        tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
-        start(kernel, tmGBean);
+    protected Kernel kernel;
+    public AbstractName statelessEjbContainerName;
+    public AbstractName statefulEjbContainerName;
+    public AbstractName bmpEjbContainerName;
+    public AbstractName cmpEjbContainerName;
+    public AbstractName mdbEjbContainerName;
+    public AbstractName ctcName;
+    public AbstractName tmName;
+    public AbstractName tcmName;
+    public AbstractName txTimerName;
+    public AbstractName nonTxTimerName;
+    public AbstractName activationSpecName;
+    public ClassLoader cl;
+    private File basedir = new File(System.getProperty("basedir", "."));
+    private Environment defaultEnvironment = new Environment();
+    public ConfigurationManager configurationManager;
+    public ConfigurationStore configStore;
+    public AbstractName dataSourceName;
+    public AbstractName listenerName;
+    protected final AbstractName CONTAINER_NAME = new AbstractName(TEST_CONFIGURATION_ID, Collections.singletonMap("ejb", "Mock"));
 
-        GBeanData tcmGBean = new GBeanData(TRANSACTIONCONTEXTMANAGER_NAME, TransactionContextManagerGBean.GBEAN_INFO);
-        tcmGBean.setReferencePattern("TransactionManager", TRANSACTIONMANAGER_NAME);
-        tcmGBean.setReferencePattern("XidImporter", TRANSACTIONMANAGER_NAME);
-        start(kernel, tcmGBean);
+    protected void setUp() throws Exception {
+        super.setUp();
+        cl = this.getClass().getClassLoader();
+        kernel = KernelFactory.newInstance().createKernel("test");
+        kernel.boot();
 
-        GBeanData trackedConnectionAssociator = new GBeanData(TRACKEDCONNECTIONASSOCIATOR_NAME, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
-        start(kernel, trackedConnectionAssociator);
+        ConfigurationData bootstrap = new ConfigurationData(BOOTSTRAP_ID, naming);
 
-        GBeanData threadPoolGBean = new GBeanData(THREADPOOL_NAME, ThreadPool.GBEAN_INFO);
+        bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO).setAttribute("baseDirectory", ".");
+
+        GBeanData configStoreData = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO);
+        AbstractName configStoreName = configStoreData.getAbstractName();
+        configStoreData.setAttribute("baseURL", basedir.toURL());
+
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+        configurationManagerData.setReferencePattern("Stores", configStoreName);
+        bootstrap.addGBean(configurationManagerData);
+
+        GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
+        bootstrap.addGBean(serverData);
+
+        GBeanData xidFactory = bootstrap.addGBean("XidFactory", XidFactoryImplGBean.GBEAN_INFO);
+        xidFactory.setAttribute("tmId", "tmId".getBytes());
+
+        GBeanData tm = bootstrap.addGBean("TransactionManager", TransactionManagerImplGBean.GBEAN_INFO);
+        tmName = tm.getAbstractName();
+        tm.setReferencePattern("XidFactory", xidFactory.getAbstractName());
+        tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
+
+        GBeanData tcm = bootstrap.addGBean("TransactionContextManager", TransactionContextManagerGBean.GBEAN_INFO);
+        tcm.setReferencePattern("TransactionManager", tmName);
+        tcmName = tcm.getAbstractName();
+        ctcName = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO).getAbstractName();
+
+        //timer
+        GBeanData threadPoolGBean = bootstrap.addGBean("Threadpool", ThreadPool.GBEAN_INFO);
         threadPoolGBean.setAttribute("keepAliveTime", new Long(5000));
         threadPoolGBean.setAttribute("poolSize", new Integer(5));
         threadPoolGBean.setAttribute("poolName", "DefaultThreadPool");
-        start(kernel, threadPoolGBean);
 
-        GBeanData transactionalTimerGBean = new GBeanData(TRANSACTIONALTIMER_NAME, VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
+        GBeanData transactionalTimerGBean = bootstrap.addGBean("TransactionalTimer", VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
+        txTimerName = transactionalTimerGBean.getAbstractName();
         transactionalTimerGBean.setAttribute("repeatCount", new Integer(5));
-        transactionalTimerGBean.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        transactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
-        start(kernel, transactionalTimerGBean);
+        transactionalTimerGBean.setReferencePattern("TransactionContextManager", tcmName);
+        transactionalTimerGBean.setReferencePattern("ThreadPool", threadPoolGBean.getAbstractName());
 
-        GBeanData nonTransactionalTimerGBean = new GBeanData(NONTRANSACTIONALTIMER_NAME, VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
-        nonTransactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
-        start(kernel, nonTransactionalTimerGBean);
+        GBeanData nonTransactionalTimerGBean = bootstrap.addGBean("NonTransactionTimer", VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
+        nonTxTimerName = nonTransactionalTimerGBean.getAbstractName();
+        nonTransactionalTimerGBean.setReferencePattern("ThreadPool", threadPoolGBean.getAbstractName());
 
-        GBeanData statelessInterceptorStack = new GBeanData(STATELESS_EJB_CONTAINER_NAME, DefaultStatelessEjbContainerGBean.GBEAN_INFO);
-        statelessInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        statelessInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
-        statelessInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
-        statelessInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
-        start(kernel, statelessInterceptorStack);
-
-        GBeanData statefulInterceptorStack = new GBeanData(STATEFUL_EJB_CONTAINER_NAME, DefaultStatefulEjbContainerGBean.GBEAN_INFO);
-        statefulInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        statefulInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
-        start(kernel, statefulInterceptorStack);
-
-        GBeanData bmpInterceptorStack = new GBeanData(BMP_EJB_CONTAINER_NAME, DefaultBmpEjbContainerGBean.GBEAN_INFO);
-        bmpInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        bmpInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
-        bmpInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
-        bmpInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
-        start(kernel, bmpInterceptorStack);
-
-        GBeanData cmpInterceptorStack = new GBeanData(CMP_EJB_CONTAINER_NAME, DefaultCmpEjbContainerGBean.GBEAN_INFO);
-        cmpInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        cmpInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
-        cmpInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
-        cmpInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
-        start(kernel, cmpInterceptorStack);
-
-        GBeanData mdbInterceptorStack = new GBeanData(MDB_EJB_CONTAINER_NAME, DefaultMdbContainerGBean.GBEAN_INFO);
-        mdbInterceptorStack.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        mdbInterceptorStack.setReferencePattern("TrackedConnectionAssociator", TRACKEDCONNECTIONASSOCIATOR_NAME);
-        mdbInterceptorStack.setReferencePattern("TransactedTimer", TRANSACTIONALTIMER_NAME);
-        mdbInterceptorStack.setReferencePattern("NontransactedTimer", NONTRANSACTIONALTIMER_NAME);
-        start(kernel, mdbInterceptorStack);
-
-        return kernel;
-    }
-
-    public static void setUpResourceAdapter(Kernel kernel) throws Exception {
-        GBeanData geronimoWorkManagerGBean = new GBeanData(WORKMANAGER_NAME, GeronimoWorkManagerGBean.getGBeanInfo());
-        geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
-        geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
-        geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
-        geronimoWorkManagerGBean.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        start(kernel, geronimoWorkManagerGBean);
+        //resourceadapter
+        GBeanData geronimoWorkManagerGBean = bootstrap.addGBean("WorkManager", GeronimoWorkManagerGBean.getGBeanInfo());
+        geronimoWorkManagerGBean.setReferencePattern("SyncPool", threadPoolGBean.getAbstractName());
+        geronimoWorkManagerGBean.setReferencePattern("StartPool", threadPoolGBean.getAbstractName());
+        geronimoWorkManagerGBean.setReferencePattern("ScheduledPool", threadPoolGBean.getAbstractName());
+        geronimoWorkManagerGBean.setReferencePattern("TransactionContextManager", tcmName);
 
         Map activationSpecInfoMap = new HashMap();
         ACTIVATION_SPEC_INFO.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
         activationSpecInfoMap.put(javax.jms.MessageListener.class.getName(), ACTIVATION_SPEC_INFO);
-        GBeanData moduleData = new GBeanData(RESOURCE_ADAPTER_MODULE_NAME, ResourceAdapterModuleImplGBean.GBEAN_INFO);
+
+        GBeanData moduleData = new GBeanData(createResourceAdapterModuleName(BOOTSTRAP_ID), ResourceAdapterModuleImplGBean.GBEAN_INFO);
+        bootstrap.addGBean(moduleData);
         moduleData.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
-        start(kernel, moduleData);
 
-        GBeanData resourceAdapterGBean = new GBeanData(RESOURCE_ADAPTER_NAME, ResourceAdapterWrapperGBean.getGBeanInfo());
+        GBeanData resourceAdapterGBean = new GBeanData(createJCAResourceAdapterName(BOOTSTRAP_ID), ResourceAdapterWrapperGBean.getGBeanInfo());
+        bootstrap.addGBean(resourceAdapterGBean);
         resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class.getName());
-        resourceAdapterGBean.setReferencePattern("WorkManager", WORKMANAGER_NAME);
-        start(kernel, resourceAdapterGBean);
+        resourceAdapterGBean.setReferencePattern("WorkManager", geronimoWorkManagerGBean.getAbstractName());
 
-        GBeanData activationSpecGBean = new GBeanData(ACTIVATIONSPEC_NAME, ActivationSpecWrapperGBean.getGBeanInfo());
+        GBeanData activationSpecGBean = bootstrap.addGBean("ActivationSpec", ActivationSpecWrapperGBean.getGBeanInfo());
+        activationSpecName = activationSpecGBean.getAbstractName();
         activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
-        activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.getCanonicalName());
-        activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", RESOURCE_ADAPTER_NAME);
-        start(kernel, activationSpecGBean);
+        //TODO fix this configid
+//        activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.toURI().toString());
+        activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", resourceAdapterGBean.getAbstractName());
+
+        //containerIndex
+        GBeanData containerIndexGBean = bootstrap.addGBean("DeploymentIndex", DeploymentIndexGBean.GBEAN_INFO);
+        Set ejbContainerNames = new HashSet();
+        ejbContainerNames.add(new AbstractNameQuery(CONTAINER_NAME));
+        ejbContainerNames.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "StatelessSessionBean")));
+        ejbContainerNames.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "StatefulSessionBean")));
+        ejbContainerNames.add(new AbstractNameQuery(null, Collections.singletonMap("j2eeType", "EntityBean")));
+        containerIndexGBean.setReferencePatterns("EjbDeployments", ejbContainerNames);
+
+        //datasource
+        dataSourceName = bootstrap.addGBean("DefaultDatasource", MockConnectionProxyFactory.GBEAN_INFO).getAbstractName();
+
+        // soap listener
+        listenerName = bootstrap.addGBean("SoapListener", MockListener.GBEAN_INFO).getAbstractName();
+
+        // Containers
+        GBeanData statelessEjbContainer = bootstrap.addGBean("stateless", DefaultStatelessEjbContainerGBean.GBEAN_INFO);
+        statelessEjbContainerName = statelessEjbContainer.getAbstractName();
+        statelessEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        statelessEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
+        statelessEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
+        statelessEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
+
+        GBeanData statefulEjbContainer = bootstrap.addGBean("stateful", DefaultStatefulEjbContainerGBean.GBEAN_INFO);
+        statefulEjbContainerName = statefulEjbContainer.getAbstractName();
+        statefulEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        statefulEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
+
+        GBeanData bmpEjbContainer = bootstrap.addGBean("bmp", DefaultBmpEjbContainerGBean.GBEAN_INFO);
+        bmpEjbContainerName = bmpEjbContainer.getAbstractName();
+        bmpEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        bmpEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
+        bmpEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
+        bmpEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
+
+        GBeanData cmpEjbContainer = bootstrap.addGBean("cmp", DefaultCmpEjbContainerGBean.GBEAN_INFO);
+        cmpEjbContainerName = cmpEjbContainer.getAbstractName();
+        cmpEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        cmpEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
+        cmpEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
+        cmpEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
+
+        GBeanData mdbEjbContainer = bootstrap.addGBean("mdb", DefaultMdbContainerGBean.GBEAN_INFO);
+        mdbEjbContainerName = mdbEjbContainer.getAbstractName();
+        mdbEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        mdbEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
+        mdbEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
+        mdbEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
+
+        // load and start the configuration
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
+
+        configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
+        configStore.install(bootstrap);
+
+        defaultEnvironment.addDependency(BOOTSTRAP_ID, ImportType.ALL);
+        defaultEnvironment.setConfigId(TEST_CONFIGURATION_ID);
     }
 
-    private static void start(Kernel kernel, GBeanData gbeanData) throws InternalKernelException, GBeanAlreadyExistsException , GBeanNotFoundException {
-        kernel.loadGBean(gbeanData, DeploymentHelper.class.getClassLoader());
-        kernel.startGBean(gbeanData.getName());
+
+    private AbstractName createJCAResourceAdapterName(Artifact artifact) {
+        AbstractName jcaResourceName = createJCAResourceName(artifact);
+        return naming.createChildName(jcaResourceName, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER);
     }
 
-    public static void tearDownAdapter(Kernel kernel) throws Exception {
-        stop(kernel, ACTIVATIONSPEC_NAME);
-        stop(kernel, RESOURCE_ADAPTER_NAME);
-        stop(kernel, WORKMANAGER_NAME);
+    protected AbstractName createJCAResourceName(Artifact artifact) {
+        AbstractName moduleName = createResourceAdapterModuleName(artifact);
+        AbstractName resourceAdapterName = naming.createChildName(moduleName, artifact.toString(), NameFactory.RESOURCE_ADAPTER);
+        AbstractName jcaResourceName = naming.createChildName(resourceAdapterName, artifact.toString(), NameFactory.JCA_RESOURCE);
+        return jcaResourceName;
     }
 
-    public static void stop(Kernel kernel, ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
+    private AbstractName createResourceAdapterModuleName(Artifact artifact) {
+        AbstractName appName = naming.createRootName(artifact, NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+        AbstractName moduleName = naming.createChildName(appName, artifact.toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
+        return moduleName;
+    }
+
+    protected void tearDown() throws Exception {
+        kernel.shutdown();
+        super.tearDown();
+    }
+
+    public static class MockConfigStore extends NullConfigurationStore {
+        private static final Map locations = new HashMap();
+        private Map configs = new HashMap();
+
+        URL baseURL;
+
+        public MockConfigStore(URL baseURL) {
+            this.baseURL = baseURL;
+        }
+
+        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+            configs.put(configurationData.getId(), configurationData);
+        }
+
+        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+            configs.remove(configID);
+        }
+
+        public ConfigurationData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            if (configs.containsKey(configId)) {
+                ConfigurationData configurationData = (ConfigurationData) configs.get(configId);
+                configurationData.setConfigurationStore(this);
+                return configurationData;
+            } else {
+                ConfigurationData configurationData = new ConfigurationData(configId, new Jsr77Naming());
+                configurationData.setConfigurationStore(this);
+                return configurationData;
+            }
+        }
+
+        public boolean containsConfiguration(Artifact configID) {
+            return true;
+        }
+
+        public File createNewConfigurationDir(Artifact configId) {
+            try {
+                File file = DeploymentUtil.createTempDir();
+                locations.put(configId, file);
+                return file;
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        public Set resolve(Artifact configId, String moduleName, String pattern) throws NoSuchConfigException, MalformedURLException {
+            File file = (File) locations.get(configId);
+            if (file == null) {
+                throw new NoSuchConfigException(configId);
+            }
+            Set matches = IOUtil.search(file, pattern);
+            return matches;
+        }
+
+        public final static GBeanInfo GBEAN_INFO;
+
+        static {
+            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
+            infoBuilder.addAttribute("baseURL", URL.class, true, true);
+            infoBuilder.setConstructor(new String[] {"baseURL"});
+            infoBuilder.addInterface(ConfigurationStore.class);
+            GBEAN_INFO = infoBuilder.getBeanInfo();
+        }
+    }
+
+
+    public static class MockListener implements SoapHandler {
+
+        public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
+        }
+
+        public void removeWebService(String contextPath) {
+        }
+
+        public static final  GBeanInfo GBEAN_INFO;
+
+        static {
+            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockListener.class, NameFactory.GERONIMO_SERVICE);
+                infoBuilder.addInterface(SoapHandler.class);
+                GBEAN_INFO = infoBuilder.getBeanInfo();
+        }
+    }
+
+    public static AbstractNameQuery createEjbNameQuery(String name, String j2eeType, String ejbModule) {
+        Map properties = new LinkedHashMap();
+        properties.put("name", name);
+        properties.put("j2eeType", j2eeType);
+        properties.put("EJBModule", ejbModule);
+        return new AbstractNameQuery(null, properties);
     }
 }

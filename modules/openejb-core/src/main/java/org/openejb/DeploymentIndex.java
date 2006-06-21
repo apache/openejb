@@ -48,11 +48,18 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
+import java.net.URI;
 
 
 /**
@@ -60,12 +67,20 @@ import java.util.Iterator;
  * and more along the lines of a collection of deployments registered as gbeans
  */
 public class DeploymentIndex implements ReferenceCollectionListener, GBeanLifecycle {
+    private static final Log log = LogFactory.getLog(DeploymentIndex.class);
+
     // todo delete me
     private static DeploymentIndex deploymentIndex = new DeploymentIndex();
 
     public static DeploymentIndex getInstance() {
         return deploymentIndex;
     }
+
+    /**
+     * The kernel in which this index is registered.  This is only needed due to the inability to control the order of
+     * notifications in the kernel.
+     */
+    private final Kernel kernel;
 
     /**
      * The deployment lookup table.
@@ -88,9 +103,11 @@ public class DeploymentIndex implements ReferenceCollectionListener, GBeanLifecy
     private ReferenceCollection ejbDeployments;
 
     protected DeploymentIndex() {
+        kernel = null;
     }
 
-    public DeploymentIndex(Collection ejbDeployments) {
+    public DeploymentIndex(Collection ejbDeployments, Kernel kernel) {
+        this.kernel = kernel;
         DeploymentIndex.deploymentIndex = this;
         this.ejbDeployments = (ReferenceCollection) ejbDeployments;
         this.ejbDeployments.addReferenceCollectionListener(this);
@@ -130,11 +147,12 @@ public class DeploymentIndex implements ReferenceCollectionListener, GBeanLifecy
         jndiNameToIndex.clear();
     }
 
-    public synchronized void addDeployment(RpcEjbDeployment deployment) {
+    public synchronized Integer addDeployment(RpcEjbDeployment deployment) {
         deployment = (RpcEjbDeployment) deployment.getUnmanagedReference();
         Object containerId = deployment.getContainerId();
-        if (deploymentIdToIndex.containsKey(containerId)) {
-            return;
+        Integer index;
+        if ((index = (Integer) deploymentIdToIndex.get(containerId)) != null) {
+            return index;
         }
 
         int i = deployments.length;
@@ -144,8 +162,10 @@ public class DeploymentIndex implements ReferenceCollectionListener, GBeanLifecy
         deployments = newArray;
 
         deployments[i] = deployment;
-        deploymentIdToIndex.put(containerId, new Integer(i));
+        index = new Integer(i);
+        deploymentIdToIndex.put(containerId, index);
         addJNDINames(deployment, i);
+        return index;
     }
 
     public synchronized void removeDeployment(RpcEjbDeployment deployment) {
@@ -179,7 +199,33 @@ public class DeploymentIndex implements ReferenceCollectionListener, GBeanLifecy
 
     public synchronized int getDeploymentIndex(String containerId) {
         Integer index = (Integer) deploymentIdToIndex.get(containerId);
-        return (index == null) ? -1 : index.intValue();
+
+        // try to fault in the deployment using the kernel directly
+        if ((index == null)) {
+            URI uri = URI.create(containerId);
+            AbstractNameQuery abstractNameQuery = new AbstractNameQuery(uri);
+            Set results = kernel.listGBeans(abstractNameQuery);
+            if (results.size() != 1) {
+                log.error( "Name query " + abstractNameQuery + " not satisfied in kernel, matches: " + results);
+                return -1;
+            }
+            AbstractName name = (AbstractName) results.iterator().next();
+            RpcEjbDeployment ejbDeployment;
+            try {
+                ejbDeployment = (RpcEjbDeployment) kernel.getGBean(name);
+            } catch (Exception e) {
+                // couldn't find the deployment
+                log.debug("Deployment not found: " + containerId, e);
+                return -1;
+            }
+            index = addDeployment(ejbDeployment);
+        }
+
+        if (index == null) {
+            return -1;
+        } else {
+            return index.intValue();
+        }
     }
 
     public synchronized int getDeploymentIndexByJndiName(String jndiName) {

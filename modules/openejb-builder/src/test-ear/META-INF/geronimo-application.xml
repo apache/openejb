@@ -16,7 +16,21 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="org/apache/geronimo/j2ee/deployment/test"
-    parentId="org/apache/geronimo/Server">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+    <environment>
+        <moduleId>
+            <groupId>foo</groupId>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+            <type>car</type>
+        </moduleId>
+        <dependencies>
+            <dependency>
+                <groupId>test</groupId>
+                <artifactId>base</artifactId>
+                <version>1</version>
+                <type>car</type>
+            </dependency>
+        </dependencies>
+    </environment>
 </application>

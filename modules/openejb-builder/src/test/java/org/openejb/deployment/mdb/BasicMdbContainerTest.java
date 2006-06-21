@@ -44,50 +44,43 @@
  */
 package org.openejb.deployment.mdb;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MdbBuilder;
 
 /**
  * @version $Revision$ $Date$
  */
-public class BasicMdbContainerTest extends TestCase {
-    private Kernel kernel;
-
+public class BasicMdbContainerTest extends DeploymentHelper {
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
-        DeploymentHelper.setUpResourceAdapter(kernel);
 
         MdbBuilder builder = new MdbBuilder();
-        builder.setContainerId(DeploymentHelper.CONTAINER_NAME);
+        builder.setContainerId(CONTAINER_NAME.toURI().toString());
         builder.setEjbName("MockEJB");
 
         builder.setEndpointInterfaceName("javax.jms.MessageListener");
         builder.setBeanClassName(MockEJB.class.getName());
 
-        builder.setActivationSpecName(DeploymentHelper.ACTIVATIONSPEC_NAME);
+        builder.setActivationSpecName(activationSpecName);
 
-        builder.setEjbContainerName(DeploymentHelper.MDB_EJB_CONTAINER_NAME);
+        builder.setEjbContainerName(mdbEjbContainerName);
 
-        GBeanData container = builder.createConfiguration();
-        container.setName(DeploymentHelper.CONTAINER_NAME);
+        GBeanData deployment = builder.createConfiguration();
 
-        kernel.loadGBean(container, getClass().getClassLoader());
-        kernel.startGBean(DeploymentHelper.CONTAINER_NAME);
+        //start the ejb container
+        ConfigurationData configurationData = new ConfigurationData(TEST_CONFIGURATION_ID, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(BOOTSTRAP_ID, ImportType.ALL));
+        configurationData.addGBean(deployment);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(TEST_CONFIGURATION_ID);
     }
-
-    protected void tearDown() throws Exception {
-        DeploymentHelper.stop(kernel, DeploymentHelper.CONTAINER_NAME);
-        DeploymentHelper.stop(kernel, DeploymentHelper.TRANSACTIONMANAGER_NAME);
-        DeploymentHelper.stop(kernel, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
-        DeploymentHelper.tearDownAdapter(kernel);
-        kernel.shutdown();
-        super.tearDown();
-    }
-
 
     public void testMessage() throws Exception {
         // @todo put a wait limit in here... otherwise this can lock a build

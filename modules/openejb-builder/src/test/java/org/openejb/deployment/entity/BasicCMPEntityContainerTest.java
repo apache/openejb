@@ -52,25 +52,21 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.DeploymentIndexGBean;
+import org.openejb.deployment.CmpBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
-import org.openejb.deployment.CmpBuilder;
 import org.openejb.entity.cmp.EntitySchema;
 import org.openejb.entity.cmp.ModuleSchema;
 import org.openejb.entity.cmp.TranqlModuleCmpEngineGBean;
@@ -78,15 +74,7 @@ import org.openejb.entity.cmp.TranqlModuleCmpEngineGBean;
 /**
  * @version $Revision$ $Date$
  */
-public class BasicCMPEntityContainerTest extends TestCase {
-    private static final String j2eeDomainName = "openejb.server";
-    private static final String j2eeServerName = "TestOpenEJBServer";
-    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, "testapp", NameFactory.EJB_MODULE, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("openejb.server:ejb=Mock");
-    private static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
-    private Kernel kernel;
-    private GBeanData container;
-
+public class BasicCMPEntityContainerTest extends DeploymentHelper {
     private DataSource ds;
 
     public void testLocalInvoke() throws Exception {
@@ -270,7 +258,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
             // expected
         } catch (Throwable e) {
             e.printStackTrace();
-            ;
             fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
         }
 
@@ -319,17 +306,18 @@ public class BasicCMPEntityContainerTest extends TestCase {
         s.close();
         c.close();
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
+        // create a new configuration
+        ConfigurationData configurationData = new ConfigurationData(TEST_CONFIGURATION_ID, kernel.getNaming());
+        configurationData.getEnvironment().addDependency(new Dependency(BOOTSTRAP_ID, ImportType.ALL));
 
-        ObjectName connectionProxyFactoryObjectName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-        GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
-        kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
-        kernel.startGBean(connectionProxyFactoryObjectName);
+        // add the datasource
+        GBeanData connectionProxyFactoryGBean = configurationData.addGBean("testcf", MockConnectionProxyFactory.GBEAN_INFO);
 
+        // create the cmp schema
         ModuleSchema moduleSchema = new ModuleSchema("MockModule");
         EntitySchema entitySchema = moduleSchema.addEntity("MockEJB");
         entitySchema.setTableName("mock");
-        entitySchema.setContainerId(CONTAINER_NAME.getCanonicalName());
+        entitySchema.setContainerId(CONTAINER_NAME.toString());
         entitySchema.setEjbClassName(MockCMPEJB.class.getName());
         entitySchema.setHomeInterfaceName(MockHome.class.getName());
         entitySchema.setLocalHomeInterfaceName(MockLocalHome.class.getName());
@@ -339,52 +327,37 @@ public class BasicCMPEntityContainerTest extends TestCase {
         entitySchema.addCmpField("id", "id", Integer.class, true);
         entitySchema.addCmpField("value", "value", String.class, false);
 
-        ObjectName moduleCmpEngineObjectName = new ObjectName("openejb.server:name=ModuleCmpEngine");
-        GBeanData moduleCmpEngineBeanData = new GBeanData(moduleCmpEngineObjectName, TranqlModuleCmpEngineGBean.GBEAN_INFO);
+        // create the module cmp engine
+        GBeanData moduleCmpEngineBeanData = configurationData.addGBean("ModuleCmpEngine", TranqlModuleCmpEngineGBean.GBEAN_INFO);
         moduleCmpEngineBeanData.setAttribute("moduleSchema", moduleSchema);
-        moduleCmpEngineBeanData.setReferencePattern("transactionManager", DeploymentHelper.TRANSACTIONMANAGER_NAME);
-        moduleCmpEngineBeanData.setReferencePattern("connectionFactory", connectionProxyFactoryObjectName);
-        kernel.loadGBean(moduleCmpEngineBeanData, this.getClass().getClassLoader());
-        kernel.startGBean(moduleCmpEngineObjectName);
+        moduleCmpEngineBeanData.setReferencePattern("transactionManager", tmName);
+        moduleCmpEngineBeanData.setReferencePattern("connectionFactory", connectionProxyFactoryGBean.getAbstractName());
 
+        // create the cmp bean
         CmpBuilder builder = new CmpBuilder();
-        builder.setContainerId(CONTAINER_NAME);
+        builder.setContainerId(CONTAINER_NAME.toString());
         builder.setEjbName("MockEJB");
-        builder.setEjbContainerName(DeploymentHelper.CMP_EJB_CONTAINER_NAME);
+        builder.setEjbContainerName(cmpEjbContainerName);
         builder.setBeanClassName(MockCMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
         builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
         builder.setRemoteInterfaceName(MockRemote.class.getName());
         builder.setLocalInterfaceName(MockLocal.class.getName());
         builder.setPrimaryKeyClassName(Integer.class.getName());
-        builder.setModuleCmpEngineName(moduleCmpEngineObjectName);
+        builder.setModuleCmpEngineName(moduleCmpEngineBeanData.getAbstractName());
         builder.setCmp2(true);
+        GBeanData deployment = builder.createConfiguration();
 
-        container = builder.createConfiguration();
-
-        GBeanData containerIndex = new GBeanData(DeploymentIndexGBean.GBEAN_INFO);
-        containerIndex.setReferencePatterns("EjbDeployments", Collections.singleton(CONTAINER_NAME));
-        start(CI_NAME, containerIndex);
-
-        //start the ejb container
-        start(CONTAINER_NAME, container);
+        //start the ejb configuration
+        configurationData.addGBean(deployment);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(TEST_CONFIGURATION_ID);
     }
 
     protected void tearDown() throws Exception {
-        stop(CONTAINER_NAME);
-        kernel.shutdown();
-        java.sql.Connection c = ds.getConnection();
+        Connection c = ds.getConnection();
         c.createStatement().execute("SHUTDOWN");
-    }
-
-    private void start(ObjectName name, GBeanData instance) throws Exception {
-        instance.setName(name);
-        kernel.loadGBean(instance, this.getClass().getClassLoader());
-        kernel.startGBean(name);
-    }
-
-    private void stop(ObjectName name) throws Exception {
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
+        super.tearDown();
     }
 }

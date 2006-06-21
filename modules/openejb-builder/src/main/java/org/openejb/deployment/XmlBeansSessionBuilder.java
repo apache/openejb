@@ -166,7 +166,9 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             linkData.setAttribute("authMethod", webServiceSecurity.getAuthMethod().toString());
         }
 
-        linkData.setReferencePattern("WebServiceContainer", listener);
+        if (listener != null) {
+            linkData.setReferencePattern("WebServiceContainer", listener);
+        }
         linkData.setReferencePattern("EJBContainer", sessionName);
 
         if (openejbSessionBean != null) {

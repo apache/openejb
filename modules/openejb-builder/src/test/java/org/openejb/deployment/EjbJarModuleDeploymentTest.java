@@ -68,7 +68,7 @@ public class EjbJarModuleDeploymentTest extends AbstractDeploymentTest {
     }
 
     public String getJ2eeModuleName() {
-        return "org/openejb/deployment/test";
+        return "foo/bar/1/car";        
     }
 
     public Kernel getKernel() {

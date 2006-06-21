@@ -560,12 +560,9 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultBmpEjbContainer", AbstractName.class, true);
         infoBuilder.addAttribute("defaultCmpEjbContainer", AbstractName.class, true);
         infoBuilder.addAttribute("defaultMdbEjbContainer", AbstractName.class, true);
-        infoBuilder.addAttribute("listener", AbstractName.class, true);
+        infoBuilder.addAttribute("listener", AbstractNameQuery.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addInterface(ModuleBuilder.class);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.setConstructor(new String[]{
             "defaultEnvironment",
@@ -577,7 +574,6 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             "listener",
             "WebServiceLinkTemplate",
             "WebServiceBuilder",
-            "Repository",
             "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
