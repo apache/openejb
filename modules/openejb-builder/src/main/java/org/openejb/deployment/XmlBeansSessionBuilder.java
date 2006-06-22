@@ -58,13 +58,14 @@ import java.util.jar.JarFile;
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -89,13 +90,9 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.xmlbeans.XmlException;
-import org.openejb.EJBComponentType;
-import org.openejb.StatelessEjbDeploymentGBean;
 import org.openejb.StatefulEjbDeploymentGBean;
-import org.openejb.proxy.ProxyInfo;
+import org.openejb.StatelessEjbDeploymentGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
 
@@ -103,20 +100,18 @@ import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
 public class XmlBeansSessionBuilder extends XmlBeanBuilder {
     private final static String DEFAULT_AUTH_REALM_NAME = "Geronimo Web Service";
 
-    private final AbstractName defaultStatelessEjbContainer;
-    private final AbstractName defaultStatefulEjbContainer;
+    private final String defaultStatelessEjbContainer;
+    private final String defaultStatefulEjbContainer;
     private final GBeanData linkDataTemplate;
-    private final WebServiceBuilder webServiceBuilder;
 
     public XmlBeansSessionBuilder(OpenEjbModuleBuilder moduleBuilder,
-            AbstractName defaultStatelessEjbContainer,
-            AbstractName defaultStatefulEjbContainer,
-            GBeanData linkDataTemplate,
-            WebServiceBuilder webServiceBuilder) {
+            String defaultStatelessEjbContainer,
+            String defaultStatefulEjbContainer,
+            GBeanData linkDataTemplate) {
         super(moduleBuilder);
+
         this.defaultStatelessEjbContainer = defaultStatelessEjbContainer;
         this.defaultStatefulEjbContainer = defaultStatefulEjbContainer;
-        this.webServiceBuilder = webServiceBuilder;
         this.linkDataTemplate = linkDataTemplate;
     }
 
@@ -157,7 +152,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         linkData.setAbstractName(linkName);
         Object portInfo = portInfoMap.get(ejbName);
         //let the webServiceBuilder configure its part
-        webServiceBuilder.configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
+        moduleBuilder.getWebServiceBuilder().configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
         //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
@@ -390,41 +385,36 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
                 gbean = new GBeanData(sessionName, StatefulEjbDeploymentGBean.GBEAN_INFO);
             }
 
-            Class homeInterface = null;
-            Class remoteInterface = null;
-            Class localHomeInterface = null;
-            Class localObjectInterface = null;
+            String homeInterfaceName = null;
+            String remoteInterfaceName = null;
+            String localHomeInterfaceName = null;
+            String localInterfaceName = null;
+
             // ejb-ref
             if (sessionBean.isSetRemote()) {
-                String remote =  sessionBean.getRemote().getStringValue().trim();
-                remoteInterface = ENCConfigBuilder.assureEJBObjectInterface(remote, cl);
+                remoteInterfaceName = sessionBean.getRemote().getStringValue().trim();
+                ENCConfigBuilder.assureEJBObjectInterface(remoteInterfaceName, cl);
 
-                String home = sessionBean.getHome().getStringValue().trim();
-                homeInterface = ENCConfigBuilder.assureEJBHomeInterface(home, cl);
+                homeInterfaceName = sessionBean.getHome().getStringValue().trim();
+                ENCConfigBuilder.assureEJBHomeInterface(homeInterfaceName, cl);
             }
 
             // ejb-local-ref
             if (sessionBean.isSetLocal()) {
-                String local = sessionBean.getLocal().getStringValue().trim();
-                localObjectInterface = ENCConfigBuilder.assureEJBLocalObjectInterface(local, cl);
+                localInterfaceName = sessionBean.getLocal().getStringValue().trim();
+                ENCConfigBuilder.assureEJBLocalObjectInterface(localInterfaceName, cl);
 
-                String localHome = sessionBean.getLocalHome().getStringValue().trim();
-                localHomeInterface = ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
+                localHomeInterfaceName = sessionBean.getLocalHome().getStringValue().trim();
+                ENCConfigBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, cl);
             }
-            int componentType = sessionBean.getSessionType().getStringValue().trim().equals("Stateless")? EJBComponentType.STATELESS: EJBComponentType.STATEFUL;
-            ProxyInfo proxyInfo = new ProxyInfo(componentType,
-                    sessionName.toString(),
-                    homeInterface,
-                    remoteInterface,
-                    localHomeInterface,
-                    localObjectInterface,
-                    null,
-                    null);
-            gbean.setAttribute("proxyInfo", proxyInfo);
+            gbean.setAttribute("homeInterfaceName", homeInterfaceName);
+            gbean.setAttribute("remoteInterfaceName", remoteInterfaceName);
+            gbean.setAttribute("localHomeInterfaceName", localHomeInterfaceName);
+            gbean.setAttribute("localInterfaceName", localInterfaceName);
             try {
                 earContext.addGBean(gbean);
             } catch (GBeanAlreadyExistsException e) {
-                throw new DeploymentException("duplicate session bean name", e);
+                throw new DeploymentException("Could not add entity bean to context", e);
             }
         }
     }

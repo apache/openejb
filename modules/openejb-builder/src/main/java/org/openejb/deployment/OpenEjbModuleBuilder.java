@@ -79,6 +79,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -91,7 +92,6 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -135,7 +135,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     private final XmlBeansEntityBuilder xmlBeansEntityBuilder;
     private final CmpSchemaBuilder cmpSchemaBuilder;
     private final XmlBeansMdbBuilder xmlBeansMdbBuilder;
-    private final WebServiceBuilder webServiceBuilder;
+    private final SingleElementCollection webServiceBuilder;
     private static QName OPENEJBJAR_QNAME = OpenejbOpenejbJarDocument.type.getDocumentElementName();
     private static final String OPENEJBJAR_NAMESPACE = OPENEJBJAR_QNAME.getNamespaceURI();
 
@@ -147,14 +147,14 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     }
 
     public OpenEjbModuleBuilder(Environment defaultEnvironment,
-            AbstractName defaultStatelessEjbContainer,
-            AbstractName defaultStatefulEjbContainer,
-            AbstractName defaultBmpEjbContainer,
-            AbstractName defaultCmpEjbContainer,
-            AbstractName defaultMdbEjbContainer,
+            String defaultStatelessEjbContainer,
+            String defaultStatefulEjbContainer,
+            String defaultBmpEjbContainer,
+            String defaultCmpEjbContainer,
+            String defaultMdbEjbContainer,
             AbstractNameQuery listener,
             Object webServiceLinkTemplate,
-            WebServiceBuilder webServiceBuilder,
+            Collection webServiceBuilder,
             Kernel kernel) throws GBeanNotFoundException {
 
         this(defaultEnvironment,
@@ -165,28 +165,55 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 defaultMdbEjbContainer,
                 listener,
                 getLinkData(kernel, webServiceLinkTemplate),
-                webServiceBuilder,
+                new SingleElementCollection(webServiceBuilder),
                 kernel);
     }
 
     public OpenEjbModuleBuilder(Environment defaultEnvironment,
-            AbstractName defaultStatelessEjbContainer,
-            AbstractName defaultStatefulEjbContainer,
-            AbstractName defaultBmpEjbContainer,
-            AbstractName defaultCmpEjbContainer,
-            AbstractName defaultMdbEjbContainer,
+            String defaultStatelessEjbContainer,
+            String defaultStatefulEjbContainer,
+            String defaultBmpEjbContainer,
+            String defaultCmpEjbContainer,
+            String defaultMdbEjbContainer,
             AbstractNameQuery listener,
             GBeanData linkTemplate,
             WebServiceBuilder webServiceBuilder,
             Kernel kernel) {
+
+        this(defaultEnvironment,
+                defaultStatelessEjbContainer,
+                defaultStatefulEjbContainer,
+                defaultBmpEjbContainer,
+                defaultCmpEjbContainer,
+                defaultMdbEjbContainer,
+                listener,
+                linkTemplate,
+                new SingleElementCollection(webServiceBuilder),
+                kernel);
+    }
+
+    public OpenEjbModuleBuilder(Environment defaultEnvironment,
+            String defaultStatelessEjbContainer,
+            String defaultStatefulEjbContainer,
+            String defaultBmpEjbContainer,
+            String defaultCmpEjbContainer,
+            String defaultMdbEjbContainer,
+            AbstractNameQuery listener,
+            GBeanData linkTemplate,
+            SingleElementCollection webServiceBuilder,
+            Kernel kernel) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.listener = listener;
-        this.xmlBeansSessionBuilder = new XmlBeansSessionBuilder(this, defaultStatelessEjbContainer, defaultStatefulEjbContainer, linkTemplate, webServiceBuilder);
+        this.xmlBeansSessionBuilder = new XmlBeansSessionBuilder(this, defaultStatelessEjbContainer, defaultStatefulEjbContainer, linkTemplate);
         this.xmlBeansEntityBuilder = new XmlBeansEntityBuilder(this, defaultBmpEjbContainer, defaultCmpEjbContainer);
         this.cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
         this.xmlBeansMdbBuilder = new XmlBeansMdbBuilder(this, kernel, defaultMdbEjbContainer);
         this.webServiceBuilder = webServiceBuilder;
+    }
+
+    public WebServiceBuilder getWebServiceBuilder() {
+        return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
@@ -478,7 +505,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         URL wsDDUrl;
         try {
             wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-            portInfoMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
+            portInfoMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
         } catch (MalformedURLException e) {
             //there is no webservices file
         }
@@ -555,11 +582,11 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true);
-        infoBuilder.addAttribute("defaultStatelessEjbContainer", AbstractName.class, true);
-        infoBuilder.addAttribute("defaultStatefulEjbContainer", AbstractName.class, true);
-        infoBuilder.addAttribute("defaultBmpEjbContainer", AbstractName.class, true);
-        infoBuilder.addAttribute("defaultCmpEjbContainer", AbstractName.class, true);
-        infoBuilder.addAttribute("defaultMdbEjbContainer", AbstractName.class, true);
+        infoBuilder.addAttribute("defaultStatelessEjbContainer", String.class, true);
+        infoBuilder.addAttribute("defaultStatefulEjbContainer", String.class, true);
+        infoBuilder.addAttribute("defaultBmpEjbContainer", String.class, true);
+        infoBuilder.addAttribute("defaultCmpEjbContainer", String.class, true);
+        infoBuilder.addAttribute("defaultMdbEjbContainer", String.class, true);
         infoBuilder.addAttribute("listener", AbstractNameQuery.class, true);
         infoBuilder.addReference("WebServiceLinkTemplate", Object.class, NameFactory.WEB_SERVICE_LINK);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);

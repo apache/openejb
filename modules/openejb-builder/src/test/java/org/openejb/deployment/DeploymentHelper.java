@@ -126,11 +126,11 @@ public class DeploymentHelper extends TestCase {
     public final AbstractName serverName = naming.createRootName(BOOTSTRAP_ID, "Server", "J2EEServer");
 
     protected Kernel kernel;
-    public AbstractName statelessEjbContainerName;
-    public AbstractName statefulEjbContainerName;
-    public AbstractName bmpEjbContainerName;
-    public AbstractName cmpEjbContainerName;
-    public AbstractName mdbEjbContainerName;
+    public String statelessEjbContainerName = "stateless";
+    public String statefulEjbContainerName = "stateful";
+    public String bmpEjbContainerName = "bmp";
+    public String cmpEjbContainerName = "cmp";
+    public String mdbEjbContainerName = "mdb";
     public AbstractName ctcName;
     public AbstractName tmName;
     public AbstractName tcmName;
@@ -246,34 +246,29 @@ public class DeploymentHelper extends TestCase {
         listenerName = bootstrap.addGBean("SoapListener", MockListener.GBEAN_INFO).getAbstractName();
 
         // Containers
-        GBeanData statelessEjbContainer = bootstrap.addGBean("stateless", DefaultStatelessEjbContainerGBean.GBEAN_INFO);
-        statelessEjbContainerName = statelessEjbContainer.getAbstractName();
+        GBeanData statelessEjbContainer = bootstrap.addGBean(statelessEjbContainerName, DefaultStatelessEjbContainerGBean.GBEAN_INFO);
         statelessEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
         statelessEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         statelessEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         statelessEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
 
-        GBeanData statefulEjbContainer = bootstrap.addGBean("stateful", DefaultStatefulEjbContainerGBean.GBEAN_INFO);
-        statefulEjbContainerName = statefulEjbContainer.getAbstractName();
+        GBeanData statefulEjbContainer = bootstrap.addGBean(statefulEjbContainerName, DefaultStatefulEjbContainerGBean.GBEAN_INFO);
         statefulEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
         statefulEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
 
-        GBeanData bmpEjbContainer = bootstrap.addGBean("bmp", DefaultBmpEjbContainerGBean.GBEAN_INFO);
-        bmpEjbContainerName = bmpEjbContainer.getAbstractName();
+        GBeanData bmpEjbContainer = bootstrap.addGBean(bmpEjbContainerName, DefaultBmpEjbContainerGBean.GBEAN_INFO);
         bmpEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
         bmpEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         bmpEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         bmpEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
 
-        GBeanData cmpEjbContainer = bootstrap.addGBean("cmp", DefaultCmpEjbContainerGBean.GBEAN_INFO);
-        cmpEjbContainerName = cmpEjbContainer.getAbstractName();
+        GBeanData cmpEjbContainer = bootstrap.addGBean(cmpEjbContainerName, DefaultCmpEjbContainerGBean.GBEAN_INFO);
         cmpEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
         cmpEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         cmpEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         cmpEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
 
         GBeanData mdbEjbContainer = bootstrap.addGBean("mdb", DefaultMdbContainerGBean.GBEAN_INFO);
-        mdbEjbContainerName = mdbEjbContainer.getAbstractName();
         mdbEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
         mdbEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         mdbEjbContainer.setReferencePattern("TransactedTimer", txTimerName);

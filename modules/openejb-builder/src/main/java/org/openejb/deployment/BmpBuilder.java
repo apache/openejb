@@ -46,6 +46,7 @@ package org.openejb.deployment;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.openejb.BmpEjbDeploymentGBean;
+import org.openejb.BmpEjbContainer;
 
 /**
  * @version $Revision$ $Date$
@@ -54,5 +55,9 @@ public class BmpBuilder extends EntityBuilder {
 
     protected GBeanInfo getTargetGBeanInfo() {
         return BmpEjbDeploymentGBean.GBEAN_INFO;
+    }
+
+    protected Class getEjbContainerType() {
+        return BmpEjbContainer.class;
     }
 }

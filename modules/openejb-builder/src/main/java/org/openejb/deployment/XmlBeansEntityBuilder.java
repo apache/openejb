@@ -83,16 +83,14 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.openejb.BmpEjbDeploymentGBean;
 import org.openejb.CmpEjbDeploymentGBean;
-import org.openejb.EJBComponentType;
-import org.openejb.proxy.ProxyInfo;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 
 
 public class XmlBeansEntityBuilder extends XmlBeanBuilder {
-    protected final AbstractName defaultBmpContainerName;
-    protected final AbstractName defaultCmpContainerName;
+    protected final String defaultBmpContainerName;
+    protected final String defaultCmpContainerName;
 
-    public XmlBeansEntityBuilder(OpenEjbModuleBuilder builder, AbstractName defaultBmpContainerName, AbstractName defaultCmpContainerName) {
+    public XmlBeansEntityBuilder(OpenEjbModuleBuilder builder, String defaultBmpContainerName, String defaultCmpContainerName) {
         super(builder);
         this.defaultBmpContainerName = defaultBmpContainerName;
         this.defaultCmpContainerName = defaultCmpContainerName;
@@ -241,45 +239,38 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
                 gbean = new GBeanData(entityObjectName, CmpEjbDeploymentGBean.GBEAN_INFO);
             }
 
-            Class homeInterface = null;
-            Class remoteInterface = null;
-            Class localHomeInterface = null;
-            Class localObjectInterface = null;
+            String homeInterfaceName = null;
+            String remoteInterfaceName = null;
+            String localHomeInterfaceName = null;
+            String localInterfaceName = null;
 
             // ejb-ref
             if (entityBean.isSetRemote()) {
-                String remote = entityBean.getRemote().getStringValue().trim();
-                remoteInterface = ENCConfigBuilder.assureEJBObjectInterface(remote, cl);
+                remoteInterfaceName = entityBean.getRemote().getStringValue().trim();
+                ENCConfigBuilder.assureEJBObjectInterface(remoteInterfaceName, cl);
 
-                String home = entityBean.getHome().getStringValue().trim();
-                homeInterface = ENCConfigBuilder.assureEJBHomeInterface(home, cl);
+                homeInterfaceName = entityBean.getHome().getStringValue().trim();
+                ENCConfigBuilder.assureEJBHomeInterface(homeInterfaceName, cl);
             }
 
             // ejb-local-ref
             if (entityBean.isSetLocal()) {
-                String local = entityBean.getLocal().getStringValue().trim();
-                localObjectInterface = ENCConfigBuilder.assureEJBLocalObjectInterface(local, cl);
+                localInterfaceName = entityBean.getLocal().getStringValue().trim();
+                ENCConfigBuilder.assureEJBLocalObjectInterface(localInterfaceName, cl);
 
-                String localHome = entityBean.getLocalHome().getStringValue().trim();
-                localHomeInterface = ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
+                localHomeInterfaceName = entityBean.getLocalHome().getStringValue().trim();
+                ENCConfigBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, cl);
             }
-            int componentType = entityBean.getPersistenceType().getStringValue().trim().equals("Bean") ? EJBComponentType.BMP_ENTITY : EJBComponentType.CMP_ENTITY;
-            String className = entityBean.getPrimKeyClass().getStringValue().trim();
-            Class primaryKeyClass;
+            String primaryKeyClassName = entityBean.getPrimKeyClass().getStringValue().trim();
             try {
-                primaryKeyClass = ClassLoading.loadClass(className, cl);
+                ClassLoading.loadClass(primaryKeyClassName, cl);
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load primary key class: " + className + " for entity: " + entityObjectName);
+                throw new DeploymentException("Could not load primary key class: " + primaryKeyClassName + " for entity: " + entityObjectName);
             }
-            ProxyInfo proxyInfo = new ProxyInfo(componentType,
-                    entityObjectName.toString(),
-                    homeInterface,
-                    remoteInterface,
-                    localHomeInterface,
-                    localObjectInterface,
-                    null,
-                    primaryKeyClass);
-            gbean.setAttribute("proxyInfo", proxyInfo);
+            gbean.setAttribute("homeInterfaceName", homeInterfaceName);
+            gbean.setAttribute("remoteInterfaceName", remoteInterfaceName);
+            gbean.setAttribute("localHomeInterfaceName", localHomeInterfaceName);
+            gbean.setAttribute("localInterfaceName", localInterfaceName);
             try {
                 earContext.addGBean(gbean);
             } catch (GBeanAlreadyExistsException e) {

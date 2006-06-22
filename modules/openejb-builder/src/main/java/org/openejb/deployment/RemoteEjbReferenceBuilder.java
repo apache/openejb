@@ -47,6 +47,8 @@
  */
 package org.openejb.deployment;
 
+import java.net.UnknownHostException;
+import java.util.Collections;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -58,18 +60,24 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.client.naming.RemoteEJBReference;
+import org.openejb.client.ServerMetaData;
 
 
 /**
  */
 public class RemoteEjbReferenceBuilder extends OpenEjbReferenceBuilder {
+    private final ServerMetaData server;
+
+    public RemoteEjbReferenceBuilder(String host, int port) throws UnknownHostException {
+        server = new ServerMetaData("BOOT", host, port);
+    }
 
     public Reference createEJBLocalRef(String refName, Configuration configuration, String name, String requiredModule, String optionalModule, Artifact targetConfigId, AbstractNameQuery query, boolean isSession, String localHome, String local) throws DeploymentException {
         throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
     }
 
     protected Reference buildRemoteReference(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean session, String home, String remote) {
-        Reference reference = new RemoteEJBReference(abstractNameQuery.toString());
+        Reference reference = new RemoteEJBReference(abstractNameQuery.toString(), Collections.singletonList(server));
         return reference;
     }
 
@@ -78,6 +86,11 @@ public class RemoteEjbReferenceBuilder extends OpenEjbReferenceBuilder {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RemoteEjbReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
+
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
+
+        infoFactory.setConstructor(new String[]{"host", "port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

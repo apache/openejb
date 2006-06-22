@@ -160,7 +160,7 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
                 Map nameMap = new HashMap();
                 nameMap.put("name", generatorName);
                 nameMap.put("j2eeType", NameFactory.KEY_GENERATOR);
-                AbstractNameQuery generatorQuery = new AbstractNameQuery(null, nameMap/*, org.tranql.pkgenerator.PrimaryKeyGenerator.class.getName()*/);
+                AbstractNameQuery generatorQuery = new AbstractNameQuery(null, nameMap, org.tranql.pkgenerator.PrimaryKeyGenerator.class.getName());
                 moduleCmpEngine.addDependency(generatorQuery);
             }
         }

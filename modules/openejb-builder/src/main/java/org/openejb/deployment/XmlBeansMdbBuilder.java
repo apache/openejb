@@ -48,32 +48,38 @@
 package org.openejb.deployment;
 
 import java.beans.Introspector;
+import java.lang.reflect.InvocationTargetException;
 import java.security.Permissions;
-import java.util.Map;
-import java.util.SortedMap;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+import java.util.SortedMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.ActivationConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
@@ -85,12 +91,6 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 
@@ -98,9 +98,9 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 public class XmlBeansMdbBuilder extends XmlBeanBuilder {
     private static final Log log = LogFactory.getLog(XmlBeansMdbBuilder.class);
     private final Kernel kernel;
-    private final AbstractName defaultMdbEjbContainer;
+    private final String defaultMdbEjbContainer;
 
-    public XmlBeansMdbBuilder(OpenEjbModuleBuilder moduleBuilder, Kernel kernel, AbstractName defaultMdbEjbContainer) {
+    public XmlBeansMdbBuilder(OpenEjbModuleBuilder moduleBuilder, Kernel kernel, String defaultMdbEjbContainer) {
         super(moduleBuilder);
         this.kernel = kernel;
         this.defaultMdbEjbContainer = defaultMdbEjbContainer;

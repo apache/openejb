@@ -47,6 +47,7 @@ package org.openejb.deployment;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Map;
+import java.util.Collections;
 import java.net.URI;
 import javax.security.auth.Subject;
 
@@ -68,7 +69,7 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
     protected String localHomeInterfaceName;
     protected String localInterfaceName;
     private String beanClassName;
-    private AbstractName ejbContainerName;
+    private String ejbContainerName;
     private String[] jndiNames;
     private String[] localJndiNames;
     private String policyContextId;
@@ -124,7 +125,7 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
         this.localInterfaceName = localInterfaceName;
     }
 
-    public void setEjbContainerName(AbstractName ejbContainerName) {
+    public void setEjbContainerName(String ejbContainerName) {
         this.ejbContainerName = ejbContainerName;
     }
 
@@ -227,7 +228,8 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
         gbean.setAttribute("jndiNames", jndiNames);
         gbean.setAttribute("localJndiNames", localJndiNames);
 
-        gbean.setReferencePattern("ejbContainer", ejbContainerName);
+        AbstractNameQuery ejbContainerQuery = new AbstractNameQuery(null, Collections.singletonMap("name", ejbContainerName), getEjbContainerType().getName());
+        gbean.setReferencePattern("ejbContainer", ejbContainerQuery);
 
         gbean.setAttribute("policyContextId", policyContextId);
         gbean.setAttribute("defaultPrincipal", defaultPrincipal);
@@ -248,4 +250,6 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
     }
 
     protected abstract GBeanInfo getTargetGBeanInfo();
+
+    protected abstract Class getEjbContainerType();
 }

@@ -73,7 +73,6 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.proxy.EJBProxyReference;
-import org.openejb.proxy.ProxyInfo;
 import org.openejb.RpcEjbDeployment;
 
 /**
@@ -85,23 +84,18 @@ public class OpenEjbReferenceBuilder implements EJBReferenceBuilder {
     private final static Map ENTITY = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN);
 
     private void checkLocalProxyInfo(AbstractNameQuery query, String localHome, String local, Configuration configuration) throws DeploymentException {
-        GBeanData gbeanData;
+        GBeanData data;
         try {
-            gbeanData = configuration.findGBeanData(query);
+            data = configuration.findGBeanData(query);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Could not locate ejb matching " + query + " in configuration " + configuration.getId());
         }
-        ProxyInfo proxyInfo = (ProxyInfo) gbeanData.getAttribute("proxyInfo");
-        if (proxyInfo == null) {
-            throw new IllegalStateException("BUG! no proxy info found in gbeanData: " + gbeanData);
-        }
-        if (!proxyInfo.getLocalHomeInterface().getName().equals(localHome)
-                || !proxyInfo.getLocalInterface().getName().equals(local)) {
+        if (!localHome.equals(getLocalHomeInterface(data)) || !local.equals(getLocalInterface(data))) {
             throw new DeploymentException("Reference interfaces do not match bean interfaces:\n" +
                     "reference localHome: " + localHome + "\n" +
-                    "ejb localHome: " + proxyInfo.getLocalHomeInterface().getName() + "\n" +
+                    "ejb localHome: " + getLocalHomeInterface(data) + "\n" +
                     "reference local: " + local + "\n" +
-                    "ejb local: " + proxyInfo.getLocalInterface().getName());
+                    "ejb local: " + getLocalInterface(data));
         }
     }
 
@@ -110,25 +104,20 @@ public class OpenEjbReferenceBuilder implements EJBReferenceBuilder {
             // Don't verify the MEJB because it doesn't have a proxyInfo attribute
             return;
         }
-        GBeanData gbeanData;
+        GBeanData data;
         try {
-            gbeanData = configuration.findGBeanData(query);
+            data = configuration.findGBeanData(query);
         } catch (GBeanNotFoundException e) {
             return;
             //we can't check anything, hope for the best.
 //            throw new DeploymentException("Could not locate ejb matching " + query + " in configuration " + configuration.getId());
         }
-        ProxyInfo proxyInfo = (ProxyInfo) gbeanData.getAttribute("proxyInfo");
-        if (proxyInfo == null) {
-            throw new IllegalStateException("BUG! no proxy info found in gbeanData: " + gbeanData);
-        }
-        if (!proxyInfo.getHomeInterface().getName().equals(home)
-                || !proxyInfo.getRemoteInterface().getName().equals(remote)) {
+        if (!home.equals(getHomeInterface(data)) || !remote.equals(getRemoteInterface(data))) {
             throw new DeploymentException("Reference interfaces do not match bean interfaces:\n" +
                     "reference home: " + home + "\n" +
-                    "ejb home: " + proxyInfo.getHomeInterface().getName() + "\n" +
+                    "ejb home: " + getHomeInterface(data) + "\n" +
                     "reference remote: " + remote + "\n" +
-                    "ejb remote: " + proxyInfo.getRemoteInterface().getName());
+                    "ejb remote: " + getRemoteInterface(data));
         }
     }
 
@@ -264,18 +253,29 @@ public class OpenEjbReferenceBuilder implements EJBReferenceBuilder {
     }
 
     private boolean matchesProxyInfo(GBeanData data, boolean isRemote, String home, String remote) {
-        ProxyInfo proxyInfo = (ProxyInfo) data.getAttribute("proxyInfo");
         if (isRemote) {
-            return matches(proxyInfo.getHomeInterface(), home)
-                    && matches(proxyInfo.getRemoteInterface(), remote);
+            return home.equals(getHomeInterface(data))
+                    && remote.equals(getRemoteInterface(data));
         } else {
-            return matches(proxyInfo.getLocalHomeInterface(), home)
-                    && matches(proxyInfo.getLocalInterface(), remote);
+            return home.equals(getLocalHomeInterface(data))
+                    && remote.equals(getLocalInterface(data));
         }
     }
 
-    private boolean matches(Class clazz, String name) {
-        return clazz != null && clazz.getName().equals(name);
+    private static String getHomeInterface(GBeanData data) {
+        return (String) data.getAttribute("homeInterfaceName");
+    }
+
+    private static String getRemoteInterface(GBeanData data) {
+        return (String) data.getAttribute("remoteInterfaceName");
+    }
+
+    private static String getLocalHomeInterface(GBeanData data) {
+        return (String) data.getAttribute("localHomeInterfaceName");
+    }
+
+    private static String getLocalInterface(GBeanData data) {
+        return (String) data.getAttribute("localInterfaceName");
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -48,6 +48,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractName;
 import org.openejb.CmpEjbDeploymentGBean;
+import org.openejb.CmpEjbContainer;
 
 /**
  * @version $Revision$ $Date$
@@ -68,6 +69,9 @@ public class CmpBuilder extends EntityBuilder {
         return CmpEjbDeploymentGBean.GBEAN_INFO;
     }
 
+    protected Class getEjbContainerType() {
+        return CmpEjbContainer.class;
+    }
 
     public GBeanData createConfiguration() throws Exception {
         GBeanData gbean = super.createConfiguration();

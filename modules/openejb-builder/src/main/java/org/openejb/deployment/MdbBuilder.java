@@ -50,14 +50,17 @@ package org.openejb.deployment;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Map;
+import java.util.Collections;
 import java.net.URI;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.openejb.mdb.MdbDeploymentGBean;
+import org.openejb.MdbContainer;
 
 
 /**
@@ -72,7 +75,7 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
 
     private AbstractName activationSpecName;
 
-    private AbstractName ejbContainerName;
+    private String ejbContainerName;
 
     private String policyContextId;
     private Subject runAs;
@@ -105,7 +108,7 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
         this.activationSpecName = activationSpecName;
     }
 
-    public void setEjbContainerName(AbstractName ejbContainerName) {
+    public void setEjbContainerName(String ejbContainerName) {
         this.ejbContainerName = ejbContainerName;
     }
 
@@ -205,7 +208,8 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
 
         gbean.setReferencePattern("ActivationSpecWrapper", activationSpecName);
 
-        gbean.setReferencePattern("ejbContainer", ejbContainerName);
+        AbstractNameQuery ejbContainerQuery = new AbstractNameQuery(null, Collections.singletonMap("name", ejbContainerName), MdbContainer.class.getName());
+        gbean.setReferencePattern("ejbContainer", ejbContainerQuery);
 
         gbean.setAttribute("policyContextId", policyContextId);
         gbean.setAttribute("runAs", runAs);
