@@ -3,20 +3,13 @@ package org.openejb.deployment;
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
-    private Repository repository = null;
-
     private OpenEjbModuleBuilder builder;
     File basedir = new File(System.getProperty("basedir", "."));
 
@@ -30,7 +23,7 @@ public class PlanParsingTest extends TestCase {
                 null,
                 null,
                 (GBeanData) null,
-                null,
+                (SingleElementCollection)null,
                 null);
     }
 
