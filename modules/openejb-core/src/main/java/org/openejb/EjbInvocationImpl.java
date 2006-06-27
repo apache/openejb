@@ -79,8 +79,6 @@ public class EjbInvocationImpl implements EjbInvocation {
     private transient TransactionContext transactionContext;
 
     public EjbInvocationImpl(EJBInterfaceType type, int index, Object[] arguments) {
-        assert type != null : "Interface type may not be null";
-        assert index >= 0 : "Invalid method index: "+index;
         this.type = type;
         this.index = index;
         this.arguments = arguments;
@@ -88,8 +86,6 @@ public class EjbInvocationImpl implements EjbInvocation {
     }
 
     public EjbInvocationImpl(EJBInterfaceType type, Object id, int index, Object[] arguments) {
-        assert type != null : "Interface type may not be null";
-        assert index >= 0 : "Invalid method index: "+index;
         this.type = type;
         this.index = index;
         this.arguments = arguments;
