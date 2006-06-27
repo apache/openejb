@@ -45,9 +45,9 @@
         <castorVersion>0.9.5.3</castorVersion>
         <staxApiVersion>1.0</staxApiVersion>
         <staxVersion>1.1.1-dev</staxVersion>
-        <tranqlConnectorVersion>1.2-SNAPSHOT</tranqlConnectorVersion>
+        <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
-        <tranqlVersion>1.3-SNAPSHOT</tranqlVersion>
+        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
         <xmlbeansMavenPluginVersion>2.0.1-SNAPSHOT</xmlbeansMavenPluginVersion>
   </properties>
