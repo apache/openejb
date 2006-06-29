@@ -148,9 +148,9 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
     }
 
     private void doLookup(JNDIRequest req, JNDIResponse res) throws Exception {
-        String name = req.getRequestString();
-        if (name.startsWith("/")) {
-            name = name.substring(1);
+        String jndiName = req.getRequestString();
+        if (jndiName.startsWith("/")) {
+            jndiName = jndiName.substring(1);
         }
 
         if (req.getClientModuleID() != null) {
@@ -168,10 +168,11 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
                 throw (Exception)new NamingException("Unable to retrieve context for module: "+req.getClientModuleID()).initCause(e);
             }
         } else {
-            int index = deploymentIndex.getDeploymentIndexByJndiName(name);
+            int index = deploymentIndex.getDeploymentIndexByJndiName(jndiName);
             if (index <= 0) {
                 // name not found... check if an object name was sent directly
-                index = deploymentIndex.getDeploymentIndex(name);
+                // Note: do not use the JNDI name since it has the leading '/' character stripped off
+                index = deploymentIndex.getDeploymentIndex(req.getRequestString());
             }
             if (index > 0) {
                 RpcEjbDeployment deployment = deploymentIndex.getDeployment(index);
