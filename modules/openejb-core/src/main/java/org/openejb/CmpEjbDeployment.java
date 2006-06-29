@@ -232,8 +232,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
             throw new DeploymentException("Module cmp engine does not contain an engine for ejb: " + ejbName);
         }
 
-        dispatchMethodMap = buildDispatchMethodMap();
-
         Map instanceMap = null;
         if (cmp2) {
             instanceMap = buildInstanceMap(getBeanClass());
@@ -241,6 +239,8 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
         } else {
             cmp1Bridge = new Cmp1Bridge(getBeanClass(), ejbCmpEngine.getCmpFields());
         }
+
+        dispatchMethodMap = buildDispatchMethodMap();
 
         InstanceContextFactory contextFactory = new CmpInstanceContextFactory(this,
                 ejbContainer,
