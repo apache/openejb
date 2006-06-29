@@ -113,7 +113,7 @@ public class TranqlModuleCmpEngine implements ModuleCmpEngine {
         tranqlCommandBuilder = new TranqlCommandBuilder(globalSchema, transactionManager, identityDefinerBuilder, queryBuilder);
     }
 
-    public EjbCmpEngine getEjbCmpEngine(String ejbName, Class beanClass, ProxyInfo proxyInfo) throws Exception {
+    public EjbCmpEngine getEjbCmpEngine(String ejbName, Class beanClass, ProxyInfo proxyInfo, boolean cmp2) throws Exception {
         EJB ejb = ejbSchema.getEJB(ejbName);
         if (ejb == null) {
             throw new IllegalArgumentException("Schema does not contain EJB: " + ejbName);
@@ -124,7 +124,7 @@ public class TranqlModuleCmpEngine implements ModuleCmpEngine {
         FrontEndCache frontEndCache = new FrontEndToCacheAdaptor(transactionManager, cache);
         cacheDelegate.addFrontEndCache(ejbName, frontEndCache);
 
-        return new TranqlEjbCmpEngine(ejb, beanClass, proxyInfo, frontEndCache, cacheTable, tranqlCommandBuilder);
+        return new TranqlEjbCmpEngine(ejb, beanClass, proxyInfo, cmp2, frontEndCache, cacheTable, tranqlCommandBuilder);
     }
 
     public QueryManager getQueryManager() {

@@ -163,7 +163,7 @@ public class TranqlCommandBuilder {
                 break;
             }
         }
-        if (false == found) {
+        if (!found) {
             finders.put(pkFinder, commands);
         }
     }

@@ -45,6 +45,7 @@
 package org.openejb.entity.cmp;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,6 +98,7 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
     private final EJB ejb;
     private final Class beanClass;
     private final ProxyInfo proxyInfo;
+    private final boolean cmp2;
     private final FrontEndCache frontEndCache;
     private final TranqlCommandBuilder tranqlCommandBuilder;
     private final IdentityDefinerBuilder identityDefinerBuilder;
@@ -119,10 +121,11 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
     private final FaultHandler loadFault;
     
 
-    public TranqlEjbCmpEngine(EJB ejb, Class beanClass, ProxyInfo proxyInfo, FrontEndCache frontEndCache, CacheTable cacheTable, TranqlCommandBuilder tranqlCommandBuilder) throws Exception {
+    public TranqlEjbCmpEngine(EJB ejb, Class beanClass, ProxyInfo proxyInfo, boolean cmp2, FrontEndCache frontEndCache, CacheTable cacheTable, TranqlCommandBuilder tranqlCommandBuilder) throws Exception {
         this.ejb = ejb;
         this.beanClass = beanClass;
         this.proxyInfo = proxyInfo;
+        this.cmp2 = cmp2;
         this.frontEndCache = frontEndCache;
         this.cacheTable = cacheTable;
         this.tranqlCommandBuilder = tranqlCommandBuilder;
@@ -200,12 +203,21 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
             String fieldName = (String) entry.getKey();
             CMPFieldTransform fieldTransform = (CMPFieldTransform) entry.getValue();
 
-            try {
-                String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                Method getter = beanClass.getMethod("get" + baseName, null);
-                cmpFields.add(new TranqlCmpField(fieldName, getter.getReturnType(), fieldTransform));
-            } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException("Missing accessor for field " + fieldName + " on class " + beanClass.getName());
+            if (cmp2) {
+                try {
+                    String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+                    Method getter = beanClass.getMethod("get" + baseName, null);
+                    cmpFields.add(new TranqlCmpField(fieldName, getter.getReturnType(), fieldTransform));
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalArgumentException("Missing accessor for field " + fieldName + " on class " + beanClass.getName());
+                }
+            } else {
+                try {
+                    Field field = beanClass.getField(fieldName);
+                    cmpFields.add(new TranqlCmpField(fieldName, field.getType(), fieldTransform));
+                } catch (NoSuchFieldException e) {
+                    throw new IllegalArgumentException("Missing field " + fieldName + " on class " + beanClass.getName());
+                }
             }
         }
         return cmpFields;

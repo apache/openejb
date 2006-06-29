@@ -50,7 +50,7 @@ import org.openejb.proxy.ProxyInfo;
  * @version $Revision$ $Date$
  */
 public interface ModuleCmpEngine {
-    EjbCmpEngine getEjbCmpEngine(String ejbName, Class beanClass, ProxyInfo proxyInfo) throws Exception;
+    EjbCmpEngine getEjbCmpEngine(String ejbName, Class beanClass, ProxyInfo proxyInfo, boolean cmp2) throws Exception;
     
     QueryManager getQueryManager();
 }

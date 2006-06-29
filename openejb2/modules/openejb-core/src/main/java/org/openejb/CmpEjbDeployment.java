@@ -227,7 +227,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
 
         this.reentrant = reentrant;
 
-        ejbCmpEngine = moduleCmpEngine.getEjbCmpEngine(ejbName, getBeanClass(), getProxyInfo());
+        ejbCmpEngine = moduleCmpEngine.getEjbCmpEngine(ejbName, getBeanClass(), getProxyInfo(), cmp2);
         if (ejbCmpEngine == null) {
             throw new DeploymentException("Module cmp engine does not contain an engine for ejb: " + ejbName);
         }
