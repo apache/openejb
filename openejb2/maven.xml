@@ -248,7 +248,11 @@
     <goal name="jar:deploy">
         <attainGoal name="modules:jar:deploy"/>
     </goal>
-
+    
+    <goal name="deploy">
+        <modules:reactor goals="deploy"/>
+    </goal>
+    
     <goal name="blah">
         <modules:reactor goals="hello"/>
     </goal>
@@ -348,4 +352,36 @@
 
         </j:jelly>
     </goal>
+    
+    <!-- ====================== -->
+    <!-- Continuous Integration -->
+    <!-- ====================== -->
+    
+    <goal name="ci">
+        <j:set var="_deployment_enabled" value="false"/>
+        
+        <!--
+           | if -DdeploySnapshotsFromCI=true and this is a SNAPSHOT version, then
+           | enable deployment wo the local repository
+         -->
+         
+        <j:if test="${context.getVariable('deploySnapshotsFromCI') == 'true'}">
+            <j:set var="i" value="${pom.currentVersion.indexOf('SNAPSHOT')}"/>
+            
+            <j:if test="${i != -1}">
+                <ant:echo>Enabling deployment for SNAPSHOT: ${pom.currentVersion}</ant:echo>
+                <j:set var="_deployment_enabled" value="true"/>
+            </j:if>
+        </j:if>
+        
+        <attainGoal name="clean"/>
+        <attainGoal name="default"/>
+        
+        <j:if test="${_deployment_enabled}">
+            <j:set var="maven.repo.list" value="stan_gbuild_org" scope="parent"/>
+            
+            <attainGoal name="deploy"/>
+        </j:if>
+    </goal>
+    
 </project>
