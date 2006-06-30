@@ -67,7 +67,7 @@ public abstract class RpcEjbDeploymentFactory {
     protected EjbContainer ejbContainer;
     protected String[] jndiNames;
     protected String[] localJndiNames;
-    protected boolean securityEnabled;
+    protected boolean securityEnabled = true;
     protected String policyContextId;
     protected DefaultPrincipal defaultPrincipal;
     protected Subject runAs;

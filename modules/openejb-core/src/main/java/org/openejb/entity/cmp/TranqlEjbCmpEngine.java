@@ -119,7 +119,8 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
     private final List cmrManyFields = new ArrayList();
 
     private final FaultHandler loadFault;
-    
+    private Cmp1Bridge cmp1Bridge;
+
 
     public TranqlEjbCmpEngine(EJB ejb, Class beanClass, ProxyInfo proxyInfo, boolean cmp2, FrontEndCache frontEndCache, CacheTable cacheTable, TranqlCommandBuilder tranqlCommandBuilder) throws Exception {
         this.ejb = ejb;
@@ -170,6 +171,10 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
                     cascadeManyDeleteFields.add(accessor);
                 }
             }
+        }
+
+        if (!cmp2) {
+            cmp1Bridge = new Cmp1Bridge(beanClass, cmpFields);
         }
     }
 
@@ -326,6 +331,12 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
     }
 
     public void afterCreate(CmpInstanceContext ctx, TransactionContext transactionContext) throws DuplicateKeyException, Exception {
+        // For cmp1 beans we must copy the data from the object into the cache row.
+        // This happens automatically for cm2 beans
+        if (!cmp2) {
+            cmp1Bridge.copyFromObjectToCmp(ctx);
+        }
+
         CacheRow cacheRow = (CacheRow) ctx.getCmpData();
         if (cacheRow == null) {
             throw new EJBException("Internal Error: CMP data is null");
@@ -450,8 +461,19 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         }
 
         ctx.setCmpData(cacheRow);
+
+        // For cmp1 beans we must copy the data from the cache row into the object.
+        // This happens automatically for cm2 beans
+        if (!cmp2) {
+            cmp1Bridge.copyFromCmpToObject(ctx);
+        }
     }
 
     public void afterStore(CmpInstanceContext ctx) throws Exception {
+        // For cmp1 beans we must copy the data from the object into the cache row.
+        // This happens automatically for cm2 beans
+        if (!cmp2) {
+            cmp1Bridge.copyFromObjectToCmp(ctx);
+        }
     }
 }

@@ -68,17 +68,9 @@ public interface SecureBuilder extends ResourceEnvironmentBuilder {
 
     void setRunAs(Subject runAs);
 
-    boolean isDoAsCurrentCaller();
-
-    void setDoAsCurrentCaller(boolean doAsCurrentCaller);
-
     boolean isSecurityEnabled();
 
     void setSecurityEnabled(boolean securityEnabled);
-
-    boolean isUseContextHandler();
-
-    void setUseContextHandler(boolean useContextHandler);
 
     void setPolicyContextId(String policyContextId);
 }

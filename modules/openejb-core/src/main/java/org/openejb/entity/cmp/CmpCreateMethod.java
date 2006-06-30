@@ -69,7 +69,6 @@ import org.openejb.timer.TimerState;
 public class CmpCreateMethod implements VirtualOperation, Serializable {
     private static final long serialVersionUID = -1846351514946502346L;
     private final Class beanClass;
-    private final Cmp1Bridge cmp1Bridge;
     private final MethodSignature createSignature;
     private final MethodSignature postCreateSignature;
 
@@ -80,13 +79,11 @@ public class CmpCreateMethod implements VirtualOperation, Serializable {
     private final transient int postCreateIndex;
 
     public CmpCreateMethod(Class beanClass,
-            Cmp1Bridge cmp1Bridge,
             MethodSignature createSignature,
             MethodSignature postCreateSignature,
             EjbCmpEngine ejbCmpEngine) {
 
         this.beanClass = beanClass;
-        this.cmp1Bridge = cmp1Bridge;
         this.createSignature = createSignature;
         this.postCreateSignature = postCreateSignature;
         this.ejbCmpEngine = ejbCmpEngine;
@@ -131,11 +128,6 @@ public class CmpCreateMethod implements VirtualOperation, Serializable {
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
             TimerState.setTimerState(oldTimerMethodAvailable);
-        }
-
-        if (cmp1Bridge != null) {
-            // load all of the cmp1 instance fields into the cmp engine
-            cmp1Bridge.copyFromObjectToCmp(ctx);
         }
 
         // create the new instance using the data set during the ejbCreate callback
@@ -185,6 +177,6 @@ public class CmpCreateMethod implements VirtualOperation, Serializable {
     }
 
     protected Object readResolve() {
-        return new CmpCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, ejbCmpEngine);
+        return new CmpCreateMethod(beanClass, createSignature, postCreateSignature, ejbCmpEngine);
     }
 }
