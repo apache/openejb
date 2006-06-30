@@ -34,7 +34,11 @@
         <attainGoal name="clean"/>
         <attainGoal name="build"/>
     </goal>
-
+    
+    <goal name="deploy">
+        <attainGoal name="jar:deploy"/>
+    </goal>
+    
     <!-- For testing -->
     <goal name="hello">
         <ant:echo>
