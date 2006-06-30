@@ -61,7 +61,6 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.HomeMethod;
-import org.openejb.entity.cmp.Cmp1Bridge;
 import org.openejb.entity.cmp.CmpCreateMethod;
 import org.openejb.entity.cmp.CmpField;
 import org.openejb.entity.cmp.CmpFieldGetter;
@@ -73,6 +72,7 @@ import org.openejb.entity.cmp.EjbCmpEngine;
 import org.openejb.entity.cmp.ModuleCmpEngine;
 import org.openejb.entity.cmp.SelectMethod;
 import org.openejb.entity.cmp.SelectQuery;
+import org.openejb.entity.cmp.CmpInstanceContext;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.util.SoftLimitedInstancePool;
 
@@ -95,7 +95,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
     private final InstancePool instancePool;
     private final boolean reentrant;
     private final EjbCmpEngine ejbCmpEngine;
-    private final Cmp1Bridge cmp1Bridge;
     private final MethodMap dispatchMethodMap;
 
     public CmpEjbDeployment(String containerId,
@@ -235,9 +234,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
         Map instanceMap = null;
         if (cmp2) {
             instanceMap = buildInstanceMap(getBeanClass());
-            cmp1Bridge = null;
-        } else {
-            cmp1Bridge = new Cmp1Bridge(getBeanClass(), ejbCmpEngine.getCmpFields());
         }
 
         dispatchMethodMap = buildDispatchMethodMap();
@@ -296,13 +292,31 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                     String baseName = methodName.substring(6);
                     MethodSignature createSignature = new MethodSignature("ejbCreate" + baseName, methodSignature.getParameterTypes());
                     MethodSignature postCreateSignature = new MethodSignature("ejbPostCreate" + baseName, methodSignature.getParameterTypes());
-                    entry.setValue(new CmpCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, ejbCmpEngine));
+                    entry.setValue(new CmpCreateMethod(beanClass, createSignature, postCreateSignature, ejbCmpEngine));
                 } else if (methodName.startsWith("remove")) {
                     entry.setValue(removeVop);
                 } else if (methodName.startsWith("find")) {
                     SelectQuery selectQuery = (SelectQuery) finderIndex.get(methodSignature);
                     if (selectQuery == null) {
-                        throw new IllegalStateException("No ejbql specified for finder method " + methodSignature + " on CMP entity " + getEjbName());
+//                        throw new IllegalStateException("No ejbql specified for finder method " + methodSignature + " on CMP entity " + getEjbName());
+                        final Method method = methodSignature.getMethod(beanClass);
+                        selectQuery = new SelectQuery() {
+                            public String getMethodName() {
+                                return method.getName();
+                            }
+
+                            public Class[] getParameterTypes() {
+                                return method.getParameterTypes();
+                            }
+
+                            public Class getReturnType() {
+                                return method.getReturnType();
+                            }
+
+                            public Object execute(CmpInstanceContext ctx, Object[] args, boolean local) {
+                                throw new UnsupportedOperationException("No ejbql specified for finder method " + method + " on CMP entity " + getEjbName());
+                            }
+                        };
                     }
                     entry.setValue(new CmpFinder(selectQuery));
                 } else {
@@ -381,6 +395,4 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
     public EjbCmpEngine getEjbCmpEngine() {
         return ejbCmpEngine;
     }
-
-
 }

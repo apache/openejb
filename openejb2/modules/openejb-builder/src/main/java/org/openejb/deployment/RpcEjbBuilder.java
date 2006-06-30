@@ -73,6 +73,7 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
     private String[] jndiNames;
     private String[] localJndiNames;
     private String policyContextId;
+    private boolean securityEnabled;
     private DefaultPrincipal defaultPrincipal;
     private Subject runAs;
     private SortedMap transactionPolicies;
@@ -146,26 +147,11 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
     }
 
     public boolean isSecurityEnabled() {
-        throw new UnsupportedOperationException();
+        return securityEnabled;
     }
 
     public void setSecurityEnabled(boolean securityEnabled) {
-    }
-
-    public boolean isDoAsCurrentCaller() {
-        throw new UnsupportedOperationException();
-
-    }
-
-    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
-    }
-
-    public boolean isUseContextHandler() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setUseContextHandler(boolean useContextHandler) {
-        throw new UnsupportedOperationException();
+        this.securityEnabled = securityEnabled;
     }
 
     public DefaultPrincipal getDefaultPrincipal() {
@@ -232,6 +218,7 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
         gbean.setReferencePattern("ejbContainer", ejbContainerQuery);
 
         gbean.setAttribute("policyContextId", policyContextId);
+        gbean.setAttribute("securityEnabled", new Boolean(securityEnabled));
         gbean.setAttribute("defaultPrincipal", defaultPrincipal);
         gbean.setAttribute("runAs", runAs);
 

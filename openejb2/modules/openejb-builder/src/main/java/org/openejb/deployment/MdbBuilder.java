@@ -140,25 +140,11 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
         this.beanManagedTransactions = beanManagedTransactions;
     }
 
-    public boolean isDoAsCurrentCaller() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
-    }
-
     public boolean isSecurityEnabled() {
         throw new UnsupportedOperationException();
     }
 
     public void setSecurityEnabled(boolean securityEnabled) {
-    }
-
-    public boolean isUseContextHandler() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setUseContextHandler(boolean useContextHandler) {
     }
 
     public String getPolicyContextId() {

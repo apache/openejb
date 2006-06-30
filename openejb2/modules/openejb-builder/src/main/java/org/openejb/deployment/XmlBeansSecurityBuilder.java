@@ -74,8 +74,6 @@ public class XmlBeansSecurityBuilder {
 
     public void setDetails(SecurityIdentityType securityIdentity, SecurityConfiguration securityConfiguration, String policyContextID, SecureBuilder builder) throws DeploymentException {
         builder.setSecurityEnabled(true);
-        builder.setDoAsCurrentCaller(securityConfiguration.isDoAsCurrentCaller());
-        builder.setUseContextHandler(securityConfiguration.isUseContextHandler());
         boolean needsRunAs = (securityIdentity != null && securityIdentity.isSetRunAs());
         if (needsRunAs) {
             String runAsName = securityIdentity.getRunAs().getRoleName().getStringValue().trim();

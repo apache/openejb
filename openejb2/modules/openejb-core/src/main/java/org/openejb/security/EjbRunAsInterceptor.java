@@ -80,8 +80,12 @@ public final class EjbRunAsInterceptor implements Interceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbInvocation ejbInvocation = ((EjbInvocation) invocation);
-        ExtendedEjbDeployment deployment = (ExtendedEjbDeployment) ejbInvocation.getEjbDeployment();
+        ExtendedEjbDeployment deployment = ejbInvocation.getEjbDeployment();
         Subject runAsSubject = deployment.getRunAsSubject();
+
+        if (runAsSubject == null) {
+            return next.invoke(invocation);
+        }
 
         Subject save = ContextManager.getNextCaller();
         try {
