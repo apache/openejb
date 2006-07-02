@@ -3,20 +3,22 @@
 <!-- $Revision$ $Date$ -->
 
 <project>
-  <parent>
-    <groupId>openejb</groupId>
-    <artifactId>openejb</artifactId>
-    <version>2.2-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.openejb</groupId>
+        <artifactId>openejb</artifactId>
+        <version>2.2-SNAPSHOT</version>
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <name>OpenEJB :: Core</name>
     <artifactId>openejb-core</artifactId>
     <description>OpenEJB Core EJB Container</description>
     <url>http://www.openejb.org</url>
+
     <properties>
         <maven.test.skip>true</maven.test.skip>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -94,8 +96,8 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-corba_2.3_spec</artifactId>
         </dependency>
 
         <dependency>
@@ -192,8 +194,14 @@
         <dependency>
             <groupId>activecluster</groupId>
             <artifactId>activecluster</artifactId>
-            <version>1.2-20051115174934</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq</artifactId>
+            <version>3.2.4-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>wadi</groupId>
             <artifactId>wadi-core</artifactId>

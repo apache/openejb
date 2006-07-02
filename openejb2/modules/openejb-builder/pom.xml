@@ -2,7 +2,7 @@
 
 <project>
   <parent>
-    <groupId>openejb</groupId>
+    <groupId>org.openejb</groupId>
     <artifactId>openejb</artifactId>
     <version>2.2-SNAPSHOT</version>
   </parent>
@@ -18,13 +18,14 @@
 
     <dependencies>
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-deploy-config</artifactId>-->
+        <!--<groupId>org.apache.geronimo.modules</groupId>-->
+        <!--<artifactId>geronimo-deploy-config</artifactId>-->
         <!--</dependency>-->
 
         <dependency>
-            <groupId>openejb</groupId>
+            <groupId>org.openejb</groupId>
             <artifactId>openejb-pkgen-builder</artifactId>
+            <version>${pom.version}</version>
         </dependency>
 
         <dependency>
@@ -48,21 +49,21 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>-->
+        <!--<groupId>org.apache.geronimo.specs</groupId>-->
+        <!--<artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
-                   <!--<scope>test</scope> this is unavailabe process-resources phase ! -->
+            <!--<scope>test</scope> this is unavailabe process-resources phase ! -->
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-j2ee-schema</artifactId>-->
+        <!--<groupId>org.apache.geronimo.modules</groupId>-->
+        <!--<artifactId>geronimo-j2ee-schema</artifactId>-->
         <!--</dependency>-->
-<!---->
+        <!---->
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
@@ -81,14 +82,14 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.xmlbeans</groupId>-->
-            <!--<artifactId>xbean</artifactId>-->
+        <!--<groupId>org.apache.xmlbeans</groupId>-->
+        <!--<artifactId>xbean</artifactId>-->
         <!--</dependency>-->
-       <dependency>
+        <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
         </dependency>
@@ -160,13 +161,13 @@
             </resource>
             <!-- these should not be needed, xmlbeans packs them for us -->
             <!--<resource>-->
-                <!--<targetPath>META-INF/schema</targetPath>-->
-                <!--<directory>src/schema</directory>-->
-                <!--<includes>-->
-                    <!--<include>corba-css-config-2.0.xsd</include>-->
-                    <!--<include>corba-tss-config-2.0.xsd</include>-->
-                    <!--<include>openejb-jar-2.1.xsd</include>-->
-                <!--</includes>-->
+            <!--<targetPath>META-INF/schema</targetPath>-->
+            <!--<directory>src/schema</directory>-->
+            <!--<includes>-->
+            <!--<include>corba-css-config-2.0.xsd</include>-->
+            <!--<include>corba-tss-config-2.0.xsd</include>-->
+            <!--<include>openejb-jar-2.1.xsd</include>-->
+            <!--</includes>-->
             <!--</resource>-->
         </resources>
 
