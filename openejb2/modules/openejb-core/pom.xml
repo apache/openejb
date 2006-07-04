@@ -3,13 +3,15 @@
 <!-- $Revision$ $Date$ -->
 
 <project>
+    <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.openejb</groupId>
-        <artifactId>openejb</artifactId>
+        <artifactId>openejb-modules</artifactId>
         <version>2.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <name>OpenEJB :: Core</name>
     <artifactId>openejb-core</artifactId>
     <description>OpenEJB Core EJB Container</description>
