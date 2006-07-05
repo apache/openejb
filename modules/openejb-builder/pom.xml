@@ -16,10 +16,6 @@
     <artifactId>openejb-builder</artifactId>
     <description>OpenEJB Builder</description>
 
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-
     <dependencies>
         <!--<dependency>-->
         <!--<groupId>org.apache.geronimo.modules</groupId>-->
@@ -96,6 +92,13 @@
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -56,6 +56,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.pool.ThreadPool;
 
+import org.omg.CORBA.SystemException;
 import org.openejb.corba.CORBABean;
 
 
@@ -176,6 +177,8 @@ public class TSSConfigEditorTest extends TestCase {
 
         try {
             corbaBean.doStart();
+        } catch(SystemException se) {
+            fail(se.getCause().getMessage());
         } finally {
             try {
                 corbaBean.doStop();
