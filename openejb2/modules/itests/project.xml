@@ -142,7 +142,7 @@
         </dependency>
 
         <dependency>
-            <groupId>maven-itest-plugin</groupId>
+            <groupId>maven</groupId>
             <artifactId>maven-itest-plugin</artifactId>
             <version>${maven_itest_plugin_version}</version>
             <type>plugin</type>
