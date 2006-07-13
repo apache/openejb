@@ -38,6 +38,7 @@ Issue Tracking  http://jira.codehaus.org/browse/OPENEJB
 Committers
     ApacheID    CodehausID  Name
     dblevins    dblevins    David Blevins
+    hogstrom    hogstrom    Matt Hogstrom
     jgenender   jgenender   Jeff Genender
     <none>      jcscoobyrs  Jeremy Whitlock
     <yourid>    <yourid>    <your name>
