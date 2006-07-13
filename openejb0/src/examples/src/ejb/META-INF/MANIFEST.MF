@@ -1,8 +1,0 @@
-Main-Class: org.acme.clients.Main
-Manifest-Version: 1.0
-Specification-Title: Enterprise JavaBeans
-Specification-Vendor: Sun Microsystems Corp
-Specification-Version: 2.0
-Implementation-Title: OpenEJB-Example
-Implementation-Version: $VERSION$
-Class-path: openejb_client-$OPENEJB_VERSION$.jar openejb-$OPENEJB_VERSION$.jar openejb_loader-$OPENEJB_VERSION$.jar ../lib/ejb-2.0.jar
