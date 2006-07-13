@@ -38,4 +38,5 @@ Issue Tracking  http://jira.codehaus.org/browse/OPENEJB
 Committers
     ApacheID    CodehausID  Name
     dblevins    dblevins    David Blevins
+    jgenender   jgenender   Jeff Genender
     <yourid>    <yourid>    <your name>
