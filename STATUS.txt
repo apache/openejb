@@ -39,4 +39,5 @@ Committers
     ApacheID    CodehausID  Name
     dblevins    dblevins    David Blevins
     jgenender   jgenender   Jeff Genender
+    <none>      jcscoobyrs  Jeremy Whitlock
     <yourid>    <yourid>    <your name>
