@@ -1,0 +1,41 @@
+Apache OpenEJB Status
+
+
+
+PROJECT STATUS
+==============
+
+  OpenEJB is a podling sponsored by Apache Geronimo in the Apache Incubator.
+  For information on incubation please visit the project page at
+  http://incubator.apache.org/projects/openejb.html
+
+PENDING ISSUES
+==============
+2006-07-12  Mailing lists need to be moved with all subscribers
+2006-07-12  Confluence needs to be migrated
+2006-07-12  Website needs to be setup
+2006-07-12  SVN needs to be migrated
+2006-07-12  JIRA needs to be migrated
+2006-07-12  CLAs need to be on file
+
+RESOLVED ISSUES SINCE LAST STATUS
+=================================
+None
+
+RELEASE STATUS
+==============
+None
+
+REFERENCES
+==========
+Status file     http://svn.apache.org/repos/asf/incubator/openejb/STATUS.txt
+User List       openejb-user@incubator.apache.org
+Developer List  openejb-dev@incubator.apache.org
+Commits List    openejb-commits@incubator.apache.org
+Source Code     http://svn.apache.org/repos/asf/incubator/openejb/
+Issue Tracking  http://jira.codehaus.org/browse/OPENEJB
+
+Committers
+    ApacheID    CodehausID  Name
+    dblevins    dblevins    David Blevins
+    <yourid>    <yourid>    <your name>
