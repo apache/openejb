@@ -41,4 +41,5 @@ Committers
     hogstrom    hogstrom    Matt Hogstrom
     jgenender   jgenender   Jeff Genender
     <none>      jcscoobyrs  Jeremy Whitlock
+    jlaskowski  jlaskowski  Jacek Laskowski
     <yourid>    <yourid>    <your name>
