@@ -47,6 +47,7 @@ Committers (these will be added to asf-authorization for the project)
     dain        dain        Dain Sundstrom
     N/A         cyberodin   Daniel S. Haischt
     djencks     djencks     David Jencks
+    kevan       kevan       Kevan Miller
     <yourid>    <yourid>    <your name>
 
 Requested accounts:
@@ -62,7 +63,6 @@ Other CodehausIDs: (remove yours if you've added it above - regardless these wil
     gdamour (apache: gdamour)
     jboynes (apache: jboynes)
     jtolentino (apache: jtolentino)
-    kevan (apache: kevan)
     lajos (Lajos Moczar, apache: none)
     maguro (apache: adc)
     pmlopes  (Paulo M Lopes, apache: none)
