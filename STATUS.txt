@@ -54,7 +54,7 @@ Requested accounts:
 Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
     ammulder (apache: ammulder)
     chirino (apache: chirino)
-    cyberodin
+    cyberodin (Daniel S. Haischt, apache: none)
     dain (apache: dain)
     dandiep (apache: dandiep)
     djencks (apache: djencks)
@@ -63,19 +63,25 @@ Other CodehausIDs: (remove yours if you've added it above - regardless these wil
     jboynes (apache: jboynes)
     jtolentino (apache: jtolentino)
     kevan (apache: kevan)
-    lajos
+    lajos (Lajos Moczar, apache: none)
     maguro (apache: adc)
-    pmlopes
-    rmonson_us (never committed)
-    tim273
+    pmlopes  (Paulo M Lopes, apache: none)
+    rmonson_us (never committed post-exolab)
+    tim273 (Tim Urberg, apache: none)
 
 Old IDs in the SVN repo (not current committers):
     d_jencks (map to djencks)
     dsundstrom (map to dain)
-    gudujarlson
-    iceant
+    gudujarlson (Mike Bresnahan, apache: none)
+    iceant (Pizer Chen, apache: none)
     no_author (cvs2svn, can be left alone or mapped to whatever ASF uses for that)
-    sreich
+    sreich (Stefan Reich, apache: none)
     uid73143 (r54 only, appears to be dblevins - trunk/openejb0/contrib/dblevins/openejb_lists.rc)
-    yatzek
+    yatzek (map to jlaskowski)
 
+Pre-SF.net IDs I (dblevins) can remember:
+    arkin (Assaf Arkin, apache: assaf)
+    jdaniel (Jerome Daniel, apache: none)
+    omodica (Olivier Modica, apache: none)
+    rmonson (Richard Monson-Haefel, apache: rmonson_us)
+    (more i can't remember)
