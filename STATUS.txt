@@ -28,7 +28,7 @@ None
 REFERENCES
 ==========
 Status file     http://svn.apache.org/repos/asf/incubator/openejb/STATUS.txt
-User List       openejb-users@incubator.apache.org
+User List       openejb-users@incubator.apache.org (will be renamed to -user: see INCUBATOR-24)
 Developer List  openejb-dev@incubator.apache.org
 Commits List    openejb-commits@incubator.apache.org
 Source Code     http://svn.apache.org/repos/asf/incubator/openejb/
@@ -65,7 +65,7 @@ Other CodehausIDs: (remove yours if you've added it above - regardless these wil
     lajos
     maguro (apache: adc)
     pmlopes
-    rmonson_us
+    rmonson_us (never committed)
     tim273
 
 Old IDs in the SVN repo (not current committers):
