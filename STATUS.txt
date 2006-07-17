@@ -43,7 +43,7 @@ Committers (these will be added to asf-authorization for the project)
     jlaskowski  jlaskowski  Jacek Laskowski
     brett       brett       Brett Porter
     jvanzyl     jvanzyl     Jason van Zyl
-    bayard      N/A
+    bayard      N/A         Henri Yandell
     dain        dain        Dain Sundstrom
     <yourid>    <yourid>    <your name>
 
