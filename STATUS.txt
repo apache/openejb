@@ -11,7 +11,6 @@ PROJECT STATUS
 
 PENDING ISSUES
 ==============
-2006-07-12  Mailing lists need to be moved with all subscribers
 2006-07-12  Confluence needs to be migrated
 2006-07-12  Website needs to be setup
 2006-07-12  SVN needs to be migrated
@@ -20,7 +19,7 @@ PENDING ISSUES
 
 RESOLVED ISSUES SINCE LAST STATUS
 =================================
-None
+2006-07-12  Mailing lists need to be moved with all subscribers
 
 RELEASE STATUS
 ==============
@@ -29,17 +28,53 @@ None
 REFERENCES
 ==========
 Status file     http://svn.apache.org/repos/asf/incubator/openejb/STATUS.txt
-User List       openejb-user@incubator.apache.org
+User List       openejb-users@incubator.apache.org
 Developer List  openejb-dev@incubator.apache.org
 Commits List    openejb-commits@incubator.apache.org
 Source Code     http://svn.apache.org/repos/asf/incubator/openejb/
 Issue Tracking  http://jira.codehaus.org/browse/OPENEJB
 
-Committers
+Committers (these will be added to asf-authorization for the project)
     ApacheID    CodehausID  Name
     dblevins    dblevins    David Blevins
     hogstrom    hogstrom    Matt Hogstrom
     jgenender   jgenender   Jeff Genender
-    <none>      jcscoobyrs  Jeremy Whitlock
+    N/A         jcscoobyrs  Jeremy Whitlock
     jlaskowski  jlaskowski  Jacek Laskowski
+    brett       brett       Brett Porter
+    jvanzyl     jvanzyl     Jason van Zyl
+    bayard      N/A
     <yourid>    <yourid>    <your name>
+
+Requested accounts:
+    Name              Preferred Apache ID(s)      E-mail address on CLA
+    Jeremy Whitlock
+
+Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
+    ammulder (apache: ammulder)
+    chirino (apache: chirino)
+    cyberodin
+    dain (apache: dain)
+    dandiep (apache: dandiep)
+    djencks (apache: djencks)
+    epunzalan (apache: epunzalan)
+    gdamour (apache: gdamour)
+    jboynes (apache: jboynes)
+    jtolentino (apache: jtolentino)
+    kevan (apache: kevan)
+    lajos
+    maguro (apache: adc)
+    pmlopes
+    rmonson_us
+    tim273
+
+Old IDs in the SVN repo (not current committers):
+    d_jencks (map to djencks)
+    dsundstrom (map to dain)
+    gudujarlson
+    iceant
+    no_author (cvs2svn, can be left alone or mapped to whatever ASF uses for that)
+    sreich
+    uid73143 (r54 only, appears to be dblevins - trunk/openejb0/contrib/dblevins/openejb_lists.rc)
+    yatzek
+
