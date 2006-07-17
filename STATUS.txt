@@ -49,7 +49,7 @@ Committers (these will be added to asf-authorization for the project)
 
 Requested accounts:
     Name              Preferred Apache ID(s)      E-mail address on CLA
-    Jeremy Whitlock
+    Jeremy Whitlock   jwhitlock                   jcscoobyrs@gmail.com
 
 Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
     ammulder (apache: ammulder)
