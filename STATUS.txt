@@ -45,19 +45,19 @@ Committers (these will be added to asf-authorization for the project)
     jvanzyl     jvanzyl     Jason van Zyl
     bayard      N/A         Henri Yandell
     dain        dain        Dain Sundstrom
+    N/A         cyberodin   Daniel S. Haischt
+    djencks     djencks     David Jencks
     <yourid>    <yourid>    <your name>
 
 Requested accounts:
-    Name              Preferred Apache ID(s)      E-mail address on CLA
-    Jeremy Whitlock   jwhitlock                   jcscoobyrs@gmail.com
+    Name              Preferred Apache ID(s)      E-mail address on CLA          Status
+    Jeremy Whitlock   jwhitlock                   jcscoobyrs@gmail.com           Waiting for CLA to arrive
+    Daniel S. Haischt dsh, dhaischt               me@daniel.stefan.haischt.name  Account requested
 
 Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
     ammulder (apache: ammulder)
     chirino (apache: chirino)
-    cyberodin (Daniel S. Haischt, apache: none)
-    dain (apache: dain)
     dandiep (apache: dandiep)
-    djencks (apache: djencks)
     epunzalan (apache: epunzalan)
     gdamour (apache: gdamour)
     jboynes (apache: jboynes)
@@ -85,3 +85,4 @@ Pre-SF.net IDs I (dblevins) can remember:
     omodica (Olivier Modica, apache: none)
     rmonson (Richard Monson-Haefel, apache: rmonson_us)
     (more i can't remember)
+
