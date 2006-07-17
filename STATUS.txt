@@ -48,6 +48,7 @@ Committers (these will be added to asf-authorization for the project)
     N/A         cyberodin   Daniel S. Haischt
     djencks     djencks     David Jencks
     kevan       kevan       Kevan Miller
+    adc         maguro      Alan Cabrera
     <yourid>    <yourid>    <your name>
 
 Requested accounts:
@@ -64,7 +65,6 @@ Other CodehausIDs: (remove yours if you've added it above - regardless these wil
     jboynes (apache: jboynes)
     jtolentino (apache: jtolentino)
     lajos (Lajos Moczar, apache: none)
-    maguro (apache: adc)
     pmlopes  (Paulo M Lopes, apache: none)
     rmonson_us (never committed post-exolab)
     tim273 (Tim Urberg, apache: none)
