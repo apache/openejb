@@ -49,6 +49,7 @@ Committers (these will be added to asf-authorization for the project)
     djencks     djencks     David Jencks
     kevan       kevan       Kevan Miller
     adc         maguro      Alan Cabrera
+    ammulder    ammulder    Aaron Mulder
     <yourid>    <yourid>    <your name>
 
 Requested accounts:
@@ -57,7 +58,6 @@ Requested accounts:
     Daniel S. Haischt dsh, dhaischt               me@daniel.stefan.haischt.name  Account requested
 
 Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
-    ammulder (apache: ammulder)
     chirino (apache: chirino)
     dandiep (apache: dandiep)
     epunzalan (apache: epunzalan)
