@@ -39,23 +39,25 @@ Committers (these will be added to asf-authorization for the project)
     dblevins    dblevins    David Blevins
     hogstrom    hogstrom    Matt Hogstrom
     jgenender   jgenender   Jeff Genender
-    N/A         jcscoobyrs  Jeremy Whitlock
+    jwhitlock   jcscoobyrs  Jeremy Whitlock
     jlaskowski  jlaskowski  Jacek Laskowski
     brett       brett       Brett Porter
     jvanzyl     jvanzyl     Jason van Zyl
     bayard      N/A         Henri Yandell
     dain        dain        Dain Sundstrom
-    N/A         cyberodin   Daniel S. Haischt
+    dsh         cyberodin   Daniel S. Haischt
     djencks     djencks     David Jencks
     kevan       kevan       Kevan Miller
     adc         maguro      Alan Cabrera
     ammulder    ammulder    Aaron Mulder
+    N/A         lajos       Lajos Moczar
     <yourid>    <yourid>    <your name>
 
 Requested accounts:
     Name              Preferred Apache ID(s)      E-mail address on CLA          Status
-    Jeremy Whitlock   jwhitlock                   jcscoobyrs@gmail.com           Waiting for CLA to arrive
-    Daniel S. Haischt dsh, dhaischt               me@daniel.stefan.haischt.name  Account requested
+    Jeremy Whitlock   jwhitlock                   jcscoobyrs@gmail.com           Account Created
+    Daniel S. Haischt dsh                         me@daniel.stefan.haischt.name  Account Created
+    Lajos Moczar                                                                 Waiting for CLA to arrive
 
 Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
     chirino (apache: chirino)
@@ -64,7 +66,6 @@ Other CodehausIDs: (remove yours if you've added it above - regardless these wil
     gdamour (apache: gdamour)
     jboynes (apache: jboynes)
     jtolentino (apache: jtolentino)
-    lajos (Lajos Moczar, apache: none)
     pmlopes  (Paulo M Lopes, apache: none)
     rmonson_us (never committed post-exolab)
     tim273 (Tim Urberg, apache: none)
