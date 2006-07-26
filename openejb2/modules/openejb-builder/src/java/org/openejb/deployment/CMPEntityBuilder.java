@@ -98,6 +98,7 @@ class CMPEntityBuilder extends EntityBuilder {
     protected GBeanData getGBeanData(AbstractName entityObjectName) {
         return new GBeanData(entityObjectName, CMPEJBContainer.GBEAN_INFO);
     }
+
     /**
      * Create GBeans for all the CMP entity beans in the EJB JAR.
      */
@@ -202,6 +203,12 @@ class CMPEntityBuilder extends EntityBuilder {
 
         try {
             AbstractNameQuery tssBeanObjectName = getTssBeanQuery(openejbEntityBean, ejbModule, earContext, entityBean);
+            if(tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
+                throw new DeploymentException("Cannot expose an entity bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+            }
+            if(tssBeanObjectName != null && (!entityBean.isSetRemote() || !entityBean.isSetHome())) {
+                throw new DeploymentException("An entity bean without a remote interface cannot be exposed via CORBA");
+            }
             GBeanData gbeanData = earContext.getGBeanInstance(containerAbstractName);
             return builder.createConfiguration(earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName, gbeanData);
         } catch (Throwable e) {
