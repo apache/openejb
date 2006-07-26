@@ -139,7 +139,7 @@ public class StandardServant extends Servant implements InvokeHandler {
 
         // create ReadOnlyContext
         Map componentContext = new HashMap(2);
-        componentContext.put("ORB", Util.getORB());
+        componentContext.put("ORB", orb);
         componentContext.put("HandleDelegate", new CORBAHandleDelegate());
         try {
             enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);

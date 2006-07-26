@@ -229,22 +229,10 @@ public class CSSBean implements GBeanLifecycle {
             nssORB = ORB.init(configAdapter.translateToArgs(nssConfig, nssArgs), configAdapter.translateToProps(nssConfig, nssProps));
             configAdapter.postProcess(nssConfig, nssORB);
 
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    nssORB.run();
-                }
-            });
-
             if (log.isDebugEnabled()) log.debug("Starting CSS ORB");
 
             cssORB = ORB.init(configAdapter.translateToArgs(cssConfig, cssArgs), configAdapter.translateToProps(cssConfig, cssProps));
             configAdapter.postProcess(cssConfig, cssORB);
-
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    cssORB.run();
-                }
-            });
 
             context = new ClientContext();
             context.setSecurityConfig(cssConfig);
