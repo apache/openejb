@@ -155,6 +155,14 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, cl);
 
         try {
+            if (tssBeanQuery != null) {
+                if (openejbEntityBean.getJndiNameArray().length == 0) {
+                    throw new DeploymentException("Cannot expose an bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+                }
+                if (!entityBean.isSetRemote() || !entityBean.isSetHome()) {
+                    throw new DeploymentException("An bean without a remote interface cannot be exposed via CORBA");
+                }
+            }
             GBeanData gbean = builder.createConfiguration();
             return gbean;
         } catch (Throwable e) {
