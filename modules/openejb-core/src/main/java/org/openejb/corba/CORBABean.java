@@ -169,11 +169,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
 
             rootPOA = POAHelper.narrow(obj);
 
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    orb.run();
-                }
-            });
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
