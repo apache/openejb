@@ -280,8 +280,9 @@ public class OpenEJBReferenceBuilder implements EJBReferenceBuilder {
             q.putAll(STATEFUL);
             gbeanDatas.addAll(context.findGBeanDatas(Collections.singleton(new AbstractNameQuery(id, q, EJBContainer.class.getName()))));
         } else {
-            nameQuery.putAll(ENTITY);
-            gbeanDatas.addAll(context.findGBeanDatas(Collections.singleton(new AbstractNameQuery(id, nameQuery, EJBContainer.class.getName()))));
+            Map q = new HashMap(nameQuery);
+            q.putAll(ENTITY);
+            gbeanDatas.addAll(context.findGBeanDatas(Collections.singleton(new AbstractNameQuery(id, q, EJBContainer.class.getName()))));
         }
 
         Collection matches = new ArrayList();
