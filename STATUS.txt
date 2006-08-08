@@ -37,6 +37,7 @@ Issue Tracking  http://jira.codehaus.org/browse/OPENEJB
 Committers (these will be added to asf-authorization for the project)
     ApacheID    CodehausID  Name
     dblevins    dblevins    David Blevins
+    gdamour     gdamour     Gianny Damour
     hogstrom    hogstrom    Matt Hogstrom
     jgenender   jgenender   Jeff Genender
     jwhitlock   jcscoobyrs  Jeremy Whitlock
@@ -63,7 +64,6 @@ Other CodehausIDs: (remove yours if you've added it above - regardless these wil
     chirino (apache: chirino)
     dandiep (apache: dandiep)
     epunzalan (apache: epunzalan)
-    gdamour (apache: gdamour)
     jboynes (apache: jboynes)
     jtolentino (apache: jtolentino)
     pmlopes  (Paulo M Lopes, apache: none)
