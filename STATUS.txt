@@ -59,7 +59,7 @@ Requested accounts:
     Jeremy Whitlock   jwhitlock                   jcscoobyrs@gmail.com           Account Created
     Daniel S. Haischt dsh                         me@daniel.stefan.haischt.name  Account Created
     Lajos Moczar                                                                 Waiting for CLA to arrive
-    Paulo M. Lopes                                                               Waiting for CLA to arrive
+    Paulo M. Lopes    pmlopes                     pmlopes@scratchydreams.com     Waiting for CLA to arrive
 
 Other CodehausIDs: (remove yours if you've added it above - regardless these will be mapped to Apache IDs where they exist)
     chirino (apache: chirino)
