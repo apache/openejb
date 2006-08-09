@@ -48,7 +48,6 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.NameComponent;
@@ -62,6 +61,7 @@ import org.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransa
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Properties;
+import javax.transaction.TransactionManager;
 
 
 /**
@@ -74,7 +74,7 @@ public class CSSBean implements GBeanLifecycle {
     private final ClassLoader classLoader;
     private final Executor threadPool;
     private final ConfigAdapter configAdapter;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
     private String description;
     private CSSConfig nssConfig;
     private CSSConfig cssConfig;
@@ -90,13 +90,13 @@ public class CSSBean implements GBeanLifecycle {
         this.classLoader = null;
         this.threadPool = null;
         this.configAdapter = null;
-        this.transactionContextManager = null;
+        this.transactionManager = null;
     }
 
-    public CSSBean(String configAdapter, Executor threadPool, TransactionContextManager transactionContextManager, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CSSBean(String configAdapter, Executor threadPool, TransactionManager transactionManager, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
         this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
     }
 
@@ -242,7 +242,7 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     private ClientTransactionPolicyConfig buildClientTransactionPolicyConfig() {
-        return new NoDTxClientTransactionPolicyConfig(transactionContextManager);
+        return new NoDTxClientTransactionPolicyConfig(transactionManager);
     }
 
     public void doStop() throws Exception {

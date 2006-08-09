@@ -222,7 +222,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean);
+                tssBean, unshareableResources, applicationManagedSecurityResources);
 
         this.reentrant = reentrant;
 
@@ -241,8 +241,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
         InstanceContextFactory contextFactory = new CmpInstanceContextFactory(this,
                 ejbContainer,
                 proxyFactory,
-                unshareableResources,
-                applicationManagedSecurityResources,
                 cmp2,
                 instanceMap);
 

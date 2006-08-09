@@ -48,9 +48,15 @@
 package org.openejb.deployment.entity.cmp.cmr;
 
 
+import javax.transaction.Transaction;
+import javax.transaction.SystemException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.Status;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.AbstractCmpTest;
 
 /**
@@ -63,8 +69,9 @@ public abstract class AbstractCMRTest extends AbstractCmpTest {
     protected Object ahome;
     protected Object bhome;
 
-    protected TransactionContext newTransactionContext() throws Exception {
-        return (TransactionContext) kernel.invoke(tcmName, "newContainerTransactionContext", null, null);
+    protected Transaction newTransaction() throws Exception {
+        transactionManager.begin();
+        return transactionManager.getTransaction();
     }
 
     protected abstract EJBClass getA();
@@ -83,6 +90,14 @@ public abstract class AbstractCMRTest extends AbstractCmpTest {
 
         ahome = kernel.getAttribute(C_NAME_A, "ejbLocalHome");
         bhome = kernel.getAttribute(C_NAME_B, "ejbLocalHome");
+    }
+
+    protected void completeTransaction(Transaction ctx) throws SystemException, HeuristicMixedException, HeuristicRollbackException, RollbackException {
+        if (transactionManager.getStatus() == Status.STATUS_ACTIVE) {
+            ctx.commit();
+        } else {
+            ctx.rollback();
+        }
     }
 
     protected class EJBClass {

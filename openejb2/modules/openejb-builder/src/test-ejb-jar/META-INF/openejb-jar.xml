@@ -164,8 +164,8 @@
 
     </enterprise-beans>
     <gbean name="CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <reference name="ManagedConnectionFactoryWrapper">
             <name>DefaultDatasource</name>
@@ -175,8 +175,8 @@
         <attribute name="batchSize">1</attribute>
     </gbean>
     <gbean name="CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
-        <reference name="TransactionContextManager">
-            <name>TransactionContextManager</name>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
         </reference>
         <reference name="ManagedConnectionFactoryWrapper">
             <name>DefaultDatasource</name>

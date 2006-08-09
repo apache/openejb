@@ -19,13 +19,14 @@ package org.openejb.corba;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.corba.security.config.css.CSSConfig;
 import org.omg.CORBA.ORB;
 
 import java.util.ArrayList;
 import java.util.Properties;
 import java.net.URI;
+
+import javax.transaction.TransactionManager;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 
@@ -51,10 +52,10 @@ public final class CSSBeanGBean {
         infoFactory.addOperation("getHome", new Class[]{URI.class, String.class});
 
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.setConstructor(new String[]{"configAdapter", "ThreadPool", "TransactionContextManager", "classLoader"});
+        infoFactory.setConstructor(new String[]{"configAdapter", "ThreadPool", "TransactionManager", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

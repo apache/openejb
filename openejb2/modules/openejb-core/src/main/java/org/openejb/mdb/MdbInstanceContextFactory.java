@@ -47,10 +47,9 @@
  */
 package org.openejb.mdb;
 
-import java.util.Set;
 import javax.ejb.MessageDrivenBean;
 
-import org.apache.geronimo.transaction.InstanceContext;
+import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
@@ -62,27 +61,18 @@ import org.openejb.MdbContainer;
 public class MdbInstanceContextFactory implements InstanceContextFactory {
     private final MdbDeployment mdbDeploymentContext;
     private final MdbContainer mdbContainer;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
     private final EJBInstanceFactory instanceFactory;
 
-    public MdbInstanceContextFactory(MdbDeployment mdbDeploymentContext,
-            MdbContainer mdbContainer,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources) {
+    public MdbInstanceContextFactory(MdbDeployment mdbDeploymentContext, MdbContainer mdbContainer) {
         this.mdbDeploymentContext = mdbDeploymentContext;
         this.mdbContainer = mdbContainer;
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.instanceFactory = new EJBInstanceFactoryImpl(mdbDeploymentContext.getBeanClass());
     }
 
-    public InstanceContext newInstance() throws Exception {
+    public EJBInstanceContext newInstance() throws Exception {
         return new MdbInstanceContext(mdbDeploymentContext,
                 mdbContainer,
-                (MessageDrivenBean) instanceFactory.newInstance(),
-                unshareableResources,
-                applicationManagedSecurityResources
+                (MessageDrivenBean) instanceFactory.newInstance()
         );
     }
 }

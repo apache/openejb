@@ -64,8 +64,8 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.NoSuchEntityException;
 import javax.ejb.RemoveException;
 
-import org.apache.geronimo.transaction.context.Flushable;
-import org.apache.geronimo.transaction.context.TransactionContext;
+import org.openejb.transaction.EjbTransactionContext;
+import org.openejb.transaction.CmpTxData;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.ProxyInfo;
 import org.tranql.builder.IdentityDefinerBuilder;
@@ -302,16 +302,16 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         return queries;
     }
 
-    public Flushable createInTxCache() {
+    public CmpTxData createCmpTxData() {
         CacheFlushStrategyFactory strategyFactory = tranqlCommandBuilder.getCacheFlushStrategyFactory();
         CacheFlushStrategy strategy = strategyFactory.createCacheFlushStrategy();
         strategy = new InTxCacheTracker(frontEndCache, strategy);
-        TranqlInTxCache cache = new TranqlInTxCache(strategy);
-        return cache;
+        CmpTxData cmpTxData = new TranqlCmpTxData(strategy);
+        return cmpTxData;
     }
 
-    private static class TranqlInTxCache extends InTxCache implements Flushable {
-        public TranqlInTxCache(CacheFlushStrategy strategy) {
+    private static class TranqlCmpTxData extends InTxCache implements CmpTxData {
+        public TranqlCmpTxData(CacheFlushStrategy strategy) {
             super(strategy);
         }
     }
@@ -330,7 +330,7 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         ctx.setCmpData(cacheRow);
     }
 
-    public void afterCreate(CmpInstanceContext ctx, TransactionContext transactionContext) throws DuplicateKeyException, Exception {
+    public void afterCreate(CmpInstanceContext ctx, EjbTransactionContext ejbTransactionContext) throws DuplicateKeyException, Exception {
         // For cmp1 beans we must copy the data from the object into the cache row.
         // This happens automatically for cm2 beans
         if (!cmp2) {
@@ -354,7 +354,7 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         }
 
         // cache insert
-        InTxCache cache = (InTxCache) transactionContext.getInTxCache();
+        InTxCache cache = (InTxCache) ejbTransactionContext.getCmpTxData();
 
         try {
             if (keyGenerator != null) {
@@ -375,13 +375,13 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         ctx.setId(primaryKeyTransform.getDomainIdentity(globalId));
     }
 
-    public void afterRemove(CmpInstanceContext ctx, TransactionContext transactionContext) throws RemoveException {
+    public void afterRemove(CmpInstanceContext ctx, EjbTransactionContext ejbTransactionContext) throws RemoveException {
         CacheRow cacheRow = (CacheRow) ctx.getCmpData();
         if (cacheRow == null) {
             throw new EJBException("Internal Error: CMP data is null");
         }
 
-        InTxCache cache = (InTxCache) transactionContext.getInTxCache();
+        InTxCache cache = (InTxCache) ejbTransactionContext.getCmpTxData();
         if (cache == null) {
             throw new EJBException("Internal Error: CMP cache is null");
         }
@@ -429,12 +429,12 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
     }
 
     public void beforeLoad(CmpInstanceContext ctx) throws Exception {
-        TransactionContext transactionContext = ctx.getTransactionContext();
-        if (transactionContext == null) {
+        EjbTransactionContext ejbTransactionContext = ctx.getEjbTransactionData();
+        if (ejbTransactionContext == null) {
             throw new EJBException("Internal Error: transaction context is null");
         }
 
-        InTxCache cache = (InTxCache) transactionContext.getInTxCache();
+        InTxCache cache = (InTxCache) ejbTransactionContext.getCmpTxData();
         if (cache == null) {
             throw new EJBException("Internal Error: CMP cache is null");
         }

@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.Set;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -88,6 +89,7 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
     protected final EJBProxyFactory proxyFactory;
     private final TSSBean tssBean;
 
+
     public AbstractRpcDeployment(String containerId,
             String ejbName,
 
@@ -113,7 +115,10 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
 
             Kernel kernel,
 
-            TSSBean tssBean) throws Exception {
+            TSSBean tssBean,
+
+            Set unshareableResources,
+            Set applicationManagedSecurityResources) throws Exception {
 
         super(containerId,
                 ejbName,
@@ -128,8 +133,7 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
                 beanManagedTransactions,
                 transactionPolicies,
                 componentContext,
-                kernel
-        );
+                kernel, unshareableResources, applicationManagedSecurityResources);
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
         assert (classLoader != null);
@@ -137,9 +141,13 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
         // load the bean classes
         this.proxyInfo = proxyInfo;
 
-        if (jndiNames == null) jndiNames = new String[0];
+        if (jndiNames == null) {
+            jndiNames = new String[0];
+        }
         this.jndiNames = jndiNames;
-        if (localJndiNames == null) localJndiNames = new String[0];
+        if (localJndiNames == null) {
+            localJndiNames = new String[0];
+        }
         this.localJndiNames = localJndiNames;
 
         this.tssBean = tssBean;

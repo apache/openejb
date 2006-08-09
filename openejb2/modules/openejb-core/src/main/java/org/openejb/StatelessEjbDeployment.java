@@ -208,15 +208,11 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean);
+                tssBean, unshareableResources, applicationManagedSecurityResources);
 
         dispatchMethodMap = buildDispatchMethodMap();
 
-        InstanceContextFactory contextFactory = new StatelessInstanceContextFactory(this,
-                ejbContainer,
-                proxyFactory,
-                unshareableResources,
-                applicationManagedSecurityResources);
+        InstanceContextFactory contextFactory = new StatelessInstanceContextFactory(this, ejbContainer, proxyFactory);
 
         InstanceFactory instanceFactory = new StatelessInstanceFactory(contextFactory);
 

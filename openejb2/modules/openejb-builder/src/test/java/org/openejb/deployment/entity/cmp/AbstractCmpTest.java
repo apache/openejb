@@ -111,7 +111,6 @@ public abstract class AbstractCmpTest extends DeploymentHelper {
                     new AbstractNameQuery(serverName),
                     moduleName,
                     new AbstractNameQuery(tmName),
-                    new AbstractNameQuery(tcmName),
                     new AbstractNameQuery(ctcName),
                     new AbstractNameQuery(txTimerName),
                     new AbstractNameQuery(nonTxTimerName),

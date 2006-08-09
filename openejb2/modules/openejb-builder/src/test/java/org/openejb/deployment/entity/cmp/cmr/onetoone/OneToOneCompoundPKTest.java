@@ -54,8 +54,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.ejb.EJBException;
+import javax.transaction.Transaction;
 
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
 
@@ -70,23 +70,23 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     private BLocal b;
     
     public void testAGetBExistingAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         BLocal b = a.getB();
         assertNotNull(b);
         assertEquals(new Integer(11), b.getField1());
         assertEquals("value11", b.getField2());
-        ctx.commit();
+        completeTransaction(ctx);
     }
 
     public void testBGetAExistingAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         ALocal a = b.getA();
         assertNotNull(a);
         assertEquals(new Integer(1), a.getField1());
         assertEquals("value1", a.getField2());
-        ctx.commit();
+        completeTransaction(ctx);
     }
     
     private void assertStateDropExisting() throws Exception {
@@ -105,10 +105,10 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestASetBDropExisting() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.setB(null);
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateDropExisting();
     }
@@ -118,18 +118,18 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestBSetADropExisting() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         b.setA(null);
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateDropExisting();
     }
 
-    private TransactionContext prepareNewAB() throws Exception {
+    private Transaction prepareNewAB() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(2), "value2");
 
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.create(pkA);
         b = bhome.create(new CompoundPK(new Integer(22), "value22"));
         return ctx;
@@ -153,25 +153,25 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testASetBNewAB() throws Exception {
-        TransactionContext ctx = prepareNewAB();
+        Transaction ctx = prepareNewAB();
         a.setB(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateNewAB();
     }
 
     public void testBSetANewAB() throws Exception {
-        TransactionContext ctx = prepareNewAB();
+        Transaction ctx = prepareNewAB();
         b.setA(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateNewAB();
     }
 
-    private TransactionContext prepareExistingBNewA() throws Exception {
+    private Transaction prepareExistingBNewA() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(2), "value2");
 
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.create(pkA);
         b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         return ctx;
@@ -195,25 +195,25 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testASetBExistingBNewA() throws Exception {
-        TransactionContext ctx = prepareExistingBNewA();
+        Transaction ctx = prepareExistingBNewA();
         a.setB(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingBNewA();
     }
     
     public void testBSetAExistingBNewA() throws Exception {
-        TransactionContext ctx = prepareExistingBNewA();
+        Transaction ctx = prepareExistingBNewA();
         b.setA(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingBNewA();
     }
 
-    private TransactionContext prepareExistingANewB() throws Exception {
+    private Transaction prepareExistingANewB() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(1), "value1");
         
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.findByPrimaryKey(pkA);
         b = bhome.create(new Integer(22));
         b.setField2("value22");
@@ -243,9 +243,9 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * @see OneToOneTest for more details.
      */
     public void XtestASetBExistingANewB() throws Exception {
-        TransactionContext ctx = prepareExistingANewB();
+        Transaction ctx = prepareExistingANewB();
         a.setB(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingANewB();
     }
@@ -256,9 +256,9 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * @see OneToOneTest for more details.
      */
     public void XtestBSetAExistingANewB() throws Exception {
-        TransactionContext ctx = prepareExistingANewB();
+        Transaction ctx = prepareExistingANewB();
         b.setA(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingANewB();
     }
@@ -268,10 +268,10 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestRemoveRelationships() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.remove();
-        ctx.commit();
+        completeTransaction(ctx);
 
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
@@ -288,10 +288,10 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testCascadeDelete() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         b.remove();
-        ctx.commit();
+        completeTransaction(ctx);
 
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
@@ -304,7 +304,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
     
     public void testCMPMappedToForeignKeyColumn() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
 
         Integer field3 = b.getField3();
@@ -312,11 +312,11 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
 
         String field4 = b.getField4();
         assertEquals(((CompoundPK) b.getA().getPrimaryKey()).field2, field4);
-        ctx.commit();
+        completeTransaction(ctx);
     }
     
     public void testSetCMPMappedToForeignKeyColumn() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
 
         try {
@@ -324,7 +324,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
             fail("Cannot set the value of a CMP field mapped to a foreign key column.");
         } catch (EJBException e) {
         }
-        ctx.commit();
+        completeTransaction(ctx);
     }
 
     protected void setUp() throws Exception {

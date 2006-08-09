@@ -117,7 +117,7 @@ public class IvmContext implements Context, java.io.Serializable{
         // This is to give transaction support for non-bean ejb clients using the IntraVm Server
 //        if ( compositName.equals("java:comp/UserTransaction") && ThreadContext.getThreadContext().getDeploymentInfo() == null ) {
 //            EJBUserTransaction userTx = new EJBUserTransaction();
-//            userTx.setUp(OpenEJB.getTransactionContextManager(), null);
+//            userTx.setUp(OpenEJB.getTransactionManager(), null);
 //            userTx.setOnline(true);
 //            return userTx;
 //        }

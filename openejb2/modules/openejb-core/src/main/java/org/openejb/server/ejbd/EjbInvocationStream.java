@@ -51,7 +51,7 @@ import java.lang.reflect.Method;
 import org.apache.geronimo.interceptor.InvocationKey;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.SimpleInvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
+import org.openejb.transaction.EjbTransactionContext;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EjbInvocation;
@@ -204,16 +204,16 @@ public class EjbInvocationStream extends EJBRequest implements EjbInvocation {
         invocationState.setEJBInstanceContext(instanceContext);
     }
 
-    public void setTransactionContext(TransactionContext transactionContext) {
-        invocationState.setTransactionContext(transactionContext);
-    }
-
     public EJBInstanceContext getEJBInstanceContext() {
         return invocationState.getEJBInstanceContext();
     }
 
-    public TransactionContext getTransactionContext() {
-        return invocationState.getTransactionContext();
+    public EjbTransactionContext getEjbTransactionData() {
+        return invocationState.getEjbTransactionData();
+    }
+
+    public void setEjbTransactionData(EjbTransactionContext ejbTransactionContext) {
+        invocationState.setEjbTransactionData(ejbTransactionContext);
     }
 
     public void setMethodIndex(int methodIndex) {

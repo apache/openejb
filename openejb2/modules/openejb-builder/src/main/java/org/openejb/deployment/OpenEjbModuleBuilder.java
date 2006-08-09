@@ -217,7 +217,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     }
 
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
-        AbstractName webServiceLinkTemplateName = kernel.getProxyManager().getProxyTarget(webServiceLinkTemplate);
+        AbstractName webServiceLinkTemplateName = kernel.getAbstractNameFor(webServiceLinkTemplate);
         GBeanData linkTemplate = kernel.getGBeanData(webServiceLinkTemplateName);
         return linkTemplate;
     }

@@ -183,8 +183,8 @@ public class BasicCMPEntityContainerTest extends DeploymentHelper {
             throw e;
         } catch (NoSuchObjectLocalException e) {
             // expected
-        } catch (Throwable e) {
-            fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
+//        } catch (Throwable e) {
+//            fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
         }
 
         try {

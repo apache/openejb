@@ -16,17 +16,15 @@
  */
 package org.openejb.deployment;
 
-import java.util.Map;
-import java.util.Set;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.TimerService;
 
+import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
-import org.openejb.EJBContextImpl;
 import org.openejb.ExtendedEjbDeployment;
-import org.openejb.timer.BasicTimerService;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.timer.BasicTimerService;
 
 /**
  * @version $Rev$ $Date$
@@ -92,18 +90,6 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
     public void afterCommit(boolean status) throws Exception {
     }
 
-    public Map getConnectionManagerMap() {
-        return null;
-    }
-
-    public Set getUnshareableResources() {
-        return null;
-    }
-
-    public Set getApplicationManagedSecurityResources() {
-        return null;
-    }
-
     public void die() {
     }
 
@@ -119,5 +105,12 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
     }
 
     public void exit() {
+    }
+
+    public Object getConnectorInstanceData() {
+        return null;
+    }
+
+    public void setConnectorInstanceData(Object connectorInstanceData) {
     }
 }

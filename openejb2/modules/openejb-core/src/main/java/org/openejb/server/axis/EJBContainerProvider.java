@@ -68,7 +68,7 @@ import org.apache.axis.utils.JavaUtils;
 import org.apache.geronimo.interceptor.InvocationKey;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.SimpleInvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
+import org.openejb.transaction.EjbTransactionContext;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
@@ -135,7 +135,7 @@ public class EJBContainerProvider extends RPCProvider {
         private EJBInstanceContext instanceContext;
 
         // Valid in server-side interceptor stack once a TransactionContext has been created
-        private TransactionContext transactionContext;
+        private EjbTransactionContext ejbTransactionContext;
 
         private Map attributes = new HashMap();
         private OperationDesc operation;
@@ -186,7 +186,9 @@ public class EJBContainerProvider extends RPCProvider {
                 try {
                     args = body.getParams();
                 } catch (SAXException e) {
-                    if (e.getException() != null) throw e.getException();
+                    if (e.getException() != null) {
+                        throw e.getException();
+                    }
                     throw e;
                 }
 
@@ -223,12 +225,12 @@ public class EJBContainerProvider extends RPCProvider {
             this.instanceContext = instanceContext;
         }
 
-        public TransactionContext getTransactionContext() {
-            return transactionContext;
+        public EjbTransactionContext getEjbTransactionData() {
+            return ejbTransactionContext;
         }
 
-        public void setTransactionContext(TransactionContext transactionContext) {
-            this.transactionContext = transactionContext;
+        public void setEjbTransactionData(EjbTransactionContext ejbTransactionContext) {
+            this.ejbTransactionContext = ejbTransactionContext;
         }
 
         public InvocationResult createResult(Object object) {

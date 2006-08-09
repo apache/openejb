@@ -38,33 +38,54 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2006 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
+ * $Id: file,v 1.1 2005/02/18 23:22:00 user Exp $
  */
-package org.openejb;
+package org.openejb.transaction;
 
-import javax.ejb.Timer;
-import javax.transaction.TransactionManager;
+import java.io.Serializable;
 import javax.transaction.UserTransaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.SystemException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
 
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.timer.PersistentTimer;
+public final class DefaultUserTransaction implements UserTransaction, Serializable {
+    private static final long serialVersionUID = -7524804683512228998L;
+    private final transient TransactionManager transactionManager;
 
-/**
- * @version $Revision$ $Date$
- */
-public interface EjbContainer {
-    TransactionManager getTransactionManager();
+    public DefaultUserTransaction(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 
-    UserTransaction getUserTransaction();
 
-    InvocationResult invoke(Invocation invocation) throws Throwable;
+    public int getStatus() throws SystemException {
+        return transactionManager.getStatus();
+    }
 
-    PersistentTimer getTransactedTimer();
+    public void setRollbackOnly() throws IllegalStateException, SystemException {
+        transactionManager.setRollbackOnly();
+    }
 
-    PersistentTimer getNontransactedTimer();
+    public void setTransactionTimeout(int seconds) throws SystemException {
+        if (seconds < 0) {
+            throw new SystemException("transaction timeout must be positive or 0, not " + seconds);
+        }
+        transactionManager.setTransactionTimeout(seconds);
+    }
 
-    void timeout(ExtendedEjbDeployment deployment, Object id, Timer timer, int ejbTimeoutIndex);
+    public void begin() throws NotSupportedException, SystemException {
+        transactionManager.begin();
+    }
+
+    public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
+        transactionManager.commit();
+    }
+
+    public void rollback() throws IllegalStateException, SecurityException, SystemException {
+        transactionManager.rollback();
+    }
 }

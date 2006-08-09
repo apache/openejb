@@ -30,7 +30,7 @@
         provider-type="ThreadPooledTimer"
         class-name="org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer">
         repeatCount                 5
-        TransactionContextManager   TransactionContextManager
+        TransactionManager          TransactionManager
         ThreadPool                  DefaultThreadPool
     </ServiceProvider>
 
@@ -43,15 +43,17 @@
 
     <ServiceProvider id="ConnectionTracker"
         provider-type="ConnectionTracker"
-        class-name="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator"/>
+        class-name="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+        TransactionManager      		TransactionManager      
+    </ServiceProvider>
 
     <ServiceProvider id="DefaultWorkManager"
         provider-type="WorkManager"
         class-name="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
-        syncMaximumPoolSize		        10
+        syncMaximumPoolSize		      10
         startMaximumPoolSize		    10
         scheduledMaximumPoolSize		10
-        TransactionContextManager		TransactionContextManager
+        TransactionManager      		TransactionManager
     </ServiceProvider>
 
     <ServiceProvider id="HOWLTransactionLog"
@@ -74,18 +76,10 @@
 
     <ServiceProvider id="TransactionManager"
         provider-type="TransactionManager"
-        class-name="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
+        class-name="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
         defaultTransactionTimeoutSeconds		10
         TransactionLog		HOWLTransactionLog
         ResourceManagers    j2eeType=JCAManagedConnectionFactory,* j2eeType=ActivationSpec,*
-    </ServiceProvider>
-
-
-    <ServiceProvider id="TransactionContextManager"
-        provider-type="TransactionContextManager"
-        class-name="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
-        TransactionManager		TransactionManager
-        XidImporter		        TransactionManager
     </ServiceProvider>
 
     <ServiceProvider id="ContainerIndex"

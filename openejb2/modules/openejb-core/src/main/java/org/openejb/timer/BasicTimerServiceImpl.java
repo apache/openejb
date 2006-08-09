@@ -61,15 +61,16 @@ import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkInfo;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EjbContainer;
 import org.openejb.ExtendedEjbDeployment;
+import org.openejb.util.TransactionUtils;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
@@ -221,12 +222,12 @@ public class BasicTimerServiceImpl implements BasicTimerService {
     }
 
     void registerCancelSynchronization(Synchronization cancelSynchronization) throws RollbackException, SystemException {
-        TransactionContext transactionContext = ejbContainer.getTransactionContextManager().getContext();
-        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
-            transactionContext.registerSynchronization(cancelSynchronization);
-            return;
+        Transaction transaction = TransactionUtils.getTransactionIfActive(ejbContainer.getTransactionManager());
+        if (transaction != null) {
+            transaction.registerSynchronization(cancelSynchronization);
+        } else {
+            cancelSynchronization.afterCompletion(Status.STATUS_COMMITTED);
         }
-        cancelSynchronization.afterCompletion(Status.STATUS_COMMITTED);
     }
 
     private Timer newTimer(WorkInfo workInfo) {

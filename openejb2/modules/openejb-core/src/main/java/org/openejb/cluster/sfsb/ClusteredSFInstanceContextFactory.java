@@ -45,12 +45,11 @@
 package org.openejb.cluster.sfsb;
 
 import java.io.Serializable;
-import java.util.Set;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
 
-import org.apache.geronimo.transaction.InstanceContext;
 import org.openejb.EJBInstanceContext;
+import org.openejb.StatefulEjbContainer;
 import org.openejb.StatefulEjbDeployment;
 import org.openejb.cluster.server.ClusteredInstanceContextFactory;
 import org.openejb.cluster.server.EJBClusterManager;
@@ -58,7 +57,6 @@ import org.openejb.cluster.server.EJBInstanceContextRecreator;
 import org.openejb.cluster.server.ServerMetaDataArrayHolder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.sfsb.StatefulInstanceContextFactory;
-import org.openejb.StatefulEjbContainer;
 
 /**
  * @version $Revision$ $Date$
@@ -71,10 +69,8 @@ public class ClusteredSFInstanceContextFactory extends StatefulInstanceContextFa
 
     public ClusteredSFInstanceContextFactory(StatefulEjbDeployment statefulEjbDeployment,
             StatefulEjbContainer statefulEjbContainer,
-            EJBProxyFactory proxyFactory,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources) {
-        super(statefulEjbDeployment, statefulEjbContainer, proxyFactory, unshareableResources, applicationManagedSecurityResources);
+            EJBProxyFactory proxyFactory) {
+        super(statefulEjbDeployment, statefulEjbContainer, proxyFactory);
         recreator = new SFInstanceContextRecreator();
     }
 
@@ -90,7 +86,7 @@ public class ClusteredSFInstanceContextFactory extends StatefulInstanceContextFa
         return recreator;
     }
 
-    public InstanceContext newInstance() throws Exception {
+    public EJBInstanceContext newInstance() throws Exception {
         SessionBean bean = createInstance();
         String id = clusterManager.addInstance(bean, statefulEjbDeployment.getContainerId());
 
@@ -104,8 +100,6 @@ public class ClusteredSFInstanceContextFactory extends StatefulInstanceContextFa
                 bean,
                 id,
                 proxyFactory,
-                unshareableResources,
-                applicationManagedSecurityResources,
                 serversHolder);
     }
 

@@ -124,8 +124,6 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         // transactionManager
         moduleCmpEngine.setReferencePattern("transactionManager", earContext.getTransactionManagerObjectName());
 
-        // TransactionContextManager
-
         try {
             earContext.addGBean(moduleCmpEngine);
         } catch (GBeanAlreadyExistsException e) {

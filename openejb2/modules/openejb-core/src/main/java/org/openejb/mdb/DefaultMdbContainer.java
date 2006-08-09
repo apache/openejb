@@ -53,10 +53,7 @@ import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.timer.PersistentTimer;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.openejb.CallbackMethod;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.EJBInstanceContext;
@@ -67,11 +64,15 @@ import org.openejb.EjbInvocationImpl;
 import org.openejb.ExtendedEjbDeployment;
 import org.openejb.MdbContainer;
 import org.openejb.SystemExceptionInterceptor;
+import org.openejb.transaction.TransactionContextInterceptor;
+import org.openejb.transaction.DefaultUserTransaction;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.naming.ComponentContextInterceptor;
 import org.openejb.security.EJBIdentityInterceptor;
 
 import javax.ejb.Timer;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 
 /**
@@ -83,18 +84,18 @@ public class DefaultMdbContainer implements MdbContainer {
     private final Interceptor callbackChain;
     private final PersistentTimer transactedTimer;
     private final PersistentTimer nontransactionalTimer;
-    private final TransactionContextManager transactionContextManager;
-    private final UserTransactionImpl userTransaction;
+    private final TransactionManager transactionManager;
+    private final UserTransaction userTransaction;
 
     public DefaultMdbContainer(
-            TransactionContextManager transactionContextManager,
+            TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             PersistentTimer transactionalTimer,
             PersistentTimer nontransactionalTimer,
             boolean doAsCurrentCaller) throws Exception {
 
-        this.transactionContextManager = transactionContextManager;
-        this.userTransaction = new UserTransactionImpl(transactionContextManager, trackedConnectionAssociator);
+        this.transactionManager = transactionManager;
+        this.userTransaction = new DefaultUserTransaction(transactionManager);
         this.transactedTimer = transactionalTimer;
         this.nontransactionalTimer = nontransactionalTimer;
 
@@ -118,6 +119,9 @@ public class DefaultMdbContainer implements MdbContainer {
         // create the user transaction if bean managed
         invocationChain = new MdbInstanceInterceptor(invocationChain);
 
+        // associate transaction data
+        invocationChain = new TransactionContextInterceptor(invocationChain, transactionManager);
+
         // logs system exceptions
         invocationChain = new SystemExceptionInterceptor(invocationChain);
 
@@ -139,11 +143,11 @@ public class DefaultMdbContainer implements MdbContainer {
         this.callbackChain = callbackChain;
     }
 
-    public TransactionContextManager getTransactionContextManager() {
-        return transactionContextManager;
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
     }
 
-    public UserTransactionImpl getUserTransaction() {
+    public UserTransaction getUserTransaction() {
         return userTransaction;
     }
 
@@ -178,23 +182,14 @@ public class DefaultMdbContainer implements MdbContainer {
         EjbInvocation invocation = new EjbInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeoutIndex, new Object[]{timer});
         invocation.setEjbDeployment(deployment);
 
-        // set the transaction context into the invocation object
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext == null) {
-            throw new IllegalStateException("Transaction context has not been set");
-        }
-        invocation.setTransactionContext(transactionContext);
-
-        Thread currentThread = Thread.currentThread();
-        ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(deployment.getClassLoader());
         try {
-            currentThread.setContextClassLoader(deployment.getClassLoader());
             invoke(invocation);
         } catch (Throwable throwable) {
             log.warn("Timer invocation failed", throwable);
         } finally {
-            currentThread.setContextClassLoader(oldClassLoader);
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
-
 }

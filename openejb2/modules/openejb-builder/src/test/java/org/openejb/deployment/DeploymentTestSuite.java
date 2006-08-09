@@ -156,7 +156,6 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultEnvironment,
                     new AbstractNameQuery(deploymentHelper.tmName),
-                    new AbstractNameQuery(deploymentHelper.tcmName),
                     new AbstractNameQuery(deploymentHelper.ctcName),
                     new AbstractNameQuery(deploymentHelper.txTimerName),
                     new AbstractNameQuery(deploymentHelper.nonTxTimerName),

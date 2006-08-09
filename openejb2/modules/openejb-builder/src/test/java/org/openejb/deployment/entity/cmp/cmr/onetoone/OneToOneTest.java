@@ -54,7 +54,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 
-import org.apache.geronimo.transaction.context.TransactionContext;
+import javax.transaction.Transaction;
+
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 
 /**
@@ -68,23 +69,23 @@ public class OneToOneTest extends AbstractCMRTest {
     private BLocal b;
     
     public void testAGetBExistingAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         BLocal b = a.getB();
         assertNotNull(b);
         assertEquals(new Integer(11), b.getField1());
         assertEquals("value11", b.getField2());
-        ctx.commit();
+        completeTransaction(ctx);
     }
 
     public void testBGetAExistingAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         ALocal a = b.getA();
         assertNotNull(a);
         assertEquals(new Integer(1), a.getField1());
         assertEquals("value1", a.getField2());
-        ctx.commit();
+        completeTransaction(ctx);
     }
 
     private void assertStateDropExisting() throws Exception {
@@ -103,10 +104,10 @@ public class OneToOneTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestASetBDropExisting() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.setB(null);
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateDropExisting();
     }
@@ -116,16 +117,16 @@ public class OneToOneTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestBSetADropExisting() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.setA(null);
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateDropExisting();
     }
 
-    private TransactionContext prepareNewAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+    private Transaction prepareNewAB() throws Exception {
+        Transaction ctx = newTransaction();
         a = ahome.create(new Integer(2));
         a.setField2("value2");
         b = bhome.create(new Integer(22));
@@ -151,23 +152,23 @@ public class OneToOneTest extends AbstractCMRTest {
     }
     
     public void testASetBNewAB() throws Exception {
-        TransactionContext ctx = prepareNewAB();
+        Transaction ctx = prepareNewAB();
         a.setB(b);
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateNewAB();
     }
 
     public void testBSetANewAB() throws Exception {
-        TransactionContext ctx = prepareNewAB();
+        Transaction ctx = prepareNewAB();
         b.setA(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateNewAB();
     }
 
-    private TransactionContext prepareExistingBNewA() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+    private Transaction prepareExistingBNewA() throws Exception {
+        Transaction ctx = newTransaction();
         a = ahome.create(new Integer(2));
         a.setField2("value2");
         b = bhome.findByPrimaryKey(new Integer(11));
@@ -192,23 +193,23 @@ public class OneToOneTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingBNewA() throws Exception {
-        TransactionContext ctx = prepareExistingBNewA();
+        Transaction ctx = prepareExistingBNewA();
         a.setB(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingBNewA();
     }
 
     public void testBSetAExistingBNewA() throws Exception {
-        TransactionContext ctx = prepareExistingBNewA();
+        Transaction ctx = prepareExistingBNewA();
         b.setA(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingBNewA();
     }
 
-    private TransactionContext prepareExistingANewB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+    private Transaction prepareExistingANewB() throws Exception {
+        Transaction ctx = newTransaction();
         a = ahome.findByPrimaryKey(new Integer(1));
         b = bhome.create(new Integer(22));
         b.setField2("value22");
@@ -247,9 +248,9 @@ public class OneToOneTest extends AbstractCMRTest {
 //      ps.setInt(5, 1);
 //      ps.execute();
         
-        TransactionContext ctx = prepareExistingANewB();
+        Transaction ctx = prepareExistingANewB();
         a.setB(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingANewB();
     }
@@ -259,9 +260,9 @@ public class OneToOneTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestBSetAExistingANewB() throws Exception {
-        TransactionContext ctx = prepareExistingANewB();
+        Transaction ctx = prepareExistingANewB();
         b.setA(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingANewB();
     }
@@ -271,10 +272,10 @@ public class OneToOneTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestRemoveRelationships() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.remove();
-        ctx.commit();
+        completeTransaction(ctx);
 
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
@@ -291,10 +292,10 @@ public class OneToOneTest extends AbstractCMRTest {
     }
 
     public void testCascadeDelete() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.remove();
-        ctx.commit();
+        completeTransaction(ctx);
 
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
@@ -307,16 +308,16 @@ public class OneToOneTest extends AbstractCMRTest {
     }
     
     public void testCMPMappedToForeignKeyColumn() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
 
         Integer field3 = b.getField3();
         assertEquals(b.getA().getPrimaryKey(), field3);
-        ctx.commit();
+        completeTransaction(ctx);
     }
 
     public void testSetCMPMappedToForeignKeyColumn() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
 
         b.setField3(new Integer(2));
@@ -325,7 +326,7 @@ public class OneToOneTest extends AbstractCMRTest {
         assertEquals(new Integer(2), a.getField1());
         assertEquals("value2", a.getField2());
         
-        ctx.commit();
+        completeTransaction(ctx);
     }
 
     protected void setUp() throws Exception {

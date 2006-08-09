@@ -47,49 +47,51 @@
  */
 package org.openejb.transaction;
 
-import java.util.Map;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-
-import org.apache.geronimo.transaction.ExtendedTransactionManager;
+import javax.transaction.TransactionManager;
 
 /**
  * @version $Revision$ $Date$
  */
-public class MockTransactionManager implements ExtendedTransactionManager {
-    private MockTransaction transaction = new MockTransaction();
+public class MockTransactionManager implements TransactionManager {
+    private MockTransaction transaction;
+    private MockTransaction lastTransaction;
 
-    public boolean isCommitted() {
-        return transaction.committed;
+    public boolean wasLastTxCommitted() {
+        if (lastTransaction == null) throw new IllegalStateException("lastTransaction is null");
+        return lastTransaction.committed;
     }
 
-    public boolean isRolledBack() {
-        return transaction.rolledBack;
+    public boolean wasLastTxRolledBack() {
+        if (lastTransaction == null) throw new IllegalStateException("lastTransaction is null");
+        return lastTransaction.rolledBack;
     }
 
     public void clear() {
-        transaction.clear();
-    }
-
-    public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
-        transaction.clear();
-        return transaction;
+        transaction = null;
     }
 
     public void begin() throws NotSupportedException, SystemException {
-        transaction.clear();
+        if (transaction != null) throw new NotSupportedException("Transacion in progress");
+        transaction = new MockTransaction();
     }
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
+        if (transaction == null) throw new IllegalStateException("No transacion in progress");
         transaction.commit();
+        lastTransaction = transaction;
+        transaction = null;
     }
 
     public int getStatus() throws SystemException {
+        if (transaction == null) return Status.STATUS_NO_TRANSACTION;
         return transaction.getStatus();
     }
 
@@ -97,14 +99,26 @@ public class MockTransactionManager implements ExtendedTransactionManager {
         return transaction;
     }
 
-    public void resume(Transaction tobj) throws IllegalStateException, InvalidTransactionException, SystemException {
+    public void resume(Transaction transaction) throws IllegalStateException, InvalidTransactionException, SystemException {
+        if (transaction == null) {
+            throw new InvalidTransactionException("transaction is null");
+        }
+        if (!(transaction instanceof MockTransaction)) {
+            throw new InvalidTransactionException("Expected instance of MockTransaction but was " + transaction.getClass().getName());
+        }
+        if (this.transaction != null) throw new IllegalStateException("Transacion in progress");
+        this.transaction = (MockTransaction) transaction;
     }
 
     public void rollback() throws IllegalStateException, SecurityException, SystemException {
+        if (transaction == null) throw new IllegalStateException("No transacion in progress");
         transaction.rollback();
+        lastTransaction = transaction;
+        transaction = null;
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
+        if (transaction == null) throw new IllegalStateException("No transacion in progress");
         transaction.setRollbackOnly();
     }
 
@@ -112,10 +126,8 @@ public class MockTransactionManager implements ExtendedTransactionManager {
     }
 
     public Transaction suspend() throws SystemException {
+        MockTransaction transaction = this.transaction;
+        this.transaction = null;
         return transaction;
-    }
-
-    public Map getExternalXids() {
-        return null;
     }
 }

@@ -47,13 +47,9 @@
  */
 package org.openejb;
 
-import org.apache.geronimo.transaction.InstanceContext;
-
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface InstanceContextFactory {
-    InstanceContext newInstance() throws Exception;
+    EJBInstanceContext newInstance() throws Exception;
 }

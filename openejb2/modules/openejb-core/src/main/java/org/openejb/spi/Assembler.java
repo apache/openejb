@@ -63,7 +63,7 @@ public interface Assembler {
      *
      * @return the TransactionManager to be used by this container manager's containers when servicing beans
      * @see "javax.transaction.TransactionManager"
-     * @see org.openejb.spi.TransactionService#getTransactionManager() TransactionService.getTransactionContextManager()
+     * @see org.openejb.spi.TransactionService#getTransactionManager() TransactionService.getTransactionManager()
      */
     public TransactionManager getTransactionManager( );
 

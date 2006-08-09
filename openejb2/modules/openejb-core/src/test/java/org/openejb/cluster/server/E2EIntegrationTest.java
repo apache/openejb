@@ -47,7 +47,6 @@ package org.openejb.cluster.server;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.Collections;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -136,9 +135,8 @@ public class E2EIntegrationTest extends TestCase {
         EJBProxyFactory proxyFactory = new EJBProxyFactory(deployment.getProxyInfo());
         ClusteredSFInstanceContextFactory factory = new ClusteredSFInstanceContextFactory(deployment,
                 container,
-                proxyFactory,
-                Collections.EMPTY_SET,
-                Collections.EMPTY_SET);
+                proxyFactory
+        );
         factory.setClusterManager(manager);
         return new NodeInfo(manager, cache, factory);
     }

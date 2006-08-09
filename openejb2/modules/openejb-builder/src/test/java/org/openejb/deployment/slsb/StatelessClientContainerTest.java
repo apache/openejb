@@ -59,17 +59,13 @@ import javax.rmi.PortableRemoteObject;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.openejb.RpcEjbDeployment;
 import org.openejb.slsb.DefaultStatelessEjbContainer;
 import org.openejb.StatelessEjbDeploymentFactory;
 import org.openejb.StatelessEjbContainer;
-import org.openejb.deployment.MockTransactionManager;
 
 /**
- *
- *
- *
  * @version $Revision$ $Date$
  */
 public class StatelessClientContainerTest extends TestCase {
@@ -224,7 +220,7 @@ public class StatelessClientContainerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        StatelessEjbContainer container = new DefaultStatelessEjbContainer(new TransactionContextManager(new MockTransactionManager(), null),
+        StatelessEjbContainer container = new DefaultStatelessEjbContainer(new GeronimoTransactionManager(),
                 new ConnectionTrackingCoordinator(),
                 null,
                 null,

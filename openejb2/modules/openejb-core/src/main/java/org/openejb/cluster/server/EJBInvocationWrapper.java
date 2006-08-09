@@ -47,11 +47,11 @@ package org.openejb.cluster.server;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
 
-import org.apache.geronimo.transaction.InstanceContext;
 import org.codehaus.wadi.Context;
 import org.codehaus.wadi.InvocationContext;
 import org.codehaus.wadi.PoolableInvocationWrapper;
 import org.codehaus.wadi.Session;
+import org.openejb.EJBInstanceContext;
 
 /**
  * 
@@ -59,31 +59,31 @@ import org.codehaus.wadi.Session;
  */
 public class EJBInvocationWrapper implements PoolableInvocationWrapper {
     private final RecreatorSelector recreatorSelector;
-    private InstanceContext instanceContext;
+    private EJBInstanceContext instanceContext;
     private Session session;
-    
+
     public EJBInvocationWrapper(RecreatorSelector factorySelector) {
         this.recreatorSelector = factorySelector;
     }
 
     public void init(InvocationContext invocationContext, Context context) {
-        if (false == context instanceof Session) {
+        if (!(context instanceof Session)) {
             throw new IllegalArgumentException(Session.class +
                     " is expected");
         }
         session = (Session) context;
-        
+
         EJBSessionUtil sessionUtil = new EJBSessionUtil(session);
-        
+
         EnterpriseBean enterpriseBean = sessionUtil.getEnterpriseBean();
-        if (false == enterpriseBean instanceof EnterpriseBean) {
+        if (!(enterpriseBean instanceof EnterpriseBean)) {
             throw new IllegalArgumentException(EnterpriseBean.class +
                     " is expected");
         }
         SessionBean sessionBean = (SessionBean) enterpriseBean;
         Object id = sessionUtil.getId();
         Object containerId = sessionUtil.getContainerId();
-        
+
         EJBInstanceContextRecreator recreator = recreatorSelector.select(containerId);
         instanceContext = recreator.recreate(id, sessionBean);
     }
@@ -92,7 +92,7 @@ public class EJBInvocationWrapper implements PoolableInvocationWrapper {
         // Do nothing.
     }
 
-    public InstanceContext getInstanceContext() {
+    public EJBInstanceContext getInstanceContext() {
         return instanceContext;
     }
 
