@@ -1,4 +1,4 @@
-/* ====================================================================
+/**
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,14 +7,15 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce this list of
- *    conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact info@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -37,22 +38,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * ====================================================================
+ * Copyright 2006 (C) The OpenEJB Group. All Rights Reserved.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the OpenEJB Project.  For more information
- * please see <http://openejb.org/>.
- *
- * ====================================================================
+ * $Id$
  */
 package org.openejb.transaction;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.interceptor.Interceptor;
-import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBInterfaceType;
-import org.openejb.ExtendedEjbDeployment;
+import org.apache.geronimo.interceptor.Invocation;
 import org.openejb.EjbInvocation;
 
 /**
@@ -60,24 +56,31 @@ import org.openejb.EjbInvocation;
  */
 public class TransactionContextInterceptor implements Interceptor {
     private final Interceptor next;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
-    public TransactionContextInterceptor(Interceptor next, TransactionContextManager transactionContextManager) {
+    public TransactionContextInterceptor(Interceptor next, TransactionManager transactionManager) {
         this.next = next;
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbInvocation ejbInvocation = (EjbInvocation) invocation;
-        ExtendedEjbDeployment deployment = (ExtendedEjbDeployment) ejbInvocation.getEjbDeployment();
-        TransactionPolicyManager transactionPolicyManager = deployment.getTransactionPolicyManager();
 
-        EJBInterfaceType invocationType = ejbInvocation.getType();
-        int methodIndex = ejbInvocation.getMethodIndex();
+        if (ejbInvocation.getEjbTransactionData() != null) {
+            throw new IllegalStateException("Invocation is already associated with a transaction");
+        }
 
-        TransactionPolicy policy = transactionPolicyManager.getTransactionPolicy(invocationType, methodIndex);
-        assert policy != null: "transaction policy array was not set up correctly, no policy for " + invocation;
-        return policy.invoke(next, ejbInvocation, transactionContextManager);
+        EjbTransactionContext ejbTransactionContext = EjbTransactionContext.get(transactionManager.getTransaction());
+
+        boolean succeeded = false;
+        try {
+            ejbInvocation.setEjbTransactionData(ejbTransactionContext);
+            InvocationResult result = next.invoke(ejbInvocation);
+            succeeded = true;
+            return result;
+        } finally {
+            ejbInvocation.setEjbTransactionData(null);
+            ejbTransactionContext.complete(succeeded);
+        }
     }
-
 }
