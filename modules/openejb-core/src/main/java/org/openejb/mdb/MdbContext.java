@@ -55,11 +55,10 @@ import javax.ejb.EJBObject;
 import javax.ejb.MessageDrivenContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
+import javax.transaction.TransactionManager;
 import javax.xml.rpc.handler.MessageContext;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
@@ -72,8 +71,8 @@ import org.openejb.timer.TimerState;
  * @version $Revision$ $Date$
  */
 public class MdbContext extends EJBContextImpl implements MessageDrivenContext {
-    public MdbContext(MdbInstanceContext context, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction) {
-        super(context, transactionContextManager, userTransaction);
+    public MdbContext(MdbInstanceContext context, TransactionManager transactionManager, UserTransaction userTransaction) {
+        super(context, transactionManager, userTransaction);
         state = MdbContext.INACTIVE;
     }
 
@@ -81,14 +80,6 @@ public class MdbContext extends EJBContextImpl implements MessageDrivenContext {
         state = states[operation.getOrdinal()];
         assert (state != null) : "Invalid EJBOperation for MDB, ordinal=" + operation.getOrdinal();
 
-        if(userTransaction != null) {
-            if (operation == EJBOperation.BIZMETHOD ||
-                    operation == EJBOperation.TIMEOUT) {
-                userTransaction.setOnline(true);
-            } else {
-                userTransaction.setOnline(false);
-            }
-        }
         context.setTimerServiceAvailable(timerServiceAvailable[operation.getOrdinal()]);
     }
 
@@ -137,11 +128,11 @@ public class MdbContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getUserTransaction() cannot be called when inactive");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called when inactive");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called when inactive");
         }
 
@@ -175,11 +166,11 @@ public class MdbContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getUserTransaction() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
@@ -201,11 +192,11 @@ public class MdbContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbCreate/ejbRemove");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 

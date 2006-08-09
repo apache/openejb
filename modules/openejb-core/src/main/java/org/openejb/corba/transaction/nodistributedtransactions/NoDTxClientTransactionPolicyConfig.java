@@ -16,8 +16,8 @@
  */
 package org.openejb.corba.transaction.nodistributedtransactions;
 
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import javax.transaction.TransactionManager;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CosTransactions.PropagationContext;
@@ -31,6 +31,7 @@ import org.omg.IOP.TransactionService;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.openejb.corba.transaction.ClientTransactionPolicyConfig;
 import org.openejb.corba.util.Util;
+import org.openejb.util.TransactionUtils;
 
 /**
  * @version $Rev$ $Date$
@@ -40,18 +41,17 @@ public class NoDTxClientTransactionPolicyConfig implements ClientTransactionPoli
     private static final TransIdentity[] NO_PARENTS = new TransIdentity[0];
     private static final otid_t NULL_XID = new otid_t(0, 0, new byte[0]);
 
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
-    public NoDTxClientTransactionPolicyConfig(TransactionContextManager transactionContextManager) {
-        if (transactionContextManager == null) {
-            throw new IllegalArgumentException("transactionContextManager must not be null");
+    public NoDTxClientTransactionPolicyConfig(TransactionManager transactionManager) {
+        if (transactionManager == null) {
+            throw new IllegalArgumentException("transactionManager must not be null");
         }
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public void exportTransaction(ClientRequestInfo ri) {
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+        if (TransactionUtils.isTransactionActive(transactionManager)) {
             //19.6.2.1 (1) propagate an "empty" transaction context.
             //but, it needs an xid!
             TransIdentity transIdentity = new TransIdentity(null, null, NULL_XID);

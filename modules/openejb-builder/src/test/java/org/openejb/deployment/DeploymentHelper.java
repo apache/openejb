@@ -58,6 +58,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import javax.transaction.TransactionManager;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
@@ -94,19 +97,18 @@ import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
-import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 import org.apache.geronimo.transaction.manager.XidFactoryImplGBean;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.openejb.DeploymentIndexGBean;
-import org.openejb.entity.cmp.DefaultCmpEjbContainerGBean;
+import org.openejb.deployment.mdb.mockra.MockActivationSpec;
+import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 import org.openejb.entity.bmp.DefaultBmpEjbContainerGBean;
+import org.openejb.entity.cmp.DefaultCmpEjbContainerGBean;
 import org.openejb.mdb.DefaultMdbContainerGBean;
 import org.openejb.sfsb.DefaultStatefulEjbContainerGBean;
 import org.openejb.slsb.DefaultStatelessEjbContainerGBean;
-import org.openejb.deployment.mdb.mockra.MockActivationSpec;
-import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 
 /**
  * @version $Revision$ $Date$
@@ -133,7 +135,7 @@ public class DeploymentHelper extends TestCase {
     public String mdbEjbContainerName = "mdb";
     public AbstractName ctcName;
     public AbstractName tmName;
-    public AbstractName tcmName;
+    public TransactionManager transactionManager;
     public AbstractName txTimerName;
     public AbstractName nonTxTimerName;
     public AbstractName activationSpecName;
@@ -177,15 +179,14 @@ public class DeploymentHelper extends TestCase {
         GBeanData xidFactory = bootstrap.addGBean("XidFactory", XidFactoryImplGBean.GBEAN_INFO);
         xidFactory.setAttribute("tmId", "tmId".getBytes());
 
-        GBeanData tm = bootstrap.addGBean("TransactionManager", TransactionManagerImplGBean.GBEAN_INFO);
+        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
         tmName = tm.getAbstractName();
         tm.setReferencePattern("XidFactory", xidFactory.getAbstractName());
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
 
-        GBeanData tcm = bootstrap.addGBean("TransactionContextManager", TransactionContextManagerGBean.GBEAN_INFO);
-        tcm.setReferencePattern("TransactionManager", tmName);
-        tcmName = tcm.getAbstractName();
-        ctcName = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO).getAbstractName();
+        GBeanData ctc = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
+        ctcName = ctc.getAbstractName();
+        ctc.setReferencePattern("TransactionManager", tmName);
 
         //timer
         GBeanData threadPoolGBean = bootstrap.addGBean("Threadpool", ThreadPool.GBEAN_INFO);
@@ -196,7 +197,7 @@ public class DeploymentHelper extends TestCase {
         GBeanData transactionalTimerGBean = bootstrap.addGBean("TransactionalTimer", VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
         txTimerName = transactionalTimerGBean.getAbstractName();
         transactionalTimerGBean.setAttribute("repeatCount", new Integer(5));
-        transactionalTimerGBean.setReferencePattern("TransactionContextManager", tcmName);
+        transactionalTimerGBean.setReferencePattern("TransactionManager", tmName);
         transactionalTimerGBean.setReferencePattern("ThreadPool", threadPoolGBean.getAbstractName());
 
         GBeanData nonTransactionalTimerGBean = bootstrap.addGBean("NonTransactionTimer", VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
@@ -208,7 +209,7 @@ public class DeploymentHelper extends TestCase {
         geronimoWorkManagerGBean.setReferencePattern("SyncPool", threadPoolGBean.getAbstractName());
         geronimoWorkManagerGBean.setReferencePattern("StartPool", threadPoolGBean.getAbstractName());
         geronimoWorkManagerGBean.setReferencePattern("ScheduledPool", threadPoolGBean.getAbstractName());
-        geronimoWorkManagerGBean.setReferencePattern("TransactionContextManager", tcmName);
+        geronimoWorkManagerGBean.setReferencePattern("TransactionManager", tmName);
 
         Map activationSpecInfoMap = new HashMap();
         ACTIVATION_SPEC_INFO.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
@@ -247,29 +248,29 @@ public class DeploymentHelper extends TestCase {
 
         // Containers
         GBeanData statelessEjbContainer = bootstrap.addGBean(statelessEjbContainerName, DefaultStatelessEjbContainerGBean.GBEAN_INFO);
-        statelessEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        statelessEjbContainer.setReferencePattern("TransactionManager", tmName);
         statelessEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         statelessEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         statelessEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
 
         GBeanData statefulEjbContainer = bootstrap.addGBean(statefulEjbContainerName, DefaultStatefulEjbContainerGBean.GBEAN_INFO);
-        statefulEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        statefulEjbContainer.setReferencePattern("TransactionManager", tmName);
         statefulEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
 
         GBeanData bmpEjbContainer = bootstrap.addGBean(bmpEjbContainerName, DefaultBmpEjbContainerGBean.GBEAN_INFO);
-        bmpEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        bmpEjbContainer.setReferencePattern("TransactionManager", tmName);
         bmpEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         bmpEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         bmpEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
 
         GBeanData cmpEjbContainer = bootstrap.addGBean(cmpEjbContainerName, DefaultCmpEjbContainerGBean.GBEAN_INFO);
-        cmpEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        cmpEjbContainer.setReferencePattern("TransactionManager", tmName);
         cmpEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         cmpEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         cmpEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
 
         GBeanData mdbEjbContainer = bootstrap.addGBean("mdb", DefaultMdbContainerGBean.GBEAN_INFO);
-        mdbEjbContainer.setReferencePattern("TransactionContextManager", tcmName);
+        mdbEjbContainer.setReferencePattern("TransactionManager", tmName);
         mdbEjbContainer.setReferencePattern("TrackedConnectionAssociator", ctcName);
         mdbEjbContainer.setReferencePattern("TransactedTimer", txTimerName);
         mdbEjbContainer.setReferencePattern("NontransactedTimer", nonTxTimerName);
@@ -281,6 +282,7 @@ public class DeploymentHelper extends TestCase {
         configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
         configStore.install(bootstrap);
 
+        transactionManager = (TransactionManager) kernel.getGBean(tmName);
         defaultEnvironment.addDependency(BOOTSTRAP_ID, ImportType.ALL);
         defaultEnvironment.setConfigId(TEST_CONFIGURATION_ID);
     }

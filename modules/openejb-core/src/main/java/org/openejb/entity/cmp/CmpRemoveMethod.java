@@ -95,7 +95,7 @@ public class CmpRemoveMethod extends AbstractMethodOperation {
                 }
             }
 
-            ejbCmpEngine.afterRemove(ctx, invocation.getTransactionContext());
+            ejbCmpEngine.afterRemove(ctx, invocation.getEjbTransactionData());
         }
         return result;
     }

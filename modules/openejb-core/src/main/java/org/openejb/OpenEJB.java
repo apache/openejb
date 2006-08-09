@@ -169,7 +169,7 @@ public final class OpenEJB {
 //            logger.i18n.fatal( msg );
 //            throw new OpenEJBException( msg );
 //        } else {
-//            logger.i18n.debug( "startup.transactionContextManager", transactionManager.getClass().getName() );
+//            logger.i18n.debug( "startup.transactionManager", transactionManager.getClass().getName() );
 //        }
 
         try {
@@ -367,7 +367,7 @@ public final class OpenEJB {
 	 *         containers when servicing beans
 	 * @see "javax.transaction.TransactionManager"
 	 * @see org.openejb.spi.TransactionService#getTransactionManager()
-	 *      TransactionService.getTransactionContextManager()
+	 *      TransactionService.getTransactionManager()
 	 */
     public static TransactionManager getTransactionManager() {
         return transactionManager;

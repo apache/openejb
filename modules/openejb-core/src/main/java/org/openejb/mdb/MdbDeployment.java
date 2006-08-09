@@ -183,8 +183,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
                 beanManagedTransactions,
                 transactionPolicies,
                 componentContext,
-                kernel
-        );
+                kernel, unshareableResources, applicationManagedSecurityResources);
 
         this.activationSpecWrapper = activationSpecWrapper;
 
@@ -192,10 +191,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
         dispatchMethodMap = buildDispatchMethodMap();
 
         // build the instance factory
-        MdbInstanceContextFactory contextFactory = new MdbInstanceContextFactory(this,
-                ejbContainer,
-                unshareableResources,
-                applicationManagedSecurityResources);
+        MdbInstanceContextFactory contextFactory = new MdbInstanceContextFactory(this, ejbContainer);
         InstanceFactory instanceFactory = new MdbInstanceFactory(contextFactory);
 
         // build the pool
@@ -215,7 +211,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
         }
 
         // create the endpoint factory
-        endpointFactory = new EndpointFactory(this, endpointInterface, classLoader, ejbContainer.getTransactionContextManager());
+        endpointFactory = new EndpointFactory(this, endpointInterface, classLoader, ejbContainer.getTransactionManager());
 
         // Method index map which is used to check if a method transacted and for legacy invocation
         Map map = new HashMap();

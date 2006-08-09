@@ -44,11 +44,11 @@
  */
 package org.openejb.cluster.server;
 
-import org.apache.geronimo.transaction.InstanceContext;
 import org.codehaus.wadi.InvocationContext;
 import org.codehaus.wadi.InvocationException;
 import org.codehaus.wadi.PoolableInvocationWrapper;
 import org.codehaus.wadi.Session;
+import org.openejb.EJBInstanceContext;
 import org.openejb.cache.InstanceCache;
 import org.openejb.sfsb.StatefulInstanceContext;
 
@@ -80,7 +80,7 @@ public class EJBInvocationContext implements InvocationContext {
         Session session = invWrap.getSession();
         EJBSessionUtil sessionUtil = new EJBSessionUtil(session);
         Object id = sessionUtil.getId();
-        InstanceContext context = invWrap.getInstanceContext();
+        EJBInstanceContext context = invWrap.getInstanceContext();
 
         if (!(context instanceof StatefulInstanceContext)) {
             throw new IllegalStateException("Context should be a " +

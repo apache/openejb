@@ -38,33 +38,54 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2006 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
+ * $Id: file,v 1.1 2005/02/18 23:22:00 user Exp $
  */
-package org.openejb;
+package org.openejb.util;
 
-import javax.ejb.Timer;
+import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.timer.PersistentTimer;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
 
 /**
  * @version $Revision$ $Date$
  */
-public interface EjbContainer {
-    TransactionManager getTransactionManager();
+public final class TransactionUtils {
+    private TransactionUtils() {
+    }
 
-    UserTransaction getUserTransaction();
+    public static Transaction getTransactionIfActive(TransactionManager transactionManager) {
+        Transaction transaction = null;
+        int status = Status.STATUS_NO_TRANSACTION;
+        try {
+            transaction = transactionManager.getTransaction();
+            if (transaction != null) status = transaction.getStatus();
+        } catch (SystemException ignored) {
+        }
 
-    InvocationResult invoke(Invocation invocation) throws Throwable;
+        if (transaction != null && status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK) {
+            return transaction;
+        }
+        return null;
+    }
 
-    PersistentTimer getTransactedTimer();
+    public static boolean isTransactionActive(TransactionManager transactionManager) {
+        try {
+            int status = transactionManager.getStatus();
+            return status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK;
+        } catch (SystemException ignored) {
+            return false;
+        }
+    }
 
-    PersistentTimer getNontransactedTimer();
-
-    void timeout(ExtendedEjbDeployment deployment, Object id, Timer timer, int ejbTimeoutIndex);
+    public static boolean isActive(Transaction transaction) {
+        try {
+            int status = transaction.getStatus();
+            return status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK;
+        } catch (SystemException ignored) {
+            return false;
+        }
+    }
 }

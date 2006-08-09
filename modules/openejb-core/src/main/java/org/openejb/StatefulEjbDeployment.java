@@ -234,7 +234,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
                 kernel,
 
-                tssBean);
+                tssBean, unshareableResources, applicationManagedSecurityResources);
 
         dispatchMethodMap = buildDispatchMethodMap();
 
@@ -245,15 +245,13 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
         if (clusterManager == null) {
             contextFactory = new StatefulInstanceContextFactory(this,
                     ejbContainer,
-                    proxyFactory,
-                    unshareableResources,
-                    applicationManagedSecurityResources);
+                    proxyFactory
+            );
         } else {
             contextFactory = new ClusteredSFInstanceContextFactory(this,
                     ejbContainer,
-                    proxyFactory,
-                    unshareableResources,
-                    applicationManagedSecurityResources);
+                    proxyFactory
+            );
         }
 
         instanceFactory = new StatefulInstanceFactory(contextFactory);

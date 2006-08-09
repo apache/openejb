@@ -47,27 +47,17 @@
  */
 package org.openejb.transaction;
 
-import javax.transaction.xa.XAResource;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Synchronization;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.interceptor.SimpleInvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.Flushable;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.ConnectionReleaser;
-import junit.framework.TestCase;
-
+import org.openejb.EJBInterfaceType;
 import org.openejb.EjbInvocation;
 import org.openejb.EjbInvocationImpl;
-import org.openejb.EJBInterfaceType;
 
 /**
  * @version $Revision$ $Date$
@@ -75,64 +65,48 @@ import org.openejb.EJBInterfaceType;
 public class ContainerPolicyTest extends TestCase {
     private MockInterceptor interceptor;
     private EjbInvocation invocation;
-    private MockTransactionManager txnManager;
-    private TransactionContextManager transactionContextManager;
+    private MockTransactionManager transactionManager;
 
     public void testNotSupportedNoContext() throws Throwable {
-        transactionContextManager.setContext(null);
-        ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
-        assertFalse(interceptor.context.isInheritable());
-    }
-
-    public void testNotSupportedInContext() throws Throwable {
-        MockUnspecifiedTransactionContext outer = new MockUnspecifiedTransactionContext(interceptor);
-        transactionContextManager.setContext(outer);
-
-        ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
-        assertTrue(transactionContextManager.getContext() == outer);
-        assertFalse(interceptor.context.isInheritable());
-        assertTrue(interceptor.context != outer);
-        assertTrue(outer.suspended);
-        assertTrue(outer.resumed);
+        ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionManager);
+        assertNull(interceptor.transaction);
     }
 
     public void testRequiredNoContext() throws Throwable {
-        transactionContextManager.setContext(null);
-        ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
-        assertTrue(interceptor.context instanceof TransactionContext);
-        assertTrue(txnManager.isCommitted());
-        assertFalse(txnManager.isRolledBack());
+        ContainerPolicy.Required.invoke(interceptor, invocation, transactionManager);
+        assertNotNull(interceptor.transaction);
+        assertTrue(transactionManager.wasLastTxCommitted());
+        assertFalse(transactionManager.wasLastTxRolledBack());
 
-        txnManager.clear();
+        transactionManager.clear();
         interceptor.throwException = true;
         try {
-            ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
+            ContainerPolicy.Required.invoke(interceptor, invocation, transactionManager);
         } catch (MockSystemException e) {
         }
-        assertTrue(interceptor.context instanceof TransactionContext);
-        assertFalse(txnManager.isCommitted());
-        assertTrue(txnManager.isRolledBack());
+        assertNotNull(interceptor.transaction);
+        assertFalse(transactionManager.wasLastTxCommitted());
+        assertTrue(transactionManager.wasLastTxRolledBack());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        txnManager = new MockTransactionManager();
-        transactionContextManager = new TransactionContextManager(txnManager, null);
-        interceptor = new MockInterceptor(transactionContextManager);
+        transactionManager = new MockTransactionManager();
+        interceptor = new MockInterceptor(transactionManager);
         invocation = new EjbInvocationImpl(EJBInterfaceType.LOCAL, 0, null);
     }
 
     private static class MockInterceptor implements Interceptor {
-        private final TransactionContextManager transactionContextManager;
+        private final TransactionManager transactionManager;
         private boolean throwException;
-        private TransactionContext context;
+        private Transaction transaction;
 
-        public MockInterceptor(TransactionContextManager transactionContextManager) {
-            this.transactionContextManager = transactionContextManager;
+        public MockInterceptor(TransactionManager transactionManager) {
+            this.transactionManager = transactionManager;
         }
 
         public InvocationResult invoke(Invocation invocation) throws Throwable {
-            context = transactionContextManager.getContext();
+            transaction = transactionManager.getTransaction();
             if (throwException) {
                 throw new MockSystemException();
             } else {
@@ -140,100 +114,6 @@ public class ContainerPolicyTest extends TestCase {
             }
         }
 
-    }
-
-    private static class MockUnspecifiedTransactionContext implements TransactionContext {
-        MockInterceptor interceptor;
-        boolean suspended;
-        boolean resumed;
-
-        public MockUnspecifiedTransactionContext(MockInterceptor interceptor) {
-            this.interceptor = interceptor;
-        }
-
-        public void suspend() {
-            assertTrue(interceptor.context == null);
-            assertFalse(suspended);
-            assertFalse(resumed);
-            suspended = true;
-        }
-
-        public void resume() {
-            assertTrue(interceptor.context != null);
-            assertTrue(suspended);
-            assertFalse(resumed);
-            resumed = true;
-        }
-
-        public boolean isInheritable() {
-            return false;
-        }
-
-        public boolean isActive() {
-            return true;
-        }
-
-        public boolean enlistResource(XAResource xaResource) throws RollbackException, SystemException {
-            return false;
-        }
-
-        public boolean delistResource(XAResource xaResource, int flag) throws SystemException {
-            return false;
-        }
-
-        public void registerSynchronization(Synchronization synchronization) throws RollbackException, SystemException {
-        }
-
-        public boolean getRollbackOnly() throws SystemException {
-            return false;
-        }
-
-        public void setRollbackOnly() throws SystemException {
-        }
-
-        public boolean commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
-            return false;
-        }
-
-        public void rollback() throws SystemException {
-        }
-
-        public void associate(InstanceContext context) throws Throwable {
-        }
-
-        public void unassociate(InstanceContext context) throws Throwable {
-        }
-
-        public void unassociate(Object containerId, Object id) throws Throwable {
-        }
-
-        public InstanceContext getContext(Object containerId, Object id) {
-            return null;
-        }
-
-        public InstanceContext beginInvocation(InstanceContext context) throws Throwable {
-            return null;
-        }
-
-        public void endInvocation(InstanceContext caller) {
-        }
-
-        public void flushState() throws Throwable {
-        }
-
-        public void setInTxCache(Flushable flushable) {
-        }
-
-        public Flushable getInTxCache() {
-            return null;
-        }
-
-        public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
-        }
-
-        public Object getManagedConnectionInfo(ConnectionReleaser key) {
-            return null;
-        }
     }
 
     public static class MockSystemException extends RuntimeException {

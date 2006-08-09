@@ -47,11 +47,10 @@
  */
 package org.openejb.mdb;
 
-import java.util.Set;
 import javax.ejb.MessageDrivenBean;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBOperation;
@@ -71,23 +70,21 @@ public final class MdbInstanceContext extends AbstractInstanceContext {
 
     public MdbInstanceContext(MdbDeployment mdbDeployment,
             MdbContainer mdbContainer,
-            MessageDrivenBean instance,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources) {
-        super(mdbDeployment, instance, null, unshareableResources, applicationManagedSecurityResources);
+            MessageDrivenBean instance) {
+        super(mdbDeployment, instance, null);
 
         this.mdbContainer = mdbContainer;
 
-        TransactionContextManager transactionContextManager = mdbContainer.getTransactionContextManager();
+        TransactionManager transactionManager = mdbContainer.getTransactionManager();
 
-        UserTransactionImpl userTransaction;
+        UserTransaction userTransaction;
         if (mdbDeployment.isBeanManagedTransactions()) {
             userTransaction = mdbContainer.getUserTransaction();
         } else {
             userTransaction = null;
         }
 
-        this.mdbContext = new MdbContext(this, transactionContextManager, userTransaction);
+        this.mdbContext = new MdbContext(this, transactionManager, userTransaction);
     }
 
     public void flush() {

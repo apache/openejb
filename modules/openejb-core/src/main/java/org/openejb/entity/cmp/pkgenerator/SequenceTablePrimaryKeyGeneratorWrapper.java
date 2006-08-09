@@ -47,12 +47,11 @@
  */
 package org.openejb.entity.cmp.pkgenerator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.connector.outbound.ConnectionFactorySource;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
@@ -61,24 +60,19 @@ import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorException;
 import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
 
-import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-
 /**
  * @version $Revision$ $Date$
  */
 public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(SequenceTablePrimaryKeyGeneratorWrapper.class);
-
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
     private final ConnectionFactorySource connectionFactoryWrapper;
     private final String tableName;
     private final String sequenceName;
     private final int batchSize;
     private SequenceTablePrimaryKeyGenerator delegate;
 
-    public SequenceTablePrimaryKeyGeneratorWrapper(TransactionContextManager transactionContextManager, ConnectionFactorySource connectionFactoryWrapper, String tableName, String sequenceName, int batchSize) {
-        this.transactionContextManager = transactionContextManager;
+    public SequenceTablePrimaryKeyGeneratorWrapper(TransactionManager transactionManager, ConnectionFactorySource connectionFactoryWrapper, String tableName, String sequenceName, int batchSize) {
+        this.transactionManager = transactionManager;
         this.connectionFactoryWrapper = connectionFactoryWrapper;
         this.tableName = tableName;
         this.sequenceName = sequenceName;
@@ -87,8 +81,7 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
 
     public void doStart() throws Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
-        TransactionManager tm = transactionContextManager.getTransactionManager();
-        delegate = new SequenceTablePrimaryKeyGenerator(tm, dataSource, tableName, sequenceName, batchSize);
+        delegate = new SequenceTablePrimaryKeyGenerator(transactionManager, dataSource, tableName, sequenceName, batchSize);
         delegate.initSequenceTable();
     }
 

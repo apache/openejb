@@ -48,8 +48,8 @@
 package org.openejb.mdb;
 
 import javax.resource.spi.endpoint.MessageEndpoint;
+import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.CglibEJBProxyFactory;
@@ -62,18 +62,18 @@ public class EndpointFactory {
     private final MdbDeployment mdbDeploymentContext;
     private final CglibEJBProxyFactory endpointFactory;
     private final int[] operationMap;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
-    public EndpointFactory(MdbDeployment mdbDeploymentContext, Class mdbInterface, ClassLoader classLoader, TransactionContextManager transactionContextManager) {
+    public EndpointFactory(MdbDeployment mdbDeploymentContext, Class mdbInterface, ClassLoader classLoader, TransactionManager transactionManager) {
         this.mdbDeploymentContext = mdbDeploymentContext;
         InterfaceMethodSignature[] signatures = mdbDeploymentContext.getSignatures();
         endpointFactory = new CglibEJBProxyFactory(EndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class}, classLoader);
         operationMap = EJBProxyHelper.getOperationMap(endpointFactory.getType(), signatures, true);
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public MessageEndpoint getMessageEndpoint(NamedXAResource xaResource) {
-        EndpointHandler handler = new EndpointHandler(mdbDeploymentContext, xaResource, operationMap, transactionContextManager);
+        EndpointHandler handler = new EndpointHandler(mdbDeploymentContext, xaResource, operationMap, transactionManager);
         return (MessageEndpoint) endpointFactory.create(handler,
                 new Class[]{EndpointHandler.class},
                 new Object[]{handler});

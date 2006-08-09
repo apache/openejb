@@ -48,37 +48,37 @@
 package org.openejb.timer;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
-import java.lang.reflect.Method;
+import java.util.Set;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.TestCase;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.ExecutorTaskFactory;
+import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.TransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkerPersistence;
-import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.vm.VMWorkerPersistence;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.manager.XidFactoryImpl;
-import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.kernel.ObjectNameUtil;
-import org.openejb.ExtendedEjbDeployment;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.openejb.EjbContainer;
 import org.openejb.EjbDeployment;
-import org.openejb.dispatch.VirtualOperation;
+import org.openejb.ExtendedEjbDeployment;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.VirtualOperation;
 import org.openejb.security.PermissionManager;
 import org.openejb.transaction.TransactionPolicyManager;
 
@@ -100,7 +100,7 @@ public class TimerServiceImplTest extends TestCase {
 
     private BasicTimerServiceImpl timerService;
 
-    protected TransactionContextManager transactionContextManager;
+    protected TransactionManager transactionManager;
     protected ExecutorTaskFactory executableWorkFactory;
     protected UserTaskFactory userTaskFactory;
 
@@ -114,18 +114,14 @@ public class TimerServiceImplTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, 
-                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
-        executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);
+        this.transactionManager = new GeronimoTransactionManager();
+        executableWorkFactory = new TransactionalExecutorTaskFactory(this.transactionManager, 1);
         threadPool = new ThreadPool(5, "TestPool", 10000, this.getClass().getClassLoader(), "test:type=ThreadPool");
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
-        threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
+        threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, this.transactionManager);
         threadPooledTimer.doStart();
 
-        transactionContextManager.setContext(null);
-
-        ejbContainer = new MockEjbContainer(transactionContextManager);
+        ejbContainer = new MockEjbContainer(this.transactionManager);
         ejbDeployment = new MockEjbDeployment();
         timerService = new BasicTimerServiceImpl(ejbDeployment, ejbContainer, threadPooledTimer, kernelName, timerSourceName.getCanonicalName());
     }
@@ -174,7 +170,7 @@ public class TimerServiceImplTest extends TestCase {
         threadPooledTimer.doStop();
         threadPooledTimer.doStart();
         timerService = new BasicTimerServiceImpl(ejbDeployment, ejbContainer, threadPooledTimer, kernelName, timerSourceName.getCanonicalName());
-//        timerService = new NewBasicTimerServiceImpl(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
+//        timerService = new NewBasicTimerServiceImpl(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionManager, classLoader);
         timerService.doStart();
 
         Collection timers2 = timerService.getTimers(id);
@@ -202,12 +198,12 @@ public class TimerServiceImplTest extends TestCase {
 
 
     private static class MockEjbContainer implements EjbContainer {
-        private final TransactionContextManager transactionContextManager;
+        private final TransactionManager transactionManager;
         private final SynchronizedInt counter = new SynchronizedInt(0);
         private Object id;
 
-        public MockEjbContainer(TransactionContextManager transactionContextManager) {
-            this.transactionContextManager = transactionContextManager;
+        public MockEjbContainer(TransactionManager transactionManager) {
+            this.transactionManager = transactionManager;
         }
 
         public int getCount() {
@@ -224,11 +220,11 @@ public class TimerServiceImplTest extends TestCase {
             counter.increment();
         }
 
-        public TransactionContextManager getTransactionContextManager() {
-            return transactionContextManager;
+        public TransactionManager getTransactionManager() {
+            return transactionManager;
         }
 
-        public UserTransactionImpl getUserTransaction() {
+        public UserTransaction getUserTransaction() {
             return null;
         }
 
@@ -320,6 +316,14 @@ public class TimerServiceImplTest extends TestCase {
         }
 
         public Timer getTimerById(Long id) {
+            return null;
+        }
+
+        public Set getUnshareableResources() {
+            return null;
+        }
+
+        public Set getApplicationManagedSecurityResources() {
             return null;
         }
     }

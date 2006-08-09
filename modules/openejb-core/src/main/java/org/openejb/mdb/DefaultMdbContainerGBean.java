@@ -16,12 +16,13 @@
  */
 package org.openejb.mdb;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.timer.PersistentTimer;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.openejb.MdbContainer;
 
 /**
@@ -34,13 +35,13 @@ public final class DefaultMdbContainerGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultMdbContainerGBean.class, DefaultMdbContainer.class, "MdbContainer");
 
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoFactory.addReference("TransactedTimer", PersistentTimer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("NontransactedTimer", PersistentTimer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("doAsCurrentCaller", boolean.class, true);
         infoFactory.setConstructor(new String[]{
-            "TransactionContextManager",
+            "TransactionManager",
             "TrackedConnectionAssociator",
             "TransactedTimer",
             "NontransactedTimer",

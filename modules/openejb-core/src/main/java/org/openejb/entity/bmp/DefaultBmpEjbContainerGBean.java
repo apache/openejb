@@ -16,12 +16,13 @@
  */
 package org.openejb.entity.bmp;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.timer.PersistentTimer;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.openejb.BmpEjbContainer;
 
 /**
@@ -34,7 +35,7 @@ public final class DefaultBmpEjbContainerGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultBmpEjbContainerGBean.class, DefaultBmpEjbContainer.class, "BmpEjbContainer");
 
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoFactory.addReference("TransactedTimer", PersistentTimer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("NontransactedTimer", PersistentTimer.class, NameFactory.GERONIMO_SERVICE);
@@ -42,7 +43,7 @@ public final class DefaultBmpEjbContainerGBean {
         infoFactory.addAttribute("doAsCurrentCaller", boolean.class, true);
         infoFactory.addAttribute("useContextHandler", boolean.class, true);
         infoFactory.setConstructor(new String[]{
-            "TransactionContextManager",
+            "TransactionManager",
             "TrackedConnectionAssociator",
             "TransactedTimer",
             "NontransactedTimer",

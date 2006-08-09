@@ -51,6 +51,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import javax.ejb.EJBException;
 import javax.resource.ResourceException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.Status;
 import javax.transaction.xa.XAResource;
 
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -58,8 +61,6 @@ import net.sf.cglib.proxy.MethodProxy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EjbInvocation;
@@ -113,21 +114,21 @@ public class EndpointHandler implements MethodInterceptor {
     private final int[] operationMap;
     private final Map methodIndexMap;
     private final ClassLoader classLoader;
-    private final TransactionContextManager transactionContextManager;
+    private final TransactionManager transactionManager;
 
     private ClassLoader adapterClassLoader;
-    private TransactionContext adapterTransaction;
-    private TransactionContext beanTransaction;
+    private Transaction adapterTransaction;
+    private Transaction beanTransaction;
     private boolean isReleased = false;
     private int state = STATE_NONE;
 
-    public EndpointHandler(MdbDeployment mdbDeployment, NamedXAResource xaResource, int[] operationMap, TransactionContextManager transactionContextManager) {
+    public EndpointHandler(MdbDeployment mdbDeployment, NamedXAResource xaResource, int[] operationMap, TransactionManager transactionManager) {
         this.mdbDeployment = mdbDeployment;
         this.xaResource = xaResource;
         this.operationMap = operationMap;
         this.methodIndexMap = mdbDeployment.getMethodIndexMap();
         classLoader = mdbDeployment.getClassLoader();
-        this.transactionContextManager = transactionContextManager;
+        this.transactionManager = transactionManager;
     }
 
     public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
@@ -167,16 +168,8 @@ public class EndpointHandler implements MethodInterceptor {
 
     private Object invoke(int methodIndex, Object[] args) throws Throwable {
         InvocationResult result;
-        EjbInvocation invocation = new EjbInvocationImpl(EJBInterfaceType.LOCAL, null, methodIndex, args);
-
-        // set the transaction context
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext == null) {
-            throw new IllegalStateException("Transaction context has not been set");
-        }
-        invocation.setTransactionContext(transactionContext);
-
         try {
+            EjbInvocation invocation = new EjbInvocationImpl(EJBInterfaceType.LOCAL, null, methodIndex, args);
             result = mdbDeployment.invoke(invocation);
         } catch (Throwable t) {
             if (!(t instanceof EJBException)) {
@@ -276,14 +269,11 @@ public class EndpointHandler implements MethodInterceptor {
             // rollback bean transaction
             if (beanTransaction != null) {
                 try {
-                    beanTransaction.rollback();
+                    transactionManager.rollback();
                 } catch (Exception e) {
                     log.warn("Unable to roll back", e);
                 }
             }
-
-            // restore the adapter transaction is possible
-            transactionContextManager.setContext(adapterTransaction);
         }
         adapterClassLoader = null;
         beanTransaction = null;
@@ -301,29 +291,27 @@ public class EndpointHandler implements MethodInterceptor {
             }
 
             // setup the transaction
-            adapterTransaction = transactionContextManager.getContext();
+            adapterTransaction = transactionManager.getTransaction();
             boolean transactionRequired = mdbDeployment.isDeliveryTransacted(methodIndex);
 
             // if the adapter gave us a transaction and we are required, just move on
-            if (transactionRequired && adapterTransaction != null && adapterTransaction.isInheritable()) {
+            if (transactionRequired && adapterTransaction != null) {
                 return;
             }
 
             // suspend what ever we got from the adapter
             if (adapterTransaction != null) {
-                adapterTransaction.suspend();
+                transactionManager.suspend();
                 adapterTransactionSuspended = true;
             }
 
             if (transactionRequired) {
                 // start a new container transaction
-                beanTransaction = transactionContextManager.newContainerTransactionContext();
+                transactionManager.begin();
+                beanTransaction = transactionManager.getTransaction();
                 if (xaResource != null) {
                     beanTransaction.enlistResource(xaResource);
                 }
-            } else {
-                // enter an unspecified transaction context
-                beanTransaction = transactionContextManager.newUnspecifiedTransactionContext();
             }
         } catch (Throwable e) {
             // restore the adapter classloader if necessary
@@ -333,10 +321,9 @@ public class EndpointHandler implements MethodInterceptor {
             adapterClassLoader = null;
 
             // restore the adapter transaction is possible
-            transactionContextManager.setContext(adapterTransaction);
             if (adapterTransactionSuspended) {
                 try {
-                    adapterTransaction.resume();
+                    transactionManager.resume(adapterTransaction);
                 } catch (Exception resumeException) {
                     log.error("Could not resume adapter transaction", resumeException);
                 }
@@ -356,14 +343,18 @@ public class EndpointHandler implements MethodInterceptor {
                 try {
                     //TODO is this delist necessary???????
                     //check we are really in a transaction.
-                    if (xaResource != null && beanTransaction.isInheritable() && beanTransaction.isActive()) {
+                    if (xaResource != null) {
                         beanTransaction.delistResource(xaResource, XAResource.TMSUSPEND);
                     }
                 } catch (Throwable t) {
                     beanTransaction.setRollbackOnly();
                     throw t;
                 } finally {
-                    beanTransaction.commit();
+                    if (transactionManager.getStatus() == Status.STATUS_ACTIVE) {
+                        transactionManager.commit();
+                    } else {
+                        transactionManager.rollback();                        
+                    }
                 }
             }
         } catch (Throwable t) {
@@ -375,13 +366,11 @@ public class EndpointHandler implements MethodInterceptor {
             }
             adapterClassLoader = null;
 
-            // restore the adapter transaction is possible
-            transactionContextManager.setContext(adapterTransaction);
-            //only resume adapter transaction if it exists and if it was suspended:
-            //this can be detected by testing beanTransaction != null
+            // only resume adapter transaction if it exists and if it was suspended:
+            // this can be detected by testing beanTransaction != null
             if (adapterTransaction != null && beanTransaction != null) {
                 try {
-                    adapterTransaction.resume();
+                    transactionManager.resume(adapterTransaction);
                 } catch (Throwable resumeException) {
                     // if we already have encountered a problem, just log this one
                     if (throwable != null) {
@@ -393,11 +382,11 @@ public class EndpointHandler implements MethodInterceptor {
             }
             beanTransaction = null;
             adapterTransaction = null;
+        }
 
-            // If we encountered an exception rethrow it
-            if (throwable != null) {
-                throw throwable;
-            }
+        // If we encountered an exception rethrow it
+        if (throwable != null) {
+            throw throwable;
         }
     }
 }

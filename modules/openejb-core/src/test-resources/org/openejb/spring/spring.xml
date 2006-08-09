@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+  <bean id="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManager"/>
 
-  <bean id="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImpl">
-  </bean>
-
-  <bean id="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
-    <constructor-arg index="0" value="100"/>
-    <constructor-arg index="1" ref="XidFactory"/>
-    <constructor-arg index="2"><null/></constructor-arg>
-    <constructor-arg index="3"><null/></constructor-arg>
-  </bean>
-
-  <bean id="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+  <bean id="TrackedConnectionAssociator" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     <constructor-arg index="0" ref="TransactionManager"/>
-    <constructor-arg index="1"><null/></constructor-arg>
   </bean>
-
-  <bean id="TrackedConnectionAssociator" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator"/>
 
   <bean id="ThreadPool" class="org.apache.geronimo.pool.ThreadPool">
     <constructor-arg index="0" value="5"/>
@@ -28,7 +16,7 @@
   </bean>
 
   <bean id="StatelessEjbContainer" class="org.openejb.slsb.DefaultStatelessEjbContainer">
-    <constructor-arg index="0" ref="TransactionContextManager"/>
+    <constructor-arg index="0" ref="TransactionManager"/>
     <constructor-arg index="1" ref="TrackedConnectionAssociator"/>
     <constructor-arg index="2"><null/></constructor-arg>
     <constructor-arg index="3"><null/></constructor-arg>

@@ -54,8 +54,8 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.transaction.Transaction;
 
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
 
@@ -70,7 +70,7 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     private BLocal b;
 
     public void testAGetBExistingAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         Set bSet = a.getB();
         assertEquals(2, bSet.size());
@@ -84,11 +84,11 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
                 fail();
             }
         }
-        ctx.commit();
+        completeTransaction(ctx);
     }
     
     public void testBGetAExistingAB() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(22));
         Set aSet = b.getA();
         assertEquals(3, aSet.size());
@@ -104,7 +104,7 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
                 fail();
             }
         }
-        ctx.commit();
+        completeTransaction(ctx);
     }
     
     private void assertStateDropExisting() throws Exception {
@@ -119,33 +119,33 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testASetBDropExisting() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new CompoundPK(new Integer(2), "value2"));
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new CompoundPK(new Integer(3), "value3"));
         a.setB(new HashSet());
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateDropExisting();
     }
 
     public void testBSetADropExisting() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.setA(new HashSet());
         b = bhome.findByPrimaryKey(new Integer(22));
         b.setA(new HashSet());
-        ctx.commit();
+        completeTransaction(ctx);
 
         assertStateDropExisting();
     }
 
-    private TransactionContext prepareNewAB() throws Exception {
+    private Transaction prepareNewAB() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(4), "value4");
         
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.create(pkA);
         b = bhome.create(new Integer(33));
         b.setField2("value33");
@@ -173,27 +173,27 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     }
     
     public void testASetBNewAB() throws Exception {
-        TransactionContext ctx = prepareNewAB();
+        Transaction ctx = prepareNewAB();
         Set bSet = a.getB();
         bSet.add(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateNewAB();
     }
 
     public void testBSetANewAB() throws Exception {
-        TransactionContext ctx = prepareNewAB();
+        Transaction ctx = prepareNewAB();
         Set aSet = b.getA();
         aSet.add(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateNewAB();
     }
 
-    private TransactionContext prepareExistingBNewA() throws Exception {
+    private Transaction prepareExistingBNewA() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(4), "value4");
         
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.create(pkA);
         b = bhome.findByPrimaryKey(new Integer(11));
         return ctx;
@@ -216,27 +216,27 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingBNewA() throws Exception {
-        TransactionContext ctx = prepareExistingBNewA();
+        Transaction ctx = prepareExistingBNewA();
         Set bSet = a.getB();
         bSet.add(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingBNewA();
     }
 
     public void testBSetAExistingBNewA() throws Exception {
-        TransactionContext ctx = prepareExistingBNewA();
+        Transaction ctx = prepareExistingBNewA();
         Set aSet = b.getA();
         aSet.add(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingBNewA();
     }
 
-    private TransactionContext prepareExistingANewB() throws Exception {
+    private Transaction prepareExistingANewB() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(1), "value1");
         
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         a = ahome.findByPrimaryKey(pkA);
         b = bhome.create(new Integer(33));
         b.setField2("value33");
@@ -260,28 +260,28 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingANewB() throws Exception {
-        TransactionContext ctx = prepareExistingANewB();
+        Transaction ctx = prepareExistingANewB();
         Set bSet = a.getB();
         bSet.add(b);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingANewB();
     }
 
     public void testBSetAExistingANewB() throws Exception {
-        TransactionContext ctx = prepareExistingANewB();
+        Transaction ctx = prepareExistingANewB();
         Set aSet = b.getA();
         aSet.add(a);
-        ctx.commit();
+        completeTransaction(ctx);
         
         assertStateExistingANewB();
     }
 
     public void testRemoveRelationships() throws Exception {
-        TransactionContext ctx = newTransactionContext();
+        Transaction ctx = newTransaction();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.remove();
-        ctx.commit();
+        completeTransaction(ctx);
 
         Connection c = ds.getConnection();
         Statement s = c.createStatement();

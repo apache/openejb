@@ -50,11 +50,11 @@ package org.openejb.mdb;
 import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.context.TransactionContext;
+import org.openejb.transaction.EjbTransactionContext;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EjbDeployment;
 import org.openejb.EjbInvocation;
+import org.openejb.EJBInstanceContext;
 import org.openejb.cache.InstancePool;
 
 
@@ -91,8 +91,8 @@ public final class MdbInstanceInterceptor implements Interceptor {
         // initialize the context and set it into the invocation
         ejbInvocation.setEJBInstanceContext(ctx);
 
-        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-        InstanceContext oldContext = transactionContext.beginInvocation(ctx);
+        EjbTransactionContext ejbTransactionContext = ejbInvocation.getEjbTransactionData();
+        EJBInstanceContext oldContext = ejbTransactionContext.beginInvocation(ctx);
         try {
             InvocationResult result = next.invoke(invocation);
             return result;
@@ -101,7 +101,7 @@ public final class MdbInstanceInterceptor implements Interceptor {
             ctx.die();
             throw t;
         } finally {
-            transactionContext.endInvocation(oldContext);
+            ejbTransactionContext.endInvocation(oldContext);
 
             // remove the reference to the context from the invocation
             ejbInvocation.setEJBInstanceContext(null);

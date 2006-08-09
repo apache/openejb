@@ -203,18 +203,13 @@ public class BmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean);
+                tssBean, unshareableResources, applicationManagedSecurityResources);
 
         this.reentrant = reentrant;
 
         dispatchMethodMap = buildDispatchMethodMap();
 
-        InstanceContextFactory contextFactory = new BmpInstanceContextFactory(this,
-                ejbContainer,
-                proxyFactory,
-                unshareableResources,
-                applicationManagedSecurityResources
-        );
+        InstanceContextFactory contextFactory = new BmpInstanceContextFactory(this, ejbContainer, proxyFactory);
 
         InstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
 

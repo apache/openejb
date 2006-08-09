@@ -16,11 +16,12 @@
  */
 package org.openejb.sfsb;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.openejb.StatefulEjbContainer;
 
 /**
@@ -33,13 +34,13 @@ public final class DefaultStatefulEjbContainerGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultStatefulEjbContainerGBean.class, DefaultStatefulEjbContainer.class, "StatefulEjbContainer");
 
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoFactory.addAttribute("securityEnabled", boolean.class, true);
         infoFactory.addAttribute("doAsCurrentCaller", boolean.class, true);
         infoFactory.addAttribute("useContextHandler", boolean.class, true);
         infoFactory.setConstructor(new String[]{
-            "TransactionContextManager",
+            "TransactionManager",
             "TrackedConnectionAssociator",
             "securityEnabled",
             "doAsCurrentCaller",

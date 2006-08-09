@@ -45,72 +45,40 @@
  *
  * ====================================================================
  */
-package org.openejb.deployment;
+package org.openejb.transaction;
 
-import java.util.Map;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.InvalidTransactionException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.ExtendedTransactionManager;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
+import org.openejb.EJBInterfaceType;
+import org.openejb.ExtendedEjbDeployment;
+import org.openejb.EjbInvocation;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public class MockTransactionManager implements ExtendedTransactionManager {
-    private Transaction transaction = new MockTransaction();
-    public boolean committed;
-    public boolean rolledBack;
+public class TransactionPolicyInterceptor implements Interceptor {
+    private final Interceptor next;
+    private final TransactionManager transactionManager;
 
-    public void clear() {
-        committed = false;
-        rolledBack = false;
+    public TransactionPolicyInterceptor(Interceptor next, TransactionManager transactionManager) {
+        this.next = next;
+        this.transactionManager = transactionManager;
     }
 
-    public void begin() throws NotSupportedException, SystemException {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        EjbInvocation ejbInvocation = (EjbInvocation) invocation;
+        ExtendedEjbDeployment deployment = ejbInvocation.getEjbDeployment();
+        TransactionPolicyManager transactionPolicyManager = deployment.getTransactionPolicyManager();
+
+        EJBInterfaceType invocationType = ejbInvocation.getType();
+        int methodIndex = ejbInvocation.getMethodIndex();
+
+        TransactionPolicy policy = transactionPolicyManager.getTransactionPolicy(invocationType, methodIndex);
+        assert policy != null: "transaction policy array was not set up correctly, no policy for " + invocation;
+        return policy.invoke(next, ejbInvocation, transactionManager);
     }
 
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-        committed = true;
-    }
-
-    public int getStatus() throws SystemException {
-        return Status.STATUS_ACTIVE;
-    }
-
-    public Transaction getTransaction() throws SystemException {
-        return transaction;
-    }
-
-    public void resume(Transaction tobj) throws IllegalStateException, InvalidTransactionException, SystemException {
-    }
-
-    public void rollback() throws IllegalStateException, SecurityException, SystemException {
-        rolledBack = true;
-    }
-
-    public void setRollbackOnly() throws IllegalStateException, SystemException {
-    }
-
-    public void setTransactionTimeout(int seconds) throws SystemException {
-    }
-
-    public Transaction suspend() throws SystemException {
-        return null;
-    }
-
-    public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
-        return transaction;
-    }
-
-    public Map getExternalXids() {
-        return null;
-    }
 }

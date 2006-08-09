@@ -44,16 +44,15 @@
  */
 package org.openejb.cluster.sfsb;
 
-import java.util.Set;
 import javax.ejb.SessionBean;
 
+import org.openejb.StatefulEjbContainer;
 import org.openejb.StatefulEjbDeployment;
 import org.openejb.client.ServerMetaData;
 import org.openejb.cluster.server.ClusteredEJBInstanceContext;
 import org.openejb.cluster.server.ServerMetaDataArrayHolder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.sfsb.StatefulInstanceContext;
-import org.openejb.StatefulEjbContainer;
 
 /**
  * @version $Revision$ $Date$
@@ -66,25 +65,17 @@ public class ClusteredSFInstanceContext extends StatefulInstanceContext implemen
             SessionBean instance,
             Object id,
             EJBProxyFactory proxyFactory,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
             ServerMetaDataArrayHolder serversHolder) {
         super(statefulEjbDeployment,
                 statefulEjbContainer,
                 instance,
                 id,
-                proxyFactory,
-                unshareableResources,
-                applicationManagedSecurityResources);
+                proxyFactory
+        );
         this.serversHolder = serversHolder;
     }
 
     public ServerMetaData[] getServers() {
         return serversHolder.getServers();
-    }
-
-    public void flush() throws Throwable {
-        super.flush();
-        // TODO hook replication.
     }
 }

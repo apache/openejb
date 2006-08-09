@@ -38,33 +38,68 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2006 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
+ * $Id: file,v 1.1 2005/02/18 23:22:00 user Exp $
  */
-package org.openejb;
+package org.openejb.transaction;
 
-import javax.ejb.Timer;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-
-import org.apache.geronimo.interceptor.Invocation;
-import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.timer.PersistentTimer;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
 
 /**
- * @version $Revision$ $Date$
+ * <b>Really</b> stupid implementation of a double keyed map.
+ *
+ * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
  */
-public interface EjbContainer {
-    TransactionManager getTransactionManager();
+public final class DoubleKeyedHashMap {
+    private final Map map = new HashMap();
 
-    UserTransaction getUserTransaction();
+    public Object put(Object key1, Object key2, Object value) {
+        return map.put(new org.openejb.transaction.DoubleKeyedHashMap.Key(key1, key2), value);
+    }
 
-    InvocationResult invoke(Invocation invocation) throws Throwable;
+    public Object get(Object key1, Object key2) {
+        return map.get(new org.openejb.transaction.DoubleKeyedHashMap.Key(key1, key2));
+    }
 
-    PersistentTimer getTransactedTimer();
+    public Object remove(Object key1, Object key2) {
+        return map.remove(new org.openejb.transaction.DoubleKeyedHashMap.Key(key1, key2));
+    }
 
-    PersistentTimer getNontransactedTimer();
+    public Collection values() {
+        return map.values();
+    }
 
-    void timeout(ExtendedEjbDeployment deployment, Object id, Timer timer, int ejbTimeoutIndex);
+    public void clear() {
+        map.clear();
+    }
+
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    private final static class Key {
+        private final Object part1;
+        private final Object part2;
+
+        public Key(Object part1, Object part2) {
+            this.part1 = part1;
+            this.part2 = part2;
+        }
+
+        public int hashCode() {
+            return part1.hashCode() ^ part2.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            if (obj instanceof org.openejb.transaction.DoubleKeyedHashMap.Key) {
+                org.openejb.transaction.DoubleKeyedHashMap.Key other = (org.openejb.transaction.DoubleKeyedHashMap.Key) obj;
+                return this.part1.equals(other.part1) && this.part2.equals(other.part2);
+            } else {
+                return false;
+            }
+        }
+    }
 }
