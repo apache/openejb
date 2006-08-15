@@ -61,6 +61,7 @@ import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 import org.openejb.ExtendedEjbDeployment;
 import org.openejb.EjbInvocation;
 
@@ -83,16 +84,11 @@ public final class EjbRunAsInterceptor implements Interceptor {
         ExtendedEjbDeployment deployment = ejbInvocation.getEjbDeployment();
         Subject runAsSubject = deployment.getRunAsSubject();
 
-        if (runAsSubject == null) {
-            return next.invoke(invocation);
-        }
-
-        Subject save = ContextManager.getNextCaller();
+        Callers callers = ContextManager.pushNextCaller(runAsSubject);
         try {
-            ContextManager.setNextCaller(runAsSubject);
             return next.invoke(invocation);
         } finally {
-            ContextManager.setNextCaller(save);
+            ContextManager.popCallers(callers);
         }
     }
 }

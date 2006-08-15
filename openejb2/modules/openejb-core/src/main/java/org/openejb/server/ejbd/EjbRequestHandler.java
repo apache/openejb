@@ -161,8 +161,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     subject = container.getDefaultSubject();
                 }
 
-                ContextManager.setCurrentCaller(subject);
-                ContextManager.setNextCaller(subject);
+                ContextManager.setCallers(subject, subject);
 
                 log.debug("setting cl=" + cl + " for " + container.getContainerId());
             } catch (RemoteException e) {
@@ -278,8 +277,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 call.reset();
             }
         } finally {
-            ContextManager.setCurrentCaller(null);
-            ContextManager.setNextCaller(null);
+            ContextManager.setCallers(null, null);
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }

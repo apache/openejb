@@ -44,6 +44,8 @@
  */
 package org.openejb.spring;
 
+import javax.ejb.EJBException;
+
 import junit.framework.TestCase;
 import org.openejb.StatelessEjbDeployment;
 import org.openejb.slsb.MockLocal;
@@ -61,7 +63,13 @@ public class StatelessEjbSpringTest extends TestCase {
 
         StatelessEjbDeployment statelessEjbDeployment = (StatelessEjbDeployment) context.getBean("StatelessEjbDeployment");
         MockLocalHome mockLocalHome = (MockLocalHome) statelessEjbDeployment.getEjbLocalHome();
-        MockLocal mockLocal = mockLocalHome.create();
+        MockLocal mockLocal = null;
+        try {
+            mockLocal = mockLocalHome.create();
+        } catch (EJBException e) {
+                          e.printStackTrace();
+            throw e;
+        }
         assertEquals(42 + 1, mockLocal.intMethod(42));
         context.destroy();
     }
