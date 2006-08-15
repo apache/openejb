@@ -59,6 +59,7 @@ import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 import org.openejb.EJBContextImpl;
 import org.openejb.EjbInvocation;
 import org.openejb.ExtendedEjbDeployment;
@@ -72,6 +73,7 @@ import org.openejb.ExtendedEjbDeployment;
  */
 public final class EjbSecurityInterceptor implements Interceptor {
     private final Interceptor next;
+
 
     public EjbSecurityInterceptor(Interceptor next) {
         this.next = next;
@@ -90,7 +92,6 @@ public final class EjbSecurityInterceptor implements Interceptor {
         Subject oldCaller = context.getCallerSubject();
         Subject subject = ContextManager.getCurrentCaller();
         String oldPolicyContextID = PolicyContext.getContextID();
-
         try {
             PolicyContext.setContextID(deployment.getPolicyContextId());
             AccessControlContext accessContext = ContextManager.getCurrentContext();
@@ -101,7 +102,6 @@ public final class EjbSecurityInterceptor implements Interceptor {
             }
 
             context.setCallerSubject(subject);
-            ContextManager.setCurrentCaller(ContextManager.getNextCaller());
 
             return next.invoke(invocation);
         } catch (AccessControlException e) {
@@ -112,7 +112,6 @@ public final class EjbSecurityInterceptor implements Interceptor {
             }
         } finally {
             PolicyContext.setContextID(oldPolicyContextID);
-            ContextManager.setCurrentCaller(subject);
             context.setCallerSubject(oldCaller);
         }
     }
