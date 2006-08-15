@@ -59,6 +59,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 
 import javax.security.auth.Subject;
 
@@ -70,20 +71,20 @@ import javax.security.auth.Subject;
  */
 public final class EJBRunAsInterceptor implements Interceptor {
     private final Interceptor next;
-    private final Subject subject;
+    private final Subject runAsSubject;
 
     public EJBRunAsInterceptor(Interceptor next, Subject subject) {
         this.next = next;
-        this.subject = subject;
+        this.runAsSubject = subject;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        Subject save = ContextManager.getNextCaller();
+
+        Callers callers = ContextManager.pushNextCaller(runAsSubject);
         try {
-            ContextManager.setNextCaller(subject);
             return next.invoke(invocation);
         } finally {
-            ContextManager.setNextCaller(save);
+            ContextManager.popCallers(callers);
         }
     }
 }
