@@ -184,8 +184,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
         if (log.isDebugEnabled()) log.debug("   " + identity);
 
-        ContextManager.setCurrentCaller(identity);
-        ContextManager.setNextCaller(identity);
+        ContextManager.setCallers(identity, identity);
 
         SubjectManager.setSubject(ri.request_id(), identity);
     }

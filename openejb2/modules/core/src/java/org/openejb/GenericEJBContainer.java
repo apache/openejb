@@ -536,21 +536,17 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle, EJB {
         }
 
         public InvocationResult invoke(Invocation invocation) throws Throwable {
-            boolean clearCurrentCaller = false;
-
             if (ContextManager.getCurrentCaller() == null) {
-                ContextManager.setCurrentCaller(defaultSubject);
-                ContextManager.setNextCaller(defaultSubject);
-                clearCurrentCaller = true;
-            }
-            try {
-                return interceptor.invoke(invocation);
-            } finally {
-                if (clearCurrentCaller) {
-                    ContextManager.setCurrentCaller(null);
-                    ContextManager.setNextCaller(null);
+                if (defaultSubject != null) {
+                    ContextManager.setCallers(defaultSubject, defaultSubject);
+                }
+                try {
+                    return interceptor.invoke(invocation);
+                } finally {
+                    ContextManager.clearCallers();
                 }
             }
+            return interceptor.invoke(invocation);
         }
     }
 }
