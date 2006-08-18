@@ -149,9 +149,8 @@
                         </goals>
                         <configuration>
                             <schemaDirectory>${basedir}/src/schema</schemaDirectory>
-                            <noUpa>true</noUpa>
                             <sourceSchemas>
-                                corba-css-config-2.0.xsd,corba-tss-config-2.0.xsd,openejb-jar-2.1.xsd</sourceSchemas>
+                                corba-css-config-2.0.xsd,corba-tss-config-2.0.xsd,openejb-jar-2.2.xsd</sourceSchemas>
                             <xmlConfigs>
                                 <xmlConfig implementation="java.io.File">${basedir}/src/schema/xmlconfig.xml</xmlConfig>
                             </xmlConfigs>

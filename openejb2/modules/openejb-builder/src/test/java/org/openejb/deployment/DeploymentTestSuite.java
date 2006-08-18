@@ -55,6 +55,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.jar.JarFile;
+
 import javax.sql.DataSource;
 
 import junit.extensions.TestDecorator;
@@ -64,6 +65,7 @@ import junit.framework.TestSuite;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -76,8 +78,8 @@ import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.openejb.server.axis.WSContainerGBean;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -150,6 +152,8 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     null,
                     linkData,
                     webServiceBuilder,
+                    null, 
+                    new GBeanBuilder(null, null),
                     null);
             OpenEjbReferenceBuilder ejbReferenceBuilder = new OpenEjbReferenceBuilder();
 
@@ -169,7 +173,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     resourceReferenceBuilder, // connector
                     null, // app client
                     serviceReferenceBuilder,
-                    deploymentHelper.naming
+                    null, null, deploymentHelper.naming
             );
 
             JarFile jarFile = null;

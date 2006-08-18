@@ -57,6 +57,7 @@ import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 
@@ -83,7 +84,7 @@ public final class XmlBeansHelper {
     }
 
     public static OpenejbOpenejbJarType loadOpenEjbJar(File file) throws IOException, XmlException {
-        OpenejbOpenejbJarDocument openejbOpenejbJarDocument = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(file));
+        OpenejbOpenejbJarDocument openejbOpenejbJarDocument = ((OpenejbOpenejbJarDocument) XmlBeansUtil.parse(file));
         OpenejbOpenejbJarType openejbJarType = openejbOpenejbJarDocument.getOpenejbJar();
         openejbJarType = (OpenejbOpenejbJarType) SchemaConversionUtils.fixGeronimoSchema(openejbJarType, OPENEJBJAR_QNAME, OpenejbOpenejbJarType.type);
         return openejbJarType;

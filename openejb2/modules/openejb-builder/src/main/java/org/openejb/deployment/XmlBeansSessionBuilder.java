@@ -234,7 +234,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             sessionBuilder.setLocalJndiNames(new String[]{"local/" + ejbName});
         }
 
-        SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
+        SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
         if (securityConfiguration != null) {
             xmlBeansSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", sessionBuilder.getHomeInterfaceName(), cl);
             xmlBeansSecurityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", sessionBuilder.getLocalHomeInterfaceName(), cl);
