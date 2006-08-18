@@ -288,7 +288,7 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
     }
 
     protected void addSecurity(EARContext earContext, String ejbName, EntityBuilder builder, ClassLoader cl, EJBModule ejbModule, EntityBeanType entityBean, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
-        SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
+        SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
         if (securityConfiguration != null) {
             Permissions toBeChecked = new Permissions();
             XmlBeansSecurityBuilder xmlBeansSecurityBuilder = new XmlBeansSecurityBuilder();

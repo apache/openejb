@@ -186,7 +186,7 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
 
         builder.setEjbContainerName(defaultMdbEjbContainer);
 
-        SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
+        SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
         if (securityConfiguration != null) {
             Permissions toBeChecked = new Permissions();
             XmlBeansSecurityBuilder xmlBeansSecurityBuilder = new XmlBeansSecurityBuilder();

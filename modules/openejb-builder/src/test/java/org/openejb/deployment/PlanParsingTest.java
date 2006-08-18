@@ -1,6 +1,7 @@
 package org.openejb.deployment;
 
 import java.io.File;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
@@ -24,6 +25,8 @@ public class PlanParsingTest extends TestCase {
                 null,
                 (GBeanData) null,
                 (SingleElementCollection)null,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
                 null);
     }
 

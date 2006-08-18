@@ -49,6 +49,16 @@ import java.util.List;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
+import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.omg.CSIIOP.CompositeDelegation;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.DetectMisordering;
@@ -59,18 +69,6 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.NoDelegation;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.SimpleDelegation;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
-import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
-import org.apache.geronimo.kernel.ClassLoading;
-
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
 import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
 import org.openejb.xbeans.csiv2.tss.TSSGSSUPType;
@@ -101,7 +99,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
      * as an XML string.
      *
      * @return a TSSConfig object
-     * @throws PropertyEditorException
+     * @throws org.apache.geronimo.common.propertyeditor.PropertyEditorException
      *          An IOException occured.
      */
     public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
@@ -113,7 +111,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         }
 
         try {
-            SchemaConversionUtils.validateDD(tss);
+            XmlBeansUtil.validateDD(tss);
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
@@ -126,7 +124,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
             DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
             GerDefaultPrincipalType defaultPrincipalType = tss.getDefaultPrincipal();
 
-            defaultPrincipal.setPrincipal(SecurityBuilder.buildPrincipal(defaultPrincipalType.getPrincipal()));
+            defaultPrincipal.setPrincipal(new GeronimoSecurityBuilderImpl().buildPrincipal(defaultPrincipalType.getPrincipal()));
 
             tssConfig.setDefaultPrincipal(defaultPrincipal);
         }

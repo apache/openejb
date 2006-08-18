@@ -63,9 +63,9 @@ import org.omg.CSIIOP.SimpleDelegation;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.kernel.ClassLoading;
 
 import org.openejb.xbeans.csiv2.css.CSSCompoundSecMechType;
@@ -98,7 +98,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         }
         css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         try {
-            SchemaConversionUtils.validateDD(css);
+            XmlBeansUtil.validateDD(css);
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
