@@ -277,7 +277,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 call.reset();
             }
         } finally {
-            ContextManager.setCallers(null, null);
+            ContextManager.clearCallers();
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
