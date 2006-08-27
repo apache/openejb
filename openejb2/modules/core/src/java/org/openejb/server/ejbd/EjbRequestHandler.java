@@ -159,7 +159,9 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     subject = container.getDefaultSubject();
                 }
 
-                ContextManager.setCallers(subject, subject);
+                if (subject != null) {
+                    ContextManager.setCallers(subject, subject);
+                }
 
                 log.debug("setting cl=" + cl + " for " + container.getContainerID());
             } catch (RemoteException e) {

@@ -121,9 +121,9 @@ public class CMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, policyContextId, permissionManager);
         }
-        if (runAs != null) {
-            firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
-        }
+
+        firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
+
         if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
