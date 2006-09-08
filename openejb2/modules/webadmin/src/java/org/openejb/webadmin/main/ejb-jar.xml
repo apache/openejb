@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 1.1//EN"
+                         "http://java.sun.com/j2ee/dtds/ejb-jar_1_1.dtd">
+<ejb-jar>
+<enterprise-beans>
+  <session>
+    <description>Provides HttpSession functionality for the HTTPd service</description>
+    <ejb-name>httpd/session</ejb-name>
+    <home>org.openejb.webadmin.httpd.WebSessionHome</home>
+    <remote>org.openejb.webadmin.httpd.WebSession</remote>
+    <ejb-class>org.openejb.webadmin.httpd.WebSessionBean</ejb-class>
+    <session-type>Stateful</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>This bean has all the odds and ends of the web administration</description>
+    <ejb-name>httpd/DefaultBean</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.httpd.DefaultHttpBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>The home page for the web admininstration</description>
+    <ejb-name>webadmin/Home</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.HomeBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>Allows the user to graphicly edit the OPENEJB_HOME/openejb.conf file</description>
+    <ejb-name>webadmin/Configuration</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.ConfigBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>
+    Lists all the system properties by calling:
+    System.getProperties()
+    </description>
+    <ejb-name>webadmin/Properties</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.PropertiesBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>
+    Lists the system log files
+    </description>
+    <ejb-name>webadmin/ListLogs</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.ListLogsBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>An online tool for deploying EJB's</description>
+    <ejb-name>webadmin/Deployment</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.DeployBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>Creates this list, and all the deployed beans</description>
+    <ejb-name>webadmin/DeploymentList</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.DeploymentListBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>This bean does the deployment work along with the Deployment bean</description>
+    <ejb-name>deploy/webadmin/Deployer</ejb-name>
+    <home>org.openejb.webadmin.main.DeployerHome</home>
+    <remote>org.openejb.webadmin.main.DeployerObject</remote>
+    <ejb-class>org.openejb.webadmin.main.DeployerBean</ejb-class>
+    <session-type>Stateful</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>Holds the Openejb object in between HTTP requests</description>
+    <ejb-name>config/webadmin/ConfigurationData</ejb-name>
+    <home>org.openejb.webadmin.main.ConfigurationDataHome</home>
+    <remote>org.openejb.webadmin.main.ConfigurationDataObject</remote>
+    <ejb-class>org.openejb.webadmin.main.ConfigurationDataBean</ejb-class>
+    <session-type>Stateful</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>Allows the user to map CMP fields with database fields</description>
+    <ejb-name>webadmin/CMPMapping</ejb-name>
+    <home>org.openejb.webadmin.HttpHome</home>
+    <remote>org.openejb.webadmin.HttpObject</remote>
+    <ejb-class>org.openejb.webadmin.main.CMPMappingBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>Holds the mapping info in between HTTP requests</description>
+    <ejb-name>mapping/webadmin/CMPMappingData</ejb-name>
+    <home>org.openejb.webadmin.main.CMPMappingDataHome</home>
+    <remote>org.openejb.webadmin.main.CMPMappingDataObject</remote>
+    <ejb-class>org.openejb.webadmin.main.CMPMappingDataBean</ejb-class>
+    <session-type>Stateful</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+</enterprise-beans>
+</ejb-jar>

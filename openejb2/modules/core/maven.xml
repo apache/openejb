@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    >
+
+    <!-- Construct dependency lists for inclusion in generated jar. -->
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+    </postGoal>
+    
+    <preGoal name="test:compile">
+        <ant:mkdir dir="${basedir}/target/test-ejb-jar/META-INF"/>
+        <copy todir="${basedir}/target/test-ejb-jar/META-INF">
+            <fileset dir="${basedir}/src/test-ejb-jar/META-INF"/>
+        </copy>
+
+        <ant:javac srcdir="${basedir}/src/test-ejb-jar"
+            destdir="${basedir}/target/test-ejb-jar"
+            source="${maven.compile.source}"
+            target="${maven.compile.target}"
+            debug="on"
+            fork="true">
+            <ant:classpath>
+                <ant:path refid="maven.dependency.classpath"/>
+                <ant:pathelement path="${maven.build.dest}"/>
+            </ant:classpath>
+        </ant:javac>
+
+        <ant:jar destfile="${basedir}/target/test-ejb-jar.jar"
+            basedir="${basedir}/target/test-ejb-jar"/>
+    </preGoal>
+
+</project>
