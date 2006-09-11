@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.net.InetSocketAddress;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 
 /**
  * @version $Revision$ $Date$

@@ -28,7 +28,7 @@ import java.net.URI;
 
 import javax.transaction.TransactionManager;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 
 /**
  * @version $Revision$ $Date$

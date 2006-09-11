@@ -49,10 +49,14 @@ import java.net.InetAddress;
 import java.net.URL;
 
 import junit.framework.TestCase;
+
+import org.openejb.util.BackportExecutorAdapter;
+
 import org.activeio.xnet.ServerService;
 import org.activeio.xnet.ServiceDaemon;
 import org.activeio.xnet.StandardServiceStack;
 import org.activeio.xnet.SyncChannelServerDaemon;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.pool.ThreadPool;
@@ -112,8 +116,9 @@ public class HttpServerTest extends TestCase {
         ServerService service = new HttpServer(new TestHttpListener());
 
         ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader(), "openejb:type=ThreadPool,name=Test");
-
-        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, threadPool, service);
+        BackportExecutorAdapter adapter = new BackportExecutorAdapter(threadPool);
+        
+        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, "localhost", null, null, null, adapter, service);
         HttpURLConnection connection = null;
 
         try {

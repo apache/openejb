@@ -53,7 +53,7 @@ import javax.ejb.TimerService;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
 
 /**
  *

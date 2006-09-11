@@ -167,12 +167,20 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
         </dependency>
-
+        
+        <!--
+        NOTE: Still needed for bits that use activeio
+        -->
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
