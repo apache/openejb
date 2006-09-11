@@ -53,7 +53,7 @@ import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @version $Revision$ $Date$
@@ -72,7 +72,7 @@ public class MockEndpointWorker implements Work {
 
     private MockResourceAdapter adapter;
     private MockEndpointActivationKey endpointActivationKey;
-    private SynchronizedBoolean started = new SynchronizedBoolean(false);
+    private AtomicBoolean started = new AtomicBoolean(false);
     Latch stopLatch = new Latch();
     boolean stopping = false;
     private MessageEndpointFactory messageEndpointFactory;

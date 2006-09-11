@@ -50,8 +50,7 @@ package org.openejb.cache;
 import java.util.LinkedList;
 import java.util.List;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-import EDU.oswego.cs.dl.util.concurrent.WaiterPreferenceSemaphore;
+import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
 
 /**
  *
@@ -74,7 +73,7 @@ public final class SimpleInstancePool implements InstancePool {
 
         pool = new LinkedList();
         if (hardLimit) {
-            semaphore = new WaiterPreferenceSemaphore(maxSize);
+            semaphore = new Semaphore(maxSize);
         }
     }
 

@@ -60,7 +60,7 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
@@ -199,7 +199,7 @@ public class TimerServiceImplTest extends TestCase {
 
     private static class MockEjbContainer implements EjbContainer {
         private final TransactionManager transactionManager;
-        private final SynchronizedInt counter = new SynchronizedInt(0);
+        private final AtomicInteger counter = new AtomicInteger(0);
         private Object id;
 
         public MockEjbContainer(TransactionManager transactionManager) {
@@ -217,7 +217,7 @@ public class TimerServiceImplTest extends TestCase {
 
         public void timeout(ExtendedEjbDeployment deployment, Object id, Timer timer, int ejbTimeoutIndex) {
             this.id = id;
-            counter.increment();
+            counter.incrementAndGet();
         }
 
         public TransactionManager getTransactionManager() {

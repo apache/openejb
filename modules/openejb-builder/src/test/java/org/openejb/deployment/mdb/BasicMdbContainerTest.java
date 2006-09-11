@@ -52,6 +52,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MdbBuilder;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * @version $Revision$ $Date$
@@ -86,11 +87,11 @@ public class BasicMdbContainerTest extends DeploymentHelper {
         // @todo put a wait limit in here... otherwise this can lock a build
         // Wait for 3 messages to arrive..
         System.out.println("Waiting for message 1");
-        assertTrue(MockEJB.messageCounter.attempt(10000));
+        assertTrue(MockEJB.messageCounter.tryAcquire(10000, TimeUnit.MILLISECONDS));
         System.out.println("Waiting for message 2");
-        assertTrue(MockEJB.messageCounter.attempt(10000));
+        assertTrue(MockEJB.messageCounter.tryAcquire(10000, TimeUnit.MILLISECONDS));
         System.out.println("Waiting for message 3");
-        assertTrue(MockEJB.messageCounter.attempt(10000));
+        assertTrue(MockEJB.messageCounter.tryAcquire(10000, TimeUnit.MILLISECONDS));
 
         System.out.println("Done.");
         assertTrue("Timer should have fired once by now...", MockEJB.timerFired);
