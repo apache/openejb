@@ -47,19 +47,10 @@
  */
 package org.openejb.deployment;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
@@ -72,24 +63,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public interface DeploymentTestContants {
     public static final AbstractName CONNECTION_OBJECT_NAME = IGNORE.createConnectionObjectName();
 
-    public static final ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
-        public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
-            return null;
-        }
-
-        public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
-            return null;
-        }
+    public static final ActivationSpecInfoLocator ACTIVATION_SPEC_INFO_LOCATOR = new ActivationSpecInfoLocator() {
 
         public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterModuleName, String messageListenerInterface, Configuration configuration) {
             return DeploymentHelper.ACTIVATION_SPEC_INFO;
-        }
-    };
-
-    public static final ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
-        //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
-            return null;
         }
     };
 

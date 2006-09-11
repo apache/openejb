@@ -71,6 +71,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -105,6 +106,10 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
     public ClassLoader getApplicationClassLoader() {
         return applicationClassLoader;
+    }
+
+    public String getName() {
+        return "DeploymentTestSuite";
     }
 
     public void run(final TestResult result) {
@@ -154,8 +159,9 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     webServiceBuilder,
                     null, 
                     new GBeanBuilder(null, null),
+                    new NamingBuilderCollection(null, null),
+                    ACTIVATION_SPEC_INFO_LOCATOR,
                     null);
-            OpenEjbReferenceBuilder ejbReferenceBuilder = new OpenEjbReferenceBuilder();
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultEnvironment,
@@ -167,12 +173,10 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     new AbstractNameQuery(deploymentHelper.serverName),
                     null, // repository
                     moduleBuilder,
-                    ejbReferenceBuilder,
                     null,// web
                     null,
-                    resourceReferenceBuilder, // connector
+                    ACTIVATION_SPEC_INFO_LOCATOR, // connector
                     null, // app client
-                    serviceReferenceBuilder,
                     null, null, deploymentHelper.naming
             );
 

@@ -51,6 +51,7 @@ import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.HashMap;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
@@ -62,6 +63,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -205,7 +207,6 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
             openejbResourceRefs = openejbEntityBean.getResourceRefArray();
             openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
             openejbServiceRefs = openejbEntityBean.getServiceRefArray();
-            gBeanRefs = openejbEntityBean.getGbeanRefArray();
             builder.setJndiNames(openejbEntityBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
         } else {
@@ -214,22 +215,10 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
             builder.setLocalJndiNames(new String[]{"local/" + ejbName});
         }
 
-        MessageDestinationRefType[] messageDestinationRefs = entityBean.getMessageDestinationRefArray();
-
-        Map context = ENCConfigBuilder.buildComponentContext(earContext,
-                null,
-                ejbModule,
-                null,
-                envEntries,
-                ejbRefs, openejbEjbRefs,
-                ejbLocalRefs, openejbEjbLocalRefs,
-                resourceRefs, openejbResourceRefs,
-                resourceEnvRefs, openejbResourceEnvRefs,
-                messageDestinationRefs,
-                serviceRefs, openejbServiceRefs,
-                gBeanRefs,
-                cl);
-        builder.setComponentContext(context);
+        Map componentContext = new HashMap();
+        Configuration earConfiguration = earContext.getConfiguration();
+        getNamingBuilders().buildNaming(entityBean, openejbEntityBean, earConfiguration, earConfiguration, ejbModule, componentContext);
+        builder.setComponentContext(componentContext);
         ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
     }
 
@@ -255,19 +244,19 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
             // ejb-ref
             if (entityBean.isSetRemote()) {
                 remoteInterfaceName = entityBean.getRemote().getStringValue().trim();
-                ENCConfigBuilder.assureEJBObjectInterface(remoteInterfaceName, cl);
+                OpenEjbRemoteRefBuilder.assureEJBObjectInterface(remoteInterfaceName, cl);
 
                 homeInterfaceName = entityBean.getHome().getStringValue().trim();
-                ENCConfigBuilder.assureEJBHomeInterface(homeInterfaceName, cl);
+                OpenEjbRemoteRefBuilder.assureEJBHomeInterface(homeInterfaceName, cl);
             }
 
             // ejb-local-ref
             if (entityBean.isSetLocal()) {
                 localInterfaceName = entityBean.getLocal().getStringValue().trim();
-                ENCConfigBuilder.assureEJBLocalObjectInterface(localInterfaceName, cl);
+                OpenEjbLocalRefBuilder.assureEJBLocalObjectInterface(localInterfaceName, cl);
 
                 localHomeInterfaceName = entityBean.getLocalHome().getStringValue().trim();
-                ENCConfigBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, cl);
+                OpenEjbLocalRefBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, cl);
             }
             String primaryKeyClassName = entityBean.getPrimKeyClass().getStringValue().trim();
             try {

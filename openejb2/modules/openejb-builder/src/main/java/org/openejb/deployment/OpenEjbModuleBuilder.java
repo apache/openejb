@@ -63,16 +63,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -86,6 +86,8 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -97,15 +99,12 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlException;
@@ -128,6 +127,10 @@ import org.openejb.xbeans.pkgen.EjbKeyGeneratorDocument;
  * @version $Revision$ $Date$
  */
 public class OpenEjbModuleBuilder implements ModuleBuilder {
+
+    private static QName OPENEJBJAR_QNAME = OpenejbOpenejbJarDocument.type.getDocumentElementName();
+    private static final String OPENEJBJAR_NAMESPACE = OPENEJBJAR_QNAME.getNamespaceURI();
+
     private final Environment defaultEnvironment;
 
     private final AbstractNameQuery listener;
@@ -138,10 +141,9 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     private final SingleElementCollection webServiceBuilder;
     private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
-    private static QName OPENEJBJAR_QNAME = OpenejbOpenejbJarDocument.type.getDocumentElementName();
-    private static final String OPENEJBJAR_NAMESPACE = OPENEJBJAR_QNAME.getNamespaceURI();
-    private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
-    private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
+    private final NamingBuilder namingBuilders;
+    private final ActivationSpecInfoLocator activationSpecInfoLocator;
+
 
     static {
         Map conversions = new HashMap();
@@ -159,7 +161,11 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             AbstractNameQuery listener,
             Object webServiceLinkTemplate,
             Collection webServiceBuilder,
-            NamespaceDrivenBuilder securityBuilder, NamespaceDrivenBuilder serviceBuilder, Kernel kernel) throws GBeanNotFoundException {
+            NamespaceDrivenBuilder securityBuilder,
+            NamespaceDrivenBuilder serviceBuilder,
+            NamingBuilder namingBuilders,
+            ActivationSpecInfoLocator activationSpecInfoLocator,
+            Kernel kernel) throws GBeanNotFoundException {
 
         this(defaultEnvironment,
                 defaultStatelessEjbContainer,
@@ -170,9 +176,10 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 listener,
                 getLinkData(kernel, webServiceLinkTemplate),
                 new SingleElementCollection(webServiceBuilder),
-                securityBuilder == null? Collections.EMPTY_SET: Collections.singleton(securityBuilder),
-                serviceBuilder == null? Collections.EMPTY_SET: Collections.singleton(serviceBuilder),
-                kernel);
+                securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
+                serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
+                namingBuilders,
+                activationSpecInfoLocator, kernel);
     }
 
     public OpenEjbModuleBuilder(Environment defaultEnvironment,
@@ -184,7 +191,11 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             AbstractNameQuery listener,
             GBeanData linkTemplate,
             WebServiceBuilder webServiceBuilder,
-            NamespaceDrivenBuilder securityBuilder, NamespaceDrivenBuilder serviceBuilder, Kernel kernel) {
+            NamespaceDrivenBuilder securityBuilder,
+            NamespaceDrivenBuilder serviceBuilder,
+            NamingBuilder namingBuilders,
+            ActivationSpecInfoLocator activationSpecInfoLocator,
+            Kernel kernel) {
 
         this(defaultEnvironment,
                 defaultStatelessEjbContainer,
@@ -195,8 +206,10 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 listener,
                 linkTemplate,
                 new SingleElementCollection(webServiceBuilder),
-                securityBuilder == null? Collections.EMPTY_SET: Collections.singleton(securityBuilder),
-                serviceBuilder == null? Collections.EMPTY_SET: Collections.singleton(serviceBuilder),
+                securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
+                serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
+                namingBuilders,
+                activationSpecInfoLocator,
                 kernel);
     }
 
@@ -211,7 +224,8 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             SingleElementCollection webServiceBuilder,
             Collection securityBuilders,
             Collection serviceBuilders,
-            Kernel kernel) {
+            NamingBuilder namingBuilders,
+            ActivationSpecInfoLocator activationSpecInfoLocator, Kernel kernel) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.listener = listener;
@@ -222,16 +236,21 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         this.webServiceBuilder = webServiceBuilder;
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.namingBuilders = namingBuilders;
+        this.activationSpecInfoLocator = activationSpecInfoLocator;
     }
 
     public WebServiceBuilder getWebServiceBuilder() {
         return (WebServiceBuilder) webServiceBuilder.getElement();
     }
 
+    public NamingBuilder getNamingBuilders() {
+        return namingBuilders;
+    }
+
     private static GBeanData getLinkData(Kernel kernel, Object webServiceLinkTemplate) throws GBeanNotFoundException {
         AbstractName webServiceLinkTemplateName = kernel.getAbstractNameFor(webServiceLinkTemplate);
-        GBeanData linkTemplate = kernel.getGBeanData(webServiceLinkTemplateName);
-        return linkTemplate;
+        return kernel.getGBeanData(webServiceLinkTemplateName);
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -271,7 +290,8 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
 
         boolean standAlone = earEnvironment == null;
         OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
-        if(openejbJar == null) { // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
+        if (openejbJar == null)
+        { // Avoid NPE GERONIMO-1220; todo: remove this if we can work around the requirement for a plan
             throw new DeploymentException("Currently a Geronimo deployment plan is required for an EJB module.  Please provide a plan as a deployer argument or packaged in the EJB JAR at META-INF/openejb-jar.xml");
         }
 
@@ -280,11 +300,16 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         if (earEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
             environment = earEnvironment;
-            if(!environment.getConfigId().isResolved()) {
-                throw new IllegalStateException("EJB module ID should be fully resolved (not "+environment.getConfigId()+")");
+            if (!environment.getConfigId().isResolved()) {
+                throw new IllegalStateException("EJB module ID should be fully resolved (not " + environment.getConfigId() + ")");
             }
         } else {
             idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
+        }
+
+        if (ejbJar.isSetAssemblyDescriptor()) {
+            AssemblyDescriptorType assemblyDescriptor = ejbJar.getAssemblyDescriptor();
+            namingBuilders.buildEnvironment(assemblyDescriptor, openejbJar, environment);
         }
 
         AbstractName moduleName;
@@ -370,18 +395,14 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         URI moduleUri = module.getModuleURI();
 
         EJBModule ejbModule = (EJBModule) module;
-        //unnecesary for now, but in case we create an ejb context lets set it. Used in namespace driven builders below.
         ejbModule.setEarContext(earContext);
+        ejbModule.setRootEarContext(earContext);
         EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
 
         if (ejbJar.isSetAssemblyDescriptor()) {
             AssemblyDescriptorType assemblyDescriptor = ejbJar.getAssemblyDescriptor();
-
-            MessageDestinationType[] messageDestinations = assemblyDescriptor.getMessageDestinationArray();
             OpenejbOpenejbJarType openejbJar = (OpenejbOpenejbJarType) module.getVendorDD();
-            GerMessageDestinationType[] gerMessageDestinations = openejbJar.getMessageDestinationArray();
-
-            ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+            namingBuilders.initContext(assemblyDescriptor, openejbJar, module.getEarContext().getConfiguration(), earContext.getConfiguration(), module);
         }
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
@@ -395,7 +416,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
          * Build the security configuration.  Attempt to auto generate role mappings.
          */
         OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
-        securityBuilders.build(openejbEjbJar, earContext, ejbModule.isStandAlone()? module.getEarContext(): null);
+        securityBuilders.build(openejbEjbJar, earContext, ejbModule.isStandAlone() ? module.getEarContext() : null);
         serviceBuilders.build(openejbEjbJar, earContext, module.getEarContext());
     }
 
@@ -569,7 +590,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         Class localInterface = loadClass(cl, localInterfaceName);
         Class localHomeInterface = loadClass(cl, localHomeInterfaceName);
         return new EJBProxyFactory(containerId, isSessionBean, remoteInterface, homeInterface, localInterface, localHomeInterface);
-    }                                                                                
+    }
 
     private Class loadClass(ClassLoader cl, String name) throws DeploymentException {
         if (name == null) {
@@ -604,24 +625,32 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.setConstructor(new String[]{
-            "defaultEnvironment",
-            "defaultStatelessEjbContainer",
-            "defaultStatefulEjbContainer",
-            "defaultBmpEjbContainer",
-            "defaultCmpEjbContainer",
-            "defaultMdbEjbContainer",
-            "listener",
-            "WebServiceLinkTemplate",
-            "WebServiceBuilder",
-            "SecurityBuilders",
-            "ServiceBuilders",
-            "kernel"});
+                "defaultEnvironment",
+                "defaultStatelessEjbContainer",
+                "defaultStatefulEjbContainer",
+                "defaultBmpEjbContainer",
+                "defaultCmpEjbContainer",
+                "defaultMdbEjbContainer",
+                "listener",
+                "WebServiceLinkTemplate",
+                "WebServiceBuilder",
+                "SecurityBuilders",
+                "ServiceBuilders",
+                "NamingBuilders",
+                "ActivationSpecInfoLocator",
+                "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    public ActivationSpecInfoLocator getActivationSpecInfoLocator() {
+        return activationSpecInfoLocator;
     }
 }

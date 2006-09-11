@@ -122,7 +122,7 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
         moduleCmpEngine.setAttribute("moduleSchema", moduleSchema);
 
         // transactionManager
-        moduleCmpEngine.setReferencePattern("transactionManager", earContext.getTransactionManagerObjectName());
+        moduleCmpEngine.setReferencePattern("transactionManager", earContext.getTransactionManagerName());
 
         try {
             earContext.addGBean(moduleCmpEngine);
