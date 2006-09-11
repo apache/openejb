@@ -53,6 +53,7 @@ import java.security.Permissions;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
@@ -66,27 +67,17 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
-import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
 import org.apache.geronimo.xbeans.j2ee.PortComponentType;
-import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
@@ -283,53 +274,18 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
     }
 
     public void processEnvironmentRefs(SessionBuilder sessionBuilder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ClassLoader cl) throws DeploymentException {
-        // env entries
-        EnvEntryType[] envEntries = sessionBean.getEnvEntryArray();
-
-        // ejb refs
-        EjbRefType[] ejbRefs = sessionBean.getEjbRefArray();
-        GerEjbRefType[] openejbEjbRefs = null;
-
-        EjbLocalRefType[] ejbLocalRefs = sessionBean.getEjbLocalRefArray();
-        GerEjbLocalRefType[] openejbEjbLocalRefs = null;
-
         // resource refs
         ResourceRefType[] resourceRefs = sessionBean.getResourceRefArray();
         GerResourceRefType[] openejbResourceRefs = null;
 
-        // resource env refs
-        ResourceEnvRefType[] resourceEnvRefs = sessionBean.getResourceEnvRefArray();
-        GerResourceEnvRefType[] openejbResourceEnvRefs = null;
-
-        ServiceRefType[] serviceRefs = sessionBean.getServiceRefArray();
-        GerServiceRefType[] openejbServiceRefs = null;
-
-        GerGbeanRefType[] gBeanRefs = null;
-
         if (openejbSessionBean != null) {
-            openejbEjbRefs = openejbSessionBean.getEjbRefArray();
-            openejbEjbLocalRefs = openejbSessionBean.getEjbLocalRefArray();
             openejbResourceRefs = openejbSessionBean.getResourceRefArray();
-            openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
-            openejbServiceRefs = openejbSessionBean.getServiceRefArray();
-            gBeanRefs = openejbSessionBean.getGbeanRefArray();
         }
 
-        MessageDestinationRefType[] messageDestinationRefs = sessionBean.getMessageDestinationRefArray();
-
-        Map context = ENCConfigBuilder.buildComponentContext(earContext,
-                null,
-                ejbModule,
-                null, envEntries,
-                ejbRefs, openejbEjbRefs,
-                ejbLocalRefs, openejbEjbLocalRefs,
-                resourceRefs, openejbResourceRefs,
-                resourceEnvRefs, openejbResourceEnvRefs,
-                messageDestinationRefs,
-                serviceRefs, openejbServiceRefs,
-                gBeanRefs,
-                cl);
-        sessionBuilder.setComponentContext(context);
+        Map componentContext = new HashMap();
+        Configuration earConfiguration = earContext.getConfiguration();
+        getNamingBuilders().buildNaming(sessionBean, openejbSessionBean, earConfiguration, earConfiguration, ejbModule, componentContext);
+        sessionBuilder.setComponentContext(componentContext);
         ENCConfigBuilder.setResourceEnvironment(sessionBuilder, resourceRefs, openejbResourceRefs);
     }
 
@@ -393,19 +349,19 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             // ejb-ref
             if (sessionBean.isSetRemote()) {
                 remoteInterfaceName = sessionBean.getRemote().getStringValue().trim();
-                ENCConfigBuilder.assureEJBObjectInterface(remoteInterfaceName, cl);
+                OpenEjbRemoteRefBuilder.assureEJBObjectInterface(remoteInterfaceName, cl);
 
                 homeInterfaceName = sessionBean.getHome().getStringValue().trim();
-                ENCConfigBuilder.assureEJBHomeInterface(homeInterfaceName, cl);
+                OpenEjbRemoteRefBuilder.assureEJBHomeInterface(homeInterfaceName, cl);
             }
 
             // ejb-local-ref
             if (sessionBean.isSetLocal()) {
                 localInterfaceName = sessionBean.getLocal().getStringValue().trim();
-                ENCConfigBuilder.assureEJBLocalObjectInterface(localInterfaceName, cl);
+                OpenEjbLocalRefBuilder.assureEJBLocalObjectInterface(localInterfaceName, cl);
 
                 localHomeInterfaceName = sessionBean.getLocalHome().getStringValue().trim();
-                ENCConfigBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, cl);
+                OpenEjbLocalRefBuilder.assureEJBLocalHomeInterface(localHomeInterfaceName, cl);
             }
             gbean.setAttribute("homeInterfaceName", homeInterfaceName);
             gbean.setAttribute("remoteInterfaceName", remoteInterfaceName);

@@ -63,7 +63,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -91,6 +90,7 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
+import org.apache.geronimo.connector.deployment.AdminObjectRefBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 
@@ -239,9 +239,8 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
             String destinationLink,
             String destinationType,
             String ejbName) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
         AbstractNameQuery resourceAdapterInstanceQuery = getResourceAdapterNameQuery(resourceAdapter, NameFactory.JCA_RESOURCE_ADAPTER);
-        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceAdapterInstanceQuery, messageListenerInterfaceName, earContext.getConfiguration());
+        GBeanData activationSpecInfo = getActivationSpecInfoLocator().locateActivationSpecInfo(resourceAdapterInstanceQuery, messageListenerInterfaceName, earContext.getConfiguration());
 
         if (activationSpecInfo == null) {
             throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterInstanceQuery + " and message listener type: " + messageListenerInterfaceName);
@@ -260,7 +259,7 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
         // 1. Lowest Priority.  Set any properties we can from the generic elements on the message-driven-bean (mostly provider-specific stuff)
         if(activationSpecClass.equals("org.activemq.ra.ActiveMQActivationSpec")) {
             if(destinationLink != null) {
-                String physicalName = getActiveMQPhysicalNameForLink(destinationLink, refContext, earContext.getConfiguration(), ejbName);
+                String physicalName = getActiveMQPhysicalNameForLink(destinationLink, earContext, ejbName);
                 if(physicalName != null) {
                     specValues.put("destination", physicalName);
                 }
@@ -333,8 +332,8 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
         }
     }
 
-    private String getActiveMQPhysicalNameForLink(String link, RefContext context, Configuration earConfig, String ejbName) throws DeploymentException {
-        GerMessageDestinationType destination = (GerMessageDestinationType) context.getMessageDestination(link);
+    private String getActiveMQPhysicalNameForLink(String link, EARContext earContext, String ejbName) throws DeploymentException {
+        GerMessageDestinationType destination = AdminObjectRefBuilder.getMessageDestination(link, earContext.getMessageDestinations());
         String linkName = link;
         String moduleURI = null;
         if (destination != null) {
@@ -357,7 +356,7 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
         try {
             AbstractName adminObjectName;
             try {
-                adminObjectName = earConfig.findGBean(adminObjectQuery);
+                adminObjectName = earContext.findGBean(adminObjectQuery);
             } catch (GBeanNotFoundException e) {
                 // There is no matching admin object, so this must be a destination that's created on the fly
                 log.debug("MDB "+ejbName+" uses message-destination-link "+linkName+" which I can't find an AdminObject for, so I assume a destination named "+linkName+" will be created automatically");
@@ -365,7 +364,7 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
             }
             String physical = null;
             try { // See if the admin object is in the same EAR (or at least dependency tree?)
-                GBeanData data = earConfig.findGBeanData(new AbstractNameQuery(adminObjectName));
+                GBeanData data = earContext.getConfiguration().findGBeanData(new AbstractNameQuery(adminObjectName));
                 physical = (String) data.getAttribute("PhysicalName");
             } catch (GBeanNotFoundException e) { // If not, try the server
                 try {
@@ -430,25 +429,14 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
             openejbResourceRefs = openejbMessageDrivenBean.getResourceRefArray();
             openejbResourceEnvRefs = openejbMessageDrivenBean.getResourceEnvRefArray();
             openejbServiceRefs = openejbMessageDrivenBean.getServiceRefArray();
-            gBeanRefs = openejbMessageDrivenBean.getGbeanRefArray();
         }
 
         MessageDestinationRefType[] messageDestinationRefs = messageDrivenBean.getMessageDestinationRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext,
-                null,
-                ejbModule,
-                null,
-                envEntries,
-                ejbRefs, openejbEjbRefs,
-                ejbLocalRefs, openejbEjbLocalRefs,
-                resourceRefs, openejbResourceRefs,
-                resourceEnvRefs, openejbResourceEnvRefs,
-                messageDestinationRefs,
-                serviceRefs, openejbServiceRefs,
-                gBeanRefs,
-                cl);
-        builder.setComponentContext(context);
+        Map componentContext = new HashMap();
+        Configuration earConfiguration = earContext.getConfiguration();
+        getNamingBuilders().buildNaming(messageDrivenBean, openejbMessageDrivenBean, earConfiguration, earConfiguration, ejbModule, componentContext);
+        builder.setComponentContext(componentContext);
         ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
     }
 }

@@ -97,8 +97,8 @@ import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
-import org.apache.geronimo.transaction.manager.XidFactoryImplGBean;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
+import org.apache.geronimo.transaction.manager.XidFactoryImplGBean;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.openejb.DeploymentIndexGBean;
@@ -296,14 +296,12 @@ public class DeploymentHelper extends TestCase {
     protected AbstractName createJCAResourceName(Artifact artifact) {
         AbstractName moduleName = createResourceAdapterModuleName(artifact);
         AbstractName resourceAdapterName = naming.createChildName(moduleName, artifact.toString(), NameFactory.RESOURCE_ADAPTER);
-        AbstractName jcaResourceName = naming.createChildName(resourceAdapterName, artifact.toString(), NameFactory.JCA_RESOURCE);
-        return jcaResourceName;
+        return naming.createChildName(resourceAdapterName, artifact.toString(), NameFactory.JCA_RESOURCE);
     }
 
     private AbstractName createResourceAdapterModuleName(Artifact artifact) {
         AbstractName appName = naming.createRootName(artifact, NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-        AbstractName moduleName = naming.createChildName(appName, artifact.toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
-        return moduleName;
+        return naming.createChildName(appName, artifact.toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 
     protected void tearDown() throws Exception {
@@ -360,8 +358,7 @@ public class DeploymentHelper extends TestCase {
             if (file == null) {
                 throw new NoSuchConfigException(configId);
             }
-            Set matches = IOUtil.search(file, pattern);
-            return matches;
+            return IOUtil.search(file, pattern);
         }
 
         public final static GBeanInfo GBEAN_INFO;

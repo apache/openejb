@@ -114,8 +114,8 @@ public abstract class AbstractCmpTest extends DeploymentHelper {
                     new AbstractNameQuery(ctcName),
                     new AbstractNameQuery(txTimerName),
                     new AbstractNameQuery(nonTxTimerName),
-                    null,
-                    null);
+                    null
+            );
 
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 

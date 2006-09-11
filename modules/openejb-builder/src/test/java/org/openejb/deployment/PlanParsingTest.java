@@ -6,6 +6,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 /**
@@ -23,10 +24,12 @@ public class PlanParsingTest extends TestCase {
                 null,
                 null,
                 null,
-                (GBeanData) null,
-                (SingleElementCollection)null,
+                null,
+                null,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
+                new NamingBuilderCollection(null, null),
+                null,
                 null);
     }
 
