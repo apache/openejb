@@ -277,6 +277,12 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-connector-builder</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-core</artifactId>
                 <version>${geronimoVersion}</version>
             </dependency>
