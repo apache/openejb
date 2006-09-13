@@ -92,7 +92,7 @@ public class CSSGSSUPMechConfigDynamic implements CSSASMechConfig {
     public byte[] encode() {
         if (encoding == null) {
             NamedUsernamePasswordCredential credential = null;
-            Subject subject = ContextManager.getCurrentCaller();
+            Subject subject = ContextManager.getNextCaller();
 
             Set creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
 
