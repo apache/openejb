@@ -90,7 +90,7 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
     public IdentityToken encodeIdentityToken() {
 
         IdentityToken token = null;
-        Subject subject = ContextManager.getCurrentCaller();
+        Subject subject = ContextManager.getNextCaller();
         String principalName = null;
         if (subject == null) {
 //            Set principals = Collections.EMPTY_SET;
