@@ -1,26 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
   <dep:dependency>
-    <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-    <dep:artifactId>geronimo-interceptor</dep:artifactId>
-  </dep:dependency>
-  <dep:dependency>
-    <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-    <dep:artifactId>geronimo-security</dep:artifactId>
-  </dep:dependency>
-  <dep:dependency>
-    <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-    <dep:artifactId>geronimo-timer</dep:artifactId>
-  </dep:dependency>
-  <!--<dep:dependency>-->
-    <!--<dep:groupId>org.apache.geronimo.modules</dep:groupId>-->
-    <!--<dep:artifactId>geronimo-axis</dep:artifactId>-->
-  <!--</dep:dependency>-->
-  <dep:dependency>
-    <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-    <dep:artifactId>geronimo-util</dep:artifactId>
-  </dep:dependency>
-  <dep:dependency>
     <dep:groupId>geronimo-spec</dep:groupId>
     <dep:artifactId>geronimo-spec-corba</dep:artifactId>
   </dep:dependency>
