@@ -376,6 +376,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         }
 
         OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
+        //TODO add a module id
         openejbEjbJar.addNewEnterpriseBeans();
         return openejbEjbJar;
     }
@@ -533,16 +534,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             throw new DeploymentException(buf.toString());
         }
 
-        Map portInfoMap = Collections.EMPTY_MAP;
-        JarFile jarFile = ejbModule.getModuleFile();
-        URL wsDDUrl;
-        try {
-            wsDDUrl = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-            portInfoMap = getWebServiceBuilder().parseWebServiceDescriptor(wsDDUrl, jarFile, true, correctedPortLocations);
-        } catch (MalformedURLException e) {
-            //there is no webservices file
-        }
-
+        Map portInfoMap = getWebServiceBuilder().findWebServices(ejbModule.getModuleFile(), true, correctedPortLocations);
 
         TransactionPolicyHelper transactionPolicyHelper;
         if (ejbJar.isSetAssemblyDescriptor()) {
