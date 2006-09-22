@@ -4,6 +4,10 @@
     <dep:groupId>geronimo-spec</dep:groupId>
     <dep:artifactId>geronimo-spec-corba</dep:artifactId>
   </dep:dependency>
+    <dep:dependency>
+      <dep:groupId>org.apache.geronimo.specs</dep:groupId>
+      <dep:artifactId>geronimo-corba_2.3_spec</dep:artifactId>
+    </dep:dependency>
   <dep:dependency>
     <dep:groupId>tranql</dep:groupId>
     <dep:artifactId>tranql</dep:artifactId>
