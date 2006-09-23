@@ -50,7 +50,6 @@ package org.openejb.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.Permissions;
@@ -96,6 +95,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -143,6 +143,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final NamingBuilder namingBuilders;
     private final ActivationSpecInfoLocator activationSpecInfoLocator;
+    private final ResourceEnvironmentSetter resourceEnvironmentSetter;
 
 
     static {
@@ -164,6 +165,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
             NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
             ActivationSpecInfoLocator activationSpecInfoLocator,
             Kernel kernel) throws GBeanNotFoundException {
 
@@ -179,7 +181,9 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
                 serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
                 namingBuilders,
-                activationSpecInfoLocator, kernel);
+                resourceEnvironmentSetter,
+                activationSpecInfoLocator,
+                kernel);
     }
 
     public OpenEjbModuleBuilder(Environment defaultEnvironment,
@@ -194,6 +198,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             NamespaceDrivenBuilder securityBuilder,
             NamespaceDrivenBuilder serviceBuilder,
             NamingBuilder namingBuilders,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
             ActivationSpecInfoLocator activationSpecInfoLocator,
             Kernel kernel) {
 
@@ -209,6 +214,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
                 serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
                 namingBuilders,
+                resourceEnvironmentSetter,
                 activationSpecInfoLocator,
                 kernel);
     }
@@ -225,7 +231,8 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
-            ActivationSpecInfoLocator activationSpecInfoLocator, Kernel kernel) {
+            ResourceEnvironmentSetter resourceEnvironmentSetter, ActivationSpecInfoLocator activationSpecInfoLocator,
+            Kernel kernel) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.listener = listener;
@@ -237,6 +244,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders);
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilders = namingBuilders;
+        this.resourceEnvironmentSetter = resourceEnvironmentSetter;
         this.activationSpecInfoLocator = activationSpecInfoLocator;
     }
 
@@ -618,6 +626,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.setConstructor(new String[]{
@@ -633,6 +642,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
+                "ResourceEnvironmentSetter",
                 "ActivationSpecInfoLocator",
                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
@@ -644,5 +654,9 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
 
     public ActivationSpecInfoLocator getActivationSpecInfoLocator() {
         return activationSpecInfoLocator;
+    }
+
+    public ResourceEnvironmentSetter getResourceEnvironmentSetter() {
+        return resourceEnvironmentSetter;
     }
 }

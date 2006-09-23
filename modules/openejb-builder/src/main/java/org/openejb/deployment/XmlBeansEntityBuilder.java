@@ -219,7 +219,7 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(entityBean, openejbEntityBean, earConfiguration, earConfiguration, ejbModule, componentContext);
         builder.setComponentContext(componentContext);
-        ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
+        getResourceEnvironmentSetter().setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
     }
 
     public void initContext(EARContext earContext, AbstractName moduleBaseName, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {

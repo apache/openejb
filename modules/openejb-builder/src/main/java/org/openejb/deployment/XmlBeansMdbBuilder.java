@@ -437,6 +437,6 @@ public class XmlBeansMdbBuilder extends XmlBeanBuilder {
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(messageDrivenBean, openejbMessageDrivenBean, earConfiguration, earConfiguration, ejbModule, componentContext);
         builder.setComponentContext(componentContext);
-        ENCConfigBuilder.setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
+        getResourceEnvironmentSetter().setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
     }
 }

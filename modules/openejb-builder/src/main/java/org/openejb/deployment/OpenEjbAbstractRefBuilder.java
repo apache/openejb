@@ -40,10 +40,9 @@ import org.apache.xmlbeans.QNameSet;
 import org.openejb.RpcEjbDeployment;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public abstract class OpenEjbAbstractRefBuilder extends AbstractNamingBuilder {
-    protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     private final static Map STATELESS = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN);
     private final static Map STATEFUL = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN);
     private final static Map ENTITY = Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN);

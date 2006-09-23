@@ -49,6 +49,7 @@ package org.openejb.deployment;
 
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 
 public abstract class XmlBeanBuilder {
     protected final OpenEjbModuleBuilder moduleBuilder;
@@ -63,6 +64,10 @@ public abstract class XmlBeanBuilder {
 
     public NamingBuilder getNamingBuilders() {
         return moduleBuilder.getNamingBuilders();
+    }
+
+    public ResourceEnvironmentSetter getResourceEnvironmentSetter() {
+        return moduleBuilder.getResourceEnvironmentSetter();
     }
 
     public ActivationSpecInfoLocator getActivationSpecInfoLocator() {

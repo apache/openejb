@@ -32,20 +32,19 @@ import org.openejb.client.ServerMetaData;
 import org.openejb.client.naming.RemoteEJBReference;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class OpenEjbClientRemoteRefBuilder extends OpenEjbRemoteRefBuilder {
 
     private final ServerMetaData server;
 
-    public OpenEjbClientRemoteRefBuilder(Environment defaultEnvironment, String host, int port) throws UnknownHostException{
-        super(defaultEnvironment);
+    public OpenEjbClientRemoteRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, String host, int port) throws UnknownHostException{
+        super(defaultEnvironment, eeNamespaces);
         server = new ServerMetaData("BOOT", host, port);
     }
 
     protected Reference buildRemoteReference(Artifact configurationId, AbstractNameQuery abstractNameQuery, boolean session, String home, String remote) {
-        Reference reference = new RemoteEJBReference(abstractNameQuery.toString(), Collections.singletonList(server));
-        return reference;
+        return new RemoteEJBReference(abstractNameQuery.toString(), Collections.singletonList(server));
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -56,7 +55,7 @@ public class OpenEjbClientRemoteRefBuilder extends OpenEjbRemoteRefBuilder {
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "host", "port"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "host", "port"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
