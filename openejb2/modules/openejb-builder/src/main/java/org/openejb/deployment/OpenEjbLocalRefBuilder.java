@@ -34,6 +34,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
@@ -48,13 +49,18 @@ import org.openejb.proxy.EJBProxyReference;
  */
 public class OpenEjbLocalRefBuilder extends OpenEjbAbstractRefBuilder {
 
-    private static final QName EJB_LOCAL_REF_QNAME = new QName(J2EE_NAMESPACE, "ejb-local-ref");
-    private static final QNameSet EJB_LOCAL_REF_QNAME_SET = QNameSet.singleton(EJB_LOCAL_REF_QNAME);
     private static final QName GER_EJB_LOCAL_REF_QNAME = GerEjbLocalRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_EJB_LOCAL_REF_QNAME_SET = QNameSet.singleton(GER_EJB_LOCAL_REF_QNAME);
 
+    private final QNameSet ejbLocalRefQNameSet;
+
+    public OpenEjbLocalRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
+        super(defaultEnvironment);
+        ejbLocalRefQNameSet = buildQNameSet(eeNamespaces, "ejb-local-ref");
+    }
+
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] ejbLocalRefsUntyped = specDD.selectChildren(EJB_LOCAL_REF_QNAME_SET);
+        XmlObject[] ejbLocalRefsUntyped = convert(specDD.selectChildren(ejbLocalRefQNameSet), J2EE_CONVERTER, EjbLocalRefType.type);
         XmlObject[] gerEjbLocalRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_EJB_LOCAL_REF_QNAME_SET);
         Map ejbLocalRefMap = mapEjbLocalRefs(gerEjbLocalRefsUntyped);
         ClassLoader cl = localConfiguration.getConfigurationClassLoader();
@@ -120,7 +126,7 @@ public class OpenEjbLocalRefBuilder extends OpenEjbAbstractRefBuilder {
     }
 
     public QNameSet getSpecQNameSet() {
-        return EJB_LOCAL_REF_QNAME_SET;
+        return ejbLocalRefQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
@@ -185,6 +191,10 @@ public class OpenEjbLocalRefBuilder extends OpenEjbAbstractRefBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbLocalRefBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
+        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

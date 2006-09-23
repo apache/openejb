@@ -52,13 +52,14 @@ import org.openejb.proxy.EJBProxyReference;
  */
 public class OpenEjbRemoteRefBuilder extends OpenEjbAbstractRefBuilder {
 
-    private static final QName EJB_REF_QNAME = new QName(J2EE_NAMESPACE, "ejb-ref");
-    private static final QNameSet EJB_REF_QNAME_SET = QNameSet.singleton(EJB_REF_QNAME);
     private static final QName GER_EJB_REF_QNAME = GerEjbRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_EJB_REF_QNAME_SET = QNameSet.singleton(GER_EJB_REF_QNAME);
 
-    public OpenEjbRemoteRefBuilder(Environment defaultEnvironment) {
+    private final QNameSet ejbRefQNameSet;
+
+    public OpenEjbRemoteRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
         super(defaultEnvironment);
+        ejbRefQNameSet = buildQNameSet(eeNamespaces, "ejb-ref");
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
@@ -83,7 +84,7 @@ public class OpenEjbRemoteRefBuilder extends OpenEjbAbstractRefBuilder {
     }
 
     private XmlObject[] getEjbRefs(XmlObject specDD) {
-        return specDD.selectChildren(EJB_REF_QNAME_SET);
+        return convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.type);
     }
 
     private Reference addEJBRef(Configuration earContext, Configuration ejbContext, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
@@ -161,7 +162,7 @@ public class OpenEjbRemoteRefBuilder extends OpenEjbAbstractRefBuilder {
     }
 
     public QNameSet getSpecQNameSet() {
-        return EJB_REF_QNAME_SET;
+        return ejbRefQNameSet;
     }
 
     public QNameSet getPlanQNameSet() {
@@ -240,9 +241,10 @@ public class OpenEjbRemoteRefBuilder extends OpenEjbAbstractRefBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbRemoteRefBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
+        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
-        infoBuilder.setConstructor(new String[] {"defaultEnvironment"});
+        infoBuilder.setConstructor(new String[] {"defaultEnvironment", "eeNamespaces"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

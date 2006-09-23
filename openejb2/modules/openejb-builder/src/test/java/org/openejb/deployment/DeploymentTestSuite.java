@@ -160,6 +160,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     null, 
                     new GBeanBuilder(null, null),
                     new NamingBuilderCollection(null, null),
+                    new MockResourceEnvironmentSetter(),
                     ACTIVATION_SPEC_INFO_LOCATOR,
                     null);
 

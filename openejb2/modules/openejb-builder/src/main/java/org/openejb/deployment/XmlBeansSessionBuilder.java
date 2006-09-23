@@ -286,7 +286,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         Configuration earConfiguration = earContext.getConfiguration();
         getNamingBuilders().buildNaming(sessionBean, openejbSessionBean, earConfiguration, earConfiguration, ejbModule, componentContext);
         sessionBuilder.setComponentContext(componentContext);
-        ENCConfigBuilder.setResourceEnvironment(sessionBuilder, resourceRefs, openejbResourceRefs);
+        getResourceEnvironmentSetter().setResourceEnvironment(sessionBuilder, resourceRefs, openejbResourceRefs);
     }
 
     private List createHandlerInfos(JarFile moduleFile, String ejbName, ClassLoader cl) throws DeploymentException {
