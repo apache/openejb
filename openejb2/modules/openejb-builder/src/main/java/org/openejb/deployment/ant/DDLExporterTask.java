@@ -71,6 +71,7 @@ import org.apache.tools.ant.types.Path;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.deployment.CmpSchemaBuilder;
 import org.openejb.deployment.TranqlCmpSchemaBuilder;
+import org.openejb.deployment.OpenEjbModuleBuilder;
 import org.openejb.entity.cmp.ModuleSchema;
 import org.openejb.entity.cmp.TranqlSchemaBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
@@ -157,7 +158,7 @@ public class DDLExporterTask extends Task {
             } finally {
                 in.close();
             }
-            EjbJarType ejbJarType = SchemaConversionUtils.convertToEJBSchema(xmlObject).getEjbJar();
+            EjbJarType ejbJarType = OpenEjbModuleBuilder.convertToEJBSchema(xmlObject).getEjbJar();
 
             in = openejbJarLocation.getInputStream(project);
             try {

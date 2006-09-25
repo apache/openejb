@@ -70,6 +70,13 @@
         <!--</dependency>-->
         <!---->
         <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${geronimoVersion}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
         </dependency>

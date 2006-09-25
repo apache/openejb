@@ -79,7 +79,7 @@ public final class XmlBeansHelper {
 
     public static EjbJarType loadEjbJar(File file) throws IOException, XmlException {
         EjbJarDocument ejbJarDoc = ((EjbJarDocument) XmlObject.Factory.parse(file));
-        ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(ejbJarDoc);
+        ejbJarDoc = OpenEjbModuleBuilder.convertToEJBSchema(ejbJarDoc);
         return ejbJarDoc.getEjbJar();
     }
 
