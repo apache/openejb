@@ -109,6 +109,8 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
 import org.openejb.EJBModuleImplGBean;
 import org.openejb.EjbDeployment;
 import org.openejb.proxy.EJBProxyFactory;
@@ -144,6 +146,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
     private final NamingBuilder namingBuilders;
     private final ActivationSpecInfoLocator activationSpecInfoLocator;
     private final ResourceEnvironmentSetter resourceEnvironmentSetter;
+    private static final QName CMP_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "cmp-version");
 
 
     static {
@@ -290,7 +293,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         //there is a file named ejb-jar.xml in META-INF.  If we can't process it, it is an error.
         try {
             // parse it
-            EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(XmlBeansUtil.parse(specDD));
+            EjbJarDocument ejbJarDoc = convertToEJBSchema(XmlBeansUtil.parse(specDD));
             ejbJar = ejbJarDoc.getEjbJar();
         } catch (XmlException e) {
             throw new DeploymentException("Error parsing ejb-jar.xml", e);
@@ -387,6 +390,151 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         //TODO add a module id
         openejbEjbJar.addNewEnterpriseBeans();
         return openejbEjbJar;
+    }
+
+    public ActivationSpecInfoLocator getActivationSpecInfoLocator() {
+        return activationSpecInfoLocator;
+    }
+
+    public ResourceEnvironmentSetter getResourceEnvironmentSetter() {
+        return resourceEnvironmentSetter;
+    }
+
+    public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
+        if (EjbJarDocument.type.equals(xmlObject.schemaType())) {
+            XmlBeansUtil.validateDD(xmlObject);
+            return (EjbJarDocument) xmlObject;
+        }
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
+        //cursor is intially located before the logical STARTDOC token
+        try {
+            cursor.toFirstChild();
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+                XmlObject result = xmlObject.changeType(EjbJarDocument.type);
+                XmlBeansUtil.validateDD(result);
+                return (EjbJarDocument) result;
+            }
+            // deployment descriptor is probably in EJB 1.1 or 2.0 format
+            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+            String publicId = xmlDocumentProperties.getDoctypePublicId();
+            String cmpVersion;
+            if ("-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 1.1//EN".equals(publicId)) {
+                cmpVersion = "1.x";
+            } else if ("-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN".equals(publicId)) {
+                cmpVersion = null;//2.x is the default "2.x";
+            } else {
+                throw new XmlException("Unrecognized document type: " + publicId);
+            }
+            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
+            String version = "2.1";
+            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
+            //play with message-driven
+            cursor.toStartDoc();
+            convertBeans(cursor, moveable, cmpVersion);
+        } finally {
+            cursor.dispose();
+            moveable.dispose();
+        }
+        XmlObject result = xmlObject.changeType(EjbJarDocument.type);
+        if (result != null) {
+            XmlBeansUtil.validateDD(result);
+            return (EjbJarDocument) result;
+        }
+        XmlBeansUtil.validateDD(xmlObject);
+        return (EjbJarDocument) xmlObject;
+    }
+
+    private static void convertBeans(XmlCursor cursor, XmlCursor moveable, String cmpVersion) {
+        cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "ejb-jar");
+        cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "enterprise-beans");
+        if (cursor.toFirstChild()) {
+            //there's at least one ejb...
+            do {
+                cursor.push();
+                String type = cursor.getName().getLocalPart();
+                if ("session".equals(type)) {
+                    cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "transaction-type");
+                    cursor.toNextSibling();
+                    SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                } else if ("entity".equals(type)) {
+                    cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "persistence-type");
+                    String persistenceType = cursor.getTextValue();
+                    //reentrant is the last required tag before jndiEnvironmentRefsGroup
+                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "reentrant");
+                    //Convert 2.0 True/False to true/false for 2.1
+                    cursor.setTextValue(cursor.getTextValue().toLowerCase());
+                    if (cmpVersion != null && !cursor.toNextSibling(CMP_VERSION) && "Container".equals(persistenceType)) {
+                        cursor.toNextSibling();
+                        cursor.insertElementWithText(CMP_VERSION, cmpVersion);
+                    }
+
+                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "abstract-schema-name");
+                    while (cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "cmp-field")) {
+                    }
+                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "primkey-field");
+                    cursor.toNextSibling();
+                    SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                } else if ("message-driven".equals(type)) {
+                    cursor.toFirstChild();
+                    if (cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "messaging-type")) {
+                        cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "transaction-type");
+                    } else {
+                        cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "transaction-type");
+                        //insert messaging-type (introduced in EJB 2.1 spec) before transaction-type
+                        cursor.insertElementWithText("messaging-type", SchemaConversionUtils.J2EE_NAMESPACE, "javax.jms.MessageListener");
+                        //cursor still on transaction-type
+                    }
+                    if (!cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "activation-config")) {
+                        //skip transaction-type
+                        cursor.toNextSibling();
+                        //convert EJB 2.0 elements to activation-config-properties.
+                        moveable.toCursor(cursor);
+                        cursor.push();
+                        cursor.beginElement("activation-config", SchemaConversionUtils.J2EE_NAMESPACE);
+                        boolean hasProperties = addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
+                        hasProperties |= addActivationConfigProperty(moveable, cursor, "acknowledge-mode", "acknowledgeMode");
+                        if (new QName(SchemaConversionUtils.J2EE_NAMESPACE, "message-driven-destination").equals(moveable.getName()) ||
+                                moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "message-driven-destination")) {
+                            moveable.push();
+                            moveable.toFirstChild();
+                            hasProperties |= addActivationConfigProperty(moveable, cursor, "destination-type", "destinationType");
+                            hasProperties |= addActivationConfigProperty(moveable, cursor, "subscription-durability", "subscriptionDurability");
+                            moveable.pop();
+                            moveable.removeXml();
+                        }
+                        cursor.pop();
+                        if (!hasProperties) {
+                            //the activation-config element that we created is empty so delete it
+                            cursor.toPrevSibling();
+                            cursor.removeXml();
+                            //cursor should now be at first element in JNDIEnvironmentRefsGroup
+                        }
+                    } else {
+                        //cursor pointing at activation-config
+                        cursor.toNextSibling();
+                        //cursor should now be at first element in JNDIEnvironmentRefsGroup
+                    }
+                    SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
+                }
+                cursor.pop();
+            } while (cursor.toNextSibling());
+        }
+    }
+
+    private static boolean addActivationConfigProperty(XmlCursor moveable, XmlCursor cursor, String elementName, String propertyName) {
+        QName name = new QName(SchemaConversionUtils.J2EE_NAMESPACE, elementName);
+        if (name.equals(moveable.getName()) || moveable.toNextSibling(name)) {
+            cursor.push();
+            cursor.beginElement("activation-config-property", SchemaConversionUtils.J2EE_NAMESPACE);
+            cursor.insertElementWithText("activation-config-property-name", SchemaConversionUtils.J2EE_NAMESPACE, propertyName);
+            cursor.insertElementWithText("activation-config-property-value", SchemaConversionUtils.J2EE_NAMESPACE, moveable.getTextValue());
+            moveable.removeXml();
+            cursor.pop();
+            cursor.toNextSibling();
+            return true;
+        }
+        return false;
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -652,11 +800,4 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         return GBEAN_INFO;
     }
 
-    public ActivationSpecInfoLocator getActivationSpecInfoLocator() {
-        return activationSpecInfoLocator;
-    }
-
-    public ResourceEnvironmentSetter getResourceEnvironmentSetter() {
-        return resourceEnvironmentSetter;
-    }
 }
