@@ -14,13 +14,13 @@
     
     <inceptionYear>1999</inceptionYear>
     <description>OpenEJB EJB Container</description>
-    <url>http://www.openejb.org/</url>
+    <url>http://incubator.apache.org/projects/openejb</url>
     
     <ciManagement>
         <notifiers>
             <notifier>
                 <type>email</type>
-                <address>openejb-development@lists.sourceforge.net</address>
+                <address>openejb-dev@incubator.apache.org</address>
             </notifier>
         </notifiers>
     </ciManagement>
@@ -66,35 +66,35 @@
     
     <organization>
         <name>OpenEJB</name>
-        <url>http://www.openejb.org/</url>
+        <url>http://incubator.apache.org/projects/openejb</url>
     </organization>
     
     <issueManagement>
         <system>Jira</system>
-        <url>http://jira.codehaus.org/browse/OPENEJB</url>
+        <url>https://issues.apache.org/jira/browse/OPENEJB</url>
     </issueManagement>
     
     <scm>
-        <connection>scm:svn:http://svn.codehaus.org/openejb/trunk/openejb2</connection>
-        <developerConnection>scm:svn:https://${maven.username}@svn.codehaus.org/openejb/trunk/openejb2</developerConnection>
-        <url>http://svn.codehaus.org/openejb/trunk/openejb2</url>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/incubator/openejb/trunk/openejb2</connection>
+        <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/incubator/openejb/trunk/openejb2</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/openejb/trunk/openejb2</url>
     </scm>
     
     <mailingLists>
         <mailingList>
             <name>OpenEJB User List</name>
-            <subscribe>user-subscribe@openejb.org</subscribe>
-            <unsubscribe>user-unsubscribe@openejb.org</unsubscribe>
+            <subscribe>openejb-user-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>openejb-user-unsubscribe@incubator.apache.org</unsubscribe>
         </mailingList>
         <mailingList>
             <name>OpenEJB Developer List</name>
-            <subscribe>dev-subscribe@openejb.org</subscribe>
-            <unsubscribe>dev-unsubscribe@openejb.org</unsubscribe>
+            <subscribe>openejb-dev-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>openejb-dev-unsubscribe@incubator.apache.org</unsubscribe>
         </mailingList>
         <mailingList>
-            <name>OpenEJB Source Control List</name>
-            <subscribe>scm-subscribe@openejb.org</subscribe>
-            <unsubscribe>scm-unsubscribe@openejb.org</unsubscribe>
+            <name>OpenEJB Commits List</name>
+            <subscribe>openejb-commits-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>openejb-commits-unsubscribe@incubator.apache.org</unsubscribe>
         </mailingList>
     </mailingLists>
 
@@ -152,6 +152,13 @@
             <name>Alan D. Cabrera</name>
             <id>adc</id>
             <email>adc@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jacek Laskowski</name>
+            <id>jlaskowski</id>
+            <email>jlaskowski@apache.org</email>
             <organization></organization>
         </developer>
     </developers>
