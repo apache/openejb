@@ -1,0 +1,442 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - Startup</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	Startup
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=Startup">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26536&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<H1><A name="Startup-NAME"></A>NAME</H1>
+
+<P>openejb start - OpenEJB Remote Server</P>
+
+<H1><A name="Startup-SYNOPSIS"></A>SYNOPSIS</H1>
+
+<P>openejb start <SPAN class="nobr"><A href="http://cwiki.apache.org/confluence/pages/createpage.action?spaceKey=OPENEJB&title=options&linkCreation=true&fromPageId=26536" title="Create Page: options" class="createlink">options<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/plus.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN></P>
+
+<H1><A name="Startup-NOTE"></A>NOTE</H1>
+
+<P>The OpenEJB Remote Server must be executed from the OPENEJB_HOME directory. This is the directory where OpenEJB was installed or unpacked. For the remainder of this document we will assume you unpacked OpenEJB into the directory C:\openejb.</P>
+
+<P>In Windows, the remote server can be executed as follows:</P>
+
+<P><TT>C:\openejb&gt; openejb start -help</TT></P>
+
+<P>In UNIX, Linux, or Mac OS X, the deploy tool can be executed as follows:</P>
+
+<P><TT><SPAN class="error">&#91;user@host openejb&#93;</SPAN># ./openejb.sh start -help</TT></P>
+
+<P>Depending on your OpenEJB version, you may need to change execution bits to make the scripts executable. You can do this with the following command.</P>
+
+<P><TT><SPAN class="error">&#91;user@host openejb&#93;</SPAN># chmod 755 openejb.sh bin/*.sh</TT></P>
+
+<P>From here on out, it will be assumed that you know how to execute the right openejb script for your operating system and commands will appear in shorthand as show below.</P>
+
+<P><TT>openejb start -help</TT></P>
+
+<H1><A name="Startup-DESCRIPTION"></A>DESCRIPTION</H1>
+
+<P>Starts OpenEJB as an EJB Server that can be accessed by remote clients via the OpenEJB Remote Server.</P>
+
+<P>ALWAYS check your openejb.log file for warnings immediately after starting the Remote Server.</P>
+
+<P>OpenEJB issues warnings when it works around a potential problem, encounters something it didn&apos;t expect, or when OpenEJB wants to let you know something may not work as you expected it.</P>
+
+<P>The OpenEJB Remote Server is the default implementation of OpenEJB&apos;s <SPAN class="nobr"><A href="http://cwiki.apache.org/confluence/pages/createpage.action?spaceKey=OPENEJB&title=design_appserver.html&linkCreation=true&fromPageId=26536" title="Create Page: design_appserver.html" class="createlink">ApplicationServer<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/plus.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN> interface. It allows remote clients to access beans in OpenEJB over a network.</P>
+
+<P>The JNDI names clients use to lookup beans from the Remote Server depends on the <A href="deployment-id.html" title="Deployment ID">Deployment ID</A> you gave the beans when you deployed them with the <A href="deploy-tool.html" title="Deploy Tool">Deploy Tool</A> .</P>
+
+<P>OpenEJB itself is configured with the OpenEJB configuration file, which is extremely simple and self-documenting. This file is located at c:\openejb\conf\openejb.conf.</P>
+
+<H1><A name="Startup-OPTIONS"></A>OPTIONS</H1>
+
+<TABLE class="confluenceTable"><TBODY>
+<TR>
+<TD class="confluenceTd">-h <EM>host</EM> </TD>
+<TD class="confluenceTd">Binds the Remote Server to the specified host address. Default host address is 127.0.0.1.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-p <EM>port</EM> </TD>
+<TD class="confluenceTd">Binds the Remote Server to the specified port. Default port is 4201.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-t <EM>int</EM> </TD>
+<TD class="confluenceTd">Sets the number of concurrent threads the Remote server should use to service requests from clients. Default number of threads is 20.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-d <EM>dir</EM> </TD>
+<TD class="confluenceTd">Sets the OPENEJB_HOME to the specified directory.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-l <EM>file</EM> </TD>
+<TD class="confluenceTd">Sets the log4j configuration to the specified file.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-conf <EM>file</EM> </TD>
+<TD class="confluenceTd">Sets the OpenEJB configuration to the specified file.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-version</TD>
+<TD class="confluenceTd">Print the version.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-help</TD>
+<TD class="confluenceTd">Print this help message.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">-examples</TD>
+<TD class="confluenceTd">Show examples of how to use the options.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">--admin-ip</TD>
+<TD class="confluenceTd">A comma delimited list of hosts and IP addresses that are allowed to administer this server.</TD>
+</TR>
+<TR>
+<TD class="confluenceTd">--local-copy <EM>boolean</EM> </TD>
+<TD class="confluenceTd">Instructs the container system whether or not marshal (copy) the parameters and return values on calls between beans.  Default is true.</TD>
+</TR>
+</TBODY></TABLE>
+
+<H1><A name="Startup-EXAMPLES"></A>EXAMPLES</H1>
+
+<H2><A name="Startup-Simplestscenario"></A>Simplest scenario</H2>
+
+<P><TT>openejb start</TT></P>
+
+<P>That&apos;s it. The server will start up and bind to IP 127.0.0.1 and port 4201.</P>
+
+<P>The following properties would then be used to get an InitialContext from the Remote Server.</P>
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
+   java.naming.provider.url         = 127.0.0.1:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass</PRE>
+</DIV></DIV>
+
+<H2><A name="Startup-Usingh"></A>Using -h</H2>
+
+<P><TT>openejb start -h 10.45.67.8</TT></P>
+
+<P>This is the most common way to use the OpenEJB Remote Server. The server will start up and bind to IP 10.45.67.8 and port 4201.</P>
+
+<P>The following properties would then be used to get an InitialContext from the Remote Server.</P>
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
+   java.naming.provider.url         = 10.45.67.8:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass</PRE>
+</DIV></DIV>
+
+<P>DNS names can also be used.</P>
+
+<P><TT>openejb start -h myhost.foo.com</TT></P>
+
+<P>The following properties would then be used to get an InitialContext from the Remote Server.</P>
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
+   java.naming.provider.url         = myhost.foo.com:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass</PRE>
+</DIV></DIV>
+
+<H2><A name="Startup-Usingp"></A>Using -p</H2>
+
+<P><TT>openejb start -p 8765</TT></P>
+
+<P>The server will start up and bind to IP 127.0.0.1 and port 8765.</P>
+
+<P>The following properties would then be used to get an InitialContext from the Remote Server.</P>
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
+   java.naming.provider.url         = 127.0.0.1:8765
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass</PRE>
+</DIV></DIV>
+
+<H2><A name="Startup-Usingconffile"></A>Using -conf file</H2>
+
+<P><TT>openejb start -conf C:\openejb\conf\mytest.conf</TT></P>
+
+<P>Sets the openejb.configuration system variable to the file C:\openejb\conf\mytest.conf. When the server starts up and the initializes OpenEJB, this configuration will be used to assemble the container system and load beans.</P>
+
+<H2><A name="Startup-Usingadminipaddresses"></A>Using --admin-ip addresses</H2>
+
+<P><TT>openejb start --admin-ip 192.168.1.12</TT></P>
+
+<P>Adds 192.168.1.12 to the list of IP addresses that are authorized to shutdown the server or access the server via a telnet client. The host that this server was started on is always allowed to administer the server.</P>
+
+<P>Multiple hosts can be given administrative access to this server by listing all the host names separated by commas as such:</P>
+
+<P><TT>openejb start --admin-ip 192.168.1.12,joe.foo.com,robert</TT></P>
+
+<P>The first host in the string names the host explicitly using an IP address (192.168.1.12).</P>
+
+<P>The second host in uses a DNS name (joe.foo.com) to refer to the hosts IP address. The DNS name will be resolved and the IP will be added to the admin list.</P>
+
+<P>The third address refers to a the host by a name (robert) that the opperating system is able to resolve into a valid IP address. This is usually done via a hosts file, interal DNS server, or Windows Domain Server.</P>
+
+<H2><A name="Startup-Usinglocalcopy"></A>Using --local-copy</H2>
+
+<P><TT>openejb start --local-copy=true</TT></P>
+
+<P>Instructs the container system to marshall (ie, copy) all calls between beans are required by the EJB 1.1 specification.  This is the default.</P>
+
+<P><TT>openejb start --local-copy=false</TT></P>
+
+<P>Instructs the container system to not marshall (copy) calls between beans. The container system as will pass parameters and return values without copying or marshalling as is required for EJB 2.0 Local interfaces.</P>
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>
