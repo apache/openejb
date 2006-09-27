@@ -1,0 +1,654 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - Space Index</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	Space Index
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=Space%20Index">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26478&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+
+<H2>Space Index</H2>
+
+<P>
+<TABLE width="99%" cellspacing="0" class="grid">
+    <TR>
+        <TD colspan="2">
+         <TABLE width="100%">
+           <TR>                <TD><A href="#index-0-9">0-9</A> ... 2</TD>
+                                                                      <TD><A href="#index-A">A</A> ... 2</TD>
+                                                                      <TD><A href="#index-B">B</A> ... 1</TD>
+                                                                      <TD><A href="#index-C">C</A> ... 8</TD>
+                                                                      <TD><A href="#index-D">D</A> ... 5</TD>
+                                                                      <TD><A href="#index-E">E</A> ... 7</TD>
+                                                              </TR><TR>
+                                                   <TD><A href="#index-F">F</A> ... 1</TD>
+                                                                      <TD><A href="#index-G">G</A> ... 1</TD>
+                                                                      <TD><A href="#index-H">H</A> ... 4</TD>
+                                                                      <TD><A href="#index-I">I</A> ... 2</TD>
+                                                                      <TD><A href="#index-J">J</A> ... 2</TD>
+                                                                      <TD><A href="#index-K">K</A> ... 0</TD>
+                                                              </TR><TR>
+                                                   <TD><A href="#index-L">L</A> ... 2</TD>
+                                                                      <TD><A href="#index-M">M</A> ... 3</TD>
+                                                                      <TD><A href="#index-N">N</A> ... 2</TD>
+                                                                      <TD><A href="#index-O">O</A> ... 10</TD>
+                                                                      <TD><A href="#index-P">P</A> ... 0</TD>
+                                                                      <TD><A href="#index-Q">Q</A> ... 2</TD>
+                                                              </TR><TR>
+                                                   <TD><A href="#index-R">R</A> ... 2</TD>
+                                                                      <TD><A href="#index-S">S</A> ... 3</TD>
+                                                                      <TD><A href="#index-T">T</A> ... 5</TD>
+                                                                      <TD><A href="#index-U">U</A> ... 0</TD>
+                                                                      <TD><A href="#index-V">V</A> ... 1</TD>
+                                                                      <TD><A href="#index-W">W</A> ... 3</TD>
+                                                              </TR><TR>
+                                                   <TD><A href="#index-X">X</A> ... 1</TD>
+                                                                      <TD><A href="#index-Y">Y</A> ... 0</TD>
+                                                                      <TD><A href="#index-Z">Z</A> ... 0</TD>
+                                                                      <TD><A href="#index-%2521%2540%2523%2524">!@#$</A> ... 0</TD>
+                                                                                                                  <TD>&nbsp;</TD>
+                                            <TD>&nbsp;</TD>
+                                                </TR>
+         </TABLE>
+        </TD>
+    </TR>
+   <TR valign="top">        <TD><H4 style="margin-top: 0px"><A name="index-0-9"></A>0-9</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="1.0">
+                         <A href="10.html">1.0</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Here lies the documentation for the future 1.0</DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="1.0 Branch Test Status">
+                         <A href="10-branch-test-status.html">1.0 Branch Test Status</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">test:all: test:local:   java   java                java   java Running EJB compliance tests on IntraVM Server   java   java OpenEJB 1.0SNAPSHOT  build: 200602222356   java http://www.openejb.org   java resources 1   java OpenEJB ready.   java ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-A"></A>A</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Annoyances">
+                         <A href="annoyances.html">Annoyances</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">right, let us know what annoys you when using OpenEJB. Big or small, doesn&apos;t matter, let us know and let other users know. You can help other OpenEJB users get around annoying ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Articles">
+                         <A href="articles.html">Articles</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB Articles   0.9.0  OpenEJB: EJB for Tomcaton http://www.onjava.com/pub/a/onjava/2003/02/12/ejbtomcat.html, by Jacek Laskowski, onjava.com  0.9.2  Getting Started With OpenEJB http://ideoplex.com/id/768/gettingstartedwithopenejb, by Dwight Shih, ideoplex.com A Simple Entity Bean with OpenEJB http://ideoplex.com ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-B"></A>B</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Building">
+                         <A href="building.html">Building</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Building the Source Building OpenEJB from the sources requires Apache Maven to be installed. Install and run it to see if it works well. See Apache Maven http://maven.apache.org web site for information on how to do it.  $ maven v    \/  Apache   \/ / ` \ V / ) &apos; \  intelligent ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-C"></A>C</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Castor CMP">
+                         <A href="castor-cmp.html">Castor CMP</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">What engine does OpenEJB use for CMP persistence? OpenEJB uses Castor JDO for CMP persistence. The CMP config files are all Castor controlled files (www.castor.org). At the moment, most of the real juicy CMP configuration file information is at the Castor ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Collapsed EAR">
+                         <A href="collapsed-ear.html">Collapsed EAR</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">One archive The basic idea of this approach is that your Servlets and EJBs are together in your war file as one app.  No classloader boundries between Serlvets &amp; EJBs  EJBs and Servlets can share all thirdparty libraries (like Spring!), no ear required ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Collapsed EAR on Linux">
+                         <A href="collapsed-ear-on-linux.html">Collapsed EAR on Linux</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Commands Only A lot of times docs get chatty. Sometimes there is nothing better than standing over someone&apos;s shoulder and watching how to setup something. So, here we go. This doc sets up the Moviefun example on Tomcat 5.0.28 ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Common Errors">
+                         <A href="common-errors.html">Common Errors</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Cannot find container &quot;FOO&quot; for bean &quot;BAR&quot; When a bean gets deployed in OpenEJB, it gets associated with a particular container. Subsequently, that container may not be configured in that instance of the server. When the server loads the Jar with the deployed beans, it places beans in the containers ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Configuration">
+                         <A href="configuration.html">Configuration</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Short Overview  Configuration Properties  openejb.home OpenEJB home (installation) directory path. All relative paths are resolved against the property unless openejb.base is set. Unless set, the value is assigned to the user.dir Java property.  openejb.base OpenEJB base directory ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Containers">
+                         <A href="containers.html">Containers</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Declaring your Container CMP Entity containers are defined with the <CONTAINER> element, under the <OPENEJB> element. This is actually the declaration used for all containers defined in the container system. The part that actually makes it a cmp container is the ctype attribute, specifially, a ctype attribute ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Creating itests">
+                         <A href="creating-itests.html">Creating itests</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB itests The OpenEJB itests module is a framework to create EJB test cases that are designed according to the JUnit rules, i.e. they all have setUp, tests and tearDown methods. Since it&apos;s JUnitbased, you can do whatever you could do ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="CVS">
+                         <A href="cvs.html">CVS</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Getting the Source Getting involved in any Open Source project requires the source. The standard tool for managing source code in open source projects is CVS. If you are not familiar with CVS, take a moment to read our CVS FAQ. If you have ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-D"></A>D</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Deploy Tool">
+                         <A href="deploy-tool.html">Deploy Tool</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">NAME  openejb deploy OpenEJB Deploy Tool  SYNOPSIS  openejb deploy #options jarfiles  NOTE  The OpenEJB Deploy tool is an OPTIONAL tool that creates the openejbjar.xml file required for your bean to be loaded into the container system at startup. If you want ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Deployment ID">
+                         <A href="deployment-id.html">Deployment ID</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">What is a Deployment ID? Every bean deployed in OpenEJB has a unique deploymentid that identifies it within the scope of the entire container system. The server and container system refer beans at runtime using the bean&apos;s deployment id.  Like ejbname This deployment id ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Deployments">
+                         <A href="deployments.html">Deployments</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Deployments&apos; element in openejb.conf   A single jar To include a single jar by name, just declare a &apos;Deployments&apos; element with a &apos;jar&apos; attribute pointing to the jar file on the file system.  <OPENEJB> ... <DEPLOYMENTS jar="c:\my\app\superEjbs.jar"> <DEPLOYMENTS jar="c ... </div>                                  <img src=">
+                         <A href="details-on-openejb-jar.html">Details on openejb-jar</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">What is an openejbjar.xml? This is the file created by the Deploy Tool that maps your bean&apos;s deployment descriptor (ejbjar.xml) to actual containers and resources declared in your OpenEJB configuration (openejb.conf). In fact, the Deploy tool really does nothing more than create ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Download">
+                         <A href="download.html">Download</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB 1.0 Final</DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-E"></A>E</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="EJB 3 Persistence Whiteboard">
+                         <A href="ejb-3-persistence-whiteboard.html">EJB 3 Persistence Whiteboard</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">add what you want</DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="EJB 3 Whiteboard">
+                         <A href="ejb-3-whiteboard.html">EJB 3 Whiteboard</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">EJB 3 Simplified API Straight off the top of my head, we need:   Java 5/Annotation support with optional 1.4 via something like retrotranslator  Deployment via annotation support  Generic interceptor support  Newstyle local and remote ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="EJB Glossary">
+                         <A href="ejb-glossary.html">EJB Glossary</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">JPA javax.persistence API component interface refers to the legacy interfaces that extend either javax.ejb.EJBObject or javax.ejb.EJBLocalObject business interface refers to the new style of local or remote interfaces that does not extend either javax.ejb.EJBObject or javax.ejb.EJBLocalObject</DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="EJB3 iTests">
+                         <A href="ejb3-itests.html">EJB3 iTests</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px"></DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Embedding">
+                         <A href="embedding.html">Embedding</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">When your clients run OpenEJB in the same VM using the IntraVM Server, you&apos;re using OpenEJB as an embedded EJB Server just like InstantDB and Cloudscape are embedded databases servers. Just like InstantDB and Cloudscape, OpenEJB needs ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Embedding OpenEJB">
+                         <A href="embedding-openejb.html">Embedding OpenEJB</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB embedded in your app, server, IDE, or JUnit  Say what?! A local server?  Yes, you read correctly. OpenEJB can be embedded and treated as your very own personal EJB container. If they can have Local and Remote EJB&apos;s ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Executables">
+                         <A href="executables.html">Executables</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">doc describes the designinprogress for revamping the commandline execution of openejb. Basic ideas:  Commands can be added/removed (start, stop, test, validate, deploy)  Adding/removing only requires adding/removing jars from the classpath We can stuff ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-F"></A>F</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="FAQ">
+                         <A href="faq.html">FAQ</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">ContainerManaged Persistence  What engine does OpenEJB use for CMP? In versions 1.0 and before, OpenEJB uses Castor JDO for CMP persistence. The CMP config files are all Castor controlled files (http://www.castor.org). At the moment, most of the real juicy ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-G"></A>G</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Geronimo">
+                         <A href="geronimo.html">Geronimo</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB is the EJB Container implementation for Apache Geronimo http://geronimo.apache.org. That integration is quite a bit different than what OpenEJB users are familiar with. The best source of documentation on Geronimo and it&apos;s usage of OpenEJB is here:  Geronimo Wiki http://wiki.apache.org/geronimo Apache ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-H"></A>H</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Hello World">
+                         <A href="hello-world.html">Hello World</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">basic EJB example  Before starting Windows C:\my\app&gt; RunIt Linux/Unix user@host app# ./RunIt.sh What if it didn&apos;t work If you ran into any problems, first check your openejb.log file at c:\openejb\openejb.log. ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Help">
+                         <A href="help.html">Help</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Documentation  Please help us keep this site uptodate. Each page has an &quot;\edit\&quot; link in the upper right corner. If you see some typos, important notes on usage that we missed or would just like to expand the documentation ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="HomeBaseDiscussion">
+                         <A href="homebasediscussion.html">HomeBaseDiscussion</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Life in 0.9.2 Some background on how a 0.9.2 installation behaves.   Basic layout Basically, openejb.base is the source for 100% of all configuration information and third party config files (log4j, castor, instantdb, whatever). This includes finding where the, possibly many ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="HomeLinks">
+                         <A href="homelinks.html">HomeLinks</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px"></DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-I"></A>I</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/home_16.gif" height="16" width="16" border="0" align="absmiddle" title="Index (Space Home Page)">
+                         <A href="index.html">Index</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Welcome to OpenEJB!  OpenEJB is an open source, modular, configurable, and extendable EJB Container System and EJB Server.   EJB Server  OpenEJB comes with fast, lightweight EJB Servers for both Local and Remote access. That&apos;s right, deploy your EJBs ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="iTests Overview">
+                         <A href="itests-overview.html">iTests Overview</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Motivation The basic idea behind itests that makes them slightly different than plain junit tests ran by maven is that it&apos;s assumed that there are other systems (servers, databases, brokers, etc) that need to be started or connected to before the tests can run. The tests ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-J"></A>J</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="JAXB2 Java Inheritance">
+                         <A href="jaxb2-java-inheritance.html">JAXB2 Java Inheritance</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">EnterpriseBean superclass  /   Copyright 2006 The Apache Software Foundation or its licensors, as applicable.   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);  you may not use this file except in compliance with the License.  You may obtain a copy of the License at     http ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="JPA Notes">
+                         <A href="jpa-notes.html">JPA Notes</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Container side of JPA # Find the persistence.xml files # Process the persistence.xml files and create PersistenceUnitInfo objects # Determine and instantiate the javax.persistence.spi.PersistenceProvider class for persistence units # PersistenceProvider.createContainerEntityManagerFactory(persistenceUnitInfo</DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-K"></A>K</H4>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-L"></A>L</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Latest Unstable">
+                         <A href="latest-unstable.html">Latest Unstable</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Good to know Firsttime Users of OpenEJB should try out a stable release unless otherwise noted. People currently in development with OpenEJB are encouraged to try out unstable builds from time to time and get us feedback. This really helps ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Local Server">
+                         <A href="local-server.html">Local Server</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">http://www.openejb.org/images/diagramlocalserver.gif valign=top, align=right, hspace=15!  Accessing EJBs Locally When OpenEJB embedded in your app, server, IDE, or JUnit, you can use what we call the Local Server and avoid ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-M"></A>M</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Mailing Lists">
+                         <A href="mailing-lists.html">Mailing Lists</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">User Mailing List  Where the general OpenEJB community goes to ask questions, make suggestions, chat with other users and developers, and keep a finger on the pulse of the project.  Medium volume mailing list, dedicated to the OpenEJB community.   openejbusers@incubator.apache.org mailto:openejbusers@incubator.apache.org ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Manual del Usario">
+                         <A href="manual-del-usario.html">Manual del Usario</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Configuration  Short Overview  Configuration Properties  openejb.home OpenEJB home (installation) directory path. All relative paths are resolved against the property unless openejb.base is set. Unless set, the value is assigned to the user.dir Java property.  openejb.base OpenEJB base ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="MySQL">
+                         <A href="mysql.html">MySQL</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">How do I setup OpenEJB to use MySQL? Here are my config files for getting the CMP entity example to work. Note that the mm driver is no longer available from sourceforge and must now be directly downloaded from www.mysql.com and that the driver ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-N"></A>N</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Navigation">
+                         <A href="navigation.html">Navigation</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Overview  Home Index  News  FAQ  Download  Quickstart  Mailing Lists  Source Code   General  Deployment Deploy Tool  Startup  Validation Validation Tool  Webadmin Webadmin   Configuration  General Configuration  Deployments Deployments  Containers Containers  Castor CMP ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="News">
+                         <A href="news.html">News</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">RSS http://docs.codehaus.org/spaces/blogrss.action?key=OPENEJB An RSS http://docs.codehaus.org/spaces/blogrss.action?key=OPENEJB feed is available.  News</DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-O"></A>O</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 0.9.2">
+                         <A href="openejb-092.html">OpenEJB 0.9.2</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB 0.9.2 June 5th, 2003 	  	 openejb0.9.2.zip http://dist.codehaus.org/openejb/distributions/openejb0.9.2.zip 	 openejb0.9.2.tar.gz http://dist.codehaus.org/openejb/distributions/openejb0.9.2.tar.gz 	 openejb0.9.2src.zip http://dist.codehaus.org/openejb/distributions/openejb0.9.2src.zip 	 openejb0.9.2src.tar.gz http://dist.codehaus.org/openejb/distributions/openejb0.9.2src.tar.gz 	 Release Notes OpenEJB ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 1.0">
+                         <A href="openejb-10.html">OpenEJB 1.0</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Release Date: February 26th, 2006  EJB 1.1 support  EJB 2.0 Local Interface support   Download   Binary: openejb1.0 \  Source: openejb1.0src \    Tested On     Windows XP (JDK 1.4)  Windows XP (JDK 1.5)  Linux (JDK 1.4 ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 1.0 Beta 1">
+                         <A href="openejb-10-beta-1.html">OpenEJB 1.0 Beta 1</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Release Date: August 28th, 2005  Download  Binary: openejb1.0beta1 \  Source: openejb1.0beta1src \  Updated ejbtestingexamples.zip http://www.openejb.org/1.0beta1/ejbtestingexamples.zip for the Container Driven Testing Series http://www.theserverside.com/articles/article.tss?l=ContainerDrivenTestingSeries on TheServerSide.com  Use the Latest Unstable ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 1.0 Test Matrix">
+                         <A href="openejb-10-test-matrix.html">OpenEJB 1.0 Test Matrix</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Windows XP (JDK 1.4)  Windows XP (JDK 1.5)  Linux (JDK 1.4)  Linux (JDK 1.5)  Mac OSX (JDK 1.4)  Mac OSX (JDK 1.5)   Embedded (/) (/) (/) (/) (/) (/)  Standalone (/) (/) (/) (/) (/) (/)  Tomcat 4.1.x (Global Mode) (/) (/) (/) (/) (/) (/)  Tomcat 4.1.x ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 3">
+                         <A href="openejb-3.html">OpenEJB 3</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Past, Present, and Future The goal of OpenEJB 3 is to merge our past, present, and future into one codebase. OpenEJB 3 will take the excellent features in OpenEJB 1.0 (tomcat integration, testability, embeddibility, ease of use, etc), move towards an ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 3 HeartBeat">
+                         <A href="openejb-3-heartbeat.html">OpenEJB 3 HeartBeat</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB 3 Binary Snapshot  Binaries are built by our continuous integration system on every change to svn. http://vmbuild.apache.org:8080/continuum/servlet/browse?file=110/target/openejb3.0SNAPSHOTbin.zip http://vmbuild.apache.org:8080/continuum/servlet/browse?file=110/target/openejb3.0SNAPSHOTbin.tar.gz Check ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB 3 RoadMap">
+                         <A href="openejb-3-roadmap.html">OpenEJB 3 RoadMap</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Closed  EJB 3.0 closed items    General closed items    Open  EJB 3.0 open items    General open items</DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB Eclipse Plugin">
+                         <A href="openejb-eclipse-plugin.html">OpenEJB Eclipse Plugin</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB Eclipse Plugin Collaboration page for those involved with the OpenEJB Eclipse plugin.  Overview The overall idea is to provide an Eclipse plugin for OpenEJB that allows developers the capability to configure and run multiple instances of OpenEJB within Eclipse. Aside from ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB JSR-107 Integration">
+                         <A href="openejb-jsr-107-integration.html">OpenEJB JSR-107 Integration</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB JSR107 (JCACHE) Integration This page is for the collaboration for those involved with the integration of JSR107 into OpenEJB.  Overview The idea here is to add a caching layer to OpenEJB. The overall objective is to improve performance in OpenEJB where applicable through caching EJBs.  Status Dain ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="OpenEJB per Tomcat installation">
+                         <A href="openejb-per-tomcat-installation.html">OpenEJB per Tomcat installation</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">OpenEJB per Tomcat instance  Configure OpenEJB per Tomcat instance requires the following steps: Copy the war/openejbloader1.0SNAPSHOT.war into the webapps dir of a running Tomcat install  $ cd $OPENEJBHOME $ cp war/openejbloader1.0SNAPSHOT.war $CATALINAHOME/webapps  or  c:/&gt; cd %OPENEJBHOME ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-P"></A>P</H4>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-Q"></A>Q</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="QuickLinks">
+                         <A href="quicklinks.html">QuickLinks</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Index  News  FAQ  Download  Lists Mailing Lists</DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Quickstart">
+                         <A href="quickstart.html">Quickstart</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Installation  To install OpenEJB, simply download the latest release Download and unpack your zip or tar.gz into the directory where you want OpenEJB to live. Windows users can download the zip and unpack it with the WinZip program. Linux users can download ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-R"></A>R</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Remote Server">
+                         <A href="remote-server.html">Remote Server</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">http://www.openejb.org/images/diagramremoteserver.gif valign=top, align=right, hspace=15!  Accessing EJBs Remotely When using OpenEJB as a standalone server you can connect across a network and access EJBs from a remote client. The client code ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Rules of Thumb">
+                         <A href="rules-of-thumb.html">Rules of Thumb</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Configuration  Configuration settings should have configurable defaults at the module, ear, server and cluster level (when clustering is added). For example, security settings should be configurable on a per ejb, ejb jar, ear and server levels.   Settings should have ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-S"></A>S</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Source Code">
+                         <A href="source-code.html">Source Code</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Browsing  You can browse the source via the web interface http://svn.apache.org/viewvc/incubator/openejb/trunk/ to Subversion.    Downloading  Or via a Subversion client you can download (checkout) the source with the following URL http://svn.apache.org/repos/asf ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Space Index">
+                         <A href="">Space Index</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px"></DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Startup">
+                         <A href="startup.html">Startup</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">NAME openejb start OpenEJB Remote Server  SYNOPSIS openejb start options  NOTE The OpenEJB Remote Server must be executed from the OPENEJBHOME directory. This is the directory where OpenEJB was installed or unpacked. For the remainder of this document we will assume you unpacked ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-T"></A>T</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Team">
+                         <A href="team.html">Team</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">David Blevins mailto:david.blevins@visi.com dblevins http://docs.codehaus.org/display/dblevins Founder, Lead  Richard MonsonHaefel mailto:richard@monsonhaefel.com rmonsonus http://docs.codehaus.org/display/rmonsonus Founder  Aaron Mulder mailto:ammulder@alumni.princeton.edu amulder http://docs.codehaus.org/display/amulder ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Tomcat">
+                         <A href="tomcat.html">Tomcat</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Introduction There are a two styles of integrating OpenEJB and Tomcat http://jakarta.apache.org/tomcat.    Single OpenEJB One instance of OpenEJB inside Tomcat and shared by all webapps.  Multiple OpenEJB Multiple instances of OpenEJB inside Tomcat, specifically one OpenEJB instance ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Tomcat ejb-refs">
+                         <A href="tomcat-ejb-refs.html">Tomcat ejb-refs</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Adding ejbref in your web.xml  An example is best for this. Say you had a block like the following in your web.xml file.  <EJBREF> <DESCRIPTION> EJB Reference to the bean deployed to OpenEJB </DESCRIPTION> <EJBREFNAME>ejb/hello</EJBREFNAME> <EJBREFTYPE>Session ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Tomcat Notes">
+                         <A href="tomcat-notes.html">Tomcat Notes</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Global Setup Classloader&apos;s classpath looks like this, essentially: StandardClassLoader  available:   Extensionjavax.activation, implementationVendor=Sun Microsystems, Inc., implementationVendorId=com.sun, implementationVersion=1.0.2, specificationVendor= Sun Microsystems, Inc., specificationVersion=1.0   Extensionorg.apache.tools.ant, implementationVendor=Apache Software Foundation, implementationVersion ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Tomcat ObjectFactory">
+                         <A href="tomcat-objectfactory.html">Tomcat ObjectFactory</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Leveraging J2EE JNDI principles  Abstract  Java 2 Enterprise Edition (J2EE) provides several technologies that lets build J2EEcompliant applications that can be run in any J2EEcompliant application server. One of the several technologies is Java Naming and Directory Interface ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-U"></A>U</H4>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-V"></A>V</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Validation Tool">
+                         <A href="validation-tool.html">Validation Tool</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">NAME openejb validate OpenEJB Validation Tool  SYNOPSIS  openejb validate options jarfiles  NOTE  The OpenEJB Validation tool must be executed from the OPENEJBHOME directory. This is the directory where OpenEJB was installed or unpacked. For for the remainder of this document we will assume you ... </DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-W"></A>W</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Webadmin">
+                         <A href="webadmin.html">Webadmin</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Webadmin is a new addition to OpenEJB 1.0 and very innovative in that it lets you plugin your own admin beans. Here are some screenshots:  Main http://www.openejb.org/images/webadminmain.png EJB Details http://www.openejb.org/images/webadminejbdetails.png List Logs ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="Webapp-based EJBs">
+                         <A href="webapp-based-ejbs.html">Webapp-based EJBs</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">Introduction The basic idea of this approach is that your Servlets and EJBs are together in your war file as one app.     No classloader boundries between Serlvets &amp; EJBs     EJBs and Servlets can share all thirdparty libraries (like Spring!), no ear required.     Can ... </DIV>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="WebObjects">
+                         <A href="webobjects.html">WebObjects</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">We don&apos;t officially support the WebObjects OpenEJB integration, but we are happy to offer up this page for those users to place information on usage of EJBs in WebObjects 5.1. Click the edit link above, sign up for an wiki account and edit ... </DIV>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-X"></A>X</H4>
+                                 <IMG src="http://cwiki.apache.org/confluence/images/icons/docs_16.gif" height="16" width="16" border="0" align="absmiddle" title="XDoclet plugin">
+                         <A href="xdoclet-plugin.html">XDoclet plugin</A>
+        <BR>
+             <DIV class="smalltext" style="margin: 0 0 0 36px">XDoclet plugin XDoclet 1&apos;s OpenEJB Support http://opensource.atlassian.com/projects/xdoclet/browse/XDT669 openejb module http://xdoclet.sourceforge.net/xdoclet/ant/xdoclet/modules/openejb/ejb/OpenEJBSubTask.html http://issues.apache.org/jira/browse/GERONIMO778</DIV>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-Y"></A>Y</H4>
+        </TD>
+                                      </TR><TR valign="top">
+                           <TD><H4 style="margin-top: 0px"><A name="index-Z"></A>Z</H4>
+        </TD>
+                                      <TD><H4 style="margin-top: 0px"><A name="index-%21%40%23%24"></A>!@#$</H4>
+        </TD>
+                                          </TR>
+</TABLE>
+</P>
+
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>

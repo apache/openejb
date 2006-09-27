@@ -1,0 +1,489 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - Tomcat ObjectFactory</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	Tomcat ObjectFactory
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=Tomcat%20ObjectFactory">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26519&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<P>Leveraging J2EE JNDI principles</P>
+<H1><A name="TomcatObjectFactory-Abstract"></A>Abstract</H1>
+
+
+<P>Java 2 Enterprise Edition (J2EE) provides several technologies that lets build J2EE-compliant applications that can be run in any J2EE-compliant application server. One of the several technologies is Java Naming and Directory Interface (JNDI). JNDI is a technology that provides a unified access to different naming and directory services. Regardless of the underlaying service, if it supports JNDI a client doesn&apos;t have to know what exactly application it&apos;s to talk to other than it adheres to JNDI concepts and interfaces.</P>
+
+<P>OpenEJB and Tomcat can complement each other in fullfiling J2EE principles. OpenEJB is an EJB container whereas Tomcat is a servlet container. Although they serve different clients, both products use JNDI extensively. Obviously, either container provides different JNDI &quot;views&quot; of its managed components. The question pertaining to the integration is how to tie the different naming systems so that when a client requests an object from Tomcat naming space, Tomcat will know that it needs to pass the request along to OpenEJB naming space. That&apos;s what the object factory is to solve out.</P>
+
+<P>While reading JNDI specification you can come across the interface: <SPAN class="nobr"><A href="http://java.sun.com/j2se/1.4.1/docs/api/javax/naming/spi/ObjectFactory.html" title="Visit page outside Confluence" rel="nofollow">javax.naming.spi.ObjectFactory<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN> . The javadoc of the interface reads:<BR>
+This interface represents a factory for creating an object.</P>
+
+<P>The JNDI framework allows for object implementations to be loaded in dynamically via object factories. For example, when looking up a printer bound in the name space, if the print service binds printer names to References, the printer Reference could be used to create a printer object, so that the caller of lookup can directly operate on the printer object after the lookup.<BR>
+Theorically, it seems to be possible to create a web application that makes use of EJBs, deploy these EJBs in OpenEJB, and the web application in Tomcat, set up an object factory and finally boot it up. The following sections are to outline what exactly the steps are in OpenEJB and Tomcat with description of why they are required at all.</P>
+
+<H1><A name="TomcatObjectFactory-Beforewestart"></A>Before we start</H1>
+
+
+<P>Before we start, ensure that OpenEJB and Tomcat are in appropriate releases.</P>
+
+<TABLE cellpadding="5" width="85%" cellspacing="8px" class="warningMacro" border="0" align="center"><COLGROUP><COL width="24"><COL></COLGROUP><TR><TD valign="top"><IMG src="http://cwiki.apache.org/confluence/images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></TD><TD>
+<P>What follows should be doable on any Tomcat 4.x or 5.x release. The author tested it under Jakarta Tomcat 4.1.18 and 5.0.27 (the most recent public release at that time).</P></TD></TR></TABLE>
+
+
+
+<TABLE cellpadding="5" width="85%" cellspacing="8px" class="warningMacro" border="0" align="center"><COLGROUP><COL width="24"><COL></COLGROUP><TR><TD valign="top"><IMG src="http://cwiki.apache.org/confluence/images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></TD><TD>
+<P>It&apos;s assumed that Tomcat and OpenEJB are already installed and running properly as a separate products.</P></TD></TR></TABLE>
+
+
+<H1><A name="TomcatObjectFactory-ReferencingEJBsinwebapplication"></A>Referencing EJBs in web application</H1>
+
+
+<P>J2EE 1.3 specification says (page 57):</P>
+
+<P>The Application Component Provider must declare all the EJB references using the ejb-ref elements of the deployment descriptor. This allows the consumer of the application component&apos;s jar file (the Application Assembler or Deployer) to discover all the EJB references used by the application component.</P>
+
+<P>It means that each time a web application needs to reference a bean, the bean has to be declared in the web application&apos;s deployment descriptor ( <EM>/WEB-INF/web.xml</EM> file). The element which does so is <EM>ejb-ref</EM> . Although most containers don&apos;t enforce that approach, it&apos;s always better to describe dependencies in a standard, J2EE-compliant way, in the deployment descriptor of the corresponding components.</P>
+
+<TABLE cellpadding="5" width="85%" cellspacing="8px" class="warningMacro" border="0" align="center"><COLGROUP><COL width="24"><COL></COLGROUP><TR><TD valign="top"><IMG src="http://cwiki.apache.org/confluence/images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></TD><TD>
+<P>Tomcat won&apos;t refuse to activate the components even if they reference EJBs with no declaration in the deployment descriptors.</P></TD></TR></TABLE>
+
+
+<P>Our example&apos;s web application declares the referenced bean in the deployment descriptor ( <EM>/WEB-INF/web.xml</EM> ) as follows:</P>
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">&lt;ejb-ref&gt;
+    &lt;description&gt;
+        EJB Reference to the bean deployed to OpenEJB
+    &lt;/description&gt;
+    &lt;ejb-ref-name&gt;ejb/hello&lt;/ejb-ref-name&gt;
+    &lt;ejb-ref-type&gt;Session&lt;/ejb-ref-type&gt;
+    &lt;home&gt;org.acme.HelloHome&lt;/home&gt;
+    &lt;remote&gt;org.acme.Hello&lt;/remote&gt;
+&lt;/ejb-ref&gt;</PRE>
+</DIV></DIV>
+
+
+<P>Here goes a JSP that uses the ejb-ref-name to get a reference to the declared bean.</P>
+
+
+<DIV class="code"><DIV class="codeHeader"><B>openejb.jsp</B></DIV><DIV class="codeContent">
+<PRE class="code-java">&lt;%@ page <SPAN class="code-keyword">import</SPAN>=&quot;org.acme.HelloObject,
+                 org.acme.HelloHome,
+                 javax.naming.InitialContext,
+                 javax.naming.Context&quot;%&gt;
+
+&lt;html&gt;
+&lt;head&gt;
+	&lt;title&gt;OpenEJB -- EJB <SPAN class="code-keyword">for</SPAN> Tomcat&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;%
+    Context initCtx = <SPAN class="code-keyword">new</SPAN> InitialContext();
+
+    <SPAN class="code-object">Object</SPAN> object = initCtx.lookup(<SPAN class="code-quote">&quot;java:comp/env/ejb/hello&quot;</SPAN>);
+    HelloHome helloHome = (HelloHome)
+            javax.rmi.PortableRemoteObject.narrow(object, HelloHome.class);
+    HelloObject bean = helloHome.create();
+%&gt;
+&lt;%= bean.sayHello() %&gt;
+&lt;/body&gt;
+&lt;/html&gt;</PRE>
+</DIV></DIV>
+
+
+
+<P>As it&apos;s shown in the sample JSP above, there is no direct reference to the EJB container to be used. The application component provider doesn&apos;t have to know what container the EJB is to be deployed to. What it does have to ascertain is that the name the JSP uses is actually an ejb reference. Moreover, the reference should be the one to HelloHome home interface or otherwise the application will fail.</P>
+
+<H1><A name="TomcatObjectFactory-InstallingOpenEJB%27sEJBfactoryinTomcat"></A>Installing OpenEJB&apos;s EJB factory in Tomcat</H1>
+
+
+<TABLE cellpadding="5" width="85%" cellspacing="8px" class="warningMacro" border="0" align="center"><COLGROUP><COL width="24"><COL></COLGROUP><TR><TD valign="top"><IMG src="http://cwiki.apache.org/confluence/images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></TD><TD>
+<P> <B>CATALINA_HOME</B> environment variable points to the directory where Jakarta Tomcat 4.x has been installed.</P></TD></TR></TABLE>
+
+
+<P>The J2EE 1.3 specification says (page 56):</P>
+
+<P>The Deployer binds the EJB references to the enterprise bean&apos;s homes in the target operational environment.</P>
+
+<P>It means that after an Application Component Provider (in the document, it&apos;s you) has created a web application and specified an EJB reference in the deployment descriptor, a deployer (you, too) has to bind the reference in Tomcat. The task boils down to put appropriate entry in Tomcat&apos;s configuration file.</P>
+
+<P>Tomcat&apos;s default configuration file is <EM>server.xml</EM> in <EM>$CATALINA_HOME/conf</EM> directory. According to server.xml&apos;s documentation it&apos;s possible to create an appropriate definition of a factory and let the factory to handle requests for the objects it is registered to handle. That&apos;s what OpenEJB&apos;s EJB factory does. It intercepts messages for EJBs, passes it along to OpenEJB and returns requested bean.</P>
+
+<P>Tomcat registers resource factories in <EM>GlobalNamingResources</EM> or <EM>Context</EM> elements which demarcate the name space of different web applications.</P>
+
+
+<TABLE cellpadding="5" width="85%" cellspacing="8px" class="warningMacro" border="0" align="center"><COLGROUP><COL width="24"><COL></COLGROUP><TR><TD valign="top"><IMG src="http://cwiki.apache.org/confluence/images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></TD><TD>
+<P>It&apos;s recommended to place resource definitions within Context elements, which prevents name clashes to occur when the same names are to point to different resources (e.g. EJBs).</P></TD></TR></TABLE>
+
+
+
+<P>The following snippet shows the elements necessary to register the EJB reference, which has been defined in the web application&apos;s deployment descriptor. The document doesn&apos;t describe the particular elements of server.xml file other than <EM>ResourceParams</EM> parameters. The reader shall read the <SPAN class="nobr"><A href="http://cwiki.apache.org/confluence/pages/createpage.action?spaceKey=OPENEJB&title=null&linkCreation=true&fromPageId=26519" title="Create Page: null" class="createlink">Tomcat documentation<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/plus.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN> to get acquainted with the file&apos;s structure.</P>
+
+
+<DIV class="code"><DIV class="codeHeader"><B>$CATALINA_HOME/conf/server.xml</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;Server&gt;</SPAN>
+    ...
+    <SPAN class="code-tag">&lt;Context path=...&gt;</SPAN>
+        ...
+        &lt;Ejb name=<SPAN class="code-quote">&quot;ejb/hello&quot;</SPAN>
+             type=<SPAN class="code-quote">&quot;Session&quot;</SPAN>
+             home=<SPAN class="code-quote">&quot;org.acme.HelloHome&quot;</SPAN>
+             remote=<SPAN class="code-quote">&quot;org.acme.Hello&quot;</SPAN>/&gt;
+        <SPAN class="code-tag">&lt;ResourceParams name=<SPAN class="code-quote">&quot;ejb/hello&quot;</SPAN>&gt;</SPAN>
+            <SPAN class="code-tag">&lt;parameter&gt;</SPAN>
+                <SPAN class="code-tag">&lt;name&gt;</SPAN>factory<SPAN class="code-tag">&lt;/name&gt;</SPAN>
+                <SPAN class="code-tag">&lt;value&gt;</SPAN>org.openejb.client.TomcatEjbFactory<SPAN class="code-tag">&lt;/value&gt;</SPAN>
+            <SPAN class="code-tag">&lt;/parameter&gt;</SPAN>
+            <SPAN class="code-tag">&lt;parameter&gt;</SPAN>
+                <SPAN class="code-tag">&lt;name&gt;</SPAN>openejb.naming.factory.initial<SPAN class="code-tag">&lt;/name&gt;</SPAN>
+                <SPAN class="code-tag">&lt;value&gt;</SPAN>org.openejb.client.LocalInitialContextFactory<SPAN class="code-tag">&lt;/value&gt;</SPAN>
+            <SPAN class="code-tag">&lt;/parameter&gt;</SPAN>
+            <SPAN class="code-tag">&lt;parameter&gt;</SPAN>
+                <SPAN class="code-tag">&lt;name&gt;</SPAN>openejb.naming.security.principal<SPAN class="code-tag">&lt;/name&gt;</SPAN>
+                <SPAN class="code-tag">&lt;value&gt;</SPAN>username<SPAN class="code-tag">&lt;/value&gt;</SPAN>
+            <SPAN class="code-tag">&lt;/parameter&gt;</SPAN>
+            <SPAN class="code-tag">&lt;parameter&gt;</SPAN>
+                <SPAN class="code-tag">&lt;name&gt;</SPAN>openejb.naming.security.credentials<SPAN class="code-tag">&lt;/name&gt;</SPAN>
+                <SPAN class="code-tag">&lt;value&gt;</SPAN>password<SPAN class="code-tag">&lt;/value&gt;</SPAN>
+            <SPAN class="code-tag">&lt;/parameter&gt;</SPAN>
+            <SPAN class="code-tag">&lt;parameter&gt;</SPAN>
+                <SPAN class="code-tag">&lt;name&gt;</SPAN>openejb.naming.provider.url<SPAN class="code-tag">&lt;/name&gt;</SPAN>
+                <SPAN class="code-tag">&lt;value&gt;</SPAN>localhost:4201<SPAN class="code-tag">&lt;/value&gt;</SPAN>
+            <SPAN class="code-tag">&lt;/parameter&gt;</SPAN>
+            <SPAN class="code-tag">&lt;parameter&gt;</SPAN>
+                <SPAN class="code-tag">&lt;name&gt;</SPAN>openejb.ejb-link<SPAN class="code-tag">&lt;/name&gt;</SPAN>
+                <SPAN class="code-tag">&lt;value&gt;</SPAN>Hello<SPAN class="code-tag">&lt;/value&gt;</SPAN>
+            <SPAN class="code-tag">&lt;/parameter&gt;</SPAN>
+        <SPAN class="code-tag">&lt;/ResourceParams&gt;</SPAN>
+    <SPAN class="code-tag">&lt;/Context&gt;</SPAN>
+    ...
+<SPAN class="code-tag">&lt;/Server&gt;</SPAN></PRE>
+</DIV></DIV>
+
+
+
+<P>ResourceParams parameters consitute a bean reference. They inform Tomcat about who will know how to handle requests for the bean.*  <B>factory</B> - (mandatory) the class instantiated by Tomcat when a request for a bean has arrived; it must be <B>org.openejb.client.TomcatEjbFactory</B> if the request ought to be handed over to OpenEJB.</P>
+<UL>
+	<LI><B>openejb.naming.factory.initial</B> - (mandatory) OpenEJB JNDI InitialContext implementation; the parameter may be assigned to one of the two values:*  <B>org.openejb.client.LocalInitialContextFactory</B> - OpenEJB is started in the same JVM as Tomcat; it boosts performance drastically as the beans are in the same JVM as a client (e.g. a web application); it boots up OpenEJB in the local mode - an Local (aka IntraVM) Server instance</LI>
+	<LI><B>org.openejb.client.RemoteInitialContextFactory</B> - OpenEJB is started outside of the current JVM; all calls are forwarded to a OpenEJB Remote Server instance</LI>
+</UL>
+
+
+<UL>
+	<LI><B>openejb.ejb-link</B> - (mandatory) the bean&apos;s name to be looked up in OpenEJB; the name doesn&apos;t have to be the same as the reference&apos;s name in Tomcat; it&apos;s the name the bean may be found in OpenEJB JNDI name space.</LI>
+</UL>
+
+
+
+<P>The following parameters are only required when <B>openejb.naming.factory.initial</B> is set to <B>org.openejb.client.RemoteInitialContextFactory</B> .*  <B>openejb.naming.security.principal</B> - the name of the user who is allowed to access the JNDI context</P>
+<UL>
+	<LI><B>openejb.naming.security.credentials</B> - the password of the user who is set up in openejb.naming.security.principal parameter</LI>
+	<LI><B>openejb.naming.provider.url</B> - the server and port OpenEJB handles remote requests</LI>
+</UL>
+
+
+
+<P>The <B>factory</B> parameter indicates the class which passes a request for a bean to OpenEJB instance. In order for the class to be instantiated by Tomcat, OpenEJB Loader has to be installed. The Loader takes care of loading necessary classes from OpenEJB directory. It finds the directory relying upon <B>OPENEJB_HOME</B> environament variable.</P>
+
+<P>Create a file named setenv.sh (or setenv.bat on MS Windows) in $CATALINA_HOME/bin directory with the following content:</P>
+
+
+<DIV class="code"><DIV class="codeHeader"><B>$CATALINA_HOME/bin/setenv.sh</B></DIV><DIV class="codeContent">
+<PRE class="code-java">export CATALINA_OPTS=<SPAN class="code-quote">&quot;-Dopenejb.home=$OPENEJB_HOME&quot;</SPAN></PRE>
+</DIV></DIV>
+
+
+
+<P>Finally, add the OpenEJB Loader to Tomcat.</P>
+
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">$ cp $OPENEJB_HOME/dist/openejb_loader-0.9.0.war webapps/</PRE>
+</DIV></DIV>
+
+
+
+<P>That&apos;s it. Tomcat is now fully configured to work with OpenEJB. Don&apos;t forget to start up OpenEJB instance if the factory&apos;s been configured with RemoteInitialContextFactory.</P>
+
+<H1><A name="TomcatObjectFactory-Exampleapplication"></A>Example application</H1>
+
+
+<P>You can use the OpenEJB Hello World as an example EJB to test things out. You won&apos;t need to do anything differently. Deploy the myHelloEjb.jar just as described in <SPAN class="nobr"><A href="http://www.openejb.org/hello-world.html" title="Visit page outside Confluence" rel="nofollow">http://www.openejb.org/hello-world.html<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN> </P>
+
+<P>Register the factory in Tomcat by editing server.xml, i.e. add the above Ejb element declaration between Context&apos;s tags of Tomcat&apos;s default <EM>example</EM> web application. Place the JSP - openejb.jsp - in $CATALINA_HOME/webapps/examples directory.</P>
+
+<P>Start up Tomcat and enter <SPAN class="nobr"><A href="http://localhost:8080/examples/openejb.jsp" title="Visit page outside Confluence" rel="nofollow">http://localhost:8080/examples/openejb.jsp<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN> . As a result, you should see &quot;Hello World!!!!!&quot; on the screen.</P>
+
+<P>Tomcat should print out the following on its console (note OpenEJB messages about its startup):</P>
+
+<DIV class="code"><DIV class="codeContent">
+<PRE class="code-java">Using CATALINA_BASE:   C:\_Jacek\apps\jakarta-tomcat-4.1.18
+Using CATALINA_HOME:   C:\_Jacek\apps\jakarta-tomcat-4.1.18
+Using CATALINA_TMPDIR: C:\_Jacek\apps\jakarta-tomcat-4.1.18\temp
+Using JAVA_HOME:       C:\_JACEK\APPS\JDK1.3.1
+[INFO] Registry - -Loading registry information
+[INFO] Registry - -Creating <SPAN class="code-keyword">new</SPAN> Registry instance
+[INFO] Registry - -Creating MBeanServer
+[INFO] Http11Protocol - -Initializing Coyote HTTP/1.1 on port 8080
+Starting service Tomcat-Standalone
+Apache Tomcat/4.1.18
+OpenEJB 0.9.0    build: 20030118-2205
+http:<SPAN class="code-comment">//openejb.sf.net
+</SPAN>[INFO] Http11Protocol - -Starting Coyote HTTP/1.1 on port 8080
+[INFO] ChannelSocket - -JK2: ajp13 listening on 0.0.0.0/0.0.0.0:8009
+[INFO] JkMain - -Jk running ID=0 time=30/241
+    config=C:\_Jacek\apps\jakarta-tomcat-4.1.18\conf\jk2.properties</PRE>
+</DIV></DIV>
+
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>

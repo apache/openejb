@@ -1,0 +1,507 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - Containers</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	Containers
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=Containers">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26530&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<H1><A name="Containers-DeclaringyourContainer"></A>Declaring your Container</H1>
+
+<P>CMP Entity containers are defined with the &lt;Container&gt; element, under the &lt;openejb&gt; element. This is actually the declaration used for all containers defined in the container system. The part that actually makes it a cmp container is the ctype attribute, specifially, a ctype attribute set to CMP_ENTITY as such...</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>example_01.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;?xml version=<SPAN class="code-quote">&quot;1.0&quot;</SPAN>?&gt;</SPAN>
+<SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;Default CMP Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>/&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>The really fun part is that the above configuration file is completely legal! If you started the server and pointed to this file...</P>
+
+<BLOCKQUOTE><P>./openejb.sh start -conf example_01.conf</P></BLOCKQUOTE>
+
+<P>...you would end up with a running server that contained only one container, called &quot;Default CMP Container&quot;. You could then deploy beans into it and everything. There would be no other containers running in the server at all. If you telnet&apos;d into the server and typed the &apos;system&apos; command, you could see for yourself that there is nothing else in the system.</P>
+
+<BLOCKQUOTE>
+<P>dblevins@Miles /dev/OpenEJB<BR>
+$ telnet localhost 4200<BR>
+Trying 127.0.0.1...<BR>
+Connected to Miles<BR>
+Escape character is &apos;^]&apos;.<BR>
+OpenEJB Remote Server Console<BR>
+type &apos;help&apos; for a list of commands<BR>
+<SPAN class="nobr"><A href="http://cwiki.apache.org/confluence/pages/createpage.action?spaceKey=OPENEJB&title=openejb&linkCreation=true&fromPageId=26530" title="Create Page: openejb" class="createlink">openejb<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/plus.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>$ system<BR>
+Containers:<BR>
+ Default CMP Container</P>
+
+<P>Deployments:<BR>
+<SPAN class="nobr"><A href="http://cwiki.apache.org/confluence/pages/createpage.action?spaceKey=OPENEJB&title=openejb&linkCreation=true&fromPageId=26530" title="Create Page: openejb" class="createlink">openejb<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/plus.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>$</P></BLOCKQUOTE>
+
+<P>You see that. No beans, no JDBC resources, nothing but one CMP container called &quot;Default CMP Container&quot;.</P>
+
+<H1><A name="Containers-NamingyourContainer"></A>Naming your Container</H1>
+
+<P>You can call the container anything you want, just change the value of the id attribute. Here is a container called &quot;My PostgreSQL Contianer&quot;</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>example_02.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;?xml version=<SPAN class="code-quote">&quot;1.0&quot;</SPAN>?&gt;</SPAN>
+<SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My PostgreSQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>/&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>If you were to deploy a CMP bean into this configuration, you would see &quot;My PostgreSQL Container&quot; in the list of usable containers, in fact, it would be the only container in the list.</P>
+
+<BLOCKQUOTE>
+<P>dblevins@Miles /dev/OpenEJB/openejb<BR>
+$ ./openejb.sh deploy -conf example_02.conf myCMPBean.jar<BR>
+...(skipping to step two)...</P>
+
+<P>==--- Step 2 ---==</P>
+
+<P>Please specify which container the bean will run in.<BR>
+Available containers are:</P>
+
+<P>Num     Type            ID</P>
+
+<P>1       CMP_ENTITY      My PostgreSQL Container</P>
+
+<P>Type the number of the container<BR>
+-options to view the list again<BR>
+or -help for more information.</P>
+
+<P>Container:</P></BLOCKQUOTE>
+
+<P>After deployment, you would end up with a configuration like this one</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>example_02.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;?xml version=<SPAN class="code-quote">&quot;1.0&quot;</SPAN>?&gt;</SPAN>
+<SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My PostgreSQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>/&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Deployments jar=<SPAN class="code-quote">&quot;myCMPBean.jar&quot;</SPAN> /&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>Most important, that bean will now be mapped directly to the container id &quot;My PostgreSQL Container&quot;. So if you change the name of the container and do not redeploy the myCMPBean.jar to point to the new container id, you will have big problems!</P>
+
+<H1><A name="Containers-Containertypes"></A>Container types</H1>
+
+<P>You can declare as many containers as you want. The available container types are:</P>
+<UL>
+	<LI>CMP_ENTITY</LI>
+	<LI>BMP_ENTITY</LI>
+	<LI>STATELESS</LI>
+	<LI>STATEFUL</LI>
+</UL>
+
+
+<P>The containers can all be of the same type, or a mix of the types.</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>example_03.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;?xml version=<SPAN class="code-quote">&quot;1.0&quot;</SPAN>?&gt;</SPAN>
+<SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My PostgreSQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>/&gt;</SPAN>
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My MySQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>/&gt;</SPAN>
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My InstantDB Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>/&gt;</SPAN>
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My Stateful Session Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;STATEFUL&quot;</SPAN>/&gt;</SPAN>
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My Stateless Session Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;STATELESS&quot;</SPAN>/&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<H1><A name="Containers-ConfiguringyourContainer"></A>Configuring your Container</H1>
+
+<P>Of course, if you did have a configuration like the one above, it would be a bit pointless as all three of your CMP containers would be using the default CMP container configuration. To acually configure a container differently, you simply need to specifiy new values for the properties that the container has. These will override the defaults for that particular container declaration. So it&apos;s possible to declare multiple containers of the same type, but configure each one differently. Let&apos;s use our CMP_ENTITY containers above as an example.</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>example_03.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;?xml version=<SPAN class="code-quote">&quot;1.0&quot;</SPAN>?&gt;</SPAN>
+<SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My PostgreSQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>&gt;</SPAN>
+    Global_TX_Database    conf/postgresql.cmp.global-database.xml
+    Local_TX_Database     conf/postgresql.cmp.local-database.xml
+<SPAN class="code-tag">&lt;/Container&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My MySQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>&gt;</SPAN>
+    Global_TX_Database  conf/mysql.cmp.global-database.xml
+    Local_TX_Database   conf/mysql.cmp.local-database.xml
+<SPAN class="code-tag">&lt;/Container&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My InstantDB Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>&gt;</SPAN>
+    Global_TX_Database  conf/instantdb.cmp.global-database.xml
+    Local_TX_Database   conf/instantdb.cmp.local-database.xml
+<SPAN class="code-tag">&lt;/Container&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My Stateful Session Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;STATEFUL&quot;</SPAN>/&gt;</SPAN>
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My Stateless Session Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;STATELESS&quot;</SPAN>/&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>The format of the configuration parameters is actually just regular old java.util.Properties file format. It keeps things simple and doesn&apos;t require you to type endless amounts of tags that are just name/value pairs anyway. The java.util.Properties file format allows for spaces, tabs, colons, or equals signs to separate the name value pairs, so this would also be acceptable..</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>example_03.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;?xml version=<SPAN class="code-quote">&quot;1.0&quot;</SPAN>?&gt;</SPAN>
+<SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My PostgreSQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>&gt;</SPAN>
+! This is a comment   
+    Global_TX_Database = conf/postgresql.cmp.global-database.xml
+    Local_TX_Database=conf/postgresql.cmp.local-database.xml
+<SPAN class="code-tag">&lt;/Container&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My MySQL Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>&gt;</SPAN>
+# This is also a comment
+    Global_TX_Database:conf/mysql.cmp.global-database.xml
+    Local_TX_Database : conf/mysql.cmp.local-database.xml
+<SPAN class="code-tag">&lt;/Container&gt;</SPAN>
+
+
+<SPAN class="code-tag">&lt;Container id=<SPAN class="code-quote">&quot;My InstantDB Container&quot;</SPAN> ctype=<SPAN class="code-quote">&quot;CMP_ENTITY&quot;</SPAN>&gt;</SPAN>
+    Global_TX_Database  conf/instantdb.cmp.global-database.xml
+    Local_TX_Database           conf/instantdb.cmp.local-database.xml
+<SPAN class="code-tag">&lt;/Container&gt;</SPAN>
+
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+
+<H1><A name="Containers-Configurationproperties"></A>Configuration properties</H1>
+
+<P>The actual properties that each container type accepts are different for each type. Here is a reference for each container type.</P>
+
+<H2><A name="Containers-CMPENTITYproperties"></A>CMP_ENTITY properties</H2>
+
+<H3><A name="Containers-PoolSize"></A>PoolSize</H3>
+
+
+<P>The default size of the method ready bean pools. Every bean class gets its own pool of this size. The value should be any integer.</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>PoolSize 100</P></BLOCKQUOTE>
+
+<H3><A name="Containers-GlobalTXDatabase"></A>Global_TX_Database</H3>
+
+<P>The name of the database.xml file that is used for global or container managed transactions. This will be used when the TransactionManager is managing the transaction, such as when the tx attribute is Supports(and there is a client tx), RequiresNew, Required or Manditory.</P>
+
+<P>Specifies the configuration for obtaining database connections and the mapping.xml schema which describes how beans map to the database.</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>Global_TX_Database  conf/default.cmp_global_tx_database.xml</P></BLOCKQUOTE>
+
+<H3><A name="Containers-LocalTXDatabase"></A>Local_TX_Database</H3>
+
+<P>The name of the database.xml file that is used for local or unspecified transaction contexts. This will be used when the TransactionManager is not managing the transaction, such as when the tx attribute is Supports (and there is no client tx), NotSupported, or Never.</P>
+
+<P>Specifies the configuration for obtaining database connections and the mapping.xml schema which describes how beans map to the database.</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>Local_TX_Database   conf/default.cmp_local_tx_database.xml</P></BLOCKQUOTE>
+
+<H2><A name="Containers-BMPENTITYproperties"></A>BMP_ENTITY properties</H2>
+
+<P>The BMP Container has no customizable properties to override.</P>
+
+<H2><A name="Containers-STATEFULproperties"></A>STATEFUL properties</H2>
+
+<H3><A name="Containers-Passivator"></A>Passivator</H3>
+
+<P>The passivator is responsible for writing beans to disk at passivation time. Different passivators can be used by setting this property to the fully qualified class name of the PassivationStrategy implementation. The passivator is not responsible for invoking any callbacks or other processing, its only responsibly is to write the bean state to disk.</P>
+
+
+<P>Known implementations:<BR>
+	org.openejb.core.stateful.RAFPassivater<BR>
+	org.openejb.core.stateful.SimplePassivater<BR>
+Default:</P>
+<BLOCKQUOTE><P>Passivator   org.openejb.core.stateful.SimplePassivater</P></BLOCKQUOTE>
+
+<H3><A name="Containers-TimeOut"></A>TimeOut</H3>
+
+<P>Specifies the time to wait between invocations. This value is measured in minutes. A value of 5 would result in a time-out of 5 minutes between invocations.</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>TimeOut  20</P></BLOCKQUOTE>
+
+<H3><A name="Containers-PoolSize"></A>PoolSize</H3>
+
+<P>Specifies the size of the bean pools for this stateful SessionBean container.</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>PoolSize  100</P></BLOCKQUOTE>
+
+<H3><A name="Containers-BulkPassivate"></A>BulkPassivate</H3>
+
+<P>Property name that specifies the number of instances to passivate at one time when doing bulk passivation. Must be less than the PoolSize.</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>BulkPassivate  50</P></BLOCKQUOTE>
+
+<H2><A name="Containers-STATELESSproperties"></A>STATELESS properties</H2>
+
+<H3><A name="Containers-StrictPooling"></A>StrictPooling</H3>
+
+<P>Specifies the whether or not to this stateless SessionBean container should use a strict pooling algorithm. true or false</P>
+
+<P>Default:</P>
+<BLOCKQUOTE><P>StrictPooling  true</P></BLOCKQUOTE>
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>

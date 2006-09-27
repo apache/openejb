@@ -1,0 +1,693 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - JAXB2 Java Inheritance</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	JAXB2 Java Inheritance
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=JAXB2%20Java%20Inheritance">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26532&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<H1><A name="JAXB2JavaInheritance-EnterpriseBeansuperclass"></A>EnterpriseBean superclass</H1>
+
+<DIV class="code"><DIV class="codeHeader"><B>EnterpriseBean.java</B></DIV><DIV class="codeContent">
+<PRE class="code-java">/**
+ *
+ * Copyright 2006 The Apache Software Foundation or its licensors, as applicable.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the <SPAN class="code-quote">&quot;License&quot;</SPAN>);
+ *  you may not use <SPAN class="code-keyword">this</SPAN> file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http:<SPAN class="code-comment">//www.apache.org/licenses/LICENSE-2.0
+</SPAN> *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an <SPAN class="code-quote">&quot;AS IS&quot;</SPAN> BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License <SPAN class="code-keyword">for</SPAN> the specific language governing permissions and
+ *  limitations under the License.
+ */
+<SPAN class="code-keyword">package</SPAN> org.openejb.jee2;
+
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlElement;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlAttribute;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlID;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlAccessorType;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlAccessType;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+<SPAN class="code-keyword">import</SPAN> java.util.List;
+<SPAN class="code-keyword">import</SPAN> java.util.ArrayList;
+
+<SPAN class="code-keyword">public</SPAN> <SPAN class="code-keyword">abstract</SPAN> class EnterpriseBean {
+    @XmlElement(required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;Text&gt; description;
+    @XmlElement(name = <SPAN class="code-quote">&quot;display-name&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;Text&gt; displayName;
+    @XmlElement(required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;IconType&gt; icon;
+    @XmlElement(name = <SPAN class="code-quote">&quot;ejb-name&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> ejbName;
+    @XmlElement(name = <SPAN class="code-quote">&quot;mapped-name&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> mappedName;
+    @XmlElement(name = <SPAN class="code-quote">&quot;ejb-class&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> ejbClass;
+    @XmlElement(name = <SPAN class="code-quote">&quot;around-invoke&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;AroundInvokeType&gt; aroundInvoke;
+    @XmlElement(name = <SPAN class="code-quote">&quot;env-entry&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;EnvEntryType&gt; envEntry;
+    @XmlElement(name = <SPAN class="code-quote">&quot;ejb-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;EjbRefType&gt; ejbRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;ejb-local-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;EjbLocalRefType&gt; ejbLocalRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;service-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;ServiceRefType&gt; serviceRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;resource-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;ResourceRefType&gt; resourceRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;resource-env-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;ResourceEnvRefType&gt; resourceEnvRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;message-destination-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;MessageDestinationRefType&gt; messageDestinationRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;persistence-context-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;PersistenceContextRefType&gt; persistenceContextRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;persistence-unit-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;PersistenceUnitRefType&gt; persistenceUnitRef;
+    @XmlElement(name = <SPAN class="code-quote">&quot;post-construct&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;LifecycleCallbackType&gt; postConstruct;
+    @XmlElement(name = <SPAN class="code-quote">&quot;pre-destroy&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;LifecycleCallbackType&gt; preDestroy;
+    @XmlElement(name = <SPAN class="code-quote">&quot;security-identity&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> SecurityIdentityType securityIdentity;
+    @XmlAttribute
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlID
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> id;
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;Text&gt; getDescription() {
+        <SPAN class="code-keyword">if</SPAN> (description == <SPAN class="code-keyword">null</SPAN>) {
+            description = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;Text&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.description;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;Text&gt; getDisplayName() {
+        <SPAN class="code-keyword">if</SPAN> (displayName == <SPAN class="code-keyword">null</SPAN>) {
+            displayName = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;Text&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.displayName;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;IconType&gt; getIcon() {
+        <SPAN class="code-keyword">if</SPAN> (icon == <SPAN class="code-keyword">null</SPAN>) {
+            icon = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;IconType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.icon;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getEjbName() {
+        <SPAN class="code-keyword">return</SPAN> ejbName;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setEjbName(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.ejbName = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getMappedName() {
+        <SPAN class="code-keyword">return</SPAN> mappedName;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setMappedName(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.mappedName = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getEjbClass() {
+        <SPAN class="code-keyword">return</SPAN> ejbClass;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setEjbClass(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.ejbClass = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;AroundInvokeType&gt; getAroundInvoke() {
+        <SPAN class="code-keyword">if</SPAN> (aroundInvoke == <SPAN class="code-keyword">null</SPAN>) {
+            aroundInvoke = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;AroundInvokeType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.aroundInvoke;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;EnvEntryType&gt; getEnvEntry() {
+        <SPAN class="code-keyword">if</SPAN> (envEntry == <SPAN class="code-keyword">null</SPAN>) {
+            envEntry = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;EnvEntryType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.envEntry;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;EjbRefType&gt; getEjbRef() {
+        <SPAN class="code-keyword">if</SPAN> (ejbRef == <SPAN class="code-keyword">null</SPAN>) {
+            ejbRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;EjbRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.ejbRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;EjbLocalRefType&gt; getEjbLocalRef() {
+        <SPAN class="code-keyword">if</SPAN> (ejbLocalRef == <SPAN class="code-keyword">null</SPAN>) {
+            ejbLocalRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;EjbLocalRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.ejbLocalRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;ServiceRefType&gt; getServiceRef() {
+        <SPAN class="code-keyword">if</SPAN> (serviceRef == <SPAN class="code-keyword">null</SPAN>) {
+            serviceRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;ServiceRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.serviceRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;ResourceRefType&gt; getResourceRef() {
+        <SPAN class="code-keyword">if</SPAN> (resourceRef == <SPAN class="code-keyword">null</SPAN>) {
+            resourceRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;ResourceRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.resourceRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;ResourceEnvRefType&gt; getResourceEnvRef() {
+        <SPAN class="code-keyword">if</SPAN> (resourceEnvRef == <SPAN class="code-keyword">null</SPAN>) {
+            resourceEnvRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;ResourceEnvRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.resourceEnvRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;MessageDestinationRefType&gt; getMessageDestinationRef() {
+        <SPAN class="code-keyword">if</SPAN> (messageDestinationRef == <SPAN class="code-keyword">null</SPAN>) {
+            messageDestinationRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;MessageDestinationRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.messageDestinationRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;PersistenceContextRefType&gt; getPersistenceContextRef() {
+        <SPAN class="code-keyword">if</SPAN> (persistenceContextRef == <SPAN class="code-keyword">null</SPAN>) {
+            persistenceContextRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;PersistenceContextRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.persistenceContextRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;PersistenceUnitRefType&gt; getPersistenceUnitRef() {
+        <SPAN class="code-keyword">if</SPAN> (persistenceUnitRef == <SPAN class="code-keyword">null</SPAN>) {
+            persistenceUnitRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;PersistenceUnitRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.persistenceUnitRef;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;LifecycleCallbackType&gt; getPostConstruct() {
+        <SPAN class="code-keyword">if</SPAN> (postConstruct == <SPAN class="code-keyword">null</SPAN>) {
+            postConstruct = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;LifecycleCallbackType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.postConstruct;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;LifecycleCallbackType&gt; getPreDestroy() {
+        <SPAN class="code-keyword">if</SPAN> (preDestroy == <SPAN class="code-keyword">null</SPAN>) {
+            preDestroy = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;LifecycleCallbackType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.preDestroy;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> SecurityIdentityType getSecurityIdentity() {
+        <SPAN class="code-keyword">return</SPAN> securityIdentity;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setSecurityIdentity(SecurityIdentityType value) {
+        <SPAN class="code-keyword">this</SPAN>.securityIdentity = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getId() {
+        <SPAN class="code-keyword">return</SPAN> id;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setId(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.id = value;
+    }
+}</PRE>
+</DIV></DIV>
+
+<H1><A name="JAXB2JavaInheritance-SessionBeanTypesubclass"></A>SessionBeanType subclass</H1>
+
+<DIV class="code"><DIV class="codeHeader"><B>SessionBeanType.java</B></DIV><DIV class="codeContent">
+<PRE class="code-java">/**
+ *
+ * Copyright 2006 The Apache Software Foundation or its licensors, as applicable.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the <SPAN class="code-quote">&quot;License&quot;</SPAN>);
+ *  you may not use <SPAN class="code-keyword">this</SPAN> file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http:<SPAN class="code-comment">//www.apache.org/licenses/LICENSE-2.0
+</SPAN> *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an <SPAN class="code-quote">&quot;AS IS&quot;</SPAN> BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License <SPAN class="code-keyword">for</SPAN> the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+<SPAN class="code-keyword">package</SPAN> org.openejb.jee2;
+
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlAccessType;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlAccessorType;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlElement;
+<SPAN class="code-keyword">import</SPAN> javax.xml.bind.annotation.XmlType;
+<SPAN class="code-keyword">import</SPAN> java.util.ArrayList;
+<SPAN class="code-keyword">import</SPAN> java.util.List;
+
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = <SPAN class="code-quote">&quot;session-beanType&quot;</SPAN>, propOrder = {
+        <SPAN class="code-quote">&quot;description&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;displayName&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;icon&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;ejbName&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;mappedName&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;home&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;remote&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;localHome&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;local&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;businessLocal&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;businessRemote&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;serviceEndpoint&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;ejbClass&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;sessionType&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;timeoutMethod&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;initMethod&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;removeMethod&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;transactionType&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;aroundInvoke&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;envEntry&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;ejbRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;ejbLocalRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;serviceRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;resourceRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;resourceEnvRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;messageDestinationRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;persistenceContextRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;persistenceUnitRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;postConstruct&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;preDestroy&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;postActivate&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;prePassivate&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;securityRoleRef&quot;</SPAN>,
+        <SPAN class="code-quote">&quot;securityIdentity&quot;</SPAN>
+        })
+<SPAN class="code-keyword">public</SPAN> class SessionBeanType <SPAN class="code-keyword">extends</SPAN> EnterpriseBean {
+
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> home;
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> remote;
+    @XmlElement(name = <SPAN class="code-quote">&quot;local-home&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> localHome;
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> local;
+    @XmlElement(name = <SPAN class="code-quote">&quot;business-local&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;<SPAN class="code-object">String</SPAN>&gt; businessLocal;
+    @XmlElement(name = <SPAN class="code-quote">&quot;business-remote&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;<SPAN class="code-object">String</SPAN>&gt; businessRemote;
+    @XmlElement(name = <SPAN class="code-quote">&quot;service-endpoint&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> <SPAN class="code-object">String</SPAN> serviceEndpoint;
+    @XmlElement(name = <SPAN class="code-quote">&quot;session-type&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> SessionTypeType sessionType;
+    @XmlElement(name = <SPAN class="code-quote">&quot;timeout-method&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> NamedMethodType timeoutMethod;
+    @XmlElement(name = <SPAN class="code-quote">&quot;init-method&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;InitMethodType&gt; initMethod;
+    @XmlElement(name = <SPAN class="code-quote">&quot;remove-method&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;RemoveMethodType&gt; removeMethod;
+    @XmlElement(name = <SPAN class="code-quote">&quot;transaction-type&quot;</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> TransactionTypeType transactionType;
+    @XmlElement(name = <SPAN class="code-quote">&quot;post-activate&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;LifecycleCallbackType&gt; postActivate;
+    @XmlElement(name = <SPAN class="code-quote">&quot;pre-passivate&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;LifecycleCallbackType&gt; prePassivate;
+    @XmlElement(name = <SPAN class="code-quote">&quot;security-role-ref&quot;</SPAN>, required = <SPAN class="code-keyword">true</SPAN>)
+    <SPAN class="code-keyword">protected</SPAN> List&lt;SecurityRoleRefType&gt; securityRoleRef;
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getHome() {
+        <SPAN class="code-keyword">return</SPAN> home;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setHome(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.home = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getRemote() {
+        <SPAN class="code-keyword">return</SPAN> remote;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setRemote(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.remote = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getLocalHome() {
+        <SPAN class="code-keyword">return</SPAN> localHome;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setLocalHome(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.localHome = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getLocal() {
+        <SPAN class="code-keyword">return</SPAN> local;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setLocal(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.local = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;<SPAN class="code-object">String</SPAN>&gt; getBusinessLocal() {
+        <SPAN class="code-keyword">if</SPAN> (businessLocal == <SPAN class="code-keyword">null</SPAN>) {
+            businessLocal = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;<SPAN class="code-object">String</SPAN>&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.businessLocal;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;<SPAN class="code-object">String</SPAN>&gt; getBusinessRemote() {
+        <SPAN class="code-keyword">if</SPAN> (businessRemote == <SPAN class="code-keyword">null</SPAN>) {
+            businessRemote = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;<SPAN class="code-object">String</SPAN>&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.businessRemote;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> <SPAN class="code-object">String</SPAN> getServiceEndpoint() {
+        <SPAN class="code-keyword">return</SPAN> serviceEndpoint;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setServiceEndpoint(<SPAN class="code-object">String</SPAN> value) {
+        <SPAN class="code-keyword">this</SPAN>.serviceEndpoint = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> SessionTypeType getSessionType() {
+        <SPAN class="code-keyword">return</SPAN> sessionType;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setSessionType(SessionTypeType value) {
+        <SPAN class="code-keyword">this</SPAN>.sessionType = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> NamedMethodType getTimeoutMethod() {
+        <SPAN class="code-keyword">return</SPAN> timeoutMethod;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setTimeoutMethod(NamedMethodType value) {
+        <SPAN class="code-keyword">this</SPAN>.timeoutMethod = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;InitMethodType&gt; getInitMethod() {
+        <SPAN class="code-keyword">if</SPAN> (initMethod == <SPAN class="code-keyword">null</SPAN>) {
+            initMethod = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;InitMethodType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.initMethod;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;RemoveMethodType&gt; getRemoveMethod() {
+        <SPAN class="code-keyword">if</SPAN> (removeMethod == <SPAN class="code-keyword">null</SPAN>) {
+            removeMethod = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;RemoveMethodType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.removeMethod;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> TransactionTypeType getTransactionType() {
+        <SPAN class="code-keyword">return</SPAN> transactionType;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> void setTransactionType(TransactionTypeType value) {
+        <SPAN class="code-keyword">this</SPAN>.transactionType = value;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;LifecycleCallbackType&gt; getPostActivate() {
+        <SPAN class="code-keyword">if</SPAN> (postActivate == <SPAN class="code-keyword">null</SPAN>) {
+            postActivate = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;LifecycleCallbackType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.postActivate;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;LifecycleCallbackType&gt; getPrePassivate() {
+        <SPAN class="code-keyword">if</SPAN> (prePassivate == <SPAN class="code-keyword">null</SPAN>) {
+            prePassivate = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;LifecycleCallbackType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.prePassivate;
+    }
+
+    <SPAN class="code-keyword">public</SPAN> List&lt;SecurityRoleRefType&gt; getSecurityRoleRef() {
+        <SPAN class="code-keyword">if</SPAN> (securityRoleRef == <SPAN class="code-keyword">null</SPAN>) {
+            securityRoleRef = <SPAN class="code-keyword">new</SPAN> ArrayList&lt;SecurityRoleRefType&gt;();
+        }
+        <SPAN class="code-keyword">return</SPAN> <SPAN class="code-keyword">this</SPAN>.securityRoleRef;
+    }
+}</PRE>
+</DIV></DIV>
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>

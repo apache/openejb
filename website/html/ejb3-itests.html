@@ -1,0 +1,1850 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - EJB3 iTests</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	EJB3 iTests
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=EJB3%20iTests">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26520&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<P><A name="jiraissues">
+    <TABLE width="100%" cellspacing="0" class="grid">
+        <TR>
+            <TH colspan="5" style="text-align: left;">
+                                    <A href="http://cwiki.apache.org/confluence/admin/autoexport/rebuild-start.action?acro.refresh=true#jiraissues"><IMG src="http://cwiki.apache.org/confluence/images/icons/refresh_16.png" height="16" width="16" border="0" align="right" title="refresh"></A>
+                                <A href="http://jira.codehaus.org/secure/IssueNavigator.jspa?type=7&pid=10401&query=iTest&summary=true&component=12050&fixfor=11870&tempMax=75&reset=true">jira.codehaus.org</A>
+                <SPAN class="smalltext">(62 issues)</SPAN>
+            </TH>
+        </TR>
+        <TR>
+                        <TH style="text-align: left;">
+                T                                                                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                Key                                                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                Summary                                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                Assignee                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                                Status                                                                            </TH>
+                    </TR>
+                                            <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-155"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-155">OPENEJB-155</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-155">iTest: StatelessHandleTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-153"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-153">OPENEJB-153</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-153">iTest: StatelessLocalIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-152"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-152">OPENEJB-152</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-152">iTest: StatelessRemoteIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-154"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-154">OPENEJB-154</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-154">iTest: StatelessHomeHandleTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-162"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-162">OPENEJB-162</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-162">iTest: StatelessBeanCallbackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-149"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-149">OPENEJB-149</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-149">iTest: StatelessEjbObjectTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-150"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-150">OPENEJB-150</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-150">iTest: StatelessEjbLocalHomeTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-151"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-151">OPENEJB-151</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-151">iTest: StatelessEjbLocalObjectTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-163"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-163">OPENEJB-163</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-163">iTest: StatelessBeanAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-176"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-176">OPENEJB-176</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-176">iTest: StatefulEjbLocalHomeTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-159"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-159">OPENEJB-159</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-159">iTest: StatelessBeanJndiEncTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-167"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-167">OPENEJB-167</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-167">iTest: StatelessInterceptorAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-156"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-156">OPENEJB-156</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-156">iTest: StatelessEjbMetaDataTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-160"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-160">OPENEJB-160</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-160">iTest: StatelessBeanSetterInjectionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-157"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-157">OPENEJB-157</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-157">iTest: StatelessLocalBusinessIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-165"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-165">OPENEJB-165</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-165">iTest: StatelessBeanTxTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-168"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-168">OPENEJB-168</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-168">iTest: StatelessInterceptorBMTAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-158"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-158">OPENEJB-158</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-158">iTest: StatelessRemoteBusinessIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-181"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-181">OPENEJB-181</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-181">iTest: StatefulHandleTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-161"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-161">OPENEJB-161</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-161">iTest: StatelessBeanPublicFieldInjectionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-164"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-164">OPENEJB-164</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-164">iTest: StatelessBeanBMTAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-169"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-169">OPENEJB-169</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-169">iTest: StatelessRemoteRmiIiopTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-179"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-179">OPENEJB-179</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-179">iTest: StatefulLocalIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-175"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-175">OPENEJB-175</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-175">iTest: StatefulEjbObjectTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-187"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-187">OPENEJB-187</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-187">iTest: StatefulBeanPublicFieldInjectionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-166"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-166">OPENEJB-166</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-166">iTest: StatelessContainerTxTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-178"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-178">OPENEJB-178</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-178">iTest: StatefulRemoteIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-183"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-183">OPENEJB-183</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-183">iTest: StatefulLocalBusinessIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-180"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-180">OPENEJB-180</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-180">iTest: StatefulHomeHandleTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-170"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-170">OPENEJB-170</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-170">iTest: StatelessBusinessRmiIiopTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-189"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-189">OPENEJB-189</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-189">iTest: StatefulBeanAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-192"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-192">OPENEJB-192</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-192">iTest: StatefulContainerTxTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-177"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-177">OPENEJB-177</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-177">iTest: StatefulEjbLocalObjectTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-182"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-182">OPENEJB-182</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-182">iTest: StatefulEjbMetaDataTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-184"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-184">OPENEJB-184</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-184">iTest: StatefulRemoteBusinessIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-185"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-185">OPENEJB-185</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-185">iTest: StatefulBeanJndiEncTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-191"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-191">OPENEJB-191</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-191">iTest: StatefulBeanTxTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-186"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-186">OPENEJB-186</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-186">iTest: StatefulBeanSetterInjectionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-200"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-200">OPENEJB-200</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-200">iTest: InterceptorCallbackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-196"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-196">OPENEJB-196</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-196">iTest: StatefulBusinessRmiIiopTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-197"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-197">OPENEJB-197</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-197">iTest: InterceptorJndiEncTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-190"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-190">OPENEJB-190</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-190">iTest: StatefulBeanBMTAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-195"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-195">OPENEJB-195</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-195">iTest: StatefulRemoteRmiIiopTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-188"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-188">OPENEJB-188</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-188">iTest: StatefulBeanCallbackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-198"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-198">OPENEJB-198</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-198">iTest: InterceptorSetterInjectionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-203"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-203">OPENEJB-203</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-203">iTest: InterceptorClassLevelStackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-193"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-193">OPENEJB-193</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-193">iTest: StatefulInterceptorAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-206"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-206">OPENEJB-206</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-206">iTest: InterceptorStackExceptionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-201"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-201">OPENEJB-201</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-201">iTest: InterceptorInvocationContextTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-194"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-194">OPENEJB-194</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-194">iTest: StatefulInterceptorBMTAllowedOperationsTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-199"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-199">OPENEJB-199</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-199">iTest: InterceptorPublicFieldInjectionTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-204"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-204">OPENEJB-204</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-204">iTest: InterceptorMethodLevelStackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-202"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-202">OPENEJB-202</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-202">iTest: InterceptorPackageLevelStackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-205"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-205">OPENEJB-205</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-205">iTest: InterceptorAggregateStackTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-145"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-145">OPENEJB-145</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-145">iTest: StatelessRemoteJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-171"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-171">OPENEJB-171</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-171">iTest: StatefulRemoteJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-146"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-146">OPENEJB-146</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-146">iTest: StatelessLocalJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-148"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-148">OPENEJB-148</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-148">iTest: StatelessEjbHomeTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-173"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-173">OPENEJB-173</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-173">iTest: StatefulHomeIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-174"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-174">OPENEJB-174</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-174">iTest: StatefulEjbHomeTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-172"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-172">OPENEJB-172</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-172">iTest: StatefulLocalJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_open.gif" alt="Open" border="0">Open
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-147"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-147">OPENEJB-147</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-147">iTest: StatelessHomeIntfcTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jacek Laskowski
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_inprogress.gif" alt="In Progress" border="0">In Progress
+                                    </TD>
+                            </TR>
+            </TABLE>
+</P>
+
+
+
+<P>
+    <TABLE width="100%" cellspacing="0" class="grid">
+                <TR>
+            <TH style="text-align: left;">
+                                <A href="http://jira.codehaus.org/secure/IssueNavigator.jspa?view=rss&type=7&pid=10401&query=iTest&summary=true&component=12050&fixfor=11870&tempMax=75&reset=true&decorator=none"><IMG src="http://cwiki.apache.org/confluence/images/icons/rss.gif" border="0" height="15" width="27" align="right"></A>
+                <A href="http://jira.codehaus.org/">jira.codehaus.org</A>
+                <SPAN class="smalltext">(rss_0.92)</SPAN>
+                                    <BR>
+                    <SPAN class="smalltext">(This file is an XML representation of some issues)</SPAN>
+                            </TH>
+        </TR>
+                                            <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-155">[OPENEJB-155] iTest: StatelessHandleTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.Handle methods work as expected on an ejb3 stateless bean with an the EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-153">[OPENEJB-153] iTest: StatelessLocalIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be invoked with an EJB 2.1 compatible local interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-152">[OPENEJB-152] iTest: StatelessRemoteIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be invoked with an EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-154">[OPENEJB-154] iTest: StatelessHomeHandleTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.HomeHandle methods work as expected on an ejb3 stateless bean with an the EJB 2.1 compatible home interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-162">[OPENEJB-162] iTest: StatelessBeanCallbackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that the PostCreate and PreDestroy methods of an ejb3 stateless bean are invoked.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-149">[OPENEJB-149] iTest: StatelessEjbObjectTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBObject methods work as expected on the EJB 2.1 compatible remote interface an ejb3 stateless bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-150">[OPENEJB-150] iTest: StatelessEjbLocalHomeTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBLocalHome methods work as expected on the EJB 2.1 compatible local home interface an ejb3 stateless bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-151">[OPENEJB-151] iTest: StatelessEjbLocalObjectTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBLocalObject methods work as expected on the EJB 2.1 compatible local interface an ejb3 stateless bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-163">[OPENEJB-163] iTest: StatelessBeanAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-176">[OPENEJB-176] iTest: StatefulEjbLocalHomeTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBLocalHome methods work as expected on the EJB 2.1 compatible local home interface an ejb3 stateful bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-159">[OPENEJB-159] iTest: StatelessBeanJndiEncTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can lookup every possible JNDI entry type via the SessionContext interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-167">[OPENEJB-167] iTest: StatelessInterceptorAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an interceptor of an ejb3 stateless bean can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-156">[OPENEJB-156] iTest: StatelessEjbMetaDataTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBMetaData methods work as expected on an ejb3 stateless bean with an the EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-160">[OPENEJB-160] iTest: StatelessBeanSetterInjectionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can have injected every possible JNDI entry type via setters</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-157">[OPENEJB-157] iTest: StatelessLocalBusinessIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be invoked via it&apos;s local business interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-165">[OPENEJB-165] iTest: StatelessBeanTxTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean with bean-managed transactions can properly commit and rollback transactions</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-168">[OPENEJB-168] iTest: StatelessInterceptorBMTAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean with bean-managed transactions can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-158">[OPENEJB-158] iTest: StatelessRemoteBusinessIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be invoked via it&apos;s remote business interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-181">[OPENEJB-181] iTest: StatefulHandleTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.Handle methods work as expected on an ejb3 stateful bean with an the EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-161">[OPENEJB-161] iTest: StatelessBeanPublicFieldInjectionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can have injected every possible JNDI entry type via public fields</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-164">[OPENEJB-164] iTest: StatelessBeanBMTAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean with bean-managed transactions can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-169">[OPENEJB-169] iTest: StatelessRemoteRmiIiopTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all acceptable datatypes can be passed over the wire as both arguments and return values on an ejb3 stateless bean with an EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-179">[OPENEJB-179] iTest: StatefulLocalIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be invoked with an EJB 2.1 compatible local interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-175">[OPENEJB-175] iTest: StatefulEjbObjectTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBObject methods work as expected on the EJB 2.1 compatible remote interface an ejb3 stateful bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-187">[OPENEJB-187] iTest: StatefulBeanPublicFieldInjectionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can have injected every possible JNDI entry type via public fields</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-166">[OPENEJB-166] iTest: StatelessContainerTxTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean with container-managed transactions can demarcate methods using all the available tx attributes <B>and</B> the container is correctly rolling back, committing, suspending, or starting transactions.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-178">[OPENEJB-178] iTest: StatefulRemoteIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be invoked with an EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-183">[OPENEJB-183] iTest: StatefulLocalBusinessIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be invoked via it&apos;s local business interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-180">[OPENEJB-180] iTest: StatefulHomeHandleTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.HomeHandle methods work as expected on an ejb3 stateful bean with an the EJB 2.1 compatible home interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-170">[OPENEJB-170] iTest: StatelessBusinessRmiIiopTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all acceptable datatypes can be passed over the wire as both arguments and return values on an ejb3 stateless bean with an remote business interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-189">[OPENEJB-189] iTest: StatefulBeanAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-192">[OPENEJB-192] iTest: StatefulContainerTxTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean with container-managed transactions can demarcate methods using all the available tx attributes <B>and</B> the container is correctly rolling back, committing, suspending, or starting transactions.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-177">[OPENEJB-177] iTest: StatefulEjbLocalObjectTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBLocalObject methods work as expected on the EJB 2.1 compatible local interface an ejb3 stateful bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-182">[OPENEJB-182] iTest: StatefulEjbMetaDataTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBMetaData methods work as expected on an ejb3 stateful bean with an the EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-184">[OPENEJB-184] iTest: StatefulRemoteBusinessIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be invoked via it&apos;s remote business interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-185">[OPENEJB-185] iTest: StatefulBeanJndiEncTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can lookup every possible JNDI entry type via the SessionContext interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-191">[OPENEJB-191] iTest: StatefulBeanTxTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean with bean-managed transactions can properly commit and rollback transactions</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-186">[OPENEJB-186] iTest: StatefulBeanSetterInjectionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can have injected every possible JNDI entry type via setters</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-200">[OPENEJB-200] iTest: InterceptorCallbackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that the PostCreate and PreDestroy methods of an interceptor of an ejb3 stateless bean are invoked.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-196">[OPENEJB-196] iTest: StatefulBusinessRmiIiopTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all acceptable datatypes can be passed over the wire as both arguments and return values on an ejb3 stateful bean with an remote business interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-197">[OPENEJB-197] iTest: InterceptorJndiEncTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an interceptor of an ejb3 session bean can lookup every possible JNDI entry type via the SessionContext interface.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-190">[OPENEJB-190] iTest: StatefulBeanBMTAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean with bean-managed transactions can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-195">[OPENEJB-195] iTest: StatefulRemoteRmiIiopTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all acceptable datatypes can be passed over the wire as both arguments and return values on an ejb3 stateful bean with an EJB 2.1 compatible remote interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-188">[OPENEJB-188] iTest: StatefulBeanCallbackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that the PostCreate and PreDestroy methods of an ejb3 stateful bean are invoked.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-198">[OPENEJB-198] iTest: InterceptorSetterInjectionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an interceptor of an ejb3 stateless bean can have injected every possible JNDI entry type via setters.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-203">[OPENEJB-203] iTest: InterceptorClassLevelStackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that class-level stacks can be created and properly executed and all possible excludes function properly.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-193">[OPENEJB-193] iTest: StatefulInterceptorAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an interceptor of an ejb3 stateful bean can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-206">[OPENEJB-206] iTest: InterceptorStackExceptionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that exception handling for interceptor stacks properly affects the invocation flow.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-201">[OPENEJB-201] iTest: InterceptorInvocationContextTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.interceptor.InvocationContext methods work as expected for an interceptor.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-194">[OPENEJB-194] iTest: StatefulInterceptorBMTAllowedOperationsTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean with bean-managed transactions can only do the things allowed in each of it&apos;s available callback methods.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-199">[OPENEJB-199] iTest: InterceptorPublicFieldInjectionTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an interceptor of an ejb3 stateless bean can have injected every possible JNDI entry type via public fields.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-204">[OPENEJB-204] iTest: InterceptorMethodLevelStackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that method-level stacks can be created and properly executed and all possible excludes function properly.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-202">[OPENEJB-202] iTest: InterceptorPackageLevelStackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that package-level stacks can be created and properly executed and all possible excludes function properly.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-205">[OPENEJB-205] iTest: InterceptorAggregateStackTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that package-level, class-level, and method-level interceptor stacks can be combined and all possible excludes respected.  Must be ran twice, once in the stateful test suite and again in the stateless testsuite.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-145">[OPENEJB-145] iTest: StatelessRemoteJndiTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be looked up in global JNDI via it&apos;s remote business interface, and backwards compatible remote home interface.  Use 2 ejb3 beans; one that has a remote business interface and one that has a 2.1 compatible remote home interface.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-171">[OPENEJB-171] iTest: StatefulRemoteJndiTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be looked up in global JNDI via it&apos;s remote business interface, and backwards compatible remote home interface.  Use 2 ejb3 beans; one that has a remote business interface and one that has a 2.1 compatible remote home interface.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-146">[OPENEJB-146] iTest: StatelessLocalJndiTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be looked up in global JNDI via it&apos;s backwards compatible local home interface.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-148">[OPENEJB-148] iTest: StatelessEjbHomeTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBHome methods work as expected on the EJB 2.1 compatible remote home interface an ejb3 stateless bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-173">[OPENEJB-173] iTest: StatefulHomeIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be created with an EJB 2.1 compatible home interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-174">[OPENEJB-174] iTest: StatefulEjbHomeTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that all javax.ejb.EJBHome methods work as expected on the EJB 2.1 compatible remote home interface an ejb3 stateful bean</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-172">[OPENEJB-172] iTest: StatefulLocalJndiTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateful bean can be looked up in global JNDI via it&apos;s backwards compatible local home interface.</P></SPAN>
+                                                                      </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://jira.codehaus.org/browse/OPENEJB-147">[OPENEJB-147] iTest: StatelessHomeIntfcTests</A></B>
+                        
+                                                                                                      <BR>
+                            <SPAN class="smalltext"><P>tests that an ejb3 stateless bean can be created with an EJB 2.1 compatible home interface</P></SPAN>
+                                                                      </TD>
+                </TR>
+                        </TABLE>
+</P>
+
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>

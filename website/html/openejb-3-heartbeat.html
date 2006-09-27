@@ -1,0 +1,1034 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - OpenEJB 3 HeartBeat</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="deployments.html" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	OpenEJB 3 HeartBeat
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=OpenEJB%203%20HeartBeat">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26472&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<H1><A name="OpenEJB3HeartBeat-OpenEJB3BinarySnapshot"></A>OpenEJB 3 Binary Snapshot </H1>
+
+<P>Binaries are built by our continuous integration system on every change to svn.</P>
+
+<P><SPAN class="nobr"><A href="http://vmbuild.apache.org:8080/continuum/servlet/browse?file=110%2Ftarget%2Fopenejb-3.0-SNAPSHOT-bin.zip" title="Visit page outside Confluence" rel="nofollow">http://vmbuild.apache.org:8080/continuum/servlet/browse?file=110/target/openejb-3.0-SNAPSHOT-bin.zip<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN><BR>
+<SPAN class="nobr"><A href="http://vmbuild.apache.org:8080/continuum/servlet/browse?file=110%2Ftarget%2Fopenejb-3.0-SNAPSHOT-bin.tar.gz" title="Visit page outside Confluence" rel="nofollow">http://vmbuild.apache.org:8080/continuum/servlet/browse?file=110/target/openejb-3.0-SNAPSHOT-bin.tar.gz<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN></P>
+
+<P>Check out the <A href="openejb-3-roadmap.html" title="OpenEJB 3 RoadMap">OpenEJB 3 RoadMap</A>, also updated live.</P>
+
+<H1><A name="OpenEJB3HeartBeat-RecentJIRAActivity"></A>Recent JIRA Activity</H1>
+
+<P><A name="jiraissues">
+    <TABLE width="100%" cellspacing="0" class="grid">
+        <TR>
+            <TH colspan="11" style="text-align: left;">
+                                    <A href="http://cwiki.apache.org/confluence/admin/autoexport/rebuild-start.action?acro.refresh=true#jiraissues"><IMG src="http://cwiki.apache.org/confluence/images/icons/refresh_16.png" height="16" width="16" border="0" align="right" title="refresh"></A>
+                                <A href="http://jira.codehaus.org/secure/IssueNavigator.jspa?pid=10401&fixfor=11870&version=11870&status=6&sorter%2Ffield=issuekey&sorter%2Forder=DESC&sorter%2Ffield=updated&sorter%2Forder=DESC&tempMax=20&reset=true">jira.codehaus.org</A>
+                <SPAN class="smalltext">(18 issues)</SPAN>
+            </TH>
+        </TR>
+        <TR>
+                        <TH style="text-align: left;">
+                T                                                                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                Key                                                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                Summary                                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                Assignee                                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                Reporter                                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                Pr                                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                                Status                                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                                                Res                                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                                                                Created                                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                                                                                Updated                            </TH>
+                        <TH style="text-align: left;">
+                                                                                                                                                                                Due            </TH>
+                    </TR>
+                                            <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-146"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-146">OPENEJB-146</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-146">iTest: StatelessLocalJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jun 20, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Sep 02, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-261"><IMG src="http://jira.codehaus.org/images/icons/newfeature.gif" alt="New Feature" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-261">OPENEJB-261</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-261">Container Driven Testing EJBs in Maven2:  Stateful POJO Example</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 30, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 30, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-260"><IMG src="http://jira.codehaus.org/images/icons/newfeature.gif" alt="New Feature" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-260">OPENEJB-260</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-260">Auto Configuration for Simple Apps</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 30, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 30, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-171"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-171">OPENEJB-171</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-171">iTest: StatefulRemoteJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Mohammad Nour
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jun 20, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 28, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-145"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-145">OPENEJB-145</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-145">iTest: StatelessRemoteJndiTests</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jun 20, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 21, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-213"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-213">OPENEJB-213</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-213">Stateful Bean: Lifecycle Callbacks: PostActivate/PrePassivate</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 03, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Aug 03, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-209"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-209">OPENEJB-209</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-209">Stateless Bean: Lifecycle Callbacks: PostConstruct/PreDestroy</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jul 25, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jul 25, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-36"><IMG src="http://jira.codehaus.org/images/icons/task.gif" alt="Task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-36">OPENEJB-36</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-36">Automated test of tomcat integration</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jul 02, 2005
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 26, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-130"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-130">OPENEJB-130</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-130">Automated Tomcat testing on Mac OSX and Linux</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 25, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 26, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-128"><IMG src="http://jira.codehaus.org/images/icons/newfeature.gif" alt="New Feature" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-128">OPENEJB-128</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-128">EJBd over HTTP -- ejb invocations over http protocol</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 17, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 25, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-112"><IMG src="http://jira.codehaus.org/images/icons/task.gif" alt="Task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-112">OPENEJB-112</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-112">Port HTTP server support from 2</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 13, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 19, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-81"><IMG src="http://jira.codehaus.org/images/icons/task.gif" alt="Task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-81">OPENEJB-81</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-81">ejb3 specs module</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_blocker.gif" alt="Blocker" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 05, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 10, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-110"><IMG src="http://jira.codehaus.org/images/icons/task.gif" alt="Task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-110">OPENEJB-110</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-110">JPA Spec - ClassTransformer missing method patch</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jeff Genender
+                                    </TD>
+                                <TD nowrap="true">
+                                            Andrus Adamchik
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 10, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 10, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-109"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-109">OPENEJB-109</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-109">Create javax.persistence classes, interfaces, enums and annotations</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Jacek Laskowski
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 08, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 10, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-108"><IMG src="http://jira.codehaus.org/images/icons/issue_subtask.gif" alt="Sub-task" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-108">OPENEJB-108</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-108">Create javax.ejb classes, interfaces, enums, and annotations</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">FIXED</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 08, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 08, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-85"><IMG src="http://jira.codehaus.org/images/icons/newfeature.gif" alt="New Feature" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-85">OPENEJB-85</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-85">Non-EJBLocalObject local proxies for in-vm use</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">DUPLICATE</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 05, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 07, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowNormal">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-84"><IMG src="http://jira.codehaus.org/images/icons/newfeature.gif" alt="New Feature" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-84">OPENEJB-84</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-84">Non-EJBObject remote proxies for in-vm use</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">DUPLICATE</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 05, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 07, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+                                    <TR class="rowAlternate">
+                                                            <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-83"><IMG src="http://jira.codehaus.org/images/icons/improvement.gif" alt="Improvement" border="0"></A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-83">OPENEJB-83</A>
+                                    </TD>
+                                <TD>
+                                            <A href="http://jira.codehaus.org/browse/OPENEJB-83">Expand protocol for non-ejb specific interfaces</A>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Unassigned
+                                    </TD>
+                                <TD nowrap="true">
+                                            David Blevins
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/priority_major.gif" alt="Major" border="0">
+                                    </TD>
+                                <TD nowrap="true">
+                                            <IMG src="http://jira.codehaus.org/images/icons/status_closed.gif" alt="Closed" border="0">Closed
+                                    </TD>
+                                <TD nowrap="true">
+                                            <FONT color="990000">DUPLICATE</FONT>
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 05, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            Feb 07, 2006
+                                    </TD>
+                                <TD nowrap="true">
+                                            
+                                    </TD>
+                            </TR>
+            </TABLE>
+</P>
+
+
+<H1><A name="OpenEJB3HeartBeat-RecentSVNActivity"></A>Recent SVN Activity</H1>
+
+<P>
+    <TABLE width="100%" cellspacing="0" class="grid">
+                <TR>
+            <TH style="text-align: left;">
+                                <A href="http://fisheye.codehaus.org/changelog/~rss/openejb/trunk/openejb3/rss.xml"><IMG src="http://cwiki.apache.org/confluence/images/icons/rss.gif" border="0" height="15" width="27" align="right"></A>
+                <A href="http://fisheye.codehaus.org/browse/openejb/">FishEye on openejb/trunk/openejb3</A>
+                <SPAN class="smalltext">(rss_2.0)</SPAN>
+                                    <BR>
+                    <SPAN class="smalltext">(Recent changes to the &quot;openejb&quot; repository under directory /trunk/openejb3)</SPAN>
+                            </TH>
+        </TR>
+                                            <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2903&csize=17">trunk dblevins: Part of the work for OPENEJB-93. &quot;Local business interfaces via IntraVM Server&quot;</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2892&csize=3">trunk jlaskowski: Remove dependency on OpenEJB parent project...</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2891&csize=2">trunk jlaskowski: OPENEJB-265 - Upgrade XBean to 2.6</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2890&csize=1">trunk jlaskowski: Change the version of (incubating) OpenJPA</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2889&csize=1">trunk jlaskowski: Add parent dependency so that repositories are managed from a single file</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2888&csize=6">trunk dblevins: Fix to prevent the tests under server/* from running the Local interface tests.</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2887&csize=7">trunk dblevins: A modified version of Mohammad&apos;s patch OPENEJB-146 iTest: StatelessLocalJndiTest...</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2886&csize=2">trunk dblevins: Updated distribution management and repo list</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2885&csize=21">trunk dblevins: OPENEJB-261 Container Driven Testing EJBs in Maven2: Stateful POJO Example</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2884&csize=10">trunk dblevins: New Feature OPENEJB-260: Auto Configuration for Simple Apps</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2883&csize=1">trunk dblevins: This class held it&apos;s own &apos;root cause&apos; variable as it predated JDK 1.4 when it wa...</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2881&csize=23">trunk dblevins: Fixed javadoc</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                                                <TR>
+                    <TD valign="top">
+                                                    <B><A href="http://fisheye.codehaus.org/changelog/openejb?cs=2879&csize=6">trunk dblevins: Patch by Mohammad Nour El-Din for OPENEJB-171 iTest: StatefulRemoteJndiTests</A></B>
+                        
+                                                                    </TD>
+                </TR>
+                        </TABLE>
+</P>
+
+
+
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>

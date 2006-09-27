@@ -1,0 +1,368 @@
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+ <HEAD>
+  <!-- $PAGETITLE -->
+  <TITLE>OpenEJB - Deployments</TITLE>
+  <LINK href="http://people.apache.org/~dblevins/openejb/default.css" rel="stylesheet" type="text/css">
+  <LINK href="http://people.apache.org/~dblevins/openejb/style.css" rel="stylesheet" type="text/css">
+  <LINK rel="SHORTCUT ICON" href="http://incubator.apache.org/openejb/images/favicon.ico">
+  <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+ <META http-equiv="Content-Type" content="text/html;charset=UTF-8"></HEAD>
+  <BODY bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <A name="top"></A>
+  <TABLE border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
+   <TR>
+    <TD width="20" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="95" valign="top" align="left" bgcolor="#7270c2"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD width="7" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="40" height="6" border="0"></TD>
+    <TD width="100%" valign="top" align="left" bgcolor="#5A5CB8"><IMG src="http://incubator.apache.org/openejb/images/top_2.gif" width="430" height="6" border="0"></TD>
+    <TD width="120" valign="top" align="left" bgcolor="#E24717"><IMG src="http://incubator.apache.org/openejb/images/top_3.gif" width="120" height="6" border="0"></TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+    <TD width="7" bgcolor="#ffffff" valign="top" align="left"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="1" border="0"></TD>
+    <TD id="breadcrumbs" width="100%" valign="middle" align="left">
+      <!-- $TOP_NAV_BAR -->
+      <SPAN id="Content">
+        
+            
+                                                                                                                                                                                    
+                                    
+                                                
+            <A href="index.html" title="Index">Index</A> | <A href="news.html" title="News">News</A> | <A href="faq.html" title="FAQ">FAQ</A> | <A href="download.html" title="Download">Download</A> | <A href="mailing-lists.html" title="Mailing Lists">Lists</A> | <SPAN class="nobr"><A href="http://issues.apache.org/jira/browse/OPENEJB" title="Visit page outside Confluence" rel="nofollow">Issues<SUP><IMG class="rendericon" src="http://cwiki.apache.org/confluence/images/icons/linkext7.gif" height="7" width="7" align="absmiddle" alt="" border="0"></SUP></A></SPAN>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </SPAN>
+     <IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="2" border="0"></TD>
+    <TD width="120" height="20" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="3" border="0"></TD>
+    <TD width="95" bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="105" height="3" border="0"></TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_sm.gif" width="7" height="3" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="40" height="3" border="0"></TD>
+    <TD width="100%" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/line_light.gif" width="430" height="3" border="0"></TD>
+    <TD width="120" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" border="0" width="1" height="1"></TD>
+   </TR>
+   <TR>
+    <TD bgcolor="#7270c2" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="20" height="10" border="0"></TD>
+    <TD id="leftColumn" valign="top" style="padding-top: 0px;">
+    <SPAN id="Content">
+      
+            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                    
+                                                
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+<UL class="alternate" type="square">
+	<LI><A href="index.html" title="Index">Home</A></LI>
+	<LI><A href="news.html" title="News">News</A></LI>
+	<LI><A href="faq.html" title="FAQ">FAQ</A></LI>
+	<LI><A href="download.html" title="Download">Download</A></LI>
+	<LI><A href="quickstart.html" title="Quickstart">Quickstart</A></LI>
+	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-General"></A>General</H3>
+<UL class="alternate" type="square">
+	<LI><A href="deploy-tool.html" title="Deploy Tool">Deployment</A></LI>
+	<LI><A href="startup.html" title="Startup">Startup</A></LI>
+	<LI><A href="validation-tool.html" title="Validation Tool">Validation</A></LI>
+	<LI><A href="webadmin.html" title="Webadmin">Webadmin</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Configuration"></A>Configuration</H3>
+<UL class="alternate" type="square">
+	<LI><A href="configuration.html" title="Configuration">General</A></LI>
+	<LI><A href="" title="Deployments">Deployments</A></LI>
+	<LI><A href="containers.html" title="Containers">Containers</A></LI>
+	<LI><A href="castor-cmp.html" title="Castor CMP">Castor CMP</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Servers"></A>Servers</H3>
+<UL class="alternate" type="square">
+	<LI><A href="local-server.html" title="Local Server">Local</A></LI>
+	<LI><A href="remote-server.html" title="Remote Server">Remote</A></LI>
+</UL>
+
+
+
+<H3><A name="Navigation-Integrations"></A>Integrations</H3>
+<UL class="alternate" type="square">
+	<LI><A href="tomcat.html" title="Tomcat">Tomcat</A></LI>
+	<LI><A href="geronimo.html" title="Geronimo">Geronimo</A></LI>
+	<LI><A href="webobjects.html" title="WebObjects">WebObjects</A></LI>
+</UL>
+
+
+<H3><A name="Navigation-Community"></A>Community</H3>
+<UL class="alternate" type="square">
+	<LI><A href="team.html" title="Team">Team</A></LI>
+	<LI><A href="help.html" title="Help">Help</A></LI>
+	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="annoyances.html" title="Annoyances">Annoyances</A></LI>
+</UL>
+                                                                                                                                                                                                                </SPAN>
+
+            <H3 class="heading3">Feeds</H3>
+            <TABLE border="0" cellspacing="4px">
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A><BR>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</A>
+              </TD>
+            </TR>
+            <TR>
+              <TD align="right">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><IMG src="http://incubator.apache.org/openejb/images/rss.gif" border="0"></A>
+              </TD>
+              <TD align="left">
+                <A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</A>
+              </TD>
+            </TR>
+            </TABLE>
+        </TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" valign="top" align="left">&nbsp;</TD>
+    <TD rowspan="4" width="100%" valign="top">
+     <TABLE cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <TR>
+       <TD valign="top" align="left"><BR>
+          <TABLE cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <TR>
+           <TD valign="top" width="200" align="left">
+           <A href="http://openejb.org/">
+           <IMG border="0" hspace="0" src="http://incubator.apache.org/openejb/images/logo_openejb.gif" vspace="0">
+           </A>
+           </TD>
+           <TD align="right" valign="middle" style="padding:0px;margin:0px;">
+	      <TABLE style="padding:0px;margin:0px;">
+            <TR>
+                <TD>
+	            <A href="http://incubator.apache.org/">
+	              <IMG src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
+	            </A>
+                </TD>
+            <TR>
+<!--
+	        <tr>
+	            <td align="right" valign="top" style="font- size:12px;color:#777777">
+	            [OpenEJB is a Podling in the Apache Incubator]
+	            </td>
+	        </tr>
+-->
+          </TABLE>
+           </TD>
+          </TR>
+          </TABLE>
+	<BR>
+      </TD>
+      </TR>
+      <TR>
+       <TD valign="top" align="left">
+         <IMG border="0" height="7" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"><BR>
+          <DIV id="page_title">
+            <TABLE width="100%">
+              <TR>
+                <TD>
+	<!-- $TITLE -->
+	Deployments
+                </TD>
+                 <TD align="right" style="padding-left:0px;"><A style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=Deployments">[ edit ]</A></TD>
+                <TD align="right" width="25">
+
+            <SCRIPT type="text/javascript" language="javascript">
+                document.write('<a href="http://cwiki.apache.org/confluence/pages/viewpage');
+                document.write('.action?pageId=26501&decorator=printable">');
+            </SCRIPT>
+            <IMG src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></A>
+
+                </TD>
+              </TR>
+            </TABLE>
+          </DIV>
+        <IMG border="0" height="1" hspace="0" src="http://incubator.apache.org/openejb/images/dotTrans.gif"></TD>
+      </TR>
+     </TABLE>
+     <P>
+     <!-- $BODY -->
+            <DIV id="PageContent">
+        
+        <DIV class="pagecontent">
+            <DIV class="wiki-content">
+                
+<H1><A name="Deployments-The%27Deployments%27elementinopenejb.conf"></A>The &apos;Deployments&apos; element in openejb.conf</H1>
+
+<H2><A name="Deployments-Asinglejar"></A>A single jar</H2>
+
+<P>To include a single jar by name, just declare a &apos;Deployments&apos; element with a &apos;jar&apos; attribute pointing to the jar file on the file system.</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>openejb.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+...
+<SPAN class="code-tag">&lt;Deployments jar=<SPAN class="code-quote">&quot;c:\my\app\superEjbs.jar&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;Deployments jar=<SPAN class="code-quote">&quot;c:\someplace\purchasing.jar&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;Deployments jar=<SPAN class="code-quote">&quot;timeTrack.jar&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>The last element in the example uses a relative path to point to the ejb jar.  This path will be resolved relative to the openejb.base property.  So, for example, of the value of openejb.base was &apos;c:\timeapp\&apos; then OpenEJB would look for the jar &apos;c:\timeapp\timeTrack.jar&apos;.  See the <A href="configuration.html" title="Configuration">Configuration</A> guide for more details.</P>
+
+<H2><A name="Deployments-Adirectoryofjars"></A>A directory of jars</H2>
+
+<P>To point to a directory that contains several jar files that OpenEJB should load, simply declare a &apos;Deployments&apos; element with a &apos;dir&apos; attribute pointing to the directory containing the jar files.</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>openejb.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+...
+
+<SPAN class="code-tag">&lt;Deployments dir=<SPAN class="code-quote">&quot;c:\my\app\beans\&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;Deployments dir=<SPAN class="code-quote">&quot;c:\crimestopper\lib&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;Deployments dir=<SPAN class="code-quote">&quot;ejbs&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;Deployments dir=<SPAN class="code-quote">&quot;beans&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>The directories listed will be searched for jars containing &apos;META-INF/ejb-jar.xml&apos; files and will be added to the list of jars to load if they do.  Better said, it&apos;s completely save to point to a directory containing a mix of ejbs and regular jar files.  OpenEJB will simply skip over jars that do contain the required &apos;META-INF/ejb-jar.xml&apos; file.</P>
+
+<P>The last Deployments element declares a &apos;beans&apos; directory relative to openejb.base for holding ejb jars.  This declaration is simply convention and not required.</P>
+
+<H2><A name="Deployments-Anunpackedjar"></A>An unpacked jar</H2>
+
+<P>As of 1.0 beta1, OpenEJB supports unpacked ejb jars.  Simply meaning that you don&apos;t need to pack your ejb&apos;s into a jar file in order to use them in OpenEJB.  You still need to follow the ejb jar layout and include an &quot;META-INF/ejb-jar.xml&quot; in the directory that contains your ejbs.</P>
+
+<P>For example, if you have a directory structure like this:</P>
+
+<BLOCKQUOTE>
+<P>C:\myapp\<BR>
+C:\myapp\acmeEjbs\<BR>
+C:\myapp\acmeEjbs\META-INF\ejb-jar.xml<BR>
+C:\myapp\acmeEjbs\org\acme\Foo.class<BR>
+C:\myapp\acmeEjbs\org\acme\FooBean.class<BR>
+C:\myapp\acmeEjbs\org\acme\FooHome.class<BR>
+C:\myapp\acmeEjbs\org\acme\Bar.class<BR>
+C:\myapp\acmeEjbs\org\acme\BarBean.class<BR>
+C:\myapp\acmeEjbs\org\acme\BarHome.class</P></BLOCKQUOTE>
+
+<P>Then you would delcare a &apos;Deployments&apos; element with the &apos;dir&apos; attribute set to &apos;C:\myapp\acmeEjbs&apos; as shown below.</P>
+
+<DIV class="code"><DIV class="codeHeader"><B>openejb.conf</B></DIV><DIV class="codeContent">
+<PRE class="code-xml"><SPAN class="code-tag">&lt;openejb&gt;</SPAN>
+...
+
+<SPAN class="code-tag">&lt;Deployments dir=<SPAN class="code-quote">&quot;c:\myapp\acmeEjbs&quot;</SPAN> /&gt;</SPAN>
+<SPAN class="code-tag">&lt;/openejb&gt;</SPAN></PRE>
+</DIV></DIV>
+
+<P>Note that this syntax is the same as the directory syntax above.  If OpenEJB finds a META-INF directory with an &apos;ejb-jar.xml&apos; fine inside, then OpenEJB will treat the directory as an unpacked ejb jar.  Otherwise OpenEJB will look for ejb jar files to load as detailed in the above section.</P>
+
+<H1><A name="Deployments-Logfile"></A>Log file </H1>
+
+<P>When trying to figure out if your ejbs were loaded, the openejb.log file is an incredible asset.</P>
+
+<P>If your ejbs were loaded successfully you should see entries like the following (1.x and higher only):</P>
+
+<DIV class="panel"><DIV class="panelHeader"><B>openejb.log</B></DIV><DIV class="panelContent">
+<P>INFO :  Loaded EJBs from /usr/local/openejb-1.0-beta1/beans/openejb-itests-beans.jar<BR>
+INFO :  Loaded EJBs from /usr/local/openejb-1.0-beta1/beans/openejb-webadmin-clienttools.jar</P>
+</DIV></DIV>
+
+<P>If your ejbs failed to load, you will see an entry similar to the following.</P>
+
+<DIV class="panel"><DIV class="panelHeader"><B>openejb.log</B></DIV><DIV class="panelContent">
+<P>WARN :  Jar not loaded. /usr/local/openejb-1.0-beta1/beans/helloworld.jar.  Jar failed validation.  Use the validation tool for more details</P>
+</DIV></DIV>
+
+<P>Additionally, all the successfully loaded ejbs are individually listed in the log file at startup.  The Deployment ID listed is the JNDI name used to lookup the ejb from a client of the Local or Remote Servers.  The beans listed below are from our test suite.</P>
+
+<DIV class="preformatted"><DIV class="preformattedContent">
+<PRE>DEBUG:  Deployments       : 19
+DEBUG:  Type        Deployment ID
+DEBUG:     CMP_ENTITY  client/tests/entity/cmp/RMI-over-IIOP/EJBHome
+DEBUG:     STATEFUL    client/tests/stateful/EncBean
+DEBUG:     STATELESS   client/tests/stateless/BeanManagedBasicStatelessHome
+DEBUG:     STATEFUL    client/tests/stateful/BasicStatefulHome
+DEBUG:     STATELESS   client/tests/stateless/EncBean
+DEBUG:     STATEFUL    client/tests/stateful/BeanManagedTransactionTests/EJBHome
+DEBUG:     BMP_ENTITY  client/tests/entity/bmp/RMI-over-IIOP/EJBHome
+DEBUG:     STATEFUL    client/tests/stateful/RMI-over-IIOP/EJBHome
+DEBUG:     STATELESS   client/tests/stateless/BeanManagedTransactionTests/EJBHome
+DEBUG:     BMP_ENTITY  client/tests/entity/bmp/allowed_operations/EntityHome
+DEBUG:     CMP_ENTITY  client/tests/entity/cmp/EncBean
+DEBUG:     STATEFUL    client/tests/stateful/BeanManagedBasicStatefulHome
+DEBUG:     BMP_ENTITY  client/tests/entity/bmp/BasicBmpHome
+DEBUG:     STATELESS   client/tests/stateless/BasicStatelessHome
+DEBUG:     CMP_ENTITY  client/tests/entity/cmp/BasicCmpHome
+DEBUG:     STATELESS   client/tools/DatabaseHome
+DEBUG:     CMP_ENTITY  client/tests/entity/cmp/allowed_operations/EntityHome
+DEBUG:     BMP_ENTITY  client/tests/entity/bmp/EncBean
+DEBUG:     STATELESS   client/tests/stateless/RMI-over-IIOP/EJBHome
+</PRE>
+</DIV></DIV>
+            </DIV>
+        </DIV>
+    </DIV>
+     </P>
+    </TD>
+<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+   </TR>
+   <TR height="5">
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</TD>
+    <TD width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="5" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="5" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR>
+    <TD width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</TD>
+    <TD width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</TD>
+    <TD width="7" bgcolor="#a9a5de" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="40" valign="top" align="left"><IMG src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="1" height="25" border="0"></TD>
+    <TD width="120" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripes1.gif" width="20" height="125" border="0"></TD>
+    <TD width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><IMG src="http://incubator.apache.org/openejb/images/stripe105.gif" width="105" height="125" border="0"></TD>
+    <TD width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</TD>
+    <TD width="40" height="100%" valign="top" align="left">&nbsp;</TD>
+    <TD width="120" height="100%" valign="top" align="left">&nbsp;</TD>
+   </TR>
+   <TR height="5">
+    <TD width="40" height="25" valign="top" align="left">&nbsp;</TD>
+    <TD width="100%" height="25" valign="bottom" align="left"><BR>
+     <BR>
+     <IMG src="http://incubator.apache.org/openejb/images/line_light.gif" border="0" width="430" height="3"><BR>
+     <P>
+     </P>
+     <SPAN class="bodyGrey">
+     <SMALL><NOTICE><!-- $FOOTER -->
+Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+     </NOTICE> <BR>
+     &nbsp;<BR>
+          Powered by <A href="http://atlassian.com/">Atlassian</A> <A href="http://atlassian.com/confluence/">Confluence</A>.
+     </SMALL>
+     </SPAN>
+     <P>
+     </P>
+     </TD>
+    <TD width="120" height="25" valign="top" align="left">&nbsp;</TD>
+   </TR>
+  </TABLE>
+  </BODY>
+ </HTML>
