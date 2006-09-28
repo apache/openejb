@@ -10,7 +10,7 @@
     <artifactId>openejb</artifactId>
     <packaging>pom</packaging>
     
-    <version>2.2-SNAPSHOT</version>
+    <version>2.2-incubating-SNAPSHOT</version>
     
     <inceptionYear>1999</inceptionYear>
     <description>OpenEJB EJB Container</description>
