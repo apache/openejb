@@ -122,7 +122,7 @@
         </sec:role-mappings>
     </sec:security>
 
-    <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=SecurityEntity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
+    <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=SecurityEntity" class="org.apache.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
         <reference name="ManagedConnectionFactoryWrapper"><gbean-name>geronimo.server:J2EEServer=geronimo,J2EEApplication=null,JCAResource=geronimo/default-database/${geronimo_version}/car,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name></reference>
         <attribute name="sql">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
         <attribute name="returnType">java.lang.Integer</attribute>

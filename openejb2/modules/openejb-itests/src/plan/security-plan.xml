@@ -101,7 +101,7 @@ Configuration for the CORBA server.
         <reference name="LoginService"><module>org/apache/geronimo/Security</module><name>JaasLoginService</name></reference>
     </gbean>
 
-    <gbean name="org/openejb/Itests" class="org.openejb.corba.TSSBean">
+    <gbean name="org/openejb/Itests" class="org.apache.openejb.corba.TSSBean">
         <attribute name="POAName">org/openejb/POA</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -111,14 +111,14 @@ Configuration for the CORBA server.
         </xml-attribute>
     </gbean>
 
-    <gbean name="IOR7" class="org.openejb.corba.CSSBean">
+    <gbean name="IOR7" class="org.apache.openejb.corba.CSSBean">
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
+        <attribute name="configAdapter">org.apache.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">IOR7</attribute>
         <attribute name="cssArgs"></attribute>
         <attribute name="cssProps">

@@ -500,7 +500,7 @@
     </goal>
 
     <goal name="antIntegration">
-        <ant:taskdef name="ddlExporter" classname="org.openejb.deployment.ant.DDLExporterTask">
+        <ant:taskdef name="ddlExporter" classname="org.apache.openejb.deployment.ant.DDLExporterTask">
             <classpath>
                 <pathelement location="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar"/>
                 <pathelement location="${maven.repo.local}/tranql/jars/tranql-${tranql_version}.jar"/>

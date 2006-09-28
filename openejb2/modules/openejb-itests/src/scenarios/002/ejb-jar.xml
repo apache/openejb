@@ -13,11 +13,11 @@
                 A basic stateless session bean with contianer-managed transaction demarcation.
             </description>
             <ejb-name>BasicStatelessBean</ejb-name>
-            <home>org.openejb.test.security.slsb.BasicStatelessHome</home>
-            <remote>org.openejb.test.security.slsb.BasicStateless</remote>
-            <local-home>org.openejb.test.security.slsb.LocalBasicStatelessHome</local-home>
-            <local>org.openejb.test.security.slsb.LocalBasicStateless</local>
-            <ejb-class>org.openejb.test.security.slsb.BasicStatelessBean</ejb-class>
+            <home>org.apache.openejb.test.security.slsb.BasicStatelessHome</home>
+            <remote>org.apache.openejb.test.security.slsb.BasicStateless</remote>
+            <local-home>org.apache.openejb.test.security.slsb.LocalBasicStatelessHome</local-home>
+            <local>org.apache.openejb.test.security.slsb.LocalBasicStateless</local>
+            <ejb-class>org.apache.openejb.test.security.slsb.BasicStatelessBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
             <security-role-ref>

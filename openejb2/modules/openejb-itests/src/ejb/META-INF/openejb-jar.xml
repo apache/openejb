@@ -533,7 +533,7 @@
         </entity>
     </enterprise-beans>
 
-    <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
+    <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.apache.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
         <reference name="ManagedConnectionFactoryWrapper"><gbean-name>*:J2EEApplication=null,JCAResource=geronimo/default-database/${geronimo_version}/car,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource,*</gbean-name></reference>
         <attribute name="sql">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
         <attribute name="returnType">java.lang.Integer</attribute>

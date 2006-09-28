@@ -12,7 +12,7 @@
         <port-component>
             <port-component-name>Simple</port-component-name>
             <wsdl-port>test:SimplePort</wsdl-port>
-            <service-endpoint-interface>org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint</service-endpoint-interface>
+            <service-endpoint-interface>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint</service-endpoint-interface>
             <service-impl-bean>
                 <ejb-link>SimpleStatelessSession</ejb-link>
             </service-impl-bean>
