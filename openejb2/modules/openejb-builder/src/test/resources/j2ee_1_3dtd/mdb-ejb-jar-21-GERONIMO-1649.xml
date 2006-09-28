@@ -25,7 +25,7 @@
       <description>Message driven bean 1</description>
       <display-name>MDBean</display-name>
       <ejb-name>SimpleStatelessSession</ejb-name>
-      <ejb-class>org.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
+      <ejb-class>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
       <messaging-type>javax.jms.MessageListener</messaging-type>
       <transaction-type>Container</transaction-type>
       <activation-config>

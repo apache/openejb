@@ -163,7 +163,7 @@
         </message-driven>
 
     </enterprise-beans>
-    <gbean name="CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
+    <gbean name="CMPPKGenerator" class="org.apache.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -174,7 +174,7 @@
         <attribute name="sequenceName">PKGENCMP</attribute>
         <attribute name="batchSize">1</attribute>
     </gbean>
-    <gbean name="CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
+    <gbean name="CMPPKGenerator2" class="org.apache.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapperGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>

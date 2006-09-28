@@ -30,7 +30,7 @@
 
          <ejb-name>SimpleStatelessSession</ejb-name>
 
-         <ejb-class>org.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
+         <ejb-class>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
 
          <transaction-type>Container</transaction-type>
          <acknowledge-mode>Auto-acknowledge</acknowledge-mode>

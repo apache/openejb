@@ -13,7 +13,7 @@
     <name>OpenEJB</name>
     <id>openejb</id>
     <groupId>openejb</groupId>
-    <package>org.openejb</package>
+    <package>org.apache.openejb</package>
 
     <organization>
         <name>OpenEJB</name>

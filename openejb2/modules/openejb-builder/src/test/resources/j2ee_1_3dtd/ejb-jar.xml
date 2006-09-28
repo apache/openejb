@@ -24,11 +24,11 @@
     <enterprise-beans>
         <session>
             <ejb-name>SimpleStatelessSession</ejb-name>
-            <home>org.openejb.test.simple.slsb.SimpleStatelessSessionHome</home>
-            <remote>org.openejb.test.simple.slsb.SimpleStatelessSession</remote>
-            <local-home>org.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome</local-home>
-            <local>org.openejb.test.simple.slsb.SimpleStatelessSessionLocal</local>
-            <ejb-class>org.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
+            <home>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionHome</home>
+            <remote>org.apache.openejb.test.simple.slsb.SimpleStatelessSession</remote>
+            <local-home>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome</local-home>
+            <local>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionLocal</local>
+            <ejb-class>org.apache.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
             <env-entry>
@@ -66,21 +66,21 @@
         </session>
         <session>
             <ejb-name>SimpleStatefulSession</ejb-name>
-            <home>org.openejb.test.simple.sfsb.SimpleStatefulSessionHome</home>
-            <remote>org.openejb.test.simple.sfsb.SimpleStatefulSession</remote>
-            <local-home>org.openejb.test.simple.sfsb.SimpleStatefulSessionLocalHome</local-home>
-            <local>org.openejb.test.simple.sfsb.SimpleStatefulSessionLocal</local>
-            <ejb-class>org.openejb.test.simple.sfsb.SimpleStatefulSessionEJB</ejb-class>
+            <home>org.apache.openejb.test.simple.sfsb.SimpleStatefulSessionHome</home>
+            <remote>org.apache.openejb.test.simple.sfsb.SimpleStatefulSession</remote>
+            <local-home>org.apache.openejb.test.simple.sfsb.SimpleStatefulSessionLocalHome</local-home>
+            <local>org.apache.openejb.test.simple.sfsb.SimpleStatefulSessionLocal</local>
+            <ejb-class>org.apache.openejb.test.simple.sfsb.SimpleStatefulSessionEJB</ejb-class>
             <session-type>Stateful</session-type>
             <transaction-type>Container</transaction-type>
         </session>
         <entity>
             <ejb-name>SimpleBMPEntity</ejb-name>
-            <home>org.openejb.test.simple.bmp.SimpleBMPEntityHome</home>
-            <remote>org.openejb.test.simple.bmp.SimpleBMPEntity</remote>
-            <local-home>org.openejb.test.simple.bmp.SimpleBMPEntityLocalHome</local-home>
-            <local>org.openejb.test.simple.bmp.SimpleBMPEntityLocal</local>
-            <ejb-class>org.openejb.test.simple.bmp.SimpleBMPEntityEJB</ejb-class>
+            <home>org.apache.openejb.test.simple.bmp.SimpleBMPEntityHome</home>
+            <remote>org.apache.openejb.test.simple.bmp.SimpleBMPEntity</remote>
+            <local-home>org.apache.openejb.test.simple.bmp.SimpleBMPEntityLocalHome</local-home>
+            <local>org.apache.openejb.test.simple.bmp.SimpleBMPEntityLocal</local>
+            <ejb-class>org.apache.openejb.test.simple.bmp.SimpleBMPEntityEJB</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
@@ -119,11 +119,11 @@
         </entity>
         <entity>
             <ejb-name>SimpleCMPEntity</ejb-name>
-            <home>org.openejb.test.simple.cmp.SimpleCMPEntityHome</home>
-            <remote>org.openejb.test.simple.cmp.SimpleCMPEntity</remote>
-            <local-home>org.openejb.test.simple.cmp.SimpleCMPEntityLocalHome</local-home>
-            <local>org.openejb.test.simple.cmp.SimpleCMPEntityLocal</local>
-            <ejb-class>org.openejb.test.simple.cmp.SimpleCMPEntityEJB</ejb-class>
+            <home>org.apache.openejb.test.simple.cmp.SimpleCMPEntityHome</home>
+            <remote>org.apache.openejb.test.simple.cmp.SimpleCMPEntity</remote>
+            <local-home>org.apache.openejb.test.simple.cmp.SimpleCMPEntityLocalHome</local-home>
+            <local>org.apache.openejb.test.simple.cmp.SimpleCMPEntityLocal</local>
+            <ejb-class>org.apache.openejb.test.simple.cmp.SimpleCMPEntityEJB</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
@@ -176,7 +176,7 @@
             <description>hey its a mdb</description>
             <display-name>some CMT mdb</display-name>
             <ejb-name>SampleCMTMDB</ejb-name>
-            <ejb-class>org.openejb.test.mdb.CMTMDB</ejb-class>
+            <ejb-class>org.apache.openejb.test.mdb.CMTMDB</ejb-class>
             <transaction-type>Container</transaction-type>
             <message-selector>some selector</message-selector>
             <message-driven-destination>
@@ -219,7 +219,7 @@
             <description>hey its another mdb</description>
             <display-name>some BMT mdb</display-name>
             <ejb-name>SampleBMTMDB</ejb-name>
-            <ejb-class>org.openejb.test.mdb.BMTMDB</ejb-class>
+            <ejb-class>org.apache.openejb.test.mdb.BMTMDB</ejb-class>
             <transaction-type>Bean</transaction-type>
             <message-selector>some selector</message-selector>
             <acknowledge-mode>Dups-ok-acknowledge</acknowledge-mode>
