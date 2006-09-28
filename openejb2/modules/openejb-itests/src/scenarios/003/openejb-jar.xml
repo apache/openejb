@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<openejb-jar
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
+    configId="openejb/itests-security-scenario003/${openejb_version}/car"
+    parentId="openejb/security/${openejb_version}/car"
+    >
+
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit_version}</version>
+    </dependency>
+
+    <enterprise-beans>
+
+        <session>
+            <ejb-name>InteropBean</ejb-name>
+            <jndi-name>interop/003/InteropHome</jndi-name>
+            <ejb-ref>
+                <ref-name>ejb/interop/InteropBean</ref-name>
+                <ns-corbaloc>corbaloc::localhost:2809/NameService</ns-corbaloc>
+                <name>security/001/BasicStatelessHome</name>
+                <css-link>IOR7</css-link>
+            </ejb-ref>
+        </session>
+
+    </enterprise-beans>
+
+    <sec:security default-role="UNASSIGNED" doas-current-caller="true">
+        <sec:default-principal>
+            <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
+        </sec:default-principal>
+    </sec:security>
+
+</openejb-jar>

@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ ====================================================================
+ Redistribution and use of this software and associated documentation
+ ("Software"), with or without modification, are permitted provided
+ that the following conditions are met:
+
+ 1. Redistributions of source code must retain copyright
+    statements and notices.  Redistributions must also contain a
+    copy of this document.
+
+ 2. Redistributions in binary form must reproduce this list of
+    conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+ 3. The name "OpenEJB" must not be used to endorse or promote
+    products derived from this Software without prior written
+    permission of The OpenEJB Group.  For written permission,
+    please contact dev@openejb.org.
+
+ 4. Products derived from this Software may not be called "OpenEJB"
+    nor may "OpenEJB" appear in their names without prior written
+    permission of The OpenEJB Group. OpenEJB is a registered
+    trademark of The OpenEJB Group.
+
+ 5. Due credit should be given to the OpenEJB Project
+    (http://www.openejb.org/).
+
+ THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ ====================================================================
+
+ This software consists of voluntary contributions made by many
+ individuals on behalf of the OpenEJB Project.  For more information
+ please see <http://www.openejb.org/>.
+
+ ====================================================================
+-->
+<!-- $Revision$ $Date$ -->
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:deploy="geronimo:deploy"
+    xmlns:maven="jelly:maven"
+    xmlns:u="jelly:util"
+    xmlns:define="jelly:define"
+    xmlns:velocity="jelly:velocity"
+    >
+
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+    </preGoal>
+
+    <goal name="default" prereqs="ejb:install"/>
+
+    <preGoal name="ejb:ejb">
+        <attainGoal name="buildTestJars"/>
+    </preGoal>
+
+    <goal name="buildTestJars">
+      <!-- openejb-itest-${openejb_version}.jar -->
+      <!-- Note: jar is built by ejb:ejb -->
+      <ant:mkdir dir="${maven.build.dir}/ejb/META-INF"/>
+      <ant:copy todir="${maven.build.dir}/ejb">
+          <ant:fileset dir="${basedir}/src/ejb" excludes="META-INF/openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/ejb/META-INF"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/ejb/META-INF/openejb-jar.xml"/>
+
+      <!-- openejb-security-001.jar -->
+      <ant:mkdir dir="${maven.build.dir}/scenarios/001"/>
+      <ant:copy todir="${maven.build.dir}/scenarios/001">
+          <ant:fileset dir="${basedir}/src/scenarios/001" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/scenarios/001"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/scenarios/001/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-security-001.jar">
+          <fileset dir="${maven.build.dir}/classes" includes="**/security/**/*.class"/>
+          <metainf dir="${maven.build.dir}/scenarios/001" includes="*.xml"/>
+      </ant:jar>
+
+      <!-- openejb-security-002.jar -->
+      <ant:mkdir dir="${maven.build.dir}/scenarios/002"/>
+      <ant:copy todir="${maven.build.dir}/scenarios/002">
+          <ant:fileset dir="${basedir}/src/scenarios/002" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/scenarios/002"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/scenarios/002/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-security-002.jar">
+          <fileset dir="${maven.build.dir}/classes" includes="**/security/**/*.class"/>
+          <metainf dir="${maven.build.dir}/scenarios/002" includes="*.xml"/>
+      </ant:jar>
+
+      <!-- openejb-security-003.jar -->
+      <ant:mkdir dir="${maven.build.dir}/scenarios/003"/>
+      <ant:copy todir="${maven.build.dir}/scenarios/003">
+          <ant:fileset dir="${basedir}/src/scenarios/003" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/scenarios/003"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/scenarios/003/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-security-003.jar">
+          <fileset dir="${maven.build.dir}/classes">
+              <include name="**/interop/**/*.class"/>
+              <include name="**/security/slsb/BasicStatelessHome.class"/>
+              <include name="**/security/slsb/BasicStateless.class"/>
+          </fileset>
+          <metainf dir="${maven.build.dir}/scenarios/003" includes="*.xml"/>
+      </ant:jar>
+
+      <!-- openejb-cmp2-prefetch.jar -->
+      <ant:mkdir dir="${maven.build.dir}/cmp2/prefetch"/>
+      <ant:copy todir="${maven.build.dir}/cmp2/prefetch">
+          <ant:fileset dir="${basedir}/src/cmp2/prefetch" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/cmp2/prefetch"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/cmp2/prefetch/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-cmp2-prefetch.jar">
+          <fileset dir="${maven.build.dir}/classes">
+              <include name="**/cmp2/model/*.class"/>
+              <include name="**/cmp2/prefetch/*.class"/>
+              <include name="**/TestFailureException.class"/>
+          </fileset>
+          <metainf dir="${maven.build.dir}/cmp2/prefetch" includes="*.xml"/>
+      </ant:jar>
+
+      <!-- openejb-cmp2-cmrmapping.jar -->
+      <ant:mkdir dir="${maven.build.dir}/cmp2/cmrmapping"/>
+      <ant:copy todir="${maven.build.dir}/cmp2/cmrmapping">
+          <ant:fileset dir="${basedir}/src/cmp2/cmrmapping" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/cmp2/cmrmapping"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/cmp2/cmrmapping/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-cmp2-cmrmapping.jar">
+          <fileset dir="${maven.build.dir}/classes">
+              <include name="**/cmp2/cmrmapping/*.class"/>
+              <include name="**/TestFailureException.class"/>
+          </fileset>
+          <metainf dir="${maven.build.dir}/cmp2/cmrmapping" includes="*.xml"/>
+      </ant:jar>
+
+      <!-- openejb-cmp2-petstore.jar -->
+      <ant:mkdir dir="${maven.build.dir}/cmp2/petstore"/>
+      <ant:copy todir="${maven.build.dir}/cmp2/petstore">
+          <ant:fileset dir="${basedir}/src/cmp2/petstore" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/cmp2/petstore"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/cmp2/petstore/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-cmp2-petstore.jar">
+          <fileset dir="${maven.build.dir}/classes">
+              <include name="**/cmp2/petstore/*.class"/>
+              <include name="**/TestFailureException.class"/>
+          </fileset>
+          <metainf dir="${maven.build.dir}/cmp2/petstore" includes="*.xml"/>
+      </ant:jar>
+
+
+      <!-- openejb-cmp2-storage.jar -->
+      <ant:mkdir dir="${maven.build.dir}/cmp2/storage"/>
+      <ant:copy todir="${maven.build.dir}/cmp2/storage">
+          <ant:fileset dir="${basedir}/src/cmp2/storage" excludes="openejb-jar.xml"/>
+      </ant:copy>
+      <velocity:merge
+          basedir="${basedir}/src/cmp2/storage"
+          template="openejb-jar.xml"
+          name="${maven.build.dir}/cmp2/storage/openejb-jar.xml"/>
+      <ant:jar destfile="${maven.build.dir}/openejb-cmp2-storage.jar">
+          <fileset dir="${maven.build.dir}/classes">
+              <include name="**/cmp2/model/Storage*.class"/>
+          </fileset>
+          <metainf dir="${maven.build.dir}/cmp2/storage" includes="*.xml"/>
+      </ant:jar>
+    </goal>
+
+    <postGoal name="ejb:install">
+        <attainGoal name="itest"/>
+    </postGoal>
+
+    <preGoal name="itest:setup">
+        <!-- Preprocess all plans using velocity  -->
+        <ant:mkdir dir="${maven.build.dir}/plan"/>
+        <fileScanner var="plans">
+            <fileset dir="${basedir}/src/plan">
+                <include name="*-plan.xml"/>
+            </fileset>
+        </fileScanner>
+
+        <j:forEach var="plan" items="${plans.iterator()}">
+            <j:set var="planName" value="${plan.name}"/>
+            <echo>Preprocessing ${planName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/plan"
+                template="${planName}"
+                name="${maven.build.dir}/plan/${planName}"/>
+        </j:forEach>
+
+        <ant:delete dir="${maven.build.dir}/geronimo-${geronimo_version}"/>
+        <deploy:unpackServer geronimoVersion="${geronimo_version}"/>
+        <ant:copy todir="${maven.build.dir}/geronimo-${geronimo_version}/var/certstores">
+            <ant:fileset dir="src/test-resources" includes="keystore,truststore"/>
+        </ant:copy>
+
+<!--        <ant:copy todir="${maven.build.dir}/geronimo-${geronimo_version}/var">-->
+<!--            <ant:fileset dir="src/var"/>-->
+<!--        </ant:copy>-->
+
+        <deploy:startRemoteServer
+            geronimoTarget="${maven.build.dir}/geronimo-${geronimo_version}"
+            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${corba.vmargs}"
+            />
+        <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
+        <u:sleep millis="30000"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            maxtries="125"
+            id="geronimo/jetty-runtime-deployer/${geronimo_version}/car"/>
+        <echo message="runtime deployer has started"/>
+        <u:sleep millis="7000"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            plan="${maven.build.dir}/plan/security-plan.xml" />
+        <echo message="deployed test security configuration"/>
+        <echo message="deploying itests... this will take a while"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-itests-${pom.currentVersion}.jar" />
+        <echo message="deployed ejbs"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests/${openejb_version}/car"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-security-001.jar"
+            />
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-security-002.jar"
+            />
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-security-003.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests-security-scenario001/${openejb_version}/car"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests-security-scenario002/${openejb_version}/car"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests-security-scenario003/${openejb_version}/car"/>
+
+        <!-- Prefetch Tests  -->
+        <attainGoal name="antIntegration"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-cmp2-prefetch.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-prefetch/${openejb_version}/car"/>
+
+        <!-- CMR Mapping Tests  -->
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-cmp2-cmrmapping.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-cmrmapping/${openejb_version}/car"/>
+
+        <!-- PK Generator Tests  -->
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-cmp2-petstore.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-petstore/${openejb_version}/car"/>
+
+        <!-- Storage Tests  -->
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-cmp2-storage.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-storage/${openejb_version}/car"/>
+    </preGoal>
+
+    <preGoal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-cmrmapping/${openejb_version}/car"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-cmrmapping/${openejb_version}/car"/>
+
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-storage/${openejb_version}/car"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-storage/${openejb_version}/car"/>
+
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-petstore/${openejb_version}/car"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-petstore/${openejb_version}/car"/>
+
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-prefetch/${openejb_version}/car"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/cmp2-prefetch/${openejb_version}/car"/>
+
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario003"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario002"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario002"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <echo message="undeployed ejbs"/>
+        <deploy:stopRemoteServer
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
+        <echo message="server has stopped"/>
+    </preGoal>
+
+    <goal name="svr:start">
+        <deploy:startRemoteServer
+            geronimoTarget="${maven.build.dir}/geronimo-${geronimo_version}"
+            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Xdebug -Xnoagent -Dcom.sun.CORBA.ORBDebug=transport,giop,subcontract,POA,naming,serviceContext -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 ${corba.vmargs}"
+            configs="org/openejb/Security"/>
+        <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Security"/>
+        <echo message="server has started"/>
+    </goal>
+
+    <goal name="svr:stop">
+        <deploy:stopRemoteServer
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
+        <echo message="server has stopped"/>
+    </goal>
+
+    <goal name="sec:start">
+        <ant:jar destfile="${maven.build.dir}/openejb-security-001.jar">
+            <fileset dir="${maven.build.dir}/classes" includes="**/security/**/*.class"/>
+            <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-security-001.jar"
+            />
+        <ant:jar destfile="${maven.build.dir}/openejb-security-003.jar">
+            <fileset dir="${maven.build.dir}/classes" includes="**/security/**/*.class"/>
+            <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.build.dir}/openejb-security-003.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+    </goal>
+
+    <goal name="sec:stop">
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests-security-scenario003/${openejb_version}/car"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests-security-scenario003/${openejb_version}/car"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            id="openejb/itests-security-scenario003/${openejb_version}/car"/>
+    </goal>
+
+    <goal name="antIntegration">
+        <ant:taskdef name="ddlExporter" classname="org.openejb.deployment.ant.DDLExporterTask">
+            <classpath>
+                <pathelement location="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar"/>
+                <pathelement location="${maven.repo.local}/tranql/jars/tranql-${tranql_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-kernel-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-deployment-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-common-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo/jars/geronimo-service-builder-${geronimo_version}.jar"/>
+                <pathelement location="${maven.repo.local}/xmlbeans/jars/xbean-${xmlbeans_version}.jar"/>
+                <pathelement location="${maven.repo.local}/stax/jars/stax-api-${stax_api_version}.jar"/>
+                <pathelement location="${maven.repo.local}/geronimo-spec/jars/geronimo-spec-ejb-${geronimo_spec_ejb_version}.jar"/>
+            </classpath>
+        </ant:taskdef>
+
+        <ddlExporter
+            ejbJar="jar:${maven.build.dir}/openejb-cmp2-prefetch.jar"
+            openejbJar="jar:${maven.build.dir}/openejb-cmp2-prefetch.jar"
+            output="${maven.build.dir}/openejb-cmp2-prefetch.sql"
+            ddlCommandBuilder="org.tranql.ddl.DerbyDDLCommandBuilder"
+            type="drop-create-constraint">
+            <classpath>
+                <pathelement location="target/openejb-cmp2-prefetch.jar"/>
+            </classpath>
+        </ddlExporter>
+    </goal>
+
+</project>

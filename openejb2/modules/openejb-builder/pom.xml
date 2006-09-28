@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openejb</groupId>
+        <artifactId>modules</artifactId>
+        <version>2.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <name>OpenEJB :: Builder</name>
+    <artifactId>openejb-builder</artifactId>
+    <description>OpenEJB Builder</description>
+
+    <dependencies>
+        <!--<dependency>-->
+        <!--<groupId>org.apache.geronimo.modules</groupId>-->
+        <!--<artifactId>geronimo-deploy-config</artifactId>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.openejb</groupId>
+            <artifactId>openejb-pkgen-builder</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>org.apache.geronimo.specs</groupId>-->
+        <!--<artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <!--<scope>test</scope> this is unavailabe process-resources phase ! -->
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>org.apache.geronimo.modules</groupId>-->
+        <!--<artifactId>geronimo-j2ee-schema</artifactId>-->
+        <!--</dependency>-->
+        <!---->
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${geronimoVersion}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>axion</groupId>
+            <artifactId>axion</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>org.apache.xmlbeans</groupId>-->
+        <!--<artifactId>xbean</artifactId>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.4</source>
+                    <target>1.4</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <echo message="classpath=${project.compileClasspathElements}"
+                                      file="classpath.properties"/>
+                                <ant antfile="${basedir}/src/test/test-setup.xml">
+                                    <property name="maven.compile.source" value="1.4"/>
+                                    <property name="maven.compile.target" value="1.4"/>
+                                </ant>
+                                <delete file="classpath.properties" failonerror="false"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xmlbeans</goal>
+                        </goals>
+                        <configuration>
+                            <schemaDirectory>${basedir}/src/schema</schemaDirectory>
+                            <sourceSchemas>
+                                corba-css-config-2.0.xsd,corba-tss-config-2.1.xsd,openejb-jar-2.2.xsd</sourceSchemas>
+                            <xmlConfigs>
+                                <xmlConfig implementation="java.io.File">${basedir}/src/schema/xmlconfig.xml</xmlConfig>
+                            </xmlConfigs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/resources2</directory>
+            </resource>
+            <!-- these should not be needed, xmlbeans packs them for us -->
+            <!--<resource>-->
+            <!--<targetPath>META-INF/schema</targetPath>-->
+            <!--<directory>src/schema</directory>-->
+            <!--<includes>-->
+            <!--<include>corba-css-config-2.0.xsd</include>-->
+            <!--<include>corba-tss-config-2.0.xsd</include>-->
+            <!--<include>openejb-jar-2.1.xsd</include>-->
+            <!--</includes>-->
+            <!--</resource>-->
+        </resources>
+
+    </build>
+</project>

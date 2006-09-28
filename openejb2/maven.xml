@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:modules="local:modules">
+
+    <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
+    <j:set var="distDir" value="target/${pom.groupId}-${pom.currentVersion}"/>
+
+
+    <!-- ======= -->
+    <!-- Modules -->
+    <!-- ======= -->
+    <goal name="modules:reactor:init">
+        <!--
+           | Determine the includes which the reactor will use.
+           |
+           | Uses 4 properties to control which modules will be include:
+           |
+           | module.types      Comma seperated list of module types (ie. specs or modules)
+           | module.includes   Comma seperated list of module names (ie. common, core, ...)
+           | modules           Same as module.includes, module.includes initializes to this value
+           | module.excludes   Comma seperated list of module names to exclude
+           |
+           | The end result is that modules.reactor.includes is set to the project.xml files
+           | to include.  This is the value the reactor will use.
+           |
+           | Example, to only build the common and core modules:
+           |
+           | maven -Dmodules=common,core
+         -->
+
+        <j:if test="${context.getVariable('module.types') == null}">
+            <j:set var="module.types" value="modules,applications"/>
+        </j:if>
+
+        <j:if test="${context.getVariable('modules') == null}">
+            <!-- The default is to build everything -->
+            <j:set var="modules" value="*"/>
+        </j:if>
+
+        <j:if test="${context.getVariable('module.includes') == null}">
+            <j:set var="module.includes" value="${modules}"/>
+        </j:if>
+
+        <j:if test="${context.getVariable('module.excludes') == null}">
+            <j:set var="module.excludes" value=""/>
+        </j:if>
+
+        <u:tokenize var="types" delim=",">${module.types}</u:tokenize>
+
+        <ant:fileScanner var="scanner">
+            <ant:fileset dir="${basedir}">
+                <j:forEach var="type" items="${types}">
+                    <j:choose>
+                        <j:when test="${context.getVariable('module.includes') == '*'}">
+                            <ant:include name="${type}/*/project.xml"/>
+                        </j:when>
+                        <j:otherwise>
+                            <u:tokenize var="includes" delim=",">${module.includes}</u:tokenize>
+                            <j:forEach var="include" items="${includes}">
+                                <u:available file="${basedir}/${type}/${include}/project.xml">
+                                    <ant:include name="${type}/${include}/project.xml"/>
+                                </u:available>
+                            </j:forEach>
+                        </j:otherwise>
+                    </j:choose>
+
+                    <j:choose>
+                        <j:when test="${context.getVariable('module.excludes') == '*'}">
+                            <ant:exclude name="${type}/*/project.xml"/>
+                        </j:when>
+                        <j:otherwise>
+                            <u:tokenize var="excludes" delim=",">${module.excludes}</u:tokenize>
+                            <j:forEach var="exclude" items="${excludes}">
+                                <u:available file="${basedir}/${type}/${exclude}/project.xml">
+                                    <ant:exclude name="${type}/${exclude}/project.xml"/>
+                                </u:available>
+                            </j:forEach>
+                        </j:otherwise>
+                    </j:choose>
+                </j:forEach>
+            </ant:fileset>
+        </ant:fileScanner>
+
+        <!-- Setup the includes which will be used by the reactor -->
+        <j:forEach var="file" items="${scanner.iterator()}">
+            <!--
+               | Would be nice if reactor would take a file set, but for now just remove
+               | the baseddir portion of the file's name.  So this will essentially strip off
+               | ${basedir}
+             -->
+            <j:set var="directory" value="${file.parentFile.parentFile.name}/${file.parentFile.name}"/>
+            <j:set var="filename" value="${directory}/${file.name}"/>
+            <j:choose>
+                <j:when test="${context.getVariable('modules.reactor.includes') == null}">
+                    <j:set var="modules.directories" value="${directory}"/>
+                    <j:set var="modules.reactor.includes" value="${filename}"/>
+                </j:when>
+                <j:otherwise>
+                    <j:set var="modules.directories" value="${modules.directories},${directory}"/>
+                    <j:set var="modules.reactor.includes" value="${modules.reactor.includes},${filename}"/>
+                </j:otherwise>
+            </j:choose>
+        </j:forEach>
+    </goal>
+
+    <!-- Helper tags for modules -->
+    <define:taglib uri="local:modules">
+        <define:tag name="reactor">
+            <attainGoal name="modules:reactor:init"/>
+
+            <j:choose>
+                <j:when test="${goals != null}">
+                    <maven:reactor
+                        basedir="${basedir}"
+                        includes="${modules.reactor.includes}"
+                        banner="Executing (${goals}):"
+                        ignoreFailures="false"
+                        goals="${goals}"
+                        postProcessing="true"
+                        />
+                </j:when>
+                <j:when test="${goals == null}">
+                    <maven:reactor
+                        basedir="${basedir}"
+                        includes="${modules.reactor.includes}"
+                        banner="Executing (${goals}):"
+                        ignoreFailures="false"
+                        postProcessing="true"
+                        />
+                </j:when>
+            </j:choose>
+
+            <!-- Set reactor projects in parent scope so goals have access to it -->
+            <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
+        </define:tag>
+    </define:taglib>
+
+    <goal name="modules:reactor">
+        <modules:reactor/>
+    </goal>
+
+    <goal name="modules:default">
+        <modules:reactor goals="default"/>
+    </goal>
+
+    <goal name="modules:build">
+        <modules:reactor goals="build"/>
+    </goal>
+
+    <goal name="modules:test">
+        <modules:reactor goals="test"/>
+    </goal>
+
+    <goal name="modules:site">
+        <modules:reactor goals="site"/>
+    </goal>
+
+    <goal name="modules:eclipse">
+        <modules:reactor goals="eclipse"/>
+    </goal>
+
+    <goal name="modules:javadoc">
+        <modules:reactor goals="javadoc"/>
+    </goal>
+
+    <goal name="modules:clover">
+        <modules:reactor goals="clover.wrapper"/>
+    </goal>
+
+    <goal name="modules:jar:deploy">
+        <modules:reactor goals="jar:deploy"/>
+    </goal>
+
+    <goal name="modules:clean">
+        <!-- DMB: don't know why we are cleaning this way when we could invoke clean on the submodules -->
+        <attainGoal name="modules:reactor:init"/>
+        <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
+        <j:forEach var="directory" items="${directories}">
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:echo>| Cleaning: ${directory} </ant:echo>
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:delete dir="${directory}/target"/>
+            <ant:delete file="${directory}/velocity.log" quiet="true" failonerror="false"/>
+            <ant:echo></ant:echo>
+        </j:forEach>
+
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:echo>| Cleaning: ${distDir} </ant:echo>
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:delete dir="${distDir}"/>
+    </goal>
+
+    <goal name="modules:clobber">
+        <attainGoal name="modules:reactor:init"/>
+        <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
+        <j:forEach var="directory" items="${directories}">
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:echo>| Clobbering: ${directory} </ant:echo>
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:delete dir="${directory}/target"/>
+            <ant:delete quiet="false" failonerror="false">
+                <ant:fileset dir="${directory}">
+                    <ant:include name="maven.log"/>
+                    <ant:include name="velocity.log*"/>
+                    <ant:include name="junit*.properties"/>
+                </ant:fileset>
+            </ant:delete>
+            <ant:echo></ant:echo>
+        </j:forEach>
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:echo>| Clobbering: ${distDir} </ant:echo>
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:delete dir="${distDir}"/>
+    </goal>
+
+    <preGoal name="clean:clean">
+        <!-- Do not clean modules if are clobbering them -->
+        <j:if test="${clobbering != 'true'}">
+            <attainGoal name="modules:clean"/>
+        </j:if>
+    </preGoal>
+
+    <preGoal name="clobber">
+        <j:set var="clobbering" value="true"/>
+        <attainGoal name="modules:clobber"/>
+    </preGoal>
+
+    <goal name="default">
+        <attainGoal name="modules:default"/>
+    </goal>
+
+    <goal name="test">
+        <attainGoal name="modules:test"/>
+    </goal>
+
+    <goal name="eclipse">
+        <attainGoal name="modules:eclipse"/>
+    </goal>
+
+    <goal name="jar:deploy">
+        <attainGoal name="modules:jar:deploy"/>
+    </goal>
+    
+    <goal name="deploy">
+        <modules:reactor goals="deploy"/>
+    </goal>
+    
+    <goal name="blah">
+        <modules:reactor goals="hello"/>
+    </goal>
+
+    <goal name="plugins">
+        <ant:echo>This step is no longer necessary.   Simply use 'maven' to build the server.</ant:echo>
+    </goal>
+
+
+
+    <!-- =============================== -->
+    <!-- Documentation & Site Generation -->
+    <!-- =============================== -->
+
+    <goal name="javadoc">
+        <attainGoal name="modules:javadoc"/>
+    </goal>
+
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+        <attainGoal name="faq"/>
+    </preGoal>
+
+    <!-- Turn off reports for the top-level project -->
+    <postGoal name="xdoc:register-reports">
+        <attainGoal name="maven-license-plugin:deregister"/>
+        <attainGoal name="maven-checkstyle-plugin:deregister"/>
+        <attainGoal name="maven-pmd-plugin:deregister"/>
+        <attainGoal name="maven-simian-plugin:deregister"/>
+        <attainGoal name="maven-jdepend-plugin:deregister"/>
+        <attainGoal name="maven-jxr-plugin:deregister"/>
+        <attainGoal name="maven-javadoc-plugin:deregister"/>
+        <attainGoal name="maven-junit-report-plugin:deregister"/>
+        <attainGoal name="maven-clover-plugin:deregister"/>
+
+        <!-- Run some useful top-level reports -->
+        <!--<attainGoal name="maven-changelog-plugin:deregister"/>-->
+        <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
+        <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
+    </postGoal>
+
+    <preGoal name="site">
+        <attainGoal name="modules:aggregate:site"/>
+    </preGoal>
+
+    <postGoal name="site">
+        <j:set var="aggregate.dir" value="${basedir}/${distDir}/docs"/>
+        <!-- Copy project docs -->
+        <ant:echo>Copying project docs to ${aggregate.dir}...</ant:echo>
+        <ant:copy todir="${aggregate.dir}">
+           <ant:fileset dir="${basedir}/target/docs"/>
+        </ant:copy>
+    </postGoal>
+
+    <goal name="modules:aggregate:site" prereqs="modules:site"
+        description="Copy the generated websites of all the modules into the root project">
+
+        <ant:echo>Aggregating module site documentation...</ant:echo>
+
+        <!-- Setup the target aggregation directory -->
+        <j:set var="aggregate.dir" value="${basedir}/${distDir}/docs"/>
+        <ant:mkdir dir="${aggregate.dir}"/>
+
+        <j:forEach var="module" items="${reactorProjects}">
+            <ant:echo>Processing ${module.id}...</ant:echo>
+
+            <!-- Get the modules root directory -->
+            <j:set var="module.root" value="${module.file.parent}"/>
+
+            <!-- Setup the target dir under docs -->
+            <j:set var="moduleDirName">${module.file.parentFile.name}</j:set>
+            <j:set var="moduleTypeDirName">${module.file.parentFile.parentFile.name}</j:set>
+            <j:set var="outputDir">${aggregate.dir}/${moduleTypeDirName}/${moduleDirName}</j:set>
+
+            <!-- Copy module docs -->
+            <ant:echo>Copying docs to ${outputDir}...</ant:echo>
+            <ant:mkdir dir="${outputDir}"/>
+            <ant:copy todir="${outputDir}">
+                <ant:fileset dir="${module.root}/target/docs"/>
+            </ant:copy>
+        </j:forEach>
+    </goal>
+
+    <goal name="site:tocvs"
+        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the site">
+
+        <j:jelly xmlns="jelly:ant">
+
+            <j:if test="${empty(geronimo.cvs.docdir)}">
+                <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
+            </j:if>
+
+            <mkdir dir="${geronimo.cvs.docdir}"/>
+            <copy todir="${geronimo.cvs.docdir}">
+                <fileset dir="${basedir}/${distDir}/docs"/>
+            </copy>
+
+        </j:jelly>
+    </goal>
+    
+    <!-- ====================== -->
+    <!-- Continuous Integration -->
+    <!-- ====================== -->
+    
+    <goal name="ci">
+        <j:set var="_deployment_enabled" value="false"/>
+        
+        <!--
+           | if -DdeploySnapshotsFromCI=true and this is a SNAPSHOT version, then
+           | enable deployment wo the local repository
+         -->
+         
+        <j:if test="${context.getVariable('deploySnapshotsFromCI') == 'true'}">
+            <j:set var="i" value="${pom.currentVersion.indexOf('SNAPSHOT')}"/>
+            
+            <j:if test="${i != -1}">
+                <ant:echo>Enabling deployment for SNAPSHOT: ${pom.currentVersion}</ant:echo>
+                <j:set var="_deployment_enabled" value="true"/>
+            </j:if>
+        </j:if>
+        
+        <attainGoal name="clean"/>
+        <attainGoal name="default"/>
+        
+        <j:if test="${_deployment_enabled}">
+            <j:set var="maven.repo.list" value="stan_gbuild_org" scope="parent"/>
+            
+            <attainGoal name="deploy"/>
+        </j:if>
+    </goal>
+    
+</project>
