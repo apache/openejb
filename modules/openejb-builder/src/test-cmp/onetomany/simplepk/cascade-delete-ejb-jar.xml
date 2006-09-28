@@ -9,9 +9,9 @@
     <enterprise-beans>
         <entity>
             <ejb-name>A</ejb-name>
-            <local-home>org.openejb.deployment.entity.cmp.cmr.onetomany.ALocalHome</local-home>
-            <local>org.openejb.deployment.entity.cmp.cmr.onetomany.ALocal</local>
-            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetomany.ABean</ejb-class>
+            <local-home>org.apache.openejb.deployment.entity.cmp.cmr.onetomany.ALocalHome</local-home>
+            <local>org.apache.openejb.deployment.entity.cmp.cmr.onetomany.ALocal</local>
+            <ejb-class>org.apache.openejb.deployment.entity.cmp.cmr.onetomany.ABean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -29,7 +29,7 @@
                 <query-method>
                     <method-name>findByPrimaryKey</method-name>
                     <method-params>
-                        <method-param>org.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
+                        <method-param>org.apache.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
                     </method-params>
                 </query-method>
                 <ejb-ql>SELECT OBJECT(A) FROM onetomanyA A</ejb-ql>
@@ -37,9 +37,9 @@
         </entity>
         <entity>
             <ejb-name>B</ejb-name>
-            <local-home>org.openejb.deployment.entity.cmp.cmr.onetomany.BLocalHome</local-home>
-            <local>org.openejb.deployment.entity.cmp.cmr.onetomany.BLocal</local>
-            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetomany.BBean</ejb-class>
+            <local-home>org.apache.openejb.deployment.entity.cmp.cmr.onetomany.BLocalHome</local-home>
+            <local>org.apache.openejb.deployment.entity.cmp.cmr.onetomany.BLocal</local>
+            <ejb-class>org.apache.openejb.deployment.entity.cmp.cmr.onetomany.BBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -60,7 +60,7 @@
                 <query-method>
                     <method-name>findByPrimaryKey</method-name>
                     <method-params>
-                        <method-param>org.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
+                        <method-param>org.apache.openejb.deployment.entity.cmp.cmr.CompoundPK</method-param>
                     </method-params>
                 </query-method>
                 <ejb-ql>SELECT OBJECT(B) FROM onetomanyB B</ejb-ql>

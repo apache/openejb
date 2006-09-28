@@ -59,7 +59,7 @@
     <id>openejb-pkgen-builder</id>
     <shortDescription>OpenEJB PK Generation Builder</shortDescription>
     <description>OpenEJB PK Generation Builder</description>
-    <package>org.openejb.deployment.pkgen</package>
+    <package>org.apache.openejb.deployment.pkgen</package>
 
     <!-- ============ -->
     <!-- Dependencies -->

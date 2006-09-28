@@ -9,11 +9,11 @@
     <enterprise-beans>
         <entity>
             <ejb-name>A</ejb-name>
-            <local-home>org.openejb.deployment.entity.cmp.cmr.onetoone.ALocalHome</local-home>
-            <local>org.openejb.deployment.entity.cmp.cmr.onetoone.ALocal</local>
-            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetoone.ABean</ejb-class>
+            <local-home>org.apache.openejb.deployment.entity.cmp.cmr.onetoone.ALocalHome</local-home>
+            <local>org.apache.openejb.deployment.entity.cmp.cmr.onetoone.ALocal</local>
+            <ejb-class>org.apache.openejb.deployment.entity.cmp.cmr.onetoone.ABean</ejb-class>
             <persistence-type>Container</persistence-type>
-            <prim-key-class>org.openejb.deployment.entity.cmp.cmr.CompoundPK</prim-key-class>
+            <prim-key-class>org.apache.openejb.deployment.entity.cmp.cmr.CompoundPK</prim-key-class>
             <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>OneToOneA</abstract-schema-name>
@@ -36,11 +36,11 @@
         </entity>
         <entity>
             <ejb-name>B</ejb-name>
-            <local-home>org.openejb.deployment.entity.cmp.cmr.onetoone.BLocalHome</local-home>
-            <local>org.openejb.deployment.entity.cmp.cmr.onetoone.BLocal</local>
-            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetoone.BBean</ejb-class>
+            <local-home>org.apache.openejb.deployment.entity.cmp.cmr.onetoone.BLocalHome</local-home>
+            <local>org.apache.openejb.deployment.entity.cmp.cmr.onetoone.BLocal</local>
+            <ejb-class>org.apache.openejb.deployment.entity.cmp.cmr.onetoone.BBean</ejb-class>
             <persistence-type>Container</persistence-type>
-            <prim-key-class>org.openejb.deployment.entity.cmp.cmr.CompoundPK</prim-key-class>
+            <prim-key-class>org.apache.openejb.deployment.entity.cmp.cmr.CompoundPK</prim-key-class>
             <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>OneToOneB</abstract-schema-name>
