@@ -16,15 +16,14 @@
  */
 package org.apache.openejb.corba.compiler;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 import org.apache.openejb.corba.util.Util;
@@ -33,24 +32,26 @@ import org.apache.openejb.corba.util.Util;
  * @version $Rev$ $Date$
  */
 public class PortableStubCompilerTest extends TestCase {
-    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     public void testBeanPropertiesNameMangler() throws Exception {
-        assertMangling("src/test-resources/beanPropertiesNameMangler.properties", BeanProperties.class);
+        assertMangling("beanPropertiesNameMangler.properties", BeanProperties.class);
     }
 
     public void testBasicNameMangler() throws Exception {
-        assertMangling("src/test-resources/nameMangler.properties", Foo.class);
+        assertMangling("nameMangler.properties", Foo.class);
     }
 
     public void testSpecialNameMangler() throws Exception {
-        assertMangling("src/test-resources/specialNameMangler.properties", Special.class);
+        assertMangling("specialNameMangler.properties", Special.class);
     }
 
     private void assertMangling(String propertiesFile, Class intf) throws IOException {
         Properties nameManglerProperties = new Properties();
-        File file = new File(basedir, propertiesFile);
-        nameManglerProperties.load(new FileInputStream(file));
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream(propertiesFile);
+        if (in == null) {
+            fail("couldn't find resource: " + propertiesFile);
+        }
+        nameManglerProperties.load(in);
 
         boolean failed = false;
         Set methodSignatures = new HashSet();
