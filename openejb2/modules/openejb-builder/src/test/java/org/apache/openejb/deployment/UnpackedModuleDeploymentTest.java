@@ -16,8 +16,6 @@
  */
 package org.apache.openejb.deployment;
 
-import java.io.File;
-
 import junit.framework.Test;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -26,7 +24,7 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class UnpackedModuleDeploymentTest extends AbstractDeploymentTest {
     private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(UnpackedModuleDeploymentTest.class, new File("target/test-ejb-jar"));
+            new DeploymentTestSuite(UnpackedModuleDeploymentTest.class, "test-ejb-jar");
 
     public static Test suite() {
         return SUITE;

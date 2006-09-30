@@ -16,8 +16,6 @@
  */
 package org.apache.openejb.deployment;
 
-import java.io.File;
-
 import junit.framework.Test;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -26,7 +24,7 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class EarDeploymentTest extends AbstractDeploymentTest {
     private static final DeploymentTestSuite SUITE =
-            new DeploymentTestSuite(EarDeploymentTest.class, new File("target/test-ear.ear"));
+            new DeploymentTestSuite(EarDeploymentTest.class, "test-ear.ear");
 
     public static Test suite() {
         return SUITE;
