@@ -69,7 +69,7 @@
                         </goals>
                         <configuration>
                             <schemaDirectory>${basedir}/src/schema</schemaDirectory>
-                            <sourceSchemas>openejb-pkgen-2.0.xsd</sourceSchemas>
+                            <sourceSchemas>openejb-pkgen-2.1.xsd</sourceSchemas>
                             <xmlConfigs>
                                 <xmlConfig implementation="java.io.File">${basedir}/src/schema/xmlconfig.xml</xmlConfig>
                             </xmlConfigs>

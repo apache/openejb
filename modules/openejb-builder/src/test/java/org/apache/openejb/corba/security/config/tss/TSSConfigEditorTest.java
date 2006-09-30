@@ -36,7 +36,7 @@ import org.apache.openejb.corba.CORBABean;
  * @version $Revision$ $Date$
  */
 public class TSSConfigEditorTest extends TestCase {
-    private static final String TEST_XML1 = "<foo:tss xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config-2.1\">\n" +
+    private static final String TEST_XML1 = "<foo:tss xmlns:foo=\"http://openejb.apache.org/xml/ns/corba-tss-config-2.1\">\n" +
 //                                            "                <foo:description>this is a foo</foo:description>" +
                                             "                <foo:SSL port=\"443\" hostname=\"corba.apache.org\">\n" +
                                             "                    <foo:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</foo:supports>\n" +
@@ -47,8 +47,8 @@ public class TSSConfigEditorTest extends TestCase {
                                             "                    </foo:compoundSecMech>\n" +
                                             "                </foo:compoundSecMechTypeList>\n" +
                                             "            </foo:tss>";
-    private static final String TEST_XML2 = "<foo:tss inherit=\"true\" xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config-2.1\"/>";
-    private static final String TEST_XML3 = "<tss xmlns=\"http://www.openejb.org/xml/ns/corba-tss-config-2.1\">\n" +
+    private static final String TEST_XML2 = "<foo:tss inherit=\"true\" xmlns:foo=\"http://openejb.apache.org/xml/ns/corba-tss-config-2.1\"/>";
+    private static final String TEST_XML3 = "<tss xmlns=\"http://openejb.apache.org/xml/ns/corba-tss-config-2.1\">\n" +
                                             "                <SSL port=\"443\">\n" +
                                             "                    <supports>BAD_ENUM Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</supports>\n" +
                                             "                    <requires>Integrity</requires>\n" +
@@ -112,7 +112,7 @@ public class TSSConfigEditorTest extends TestCase {
                                              "            iiop.TransportServerInitializerClass=org.openorb.orb.ssl.SSLTransportServerInitializer\n" +
                                              "\n" +
                                              "            secure.server.allowUnsecure=false";
-    private static final String TEST_XML4 = "            <tss:tss xmlns:tss=\"http://www.openejb.org/xml/ns/corba-tss-config-2.1\" xmlns:sec=\"http://geronimo.apache.org/xml/ns/security-1.2\">\n" +
+    private static final String TEST_XML4 = "            <tss:tss xmlns:tss=\"http://openejb.apache.org/xml/ns/corba-tss-config-2.1\" xmlns:sec=\"http://geronimo.apache.org/xml/ns/security-1.2\">\n" +
                                             "                <tss:default-principal>\n" +
                                             "                    <sec:principal class=\"org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal\" name=\"guest\"/>\n" +
                                             "                </tss:default-principal>\n" +

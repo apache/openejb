@@ -17,6 +17,7 @@
 package org.apache.openejb.deployment;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.rmi.MarshalledObject;
@@ -58,15 +59,15 @@ import org.tranql.sql.jdbc.JDBCUtil;
  */
 public class DeploymentTestSuite extends TestDecorator implements DeploymentTestContants {
     private DeploymentHelper deploymentHelper = new DeploymentHelper();
-    private final File moduleFile;
+    private final String moduleFileString;
 
     private File tempDir;
     private DataSource dataSource;
     private ClassLoader applicationClassLoader;
 
-    protected DeploymentTestSuite(Class testClass, File moduleFile) {
+    protected DeploymentTestSuite(Class testClass, String moduleFile) {
         super(new TestSuite(testClass));
-        this.moduleFile = moduleFile;
+        this.moduleFileString = moduleFile;
     }
 
     public Kernel getKernel() {
@@ -107,6 +108,15 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         deploymentHelper.setUp();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        File moduleFile = new File(moduleFileString);
+        JarFile jarFile = null;
+        try {
+            jarFile = DeploymentUtil.createJarFile(moduleFile);
+        } catch (IOException e) {
+            moduleFile = new File("target/" + moduleFileString);
+            jarFile = DeploymentUtil.createJarFile(moduleFile);
+
+        }
         ClassLoader cl = new URLClassLoader(new URL[]{moduleFile.toURL()}, oldCl);
 
         Thread.currentThread().setContextClassLoader(cl);
@@ -150,13 +160,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     null, null, deploymentHelper.naming
             );
 
-            JarFile jarFile = null;
             ConfigurationData configurationData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
             try {
-                jarFile = DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile, new ModuleIDBuilder());
                 Artifact configurationId = earConfigBuilder.getConfigurationID(plan, jarFile, new ModuleIDBuilder());
                 context = earConfigBuilder.buildConfiguration(false, configurationId, plan, jarFile, Collections.singleton(deploymentHelper.configStore), artifactResolver, deploymentHelper.configStore);
