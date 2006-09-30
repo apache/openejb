@@ -159,14 +159,6 @@
                         <goals>
                             <goal>xmlbeans</goal>
                         </goals>
-                        <configuration>
-                            <schemaDirectory>${basedir}/src/schema</schemaDirectory>
-                            <sourceSchemas>
-                                corba-css-config-2.1.xsd,corba-tss-config-2.1.xsd,openejb-jar-2.2.xsd</sourceSchemas>
-                            <xmlConfigs>
-                                <xmlConfig implementation="java.io.File">${basedir}/src/schema/xmlconfig.xml</xmlConfig>
-                            </xmlConfigs>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
