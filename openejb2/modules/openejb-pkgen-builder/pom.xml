@@ -79,15 +79,6 @@
             </plugin>
         </plugins>
         
-        <resources>
-            <resource>
-                <targetPath>META-INF/schema</targetPath>
-                <directory>${basedir}/src/schema</directory>
-                <includes>
-                    <include>openejb-pkgen-2.0.xsd</include>
-                </includes>
-            </resource>
-        </resources>
     </build>
 
 </project>

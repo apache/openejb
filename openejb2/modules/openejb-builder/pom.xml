@@ -173,21 +173,5 @@
 
         </plugins>
 
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-            <!-- these should not be needed, xmlbeans packs them for us -->
-            <!--<resource>-->
-            <!--<targetPath>META-INF/schema</targetPath>-->
-            <!--<directory>src/schema</directory>-->
-            <!--<includes>-->
-            <!--<include>corba-css-config-2.0.xsd</include>-->
-            <!--<include>corba-tss-config-2.0.xsd</include>-->
-            <!--<include>openejb-jar-2.1.xsd</include>-->
-            <!--</includes>-->
-            <!--</resource>-->
-        </resources>
-
     </build>
 </project>

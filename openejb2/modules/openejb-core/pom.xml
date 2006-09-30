@@ -231,11 +231,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/resources2</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
