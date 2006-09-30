@@ -700,6 +700,43 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                <artifactId>tools-maven-plugin</artifactId>
+
+                <!-- Tools includes custom packagings, install as extention to pick them up -->
+                <extensions>true</extensions>
+
+                <executions>
+                    <execution>
+                        <id>validate-java-version</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>require-java-version</goal>
+                        </goals>
+                        <configuration>
+                            <version>1.4*</version>
+                        </configuration>
+                    </execution>
+
+                    <!--
+                    NOTE: This will copy LICENSE.txt and NOTICE.txt to classes/META-INF.
+
+                          Its a itty-bitty HACK to avoid adding resource definitions to
+                          the build, which causes the Eclipse plugin to generate invalid
+                          .classpath files. :-(
+                    -->
+                    <execution>
+                        <id>install-legal-files</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-legal-files</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <modules>
