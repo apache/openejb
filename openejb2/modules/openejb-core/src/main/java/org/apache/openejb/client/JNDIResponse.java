@@ -19,12 +19,16 @@ package org.apache.openejb.client;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import org.apache.openejb.proxy.EJBProxyReference;
+import org.apache.xbean.naming.context.ImmutableContext;
 
 /**
  *
@@ -101,12 +105,12 @@ public class JNDIResponse implements Response {
 
     private Context readContextTree(ObjectInput in) throws IOException, ClassNotFoundException {
 
-        ContextImpl context = new ContextImpl();
+        Map contextMap = new HashMap();
 
         CONTEXT_LOOP: while (true) {
             byte type = in.readByte();
-            String name = null;
-            Object obj = null;
+            String name;
+            Object obj;
             switch (type) {
                 case CONTEXT:
                     name = in.readUTF();
@@ -121,13 +125,15 @@ public class JNDIResponse implements Response {
                     obj = in.readObject();
             }
 
-            try {
-                context.internalBind(name,obj);
-            } catch (NamingException e) {
-
-            }
+                contextMap.put(name,obj);
         }
 
+        Context context = null;
+        try {
+            context = new ImmutableContext(contextMap);
+        } catch (NamingException e) {
+            //ignoring seems like a really bad idea
+        }
 
         return context;
     }
