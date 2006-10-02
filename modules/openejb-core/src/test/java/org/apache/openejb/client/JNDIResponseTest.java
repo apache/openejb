@@ -27,6 +27,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.Binding;
 
 import junit.framework.TestCase;
+import org.apache.xbean.naming.context.ImmutableContext;
 
 public class JNDIResponseTest extends TestCase {
     private Context context;
@@ -39,7 +40,7 @@ public class JNDIResponseTest extends TestCase {
         map.put("music/jazz/bebop/year", new Integer(1950));
         map.put("music/country", Boolean.FALSE);
         map.put("music/latin/funk/group", "Los Amigos Invisibles");
-        context = new ContextImpl(map);
+        context = new ImmutableContext(map);
 
     }
 

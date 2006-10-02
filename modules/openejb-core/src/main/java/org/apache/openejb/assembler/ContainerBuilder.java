@@ -19,13 +19,7 @@ package org.apache.openejb.assembler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
-import javax.naming.Context;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.openejb.EJBComponentType;
 import org.apache.openejb.OpenEJBException;
 
@@ -104,24 +98,4 @@ public class ContainerBuilder implements RpcContainer {
 
     }
 
-
-    static class ReadOnlyContextWrapper extends ReadOnlyContext {
-        public ReadOnlyContextWrapper(Context ctx, UserTransaction userTransaction) throws NamingException {
-            super();
-            NamingEnumeration e = ctx.list("");
-
-            while (e.hasMoreElements()) {
-                NameClassPair pair = (NameClassPair) e.next();
-
-                String name = pair.getName();
-                Object value = ctx.lookup(name);
-
-                internalBind(name, value);
-            }
-
-            if (userTransaction != null) {
-                internalBind("UserTransaction", userTransaction);
-            }
-        }
-    }
 }
