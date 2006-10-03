@@ -19,7 +19,9 @@ package org.apache.openejb.corba;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.openejb.corba.security.config.ConfigAdapter;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
+import org.apache.openejb.corba.security.config.ssl.SSLConfig;
 import org.omg.CORBA.ORB;
 
 import java.util.ArrayList;
@@ -27,8 +29,6 @@ import java.util.Properties;
 import java.net.URI;
 
 import javax.transaction.TransactionManager;
-
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 
 /**
  * @version $Revision$ $Date$
@@ -40,22 +40,17 @@ public final class CSSBeanGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CSSBeanGBean.class, CSSBean.class, NameFactory.CORBA_CSS);
 
-        infoFactory.addAttribute("configAdapter", String.class, true);
+        infoFactory.addReference("configAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoFactory.addAttribute("description", String.class, true);
-        infoFactory.addAttribute("nssConfig", CSSConfig.class, true);
         infoFactory.addAttribute("cssConfig", CSSConfig.class, true);
         infoFactory.addAttribute("ORB", ORB.class, false);
-        infoFactory.addAttribute("nssArgs", ArrayList.class, true);
-        infoFactory.addAttribute("cssArgs", ArrayList.class, true);
-        infoFactory.addAttribute("nssProps", Properties.class, true);
-        infoFactory.addAttribute("cssProps", Properties.class, true);
         infoFactory.addOperation("getHome", new Class[]{URI.class, String.class});
 
-        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.setConstructor(new String[]{"configAdapter", "ThreadPool", "TransactionManager", "classLoader"});
+        infoFactory.setConstructor(new String[]{"configAdapter", "TransactionManager", "SSLConfig", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

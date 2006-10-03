@@ -1,23 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package org.apache.openejb.corba;
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *     http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+package org.apache.openejb.sunorb;
 
 import java.util.Properties;
 import java.io.File;
+
+import org.apache.openejb.corba.NameService;
 
 import com.sun.corba.se.internal.orbutil.ORBConstants;
 import junit.framework.TestCase;
@@ -36,7 +38,7 @@ import org.omg.CosNaming.NamingContextExtHelper;
 public class SunNameServiceTest extends TestCase {
     private static final Log log = LogFactory.getLog(SunNameServiceTest.class);
     private ORB orb;
-    private SunNameService sunNameService;
+    private NameService sunNameService;
     private static final String DB_DIR = "cosnaming.db";
     private File cosNamingDbDir;
 
@@ -52,14 +54,17 @@ public class SunNameServiceTest extends TestCase {
         String tmpDir = System.getProperty("java.io.tmpdir");
         cosNamingDbDir = new File(tmpDir, DB_DIR);
         ServerInfo serverInfo = new BasicServerInfo(tmpDir);
-        sunNameService = new SunNameService(serverInfo, DB_DIR, 8050);
+
+        SunORBConfigAdapter adapter = new SunORBConfigAdapter(cosNamingDbDir.toString());
+        // make sure all system properties are initialized.
+        adapter.doStart();
+        sunNameService = new NameService(serverInfo, adapter, "localhost", 8050);
         sunNameService.doStart();
 
         // create the ORB
         Properties properties = new Properties();
         properties.put("org.omg.CORBA.ORBInitialPort", "8050");
         orb = ORB.init(new String[0], properties);
-        new Thread(new ORBRunner(orb), "ORBRunner").start();
     }
 
     protected void tearDown() throws Exception {
@@ -67,7 +72,7 @@ public class SunNameServiceTest extends TestCase {
             return;
         }
         orb.destroy();
-        sunNameService.doStart();
+        sunNameService.doStop();
         recursiveDelete(cosNamingDbDir);
     }
 
@@ -84,18 +89,6 @@ public class SunNameServiceTest extends TestCase {
             ctx = NamingContextExtHelper.narrow(ctx.bind_new_context(new NameComponent[] {nameComponent}));
         }
         ctx.rebind(ctx.to_name("plan"), rootNamingContext);
-    }
-
-    private static final class ORBRunner implements Runnable {
-        private final ORB orb;
-
-        public ORBRunner(ORB orb) {
-            this.orb = orb;
-        }
-
-        public void run() {
-            orb.run();
-        }
     }
 
     private static void recursiveDelete(File root) {

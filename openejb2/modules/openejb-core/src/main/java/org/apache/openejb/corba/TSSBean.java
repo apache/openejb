@@ -40,9 +40,16 @@ import org.apache.openejb.corba.security.config.tss.TSSNULLTransportConfig;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @version $Revision$ $Date$
- */
+ /**
+  * A TSSBean represents a transport-level security profile for exported EJB objects.  An
+  * exported object is attached to a TSSBean-created named POA.  The TSSBean POA
+  * is created in the context of the ORB controlled by a CORBABean instance.
+  * The parent CORBABean controls the transport-level security of the host connection and
+  * defines the endpoint connnection for the object (host and listener port).
+  * TSSBean may then define additional characteristics that
+  * get encoded in the IOR of the connection.
+  * @version $Revision$ $Date$
+  */
 public class TSSBean implements GBeanLifecycle {
 
     private final Log log = LogFactory.getLog(TSSBean.class);
