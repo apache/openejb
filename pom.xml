@@ -9,9 +9,7 @@
     <groupId>org.apache.openejb</groupId>
     <artifactId>openejb</artifactId>
     <packaging>pom</packaging>
-
     <version>2.2-incubating-SNAPSHOT</version>
-
     <inceptionYear>1999</inceptionYear>
     <description>OpenEJB EJB Container</description>
     <url>http://incubator.apache.org/projects/openejb</url>
@@ -62,6 +60,7 @@
         <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
         <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
+        <yokoVersion>1.0-incubating-M1-SNAPSHOT</yokoVersion>
     </properties>
 
     <organization>
@@ -659,6 +658,18 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-core</artifactId>
+                <version>${yokoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-spec-corba</artifactId>
+                <version>${yokoVersion}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -673,7 +684,6 @@
 
     <build>
         <defaultGoal>install</defaultGoal>
-
         <pluginManagement>
             <plugins>
                 <plugin>

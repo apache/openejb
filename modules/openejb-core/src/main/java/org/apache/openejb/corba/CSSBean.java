@@ -19,6 +19,7 @@ package org.apache.openejb.corba;
 import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
@@ -27,8 +28,11 @@ import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 import org.apache.openejb.corba.security.config.ConfigAdapter;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
+import org.apache.openejb.corba.security.config.ssl.SSLConfig;
+import org.apache.openejb.corba.security.config.tss.TSSConfig;
 import org.apache.openejb.corba.transaction.ClientTransactionPolicyConfig;
 import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
+
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,39 +41,45 @@ import javax.transaction.TransactionManager;
 
 
 /**
+ * A CSSBean is an ORB instance configured for
+ * accessing EJBs using a specific security profile.  A single
+ * CSSBean can be referenced by multiple ejb-refs that share a
+ * common security profile.
+ *
+ * For each CSSBean instance, there will be a backing
+ * ORB configured with the appropriate interceptors and
+ * principal information to access the target object.
  * @version $Revision$ $Date$
  */
-public class CSSBean implements GBeanLifecycle {
+public class CSSBean implements GBeanLifecycle, ORBConfiguration {
 
     private final static Log log = LogFactory.getLog(CSSBean.class);
 
     private final ClassLoader classLoader;
-    private final Executor threadPool;
     private final ConfigAdapter configAdapter;
     private final TransactionManager transactionManager;
     private String description;
-    private CSSConfig nssConfig;
     private CSSConfig cssConfig;
-    private ORB nssORB;
+    private SSLConfig sslConfig;
     private ORB cssORB;
-    private ArrayList nssArgs;
-    private ArrayList cssArgs;
-    private Properties nssProps;
-    private Properties cssProps;
     private ClientContext context;
+    private AbstractName abstractName;
 
     public CSSBean() {
         this.classLoader = null;
-        this.threadPool = null;
         this.configAdapter = null;
         this.transactionManager = null;
+        this.abstractName = null;
+        this.sslConfig = null;
+        this.cssConfig = null;
     }
 
-    public CSSBean(String configAdapter, Executor threadPool, TransactionManager transactionManager, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CSSBean(AbstractName abstractName, ConfigAdapter configAdapter, TransactionManager transactionManager, SSLConfig ssl, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        this.abstractName = abstractName;
         this.classLoader = classLoader;
-        this.threadPool = threadPool;
         this.transactionManager = transactionManager;
-        this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
+        this.configAdapter = configAdapter;
+        this.sslConfig = ssl;
     }
 
     public String getDescription() {
@@ -78,14 +88,6 @@ public class CSSBean implements GBeanLifecycle {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public CSSConfig getNssConfig() {
-        return nssConfig;
-    }
-
-    public void setNssConfig(CSSConfig nssConfig) {
-        this.nssConfig = nssConfig;
     }
 
     public CSSConfig getCssConfig() {
@@ -97,42 +99,37 @@ public class CSSBean implements GBeanLifecycle {
         this.cssConfig = config;
     }
 
+    public TSSConfig getTssConfig() {
+        // just return a default no security one.
+        return new TSSConfig();
+    }
+
+    /**
+     * Return the SSLConfig used for this ORB instance.
+     * if one has not been configured, this returns
+     * a default configuration.
+     *
+     * @return The SSLConfig object use to manage transport-level
+     *         security.
+     */
+    public SSLConfig getSslConfig() {
+        if (sslConfig == null) {
+            sslConfig = new SSLConfig();
+        }
+        return sslConfig;
+    }
+
     public ORB getORB() {
         return cssORB;
     }
 
-    public ArrayList getNssArgs() {
-        return nssArgs;
-    }
-
-    public void setNssArgs(ArrayList nssArgs) {
-        this.nssArgs = nssArgs;
-    }
-
-    public ArrayList getCssArgs() {
-        return cssArgs;
-    }
-
-    public void setCssArgs(ArrayList cssArgs) {
-        if (cssArgs == null) cssArgs = new ArrayList();
-        this.cssArgs = cssArgs;
-    }
-
-    public Properties getNssProps() {
-        return nssProps;
-    }
-
-    public void setNssProps(Properties nssProps) {
-        this.nssProps = nssProps;
-    }
-
-    public Properties getCssProps() {
-        return cssProps;
-    }
-
-    public void setCssProps(Properties cssProps) {
-        if (cssProps == null) cssProps = new Properties();
-        this.cssProps = cssProps;
+    /**
+     * Return the retrieval URI for this bean.
+     *
+     * @return The URI for the bean AbstractName;
+     */
+    public String getURI() {
+        return abstractName.toString();
     }
 
     public org.omg.CORBA.Object getHome(URI nsURI, String name) {
@@ -141,71 +138,50 @@ public class CSSBean implements GBeanLifecycle {
             log.debug(description + " - Looking up home from " + nsURI.toString() + " at " + name);
 
         try {
-            org.omg.CORBA.Object ref = nssORB.string_to_object(nsURI.toString());
+            org.omg.CORBA.Object ref = cssORB.string_to_object(nsURI.toString());
             NamingContextExt ic = NamingContextExtHelper.narrow(ref);
 
             NameComponent[] nameComponent = ic.to_name(name);
-            org.omg.CORBA.Object bean = ic.resolve(nameComponent);
-            String beanIOR = nssORB.object_to_string(bean);
 
             ClientContext oldClientContext = ClientContextManager.getClientContext();
             try {
                 ClientContextManager.setClientContext(context);
-                bean = cssORB.string_to_object(beanIOR);
+                return ic.resolve(nameComponent);
             } finally {
                 ClientContextManager.setClientContext(oldClientContext);
             }
-
-            return bean;
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
             throw new RuntimeException(ue);
         }
     }
 
+    /**
+     * Start this GBean instance, which essentially
+     * sets up an ORB and configures a client context
+     * for handling requests.
+     *
+     * @exception Exception
+     */
     public void doStart() throws Exception {
 
+        // we create a dummy CSSConfig if one has not be specified prior to this.
         if (cssConfig == null) {
             cssConfig = new CSSConfig();
-        }
-        if (cssArgs == null) {
-            cssArgs = new ArrayList();
-        }
-        if (cssProps == null) {
-            cssProps = new Properties();
-        }
-
-        if (nssConfig == null) {
-            if (log.isDebugEnabled()) log.debug("Defaulting NSS config to be CSS config");
-            nssConfig = cssConfig;
-        }
-        if (nssArgs == null) {
-            if (log.isDebugEnabled()) log.debug("Defaulting NSS args to be CSS args");
-            nssArgs = cssArgs;
-        }
-        if (nssProps == null) {
-            if (log.isDebugEnabled()) log.debug("Defaulting NSS props to be CSS props");
-            nssProps = cssProps;
         }
 
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         try {
+            log.debug("Starting CSS ORB " + getURI());
+
             Thread.currentThread().setContextClassLoader(classLoader);
+            // the configAdapter creates the ORB instance for us.
+            cssORB = configAdapter.createClientORB(this);
 
-            if (log.isDebugEnabled()) log.debug("Starting NameService ORB");
-
-            nssORB = ORB.init(configAdapter.translateToArgs(nssConfig, nssArgs), configAdapter.translateToProps(nssConfig, nssProps));
-            configAdapter.postProcess(nssConfig, nssORB);
-
-            if (log.isDebugEnabled()) log.debug("Starting CSS ORB");
-
-            cssORB = ORB.init(configAdapter.translateToArgs(cssConfig, cssArgs), configAdapter.translateToProps(cssConfig, cssProps));
-            configAdapter.postProcess(cssConfig, cssORB);
-
+            // create a client context with the security and transaction characteristics.
             context = new ClientContext();
             context.setSecurityConfig(cssConfig);
             context.setTransactionConfig(buildClientTransactionPolicyConfig());
-
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
@@ -218,7 +194,6 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
-        nssORB.destroy();
         cssORB.destroy();
         log.debug("Stopped CORBA Client Security Server - " + description);
     }

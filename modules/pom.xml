@@ -11,15 +11,30 @@
         <version>2.2-incubating-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>modules</artifactId>
     <name>OpenEJB :: Modules</name>
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>openejb-pkgen-builder</module>
         <module>openejb-core</module>
         <module>openejb-builder</module>
+        <module>openejb-yoko</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>sunorb</id>
+            <activation>
+                <property>
+                    <name>sunorb</name>
+                </property>
+            </activation>
+            <modules>
+                <module>openejb-sunorb</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

@@ -22,8 +22,8 @@ import java.net.InetSocketAddress;
 
 import org.omg.CORBA.ORB;
 
-import org.apache.openejb.corba.security.config.css.CSSConfig;
-import org.apache.openejb.corba.security.config.tss.TSSConfig;
+import org.apache.openejb.corba.CORBABean;
+import org.apache.openejb.corba.CSSBean;
 
 
 /**
@@ -33,17 +33,42 @@ import org.apache.openejb.corba.security.config.tss.TSSConfig;
  */
 public interface ConfigAdapter {
 
-    public String[] translateToArgs(TSSConfig config, List args) throws ConfigException;
+    /**
+     * Create an ORB for a CORBABean server context.
+     *
+     * @param server The CORBABean that owns this ORB's configuration.
+     *
+     * @return An ORB instance configured for the CORBABean.
+     * @exception ConfigException
+     */
+    public ORB createServerORB(CORBABean server)  throws ConfigException;
+    /**
+     * Create an ORB for a CSSBean client context.
+     *
+     * @param client The configured CSSBean used for access.
+     *
+     * @return An ORB instance configured for this client access.
+     * @exception ConfigException
+     */
+    public ORB createClientORB(CSSBean client)  throws ConfigException;
 
-    public Properties translateToProps(TSSConfig config, Properties props) throws ConfigException;
-
-    public void postProcess(TSSConfig config, ORB orb) throws ConfigException;
-
-    public InetSocketAddress getDefaultListenAddress(TSSConfig config, ORB orb) throws ConfigException;
-
-    public String[] translateToArgs(CSSConfig config, List args) throws ConfigException;
-
-    public Properties translateToProps(CSSConfig config, Properties pros) throws ConfigException;
-
-    public void postProcess(CSSConfig config, ORB orb) throws ConfigException;
+    /**
+     * Create a transient name service instance using the
+     * specified host name and port.
+     *
+     * @param host   The String host name.
+     * @param port   The port number of the listener.
+     *
+     * @return An opaque object that represents the name service.
+     * @exception ConfigException
+     */
+    public Object createNameService(String host, int port) throws ConfigException;
+    /**
+     * Destroy a name service instance created by a
+     * prior call to createNameService().
+     *
+     * @param ns     The opaque name service object returned from a
+     *               prior call to createNameService().
+     */
+    public void destroyNameService(Object ns);
 }
