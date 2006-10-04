@@ -26,11 +26,11 @@
     <profiles>
         <profile>
             <id>sunorb</id>
+            
             <activation>
-                <property>
-                    <name>sunorb</name>
-                </property>
+                <jdk>1.4</jdk>
             </activation>
+
             <modules>
                 <module>openejb-sunorb</module>
             </modules>
