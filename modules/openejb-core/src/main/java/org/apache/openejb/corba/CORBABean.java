@@ -16,29 +16,25 @@
  */
 package org.apache.openejb.corba;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+
+import javax.ejb.spi.HandleDelegate;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.security.SecurityService;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 import org.apache.openejb.corba.security.config.ConfigAdapter;
-import org.apache.openejb.corba.security.config.ConfigException;
+import org.apache.openejb.corba.security.config.ssl.SSLConfig;
 import org.apache.openejb.corba.security.config.tss.TSSConfig;
 import org.apache.openejb.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
-import org.apache.openejb.corba.security.config.ssl.SSLConfig;
 import org.apache.openejb.corba.util.Util;
-
-import javax.ejb.spi.HandleDelegate;
-import java.net.InetSocketAddress;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Properties;
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 
 /**
@@ -91,26 +87,20 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
      *               The initial listener port to use.
      * @param classLoader
      *               The ClassLoader used for ORB context class loading.
-     * @param securityService
-     *               The security service.  Not used directly, but this is
-     *               here to order dependency reasons.
      * @param nameService
      *               The initial name service the created ORB will use
      *               for object resolution.
      * @param ssl    The SSL configuration, including the KeystoreManager.
      *
-     * @exception ClassNotFoundException
-     * @exception IllegalAccessException
-     * @exception InstantiationException
      */
-    public CORBABean(AbstractName abstractName, ConfigAdapter configAdapter, String host, int listenerPort, ClassLoader classLoader, SecurityService securityService, NameService nameService, SSLConfig ssl) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CORBABean(AbstractName abstractName, ConfigAdapter configAdapter, String host, int listenerPort, ClassLoader classLoader, NameService nameService, SSLConfig ssl) {
         this.abstractName = abstractName;
         this.classLoader = classLoader;
         this.configAdapter = configAdapter;
         sslConfig = ssl;
         this.nameService = nameService;
+        this.host = host;
         this.listenerPort = listenerPort;
-        //security service included to force start order.
     }
 
     /**

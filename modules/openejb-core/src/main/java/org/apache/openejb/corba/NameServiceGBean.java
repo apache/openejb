@@ -36,12 +36,12 @@ public final class NameServiceGBean {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(NameServiceGBean.class, "CORBA Naming Service", NameService.class, NameFactory.CORBA_NAME_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("configAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
+        infoFactory.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addAttribute("local", boolean.class, true);
-        infoFactory.setConstructor(new String[]{"ServerInfo", "configAdapter", "host", "port"});
+        infoFactory.setConstructor(new String[]{"ServerInfo", "ConfigAdapter", "host", "port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
