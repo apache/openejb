@@ -96,6 +96,10 @@ public class SSLConfig {
      */
     public SSLSocketFactory createSSLFactory(ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
         if (manager != null) {
+            // fix up the default algorithm now. 
+            if ("default".equalsIgnoreCase(algorithm)) {
+                this.algorithm = KeyManagerFactory.getDefaultAlgorithm();
+            }
             // the keystore manager does all of the heavy lifting
             return manager.createSSLFactory(provider, protocol, algorithm, keyStore, keyAlias, trustStore, loader);
         }
@@ -128,6 +132,10 @@ public class SSLConfig {
      */
     public SSLServerSocketFactory createSSLServerFactory(ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
         if (manager != null) {
+            // fix up the default algorithm now. 
+            if ("default".equalsIgnoreCase(algorithm)) {
+                this.algorithm = KeyManagerFactory.getDefaultAlgorithm();
+            }
             // the keystore manager does all of the heavy lifting
             return manager.createSSLServerFactory(provider, protocol, algorithm, keyStore, keyAlias, trustStore, loader);
         }
@@ -192,10 +200,7 @@ public class SSLConfig {
      */
     public void setAlgorithm(String algorithm) {
         // cache the value so the null
-        algorithm = algorithm;
-        if ("default".equalsIgnoreCase(algorithm)) {
-            algorithm = KeyManagerFactory.getDefaultAlgorithm();
-        }
+        this.algorithm = algorithm;
     }
 
     /**
