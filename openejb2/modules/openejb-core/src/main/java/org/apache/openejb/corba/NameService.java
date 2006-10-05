@@ -79,8 +79,8 @@ public class NameService implements GBeanLifecycle {
         localServer = true;
         service = null;
         // if not specified, our default host is "localhost".
-        if (host == null) {
-            host = "localhost";
+        if (this.host == null) {
+            this.host = "localhost";
         }
     }
 
