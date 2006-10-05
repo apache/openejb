@@ -16,19 +16,19 @@
  */
 package org.apache.openejb.corba;
 
+import java.net.InetSocketAddress;
+
+import javax.ejb.spi.HandleDelegate;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.security.SecurityService;
+import org.apache.openejb.corba.security.config.ConfigAdapter;
+import org.apache.openejb.corba.security.config.ssl.SSLConfig;
+import org.apache.openejb.corba.security.config.tss.TSSConfig;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
-import org.apache.openejb.corba.security.config.ConfigAdapter;
-import org.apache.openejb.corba.security.config.tss.TSSConfig;
-import org.apache.openejb.corba.security.config.ssl.SSLConfig;
-
-import javax.ejb.spi.HandleDelegate;
-import java.net.InetSocketAddress;
 
 /**
  * @version $Revision$ $Date$
@@ -41,11 +41,9 @@ public final class CORBABeanGBean {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CORBABeanGBean.class, "OpenEJB ORB Adapter", CORBABean.class, NameFactory.CORBA_SERVICE);
 
         infoBuilder.addAttribute("abstractName", AbstractName.class, false);
-        infoBuilder.addReference("configAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
         infoBuilder.addAttribute("tssConfig", TSSConfig.class, true);
-        infoBuilder.addReference("nameService", NameService.class, NameFactory.CORBA_NAME_SERVICE);
 
         infoBuilder.addAttribute("listenAddress", InetSocketAddress.class, false);
         infoBuilder.addAttribute("ORB", ORB.class, false);
@@ -54,10 +52,12 @@ public final class CORBABeanGBean {
         infoBuilder.addAttribute("handleDelegate", HandleDelegate.class, false);
 
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addReference("SecurityService", SecurityService.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
 
-        infoBuilder.setConstructor(new String[]{"abstractName", "configAdapter", "host", "port", "classLoader", "SecurityService", "nameService", "SSLConfig"});
+        infoBuilder.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
+        infoBuilder.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
+        infoBuilder.addReference("NameService", NameService.class, NameFactory.CORBA_NAME_SERVICE);
+
+        infoBuilder.setConstructor(new String[]{"abstractName", "ConfigAdapter", "host", "port", "classLoader", "NameService", "SSLConfig"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

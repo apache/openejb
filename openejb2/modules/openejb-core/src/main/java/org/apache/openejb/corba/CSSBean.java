@@ -16,28 +16,26 @@
  */
 package org.apache.openejb.corba;
 
+import java.net.URI;
+
+import javax.transaction.TransactionManager;
+
 import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.UserException;
-import org.omg.CosNaming.NameComponent;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
 import org.apache.openejb.corba.security.config.ConfigAdapter;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
 import org.apache.openejb.corba.security.config.ssl.SSLConfig;
 import org.apache.openejb.corba.security.config.tss.TSSConfig;
 import org.apache.openejb.corba.transaction.ClientTransactionPolicyConfig;
 import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
-
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Properties;
-import javax.transaction.TransactionManager;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.UserException;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 
 
 /**
@@ -74,7 +72,7 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
         this.cssConfig = null;
     }
 
-    public CSSBean(AbstractName abstractName, ConfigAdapter configAdapter, TransactionManager transactionManager, SSLConfig ssl, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CSSBean(ConfigAdapter configAdapter, TransactionManager transactionManager, SSLConfig ssl, AbstractName abstractName, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.abstractName = abstractName;
         this.classLoader = classLoader;
         this.transactionManager = transactionManager;

@@ -18,6 +18,7 @@ package org.apache.openejb.corba;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.openejb.corba.security.config.ConfigAdapter;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
@@ -40,7 +41,6 @@ public final class CSSBeanGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(CSSBeanGBean.class, CSSBean.class, NameFactory.CORBA_CSS);
 
-        infoFactory.addReference("configAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoFactory.addAttribute("description", String.class, true);
         infoFactory.addAttribute("cssConfig", CSSConfig.class, true);
         infoFactory.addAttribute("ORB", ORB.class, false);
@@ -48,9 +48,11 @@ public final class CSSBeanGBean {
 
         infoFactory.addReference("TransactionManager", TransactionManager.class, NameFactory.TRANSACTION_MANAGER);
         infoFactory.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
+        infoFactory.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
+        infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.setConstructor(new String[]{"configAdapter", "TransactionManager", "SSLConfig", "classLoader"});
+        infoFactory.setConstructor(new String[]{"ConfigAdapter", "TransactionManager", "SSLConfig", "abstractName", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
