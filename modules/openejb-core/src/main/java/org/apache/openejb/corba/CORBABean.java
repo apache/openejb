@@ -128,6 +128,11 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
      * @return The TSSConfig object (if any).
      */
     public TSSConfig getTssConfig() {
+        // if nothing has been explicitly set, ensure we return
+        // a default one.
+        if (tssConfig == null) {
+            tssConfig = new TSSConfig();
+        }
         return tssConfig;
     }
 
@@ -137,7 +142,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
      * @param config The required TSSConfig information.
      */
     public void setTssConfig(TSSConfig config) {
-        if (config == null) config = new TSSConfig();
         this.tssConfig = config;
     }
 
