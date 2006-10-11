@@ -49,6 +49,7 @@ public final class StatelessEjbDeploymentGBean {
         infoFactory.addAttribute("serviceEndpointInterfaceName", String.class, true);
         infoFactory.addAttribute("beanClassName", String.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("cacheSize", int.class, true);
 
         infoFactory.addReference("ejbContainer", StatelessEjbContainer.class, "StatelessEjbContainer");
 
@@ -85,6 +86,7 @@ public final class StatelessEjbDeploymentGBean {
                 "serviceEndpointInterfaceName",
                 "beanClassName",
                 "classLoader",
+                "cacheSize",
 
                 "ejbContainer",
 

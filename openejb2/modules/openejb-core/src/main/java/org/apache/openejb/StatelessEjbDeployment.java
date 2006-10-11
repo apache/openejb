@@ -63,6 +63,7 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
                                   String serviceEndpointInterfaceName,
                                   String beanClassName,
                                   ClassLoader classLoader,
+                                  int cacheSize,
 
                                   StatelessEjbContainer ejbContainer,
 
@@ -99,6 +100,7 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
                 loadClass(serviceEndpointInterfaceName, classLoader, "service endpoint interface"),
                 loadClass(beanClassName, classLoader, "bean class"),
                 classLoader,
+                cacheSize,
                 ejbContainer,
                 jndiNames,
                 localJndiNames,
@@ -126,6 +128,7 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
                                   Class serviceEndpointInterface,
                                   Class beanClass,
                                   ClassLoader classLoader,
+                                  int cacheSize,
 
                                   StatelessEjbContainer ejbContainer,
 
@@ -185,7 +188,7 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
 
         InstanceFactory instanceFactory = new StatelessInstanceFactory(contextFactory);
 
-        instancePool = new SoftLimitedInstancePool(instanceFactory, 1);
+        instancePool = new SoftLimitedInstancePool(instanceFactory, cacheSize);
 
         this.handlerInfos = handlerInfos;
     }

@@ -25,6 +25,7 @@ public class StatelessEjbDeploymentFactory extends RpcEjbDeploymentFactory {
     protected boolean beanManagedTransactions;
     private String serviceEndpointInterfaceName;
     private List handlerInfos;
+    private int cacheSize = 1;
 
     public boolean isBeanManagedTransactions() {
         return beanManagedTransactions;
@@ -48,6 +49,14 @@ public class StatelessEjbDeploymentFactory extends RpcEjbDeploymentFactory {
 
     public void setHandlerInfos(List handlerInfos) {
         this.handlerInfos = handlerInfos;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
     }
 
     public Object create() throws Exception {
@@ -75,6 +84,8 @@ public class StatelessEjbDeploymentFactory extends RpcEjbDeploymentFactory {
                 beanClass,
 
                 classLoader,
+                cacheSize,
+
                 (StatelessEjbContainer) ejbContainer,
                 jndiNames,
                 localJndiNames,

@@ -81,6 +81,7 @@
             <xs:element name="ejb-name" type="xs:string"/>
             <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="cache-size" type="xs:int" minOccurs="0"/>
             <xs:group ref="openejb:tssGroup" minOccurs="0"/>
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
@@ -176,6 +177,7 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="select-for-update" type="xs:boolean" minOccurs="0"/>
             </xs:sequence>
 
             <xs:element name="cache" minOccurs="0">

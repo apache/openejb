@@ -55,9 +55,13 @@ import org.apache.openejb.StatefulEjbDeploymentGBean;
 import org.apache.openejb.StatelessEjbDeploymentGBean;
 import org.apache.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.apache.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class XmlBeansSessionBuilder extends XmlBeanBuilder {
+    private static final Log log = LogFactory.getLog(XmlBeansSessionBuilder.class);
+
     private final static String DEFAULT_AUTH_REALM_NAME = "Geronimo Web Service";
 
     private final String defaultStatelessEjbContainer;
@@ -65,9 +69,9 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
     private final GBeanData linkDataTemplate;
 
     public XmlBeansSessionBuilder(OpenEjbModuleBuilder moduleBuilder,
-            String defaultStatelessEjbContainer,
-            String defaultStatefulEjbContainer,
-            GBeanData linkDataTemplate) {
+                                  String defaultStatelessEjbContainer,
+                                  String defaultStatefulEjbContainer,
+                                  GBeanData linkDataTemplate) {
         super(moduleBuilder);
 
         this.defaultStatelessEjbContainer = defaultStatelessEjbContainer;
@@ -152,6 +156,18 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         if (isStateless) {
             StatelessBuilder statelessBuilder = new StatelessBuilder();
             statelessBuilder.setEjbContainerName(defaultStatelessEjbContainer);
+            int cacheSize = 1;
+
+            if (openejbSessionBean != null && openejbSessionBean.isSetCacheSize()) {
+                cacheSize = openejbSessionBean.getCacheSize();
+                if (cacheSize < 1) {
+                    log.warn("Cache Size was less than 1 for Stateless bean "+
+                              openejbSessionBean.getEjbName()+" which is invalid.  Cache size changed"+
+                              " to the default of 1.");
+                }
+            }
+
+            statelessBuilder.setCacheSize(cacheSize);
 
             // Web services configuration
             String serviceEndpointName = OpenEjbModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());
@@ -160,6 +176,10 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             xmlBeansSecurityBuilder.addToPermissions(toBeChecked, ejbName, "ServiceEndpoint", serviceEndpointName, cl);
             sessionBuilder = statelessBuilder;
         } else {
+            if (openejbSessionBean != null &&
+                    openejbSessionBean.isSetCacheSize())
+                log.warn("Cache Size was specified for Stateful bean "+openejbSessionBean.getEjbName()+
+                         " and will be ignored.  Cache size is only valid for Stateless Session Beans.");
             StatefulBuilder statefulBuilder = new StatefulBuilder();
             statefulBuilder.setEjbContainerName(defaultStatefulEjbContainer);
 
