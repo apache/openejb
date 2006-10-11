@@ -29,12 +29,22 @@ import org.apache.openejb.StatelessEjbContainer;
 public class StatelessBuilder extends SessionBuilder {
     private String serviceEndpointInterfaceName;
     private List handlerInfos;
+    private int cacheSize = 1;
+
     public void setServiceEndpointInterfaceName(String serviceEndpointInterfaceName) {
         this.serviceEndpointInterfaceName = serviceEndpointInterfaceName;
     }
 
     public void setHandlerInfos(List handlerInfos) {
         this.handlerInfos = handlerInfos;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        if (cacheSize > 0) this.cacheSize = cacheSize;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
     }
 
     protected GBeanInfo getTargetGBeanInfo() {
@@ -49,6 +59,7 @@ public class StatelessBuilder extends SessionBuilder {
         GBeanData gbean = super.createConfiguration();
         gbean.setAttribute("handlerInfos", handlerInfos);
         gbean.setAttribute("serviceEndpointInterfaceName", serviceEndpointInterfaceName);
+        gbean.setAttribute("cacheSize", new Integer(cacheSize));
         return gbean;
     }
 }
