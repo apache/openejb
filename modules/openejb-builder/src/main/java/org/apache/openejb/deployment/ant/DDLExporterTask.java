@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+
 import javax.sql.DataSource;
 
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -145,9 +147,9 @@ public class DDLExporterTask extends Task {
 
             // fake j2ee context
             Naming naming = new Jsr77Naming();
-            AbstractName earName = naming.createRootName(new Artifact("fakeGroup", "fackArtifact", "1", "fake"), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            AbstractName earName = naming.createRootName(new Artifact("fakeGroup", "fakeArtifact", "1", "fake"), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             AbstractName moduleName = naming.createChildName(earName, NameFactory.EJB_MODULE, "module");
-            EJBModule ejbModule = new EJBModule(true, moduleName, new Environment(new Artifact("fakeGroup", "fackArtifact", "1", "fake")), null, null, ejbJarType, openejbJarType, null);
+            EJBModule ejbModule = new EJBModule(true, moduleName, new Environment(new Artifact("fakeGroup", "fakeArtifact", "1", "fake")), null, null, ejbJarType, openejbJarType, null, Collections.EMPTY_MAP);
 
             // get the ModuleSchema
             CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();

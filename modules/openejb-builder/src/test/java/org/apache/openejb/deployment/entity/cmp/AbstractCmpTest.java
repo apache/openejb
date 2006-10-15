@@ -92,7 +92,7 @@ public abstract class AbstractCmpTest extends DeploymentHelper {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
             // create module cmp engine GBeanData
-            EJBModule ejbModule = new EJBModule(true, moduleName, TEST_ENVIRONMENT, null, tempDir.getAbsoluteFile().toURI().toString(), ejbJarType, openejbJarType, "");
+            EJBModule ejbModule = new EJBModule(true, moduleName, TEST_ENVIRONMENT, null, tempDir.getAbsoluteFile().toURI().toString(), ejbJarType, openejbJarType, "", Collections.EMPTY_MAP);
             CmpSchemaBuilder cmpSchemaBuilder = new TranqlCmpSchemaBuilder();
             cmpSchemaBuilder.initContext(earContext, ejbModule, classLoader);
             cmpSchemaBuilder.addBeans(earContext, ejbModule, classLoader);

@@ -292,6 +292,19 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             namingBuilders.buildEnvironment(assemblyDescriptor, openejbJar, environment);
         }
 
+        //overridden web service locations
+        Map correctedPortLocations = new HashMap();
+
+        OpenejbSessionBeanType[] openejbSessionBeans = openejbJar.getEnterpriseBeans().getSessionArray();
+        for (int i = 0; i < openejbSessionBeans.length; i++) {
+            OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
+                if (sessionBean.isSetWebServiceAddress()) {
+                    String location = sessionBean.getWebServiceAddress().trim();
+                    correctedPortLocations.put(sessionBean.getEjbName(), location);
+                }
+        }
+        Map portInfoMap = getWebServiceBuilder().findWebServices(moduleFile, true, correctedPortLocations, environment);
+
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -300,7 +313,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
         }
 
-        return new EJBModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+        return new EJBModule(standAlone, moduleName, environment, moduleFile, targetPath, ejbJar, openejbJar, specDD, portInfoMap);
     }
 
     OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJarType ejbJar) throws DeploymentException {
@@ -611,18 +624,12 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
         List badBeans = new ArrayList();
-        //overridden web service locations
-        Map correctedPortLocations = new HashMap();
 
         OpenejbSessionBeanType[] openejbSessionBeans = openejbEjbJar.getEnterpriseBeans().getSessionArray();
         for (int i = 0; i < openejbSessionBeans.length; i++) {
             OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
             if (beans.contains(sessionBean.getEjbName())) {
                 openejbBeans.put(sessionBean.getEjbName(), sessionBean);
-                if (sessionBean.isSetWebServiceAddress()) {
-                    String location = sessionBean.getWebServiceAddress().trim();
-                    correctedPortLocations.put(sessionBean.getEjbName(), location);
-                }
             } else {
                 badBeans.add(sessionBean.getEjbName());
             }
@@ -659,8 +666,6 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             throw new DeploymentException(buf.toString());
         }
 
-        Map portInfoMap = getWebServiceBuilder().findWebServices(ejbModule.getModuleFile(), true, correctedPortLocations);
-
         TransactionPolicyHelper transactionPolicyHelper;
         if (ejbJar.isSetAssemblyDescriptor()) {
             transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
@@ -672,6 +677,8 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
         //TODO go back to the commented version when possible
 //          String contextID = ejbModuleObjectName.getCanonicalName();
         String policyContextID = moduleBaseName.toString().replaceAll("[,: ]", "_");
+
+        Map portInfoMap = ejbModule.getPortMap();
 
         xmlBeansSessionBuilder.buildBeans(earContext, moduleBaseName, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID, portInfoMap);
 
