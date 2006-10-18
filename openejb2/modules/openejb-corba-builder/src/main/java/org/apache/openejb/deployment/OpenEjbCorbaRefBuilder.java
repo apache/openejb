@@ -145,7 +145,7 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
     }
 
     public QNameSet getPlanQNameSet() {
-        return GER_EJB_REF_QNAME_SET;
+        return GER_NS_CORBA_LOC_QNAME_SET;
     }
 
     private static Map mapEjbRefs(XmlObject[] refs) {
