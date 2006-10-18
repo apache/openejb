@@ -57,6 +57,9 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
     private static final QName GER_EJB_REF_QNAME = GerEjbRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_EJB_REF_QNAME_SET = QNameSet.singleton(GER_EJB_REF_QNAME);
 
+    private static final QName GER_NS_CORBA_LOC_QNAME = new QName(GER_EJB_REF_QNAME.getNamespaceURI(), "ns-corbaloc");
+    private static final QNameSet GER_NS_CORBA_LOC_QNAME_SET = QNameSet.singleton(GER_NS_CORBA_LOC_QNAME);
+
     private final QNameSet ejbRefQNameSet;
 
     public OpenEjbCorbaRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
