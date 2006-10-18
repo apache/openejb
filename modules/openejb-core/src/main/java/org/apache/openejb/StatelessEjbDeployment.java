@@ -21,7 +21,6 @@ import org.apache.geronimo.management.J2EEManagedObject;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.openejb.cache.InstanceFactory;
 import org.apache.openejb.cache.InstancePool;
-import org.apache.openejb.corba.TSSBean;
 import org.apache.openejb.dispatch.EJBTimeoutOperation;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
 import org.apache.openejb.dispatch.MethodSignature;
@@ -82,8 +81,6 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
 
                                   Kernel kernel,
 
-                                  TSSBean tssBean,
-
                                   // connector stuff
                                   Set unshareableResources,
                                   Set applicationManagedSecurityResources,
@@ -112,7 +109,6 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean,
                 unshareableResources,
                 applicationManagedSecurityResources,
                 handlerInfos);
@@ -147,8 +143,6 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
 
                                   Kernel kernel,
 
-                                  TSSBean tssBean,
-
                                   // connector stuff
                                   Set unshareableResources,
                                   Set applicationManagedSecurityResources,
@@ -180,7 +174,8 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean, unshareableResources, applicationManagedSecurityResources);
+                unshareableResources,
+                applicationManagedSecurityResources);
 
         dispatchMethodMap = buildDispatchMethodMap();
 

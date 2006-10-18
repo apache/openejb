@@ -31,7 +31,7 @@ import org.apache.openejb.proxy.ProxyInfo;
  *
  * @version $Revision$ $Date$
  */
-public interface RpcEjbDeployment extends EjbDeployment {
+public interface RpcEjbDeployment extends ExtendedEjbDeployment {
 
     /**
      * Return a proxy for the EJB's home interface. This can be passed back
@@ -70,18 +70,6 @@ public interface RpcEjbDeployment extends EjbDeployment {
     String[] getLocalJndiNames();
 
     ProxyInfo getProxyInfo();
-
-    /**
-     * CORBA home transaction import policy configuration
-     * @return home transaction import policy
-     */
-    Serializable getHomeTxPolicyConfig();
-
-    /**
-     * CORBA remote transaction import policy configuration
-     * @return remote transaction import policy
-     */
-    Serializable getRemoteTxPolicyConfig();
 
     /**
      * Legacy invoke method for openejb 1.0 code

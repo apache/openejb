@@ -101,18 +101,6 @@
         </xs:sequence>
     </xs:group>
 
-    <xs:complexType name="tssType">
-        <xs:sequence>
-            <!-- this is object name group from geronimo-naming.xsd -->
-            <xs:element name="domain" type="xs:string" minOccurs="0"/>
-            <xs:element name="server" type="xs:string" minOccurs="0"/>
-            <xs:element name="application" type="xs:string" minOccurs="0"/>
-            <xs:element name="module" type="xs:string" minOccurs="0"/>
-            <!--            <xs:element name="type" type="xs:string" minOccurs="0"/>-->
-            <xs:element name="name" type="xs:string"/>
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="web-service-securityType">
         <xs:sequence>
             <xs:element name="security-realm-name" type="xs:string"/>

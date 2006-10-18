@@ -22,7 +22,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.openejb.cluster.server.EJBClusterManager;
-import org.apache.openejb.corba.TSSBean;
 
 import javax.security.auth.Subject;
 import java.util.Map;
@@ -66,8 +65,6 @@ public final class StatefulEjbDeploymentGBean {
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.addReference("TSSBean", TSSBean.class);
-
         infoFactory.addAttribute("unshareableResources", Set.class, true);
         infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
 
@@ -100,8 +97,6 @@ public final class StatefulEjbDeploymentGBean {
                 "componentContextMap",
 
                 "kernel",
-
-                "TSSBean",
 
                 "unshareableResources",
                 "applicationManagedSecurityResources",

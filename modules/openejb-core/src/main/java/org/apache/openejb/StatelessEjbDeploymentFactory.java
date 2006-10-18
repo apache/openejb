@@ -98,7 +98,6 @@ public class StatelessEjbDeploymentFactory extends RpcEjbDeploymentFactory {
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean,
                 unshareableResources,
                 applicationManagedSecurityResources,
                 handlerInfos);

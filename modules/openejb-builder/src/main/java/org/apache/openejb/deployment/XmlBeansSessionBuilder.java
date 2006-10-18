@@ -33,11 +33,10 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
@@ -241,11 +240,11 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         }
 
         // tssBean
-        AbstractNameQuery tssBeanQuery = getTssBeanQuery(openejbSessionBean, ejbModule, earContext, sessionBean);
-        sessionBuilder.setTssBeanQuery(tssBeanQuery);
+//        AbstractNameQuery tssBeanQuery = getTssBeanQuery(openejbSessionBean, ejbModule, earContext, sessionBean);
+//        sessionBuilder.setTssBeanQuery(tssBeanQuery);
 
         // componentContext, unshareableResources and applicationManagedSecurityResources
-        processEnvironmentRefs(sessionBuilder, earContext, ejbModule, sessionBean, openejbSessionBean, cl);
+        processEnvironmentRefs(sessionBuilder, earContext, ejbModule, sessionBean, openejbSessionBean, sessionAbstractName, cl);
 
         GBeanData sessionGBean;
         try {
@@ -262,7 +261,7 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         }
     }
 
-    public void processEnvironmentRefs(SessionBuilder sessionBuilder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, ClassLoader cl) throws DeploymentException {
+    public void processEnvironmentRefs(SessionBuilder sessionBuilder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, AbstractName ejbAbstractName, ClassLoader cl) throws DeploymentException {
         // resource refs
         ResourceRefType[] resourceRefs = sessionBean.getResourceRefArray();
         GerResourceRefType[] openejbResourceRefs = null;
@@ -271,10 +270,13 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             openejbResourceRefs = openejbSessionBean.getResourceRefArray();
         }
 
-        Map componentContext = new HashMap();
+        Map buildingContext = new HashMap();
+        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+        buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, ejbAbstractName);
         Configuration earConfiguration = earContext.getConfiguration();
-        getNamingBuilders().buildNaming(sessionBean, openejbSessionBean, earConfiguration, earConfiguration, ejbModule, componentContext);
-        sessionBuilder.setComponentContext(componentContext);
+        getNamingBuilders().buildNaming(sessionBean, openejbSessionBean, earConfiguration, earConfiguration, ejbModule, buildingContext);
+        Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
+        sessionBuilder.setComponentContext(compContext);
         getResourceEnvironmentSetter().setResourceEnvironment(sessionBuilder, resourceRefs, openejbResourceRefs);
     }
 
@@ -364,34 +366,4 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
         }
     }
 
-    private AbstractNameQuery getTssBeanQuery(OpenejbSessionBeanType openejbSessionBean, EJBModule ejbModule, EARContext earContext, SessionBeanType sessionBean) throws DeploymentException {
-        AbstractNameQuery tssBeanName = null;
-        if (openejbSessionBean != null) {
-            if (openejbSessionBean.isSetTssLink()) {
-                String tssBeanLink = openejbSessionBean.getTssLink().trim();
-                URI moduleURI = ejbModule.getModuleURI();
-                String moduleType = NameFactory.EJB_MODULE;
-                tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null ? null : moduleURI.toString(), tssBeanLink, moduleType, NameFactory.EJB_MODULE);
-                try {
-                    earContext.getConfiguration().findGBean(tssBeanName);
-                } catch (GBeanNotFoundException e) {
-                    tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null, NameFactory.EJB_MODULE);
-                    try {
-                        earContext.getConfiguration().findGBean(tssBeanName);
-                    } catch (GBeanNotFoundException e1) {
-                        throw new DeploymentException("No tss bean found", e);
-                    }
-                }
-            } else if (openejbSessionBean.isSetTss()) {
-                tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(openejbSessionBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE, null);
-            }
-        }
-        if (tssBeanName != null && openejbSessionBean.getJndiNameArray().length == 0) {
-            throw new DeploymentException("Cannot expose a session bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
-        }
-        if (tssBeanName != null && (!sessionBean.isSetRemote() || !sessionBean.isSetHome())) {
-            throw new DeploymentException("A session bean without a remote interface cannot be exposed via CORBA");
-        }
-        return tssBeanName;
-    }
 }

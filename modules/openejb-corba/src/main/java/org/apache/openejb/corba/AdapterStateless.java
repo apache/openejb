@@ -26,7 +26,6 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-import org.apache.openejb.RpcEjbDeployment;
 import org.apache.openejb.EJBInterfaceType;
 import org.apache.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.apache.openejb.proxy.ProxyInfo;
@@ -39,10 +38,10 @@ public final class AdapterStateless extends Adapter {
     private final byte[] object_id;
     private final org.omg.CORBA.Object objectReference;
 
-    public AdapterStateless(RpcEjbDeployment deployment, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
-        super(deployment, orb, parentPOA, securityPolicy);
+    public AdapterStateless(TSSLink tssLink, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        super(tssLink, orb, parentPOA, securityPolicy);
         Any any = orb.create_any();
-        any.insert_Value(deployment.getRemoteTxPolicyConfig());
+        any.insert_Value(tssLink.getRemoteTxPolicyConfig());
 
         try {
             Policy[] policies = new Policy[]{
@@ -54,13 +53,13 @@ public final class AdapterStateless extends Adapter {
                 homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 homePOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
-            poa = homePOA.create_POA(deployment.getContainerId().toString(), homePOA.the_POAManager(), policies);
+            poa = homePOA.create_POA(tssLink.getContainerId(), homePOA.the_POAManager(), policies);
 
             poa.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, deployment);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, tssLink.getDeployment());
 
-            poa.activate_object_with_id(object_id = deployment.getContainerId().toString().getBytes(), servant);
+            poa.activate_object_with_id(object_id = tssLink.getContainerId().getBytes(), servant);
             objectReference = poa.servant_to_reference(servant);
         } catch (Exception e) {
             e.printStackTrace();

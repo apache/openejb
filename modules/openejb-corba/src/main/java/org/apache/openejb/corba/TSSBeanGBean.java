@@ -36,8 +36,8 @@ public final class TSSBeanGBean {
         infoFactory.addAttribute("POAName", String.class, true);
         infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addOperation("registerContainer", new Class[] {RpcEjbDeployment.class});
-        infoFactory.addOperation("unregisterContainer", new Class[] {RpcEjbDeployment.class});
+        infoFactory.addOperation("registerContainer", new Class[] {TSSLink.class});
+        infoFactory.addOperation("unregisterContainer", new Class[] {TSSLink.class});
         infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

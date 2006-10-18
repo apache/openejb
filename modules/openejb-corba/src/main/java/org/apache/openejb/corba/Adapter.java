@@ -47,13 +47,13 @@ public abstract class Adapter implements RefGenerator {
     private final byte[] home_id;
     private final org.omg.CORBA.Object homeReference;
 
-    protected Adapter(RpcEjbDeployment deployment, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
-        this.deployment = deployment;
-        this.home_id = deployment.getContainerId().toString().getBytes();
+    protected Adapter(TSSLink tssLink, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        this.deployment = tssLink.getDeployment();
+        this.home_id = tssLink.getContainerId().getBytes();
         this.orb = orb;
 
         Any any = orb.create_any();
-        any.insert_Value(deployment.getHomeTxPolicyConfig());
+        any.insert_Value(tssLink.getHomeTxPolicyConfig());
 
         try {
             Policy[] policies = new Policy[]{
@@ -65,7 +65,7 @@ public abstract class Adapter implements RefGenerator {
                 parentPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 parentPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
-            homePOA = parentPOA.create_POA(deployment.getContainerId().toString(), parentPOA.the_POAManager(), policies);
+            homePOA = parentPOA.create_POA(tssLink.getContainerId(), parentPOA.the_POAManager(), policies);
 
             homePOA.the_POAManager().activate();
 
@@ -76,7 +76,7 @@ public abstract class Adapter implements RefGenerator {
 
             org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
             initialContext = NamingContextExtHelper.narrow(obj);
-            String[] names = deployment.getJndiNames();
+            String[] names = tssLink.getJndiNames();
             for (int i = 0; i < names.length; i++) {
                 NameComponent[] nameComponent = initialContext.to_name(names[i]);
                 NamingContext currentContext = initialContext;

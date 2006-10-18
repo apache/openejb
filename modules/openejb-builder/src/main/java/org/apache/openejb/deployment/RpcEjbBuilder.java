@@ -199,7 +199,7 @@ public abstract class RpcEjbBuilder implements ResourceEnvironmentBuilder, Secur
         gbean.setAttribute("componentContextMap", componentContext);
 
         if (tssBeanQuery != null) {
-            gbean.setReferencePattern("TSSBean", tssBeanQuery);
+//            gbean.setReferencePattern("TSSBean", tssBeanQuery);
         }
 
         gbean.setAttribute("unshareableResources", unshareableResources);

@@ -19,7 +19,9 @@
     <modules>
         <module>openejb-pkgen-builder</module>
         <module>openejb-core</module>
+        <module>openejb-corba</module>
         <module>openejb-builder</module>
+        <module>openejb-corba-builder</module>
         <module>openejb-yoko</module>
     </modules>
 

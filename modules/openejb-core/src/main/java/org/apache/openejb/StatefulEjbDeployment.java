@@ -29,7 +29,6 @@ import org.apache.openejb.cluster.server.DefaultClusteredEjbDeployment;
 import org.apache.openejb.cluster.server.DefaultClusteredInstanceCache;
 import org.apache.openejb.cluster.server.EJBClusterManager;
 import org.apache.openejb.cluster.sfsb.ClusteredSFInstanceContextFactory;
-import org.apache.openejb.corba.TSSBean;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
 import org.apache.openejb.dispatch.MethodSignature;
 import org.apache.openejb.dispatch.VirtualOperation;
@@ -84,8 +83,6 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
                                  Kernel kernel,
 
-                                 TSSBean tssBean,
-
                                  // connector stuff
                                  Set unshareableResources,
                                  Set applicationManagedSecurityResources,
@@ -121,8 +118,6 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
                 kernel,
 
-                tssBean,
-
                 unshareableResources,
                 applicationManagedSecurityResources,
 
@@ -155,8 +150,6 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
                                  Map componentContext,
 
                                  Kernel kernel,
-
-                                 TSSBean tssBean,
 
                                  // connector stuff
                                  Set unshareableResources,
@@ -203,7 +196,8 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
                 kernel,
 
-                tssBean, unshareableResources, applicationManagedSecurityResources);
+                unshareableResources,
+                applicationManagedSecurityResources);
 
         dispatchMethodMap = buildDispatchMethodMap();
 

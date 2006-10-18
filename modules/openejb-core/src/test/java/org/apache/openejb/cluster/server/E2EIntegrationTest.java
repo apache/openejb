@@ -19,6 +19,8 @@ package org.apache.openejb.cluster.server;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.util.Set;
+
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -26,7 +28,9 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
+import javax.ejb.Timer;
 import javax.security.auth.Subject;
+import javax.naming.Context;
 
 import junit.framework.TestCase;
 import org.activemq.broker.BrokerContainer;
@@ -41,10 +45,14 @@ import org.apache.openejb.StatefulEjbDeploymentFactory;
 import org.apache.openejb.cache.SimpleInstanceCache;
 import org.apache.openejb.cluster.sfsb.ClusteredSFInstanceContextFactory;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
+import org.apache.openejb.dispatch.VirtualOperation;
 import org.apache.openejb.proxy.EJBProxyFactory;
 import org.apache.openejb.proxy.ProxyInfo;
 import org.apache.openejb.sfsb.StatefulInstanceContext;
 import org.apache.openejb.StatefulEjbContainer;
+import org.apache.openejb.timer.BasicTimerServiceImpl;
+import org.apache.openejb.transaction.TransactionPolicyManager;
+import org.apache.openejb.security.PermissionManager;
 
 /**
  * TODO remove this end-to-end test, usefull for lightweight end-to-end testing,
@@ -226,16 +234,60 @@ public class E2EIntegrationTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public Serializable getHomeTxPolicyConfig() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Serializable getRemoteTxPolicyConfig() {
-            throw new UnsupportedOperationException();
-        }
-
         public InvocationResult invoke(Invocation arg0) throws Throwable {
             throw new UnsupportedOperationException();
+        }
+
+        //TODO not sure if the following need to throw an exception or need an impl.
+        public Subject getRunAsSubject() {
+            return null;
+        }
+
+        public Context getComponentContext() {
+            return null;
+        }
+
+        public void logSystemException(Throwable t) {
+        }
+
+        public VirtualOperation getVirtualOperation(int methodIndex) {
+            return null;
+        }
+
+        public boolean isSecurityEnabled() {
+            return false;
+        }
+
+        public String getPolicyContextId() {
+            return null;
+        }
+
+        public PermissionManager getPermissionManager() {
+            return null;
+        }
+
+        public TransactionPolicyManager getTransactionPolicyManager() {
+            return null;
+        }
+
+        public Class getBeanClass() {
+            return null;
+        }
+
+        public Timer getTimerById(Long id) {
+            return null;
+        }
+
+        public BasicTimerServiceImpl getTimerService() {
+            return null;
+        }
+
+        public Set getUnshareableResources() {
+            return null;
+        }
+
+        public Set getApplicationManagedSecurityResources() {
+            return null;
         }
     }
 }

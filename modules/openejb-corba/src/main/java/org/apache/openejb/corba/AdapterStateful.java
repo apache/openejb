@@ -31,6 +31,7 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.Servant;
@@ -42,38 +43,37 @@ import org.apache.openejb.EJBInterfaceType;
 import org.apache.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.apache.openejb.proxy.ProxyInfo;
 
-
 /**
  * @version $Revision$ $Date$
  */
-public final class AdapterEntity extends Adapter {
-    private final Log log = LogFactory.getLog(AdapterEntity.class);
+public class AdapterStateful extends Adapter {
+    private final Log log = LogFactory.getLog(AdapterStateful.class);
 
     private final POA poa;
     private final String referenceInterface;
 
-    public AdapterEntity(RpcEjbDeployment deployment, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
-        super(deployment, orb, parentPOA, securityPolicy);
+    public AdapterStateful(TSSLink tssLink, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        super(tssLink, orb, parentPOA, securityPolicy);
 
         Any any = orb.create_any();
-        any.insert_Value(deployment.getRemoteTxPolicyConfig());
+        any.insert_Value(tssLink.getRemoteTxPolicyConfig());
 
         try {
             Policy[] policies = new Policy[]{
                 securityPolicy,
                 orb.create_policy(ServerTransactionPolicyFactory.POLICY_TYPE, any),
-//                homePOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
+                homePOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 homePOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER),
                 homePOA.create_servant_retention_policy(ServantRetentionPolicyValue.NON_RETAIN),
                 homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 homePOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
-            poa = homePOA.create_POA(deployment.getContainerId().toString(), homePOA.the_POAManager(), policies);
+            poa = homePOA.create_POA(tssLink.getContainerId(), homePOA.the_POAManager(), policies);
             poa.set_servant_manager(new ObjectActivator());
 
             poa.the_POAManager().activate();
 
-            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, deployment);
+            StandardServant servant = new StandardServant(orb, EJBInterfaceType.REMOTE, tssLink.getDeployment());
             referenceInterface = servant._all_interfaces(null, null)[0];
         } catch (Exception e) {
             throw new CORBAException(e);
@@ -91,7 +91,7 @@ public final class AdapterEntity extends Adapter {
 
     public org.omg.CORBA.Object genObjectReference(ProxyInfo proxyInfo) throws CORBAException {
 
-        byte[] bytes = null;
+        byte[] bytes;
         try {
             ByteArrayOutputStream b = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(b);
@@ -119,8 +119,7 @@ public final class AdapterEntity extends Adapter {
                 is.close();
 
                 RpcEjbDeployment deployment = getDeployment();
-                StandardServant servant = new StandardServant(getOrb(), EJBInterfaceType.REMOTE, deployment, pk);
-                return servant;
+                return new StandardServant(getOrb(), EJBInterfaceType.REMOTE, deployment, pk);
             } catch (IOException e) {
                 // if we can't deserialize, then this object can't exist in this process
                 throw new OBJECT_NOT_EXIST(0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);

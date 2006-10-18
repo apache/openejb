@@ -72,7 +72,7 @@ public class OpenEjbLocalRefBuilder extends OpenEjbAbstractRefBuilder {
             GerEjbLocalRefType localRef = (GerEjbLocalRefType) ejbLocalRefMap.get(ejbRefName);
 
             Reference ejbReference = addEJBLocalRef(remoteConfiguration, module.getModuleURI(), ejbLocalRef, localRef, cl);
-            componentContext.put(ENV + ejbRefName, ejbReference);
+            getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
         }
     }
 

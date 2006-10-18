@@ -17,6 +17,26 @@
 
 package org.apache.openejb.mejb;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Set;
+
+import javax.ejb.EJBException;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.Timer;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.j2ee.Management;
+import javax.management.j2ee.ManagementHome;
+import javax.naming.Context;
+import javax.security.auth.Subject;
+
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
@@ -27,25 +47,12 @@ import org.apache.openejb.EjbInvocation;
 import org.apache.openejb.RpcEjbDeployment;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
 import org.apache.openejb.dispatch.MethodSignature;
+import org.apache.openejb.dispatch.VirtualOperation;
 import org.apache.openejb.proxy.EJBProxyFactory;
 import org.apache.openejb.proxy.ProxyInfo;
-
-import javax.ejb.EJBException;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
-import javax.management.j2ee.Management;
-import javax.management.j2ee.ManagementHome;
-import javax.security.auth.Subject;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import org.apache.openejb.security.PermissionManager;
+import org.apache.openejb.timer.BasicTimerServiceImpl;
+import org.apache.openejb.transaction.TransactionPolicyManager;
 
 /**
  * @version $Rev$ $Date$
@@ -173,16 +180,6 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDe
         return null;
     }
 
-    //todo implement to make MEJB accessible through CORBA
-    public Serializable getHomeTxPolicyConfig() {
-        return null;
-    }
-
-    //todo implement to make MEJB accessible through CORBA
-    public Serializable getRemoteTxPolicyConfig() {
-        return null;
-    }
-
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EjbInvocation ejbInvocation = (EjbInvocation) invocation;
         int methodIndex = methodMap[ejbInvocation.getMethodIndex()];
@@ -203,4 +200,56 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements RpcEjbDe
         }
     }
 
+    //TODO It's not clear the following methods should even be here and they need to be implemented!!
+
+    public Subject getRunAsSubject() {
+        return null;
+    }
+
+    public Context getComponentContext() {
+        return null;
+    }
+
+    public void logSystemException(Throwable t) {
+    }
+
+    public VirtualOperation getVirtualOperation(int methodIndex) {
+        return null;
+    }
+
+    public boolean isSecurityEnabled() {
+        return false;
+    }
+
+    public String getPolicyContextId() {
+        return null;
+    }
+
+    public PermissionManager getPermissionManager() {
+        return null;
+    }
+
+    public TransactionPolicyManager getTransactionPolicyManager() {
+        return null;
+    }
+
+    public Class getBeanClass() {
+        return null;
+    }
+
+    public Timer getTimerById(Long id) {
+        return null;
+    }
+
+    public BasicTimerServiceImpl getTimerService() {
+        return null;
+    }
+
+    public Set getUnshareableResources() {
+        return null;
+    }
+
+    public Set getApplicationManagedSecurityResources() {
+        return null;
+    }
 }
