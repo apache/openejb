@@ -24,33 +24,21 @@ import java.util.HashMap;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
-import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.openejb.BmpEjbDeploymentGBean;
 import org.apache.openejb.CmpEjbDeploymentGBean;
 import org.apache.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
@@ -117,22 +105,22 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
         builder.setTransactionPolicies(transactionPolicies);
         builder.setReentrant(entityBean.getReentrant().getBooleanValue());
 
-        AbstractNameQuery tssBeanQuery = getTssBeanQuery(openejbEntityBean, ejbModule, earContext, entityBean);
-        builder.setTssBeanQuery(tssBeanQuery);
+//        AbstractNameQuery tssBeanQuery = getTssBeanQuery(openejbEntityBean, ejbModule, earContext, entityBean);
+//        builder.setTssBeanQuery(tssBeanQuery);
 
         addSecurity(earContext, ejbName, builder, cl, ejbModule, entityBean, componentPermissions, policyContextID);
 
-        processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, cl);
+        processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, containerAbstractName, cl);
 
         try {
-            if (tssBeanQuery != null) {
-                if (openejbEntityBean.getJndiNameArray().length == 0) {
-                    throw new DeploymentException("Cannot expose an bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
-                }
-                if (!entityBean.isSetRemote() || !entityBean.isSetHome()) {
-                    throw new DeploymentException("An bean without a remote interface cannot be exposed via CORBA");
-                }
-            }
+//            if (tssBeanQuery != null) {
+//                if (openejbEntityBean.getJndiNameArray().length == 0) {
+//                    throw new DeploymentException("Cannot expose an bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
+//                }
+//                if (!entityBean.isSetRemote() || !entityBean.isSetHome()) {
+//                    throw new DeploymentException("An bean without a remote interface cannot be exposed via CORBA");
+//                }
+//            }
             GBeanData gbean = builder.createConfiguration();
             return gbean;
         } catch (Throwable e) {
@@ -145,36 +133,13 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
         return earContext.getNaming().createChildName(moduleBaseName, ejbName, NameFactory.ENTITY_BEAN);
     }
 
-    private void processEnvironmentRefs(EntityBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ClassLoader cl) throws DeploymentException {
-        // env entries
-        EnvEntryType[] envEntries = entityBean.getEnvEntryArray();
-
-        // ejb refs
-        EjbRefType[] ejbRefs = entityBean.getEjbRefArray();
-        GerEjbRefType[] openejbEjbRefs = null;
-
-        EjbLocalRefType[] ejbLocalRefs = entityBean.getEjbLocalRefArray();
-        GerEjbLocalRefType[] openejbEjbLocalRefs = null;
-
+    private void processEnvironmentRefs(EntityBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, AbstractName ejbAbstractName, ClassLoader cl) throws DeploymentException {
         // resource refs
         ResourceRefType[] resourceRefs = entityBean.getResourceRefArray();
         GerResourceRefType[] openejbResourceRefs = null;
 
-        // resource env refs
-        ResourceEnvRefType[] resourceEnvRefs = entityBean.getResourceEnvRefArray();
-        GerResourceEnvRefType[] openejbResourceEnvRefs = null;
-
-        ServiceRefType[] serviceRefs = entityBean.getServiceRefArray();
-        GerServiceRefType[] openejbServiceRefs = null;
-
-        GerGbeanRefType[] gBeanRefs = null;
-
         if (openejbEntityBean != null) {
-            openejbEjbRefs = openejbEntityBean.getEjbRefArray();
-            openejbEjbLocalRefs = openejbEntityBean.getEjbLocalRefArray();
             openejbResourceRefs = openejbEntityBean.getResourceRefArray();
-            openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
-            openejbServiceRefs = openejbEntityBean.getServiceRefArray();
             builder.setJndiNames(openejbEntityBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
         } else {
@@ -183,10 +148,13 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
             builder.setLocalJndiNames(new String[]{"local/" + ejbName});
         }
 
-        Map componentContext = new HashMap();
+        Map buildingContext = new HashMap();
+        buildingContext.put(NamingBuilder.JNDI_KEY, new HashMap());
+        buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, ejbAbstractName);
         Configuration earConfiguration = earContext.getConfiguration();
-        getNamingBuilders().buildNaming(entityBean, openejbEntityBean, earConfiguration, earConfiguration, ejbModule, componentContext);
-        builder.setComponentContext(componentContext);
+        getNamingBuilders().buildNaming(entityBean, openejbEntityBean, earConfiguration, earConfiguration, ejbModule, buildingContext);
+        Map compContext = (Map) buildingContext.get(NamingBuilder.JNDI_KEY);
+        builder.setComponentContext(compContext);
         getResourceEnvironmentSetter().setResourceEnvironment(builder, resourceRefs, openejbResourceRefs);
     }
 
@@ -264,34 +232,4 @@ public class XmlBeansEntityBuilder extends XmlBeanBuilder {
         }
     }
 
-    protected AbstractNameQuery getTssBeanQuery(OpenejbEntityBeanType openejbEntityBean, EJBModule ejbModule, EARContext earContext, EntityBeanType entityBean) throws DeploymentException {
-        AbstractNameQuery tssBeanObjectName = null;
-        if (openejbEntityBean != null) {
-            if (openejbEntityBean.isSetTssLink()) {
-                String tssBeanLink = openejbEntityBean.getTssLink().trim();
-                URI moduleURI = ejbModule.getModuleURI();
-                String moduleType = NameFactory.EJB_MODULE;
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleURI == null? null: moduleURI.toString(), tssBeanLink, moduleType, NameFactory.EJB_MODULE);
-                try {
-                    earContext.getConfiguration().findGBean(tssBeanObjectName);
-                } catch (GBeanNotFoundException e) {
-                    tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssBeanLink, null, NameFactory.EJB_MODULE);
-                    try {
-                        earContext.getConfiguration().findGBean(tssBeanObjectName);
-                    } catch (GBeanNotFoundException e1) {
-                        throw new DeploymentException("No tss bean found", e);
-                    }
-                }
-            } else if (openejbEntityBean.isSetTss()) {
-                tssBeanObjectName = ENCConfigBuilder.buildAbstractNameQuery(openejbEntityBean.getTss(), NameFactory.CORBA_TSS, NameFactory.EJB_MODULE, null);
-            }
-        }
-        if (tssBeanObjectName != null && openejbEntityBean.getJndiNameArray().length == 0) {
-            throw new DeploymentException("Cannot expose a session bean via CORBA unless a JNDI name is set (that's also used as the CORBA naming service name)");
-        }
-        if (tssBeanObjectName != null && (!entityBean.isSetRemote() || !entityBean.isSetHome())) {
-            throw new DeploymentException("A session bean without a remote interface cannot be exposed via CORBA");
-        }
-        return tssBeanObjectName;
-    }
 }

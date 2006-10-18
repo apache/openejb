@@ -170,23 +170,23 @@ public class TSSBean implements GBeanLifecycle {
         return config;
     }
 
-    public void registerContainer(RpcEjbDeployment container) throws CORBAException {
-        AdapterWrapper adapterWrapper = new AdapterWrapper(container);
+    public void registerContainer(TSSLink tssLink) throws CORBAException {
+        AdapterWrapper adapterWrapper = new AdapterWrapper(tssLink);
 
         adapterWrapper.start(server.getORB(), localPOA, initialContext, securityPolicy);
-        adapters.put(container.getContainerId(), adapterWrapper);
+        adapters.put(tssLink.getContainerId(), adapterWrapper);
 
-        log.debug(POAName + " - Linked container " + container.getContainerId());
+        log.debug(POAName + " - Linked container " + tssLink.getContainerId());
     }
 
-    public void unregisterContainer(RpcEjbDeployment container) {
-        AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.remove(container.getContainerId());
+    public void unregisterContainer(TSSLink tssLink) {
+        AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.remove(tssLink.getContainerId());
         if (adapterWrapper != null) {
             try {
                 adapterWrapper.stop();
-                log.debug(POAName + " - Unlinked container " + container.getContainerId());
+                log.debug(POAName + " - Unlinked container " + tssLink.getContainerId());
             } catch (CORBAException e) {
-                log.error(POAName + " - Error unlinking container " + container.getContainerId(), e);
+                log.error(POAName + " - Error unlinking container " + tssLink.getContainerId(), e);
             }
         }
     }

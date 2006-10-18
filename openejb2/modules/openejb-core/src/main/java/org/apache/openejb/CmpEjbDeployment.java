@@ -21,7 +21,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.openejb.cache.InstanceFactory;
 import org.apache.openejb.cache.InstancePool;
-import org.apache.openejb.corba.TSSBean;
 import org.apache.openejb.dispatch.EJBTimeoutOperation;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
 import org.apache.openejb.dispatch.MethodHelper;
@@ -93,8 +92,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
 
                             Kernel kernel,
 
-                            TSSBean tssBean,
-
                             // connector stuff
                             Set unshareableResources,
                             Set applicationManagedSecurityResources,
@@ -122,7 +119,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean,
                 unshareableResources,
                 applicationManagedSecurityResources,
                 moduleCmpEngine,
@@ -157,8 +153,6 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
 
                             Kernel kernel,
 
-                            TSSBean tssBean,
-
                             // connector stuff
                             Set unshareableResources,
                             Set applicationManagedSecurityResources,
@@ -191,7 +185,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 transactionPolicies,
                 componentContext,
                 kernel,
-                tssBean, unshareableResources, applicationManagedSecurityResources);
+                unshareableResources, applicationManagedSecurityResources);
 
         this.reentrant = reentrant;
 
@@ -336,7 +330,7 @@ public class CmpEjbDeployment extends AbstractRpcDeployment implements EntityEjb
                 if (method == null) {
                     throw new IllegalArgumentException("Could not find select for signature: " + signature);
                 }
-                Method selectMethod = null;
+                Method selectMethod;
                 try {
                     selectMethod = beanClass.getMethod(selectQuery.getMethodName(), selectQuery.getParameterTypes());
                 } catch (NoSuchMethodException e) {

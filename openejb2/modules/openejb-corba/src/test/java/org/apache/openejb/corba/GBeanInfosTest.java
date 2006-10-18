@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 /**
  *
  * Make sure various GBeanInfos have correct constructor info
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GBeanInfosTest extends TestCase {
 
@@ -39,6 +39,10 @@ public class GBeanInfosTest extends TestCase {
 
     public void testTSSBeanGBean() throws Exception {
         new TSSBeanGBean();
+    }
+
+    public void testTSSLink() throws Exception {
+        new TSSLink();
     }
 
     public void testNameServiceGBean() throws Exception {

@@ -23,7 +23,6 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.openejb.corba.TSSBean;
 
 /**
  * @version $Revision$ $Date$
@@ -45,7 +44,6 @@ public abstract class RpcEjbDeploymentFactory {
     protected Subject runAs;
     protected SortedMap transactionPolicies;
     protected Map componentContext;
-    protected TSSBean tssBean;
     protected Set unshareableResources;
     protected Set applicationManagedSecurityResources;
     protected Kernel kernel;
@@ -177,14 +175,6 @@ public abstract class RpcEjbDeploymentFactory {
 
     public void setComponentContext(Map componentContext) {
         this.componentContext = componentContext;
-    }
-
-    public TSSBean getTssBean() {
-        return tssBean;
-    }
-
-    public void setTssBean(TSSBean tssBean) {
-        this.tssBean = tssBean;
     }
 
     public Set getUnshareableResources() {

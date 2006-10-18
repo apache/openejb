@@ -18,18 +18,25 @@ package org.apache.openejb.cluster.server;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.ejb.Timer;
 import javax.security.auth.Subject;
+import javax.naming.Context;
 
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.openejb.RpcEjbDeployment;
 import org.apache.openejb.EjbDeployment;
+import org.apache.openejb.timer.BasicTimerServiceImpl;
+import org.apache.openejb.transaction.TransactionPolicyManager;
+import org.apache.openejb.security.PermissionManager;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
+import org.apache.openejb.dispatch.VirtualOperation;
 import org.apache.openejb.proxy.ProxyInfo;
 
 
@@ -80,10 +87,6 @@ public class DefaultClusteredEjbDeployment implements ClusteredEjbDeployment {
         return container.getEjbObject(primaryKey);
     }
 
-    public Serializable getHomeTxPolicyConfig() {
-        return container.getHomeTxPolicyConfig();
-    }
-
     public String[] getJndiNames() {
         return container.getJndiNames();
     }
@@ -98,10 +101,6 @@ public class DefaultClusteredEjbDeployment implements ClusteredEjbDeployment {
 
     public ProxyInfo getProxyInfo() {
         return container.getProxyInfo();
-    }
-
-    public Serializable getRemoteTxPolicyConfig() {
-        return container.getRemoteTxPolicyConfig();
     }
 
     public InterfaceMethodSignature[] getSignatures() {
@@ -126,5 +125,58 @@ public class DefaultClusteredEjbDeployment implements ClusteredEjbDeployment {
 
     public ClusteredInstanceContextFactory getInstanceContextFactory() {
         return factory;
+    }
+
+    //TODO need to review if the following methods should be here
+    public Subject getRunAsSubject() {
+        return container.getRunAsSubject();
+    }
+
+    public Context getComponentContext() {
+        return container.getComponentContext();
+    }
+
+    public void logSystemException(Throwable t) {
+        container.logSystemException(t);
+    }
+
+    public VirtualOperation getVirtualOperation(int methodIndex) {
+        return container.getVirtualOperation(methodIndex);
+    }
+
+    public boolean isSecurityEnabled() {
+        return container.isSecurityEnabled();
+    }
+
+    public String getPolicyContextId() {
+        return container.getPolicyContextId();
+    }
+
+    public PermissionManager getPermissionManager() {
+        return container.getPermissionManager();
+    }
+
+    public TransactionPolicyManager getTransactionPolicyManager() {
+        return container.getTransactionPolicyManager();
+    }
+
+    public Class getBeanClass() {
+        return container.getBeanClass();
+    }
+
+    public Timer getTimerById(Long id) {
+        return container.getTimerById(id);
+    }
+
+    public BasicTimerServiceImpl getTimerService() {
+        return container.getTimerService();
+    }
+
+    public Set getUnshareableResources() {
+        return container.getUnshareableResources();
+    }
+
+    public Set getApplicationManagedSecurityResources() {
+        return container.getApplicationManagedSecurityResources();
     }
 }

@@ -16,14 +16,12 @@
  */
 package org.apache.openejb;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.Set;
+import java.util.SortedMap;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -35,18 +33,10 @@ import javax.security.auth.Subject;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.timer.PersistenceException;
 import org.apache.openejb.client.EJBObjectHandler;
 import org.apache.openejb.client.EJBObjectProxy;
-import org.apache.openejb.corba.TSSBean;
-import org.apache.openejb.corba.transaction.MappedServerTransactionPolicyConfig;
-import org.apache.openejb.corba.transaction.OperationTxPolicy;
-import org.apache.openejb.corba.transaction.ServerTransactionPolicyConfig;
-import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
-import org.apache.openejb.corba.util.Util;
 import org.apache.openejb.proxy.EJBProxyFactory;
 import org.apache.openejb.proxy.ProxyInfo;
-import org.apache.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Revision$ $Date$
@@ -59,8 +49,6 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
     private final String[] localJndiNames;
 
     protected final EJBProxyFactory proxyFactory;
-    private final TSSBean tssBean;
-
 
     public AbstractRpcDeployment(String containerId,
             String ejbName,
@@ -86,8 +74,6 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
             Map componentContext,
 
             Kernel kernel,
-
-            TSSBean tssBean,
 
             Set unshareableResources,
             Set applicationManagedSecurityResources) throws Exception {
@@ -121,8 +107,6 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
             localJndiNames = new String[0];
         }
         this.localJndiNames = localJndiNames;
-
-        this.tssBean = tssBean;
 
         // create the proxy factory
         // NOTE: this can't be called until the signaure array has been built and the proxy info has been set
@@ -165,7 +149,7 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
     }
 
     public Object invoke(Method method, Object[] args, Object primKey) throws Throwable {
-        EJBInterfaceType invocationType = null;
+        EJBInterfaceType invocationType;
         int index = getMethodIndex(method);
 
         Class serviceEndpointInterface = getProxyInfo().getServiceEndpointInterface();
@@ -194,7 +178,7 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
 
         EjbInvocation invocation = new EjbInvocationImpl(invocationType, primKey, index, args);
 
-        InvocationResult result = null;
+        InvocationResult result;
         try {
             result = invoke(invocation);
         } catch (Throwable t) {
@@ -212,56 +196,6 @@ public abstract class AbstractRpcDeployment extends AbstractEjbDeployment implem
         } else {
             return result.getResult();
         }
-    }
-
-    public Serializable getHomeTxPolicyConfig() {
-        if (proxyInfo.getHomeInterface() == null) {
-            return null;
-        }
-        Serializable policy = buildTransactionImportPolicy(EJBInterfaceType.HOME, proxyInfo.getHomeInterface(), true);
-        return policy;
-    }
-
-    public Serializable getRemoteTxPolicyConfig() {
-        if (proxyInfo.getRemoteInterface() == null) {
-            return null;
-        }
-        Serializable policy = buildTransactionImportPolicy(EJBInterfaceType.REMOTE, proxyInfo.getRemoteInterface(), false);
-        return policy;
-    }
-
-    public Serializable buildTransactionImportPolicy(EJBInterfaceType methodIntf, Class intf, boolean isHomeMethod) {
-
-        Map policies = new HashMap();
-
-        Map methodToOperation = Util.mapMethodToOperation(intf);
-        for (Iterator iterator = methodToOperation.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Method method = (Method) entry.getKey();
-            String operation = (String) entry.getValue();
-
-            int index = getMethodIndex(method);
-            TransactionPolicyType transactionPolicyType = transactionPolicyManager.getTransactionPolicyType(methodIntf, index);
-            OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getTransactionPolicy(transactionPolicyType);
-            policies.put(operation, operationTxPolicy);
-        }
-        ServerTransactionPolicyConfig serverTransactionPolicyConfig = new MappedServerTransactionPolicyConfig(policies);
-
-        return serverTransactionPolicyConfig;
-    }
-
-    public void doStart() throws Exception {
-        super.doStart();
-        if (tssBean != null) {
-            tssBean.registerContainer(this);
-        }
-    }
-
-    protected void destroy() throws PersistenceException {
-        if (tssBean != null) {
-            tssBean.unregisterContainer(this);
-        }
-        super.destroy();
     }
 
     private static String[] copyNames(String[] names) {

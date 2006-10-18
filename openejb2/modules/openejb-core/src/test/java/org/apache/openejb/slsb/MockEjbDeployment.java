@@ -20,11 +20,15 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Set;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.ejb.Timer;
 import javax.security.auth.Subject;
+import javax.naming.Context;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -34,7 +38,11 @@ import org.apache.geronimo.interceptor.SimpleInvocationResult;
 import org.apache.openejb.EJBComponentType;
 import org.apache.openejb.EjbDeployment;
 import org.apache.openejb.RpcEjbDeployment;
+import org.apache.openejb.timer.BasicTimerServiceImpl;
+import org.apache.openejb.transaction.TransactionPolicyManager;
+import org.apache.openejb.security.PermissionManager;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
+import org.apache.openejb.dispatch.VirtualOperation;
 import org.apache.openejb.proxy.EJBProxyFactory;
 import org.apache.openejb.proxy.ProxyInfo;
 
@@ -151,14 +159,6 @@ public class MockEjbDeployment implements RpcEjbDeployment {
         return null;
     }
 
-    public Serializable getHomeTxPolicyConfig() {
-        return null;
-    }
-
-    public Serializable getRemoteTxPolicyConfig() {
-        return null;
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -202,4 +202,57 @@ public class MockEjbDeployment implements RpcEjbDeployment {
 //        kernel.startGBean(gbean.getName());
 //        return gbean.getName();
 //    }
+
+    //TODO not sure if the following need implementation
+
+    public Subject getRunAsSubject() {
+        return null;
+    }
+
+    public Context getComponentContext() {
+        return null;
+    }
+
+    public void logSystemException(Throwable t) {
+    }
+
+    public VirtualOperation getVirtualOperation(int methodIndex) {
+        return null;
+    }
+
+    public boolean isSecurityEnabled() {
+        return false;
+    }
+
+    public String getPolicyContextId() {
+        return null;
+    }
+
+    public PermissionManager getPermissionManager() {
+        return null;
+    }
+
+    public TransactionPolicyManager getTransactionPolicyManager() {
+        return null;
+    }
+
+    public Class getBeanClass() {
+        return null;
+    }
+
+    public Timer getTimerById(Long id) {
+        return null;
+    }
+
+    public BasicTimerServiceImpl getTimerService() {
+        return null;
+    }
+
+    public Set getUnshareableResources() {
+        return null;
+    }
+
+    public Set getApplicationManagedSecurityResources() {
+        return null;
+    }
 }

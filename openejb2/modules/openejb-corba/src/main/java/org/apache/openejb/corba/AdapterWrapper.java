@@ -32,39 +32,35 @@ import org.apache.openejb.RpcEjbDeployment;
  */
 public final class AdapterWrapper {
     private final static Map adapters = new HashMap();
-    private final RpcEjbDeployment deployment;
+    private final TSSLink tssLink;
     private Adapter generator;
 
-    public AdapterWrapper(RpcEjbDeployment deployment) {
-        this.deployment = deployment;
+    public AdapterWrapper(TSSLink tssLink) {
+        this.tssLink = tssLink;
 
-    }
-
-    public EjbDeployment getDeployment() {
-        return deployment;
     }
 
     public void start(ORB orb, POA poa, NamingContextExt initialContext, Policy securityPolicy) throws CORBAException {
-        switch (deployment.getProxyInfo().getComponentType()) {
+        switch (tssLink.getProxyInfo().getComponentType()) {
             case EJBComponentType.STATELESS:
-                generator = new AdapterStateless(deployment, orb, poa, securityPolicy);
+                generator = new AdapterStateless(tssLink, orb, poa, securityPolicy);
                 break;
             case EJBComponentType.STATEFUL:
-                generator = new AdapterStateful(deployment, orb, poa, securityPolicy);
+                generator = new AdapterStateful(tssLink, orb, poa, securityPolicy);
                 break;
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
-                generator = new AdapterEntity(deployment, orb, poa, securityPolicy);
+                generator = new AdapterEntity(tssLink, orb, poa, securityPolicy);
                 break;
             default:
                 throw new CORBAException("CORBA Adapter does not handle MDB containers");
         }
-        adapters.put(deployment.getContainerId(), generator);
+        adapters.put(tssLink.getContainerId(), generator);
     }
 
     public void stop() throws CORBAException {
         generator.stop();
-        adapters.remove(deployment.getContainerId());
+        adapters.remove(tssLink.getContainerId());
     }
 
     public static RefGenerator getRefGenerator(String containerId) {
