@@ -21,15 +21,9 @@ import org.apache.geronimo.management.geronimo.KeystoreManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
-import org.apache.geronimo.management.geronimo.KeyIsLocked;
-import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
+import org.apache.geronimo.management.geronimo.KeystoreException;
 
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
 
 import org.apache.openejb.corba.security.config.tss.TSSConfig;
 
@@ -81,20 +75,11 @@ public class SSLConfig {
      *
      * @return An SSLServerSocketFactory instance created with the
      *         SSLConfig specifices.
-     * @throws KeystoreIsLocked
-     *                Occurs when the requested key keystore cannot
-     *                be used because it has not been unlocked.
-     * @throws KeyIsLocked
-     *                Occurs when the requested private key in the key
-     *                keystore cannot be used because it has not been
-     *                unlocked.
-     * @throws NoSuchAlgorithmException
-     * @throws UnrecoverableKeyException
-     * @throws KeyStoreException
-     * @throws KeyManagementException
-     * @throws NoSuchProviderException
+     *
+     * @throws KeystoreException
+     *                When a problem occurs while creating the factory.          
      */
-    public SSLSocketFactory createSSLFactory(ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+    public SSLSocketFactory createSSLFactory(ClassLoader loader) throws KeystoreException {
         if (manager != null) {
             // fix up the default algorithm now. 
             if ("default".equalsIgnoreCase(algorithm)) {
@@ -117,20 +102,11 @@ public class SSLConfig {
      *
      * @return An SSLSocketFactory instance created with the
      *         SSLConfig specifices.
-     * @throws KeystoreIsLocked
-     *                Occurs when the requested key keystore cannot
-     *                be used because it has not been unlocked.
-     * @throws KeyIsLocked
-     *                Occurs when the requested private key in the key
-     *                keystore cannot be used because it has not been
-     *                unlocked.
-     * @throws NoSuchAlgorithmException
-     * @throws UnrecoverableKeyException
-     * @throws KeyStoreException
-     * @throws KeyManagementException
-     * @throws NoSuchProviderException
+     *
+     * @throws KeystoreException
+     *                When a problem occurs while creating the factory.          
      */
-    public SSLServerSocketFactory createSSLServerFactory(ClassLoader loader) throws KeystoreIsLocked, KeyIsLocked, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, NoSuchProviderException {
+    public SSLServerSocketFactory createSSLServerFactory(ClassLoader loader) throws KeystoreException {
         if (manager != null) {
             // fix up the default algorithm now. 
             if ("default".equalsIgnoreCase(algorithm)) {
