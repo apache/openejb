@@ -684,13 +684,13 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
                 String methodName = openejbQueryType.getQueryMethod().getMethodName();
 
                 // -- build parameter type array
-                String[] parameterTypeNames = null;
                 String[] javaTypeTypes = openejbQueryType.getQueryMethod().getMethodParams().getMethodParamArray();
+                String[] parameterTypeNames = new String[javaTypeTypes.length];
                 if (null != javaTypeTypes) {
                     for (int j = 0; j < javaTypeTypes.length; j++) {
                         // parameterType
                         String paramType = javaTypeTypes[j];
-                        parameterTypeNames[i] = paramType;
+                        parameterTypeNames[j] = paramType;
                     }
                 }
 
