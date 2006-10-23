@@ -186,6 +186,9 @@ public abstract class EJBContextImpl {
         public boolean getRollbackOnly(EJBInstanceContext context, TransactionManager transactionManager) {
             try {
                 int status = transactionManager.getStatus();
+                if (status == Status.STATUS_NO_TRANSACTION) {
+                    throw new IllegalStateException("There is no transaction in progess.");
+                }
                 return (status == Status.STATUS_MARKED_ROLLBACK ||
                         status == Status.STATUS_ROLLEDBACK ||
                         status == Status.STATUS_ROLLING_BACK);
