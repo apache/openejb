@@ -46,11 +46,13 @@ class CacheFiller implements ResultHandler {
 
     public Object fetched(Row row, Object arg) throws QueryException {
         try {
-            GlobalIdentity id = idDefiner.defineIdentity(row);
-            if (null != id && null == cache.get(id)) {
-                CacheRow cacheRow = id.getTable().emptyRow(id);
-                idInjector.injectIdentity(cacheRow);
-                cache.add(cacheRow);
+            if (idDefiner != null) {
+                GlobalIdentity id = idDefiner.defineIdentity(row);
+                if (null != id && null == cache.get(id)) {
+                    CacheRow cacheRow = id.getTable().emptyRow(id);
+                    idInjector.injectIdentity(cacheRow);
+                    cache.add(cacheRow);
+                }
             }
         } catch (UndefinedIdentityException e) {
             throw new QueryException(e);
