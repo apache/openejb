@@ -17,9 +17,12 @@
 package org.apache.openejb.sfsb;
 
 import javax.ejb.SessionBean;
+import javax.ejb.EJBException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,18 +46,19 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
     private Transaction preexistingTransaction;
     private EJBOperation operation;
     private InstanceCache cache;
+    private final TransactionManager transactionManager;
 
     public StatefulInstanceContext(StatefulEjbDeployment statefulEjbDeployment,
-            StatefulEjbContainer statefulEjbContainer,
-            SessionBean instance,
-            Object id,
-            EJBProxyFactory proxyFactory) {
+                                   StatefulEjbContainer statefulEjbContainer,
+                                   SessionBean instance,
+                                   Object id,
+                                   EJBProxyFactory proxyFactory) {
         super(statefulEjbDeployment, instance, proxyFactory);
 
         this.statefulEjbContainer = statefulEjbContainer;
         this.id = id;
 
-        TransactionManager transactionManager = statefulEjbContainer.getTransactionManager();
+        transactionManager = statefulEjbContainer.getTransactionManager();
 
         UserTransaction userTransaction;
         if (statefulEjbDeployment.isBeanManagedTransactions()) {
@@ -135,7 +139,25 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
 
     public void beforeCommit() throws Throwable {
         super.beforeCommit();
-        statefulEjbContainer.beforeCommit(this);
+        // beforeCommit should not be called when the tx is rollback only
+        if (!isRollbackOnly()) {
+            statefulEjbContainer.beforeCommit(this);
+        }
+    }
+
+    // this method is only here so we do not call beforeCommit when the tx is roll back only
+    private boolean isRollbackOnly() {
+        try {
+            int status = transactionManager.getStatus();
+            if (status == Status.STATUS_NO_TRANSACTION) {
+                throw new IllegalStateException("There is no transaction in progess.");
+            }
+            return (status == Status.STATUS_MARKED_ROLLBACK ||
+                    status == Status.STATUS_ROLLEDBACK ||
+                    status == Status.STATUS_ROLLING_BACK);
+        } catch (SystemException e) {
+            throw new EJBException(e);
+        }
     }
 
     public void afterCommit(boolean committed) throws Throwable {
