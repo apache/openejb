@@ -127,12 +127,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
 
             WebServiceBuilder webServiceBuilder = new AxisBuilder();
             GBeanData linkData = new GBeanData(WSContainerGBean.GBEAN_INFO);
-            OpenEjbModuleBuilder moduleBuilder = new OpenEjbModuleBuilder(defaultEnvironment,
-                    deploymentHelper.statelessEjbContainerName,
-                    deploymentHelper.statefulEjbContainerName,
-                    deploymentHelper.bmpEjbContainerName,
-                    deploymentHelper.cmpEjbContainerName,
-                    deploymentHelper.mdbEjbContainerName,
+            OpenEjbModuleBuilder moduleBuilder = new OpenEjbModuleBuilder(deploymentHelper.statelessEjbContainerName, deploymentHelper.statefulEjbContainerName, deploymentHelper.bmpEjbContainerName, deploymentHelper.cmpEjbContainerName, deploymentHelper.mdbEjbContainerName, defaultEnvironment,
                     null,
                     linkData,
                     webServiceBuilder,
