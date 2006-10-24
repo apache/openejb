@@ -134,8 +134,8 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             AbstractNameQuery listener,
             Object webServiceLinkTemplate,
             Collection webServiceBuilder,
-            NamespaceDrivenBuilder securityBuilder,
-            NamespaceDrivenBuilder serviceBuilder,
+            Collection securityBuilders,
+            Collection serviceBuilders,
             NamingBuilder namingBuilders,
             ResourceEnvironmentSetter resourceEnvironmentSetter,
             ActivationSpecInfoLocator activationSpecInfoLocator,
@@ -150,20 +150,21 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 listener,
                 getLinkData(kernel, webServiceLinkTemplate),
                 new SingleElementCollection(webServiceBuilder),
-                securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
-                serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
+                securityBuilders == null ? Collections.EMPTY_SET : securityBuilders,
+                serviceBuilders == null ? Collections.EMPTY_SET : serviceBuilders,
                 namingBuilders,
                 resourceEnvironmentSetter,
                 activationSpecInfoLocator,
                 kernel);
     }
 
-    public OpenEjbModuleBuilder(Environment defaultEnvironment,
-            String defaultStatelessEjbContainer,
+    //note different constructor argument order to avoid confusing GBeanInfo
+    public OpenEjbModuleBuilder(String defaultStatelessEjbContainer,
             String defaultStatefulEjbContainer,
             String defaultBmpEjbContainer,
             String defaultCmpEjbContainer,
             String defaultMdbEjbContainer,
+            Environment defaultEnvironment,
             AbstractNameQuery listener,
             GBeanData linkTemplate,
             WebServiceBuilder webServiceBuilder,
@@ -191,7 +192,7 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
                 kernel);
     }
 
-    public OpenEjbModuleBuilder(Environment defaultEnvironment,
+    OpenEjbModuleBuilder(Environment defaultEnvironment,
             String defaultStatelessEjbContainer,
             String defaultStatefulEjbContainer,
             String defaultBmpEjbContainer,
@@ -203,7 +204,8 @@ public class OpenEjbModuleBuilder implements ModuleBuilder {
             Collection securityBuilders,
             Collection serviceBuilders,
             NamingBuilder namingBuilders,
-            ResourceEnvironmentSetter resourceEnvironmentSetter, ActivationSpecInfoLocator activationSpecInfoLocator,
+            ResourceEnvironmentSetter resourceEnvironmentSetter,
+            ActivationSpecInfoLocator activationSpecInfoLocator,
             Kernel kernel) {
         this.defaultEnvironment = defaultEnvironment;
 

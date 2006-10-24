@@ -18,9 +18,12 @@ package org.apache.openejb.deployment;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 /**
@@ -31,7 +34,7 @@ public class PlanParsingTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        builder = new OpenEjbModuleBuilder(null, 
+        builder = new OpenEjbModuleBuilder(null,
                 null,
                 null,
                 null,
@@ -39,9 +42,9 @@ public class PlanParsingTest extends TestCase {
                 null,
                 null,
                 null,
+                (WebServiceBuilder)null,
                 null,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
+                null,
                 new NamingBuilderCollection(null, null),
                 new MockResourceEnvironmentSetter(),
                 null,
