@@ -76,7 +76,17 @@ public final class StatefulInstanceInterceptor implements Interceptor {
         }
 
         EjbTransactionContext ejbTransactionContext = ejbInvocation.getEjbTransactionData();
-        EJBInstanceContext oldInstanceContext = ejbTransactionContext.beginInvocation(ctx);
+
+        //
+        // This is a bit lame but is the easiest way to avoid enlisting a new session bean during the ejbCreate call
+        // A stateful session bean should not have session synchronization called as a result of ejbCreate.
+        //
+        boolean calledBeginInvocation = false;
+        EJBInstanceContext oldInstanceContext = null;
+        if (ejbInvocation.getId() != null) {
+            oldInstanceContext = ejbTransactionContext.beginInvocation(ctx);
+            calledBeginInvocation = true;
+        }
         try {
             // invoke next
             InvocationResult invocationResult = next.invoke(invocation);
@@ -93,7 +103,9 @@ public final class StatefulInstanceInterceptor implements Interceptor {
 
             throw t;
         } finally {
-            ejbTransactionContext.endInvocation(oldInstanceContext);
+            if (calledBeginInvocation) {
+                ejbTransactionContext.endInvocation(oldInstanceContext);
+            }
             ejbInvocation.setEJBInstanceContext(null);
         }
     }
