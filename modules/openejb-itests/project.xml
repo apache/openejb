@@ -25,7 +25,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>tranql</groupId>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
         </dependency>
