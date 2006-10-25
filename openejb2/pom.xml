@@ -57,7 +57,7 @@
         <staxApiVersion>1.0.1</staxApiVersion>
         <staxVersion>1.1.1-dev</staxVersion>
         <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
-        <tranqlVendorsVersion>1.1</tranqlVendorsVersion>
+        <tranqlVendorsVersion>1.2-SNAPSHOT</tranqlVendorsVersion>
         <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
         <yokoVersion>1.0-incubating-M1-SNAPSHOT</yokoVersion>
@@ -550,7 +550,7 @@
             </dependency>
 
             <dependency>
-                <groupId>tranql</groupId>
+                <groupId>org.tranql</groupId>
                 <artifactId>tranql</artifactId>
                 <version>${tranqlVersion}</version>
             </dependency>

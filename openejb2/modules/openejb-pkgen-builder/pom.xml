@@ -35,7 +35,7 @@
             <artifactId>geronimo-j2ee-builder</artifactId>
         </dependency>
         <dependency>
-            <groupId>tranql</groupId>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql</artifactId>
         </dependency>
         <dependency>
