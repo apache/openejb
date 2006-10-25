@@ -5,7 +5,7 @@
         <dep:artifactId>geronimo-corba_2.3_spec</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
-        <dep:groupId>tranql</dep:groupId>
+        <dep:groupId>org.tranql</dep:groupId>
         <dep:artifactId>tranql</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
