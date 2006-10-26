@@ -16,17 +16,17 @@
  */
 package org.apache.openejb;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+
+import javax.security.auth.Subject;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.openejb.cluster.server.EJBClusterManager;
-
-import javax.security.auth.Subject;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 
 /**
  * @version $Revision$ $Date$
@@ -68,8 +68,6 @@ public final class StatefulEjbDeploymentGBean {
         infoFactory.addAttribute("unshareableResources", Set.class, true);
         infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
 
-        infoFactory.addReference("EJBClusterManager", EJBClusterManager.class);
-
         infoFactory.setConstructor(new String[]{
                 "objectName",
                 "ejbName",
@@ -99,10 +97,7 @@ public final class StatefulEjbDeploymentGBean {
                 "kernel",
 
                 "unshareableResources",
-                "applicationManagedSecurityResources",
-
-                "EJBClusterManager",
-        });
+                "applicationManagedSecurityResources"});
 
         infoFactory.addInterface(StatefulEjbDeployment.class);
 

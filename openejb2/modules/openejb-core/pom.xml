@@ -196,28 +196,6 @@
             <artifactId>axis</artifactId>
         </dependency>
 
-        <!-- TODO REFACTOR SO THESE AREN'T DEPENDENCIES -->
-        <dependency>
-            <groupId>activecluster</groupId>
-            <artifactId>activecluster</artifactId>
-            <version>1.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq</artifactId>
-            <version>3.2.4-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>wadi</groupId>
-            <artifactId>wadi-core</artifactId>
-            <version>2.0M1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_1.1_spec</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -246,8 +224,6 @@
                     <excludes>
                         <!-- TestPrincipal.java is not a test - if this is common across OpenEJB we should use **/Test*.java instead -->
                         <exclude>**/TestPrincipal.java</exclude>
-                        <!-- E2EIntegrationTest is failing in a WADI call to activecluster, probably some kind of versionitis... -->
-                        <exclude>**/E2EIntegrationTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

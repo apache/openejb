@@ -16,21 +16,14 @@
  */
 package org.apache.openejb.deployment;
 
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.openejb.StatefulEjbDeploymentGBean;
 import org.apache.openejb.StatefulEjbContainer;
+import org.apache.openejb.StatefulEjbDeploymentGBean;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatefulBuilder extends SessionBuilder {
-    private AbstractName ejbClusterManagerName;
-
-    public void setEjbClusterManagerName(AbstractName ejbClusterManagerName) {
-        this.ejbClusterManagerName = ejbClusterManagerName;
-    }
 
     protected GBeanInfo getTargetGBeanInfo() {
         return StatefulEjbDeploymentGBean.GBEAN_INFO;
@@ -40,11 +33,4 @@ public class StatefulBuilder extends SessionBuilder {
         return StatefulEjbContainer.class;
     }
 
-    public GBeanData createConfiguration() throws Exception {
-        GBeanData gbean = super.createConfiguration();
-        if (ejbClusterManagerName != null) {
-            gbean.setReferencePattern("EJBClusterManager", ejbClusterManagerName);
-        }
-        return gbean;
-    }
 }

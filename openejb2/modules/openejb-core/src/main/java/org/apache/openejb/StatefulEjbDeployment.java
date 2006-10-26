@@ -16,19 +16,18 @@
  */
 package org.apache.openejb;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+
+import javax.security.auth.Subject;
+
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.J2EEManagedObject;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.timer.PersistenceException;
 import org.apache.openejb.cache.InstanceCache;
 import org.apache.openejb.cache.SimpleInstanceCache;
-import org.apache.openejb.cluster.server.ClusteredEjbDeployment;
-import org.apache.openejb.cluster.server.ClusteredInstanceCache;
-import org.apache.openejb.cluster.server.ClusteredInstanceContextFactory;
-import org.apache.openejb.cluster.server.DefaultClusteredEjbDeployment;
-import org.apache.openejb.cluster.server.DefaultClusteredInstanceCache;
-import org.apache.openejb.cluster.server.EJBClusterManager;
-import org.apache.openejb.cluster.sfsb.ClusteredSFInstanceContextFactory;
 import org.apache.openejb.dispatch.InterfaceMethodSignature;
 import org.apache.openejb.dispatch.MethodSignature;
 import org.apache.openejb.dispatch.VirtualOperation;
@@ -39,12 +38,6 @@ import org.apache.openejb.sfsb.RemoveMethod;
 import org.apache.openejb.sfsb.StatefulInstanceContextFactory;
 import org.apache.openejb.sfsb.StatefulInstanceFactory;
 
-import javax.security.auth.Subject;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-
 
 /**
  * @version $Revision$ $Date$
@@ -52,8 +45,6 @@ import java.util.SortedMap;
 public class StatefulEjbDeployment extends AbstractRpcDeployment implements ExtendedEjbDeployment, J2EEManagedObject {
     private final StatefulInstanceFactory instanceFactory;
     private final InstanceCache instanceCache;
-    private final EJBClusterManager clusterManager;
-    private final ClusteredEjbDeployment clusteredEJBContainer;
     private final MethodMap dispatchMethodMap;
 
     public StatefulEjbDeployment(String containerId,
@@ -85,11 +76,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
                                  // connector stuff
                                  Set unshareableResources,
-                                 Set applicationManagedSecurityResources,
-
-                                 // clustering stuff
-                                 EJBClusterManager clusterManager) throws Exception {
-
+                                 Set applicationManagedSecurityResources) throws Exception {
         this(containerId,
                 ejbName,
 
@@ -119,9 +106,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
                 kernel,
 
                 unshareableResources,
-                applicationManagedSecurityResources,
-
-                clusterManager);
+                applicationManagedSecurityResources);
     }
 
     public StatefulEjbDeployment(String containerId,
@@ -153,10 +138,7 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
                                  // connector stuff
                                  Set unshareableResources,
-                                 Set applicationManagedSecurityResources,
-
-                                 // clustering stuff
-                                 EJBClusterManager clusterManager) throws Exception {
+                                 Set applicationManagedSecurityResources) throws Exception {
 
         super(containerId,
                 ejbName,
@@ -201,38 +183,17 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
         dispatchMethodMap = buildDispatchMethodMap();
 
-        this.clusterManager = clusterManager;
-
         // build the instance factory
         StatefulInstanceContextFactory contextFactory;
-        if (clusterManager == null) {
-            contextFactory = new StatefulInstanceContextFactory(this,
-                    ejbContainer,
-                    proxyFactory
-            );
-        } else {
-            contextFactory = new ClusteredSFInstanceContextFactory(this,
-                    ejbContainer,
-                    proxyFactory
-            );
-        }
+        contextFactory = new StatefulInstanceContextFactory(this,
+                ejbContainer,
+                proxyFactory
+        );
 
         instanceFactory = new StatefulInstanceFactory(contextFactory);
 
         // build the cache
-        InstanceCache instanceCache = new SimpleInstanceCache();
-        if (clusterManager != null) {
-            instanceCache = new DefaultClusteredInstanceCache(instanceCache);
-        }
-        this.instanceCache = instanceCache;
-
-        ClusteredEjbDeployment clusteredEJBContainer = null;
-        if (clusterManager != null) {
-            clusteredEJBContainer = new DefaultClusteredEjbDeployment(this,
-                    (ClusteredInstanceCache) instanceCache,
-                    (ClusteredInstanceContextFactory) contextFactory);
-        }
-        this.clusteredEJBContainer = clusteredEJBContainer;
+        this.instanceCache = new SimpleInstanceCache();
     }
 
     public VirtualOperation getVirtualOperation(int methodIndex) {
@@ -286,22 +247,6 @@ public class StatefulEjbDeployment extends AbstractRpcDeployment implements Exte
 
     public InstanceCache getInstanceCache() {
         return instanceCache;
-    }
-
-    public void doStart() throws Exception {
-        super.doStart();
-
-        if (clusterManager != null) {
-            clusterManager.addEJBContainer(clusteredEJBContainer);
-        }
-    }
-
-    protected void destroy() throws PersistenceException {
-        if (clusterManager != null) {
-            clusterManager.removeEJBContainer(clusteredEJBContainer);
-        }
-
-        super.destroy();
     }
 
 }

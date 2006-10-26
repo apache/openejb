@@ -35,7 +35,6 @@ import org.apache.openejb.EjbCallbackInvocation;
 import org.apache.openejb.ExtendedEjbDeployment;
 import org.apache.openejb.StatefulEjbContainer;
 import org.apache.openejb.SystemExceptionInterceptor;
-import org.apache.openejb.cluster.server.ClusteredInstanceInterceptor;
 import org.apache.openejb.dispatch.DispatchInterceptor;
 import org.apache.openejb.naming.ComponentContextInterceptor;
 import org.apache.openejb.security.DefaultSubjectInterceptor;
@@ -44,8 +43,8 @@ import org.apache.openejb.security.EjbRunAsInterceptor;
 import org.apache.openejb.security.EjbSecurityInterceptor;
 import org.apache.openejb.security.PolicyContextHandlerEJBInterceptor;
 import org.apache.openejb.transaction.DefaultUserTransaction;
-import org.apache.openejb.transaction.TransactionPolicyInterceptor;
 import org.apache.openejb.transaction.TransactionContextInterceptor;
+import org.apache.openejb.transaction.TransactionPolicyInterceptor;
 
 
 /**
@@ -98,8 +97,6 @@ public class DefaultStatefulEjbContainer implements StatefulEjbContainer {
         if (useContextHandler) {
             invocationChain = new PolicyContextHandlerEJBInterceptor(invocationChain);
         }
-
-        invocationChain = new ClusteredInstanceInterceptor(invocationChain);
 
         invocationChain = new StatefulInstanceInterceptor(invocationChain, transactionManager);
 
