@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.HashSet;
 
 import javax.ejb.DuplicateKeyException;
 import javax.ejb.EJBException;
@@ -214,8 +215,8 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         return Collections.unmodifiableSet(selectQueries);
     }
 
-    private SortedSet createEjbSelectQueries(Map selects) throws IllegalArgumentException {
-        SortedSet queries = new TreeSet();
+    private Set createEjbSelectQueries(Map selects) throws IllegalArgumentException {
+        Set queries = new HashSet();
         for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             SelectEJBQLQuery query = (SelectEJBQLQuery) entry.getKey();
