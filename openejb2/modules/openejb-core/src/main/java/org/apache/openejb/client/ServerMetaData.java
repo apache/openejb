@@ -25,8 +25,7 @@ import java.net.UnknownHostException;
 
 
 /**
- * 
- * @since 11/25/2001
+ * $Rev$ $Date$
  */
 public class ServerMetaData implements Externalizable{
     transient String nodeName;
@@ -39,7 +38,23 @@ public class ServerMetaData implements Externalizable{
      */
     transient InetAddress address;
 
+    /**
+     * The Java API: InetAddress.getLocalHost() is slow, cache the value to be used
+     * later on.
+     */
+    private transient static InetAddress localHost;
+
+    static {
+        try {
+            localHost = InetAddress.getLocalHost();
+        } catch( UnknownHostException e ) {
+            localHost = null;
+        }
+    }
+
     public ServerMetaData(){
+        nodeName = "";
+        address = localHost;
     }
     
     public ServerMetaData(String nodeName, String host, int port) throws UnknownHostException {
@@ -170,3 +185,4 @@ public class ServerMetaData implements Externalizable{
         out.writeInt(port);
     }
 }
+
