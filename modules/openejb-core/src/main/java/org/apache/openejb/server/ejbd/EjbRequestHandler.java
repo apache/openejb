@@ -33,15 +33,14 @@ import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.openejb.DeploymentIndex;
-import org.apache.openejb.RpcEjbDeployment;
-import org.apache.openejb.InvalidateReferenceException;
 import org.apache.openejb.EjbDeployment;
-import org.apache.openejb.corba.ORBRef;
+import org.apache.openejb.InvalidateReferenceException;
+import org.apache.openejb.RpcEjbDeployment;
 import org.apache.openejb.client.EJBRequest;
 import org.apache.openejb.client.EJBResponse;
 import org.apache.openejb.client.RequestMethods;
 import org.apache.openejb.client.ResponseCodes;
-import org.apache.openejb.cluster.server.ClusteredInvocationResult;
+import org.apache.openejb.corba.ORBRef;
 import org.apache.openejb.proxy.BaseEJB;
 import org.apache.openejb.proxy.ProxyInfo;
 
@@ -279,11 +278,6 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
             throw new InvalidateReferenceException(re);
 
-        }
-
-        if (result instanceof ClusteredInvocationResult) {
-            ClusteredInvocationResult clusteredResult = (ClusteredInvocationResult) result;
-            res.setServers(clusteredResult.getServers());
         }
 
         if (result.isException()) {

@@ -16,14 +16,12 @@
  */
 package org.apache.openejb;
 
-import org.apache.openejb.cluster.server.EJBClusterManager;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatefulEjbDeploymentFactory extends RpcEjbDeploymentFactory {
     protected boolean beanManagedTransactions;
-    protected EJBClusterManager clusterManager;
 
     public boolean isBeanManagedTransactions() {
         return beanManagedTransactions;
@@ -31,14 +29,6 @@ public class StatefulEjbDeploymentFactory extends RpcEjbDeploymentFactory {
 
     public void setBeanManagedTransactions(boolean beanManagedTransactions) {
         this.beanManagedTransactions = beanManagedTransactions;
-    }
-
-    public EJBClusterManager getClusterManager() {
-        return clusterManager;
-    }
-
-    public void setClusterManager(EJBClusterManager clusterManager) {
-        this.clusterManager = clusterManager;
     }
 
     public EjbDeployment create() throws Exception {
@@ -72,7 +62,6 @@ public class StatefulEjbDeploymentFactory extends RpcEjbDeploymentFactory {
                 componentContext,
                 kernel,
                 unshareableResources,
-                applicationManagedSecurityResources,
-                clusterManager);
+                applicationManagedSecurityResources);
     }
 }
