@@ -399,11 +399,11 @@ public class TranqlSchemaBuilder {
 
         // create the ejb relation and sql join objects
         Relationship relationship = new Relationship(middleEjb,
-                new Association.JoinDefinition(leftEjb, rightEjb, leftToMiddleRelationMapping.getEjbFieldMappings()),
-                new Association.JoinDefinition(rightEjb, leftEjb, rightToMiddleRelationMapping.getEjbFieldMappings()));
+                new Association.JoinDefinition(leftEjb, middleEjb, leftToMiddleRelationMapping.getEjbFieldMappings()),
+                new Association.JoinDefinition(rightEjb, middleEjb, rightToMiddleRelationMapping.getEjbFieldMappings()));
         JoinTable joinTable = new JoinTable(middleTable,
-                new Association.JoinDefinition(leftTable, rightTable, leftToMiddleRelationMapping.getColumnMappings()),
-                new Association.JoinDefinition(rightTable, leftTable, rightToMiddleRelationMapping.getColumnMappings()));
+                new Association.JoinDefinition(leftTable, middleTable, leftToMiddleRelationMapping.getColumnMappings()),
+                new Association.JoinDefinition(rightTable, middleTable, rightToMiddleRelationMapping.getColumnMappings()));
 
         // add the left cmr field and column
         boolean isLeftRoleVirtual = null == leftRole.getCmrFieldName();
