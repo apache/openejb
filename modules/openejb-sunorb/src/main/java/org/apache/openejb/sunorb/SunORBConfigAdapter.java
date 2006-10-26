@@ -153,7 +153,7 @@ public class SunORBConfigAdapter implements ConfigAdapter {
 
         // This must be a system property, the Sun BootStrapActivation class only looks at the
         // system properties for this value
-        System.setProperty("com.sun.CORBA.activation.DbDir", "C:\\temp");
+        System.setProperty("com.sun.CORBA.activation.DbDir", dbDir);
 
         // the transient name service is automatically started by the Sun NSORB
         properties.put("org.omg.CORBA.ORBClass", "com.sun.corba.se.internal.CosNaming.NSORB");
