@@ -31,6 +31,7 @@ import org.apache.openejb.EjbDeployment;
 import org.apache.openejb.EjbInvocation;
 import org.apache.openejb.StatelessEjbDeployment;
 
+
 /**
  * @version $Revision$ $Date$
  */
@@ -55,7 +56,7 @@ public class HandlerChainInterceptor implements Interceptor {
         }
 
         List handlerInfos = ((StatelessEjbDeployment) deployment).getHandlerInfos();
-        HandlerChain handlerChain = new org.apache.axis.handlers.HandlerChainImpl(handlerInfos);
+        HandlerChain handlerChain = new HandlerChainImpl(handlerInfos);
 
         InvocationResult invocationResult;
         try {
@@ -82,4 +83,5 @@ public class HandlerChainInterceptor implements Interceptor {
 
         return invocationResult;
     }
+
 }

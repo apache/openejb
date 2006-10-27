@@ -25,7 +25,7 @@ import java.util.SortedMap;
 import java.util.HashMap;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.axis.builder.WSDescriptorParser;
+import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
