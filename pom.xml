@@ -329,6 +329,12 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-interceptor</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-deploy-config</artifactId>
                 <version>${geronimoVersion}</version>
             </dependency>
@@ -432,6 +438,12 @@
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-webservices</artifactId>
+                <version>${geronimoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-webservices-builder</artifactId>
                 <version>${geronimoVersion}</version>
             </dependency>
 

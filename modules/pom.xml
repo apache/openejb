@@ -17,6 +17,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>openejb-axis</module>
         <module>openejb-pkgen-builder</module>
         <module>openejb-core</module>
         <module>openejb-corba</module>
