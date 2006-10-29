@@ -165,21 +165,6 @@
 
     <repositories>
         <!--
-           | NOTE: Need the local Maven1 repository cache to pick up TranQL builds
-         -->
-        <repository>
-            <id>local-m1</id>
-            <url>file:${user.home}/.maven/repository</url>
-            <layout>legacy</layout>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-
-        <!--
         <repository>
             <releases>
                 <enabled>false</enabled>
