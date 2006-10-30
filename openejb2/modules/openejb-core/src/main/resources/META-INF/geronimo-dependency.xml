@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dep:service xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <dep:dependency>
-        <dep:groupId>org.apache.geronimo.specs</dep:groupId>
-        <dep:artifactId>geronimo-corba_2.3_spec</dep:artifactId>
+        <dep:groupId>org.apache.yoko</dep:groupId>
+        <dep:artifactId>yoko-spec-corba</dep:artifactId>
     </dep:dependency>
     <dep:dependency>
         <dep:groupId>org.tranql</dep:groupId>
