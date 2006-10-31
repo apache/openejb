@@ -33,6 +33,7 @@ import org.apache.openejb.EjbInvocationImpl;
 import org.apache.openejb.ExtendedEjbDeployment;
 import org.apache.openejb.MdbContainer;
 import org.apache.openejb.SystemExceptionInterceptor;
+import org.apache.openejb.NoConnectionEnlistingInterceptor;
 import org.apache.openejb.transaction.TransactionContextInterceptor;
 import org.apache.openejb.transaction.DefaultUserTransaction;
 import org.apache.openejb.dispatch.DispatchInterceptor;
@@ -83,13 +84,21 @@ public class DefaultMdbContainer implements MdbContainer {
             invocationChain = new EJBIdentityInterceptor(invocationChain);
         }
 
-        invocationChain = new ConnectionTrackingInterceptor(invocationChain, trackedConnectionAssociator);
+        if (trackedConnectionAssociator != null) {
+            invocationChain = new ConnectionTrackingInterceptor(invocationChain, trackedConnectionAssociator);
+        }
 
         // create the user transaction if bean managed
         invocationChain = new MdbInstanceInterceptor(invocationChain);
 
         // associate transaction data
         invocationChain = new TransactionContextInterceptor(invocationChain, transactionManager);
+
+        //make sure tm notifications don't enlist any connections from the caller's connection context in a new tx
+        //or targets connections in callers tx.
+        if (trackedConnectionAssociator != null) {
+            invocationChain = new NoConnectionEnlistingInterceptor(invocationChain, trackedConnectionAssociator);
+        }
 
         // logs system exceptions
         invocationChain = new SystemExceptionInterceptor(invocationChain);

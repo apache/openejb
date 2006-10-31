@@ -51,12 +51,8 @@ public class ConnectionTrackingInterceptor implements Interceptor {
                     ejbDeployment.getApplicationManagedSecurityResources());
             ejbInstanceContext.setConnectorInstanceData(connectorCtx);
         }
-
-        ConnectorInstanceContext leavingInstanceContext = trackedConnectionAssociator.enter(connectorCtx);
-        try {
+        //this returns the empty context installed in NoConnectionEnlistingInterceptor.  We want our context in effect during possible tx completion.
+        trackedConnectionAssociator.enter(connectorCtx);
             return next.invoke(invocation);
-        } finally {
-            trackedConnectionAssociator.exit(leavingInstanceContext);
-        }
     }
 }
