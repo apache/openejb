@@ -35,6 +35,7 @@ import org.apache.openejb.EjbCallbackInvocation;
 import org.apache.openejb.ExtendedEjbDeployment;
 import org.apache.openejb.StatefulEjbContainer;
 import org.apache.openejb.SystemExceptionInterceptor;
+import org.apache.openejb.NoConnectionEnlistingInterceptor;
 import org.apache.openejb.dispatch.DispatchInterceptor;
 import org.apache.openejb.naming.ComponentContextInterceptor;
 import org.apache.openejb.security.DefaultSubjectInterceptor;
@@ -103,6 +104,12 @@ public class DefaultStatefulEjbContainer implements StatefulEjbContainer {
         // transaction interceptor
         invocationChain = new TransactionContextInterceptor(invocationChain, transactionManager);
         invocationChain = new TransactionPolicyInterceptor(invocationChain, transactionManager);
+
+        //make sure tm notifications don't enlist any connections from the caller's connection context in a new tx
+        //or targets connections in callers tx.
+        if (trackedConnectionAssociator != null) {
+            invocationChain = new NoConnectionEnlistingInterceptor(invocationChain, trackedConnectionAssociator);
+        }
 
         // logs system exceptions
         invocationChain = new SystemExceptionInterceptor(invocationChain);

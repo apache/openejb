@@ -40,6 +40,7 @@ import org.apache.openejb.EjbInvocation;
 import org.apache.openejb.EjbInvocationImpl;
 import org.apache.openejb.ExtendedEjbDeployment;
 import org.apache.openejb.SystemExceptionInterceptor;
+import org.apache.openejb.NoConnectionEnlistingInterceptor;
 import org.apache.openejb.dispatch.DispatchInterceptor;
 import org.apache.openejb.entity.EntityCallbackInterceptor;
 import org.apache.openejb.entity.EntityInstanceInterceptor;
@@ -103,6 +104,12 @@ public class DefaultCmpEjbContainer implements CmpEjbContainer {
         invocationChain = new InTxCacheInterceptor(invocationChain);
         invocationChain = new TransactionContextInterceptor(invocationChain, transactionManager);
         invocationChain = new TransactionPolicyInterceptor(invocationChain, transactionManager);
+        //make sure tm notifications don't enlist any connections from the caller's connection context in a new tx
+        //or targets connections in callers tx.
+        if (trackedConnectionAssociator != null) {
+            invocationChain = new NoConnectionEnlistingInterceptor(invocationChain, trackedConnectionAssociator);
+        }
+
         invocationChain = new SystemExceptionInterceptor(invocationChain);
         this.invocationChain = invocationChain;
 
