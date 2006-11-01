@@ -29,7 +29,11 @@ public final class MEJBGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJBGBean.class, MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, NameFactory.STATELESS_SESSION_BEAN);
+        // NOTE: do not use "StatelessSessionBean" for the j2ee type of this bean
+        // JSR-77 requires that all mbean mounted into the server with that j2ee type
+        // to have an EJBModule key in the object name, and GBeans will not have that
+        // key which violated the specification.
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJBGBean.class, MEJB.class, org.apache.geronimo.j2ee.mejb.MEJB.GBEAN_INFO, "MEJB");
         infoBuilder.addReference("MBeanServerReference", MBeanServerReference.class);
 
         infoBuilder.setConstructor(new String[]{"objectName", "MBeanServerReference"});
