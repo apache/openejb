@@ -63,7 +63,7 @@ public class OpenEjbLocalRefBuilder extends OpenEjbAbstractRefBuilder {
         XmlObject[] ejbLocalRefsUntyped = convert(specDD.selectChildren(ejbLocalRefQNameSet), J2EE_CONVERTER, EjbLocalRefType.type);
         XmlObject[] gerEjbLocalRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_EJB_LOCAL_REF_QNAME_SET);
         Map ejbLocalRefMap = mapEjbLocalRefs(gerEjbLocalRefsUntyped);
-        ClassLoader cl = localConfiguration.getConfigurationClassLoader();
+        ClassLoader cl = module.getEarContext().getClassLoader();
 
         for (int i = 0; i < ejbLocalRefsUntyped.length; i++) {
             EjbLocalRefType ejbLocalRef = (EjbLocalRefType) ejbLocalRefsUntyped[i];
