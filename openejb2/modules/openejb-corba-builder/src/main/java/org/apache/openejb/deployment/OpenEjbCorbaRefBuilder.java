@@ -82,7 +82,7 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
         XmlObject[] ejbRefsUntyped = getEjbRefs(specDD);
         XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_EJB_REF_QNAME_SET);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
-        ClassLoader cl = localConfiguration.getConfigurationClassLoader();
+        ClassLoader cl = module.getEarContext().getClassLoader();
 
         for (int i = 0; i < ejbRefsUntyped.length; i++) {
             EjbRefType ejbRef = (EjbRefType) ejbRefsUntyped[i];
