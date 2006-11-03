@@ -1,15 +1,27 @@
 body {
-	margin 0;
+    background-color: #fff;
+    font-family: arial, helvetica, sans-serif;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+	padding: 0px;
 	font-size: 12px;
-        font-family: arial, helvetica, sans-serif;
-        line-height: 16px; color: #222222;
+    line-height: 16px;
+    color: #222222;
 }
 
 div {
   /* line-height: 1.5em; */
 }
 
-.warningMacro {
+.noteMacro { border-style: solid; border-width: 1px; border-color: #F0C000; background-color: #FFFFCE; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.warningMacro { border-style: solid; border-width: 1px; border-color: #c00; background-color: #fcc; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.infoMacro { border-style: solid; border-width: 1px; border-color: #3c78b5; background-color: #D8E4F1; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.tipMacro { border-style: solid; border-width: 1px; border-color: #090; background-color: #dfd; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.informationMacroPadding { padding: 5px 0 0 5px; }
+
+.xwarningMacro {
   background: none #ffe0e0; 
   border: dashed #faa 1px; 
   color: #555;
@@ -341,6 +353,21 @@ tt {
   padding-right: 16px;
 }
 
+
+#RightContent {
+  padding: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+#RightContent h3 {
+  color: #cbcbeb;
+  border-bottom: 1px solid #8280d2;
+  border-right: 1px solid #8280d2;
+  background: #7270c2;
+  margin-bottom: .5em;
+}
+
 #contentBox {
 
 }
@@ -487,6 +514,25 @@ table.bodyTable tr.b {
   background-color: inherit;
 }
 
+.preformatted {
+        border: 1px dashed #3c78b5;
+    font-size: 11px;
+        font-family: Courier;
+    margin: 10px;
+        line-height: 13px;
+}
+
+.preformattedHeader {
+    background-color: #f0f0f0;
+        border-bottom: 1px dashed #3c78b5;
+    padding: 3px;
+        text-align: center;
+}
+
+.preformattedContent {
+    background-color: #f0f0f0;
+    padding: 3px;
+}
 
 pre {
     padding: 0px;
