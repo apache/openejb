@@ -18,6 +18,7 @@ div {
 #RightContent {
   padding: 12px;
   padding-right: 4px;
+  padding-left: 20px;
 }
 
 #RightContent .panel {
