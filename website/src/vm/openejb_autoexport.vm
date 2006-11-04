@@ -35,6 +35,35 @@
         #end
     #end
 #end
+#macro (renderRightSidePage $title)
+    #set($globalHelper = $action.getGlobalHelper())
+    #set($renderer = $globalHelper.getWikiStyleRenderer())
+
+    ##
+    ## FIXME: Must be a more efficent way to find a page...
+    ##
+
+    #foreach ($child in $page.space.pages)
+        #if ($child.title.equals($title))
+            #set ($content = $renderer.convertWikiToXHtml($child.toPageContext(), $child.content).trim())
+
+            ##
+            ## HACK: Remove the leading <P> and trailing </P>
+            ##
+
+            #set ($content = $content.replaceAll("^<[pP]>|</[pP]>$", "") )
+            ##set ($content = $content.substring(3, $content.length()))
+            ##set ($end = $content.length() - 4)
+            ##set ($content = $content.substring(0, $end))
+    <td width="120" height="5" valign="top" align="left"><img src="http://incubator.apache.org/openejb/images/dotTrans.gif" width="350" height="11" border="0">
+<div id="RightContent">
+$content
+</div>
+</td>
+
+        #end
+    #end
+#end
 ##
 #macro (pageContent)
     <div id="PageContent">
@@ -187,7 +216,8 @@
         #pageContent()
      </p>
     </td>
-<!--    <td width="120" height="5" valign="top" align="left"></td>   -->
+
+        #renderRightSidePage("${title}Links")
 
    </tr>
    <tr height="5">
