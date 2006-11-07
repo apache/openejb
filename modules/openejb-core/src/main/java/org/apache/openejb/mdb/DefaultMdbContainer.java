@@ -118,6 +118,11 @@ public class DefaultMdbContainer implements MdbContainer {
         if (doAsCurrentCaller) {
             callbackChain = new EJBIdentityInterceptor(callbackChain);
         }
+
+        // Resource Adapter connection reassociation interceptor
+        if (trackedConnectionAssociator != null) {
+            callbackChain = new ConnectionTrackingInterceptor(callbackChain, trackedConnectionAssociator);
+        }
         this.callbackChain = callbackChain;
     }
 

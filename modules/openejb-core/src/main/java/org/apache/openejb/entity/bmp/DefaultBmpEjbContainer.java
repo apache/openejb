@@ -121,6 +121,11 @@ public class DefaultBmpEjbContainer implements BmpEjbContainer {
             callbackChain = new EJBIdentityInterceptor(callbackChain);
         }
         callbackChain = new ComponentContextInterceptor(callbackChain);
+
+        // Resource Adapter connection reassociation interceptor
+        if (trackedConnectionAssociator != null) {
+            callbackChain = new ConnectionTrackingInterceptor(callbackChain, trackedConnectionAssociator);
+        }
         this.callbackChain = callbackChain;
     }
 
