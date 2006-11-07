@@ -205,6 +205,7 @@ public class StatelessEjbDeployment extends AbstractRpcDeployment implements Ext
             signatures.remove(new InterfaceMethodSignature("remove", false));
             signatures.remove(new InterfaceMethodSignature("remove", new Class[]{Object.class}, true));
             signatures.remove(new InterfaceMethodSignature("remove", new Class[]{Handle.class}, true));
+            signatures.add(new InterfaceMethodSignature("create", true));
             return signatures;
         }
     }
