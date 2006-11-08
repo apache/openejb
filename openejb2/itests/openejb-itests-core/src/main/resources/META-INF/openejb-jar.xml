@@ -531,7 +531,367 @@
                 </custom-generator>
             </key-generator>
         </entity>
+
+        <!--
+        ########################################################
+        ###                                                   ##
+        ##    CMR Mapping Beans                               ##
+        ##                                                   ###
+        ########################################################
+        -->
+
+        <entity>
+            <ejb-name>OneOwningSideBean</ejb-name>
+            <table-name>OneOwning</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>col_id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>field1</cmp-field-name>
+                <table-column>col_field1</table-column>
+            </cmp-field-mapping>
+        </entity>
+        <entity>
+            <ejb-name>OneInverseSideBean</ejb-name>
+            <table-name>OneInverse</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>col_id</table-column>
+            </cmp-field-mapping>
+        </entity>
+        <entity>
+            <ejb-name>ManyOwningSideBean</ejb-name>
+            <table-name>ManyOwning</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>col_id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>field1</cmp-field-name>
+                <table-column>col_field1</table-column>
+            </cmp-field-mapping>
+        </entity>
+
+        <session>
+            <ejb-name>CMRMappingFacadeBean</ejb-name>
+            <jndi-name>cmp2/CMRMappingFacade</jndi-name>
+        </session>
+
+        <!--
+        ########################################################
+        ###                                                   ##
+        ##    CMP2 Petstore Beans                             ##
+        ##                                                   ###
+        ########################################################
+        -->
+
+        <entity>
+          <ejb-name>AddressEJB</ejb-name>
+          <jndi-name>client/tests/cmp2/petstore/Address</jndi-name>
+          <table-name>address</table-name>
+          <cmp-field-mapping>
+            <cmp-field-name>id</cmp-field-name>
+            <cmp-field-class>java.lang.Integer</cmp-field-class>
+            <table-column>id</table-column>
+          </cmp-field-mapping>
+          <cmp-field-mapping>
+            <cmp-field-name>street</cmp-field-name>
+            <table-column>street</table-column>
+          </cmp-field-mapping>
+          <cmp-field-mapping>
+            <cmp-field-name>city</cmp-field-name>
+            <table-column>city</table-column>
+          </cmp-field-mapping>
+          <primkey-field>id</primkey-field>
+          <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
+            <auto-increment-table>
+              <sql>insert into sequence_table (dummy) values (1)</sql>
+              <return-type>java.lang.Integer</return-type>
+            </auto-increment-table>
+          </key-generator>
+        </entity>
+
+        <!--
+        ########################################################
+        ###                                                   ##
+        ##    CMP2 Prefetch Beans                             ##
+        ##                                                   ###
+        ########################################################
+        -->
+
+        <entity>
+            <ejb-name>AddressBean</ejb-name>
+            <table-name>address</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>street</cmp-field-name>
+                <table-column>street</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>city</cmp-field-name>
+                <table-column>city</table-column>
+            </cmp-field-mapping>
+            <prefetch-group>
+                <group>
+                    <group-name>prefetchAll</group-name>
+                    <cmp-field-name>street</cmp-field-name>
+                    <cmp-field-name>city</cmp-field-name>
+                </group>
+            </prefetch-group>
+        </entity>
+        <entity>
+            <ejb-name>LineItemBean</ejb-name>
+            <table-name>line_item</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>quantity</cmp-field-name>
+                <table-column>quantity</table-column>
+            </cmp-field-mapping>
+            <prefetch-group>
+                <group>
+                    <group-name>prefetchAll</group-name>
+                    <cmp-field-name>quantity</cmp-field-name>
+                    <cmr-field>
+                        <cmr-field-name>product</cmr-field-name>
+                    </cmr-field>
+                </group>
+                <entity-group-mapping>
+                    <group-name>prefetchAll</group-name>
+                </entity-group-mapping>
+            </prefetch-group>
+        </entity>
+        <entity>
+            <ejb-name>OrderBean</ejb-name>
+            <table-name>order_table</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>reference</cmp-field-name>
+                <table-column>reference</table-column>
+            </cmp-field-mapping>
+            <prefetch-group>
+                <group>
+                    <group-name>prefetchAll</group-name>
+                    <cmp-field-name>reference</cmp-field-name>
+                    <cmr-field>
+                        <cmr-field-name>shippingAddress</cmr-field-name>
+                    </cmr-field>
+                    <cmr-field>
+                        <cmr-field-name>billingAddress</cmr-field-name>
+                    </cmr-field>
+                    <cmr-field>
+                        <cmr-field-name>lineItems</cmr-field-name>
+                    </cmr-field>
+                </group>
+            </prefetch-group>
+            <query>
+                <query-method>
+                    <method-name>findPrefetchAll</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <group-name>prefetchAll</group-name>
+            </query>
+        </entity>
+        <entity>
+            <ejb-name>ProductBean</ejb-name>
+            <table-name>product</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>name</cmp-field-name>
+                <table-column>name</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>productType</cmp-field-name>
+                <table-column>product_type</table-column>
+            </cmp-field-mapping>
+            <prefetch-group>
+                <group>
+                    <group-name>prefetchAll</group-name>
+                    <cmp-field-name>name</cmp-field-name>
+                    <cmp-field-name>productType</cmp-field-name>
+                </group>
+            </prefetch-group>
+        </entity>
+
+        <session>
+            <ejb-name>PrefetchFacadeBean</ejb-name>
+            <jndi-name>cmp2/Prefetch/PrefetchFacade</jndi-name>
+            <resource-ref>
+                <ref-name>jdbc/CMPDatasource</ref-name>
+                <application>null</application>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </session>
+
+        <!--
+        ########################################################
+        ###                                                   ##
+        ##    CMP2 Storage Beans                              ##
+        ##                                                   ###
+        ########################################################
+        -->
+
+        <entity>
+            <ejb-name>StorageBean</ejb-name>
+            <jndi-name>cmp2/Storage</jndi-name>
+            <table-name>storage</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>blob</cmp-field-name>
+                <table-column>blob_column</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>char</cmp-field-name>
+                <table-column>char_column</table-column>
+                <sql-type>CHAR</sql-type>
+            </cmp-field-mapping>
+            <resource-ref>
+                <ref-name>jdbc/DefaultDatabase</ref-name>
+                <application>null</application>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </entity>
+
     </enterprise-beans>
+
+    <relationships>
+
+        <!--
+        ########################################################
+        ###                                                   ##
+        ##    CMR Mapping Relationships                       ##
+        ##                                                   ###
+        ########################################################
+        -->
+
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OneInverseSideBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>oneOwningSide</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>col_id</key-column>
+                        <foreign-key-column>col_field1</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OneInverseSideBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>manyOwningSide</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>col_id</key-column>
+                        <foreign-key-column>col_field1</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+
+        <!--
+        ########################################################
+        ###                                                   ##
+        ##    CMP2 Prefetch Relationships                     ##
+        ##                                                   ###
+        ########################################################
+        -->
+
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OrderBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>shippingAddress</cmr-field-name>
+                </cmr-field>
+                <foreign-key-column-on-source/>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>id</key-column>
+                        <foreign-key-column>fk_shipping_address</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OrderBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>billingAddress</cmr-field-name>
+                </cmr-field>
+                <foreign-key-column-on-source/>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>id</key-column>
+                        <foreign-key-column>fk_billing_address</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>OrderBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>lineItems</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>id</key-column>
+                        <foreign-key-column>fk_order</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relationship-role>
+                <relationship-role-source>
+                    <ejb-name>ProductBean</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>lineItems</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                    <cmr-field-mapping>
+                        <key-column>id</key-column>
+                        <foreign-key-column>fk_product</foreign-key-column>
+                    </cmr-field-mapping>
+                </role-mapping>
+            </ejb-relationship-role>
+        </ejb-relation>
+
+    </relationships>
 
     <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
         <reference name="ManagedConnectionFactoryWrapper"><gbean-name>*:J2EEApplication=null,JCAResource=geronimo/default-database/${geronimo_version}/car,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource,*</gbean-name></reference>
