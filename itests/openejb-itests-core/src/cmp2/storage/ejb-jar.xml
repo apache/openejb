@@ -9,9 +9,9 @@
     <enterprise-beans>
         <entity>
             <ejb-name>StorageBean</ejb-name>
-            <home>org.openejb.test.entity.cmp2.model.StorageHome</home>
-            <remote>org.openejb.test.entity.cmp2.model.StorageRemote</remote>
-            <ejb-class>org.openejb.test.entity.cmp2.model.StorageBean</ejb-class>
+            <home>org.apache.openejb.test.entity.cmp2.model.StorageHome</home>
+            <remote>org.apache.openejb.test.entity.cmp2.model.StorageRemote</remote>
+            <ejb-class>org.apache.openejb.test.entity.cmp2.model.StorageBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.security.slsb;
+package org.apache.openejb.test.security.slsb;
 
-import org.openejb.test.security.BaseSecurityTestClient;
+import org.apache.openejb.test.security.BaseSecurityTestClient;
 
 
 /**

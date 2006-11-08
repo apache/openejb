@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.bmp;
+package org.apache.openejb.test.entity.bmp;
 
 import java.rmi.RemoteException;
 import java.util.Properties;
 
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
  * 

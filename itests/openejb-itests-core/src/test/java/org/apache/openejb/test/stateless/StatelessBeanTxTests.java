@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateless;
+package org.apache.openejb.test.stateless;
 
 import java.util.Properties;
 import javax.ejb.EJBMetaData;
@@ -24,14 +24,14 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.transaction.RollbackException;
 
-import org.openejb.test.TestManager;
-import org.openejb.test.object.Account;
-import org.openejb.test.object.Transaction;
+import org.apache.openejb.test.TestManager;
+import org.apache.openejb.test.object.Account;
+import org.apache.openejb.test.object.Transaction;
 
 /**
  * [1] Should be run as the first test suite of the StatelessTestClients
  */
-public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase {
+public class StatelessBeanTxTests extends org.apache.openejb.test.NamedTestCase {
 
     public final static String jndiEJBHomeEntry = "client/tests/stateless/BeanManagedTransactionTests/EJBHome";
 

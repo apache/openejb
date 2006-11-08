@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.interop.slsb;
+package org.apache.openejb.test.interop.slsb;
 
 import java.rmi.RemoteException;
 import javax.ejb.CreateException;
 import javax.ejb.EJBHome;
-
-import org.openejb.test.security.slsb.BasicStateless;
 
 
 /**

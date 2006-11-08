@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateful;
+package org.apache.openejb.test.stateful;
 
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
  * [10] Should be run as the nineth test suite of the BasicStatefulTestClients

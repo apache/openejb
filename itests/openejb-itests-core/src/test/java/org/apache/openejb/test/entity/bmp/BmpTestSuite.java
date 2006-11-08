@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.bmp;
+package org.apache.openejb.test.entity.bmp;
 
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.openejb.test.TestManager;
+import org.apache.openejb.test.TestManager;
 
 /**
  * 
  */
-public class BmpTestSuite extends org.openejb.test.TestSuite {
+public class BmpTestSuite extends org.apache.openejb.test.TestSuite {
 
     public BmpTestSuite() {
         super();

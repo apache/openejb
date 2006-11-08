@@ -55,9 +55,9 @@
     <entity>
       <display-name>AddressEJB</display-name>
       <ejb-name>AddressEJB</ejb-name>
-      <local-home>org.openejb.test.entity.cmp2.petstore.AddressLocalHome</local-home>
-      <local>org.openejb.test.entity.cmp2.petstore.AddressLocal</local>
-      <ejb-class>org.openejb.test.entity.cmp2.petstore.AddressEJB</ejb-class>
+      <local-home>org.apache.openejb.test.entity.cmp2.petstore.AddressLocalHome</local-home>
+      <local>org.apache.openejb.test.entity.cmp2.petstore.AddressLocal</local>
+      <ejb-class>org.apache.openejb.test.entity.cmp2.petstore.AddressEJB</ejb-class>
       <persistence-type>Container</persistence-type>
       <prim-key-class>java.lang.Object</prim-key-class>
       <reentrant>False</reentrant>

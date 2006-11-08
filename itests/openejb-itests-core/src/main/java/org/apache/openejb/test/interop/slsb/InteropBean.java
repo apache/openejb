@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.interop.slsb;
+package org.apache.openejb.test.interop.slsb;
 
 import java.rmi.RemoteException;
 import javax.ejb.CreateException;
@@ -25,8 +25,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
-import org.openejb.test.security.slsb.BasicStateless;
-import org.openejb.test.security.slsb.BasicStatelessHome;
+import org.apache.openejb.test.security.slsb.BasicStateless;
+import org.apache.openejb.test.security.slsb.BasicStatelessHome;
 
 
 /**

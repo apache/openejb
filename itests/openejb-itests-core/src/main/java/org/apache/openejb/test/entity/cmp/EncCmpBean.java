@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.util.StringTokenizer;
 import javax.ejb.EntityContext;
@@ -25,11 +25,11 @@ import javax.rmi.PortableRemoteObject;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
-import org.openejb.test.TestFailureException;
-import org.openejb.test.stateful.BasicStatefulHome;
-import org.openejb.test.stateful.BasicStatefulObject;
-import org.openejb.test.stateless.BasicStatelessHome;
-import org.openejb.test.stateless.BasicStatelessObject;
+import org.apache.openejb.test.TestFailureException;
+import org.apache.openejb.test.stateful.BasicStatefulHome;
+import org.apache.openejb.test.stateful.BasicStatefulObject;
+import org.apache.openejb.test.stateless.BasicStatelessHome;
+import org.apache.openejb.test.stateless.BasicStatelessObject;
 
 public class EncCmpBean implements EntityBean {
     public static int key = 20;

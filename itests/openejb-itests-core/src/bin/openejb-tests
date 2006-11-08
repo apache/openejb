@@ -44,9 +44,9 @@ _test_intravm()
    echo "_________________________________________________"
    
 #   PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/IvmServer_config.properties"
-   SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
-   DATABASE="-Dopenejb.test.database=org.openejb.test.AxionTestDatabase"
-   SUITE="org.openejb.test.TestRunner org.openejb.test.ClientTestSuite"
+   SERVER="-Dopenejb.test.server=org.apache.openejb.test.IvmTestServer"
+   DATABASE="-Dopenejb.test.database=org.apache.openejb.test.AxionTestDatabase"
+   SUITE="org.apache.openejb.test.TestRunner org.apache.openejb.test.ClientTestSuite"
    
    java $SERVER $DATABASE $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher $SUITE
 }
@@ -60,9 +60,9 @@ _test_server()
    echo "_________________________________________________"
 
 #   PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/RemoteServer_config.properties"
-   SERVER="-Dopenejb.test.server=org.openejb.test.RemoteTestServer"
-   DATABASE="-Dopenejb.test.database=org.openejb.test.AxionTestDatabase"
-   SUITE="org.openejb.test.TestRunner org.openejb.test.ClientTestSuite"
+   SERVER="-Dopenejb.test.server=org.apache.openejb.test.RemoteTestServer"
+   DATABASE="-Dopenejb.test.database=org.apache.openejb.test.AxionTestDatabase"
+   SUITE="org.apache.openejb.test.TestRunner org.apache.openejb.test.ClientTestSuite"
 
    java $SERVER $DATABASE $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher $SUITE
 }
@@ -120,9 +120,9 @@ _test_corba()
         -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
 
    PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/CorbaServer_config.properties"
-   SERVER="-Dopenejb.test.server=org.openejb.test.CorbaTestServer"
-   DATABASE="-Dopenejb.test.database=org.openejb.test.AxionTestDatabase"
-   SUITE="org.openejb.test.ClientTestSuite"
+   SERVER="-Dopenejb.test.server=org.apache.openejb.test.CorbaTestServer"
+   DATABASE="-Dopenejb.test.database=org.apache.openejb.test.AxionTestDatabase"
+   SUITE="org.apache.openejb.test.ClientTestSuite"
 
    java $PROPERTIES $SERVER $DATABASE $OPTIONS $ORB -jar dist/openejb_ejb_tests-1.0.jar $SUITE 
 

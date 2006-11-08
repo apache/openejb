@@ -14,22 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateless;
+package org.apache.openejb.test.stateless;
 
 import java.rmi.RemoteException;
-
-import javax.ejb.EJBHome;
-import javax.ejb.EJBMetaData;
-import javax.ejb.EJBObject;
-import javax.ejb.Handle;
-
-import org.openejb.test.object.ObjectGraph;
 
 /**
  * 
  */
 public interface SoapEncodedStatelessEndpoint extends java.rmi.Remote {
-    
+
     public String returnStringObject(String data) throws RemoteException;
     public Boolean returnBooleanObject(Boolean data) throws RemoteException;
     public boolean returnBooleanPrimitive(boolean data) throws RemoteException;

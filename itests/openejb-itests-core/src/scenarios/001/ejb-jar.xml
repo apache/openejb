@@ -13,9 +13,9 @@
                 A basic CMP v1.x bean.
             </description>
             <ejb-name>BasicCmpBean</ejb-name>
-            <home>org.openejb.test.security.cmp.BasicCmpHome</home>
-            <remote>org.openejb.test.security.cmp.BasicCmp</remote>
-            <ejb-class>org.openejb.test.security.cmp.BasicCmpBean</ejb-class>
+            <home>org.apache.openejb.test.security.cmp.BasicCmpHome</home>
+            <remote>org.apache.openejb.test.security.cmp.BasicCmp</remote>
+            <ejb-class>org.apache.openejb.test.security.cmp.BasicCmpBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -59,9 +59,9 @@
                 A basic CMP v2.x bean.
             </description>
             <ejb-name>BasicCmp2Bean</ejb-name>
-            <home>org.openejb.test.security.cmp.BasicCmpHome</home>
-            <remote>org.openejb.test.security.cmp.BasicCmp</remote>
-            <ejb-class>org.openejb.test.security.cmp.BasicCmp2Bean</ejb-class>
+            <home>org.apache.openejb.test.security.cmp.BasicCmpHome</home>
+            <remote>org.apache.openejb.test.security.cmp.BasicCmp</remote>
+            <ejb-class>org.apache.openejb.test.security.cmp.BasicCmp2Bean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -106,11 +106,11 @@
                 A basic stateless session bean with contianer-managed transaction demarcation.
             </description>
             <ejb-name>BasicStatelessBean</ejb-name>
-            <home>org.openejb.test.security.slsb.BasicStatelessHome</home>
-            <remote>org.openejb.test.security.slsb.BasicStateless</remote>
-            <local-home>org.openejb.test.security.slsb.LocalBasicStatelessHome</local-home>
-            <local>org.openejb.test.security.slsb.LocalBasicStateless</local>
-            <ejb-class>org.openejb.test.security.slsb.BasicStatelessBean</ejb-class>
+            <home>org.apache.openejb.test.security.slsb.BasicStatelessHome</home>
+            <remote>org.apache.openejb.test.security.slsb.BasicStateless</remote>
+            <local-home>org.apache.openejb.test.security.slsb.LocalBasicStatelessHome</local-home>
+            <local>org.apache.openejb.test.security.slsb.LocalBasicStateless</local>
+            <ejb-class>org.apache.openejb.test.security.slsb.BasicStatelessBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
             <security-role-ref>
@@ -128,11 +128,11 @@
                 A basic stateful session bean with contianer-managed transaction demarcation.
             </description>
             <ejb-name>BasicStatefulBean</ejb-name>
-            <home>org.openejb.test.security.sfsb.BasicStatefulHome</home>
-            <remote>org.openejb.test.security.sfsb.BasicStateful</remote>
-            <local-home>org.openejb.test.security.sfsb.LocalBasicStatefulHome</local-home>
-            <local>org.openejb.test.security.sfsb.LocalBasicStateful</local>
-            <ejb-class>org.openejb.test.security.sfsb.BasicStatefulBean</ejb-class>
+            <home>org.apache.openejb.test.security.sfsb.BasicStatefulHome</home>
+            <remote>org.apache.openejb.test.security.sfsb.BasicStateful</remote>
+            <local-home>org.apache.openejb.test.security.sfsb.LocalBasicStatefulHome</local-home>
+            <local>org.apache.openejb.test.security.sfsb.LocalBasicStateful</local>
+            <ejb-class>org.apache.openejb.test.security.sfsb.BasicStatefulBean</ejb-class>
             <session-type>Stateful</session-type>
             <transaction-type>Container</transaction-type>
             <security-role-ref>

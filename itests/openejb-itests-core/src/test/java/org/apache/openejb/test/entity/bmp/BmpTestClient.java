@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.bmp;
+package org.apache.openejb.test.entity.bmp;
 
 import java.util.Properties;
 import javax.ejb.EJBMetaData;
@@ -23,12 +23,12 @@ import javax.ejb.HomeHandle;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.openejb.test.TestManager;
+import org.apache.openejb.test.TestManager;
 
 /**
  * 
  */
-public abstract class BmpTestClient extends org.openejb.test.NamedTestCase {
+public abstract class BmpTestClient extends org.apache.openejb.test.NamedTestCase {
 
     protected InitialContext initialContext;
 

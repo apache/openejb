@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateful;
+package org.apache.openejb.test.stateful;
 
 import java.rmi.RemoteException;
 
@@ -26,11 +26,11 @@ import javax.naming.InitialContext;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
-import org.openejb.test.TestFailureException;
-import org.openejb.test.entity.bmp.BasicBmpHome;
-import org.openejb.test.entity.bmp.BasicBmpObject;
-import org.openejb.test.stateless.BasicStatelessHome;
-import org.openejb.test.stateless.BasicStatelessObject;
+import org.apache.openejb.test.TestFailureException;
+import org.apache.openejb.test.entity.bmp.BasicBmpHome;
+import org.apache.openejb.test.entity.bmp.BasicBmpObject;
+import org.apache.openejb.test.stateless.BasicStatelessHome;
+import org.apache.openejb.test.stateless.BasicStatelessObject;
 
 /**
  * 

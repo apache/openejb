@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.rmi.RemoteException;
 import java.util.Properties;
 
 import javax.ejb.EJBObject;
 
-import org.openejb.test.ApplicationException;
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.ApplicationException;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 public interface BasicCmpObject extends EJBObject {
     public String getFirstName() throws RemoteException;

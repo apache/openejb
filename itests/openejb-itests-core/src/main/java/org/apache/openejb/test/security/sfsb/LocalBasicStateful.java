@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.security.sfsb;
+package org.apache.openejb.test.security.sfsb;
 
 import javax.ejb.EJBLocalObject;
 

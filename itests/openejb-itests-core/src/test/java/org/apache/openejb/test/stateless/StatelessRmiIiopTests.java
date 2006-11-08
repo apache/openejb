@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateless;
+package org.apache.openejb.test.stateless;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
@@ -22,7 +22,7 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.rmi.PortableRemoteObject;
 
-import org.openejb.test.object.ObjectGraph;
+import org.apache.openejb.test.object.ObjectGraph;
 
 /**
  *

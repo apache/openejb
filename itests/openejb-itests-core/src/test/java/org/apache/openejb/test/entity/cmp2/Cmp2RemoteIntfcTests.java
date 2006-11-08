@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp2;
+package org.apache.openejb.test.entity.cmp2;
 
-import org.openejb.test.entity.cmp.BasicCmpHome;
+import org.apache.openejb.test.entity.cmp.BasicCmpHome;
 
 
 /**
@@ -55,7 +55,7 @@ public class Cmp2RemoteIntfcTests extends BasicCmp2TestClient {
     public void test02_throwApplicationException() {
         try {
             ejbObject.throwApplicationException();
-        } catch (org.openejb.test.ApplicationException e) {
+        } catch (org.apache.openejb.test.ApplicationException e) {
             //Good.  This is the correct behaviour
             return;
         } catch (Throwable e) {

@@ -9,9 +9,9 @@
     <enterprise-beans>
         <entity>
             <ejb-name>AddressBean</ejb-name>
-            <local-home>org.openejb.test.entity.cmp2.model.AddressLocalHome</local-home>
-            <local>org.openejb.test.entity.cmp2.model.AddressLocal</local>
-            <ejb-class>org.openejb.test.entity.cmp2.model.AddressBean</ejb-class>
+            <local-home>org.apache.openejb.test.entity.cmp2.model.AddressLocalHome</local-home>
+            <local>org.apache.openejb.test.entity.cmp2.model.AddressLocal</local>
+            <ejb-class>org.apache.openejb.test.entity.cmp2.model.AddressBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -25,9 +25,9 @@
 
         <entity>
             <ejb-name>LineItemBean</ejb-name>
-            <local-home>org.openejb.test.entity.cmp2.model.LineItemLocalHome</local-home>
-            <local>org.openejb.test.entity.cmp2.model.LineItemLocal</local>
-            <ejb-class>org.openejb.test.entity.cmp2.model.LineItemBean</ejb-class>
+            <local-home>org.apache.openejb.test.entity.cmp2.model.LineItemLocalHome</local-home>
+            <local>org.apache.openejb.test.entity.cmp2.model.LineItemLocal</local>
+            <ejb-class>org.apache.openejb.test.entity.cmp2.model.LineItemBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -40,9 +40,9 @@
 
         <entity>
             <ejb-name>OrderBean</ejb-name>
-            <local-home>org.openejb.test.entity.cmp2.model.OrderLocalHome</local-home>
-            <local>org.openejb.test.entity.cmp2.model.OrderLocal</local>
-            <ejb-class>org.openejb.test.entity.cmp2.model.OrderBean</ejb-class>
+            <local-home>org.apache.openejb.test.entity.cmp2.model.OrderLocalHome</local-home>
+            <local>org.apache.openejb.test.entity.cmp2.model.OrderLocal</local>
+            <ejb-class>org.apache.openejb.test.entity.cmp2.model.OrderBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -66,9 +66,9 @@
 
         <entity>
             <ejb-name>ProductBean</ejb-name>
-            <local-home>org.openejb.test.entity.cmp2.model.ProductLocalHome</local-home>
-            <local>org.openejb.test.entity.cmp2.model.ProductLocal</local>
-            <ejb-class>org.openejb.test.entity.cmp2.model.ProductBean</ejb-class>
+            <local-home>org.apache.openejb.test.entity.cmp2.model.ProductLocalHome</local-home>
+            <local>org.apache.openejb.test.entity.cmp2.model.ProductLocal</local>
+            <ejb-class>org.apache.openejb.test.entity.cmp2.model.ProductBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>false</reentrant>
@@ -82,37 +82,37 @@
 
         <session>
             <ejb-name>PrefetchFacadeBean</ejb-name>
-            <home>org.openejb.test.entity.cmp2.prefetch.PrefetchFacadeHome</home>
-            <remote>org.openejb.test.entity.cmp2.prefetch.PrefetchFacadeObject</remote>
-            <ejb-class>org.openejb.test.entity.cmp2.prefetch.PrefetchFacadeBean</ejb-class>
+            <home>org.apache.openejb.test.entity.cmp2.prefetch.PrefetchFacadeHome</home>
+            <remote>org.apache.openejb.test.entity.cmp2.prefetch.PrefetchFacadeObject</remote>
+            <ejb-class>org.apache.openejb.test.entity.cmp2.prefetch.PrefetchFacadeBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Bean</transaction-type>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/Address</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>org.openejb.test.entity.cmp2.model.AddressLocalHome</local-home>
-                <local>org.openejb.test.entity.cmp2.model.AddressLocal</local>
+                <local-home>org.apache.openejb.test.entity.cmp2.model.AddressLocalHome</local-home>
+                <local>org.apache.openejb.test.entity.cmp2.model.AddressLocal</local>
                 <ejb-link>AddressBean</ejb-link>
             </ejb-local-ref>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/LineItem</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>org.openejb.test.entity.cmp2.model.LineItemLocalHome</local-home>
-                <local>org.openejb.test.entity.cmp2.model.LineItemLocal</local>
+                <local-home>org.apache.openejb.test.entity.cmp2.model.LineItemLocalHome</local-home>
+                <local>org.apache.openejb.test.entity.cmp2.model.LineItemLocal</local>
                 <ejb-link>LineItemBean</ejb-link>
             </ejb-local-ref>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/Order</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>org.openejb.test.entity.cmp2.model.OrderLocalHome</local-home>
-                <local>org.openejb.test.entity.cmp2.model.OrderLocal</local>
+                <local-home>org.apache.openejb.test.entity.cmp2.model.OrderLocalHome</local-home>
+                <local>org.apache.openejb.test.entity.cmp2.model.OrderLocal</local>
                 <ejb-link>OrderBean</ejb-link>
             </ejb-local-ref>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/Product</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>org.openejb.test.entity.cmp2.model.ProductLocalHome</local-home>
-                <local>org.openejb.test.entity.cmp2.model.ProductLocal</local>
+                <local-home>org.apache.openejb.test.entity.cmp2.model.ProductLocalHome</local-home>
+                <local>org.apache.openejb.test.entity.cmp2.model.ProductLocal</local>
                 <ejb-link>ProductBean</ejb-link>
             </ejb-local-ref>
             <resource-ref>

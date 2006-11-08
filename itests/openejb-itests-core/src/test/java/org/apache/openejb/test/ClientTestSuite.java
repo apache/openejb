@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test;
+package org.apache.openejb.test;
 
 import junit.framework.TestSuite;
-import org.openejb.test.entity.bmp.BmpTestSuite;
-import org.openejb.test.entity.cmp.CmpTestSuite;
-import org.openejb.test.stateful.StatefulTestSuite;
-import org.openejb.test.stateless.StatelessTestSuite;
+import org.apache.openejb.test.entity.bmp.BmpTestSuite;
+import org.apache.openejb.test.entity.cmp.CmpTestSuite;
+import org.apache.openejb.test.stateful.StatefulTestSuite;
+import org.apache.openejb.test.stateless.StatelessTestSuite;
 
 /**
  * 

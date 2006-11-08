@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test;
+package org.apache.openejb.test;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,7 +28,7 @@ import org.apache.openejb.util.Launcher;
 /**
  *
  */
-public class RemoteTestServer implements org.openejb.test.TestServer {
+public class RemoteTestServer implements org.apache.openejb.test.TestServer {
 
     static {
         System.setProperty("noBanner", "true");
@@ -44,7 +44,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     public void init(Properties props) {
         properties = props;
 
-        props.put("test.server.class", "org.openejb.test.RemoteTestServer");
+        props.put("test.server.class", "org.apache.openejb.test.RemoteTestServer");
         props.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
         props.put("java.naming.provider.url", "127.0.0.1:4201");
         props.put("java.naming.security.principal", "testuser");

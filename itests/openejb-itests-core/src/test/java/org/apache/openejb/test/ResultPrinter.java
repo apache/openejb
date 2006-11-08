@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test;
+package org.apache.openejb.test;
 
 import java.io.PrintStream;
 import java.util.Enumeration;
@@ -126,8 +126,8 @@ public class ResultPrinter extends junit.textui.ResultPrinter {
             String line = reader.readLine();
             while (line != null) {
                 if (line.indexOf("at junit.framework") != -1) break;
-                if (line.indexOf("at org.openejb.test.NumberedTestCase") != -1) break;
-                if (line.indexOf("at org.openejb.test.TestSuite") != -1) break;
+                if (line.indexOf("at org.apache.openejb.test.NumberedTestCase") != -1) break;
+                if (line.indexOf("at org.apache.openejb.test.TestSuite") != -1) break;
 
                 trace.append(line).append('\n');
                 line = reader.readLine();

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.security.cmp;
+package org.apache.openejb.test.security.cmp;
 
 import java.util.Hashtable;
 import javax.ejb.CreateException;

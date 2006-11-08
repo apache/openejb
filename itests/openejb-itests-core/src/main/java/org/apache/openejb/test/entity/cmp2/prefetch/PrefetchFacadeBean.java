@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp2.prefetch;
+package org.apache.openejb.test.entity.cmp2.prefetch;
 
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -37,15 +37,15 @@ import javax.transaction.UserTransaction;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
-import org.openejb.test.TestFailureException;
-import org.openejb.test.entity.cmp2.model.AddressLocal;
-import org.openejb.test.entity.cmp2.model.AddressLocalHome;
-import org.openejb.test.entity.cmp2.model.LineItemLocal;
-import org.openejb.test.entity.cmp2.model.LineItemLocalHome;
-import org.openejb.test.entity.cmp2.model.OrderLocal;
-import org.openejb.test.entity.cmp2.model.OrderLocalHome;
-import org.openejb.test.entity.cmp2.model.ProductLocal;
-import org.openejb.test.entity.cmp2.model.ProductLocalHome;
+import org.apache.openejb.test.TestFailureException;
+import org.apache.openejb.test.entity.cmp2.model.AddressLocal;
+import org.apache.openejb.test.entity.cmp2.model.AddressLocalHome;
+import org.apache.openejb.test.entity.cmp2.model.LineItemLocal;
+import org.apache.openejb.test.entity.cmp2.model.LineItemLocalHome;
+import org.apache.openejb.test.entity.cmp2.model.OrderLocal;
+import org.apache.openejb.test.entity.cmp2.model.OrderLocalHome;
+import org.apache.openejb.test.entity.cmp2.model.ProductLocal;
+import org.apache.openejb.test.entity.cmp2.model.ProductLocalHome;
 
 /**
  * @version $Revision$ $Date$
