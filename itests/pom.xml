@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb</artifactId>
+        <version>2.2-incubating-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>itests</artifactId>
+    <name>OpenEJB :: iTests</name>
+    <packaging>pom</packaging>
+
+<!--    <modules>
+        <module>openejb-itests-core</module>
+    </modules>
+-->
+</project>
