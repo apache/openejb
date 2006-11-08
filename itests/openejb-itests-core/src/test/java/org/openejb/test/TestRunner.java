@@ -52,9 +52,9 @@ public class TestRunner extends junit.textui.TestRunner {
     public static void main(String args[]) {
 
         try {
-//            org.openejb.util.ClasspathUtils.addJarsToPath("lib");
-//            org.openejb.util.ClasspathUtils.addJarsToPath("dist");
-//            org.openejb.util.ClasspathUtils.addJarsToPath("beans");
+//            org.apache.openejb.ClasspathUtils.addJarsToPath("lib");
+//            org.apache.openejb.ClasspathUtils.addJarsToPath("dist");
+//            org.apache.openejb.ClasspathUtils.addJarsToPath("beans");
 
             TestRunner aTestRunner = new TestRunner();
             TestResult r = aTestRunner.start(args);

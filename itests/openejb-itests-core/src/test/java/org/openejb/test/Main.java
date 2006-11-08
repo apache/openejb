@@ -23,8 +23,8 @@ public class Main {
 
     public static void main(String args[]) {
         try {
-            org.openejb.util.ClasspathUtils.addJarsToPath("lib");
-            org.openejb.util.ClasspathUtils.addJarsToPath("dist");
+            org.apache.openejb.util.ClasspathUtils.addJarsToPath("lib");
+            org.apache.openejb.util.ClasspathUtils.addJarsToPath("dist");
         } catch (Exception e) {
             e.printStackTrace();
         }
