@@ -16,8 +16,8 @@
     <name>OpenEJB :: iTests</name>
     <packaging>pom</packaging>
 
-<!--    <modules>
+    <modules>
         <module>openejb-itests-core</module>
     </modules>
--->
+
 </project>
