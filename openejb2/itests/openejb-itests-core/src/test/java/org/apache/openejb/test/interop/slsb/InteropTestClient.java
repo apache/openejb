@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.interop.slsb;
+package org.apache.openejb.test.interop.slsb;
 
-import org.openejb.test.interop.BaseInteropTestClient;
+import org.apache.openejb.test.interop.BaseInteropTestClient;
 
 
 /**

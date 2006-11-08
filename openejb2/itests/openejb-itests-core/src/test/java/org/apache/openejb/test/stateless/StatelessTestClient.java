@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateless;
+package org.apache.openejb.test.stateless;
 
 import java.util.Properties;
 import javax.ejb.EJBMetaData;
@@ -22,12 +22,12 @@ import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
 import javax.naming.InitialContext;
 
-import org.openejb.test.TestManager;
+import org.apache.openejb.test.TestManager;
 
 /**
  * 
  */
-public abstract class StatelessTestClient extends org.openejb.test.NamedTestCase {
+public abstract class StatelessTestClient extends org.apache.openejb.test.NamedTestCase {
 
     protected InitialContext initialContext;
 

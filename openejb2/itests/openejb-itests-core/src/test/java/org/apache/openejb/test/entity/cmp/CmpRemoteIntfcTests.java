@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 
 /**
@@ -53,7 +53,7 @@ public class CmpRemoteIntfcTests extends BasicCmpTestClient {
     public void test02_throwApplicationException() {
         try {
             ejbObject.throwApplicationException();
-        } catch (org.openejb.test.ApplicationException e) {
+        } catch (org.apache.openejb.test.ApplicationException e) {
             //Good.  This is the correct behaviour
             return;
         } catch (Throwable e) {

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp2;
+package org.apache.openejb.test.entity.cmp2;
 
-import org.openejb.test.object.OperationsPolicy;
-import org.openejb.test.entity.cmp.BasicCmpHome;
+import org.apache.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.entity.cmp.BasicCmpHome;
 
 /**
  * [9] Should be run as the nineth test suite of the BasicCmpTestClients

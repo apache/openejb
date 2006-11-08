@@ -45,10 +45,10 @@ REM================================================
    echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
 
-   set SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
-   set DATABASE="-Dopenejb.test.database=org.openejb.test.AxionTestDatabase"
+   set SERVER="-Dopenejb.test.server=org.apache.openejb.test.IvmTestServer"
+   set DATABASE="-Dopenejb.test.database=org.apache.openejb.test.AxionTestDatabase"
    
-   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-2.0-SNAPSHOT.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
+   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-2.0-SNAPSHOT.jar org.openejb.util.Launcher org.apache.openejb.test.TestRunner org.apache.openejb.test.ClientTestSuite
          
 goto EOF
 REM================================================
@@ -59,10 +59,10 @@ REM================================================
    echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
 
-   set SERVER="-Dopenejb.test.server=org.openejb.test.RemoteTestServer"
-   set DATABASE="-Dopenejb.test.database=org.openejb.test.AxionTestDatabase"
+   set SERVER="-Dopenejb.test.server=org.apache.openejb.test.RemoteTestServer"
+   set DATABASE="-Dopenejb.test.database=org.apache.openejb.test.AxionTestDatabase"
    
-   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%\lib\openejb-core-2.0-SNAPSHOT.jar org.openejb.util.Launcher org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
+   java %SERVER% %DATABASE% %OPTIONS% -cp %OPENEJB_HOME%\lib\openejb-core-2.0-SNAPSHOT.jar org.openejb.util.Launcher org.apache.openejb.test.TestRunner org.apache.openejb.test.ClientTestSuite
 
 goto EOF
 REM================================================
@@ -114,9 +114,9 @@ REM================================================
    set ORB=%ORB% -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl
 
    set PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/CorbaServer_config.properties"
-   set SERVER="-Dopenejb.test.server=org.openejb.test.CorbaTestServer"
-   set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-   set SUITE="org.openejb.test.ClientTestSuite"
+   set SERVER="-Dopenejb.test.server=org.apache.openejb.test.CorbaTestServer"
+   set DATABASE="-Dopenejb.test.database=org.apache.openejb.test.InstantDbTestDatabase"
+   set SUITE="org.apache.openejb.test.ClientTestSuite"
 
    java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% %ORB% -jar dist/openejb_ejb_tests-1.0.jar %SUITE% 
 

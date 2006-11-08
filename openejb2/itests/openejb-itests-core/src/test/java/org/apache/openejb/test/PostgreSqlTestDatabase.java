@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test;
+package org.apache.openejb.test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,7 +25,7 @@ import java.sql.Statement;
 
 import javax.naming.InitialContext;
 
-import org.openejb.test.beans.Database;
+import org.apache.openejb.test.beans.Database;
 
 /**
  * 

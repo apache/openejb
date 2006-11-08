@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp2;
+package org.apache.openejb.test.entity.cmp2;
 
-import org.openejb.test.TestFailureException;
-import org.openejb.test.entity.cmp.EncCmpHome;
-import org.openejb.test.entity.cmp.EncCmpObject;
+import org.apache.openejb.test.TestFailureException;
+import org.apache.openejb.test.entity.cmp.EncCmpHome;
+import org.apache.openejb.test.entity.cmp.EncCmpObject;
 
 /**
  * [4] Should be run as the fourth test suite of the EncCmpTestClients

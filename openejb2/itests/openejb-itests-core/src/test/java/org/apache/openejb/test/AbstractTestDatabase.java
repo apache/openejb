@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test;
+package org.apache.openejb.test;
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.naming.InitialContext;
 
-import org.openejb.test.beans.Database;
-import org.openejb.test.beans.DatabaseHome;
+import org.apache.openejb.test.beans.Database;
+import org.apache.openejb.test.beans.DatabaseHome;
 
 /**
  *
@@ -101,7 +101,7 @@ public abstract class AbstractTestDatabase implements TestDatabase {
             // @todo this is a hack that limits us to a single server 
 //            Properties properties = TestManager.getServer().getContextEnvironment();
             Properties properties = new Properties();
-            properties.put("test.server.class", "org.openejb.test.RemoteTestServer");
+            properties.put("test.server.class", "org.apache.openejb.test.RemoteTestServer");
             properties.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
             properties.put("java.naming.provider.url", "127.0.0.1:4201");
             properties.put("java.naming.security.principal", "testuser");

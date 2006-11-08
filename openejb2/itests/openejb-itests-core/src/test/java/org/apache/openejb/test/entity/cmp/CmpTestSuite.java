@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.openejb.test.TestManager;
+import org.apache.openejb.test.TestManager;
 
 /**
  * 
  */
-public class CmpTestSuite extends org.openejb.test.TestSuite {
+public class CmpTestSuite extends org.apache.openejb.test.TestSuite {
 
     public CmpTestSuite() {
         super();

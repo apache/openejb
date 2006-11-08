@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.rmi.RemoteException;
 
 import javax.ejb.EJBObject;
 
-import org.openejb.test.TestFailureException;
+import org.apache.openejb.test.TestFailureException;
 
 public interface EncCmpObject extends EJBObject {
     public void lookupEntityBean() throws TestFailureException, RemoteException;

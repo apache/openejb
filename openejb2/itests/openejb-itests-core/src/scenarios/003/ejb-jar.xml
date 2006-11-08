@@ -13,18 +13,18 @@
                 A basic stateless session bean with contianer-managed transaction demarcation.
             </description>
             <ejb-name>InteropBean</ejb-name>
-            <home>org.openejb.test.interop.slsb.InteropHome</home>
-            <remote>org.openejb.test.interop.slsb.Interop</remote>
-            <local-home>org.openejb.test.interop.slsb.LocalInteropHome</local-home>
-            <local>org.openejb.test.interop.slsb.LocalInterop</local>
-            <ejb-class>org.openejb.test.interop.slsb.InteropBean</ejb-class>
+            <home>org.apache.openejb.test.interop.slsb.InteropHome</home>
+            <remote>org.apache.openejb.test.interop.slsb.Interop</remote>
+            <local-home>org.apache.openejb.test.interop.slsb.LocalInteropHome</local-home>
+            <local>org.apache.openejb.test.interop.slsb.LocalInterop</local>
+            <ejb-class>org.apache.openejb.test.interop.slsb.InteropBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
             <ejb-ref>
                 <ejb-ref-name>ejb/interop/InteropBean</ejb-ref-name>
                 <ejb-ref-type>Session</ejb-ref-type>
-                <home>org.openejb.test.security.slsb.BasicStatelessHome</home>
-                <remote>org.openejb.test.security.slsb.BasicStateless</remote>
+                <home>org.apache.openejb.test.security.slsb.BasicStatelessHome</home>
+                <remote>org.apache.openejb.test.security.slsb.BasicStateless</remote>
             </ejb-ref>
         </session>
 

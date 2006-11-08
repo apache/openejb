@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp2;
+package org.apache.openejb.test.entity.cmp2;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 
-import org.openejb.test.object.ObjectGraph;
-import org.openejb.test.entity.cmp.RmiIiopCmpHome;
-import org.openejb.test.entity.cmp.RmiIiopCmpObject;
-import org.openejb.test.entity.cmp.EncCmpHome;
-import org.openejb.test.entity.cmp.EncCmpObject;
+import org.apache.openejb.test.object.ObjectGraph;
+import org.apache.openejb.test.entity.cmp.RmiIiopCmpHome;
+import org.apache.openejb.test.entity.cmp.RmiIiopCmpObject;
+import org.apache.openejb.test.entity.cmp.EncCmpHome;
+import org.apache.openejb.test.entity.cmp.EncCmpObject;
 
 /**
  *

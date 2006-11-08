@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.object;
+package org.apache.openejb.test.object;
 
 import java.io.Serializable;
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.util.Hashtable;
 import java.util.Properties;
@@ -24,8 +24,8 @@ import javax.ejb.EntityBean;
 import javax.ejb.CreateException;
 import javax.naming.InitialContext;
 
-import org.openejb.test.ApplicationException;
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.ApplicationException;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
  * 

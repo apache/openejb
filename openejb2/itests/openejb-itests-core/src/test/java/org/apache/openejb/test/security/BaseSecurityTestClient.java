@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.security;
+package org.apache.openejb.test.security;
 
 import java.util.Properties;
 import javax.naming.InitialContext;
@@ -23,8 +23,8 @@ import javax.security.auth.login.LoginContext;
 
 import org.apache.geronimo.security.jaas.UsernamePasswordCallback;
 
-import org.openejb.test.NamedTestCase;
-import org.openejb.test.TestManager;
+import org.apache.openejb.test.NamedTestCase;
+import org.apache.openejb.test.TestManager;
 
 
 /**

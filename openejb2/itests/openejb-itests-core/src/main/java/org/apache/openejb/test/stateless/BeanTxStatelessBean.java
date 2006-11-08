@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateless;
+package org.apache.openejb.test.stateless;
 
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -25,16 +25,12 @@ import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.SystemException;
 
-import org.openejb.test.object.Account;
-import org.openejb.test.object.Transaction;
+import org.apache.openejb.test.object.Account;
+import org.apache.openejb.test.object.Transaction;
 
 /**
  * 

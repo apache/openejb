@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateful;
+package org.apache.openejb.test.stateful;
 
 import java.rmi.RemoteException;
 
@@ -23,7 +23,7 @@ import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 
-import org.openejb.test.object.ObjectGraph;
+import org.apache.openejb.test.object.ObjectGraph;
 
 /**
  * 

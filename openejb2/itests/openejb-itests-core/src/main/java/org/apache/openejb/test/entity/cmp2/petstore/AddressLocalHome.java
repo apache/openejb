@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp2.petstore;
+package org.apache.openejb.test.entity.cmp2.petstore;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;

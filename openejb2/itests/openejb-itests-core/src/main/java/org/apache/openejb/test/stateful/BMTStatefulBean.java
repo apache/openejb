@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateful;
+package org.apache.openejb.test.stateful;
 
 import java.util.Hashtable;
 import java.util.Properties;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 
-import org.openejb.test.ApplicationException;
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.ApplicationException;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
  * A Stateful SessionBean with bean-managed transaction demarcation

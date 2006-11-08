@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.util.StringTokenizer;
 import javax.ejb.EJBHome;
@@ -26,7 +26,7 @@ import javax.ejb.EntityBean;
 import javax.ejb.CreateException;
 import javax.naming.InitialContext;
 
-import org.openejb.test.object.ObjectGraph;
+import org.apache.openejb.test.object.ObjectGraph;
 
 public class RmiIiopCmpBean implements EntityBean {
     public static int key = 20;

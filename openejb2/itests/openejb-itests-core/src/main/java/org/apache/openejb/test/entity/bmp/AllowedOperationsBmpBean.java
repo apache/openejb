@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.bmp;
+package org.apache.openejb.test.entity.bmp;
 
 import java.util.Hashtable;
 import java.util.Properties;
@@ -24,7 +24,7 @@ import javax.ejb.EntityContext;
 import javax.ejb.FinderException;
 import javax.naming.InitialContext;
 
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
  * 
@@ -107,8 +107,8 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Throws an ApplicationException when invoked
      * 
      */
-    public void throwApplicationException() throws org.openejb.test.ApplicationException{
-        throw new org.openejb.test.ApplicationException("Don't Panic");
+    public void throwApplicationException() throws org.apache.openejb.test.ApplicationException{
+        throw new org.apache.openejb.test.ApplicationException("Don't Panic");
     }
     
     /**

@@ -14,12 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.interop.slsb;
+package org.apache.openejb.test.interop.slsb;
 
 import java.rmi.AccessException;
-import java.security.PrivilegedExceptionAction;
 import javax.rmi.PortableRemoteObject;
-import javax.security.auth.Subject;
 
 
 /**

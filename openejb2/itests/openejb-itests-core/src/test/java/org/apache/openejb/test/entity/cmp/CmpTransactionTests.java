@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.cmp;
+package org.apache.openejb.test.entity.cmp;
 
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.openejb.test.TestManager;
+import org.apache.openejb.test.TestManager;
 
 /**
  * @version $Revision$ $Date$
  */
-public class CmpTransactionTests extends org.openejb.test.NamedTestCase {
+public class CmpTransactionTests extends org.apache.openejb.test.NamedTestCase {
     private InitialContext initialContext;
     private SessionFacadeHome ejbHome;
     private SessionFacadeObject ejbObject;

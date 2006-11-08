@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test;
+package org.apache.openejb.test;
 
 import javax.naming.InitialContext;
 
-import org.openejb.test.beans.Database;
+import org.apache.openejb.test.beans.Database;
 
 /**
  *

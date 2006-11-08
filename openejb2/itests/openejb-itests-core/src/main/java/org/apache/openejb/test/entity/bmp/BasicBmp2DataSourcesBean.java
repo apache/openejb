@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.entity.bmp;
+package org.apache.openejb.test.entity.bmp;
 
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -31,7 +31,7 @@ import javax.ejb.RemoveException;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import org.openejb.test.object.OperationsPolicy;
+import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
  * 

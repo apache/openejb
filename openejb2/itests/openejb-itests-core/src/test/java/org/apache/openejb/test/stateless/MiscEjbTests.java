@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openejb.test.stateless;
+package org.apache.openejb.test.stateless;
 
-import org.openejb.test.entity.bmp.EncBmpHome;
-import org.openejb.test.entity.bmp.EncBmpObject;
-import org.openejb.test.entity.cmp.EncCmpHome;
-import org.openejb.test.entity.cmp.EncCmpObject;
-import org.openejb.test.stateful.EncStatefulHome;
-import org.openejb.test.stateful.EncStatefulObject;
+import org.apache.openejb.test.entity.bmp.EncBmpHome;
+import org.apache.openejb.test.entity.bmp.EncBmpObject;
+import org.apache.openejb.test.entity.cmp.EncCmpHome;
+import org.apache.openejb.test.entity.cmp.EncCmpObject;
+import org.apache.openejb.test.stateful.EncStatefulHome;
+import org.apache.openejb.test.stateful.EncStatefulObject;
 
 /**
  *
