@@ -26,18 +26,4 @@
         <module>openejb-yoko</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>sunorb</id>
-            
-            <activation>
-                <jdk>1.4</jdk>
-            </activation>
-
-            <modules>
-                <module>openejb-sunorb</module>
-            </modules>
-        </profile>
-    </profiles>
-
 </project>
