@@ -22,6 +22,7 @@ import org.apache.geronimo.interceptor.Interceptor;
 import org.apache.geronimo.interceptor.Invocation;
 import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.openejb.EjbInvocation;
+import org.apache.openejb.EJBInterfaceType;
 
 
 /**
@@ -48,7 +49,13 @@ public class PolicyContextHandlerEJBInterceptor implements Interceptor {
 
         EjbInvocation ejbInvocation = (EjbInvocation) invocation;
 
-        data.arguments = ejbInvocation.getArguments();
+        // The args are not available for webservice requests
+        // It is critical to not attempt to get the args for webservice invocations
+        // as it will freeze the message context, which will stop handlers from working
+        if (!EJBInterfaceType.WEB_SERVICE.equals(ejbInvocation.getType())) {
+            data.arguments = ejbInvocation.getArguments();
+        }
+
         data.bean = ejbInvocation.getEJBInstanceContext().getInstance();
 
         PolicyContext.setHandlerData(data);

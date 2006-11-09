@@ -87,14 +87,6 @@ public class DefaultStatelessEjbContainer implements StatelessEjbContainer {
         // add the web services handler interceptor
         invocationChain = new HandlerChainInterceptor(invocationChain);
 
-        // JNDI ENC interceptor
-        invocationChain = new ComponentContextInterceptor(invocationChain);
-
-        // Resource Adapter connection reassociation interceptor
-        if (trackedConnectionAssociator != null) {
-            invocationChain = new ConnectionTrackingInterceptor(invocationChain, trackedConnectionAssociator);
-        }
-
         // Interceptor that changes security identity to that of the caller
         if (doAsCurrentCaller) {
             invocationChain = new EJBIdentityInterceptor(invocationChain);
@@ -111,6 +103,14 @@ public class DefaultStatelessEjbContainer implements StatelessEjbContainer {
         // Sets the jacc security policy for this ejb
         if (useContextHandler) {
             invocationChain = new PolicyContextHandlerEJBInterceptor(invocationChain);
+        }
+
+        // JNDI ENC interceptor
+        invocationChain = new ComponentContextInterceptor(invocationChain);
+
+        // Resource Adapter connection reassociation interceptor
+        if (trackedConnectionAssociator != null) {
+            invocationChain = new ConnectionTrackingInterceptor(invocationChain, trackedConnectionAssociator);
         }
 
         // create the user transaction if bean managed
