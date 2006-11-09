@@ -99,18 +99,25 @@
                 <configuration>
                     <source>1.4</source>
                     <target>1.4</target>
+                    <compilerArguments>
+                        <endorseddirs>${project.build.directory}/endorsed</endorseddirs>
+                    </compilerArguments>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <forkMode>once</forkMode>
                     <systemProperties>
                       <property>
                         <name>java.endorsed.dirs</name>
-                        <value>${basedir}/target/endorsed</value>
+                        <value>${project.build.directory}/endorsed</value>
                       </property>
                     </systemProperties>
+                    <excludes>
+                      <exclude>**/NameServiceTest*</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
