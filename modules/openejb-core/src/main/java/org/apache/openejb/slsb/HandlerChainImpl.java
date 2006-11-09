@@ -20,25 +20,41 @@ import javax.xml.rpc.JAXRPCException;
 import javax.xml.rpc.handler.Handler;
 import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.rpc.handler.MessageContext;
-import javax.xml.rpc.handler.HandlerChain;
 import javax.xml.rpc.handler.soap.SOAPMessageContext;
 import javax.xml.rpc.soap.SOAPFaultException;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Implementation of HandlerChain
  */
-public class HandlerChainImpl extends ArrayList implements HandlerChain {
-
-    private List handlerInfos = new ArrayList();
-
+public class HandlerChainImpl extends ArrayList implements javax.xml.rpc.handler.HandlerChain {
     private String[] roles;
+    private Stack invokedHandlers = new Stack();
 
-    private int falseIndex = -1;
+    public HandlerChainImpl(List handlerInfos) {
+        this(handlerInfos, null);
+    }
 
-    public HandlerChainImpl() {
+    public HandlerChainImpl(List handlerInfos, String[] roles) {
+        this.roles = roles;
+        for (int i = 0; i < handlerInfos.size(); i++) {
+            HandlerInfo handlerInfo = (HandlerInfo) handlerInfos.get(i);
+            try {
+                Handler handler = (Handler) handlerInfo.getHandlerClass().newInstance();
+                handler.init(handlerInfo);
+                add(handler);
+            } catch (Exception e) {
+                throw new JAXRPCException("Unable to initialize handler class: " + handlerInfo.getHandlerClass().getName(), e);
+            }
+        }
     }
 
     public String[] getRoles() {
@@ -46,97 +62,173 @@ public class HandlerChainImpl extends ArrayList implements HandlerChain {
     }
 
     public void setRoles(String[] roles) {
-        this.roles = roles;
+        if (roles == null) {
+            this.roles = new String[0];
+        } else {
+            this.roles = roles;
+        }
     }
 
     public void init(Map map) {
-        // DO SOMETHING WITH THIS
     }
 
-    public HandlerChainImpl(List handlerInfos) {
-        this.handlerInfos = handlerInfos;
-        for (int i = 0; i < handlerInfos.size(); i++) {
-            add(newHandler(getHandlerInfo(i)));
+    public void destroy() {
+        for (Iterator iterator = invokedHandlers.iterator(); iterator.hasNext();) {
+            Handler handler = (Handler) iterator.next();
+            handler.destroy();
         }
+        invokedHandlers.clear();
+        clear();
     }
 
-    public void addNewHandler(String className, Map config) {
+    public boolean handleRequest(MessageContext context) {
+        MessageSnapshot snapshot = new MessageSnapshot(context);
         try {
-            Class handlerClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-            HandlerInfo handlerInfo = new HandlerInfo(handlerClass,
-                    config,
-                    null);
-            handlerInfos.add(handlerInfo);
-            add(newHandler(handlerInfo));
-        } catch (Exception ex) {
-            throw new JAXRPCException("Unable to create handler of type " + className, ex);
-        }
-    }
-
-    public boolean handleFault(MessageContext _context) {
-        SOAPMessageContext context = (SOAPMessageContext) _context;
-
-        for (int i = size() - 1; i >= 0; i--) {
-            if (!getHandlerInstance(i).handleFault(context)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean handleRequest(MessageContext _context) {
-        SOAPMessageContext context = (SOAPMessageContext) _context;
-
-        falseIndex = -1;
-        for (int i = 0; i < size(); i++) {
-            Handler currentHandler = getHandlerInstance(i);
-            try {
-                if (!currentHandler.handleRequest(context)) {
-                    falseIndex = i;
-                    return false;
+            for (int i = 0; i < size(); i++) {
+                Handler currentHandler = (Handler) get(i);
+                invokedHandlers.push(currentHandler);
+                try {
+                    if (!currentHandler.handleRequest(context)) {
+                        return false;
+                    }
+                } catch (SOAPFaultException e) {
+                    throw e;
                 }
-            } catch (SOAPFaultException sfe) {
-                throw sfe;
             }
+        } finally {
+            saveChanges(context);
+        }
+
+        if (!snapshot.equals(context)) {
+            throw new IllegalStateException("The soap message operation or arguments were illegally modified by the HandlerChain");
         }
         return true;
     }
 
     public boolean handleResponse(MessageContext context) {
-        int endIdx = size() - 1;
-        if (falseIndex != -1) {
-            endIdx = falseIndex;
-        }
-        for (int i = endIdx; i >= 0; i--) {
-            if (!getHandlerInstance(i).handleResponse(context)) {
-                return false;
+        MessageSnapshot snapshot = new MessageSnapshot(context);
+        try {
+            for (Iterator iterator = invokedHandlers.iterator(); iterator.hasNext();) {
+                Handler handler = (Handler) iterator.next();
+                if (!handler.handleResponse(context)) {
+                    return false;
+                }
             }
+        } finally {
+            saveChanges(context);
+        }
+        if (!snapshot.equals(context)) {
+            throw new IllegalStateException("The soap message operation or arguments were illegally modified by the HandlerChain");
         }
         return true;
     }
 
-    public void destroy() {
-        for (int i = 0; i < size(); i++) {
-            getHandlerInstance(i).destroy();
-        }
-        clear();
-    }
-
-    private Handler getHandlerInstance(int index) {
-        return (Handler) get(index);
-    }
-
-    private HandlerInfo getHandlerInfo(int index) {
-        return (HandlerInfo) handlerInfos.get(index);
-    }
-
-    private Handler newHandler(HandlerInfo handlerInfo) {
+    public boolean handleFault(MessageContext context) {
+        MessageSnapshot snapshot = new MessageSnapshot(context);
         try {
-            Handler handler = (Handler) handlerInfo.getHandlerClass().newInstance();
-            handler.init(handlerInfo);
-            return handler;
-        } catch (Exception ex) {
-            throw new JAXRPCException("Unable to create handler of type " + handlerInfo.getHandlerClass().toString(), ex);
+            for (Iterator iterator = invokedHandlers.iterator(); iterator.hasNext();) {
+                Handler handler = (Handler) iterator.next();
+                if (!handler.handleFault(context)) {
+                    return false;
+                }
+            }
+        } finally {
+            saveChanges(context);
+        }
+        if (!snapshot.equals(context)) {
+            throw new IllegalStateException("The soap message operation or arguments were illegally modified by the HandlerChain");
+        }
+        return true;
+    }
+
+    private void saveChanges(MessageContext context) {
+        try {
+            SOAPMessage message = ((SOAPMessageContext) context).getMessage();
+            if (message != null) {
+                message.saveChanges();
+            }
+        } catch (SOAPException e) {
+            throw new RuntimeException("Unable to save changes to SOAPMessage : " + e.toString());
+        }
+    }
+
+
+    /**
+     * Handlers cannot:
+     * <p/>
+     * - re-target a request to a different component.
+     * - change the operation
+     * - change the message part types
+     * - change the number of message parts.
+     */
+    static class MessageSnapshot {
+        private final String operationName;
+        private final List parameterNames;
+
+        public MessageSnapshot(MessageContext soapMessage) {
+            SOAPMessage message = ((SOAPMessageContext) soapMessage).getMessage();
+            if (message == null || message.getSOAPPart() == null) {
+                operationName = null;
+                parameterNames = null;
+            } else {
+                SOAPBody body = getBody(message);
+
+                SOAPElement operation = ((SOAPElement) body.getChildElements().next());
+                this.operationName = operation.getElementName().toString();
+
+                this.parameterNames = new ArrayList();
+                for (Iterator i = operation.getChildElements(); i.hasNext();) {
+                    SOAPElement parameter = (SOAPElement) i.next();
+                    String element = parameter.getElementName().toString();
+                    parameterNames.add(element);
+                }
+            }
+        }
+
+        private SOAPBody getBody(SOAPMessage message) {
+            try {
+                return message.getSOAPPart().getEnvelope().getBody();
+            } catch (SOAPException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public boolean equals(Object obj) {
+            return (obj instanceof SOAPMessageContext) && equals((SOAPMessageContext) obj);
+        }
+
+        private boolean equals(SOAPMessageContext soapMessage) {
+            SOAPMessage message = soapMessage.getMessage();
+
+            if (operationName == null) {
+                return message == null || message.getSOAPPart() == null;
+            }
+
+            SOAPBody body = getBody(message);
+
+            // Handlers can't change the operation
+            SOAPElement operation = ((SOAPElement) body.getChildElements().next());
+            if (!this.operationName.equals(operation.getElementName().toString())) {
+                return false;
+            }
+
+            Iterator parameters = operation.getChildElements();
+            for (Iterator i = parameterNames.iterator(); i.hasNext();) {
+                // Handlers can't remove parameters
+                if (!parameters.hasNext()) {
+                    return false;
+                }
+
+                String original = (String) i.next();
+                SOAPElement parameter = (SOAPElement) parameters.next();
+                // Handlers can't change parameter types
+                if (parameter == null || !original.equals(parameter.getElementName().toString())) {
+                    return false;
+                }
+            }
+
+            // Handlers can't add parameters
+            return !parameters.hasNext();
         }
     }
 }
