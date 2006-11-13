@@ -253,6 +253,10 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
             // static sql
             entitySchema.setStaticSql(openEjbEntity.isSetStaticSql());
 
+            // Isolation information
+            if (openEjbEntity.isSetSelectForUpdate()) 
+                entitySchema.setSelectForUpdate(openEjbEntity.getSelectForUpdate());
+            
             // -- load ejbClass
             Class ejbClass;
             try {
