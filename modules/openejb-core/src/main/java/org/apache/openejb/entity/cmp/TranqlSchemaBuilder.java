@@ -302,12 +302,14 @@ public class TranqlSchemaBuilder {
                 FinderEJBQLQuery query = new FinderEJBQLQuery(methodName, parameterTypes, querySpec.getEjbQl());
                 query.setFlushCacheBeforeQuery(querySpec.isFlushCacheBeforeQuery());
                 query.setPrefetchGroup(querySpec.getPrefetchGroup());
+                ejb.setSelectForUpdate(entitySchema.isSelectForUpdate());
                 ejb.addFinder(query);
             } else if (methodName.startsWith("ejbSelect")) {
                 boolean isLocal = querySpec.isLocal();
                 SelectEJBQLQuery query = new SelectEJBQLQuery(methodName, parameterTypes, querySpec.getEjbQl(), isLocal);
                 query.setFlushCacheBeforeQuery(querySpec.isFlushCacheBeforeQuery());
                 query.setPrefetchGroup(querySpec.getPrefetchGroup());
+                ejb.setSelectForUpdate(entitySchema.isSelectForUpdate());
                 ejb.addSelect(query);
             } else {
                 throw new DeploymentException("Method " + methodName + " is neiher a finder nor a select.");

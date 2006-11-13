@@ -48,6 +48,7 @@ public class EntitySchema implements Serializable {
     private final Map prefetchGroups = new TreeMap();
     private String prefetchGroupName;
     private final Map cmrPrefetchGroups = new TreeMap();
+    private boolean selectForUpdate = false;
 
     public EntitySchema(String ejbName) {
         this.ejbName = ejbName;
@@ -323,4 +324,12 @@ public class EntitySchema implements Serializable {
     public String toString() {
         return ejbName;
     }
+
+	public boolean isSelectForUpdate() {
+		return selectForUpdate;
+	}
+
+	public void setSelectForUpdate(boolean selectForUpdate) {
+		this.selectForUpdate = selectForUpdate;
+	}
 }
