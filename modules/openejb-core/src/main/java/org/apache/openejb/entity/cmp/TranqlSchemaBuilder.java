@@ -267,7 +267,7 @@ public class TranqlSchemaBuilder {
                         kernel.getGBean(custom.getGeneratorName(), org.tranql.pkgenerator.PrimaryKeyGenerator.class);
                 return generator;
             } catch (GBeanNotFoundException e) {
-                throw new QueryException("Cound not fina a primary key generator found with the name " + custom.getGeneratorName(), e);
+                throw new QueryException("Could not find a primary key generator found with the name " + custom.getGeneratorName(), e);
             }
         } else if (primaryKeyGenerator instanceof SqlPrimaryKeyGenerator) {
             SqlPrimaryKeyGenerator sqlGen = (SqlPrimaryKeyGenerator) primaryKeyGenerator;
