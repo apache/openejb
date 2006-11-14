@@ -97,7 +97,7 @@ public class CorbaApplicationServer implements ApplicationServer {
             ORB orb = (ORB) context.lookup("java:comp/ORB");
             return orb;
         } catch (Throwable e) {
-            throw new org.omg.CORBA.MARSHAL("Cound not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+            throw new org.omg.CORBA.MARSHAL("Could not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
         }
     }
 }
