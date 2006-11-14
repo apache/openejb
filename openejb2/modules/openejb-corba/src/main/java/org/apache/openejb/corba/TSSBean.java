@@ -136,11 +136,10 @@ public class TSSBean implements GBeanLifecycle {
 
     public void doStop() throws Exception {
         if (localPOA != null) {
-            try {
-                localPOA.the_POAManager().deactivate(true, false);
-            } catch (AdapterInactive adapterInactive) {
-                // do nothing - this may have already been deactivated.
-            }
+            // make sure this POA is destroyed so the bean can be potentially restarted.
+            // NOTE:  we do NOT deactivate() the poa manager, as that will take down any
+            // other POAs attached to the same manager.  Just destroying this POA is sufficient.
+            localPOA.destroy(true, false);
             localPOA = null;
         }
         log.debug("Stopped CORBA Target Security Service in POA " + POAName);
