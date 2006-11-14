@@ -60,7 +60,7 @@
         <tranqlVendorsVersion>1.2-SNAPSHOT</tranqlVendorsVersion>
         <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
-        <yokoVersion>1.0-incubating-M1-SNAPSHOT</yokoVersion>
+        <yokoVersion>1.0-incubating-M2-SNAPSHOT</yokoVersion>
     </properties>
 
     <organization>
