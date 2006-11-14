@@ -168,50 +168,56 @@ public class SocketFactory implements ConnectionHelper {
      * @exception ConnectException
      */
     public Socket createSocket(IOR ior, Policy[] policies, InetAddress address, int port) throws IOException, ConnectException {
-        ProfileInfoHolder holder = new ProfileInfoHolder();
-        // we need to extract the profile information from the IOR to see if this connection has
-        // any transport-level security defined.
-        if (org.apache.yoko.orb.OCI.IIOP.Util.extractProfileInfo(ior, holder)) {
-            ProfileInfo profileInfo = holder.value;
-            for (int i = 0; i < profileInfo.components.length; i++) {
-                // we're lookoing for the security mechanism items.
-                if (profileInfo.components[i].tag == TAG_CSI_SEC_MECH_LIST.value) {
-                    try {
-                        // decode and pull the transport information.
-                        TSSCompoundSecMechListConfig config = TSSCompoundSecMechListConfig.decodeIOR(Util.getCodec(), profileInfo.components[i]);
-                        for (int j = 0; j < config.size(); j++) {
-                            TSSTransportMechConfig transport_mech = config.mechAt(j).getTransport_mech();
-                            if (transport_mech instanceof TSSSSLTransportConfig) {
-                                TSSSSLTransportConfig transportConfig = (TSSSSLTransportConfig) transport_mech;
+        try {
+            ProfileInfoHolder holder = new ProfileInfoHolder();
+            // we need to extract the profile information from the IOR to see if this connection has
+            // any transport-level security defined.
+            if (org.apache.yoko.orb.OCI.IIOP.Util.extractProfileInfo(ior, holder)) {
+                ProfileInfo profileInfo = holder.value;
+                for (int i = 0; i < profileInfo.components.length; i++) {
+                    // we're lookoing for the security mechanism items.
+                    if (profileInfo.components[i].tag == TAG_CSI_SEC_MECH_LIST.value) {
+                        try {
+                            // decode and pull the transport information.
+                            TSSCompoundSecMechListConfig config = TSSCompoundSecMechListConfig.decodeIOR(Util.getCodec(), profileInfo.components[i]);
+                            for (int j = 0; j < config.size(); j++) {
+                                TSSTransportMechConfig transport_mech = config.mechAt(j).getTransport_mech();
+                                if (transport_mech instanceof TSSSSLTransportConfig) {
+                                    TSSSSLTransportConfig transportConfig = (TSSSSLTransportConfig) transport_mech;
 
-                                int supports = transportConfig.getSupports();
-                                int requires = transportConfig.getRequires();
+                                    int supports = transportConfig.getSupports();
+                                    int requires = transportConfig.getRequires();
 
-                                if (log.isDebugEnabled()) {
+                                    if (log.isDebugEnabled()) {
 
-                                    log.debug("IOR from target " + address.getHostName() + ":" + port);
-                                    log.debug("   SUPPORTS: " + ConfigUtil.flags(supports));
-                                    log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
+                                        log.debug("IOR from target " + address.getHostName() + ":" + port);
+                                        log.debug("   SUPPORTS: " + ConfigUtil.flags(supports));
+                                        log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
+                                    }
+
+                                    // if we don't require any TLS, then just create a plain socket.
+                                    if ((NoProtection.value & requires) == NoProtection.value) {
+                                        break;
+                                    }
+                                    // we need SSL, so create an SSLSocket for this connection.
+                                    return createSSLSocket(address.getHostName(), port, supports, requires);
                                 }
-
-                                // if we don't require any TLS, then just create a plain socket.
-                                if ((NoProtection.value & requires) == NoProtection.value) {
-                                    break;
-                                }
-                                // we need SSL, so create an SSLSocket for this connection.
-                                return createSSLSocket(address.getHostName(), port, supports, requires);
                             }
+                        } catch (Exception e) {
+                            // do nothing
                         }
-                    } catch (Exception e) {
-                        // do nothing
                     }
                 }
             }
-        }
 
-        // if security is not required, just create a plain Socket.
-        if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + address.getHostName() + ":" + port);
-        return new Socket(address, port);
+            // if security is not required, just create a plain Socket.
+            if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + address.getHostName() + ":" + port);
+            return new Socket(address, port);
+
+        } catch (IOException ex) {
+            log.error("Exception creating a client socket to "  + address.getHostName() + ":" + port, ex);
+            throw ex;
+        }
     }
 
     /**
@@ -227,15 +233,20 @@ public class SocketFactory implements ConnectionHelper {
      * @exception ConnectException
      */
     public Socket createSelfConnection(InetAddress address, int port) throws IOException, ConnectException {
-        // the requires information tells us whether we created a plain or SSL listener.  We need to create one
-        // of the matching type.
+        try {
+            // the requires information tells us whether we created a plain or SSL listener.  We need to create one
+            // of the matching type.
 
-        if ((NoProtection.value & requires) == NoProtection.value) {
-            if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + address.getHostName() + ":" + port);
-            return new Socket(address, port);
-        }
-        else {
-            return createSSLSocket(address.getHostName(), port, supports, requires);
+            if ((NoProtection.value & requires) == NoProtection.value) {
+                if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + address.getHostName() + ":" + port);
+                return new Socket(address, port);
+            }
+            else {
+                return createSSLSocket(address.getHostName(), port, supports, requires);
+            }
+        } catch (IOException ex) {
+            log.error("Exception creating a client socket to "  + address.getHostName() + ":" + port, ex);
+            throw ex;
         }
     }
 
@@ -250,17 +261,22 @@ public class SocketFactory implements ConnectionHelper {
      * @exception ConnectException
      */
     public ServerSocket createServerSocket(int port, int backlog)  throws IOException, ConnectException {
-        // if no protection is required, just create a plain socket.
-        if ((NoProtection.value & requires) == NoProtection.value) {
-            if (log.isDebugEnabled()) log.debug("Created plain server socket for port " + port);
-            return new ServerSocket(port, backlog);
-        }
-        else {
-            // SSL is required.  Create one from the SSLServerFactory retrieved from the config.  This will
-            // require additional QOS configuration after creation.
-            SSLServerSocket serverSocket = (SSLServerSocket)getServerSocketFactory().createServerSocket(port, backlog);
-            configureServerSocket(serverSocket);
-            return serverSocket;
+        try {
+            // if no protection is required, just create a plain socket.
+            if ((NoProtection.value & requires) == NoProtection.value) {
+                if (log.isDebugEnabled()) log.debug("Created plain server socket for port " + port);
+                return new ServerSocket(port, backlog);
+            }
+            else {
+                // SSL is required.  Create one from the SSLServerFactory retrieved from the config.  This will
+                // require additional QOS configuration after creation.
+                SSLServerSocket serverSocket = (SSLServerSocket)getServerSocketFactory().createServerSocket(port, backlog);
+                configureServerSocket(serverSocket);
+                return serverSocket;
+            }
+        } catch (IOException ex) {
+            log.error("Exception creating a server socket for port "  + port, ex);
+            throw ex;
         }
     }
 
@@ -277,18 +293,22 @@ public class SocketFactory implements ConnectionHelper {
      * @exception ConnectException
      */
     public ServerSocket createServerSocket(int port, int backlog, InetAddress address) throws IOException, ConnectException {
-        // if no protection is required, just create a plain socket.
-        System.out.println("Creating a server socket on port " + port);
-        if ((NoProtection.value & requires) == NoProtection.value) {
-            if (log.isDebugEnabled()) log.debug("Created plain server socket for port " + port);
-            return new ServerSocket(port, backlog, address);
-        }
-        else {
-            // SSL is required.  Create one from the SSLServerFactory retrieved from the config.  This will
-            // require additional QOS configuration after creation.
-            SSLServerSocket serverSocket = (SSLServerSocket)getServerSocketFactory().createServerSocket(port, backlog, address);
-            configureServerSocket(serverSocket);
-            return serverSocket;
+        try {
+            // if no protection is required, just create a plain socket.
+            if ((NoProtection.value & requires) == NoProtection.value) {
+                if (log.isDebugEnabled()) log.debug("Created plain server socket for port " + port);
+                return new ServerSocket(port, backlog, address);
+            }
+            else {
+                // SSL is required.  Create one from the SSLServerFactory retrieved from the config.  This will
+                // require additional QOS configuration after creation.
+                SSLServerSocket serverSocket = (SSLServerSocket)getServerSocketFactory().createServerSocket(port, backlog, address);
+                configureServerSocket(serverSocket);
+                return serverSocket;
+            }
+        } catch (IOException ex) {
+            log.error("Exception creating a client socket to "  + address.getHostName() + ":" + port, ex);
+            throw ex;
         }
     }
 

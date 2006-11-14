@@ -48,8 +48,6 @@ import org.omg.PortableServer.POAHelper;
  * @version $Revision$ $Date$
  */
 public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
-    private final int DEFAULT_LISTENER_PORT = 6882;
-
     private final Log log = LogFactory.getLog(CORBABean.class);
 
     private final ClassLoader classLoader;
@@ -217,6 +215,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
             // make sure we've decided how the listener should be configured.
             resolveListenerAddress();
 
+            log.debug("CORBABean " + getURI() + " creating listener on port " + listenerPort);
             // the config adapter creates the actual ORB instance for us.
             orb = configAdapter.createServerORB(this);
 
@@ -231,7 +230,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
-        log.debug("CORBABean " + getURI() + " creating listener on port " + listenerPort);
     }
 
     public void doStop() throws Exception {
@@ -271,10 +269,9 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
                 host = "localhost";
             }
         }
-        if (listenerPort <= 0) {
-            // set this to the default?
-            listenerPort = DEFAULT_LISTENER_PORT;
-        }
+
+        // if nothing has been explicitly specified, we use a port value of -1, which
+        // allows the ORB to allocate the address.
     }
 
     /**
