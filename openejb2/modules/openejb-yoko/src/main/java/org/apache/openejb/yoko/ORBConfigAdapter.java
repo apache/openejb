@@ -275,9 +275,14 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.openejb.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.openejb.corba.security.SecurityInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.openejb.yoko.ORBInitializer", "");
-
-        result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost() + " --port " + server.getPort());
-
+        // don't specify the port if we're allowing this to default. 
+        if (server.getPort() > 0) {
+            result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost() + " --port " + server.getPort());
+        }
+        else {
+            result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost());
+        }
+            
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(TSSConfig)");
             for (Enumeration iter = result.keys(); iter.hasMoreElements();) {
