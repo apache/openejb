@@ -774,4 +774,29 @@
         </site>
     </distributionManagement>
 
+    <profiles>
+        <profile>
+            <id>output</id>
+            <build>
+                <defaultGoal>deploy</defaultGoal>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>output-releases</id>
+                    <url>file://${output.dir}/release</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </repository>
+                <snapshotRepository>
+                    <id>output-snapshots</id>
+                    <url>file://${output.dir}/snapshots</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </snapshotRepository>
+                <site>
+                    <id>output-website</id>
+                    <url>output://${output.dir}/website</url>
+                </site>
+            </distributionManagement>
+        </profile>    
+    </profiles>
+
 </project>
