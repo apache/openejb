@@ -165,7 +165,7 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="select-for-update" type="xs:boolean" minOccurs="0"/>
+                <xs:element name="select-for-update" type="openejb:emptyType" minOccurs="0"/>
             </xs:sequence>
 
             <xs:element name="cache" minOccurs="0">

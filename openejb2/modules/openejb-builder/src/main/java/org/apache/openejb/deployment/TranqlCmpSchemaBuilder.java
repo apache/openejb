@@ -255,7 +255,9 @@ public class TranqlCmpSchemaBuilder implements CmpSchemaBuilder {
 
             // Isolation information
             if (openEjbEntity.isSetSelectForUpdate()) 
-                entitySchema.setSelectForUpdate(openEjbEntity.getSelectForUpdate());
+                entitySchema.setSelectForUpdate(true);
+            else
+            	entitySchema.setSelectForUpdate(false);
             
             // -- load ejbClass
             Class ejbClass;
