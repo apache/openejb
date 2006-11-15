@@ -676,6 +676,12 @@
                 <version>${yokoVersion}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.yoko</groupId>
+                <artifactId>yoko-rmi-impl</artifactId>
+                <version>${yokoVersion}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -796,7 +802,7 @@
                     <url>file://${output.dir}/website</url>
                 </site>
             </distributionManagement>
-        </profile>    
+        </profile>
     </profiles>
 
 </project>
