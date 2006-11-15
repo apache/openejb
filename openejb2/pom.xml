@@ -793,7 +793,7 @@
                 </snapshotRepository>
                 <site>
                     <id>output-website</id>
-                    <url>output://${output.dir}/website</url>
+                    <url>file://${output.dir}/website</url>
                 </site>
             </distributionManagement>
         </profile>    
