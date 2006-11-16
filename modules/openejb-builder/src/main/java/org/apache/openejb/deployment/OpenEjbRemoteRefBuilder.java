@@ -61,11 +61,11 @@ public class OpenEjbRemoteRefBuilder extends OpenEjbAbstractRefBuilder {
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
-         return getEjbRefs(specDD).length > 0;
+         return specDD.selectChildren(ejbRefQNameSet).length > 0;
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
-        XmlObject[] ejbRefsUntyped = getEjbRefs(specDD);
+        XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.type);
         XmlObject[] gerEjbRefsUntyped = plan == null? NO_REFS: plan.selectChildren(GER_EJB_REF_QNAME_SET);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
@@ -82,10 +82,6 @@ public class OpenEjbRemoteRefBuilder extends OpenEjbAbstractRefBuilder {
                 getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
             }
         }
-    }
-
-    private XmlObject[] getEjbRefs(XmlObject specDD) {
-        return convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.type);
     }
 
     private Reference addEJBRef(Configuration ejbContext, URI moduleURI, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
