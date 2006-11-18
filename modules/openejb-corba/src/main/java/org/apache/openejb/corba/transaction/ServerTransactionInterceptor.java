@@ -32,11 +32,13 @@ class ServerTransactionInterceptor extends LocalObject implements ServerRequestI
 
     public void receive_request(ServerRequestInfo serverRequestInfo) throws ForwardRequest {
        ServerTransactionPolicy policy = (ServerTransactionPolicy) serverRequestInfo.get_server_policy(ServerTransactionPolicyFactory.POLICY_TYPE);
-        if (policy == null) {
-            throw new INTERNAL("No transaction policy configured");
+       // it's possible for applications to obtain the orb instance using "java:comp/ORB" and then
+       // use the rootPOA to activate an object.  If that happens, then we're not going to see a
+       // transaction policy on the request.  Just ignore any request that doesn't have one.
+        if (policy != null) {
+            ServerTransactionPolicyConfig serverTransactionPolicyConfig = policy.getServerTransactionPolicyConfig();
+            serverTransactionPolicyConfig.importTransaction(serverRequestInfo);
         }
-        ServerTransactionPolicyConfig serverTransactionPolicyConfig = policy.getServerTransactionPolicyConfig();
-        serverTransactionPolicyConfig.importTransaction(serverRequestInfo);
     }
 
     public void receive_request_service_contexts(ServerRequestInfo ri) throws ForwardRequest {
