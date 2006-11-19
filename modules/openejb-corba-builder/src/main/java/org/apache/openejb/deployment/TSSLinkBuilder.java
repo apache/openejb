@@ -46,7 +46,7 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class TSSLinkBuilder extends AbstractNamingBuilder {
 
@@ -64,6 +64,10 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
+        return hasTssLinks(plan);
+    }
+
+    static boolean hasTssLinks(XmlObject plan) {
         return plan.selectChildren(TSS_LINK_QNAME).length > 0 ||
                 plan.selectChildren(TSS_QNAME).length > 0;
     }

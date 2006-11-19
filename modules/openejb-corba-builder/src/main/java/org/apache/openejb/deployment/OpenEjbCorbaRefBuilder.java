@@ -40,6 +40,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
+import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.openejb.RpcEjbDeployment;
 import org.apache.openejb.corba.proxy.CORBAProxyReference;
 import org.apache.openejb.proxy.EJBProxyReference;
@@ -56,6 +57,7 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
 
     private static final QName GER_EJB_REF_QNAME = GerEjbRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_EJB_REF_QNAME_SET = QNameSet.singleton(GER_EJB_REF_QNAME);
+    private static final NamespaceElementConverter OPENEJB_CONVERTER = new NamespaceElementConverter(GER_EJB_REF_QNAME.getNamespaceURI());
 
     private static final QName GER_NS_CORBA_LOC_QNAME = new QName(GER_EJB_REF_QNAME.getNamespaceURI(), "ns-corbaloc");
     private static final QNameSet GER_NS_CORBA_LOC_QNAME_SET = QNameSet.singleton(GER_NS_CORBA_LOC_QNAME);
@@ -67,10 +69,14 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
         ejbRefQNameSet = buildQNameSet(eeNamespaces, "ejb-ref");
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
-        XmlObject[] refs = plan == null ? NO_REFS : plan.selectChildren(GER_EJB_REF_QNAME_SET);
+    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
+        return hasCssRefs(plan);
+    }
+
+    static boolean hasCssRefs(XmlObject plan) throws DeploymentException {
+        XmlObject[] refs = plan == null ? NO_REFS : convert(plan.selectChildren(GER_EJB_REF_QNAME_SET), OPENEJB_CONVERTER, GerEjbRefType.type);
         for (int i = 0; i < refs.length; i++) {
-            GerEjbRefType ref = (GerEjbRefType) refs[i].copy().changeType(GerEjbRefType.type);
+            GerEjbRefType ref = (GerEjbRefType) refs[i];
             if (ref.isSetNsCorbaloc()) {
                 return true;
             }
@@ -80,7 +86,7 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), J2EE_CONVERTER, EjbRefType.type);
-        XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_EJB_REF_QNAME_SET);
+        XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : convert(plan.selectChildren(GER_EJB_REF_QNAME_SET), OPENEJB_CONVERTER, GerEjbRefType.type);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
         ClassLoader cl = module.getEarContext().getClassLoader();
 
@@ -148,7 +154,7 @@ public class OpenEjbCorbaRefBuilder extends OpenEjbAbstractRefBuilder {
         Map refMap = new HashMap();
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
-                GerEjbRefType ref = (GerEjbRefType) refs[i].copy().changeType(GerEjbRefType.type);
+                GerEjbRefType ref = (GerEjbRefType) refs[i];
                 refMap.put(ref.getRefName().trim(), ref);
             }
         }
