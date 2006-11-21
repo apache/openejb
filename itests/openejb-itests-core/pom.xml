@@ -41,17 +41,17 @@
 
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
+	<configuration>
+	  <archive>
+	    <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+	    <addMavenDescriptor>false</addMavenDescriptor>
+	  </archive>
+	</configuration>
         <executions>
           <execution>
             <goals>
               <goal>test-jar</goal>
             </goals>
-            <configuration>
-                <archive>
-                    <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                    <addMavenDescriptor>false</addMavenDescriptor>
-		</archive>
-	    </configuration>
 	  </execution>
 	</executions>
       </plugin>
