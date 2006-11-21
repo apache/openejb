@@ -16,6 +16,8 @@
  */
 package org.apache.openejb.test.entity.cmp2.model;
 
+import java.util.Set;
+
 import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;

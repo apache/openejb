@@ -46,10 +46,23 @@
             <goals>
               <goal>test-jar</goal>
             </goals>
-          </execution>
-        </executions>
+            <configuration>
+                <archive>
+                    <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                    <addMavenDescriptor>false</addMavenDescriptor>
+		</archive>
+	    </configuration>
+	  </execution>
+	</executions>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+      </resource>
+    </resources>
   </build>
   <dependencies>
     <dependency>

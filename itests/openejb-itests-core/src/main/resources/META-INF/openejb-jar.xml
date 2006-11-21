@@ -1,37 +1,36 @@
 <?xml version="1.0"?>
-<!--
-    Licensed to the Apache Software Foundation (ASF) under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The ASF licenses this file to You under the Apache License, Version 2.0
-    (the "License"); you may not use this file except in compliance with
-    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+<openejb-jar xmlns="http://openejb.apache.org/xml/ns/openejb-jar-2.2"
+  xmlns:pkgen="http://openejb.apache.org/xml/ns/pkgen-2.1"
+  xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
+ xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
+    <environment>
+        <moduleId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-itests-core</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </moduleId>
 
-<openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="openejb/itests/${openejb_version}/car"
-    parentId="geronimo/default-database/${geronimo_version}/car"
-    >
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>car</type>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit_version}</version>
+            </dependency>
+        </dependencies>
 
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit_version}</version>
-    </dependency>
+    </environment>
 
     <cmp-connection-factory>
-        <application>null</application>
-        <module>geronimo/default-database/${geronimo_version}/car</module>
-        <name>DefaultDatasource</name>
+        <resource-link>SystemDatasource</resource-link>
     </cmp-connection-factory>
 
     <enterprise-beans>
@@ -45,9 +44,12 @@
             <jndi-name>client/tests/stateless/BasicStatelessHome</jndi-name>
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -55,9 +57,12 @@
             <jndi-name>client/tests/stateless/BeanManagedBasicStatelessHome</jndi-name>
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -65,9 +70,12 @@
             <jndi-name>client/tools/DatabaseHome</jndi-name>
             <resource-ref>
                 <ref-name>database</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -75,9 +83,12 @@
             <jndi-name>client/tests/stateless/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>database</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -85,9 +96,12 @@
             <jndi-name>client/tests/stateless/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -99,9 +113,12 @@
             <jndi-name>client/tests/stateless/BasicStatelessHome</jndi-name>
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -119,9 +136,12 @@
             <jndi-name>client/tests/stateful/BasicStatefulHome</jndi-name>
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -129,9 +149,12 @@
             <jndi-name>client/tests/stateful/BeanManagedBasicStatefulHome</jndi-name>
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -139,9 +162,12 @@
             <jndi-name>client/tests/stateful/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -149,9 +175,12 @@
             <jndi-name>client/tests/stateful/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </session>
         <session>
@@ -169,9 +198,12 @@
             <jndi-name>client/tests/entity/bmp/BasicBmpHome</jndi-name>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -179,15 +211,21 @@
             <jndi-name>client/tests/entity/bmp/allowed_operations/EntityHome</jndi-name>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -195,15 +233,21 @@
             <jndi-name>client/tests/entity/bmp/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -233,17 +277,20 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -262,23 +309,29 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -297,23 +350,29 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -332,11 +391,11 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
         </entity>
 
@@ -362,17 +421,20 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <query>
                 <query-method>
@@ -382,7 +444,7 @@
                     </method-params>
                 </query-method>
                 <ejb-ql>
-                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE a.lastName = ?1]]>
+                    <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE a.lastName = ?1]]>
                 </ejb-ql>
             </query>
             <query>
@@ -391,7 +453,7 @@
                     <method-params/>
                 </query-method>
                 <ejb-ql>
-                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE 1 = 0]]>
+                    <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE 1 = 0]]>
                 </ejb-ql>
             </query>
         </entity>
@@ -410,6 +472,12 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+            </key-generator>
             <query>
                 <query-method>
                     <method-name>findByPrimaryKey</method-name>
@@ -418,7 +486,7 @@
                     </method-params>
                 </query-method>
                 <ejb-ql>
-                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a]]>
+                    <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a]]>
                 </ejb-ql>
                 <no-cache-flush/>
             </query>
@@ -430,7 +498,7 @@
                     </method-params>
                 </query-method>
                 <ejb-ql>
-                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a WHERE a.lastName = ?1]]>
+                    <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a WHERE a.lastName = ?1]]>
                 </ejb-ql>
             </query>
         </entity>
@@ -450,23 +518,29 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <query>
                 <query-method>
@@ -476,7 +550,7 @@
                     </method-params>
                 </query-method>
                 <ejb-ql>
-                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE a.lastName = ?1]]>
+                    <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE a.lastName = ?1]]>
                 </ejb-ql>
             </query>
             <query>
@@ -485,7 +559,7 @@
                     <method-params/>
                 </query-method>
                 <ejb-ql>
-                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE 1 = 0]]>
+                    <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE 1 = 0]]>
                 </ejb-ql>
             </query>
         </entity>
@@ -505,23 +579,29 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
         <entity>
@@ -540,19 +620,17 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-                <custom-generator>
-                    <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
-                    <primary-key-class>java.lang.Integer</primary-key-class>
-                </custom-generator>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
             </key-generator>
         </entity>
 
         <!--
         ########################################################
-        ###                                                   ##
-        ##    CMR Mapping Beans                               ##
-        ##                                                   ###
+        CMP2 - CMRMapping
         ########################################################
         -->
 
@@ -589,58 +667,13 @@
             </cmp-field-mapping>
         </entity>
 
-        <session>
-            <ejb-name>CMRMappingFacadeBean</ejb-name>
-            <jndi-name>cmp2/CMRMappingFacade</jndi-name>
-        </session>
-
-        <!--
-        ########################################################
-        ###                                                   ##
-        ##    CMP2 Petstore Beans                             ##
-        ##                                                   ###
-        ########################################################
-        -->
-
         <entity>
-          <ejb-name>AddressEJB</ejb-name>
-          <jndi-name>client/tests/cmp2/petstore/Address</jndi-name>
-          <table-name>address</table-name>
-          <cmp-field-mapping>
-            <cmp-field-name>id</cmp-field-name>
-            <cmp-field-class>java.lang.Integer</cmp-field-class>
-            <table-column>id</table-column>
-          </cmp-field-mapping>
-          <cmp-field-mapping>
-            <cmp-field-name>street</cmp-field-name>
-            <table-column>street</table-column>
-          </cmp-field-mapping>
-          <cmp-field-mapping>
-            <cmp-field-name>city</cmp-field-name>
-            <table-column>city</table-column>
-          </cmp-field-mapping>
-          <primkey-field>id</primkey-field>
-          <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
-            <auto-increment-table>
-              <sql>insert into sequence_table (dummy) values (1)</sql>
-              <return-type>java.lang.Integer</return-type>
-            </auto-increment-table>
-          </key-generator>
-        </entity>
-
-        <!--
-        ########################################################
-        ###                                                   ##
-        ##    CMP2 Prefetch Beans                             ##
-        ##                                                   ###
-        ########################################################
-        -->
-
-        <entity>
-            <ejb-name>AddressBean</ejb-name>
+            <ejb-name>AddressEJB</ejb-name>
+            <jndi-name>client/tests/cmp2/petstore/Address</jndi-name>
             <table-name>address</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
+                <cmp-field-class>java.lang.Integer</cmp-field-class>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
@@ -651,116 +684,14 @@
                 <cmp-field-name>city</cmp-field-name>
                 <table-column>city</table-column>
             </cmp-field-mapping>
-            <prefetch-group>
-                <group>
-                    <group-name>prefetchAll</group-name>
-                    <cmp-field-name>street</cmp-field-name>
-                    <cmp-field-name>city</cmp-field-name>
-                </group>
-            </prefetch-group>
+            <primkey-field>id</primkey-field>
+            <key-generator xmlns="http://openejb.apache.org/xml/ns/pkgen-2.1">
+                <auto-increment-table>
+                    <sql>insert into sequence_table (dummy) values (1)</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+            </key-generator>
         </entity>
-        <entity>
-            <ejb-name>LineItemBean</ejb-name>
-            <table-name>line_item</table-name>
-            <cmp-field-mapping>
-                <cmp-field-name>id</cmp-field-name>
-                <table-column>id</table-column>
-            </cmp-field-mapping>
-            <cmp-field-mapping>
-                <cmp-field-name>quantity</cmp-field-name>
-                <table-column>quantity</table-column>
-            </cmp-field-mapping>
-            <prefetch-group>
-                <group>
-                    <group-name>prefetchAll</group-name>
-                    <cmp-field-name>quantity</cmp-field-name>
-                    <cmr-field>
-                        <cmr-field-name>product</cmr-field-name>
-                    </cmr-field>
-                </group>
-                <entity-group-mapping>
-                    <group-name>prefetchAll</group-name>
-                </entity-group-mapping>
-            </prefetch-group>
-        </entity>
-        <entity>
-            <ejb-name>OrderBean</ejb-name>
-            <table-name>order_table</table-name>
-            <cmp-field-mapping>
-                <cmp-field-name>id</cmp-field-name>
-                <table-column>id</table-column>
-            </cmp-field-mapping>
-            <cmp-field-mapping>
-                <cmp-field-name>reference</cmp-field-name>
-                <table-column>reference</table-column>
-            </cmp-field-mapping>
-            <prefetch-group>
-                <group>
-                    <group-name>prefetchAll</group-name>
-                    <cmp-field-name>reference</cmp-field-name>
-                    <cmr-field>
-                        <cmr-field-name>shippingAddress</cmr-field-name>
-                    </cmr-field>
-                    <cmr-field>
-                        <cmr-field-name>billingAddress</cmr-field-name>
-                    </cmr-field>
-                    <cmr-field>
-                        <cmr-field-name>lineItems</cmr-field-name>
-                    </cmr-field>
-                </group>
-            </prefetch-group>
-            <query>
-                <query-method>
-                    <method-name>findPrefetchAll</method-name>
-                    <method-params>
-                        <method-param>java.lang.Integer</method-param>
-                    </method-params>
-                </query-method>
-                <group-name>prefetchAll</group-name>
-            </query>
-        </entity>
-        <entity>
-            <ejb-name>ProductBean</ejb-name>
-            <table-name>product</table-name>
-            <cmp-field-mapping>
-                <cmp-field-name>id</cmp-field-name>
-                <table-column>id</table-column>
-            </cmp-field-mapping>
-            <cmp-field-mapping>
-                <cmp-field-name>name</cmp-field-name>
-                <table-column>name</table-column>
-            </cmp-field-mapping>
-            <cmp-field-mapping>
-                <cmp-field-name>productType</cmp-field-name>
-                <table-column>product_type</table-column>
-            </cmp-field-mapping>
-            <prefetch-group>
-                <group>
-                    <group-name>prefetchAll</group-name>
-                    <cmp-field-name>name</cmp-field-name>
-                    <cmp-field-name>productType</cmp-field-name>
-                </group>
-            </prefetch-group>
-        </entity>
-
-        <session>
-            <ejb-name>PrefetchFacadeBean</ejb-name>
-            <jndi-name>cmp2/Prefetch/PrefetchFacade</jndi-name>
-            <resource-ref>
-                <ref-name>jdbc/CMPDatasource</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
-            </resource-ref>
-        </session>
-
-        <!--
-        ########################################################
-        ###                                                   ##
-        ##    CMP2 Storage Beans                              ##
-        ##                                                   ###
-        ########################################################
-        -->
 
         <entity>
             <ejb-name>StorageBean</ejb-name>
@@ -781,24 +712,23 @@
             </cmp-field-mapping>
             <resource-ref>
                 <ref-name>jdbc/DefaultDatabase</ref-name>
-                <application>null</application>
-                <module>geronimo/default-database/${geronimo_version}/car</module>
-                <name>DefaultDatasource</name>
+                <pattern>
+                    <groupId>org.apache.geronimo.configs</groupId>
+                    <artifactId>system-database</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <name>SystemDatasource</name>
+                </pattern>
             </resource-ref>
         </entity>
+
+        <session>
+            <ejb-name>CMRMappingFacadeBean</ejb-name>
+            <jndi-name>cmp2/CMRMappingFacade</jndi-name>
+        </session>
 
     </enterprise-beans>
 
     <relationships>
-
-        <!--
-        ########################################################
-        ###                                                   ##
-        ##    CMR Mapping Relationships                       ##
-        ##                                                   ###
-        ########################################################
-        -->
-
         <ejb-relation>
             <ejb-relationship-role>
                 <relationship-role-source>
@@ -831,88 +761,11 @@
                 </role-mapping>
             </ejb-relationship-role>
         </ejb-relation>
-
-        <!--
-        ########################################################
-        ###                                                   ##
-        ##    CMP2 Prefetch Relationships                     ##
-        ##                                                   ###
-        ########################################################
-        -->
-
-        <ejb-relation>
-            <ejb-relationship-role>
-                <relationship-role-source>
-                    <ejb-name>OrderBean</ejb-name>
-                </relationship-role-source>
-                <cmr-field>
-                    <cmr-field-name>shippingAddress</cmr-field-name>
-                </cmr-field>
-                <foreign-key-column-on-source/>
-                <role-mapping>
-                    <cmr-field-mapping>
-                        <key-column>id</key-column>
-                        <foreign-key-column>fk_shipping_address</foreign-key-column>
-                    </cmr-field-mapping>
-                </role-mapping>
-            </ejb-relationship-role>
-        </ejb-relation>
-        <ejb-relation>
-            <ejb-relationship-role>
-                <relationship-role-source>
-                    <ejb-name>OrderBean</ejb-name>
-                </relationship-role-source>
-                <cmr-field>
-                    <cmr-field-name>billingAddress</cmr-field-name>
-                </cmr-field>
-                <foreign-key-column-on-source/>
-                <role-mapping>
-                    <cmr-field-mapping>
-                        <key-column>id</key-column>
-                        <foreign-key-column>fk_billing_address</foreign-key-column>
-                    </cmr-field-mapping>
-                </role-mapping>
-            </ejb-relationship-role>
-        </ejb-relation>
-        <ejb-relation>
-            <ejb-relationship-role>
-                <relationship-role-source>
-                    <ejb-name>OrderBean</ejb-name>
-                </relationship-role-source>
-                <cmr-field>
-                    <cmr-field-name>lineItems</cmr-field-name>
-                </cmr-field>
-                <role-mapping>
-                    <cmr-field-mapping>
-                        <key-column>id</key-column>
-                        <foreign-key-column>fk_order</foreign-key-column>
-                    </cmr-field-mapping>
-                </role-mapping>
-            </ejb-relationship-role>
-        </ejb-relation>
-        <ejb-relation>
-            <ejb-relationship-role>
-                <relationship-role-source>
-                    <ejb-name>ProductBean</ejb-name>
-                </relationship-role-source>
-                <cmr-field>
-                    <cmr-field-name>lineItems</cmr-field-name>
-                </cmr-field>
-                <role-mapping>
-                    <cmr-field-mapping>
-                        <key-column>id</key-column>
-                        <foreign-key-column>fk_product</foreign-key-column>
-                    </cmr-field-mapping>
-                </role-mapping>
-            </ejb-relationship-role>
-        </ejb-relation>
-
     </relationships>
 
-    <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
-        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>*:J2EEApplication=null,JCAResource=geronimo/default-database/${geronimo_version}/car,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource,*</gbean-name></reference>
-        <attribute name="sql">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
-        <attribute name="returnType">java.lang.Integer</attribute>
-    </gbean>
+    <!--
+      ########################################################
+      ########################################################
+      -->
 
 </openejb-jar>

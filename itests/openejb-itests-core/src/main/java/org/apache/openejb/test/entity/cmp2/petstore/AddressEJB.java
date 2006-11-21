@@ -20,6 +20,8 @@ import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 import javax.ejb.RemoveException;
 import javax.ejb.CreateException;
+import javax.naming.NamingException;
+import javax.naming.InitialContext;
 
 /**
  * @version $Revision$ $Date$

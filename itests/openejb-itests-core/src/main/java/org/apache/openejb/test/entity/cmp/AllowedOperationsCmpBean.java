@@ -71,19 +71,37 @@ public class AllowedOperationsCmpBean implements EntityBean {
         return x + y;
     }
 
+
     /**
      * Maps to BasicCmpHome.create
      */
     public Integer ejbCreate(String name) throws CreateException {
+        ejbCreate(new Integer(key++),name);
+        return null;
+    }
+
+    /**
+     * Maps to BasicCmpHome.create
+     */
+    public Integer ejbCreate(Integer keyInt, String name) throws CreateException {
         testAllowedOperations("ejbCreate");
         StringTokenizer st = new StringTokenizer(name, " ");
         firstName = st.nextToken();
         lastName = st.nextToken();
-        id = new Integer(key++);
+        if (keyInt == null) {
+            id = new Integer(key++);
+        }
+        else {
+            id = keyInt;
+        }
         return null;
     }
 
     public void ejbPostCreate(String name) {
+        ejbPostCreate(null, name );
+    }
+
+    public void ejbPostCreate(Integer anInt, String name) {
         testAllowedOperations("ejbPostCreate");
     }
 

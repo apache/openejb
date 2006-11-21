@@ -16,6 +16,8 @@
  */
 package org.apache.openejb.test.entity.cmp;
 
+import java.sql.Date;
+import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
