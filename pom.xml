@@ -773,8 +773,8 @@
     </build>
 
     <modules>
-        <module>itests</module>
         <module>modules</module>
+        <module>itests</module>
     </modules>
 
     <distributionManagement>
