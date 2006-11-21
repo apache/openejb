@@ -126,6 +126,8 @@ public class TSSBean implements GBeanLifecycle {
             localPOA.the_POAManager().activate();
 
             org.omg.CORBA.Object obj = server.getORB().resolve_initial_references("NameService");
+            // NB:  This is initial context is never used by the TSSBean, but we request it here
+            // to verify that the server ORB is correctly configured and our target server is accessible.
             initialContext = NamingContextExtHelper.narrow(obj);
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
@@ -172,7 +174,7 @@ public class TSSBean implements GBeanLifecycle {
     public void registerContainer(TSSLink tssLink) throws CORBAException {
         AdapterWrapper adapterWrapper = new AdapterWrapper(tssLink);
 
-        adapterWrapper.start(server.getORB(), localPOA, initialContext, securityPolicy);
+        adapterWrapper.start(server.getORB(), localPOA, securityPolicy);
         adapters.put(tssLink.getContainerId(), adapterWrapper);
 
         log.debug(POAName + " - Linked container " + tssLink.getContainerId());
