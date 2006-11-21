@@ -59,7 +59,10 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
     private String description;
     private CSSConfig cssConfig;
     private SSLConfig sslConfig;
+    // ORB used for activating and accessing the target bean.
     private ORB cssORB;
+    // ORB used for nameservice lookups.
+    private ORB nssORB;
     private ClientContext context;
     private AbstractName abstractName;
 
@@ -136,18 +139,26 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             log.debug(description + " - Looking up home from " + nsURI.toString() + " at " + name);
 
         try {
-            org.omg.CORBA.Object ref = cssORB.string_to_object(nsURI.toString());
+            // The following may seem unncecessary, but it isn't.  We need to use one ORB to
+            // retrieve the object reference from the NameService because the SecurityInterceptor
+            // attached to the main ORB instance may add additional service contexts to the
+            // NameService request that will cause failures.  We use one configuration to access
+            // the server, and the activate the object on the real one.
+            org.omg.CORBA.Object ref = nssORB.string_to_object(nsURI.toString());
             NamingContextExt ic = NamingContextExtHelper.narrow(ref);
 
             NameComponent[] nameComponent = ic.to_name(name);
+            org.omg.CORBA.Object bean = ic.resolve(nameComponent);
+            String beanIOR = nssORB.object_to_string(bean);
 
             ClientContext oldClientContext = ClientContextManager.getClientContext();
             try {
                 ClientContextManager.setClientContext(context);
-                return ic.resolve(nameComponent);
+                bean = cssORB.string_to_object(beanIOR);
             } finally {
                 ClientContextManager.setClientContext(oldClientContext);
             }
+            return bean;
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
             throw new RuntimeException(ue);
@@ -173,6 +184,9 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             log.debug("Starting CSS ORB " + getURI());
 
             Thread.currentThread().setContextClassLoader(classLoader);
+
+            // create an ORB using the name service.
+            nssORB = configAdapter.createNameServiceClientORB(this);
             // the configAdapter creates the ORB instance for us.
             cssORB = configAdapter.createClientORB(this);
 
@@ -193,6 +207,9 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
 
     public void doStop() throws Exception {
         cssORB.destroy();
+        nssORB.destroy();
+        cssORB = null;
+        nssORB = null;
         log.debug("Stopped CORBA Client Security Server - " + description);
     }
 

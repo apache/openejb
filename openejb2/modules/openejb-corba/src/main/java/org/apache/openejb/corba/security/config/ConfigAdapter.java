@@ -43,6 +43,16 @@ public interface ConfigAdapter {
      */
     public ORB createServerORB(CORBABean server)  throws ConfigException;
     /**
+     * Create an ORB for a CSSBean nameservice client context.
+     *
+     * @param client The configured CSSBean used for access.
+     *
+     * @return An ORB instance configured for this client access.
+     * @exception ConfigException
+     */
+
+    public ORB createNameServiceClientORB(CSSBean client)  throws ConfigException;
+    /**
      * Create an ORB for a CSSBean client context.
      *
      * @param client The configured CSSBean used for access.

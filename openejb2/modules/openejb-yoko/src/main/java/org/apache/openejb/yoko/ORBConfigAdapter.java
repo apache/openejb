@@ -139,6 +139,18 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
     }
 
     /**
+     * Create an ORB for a CSSBean name service client context.
+     *
+     * @param client The configured CSSBean used for access.
+     *
+     * @return An ORB instance configured for this client access.
+     * @exception ConfigException
+     */
+    public ORB createNameServiceClientORB(CSSBean client)  throws ConfigException {
+        return createORB(client.getURI(), (ORBConfiguration)client, translateToArgs(client), translateToNameServiceProps(client));
+    }
+
+    /**
      * Create a transient name service instance using the
      * specified host name and port.
      *
@@ -275,14 +287,14 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.openejb.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.openejb.corba.security.SecurityInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.openejb.yoko.ORBInitializer", "");
-        // don't specify the port if we're allowing this to default. 
+        // don't specify the port if we're allowing this to default.
         if (server.getPort() > 0) {
             result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost() + " --port " + server.getPort());
         }
         else {
             result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost());
         }
-            
+
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(TSSConfig)");
             for (Enumeration iter = result.keys(); iter.hasMoreElements();) {
@@ -356,6 +368,33 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
 
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(CSSConfig)");
+            for (Enumeration iter = result.keys(); iter.hasMoreElements();) {
+                String key = (String) iter.nextElement();
+                log.debug(key + " = " + result.getProperty(key));
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * Translate a CSSBean configuration into the
+     * property bundle necessary to configure the
+     * ORB instance.
+     *
+     * @param client The CSSBean holding the configuration.
+     *
+     * @return A property bundle that can be passed to ORB.init();
+     * @exception ConfigException
+     */
+    private Properties translateToNameServiceProps(CSSBean client) throws ConfigException {
+        Properties result = new Properties();
+
+        result.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
+        result.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+
+        if (log.isDebugEnabled()) {
+            log.debug("translateToNameServiceProps(CSSConfig)");
             for (Enumeration iter = result.keys(); iter.hasMoreElements();) {
                 String key = (String) iter.nextElement();
                 log.debug(key + " = " + result.getProperty(key));
