@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.test.entity.cmp2.cmrmapping;
 
+import java.util.Collection;
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 

@@ -31,6 +31,10 @@
     <name>OpenEJB :: iTests</name>
     <packaging>pom</packaging>
 
+    <properties>
+      <junit_version>3.8.1</junit_version>
+    </properties>
+
     <modules>
         <module>openejb-itests-core</module>
     </modules>

@@ -81,7 +81,14 @@ public class BasicStatefulBean implements SessionBean {
         return sessionContext.isCallerInRole(roleName);
     }
 
+    public void ejbCreate() {
+    }
+
     public void ejbCreate(String name) {
+        this.name = name;
+    }
+
+    public void ejbCreate(Integer anInt, String name) {
         this.name = name;
     }
 

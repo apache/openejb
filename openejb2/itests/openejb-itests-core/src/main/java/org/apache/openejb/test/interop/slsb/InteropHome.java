@@ -20,6 +20,8 @@ import java.rmi.RemoteException;
 import javax.ejb.CreateException;
 import javax.ejb.EJBHome;
 
+import org.apache.openejb.test.security.slsb.BasicStateless;
+
 
 /**
  * @version $Revision$ $Date$

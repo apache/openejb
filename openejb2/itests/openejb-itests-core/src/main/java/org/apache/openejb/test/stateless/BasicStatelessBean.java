@@ -22,7 +22,9 @@ import java.util.Properties;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
+import javax.ejb.CreateException;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 import javax.transaction.HeuristicMixedException;
@@ -32,6 +34,8 @@ import javax.transaction.SystemException;
 import javax.transaction.NotSupportedException;
 
 import org.apache.openejb.test.ApplicationException;
+import org.apache.openejb.test.stateful.BasicStatefulObject;
+import org.apache.openejb.test.stateful.BasicStatefulHome;
 import org.apache.openejb.test.object.OperationsPolicy;
 
 /**
