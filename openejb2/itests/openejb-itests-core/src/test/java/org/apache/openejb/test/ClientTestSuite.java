@@ -19,6 +19,7 @@ package org.apache.openejb.test;
 import junit.framework.TestSuite;
 import org.apache.openejb.test.entity.bmp.BmpTestSuite;
 import org.apache.openejb.test.entity.cmp.CmpTestSuite;
+import org.apache.openejb.test.entity.cmp2.Cmp2TestSuite;
 import org.apache.openejb.test.stateful.StatefulTestSuite;
 import org.apache.openejb.test.stateless.StatelessTestSuite;
 
@@ -37,6 +38,7 @@ public class ClientTestSuite extends junit.framework.TestCase {
         suite.addTest(StatefulTestSuite.suite());
         suite.addTest(BmpTestSuite.suite());
         suite.addTest(CmpTestSuite.suite());
+        suite.addTest(Cmp2TestSuite.suite());
         return suite;
     }
 }
