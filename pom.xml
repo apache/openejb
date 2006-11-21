@@ -773,6 +773,7 @@
     </build>
 
     <modules>
+        <module>itests</module>
         <module>modules</module>
     </modules>
 
