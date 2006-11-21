@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.CosNaming.NamingContextExt;
 import org.omg.PortableServer.POA;
 import org.apache.openejb.EJBComponentType;
 import org.apache.openejb.EjbDeployment;
@@ -40,7 +39,7 @@ public final class AdapterWrapper {
 
     }
 
-    public void start(ORB orb, POA poa, NamingContextExt initialContext, Policy securityPolicy) throws CORBAException {
+    public void start(ORB orb, POA poa, Policy securityPolicy) throws CORBAException {
         switch (tssLink.getProxyInfo().getComponentType()) {
             case EJBComponentType.STATELESS:
                 generator = new AdapterStateless(tssLink, orb, poa, securityPolicy);
