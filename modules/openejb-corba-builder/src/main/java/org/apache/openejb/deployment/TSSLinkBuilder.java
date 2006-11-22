@@ -44,6 +44,7 @@ import org.apache.openejb.corba.TSSLinkGBean;
 import org.apache.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlString;
 
 /**
  * @version $Rev$ $Date$
@@ -132,7 +133,9 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
     private String[] toStringArray(XmlObject[] xmlObjects) {
         String[] result = new String[xmlObjects.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = xmlObjects[i].toString();
+            // toString() and xmlText() insert tags around the value, which
+            // is most definitely NOT what we want.
+            result[i] = ((XmlString)xmlObjects[i]).getStringValue();
         }
         return result;
     }
