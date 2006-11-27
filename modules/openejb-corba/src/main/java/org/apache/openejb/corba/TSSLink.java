@@ -37,7 +37,7 @@ import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxServe
 import org.apache.openejb.transaction.TransactionPolicyType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class TSSLink {
     private final TSSBean tssBean;
