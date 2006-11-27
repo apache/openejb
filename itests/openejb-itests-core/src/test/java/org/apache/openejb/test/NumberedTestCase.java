@@ -179,6 +179,10 @@ public class NumberedTestCase extends Assert implements Test {
         return name();
     }
 
+    public String getName() {
+	return name();
+    }
+
     public String name() {
         return "";
     }
