@@ -69,11 +69,15 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
     }
 
     static boolean hasTssLinks(XmlObject plan) {
-        return plan.selectChildren(TSS_LINK_QNAME).length > 0 ||
-                plan.selectChildren(TSS_QNAME).length > 0;
+        return plan != null && (plan.selectChildren(TSS_LINK_QNAME).length > 0 ||
+                plan.selectChildren(TSS_QNAME).length > 0);
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Configuration localConfiguration, Configuration remoteConfiguration, Module module, Map componentContext) throws DeploymentException {
+        if (plan == null) {
+            return;
+        }
+
         AbstractName ejbName = getGBeanName(componentContext);
 
         String[] tssLinks = toStringArray(plan.selectChildren(TSS_LINK_QNAME));
