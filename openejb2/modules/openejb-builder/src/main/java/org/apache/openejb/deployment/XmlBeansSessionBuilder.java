@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
@@ -34,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -98,12 +100,12 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
             boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim());
             boolean isServiceEndpoint = sessionBean.isSetServiceEndpoint();
             if (isStateless && isServiceEndpoint) {
-                addWSContainerGBean(earContext, sessionName, ejbModule, cl, portInfoMap, sessionBean, openejbSessionBean, listener);
+                addWSContainerGBean(earContext, sessionName, ejbModule, cl, sessionBean, openejbSessionBean, listener);
             }
         }
     }
 
-    private void addWSContainerGBean(EARContext earContext, AbstractName sessionName, EJBModule ejbModule, ClassLoader cl, Map portInfoMap, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, AbstractNameQuery listener) throws DeploymentException {
+    private void addWSContainerGBean(EARContext earContext, AbstractName sessionName, EJBModule ejbModule, ClassLoader cl, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, AbstractNameQuery listener) throws DeploymentException {
 
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
         OpenejbWebServiceSecurityType webServiceSecurity = openejbSessionBean == null ? null : openejbSessionBean.getWebServiceSecurity();
@@ -113,9 +115,18 @@ public class XmlBeansSessionBuilder extends XmlBeanBuilder {
 
         GBeanData linkData = new GBeanData(linkDataTemplate);
         linkData.setAbstractName(linkName);
-        Object portInfo = portInfoMap.get(ejbName);
         //let the webServiceBuilder configure its part
-        moduleBuilder.getWebServiceBuilder().configureEJB(linkData, ejbModule.getModuleFile(), portInfo, cl);
+        boolean configured = false;
+        for (Iterator iterator = moduleBuilder.getWebServiceBuilders().iterator(); iterator.hasNext();) {
+            WebServiceBuilder serviceBuilder = (WebServiceBuilder) iterator.next();
+            if (serviceBuilder.configureEJB(linkData, ejbName, ejbModule.getModuleFile(), ejbModule.getSharedContext(), cl)) {
+                configured = true;
+                break;
+            }
+        }
+        if (!configured) {
+            throw new DeploymentException("No web service builder configured ejb web service " + ejbName);
+        }
         //configure the security part and references
         if (webServiceSecurity != null) {
             linkData.setAttribute("securityRealmName", webServiceSecurity.getSecurityRealmName().trim());
