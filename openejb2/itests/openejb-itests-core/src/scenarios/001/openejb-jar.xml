@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<openejb-jar
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
+    configId="openejb/itests-security-scenario001/${openejb_version}/car"
+    parentId="openejb/security/${openejb_version}/car"
+    >
+
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit_version}</version>
+    </dependency>
+
+    <cmp-connection-factory>
+        <application>null</application>
+        <module>geronimo/default-database/${geronimo_version}/car</module>
+        <name>DefaultDatasource</name>
+    </cmp-connection-factory>
+
+    <enterprise-beans>
+
+        <entity>
+            <ejb-name>BasicCmpBean</ejb-name>
+            <jndi-name>security/001/cmp/BasicCmpHome</jndi-name>
+            <table-name>entity</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>first_name</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>last_name</table-column>
+            </cmp-field-mapping>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
+                <custom-generator>
+                    <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
+                    <primary-key-class>java.lang.Integer</primary-key-class>
+                </custom-generator>
+            </key-generator>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <application>null</application>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </entity>
+
+        <entity>
+            <ejb-name>BasicCmp2Bean</ejb-name>
+            <jndi-name>security/001/cmp2/BasicCmpHome</jndi-name>
+            <table-name>entity</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>first_name</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>last_name</table-column>
+            </cmp-field-mapping>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen-2.0">
+                <custom-generator>
+                    <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
+                    <primary-key-class>java.lang.Integer</primary-key-class>
+                </custom-generator>
+            </key-generator>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <application>null</application>
+                <module>geronimo/default-database/${geronimo_version}/car</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </entity>
+
+        <session>
+            <ejb-name>BasicStatelessBean</ejb-name>
+            <jndi-name>security/001/BasicStatelessHome</jndi-name>
+            <tss-link>org/openejb/Itests</tss-link>
+        </session>
+
+        <session>
+            <ejb-name>BasicStatefulBean</ejb-name>
+            <jndi-name>security/001/BasicStatefulHome</jndi-name>
+        </session>
+
+    </enterprise-beans>
+
+    <sec:security default-role="UNASSIGNED" doas-current-caller="true">
+        <sec:default-principal>
+            <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
+        </sec:default-principal>
+
+        <sec:role-mappings>
+            <sec:role role-name="UNASSIGNED">
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest" designated-run-as="true"/>
+            </sec:role>
+
+            <sec:role role-name="LOW">
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="acct" designated-run-as="true"/>
+                <sec:distinguished-name name="CN=Duke, OU=Java Software, O=Sun Microsystems\, Inc., L=Palo Alto, ST=CA, C=US"/>
+            </sec:role>
+
+            <sec:role role-name="MEDIUM">
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it"/>
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george" designated-run-as="true"/>
+            </sec:role>
+
+            <sec:role role-name="HIGH">
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="mgmt" designated-run-as="true"/>
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="dain"/>
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="david"/>
+            </sec:role>
+        </sec:role-mappings>
+    </sec:security>
+
+    <gbean gbeanName="geronimo.server:role=CMPPKGenerator,name=SecurityEntity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
+        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>geronimo.server:J2EEServer=geronimo,J2EEApplication=null,JCAResource=geronimo/default-database/${geronimo_version}/car,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name></reference>
+        <attribute name="sql">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
+        <attribute name="returnType">java.lang.Integer</attribute>
+    </gbean>
+
+</openejb-jar>

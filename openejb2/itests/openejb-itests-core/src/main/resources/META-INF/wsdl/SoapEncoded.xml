@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<definitions name="SoapEncodedService" targetNamespace="http://testing.acme.org/foo/SoapEncoded"
+  xmlns:test="http://testing.acme.org/foo/SoapEncoded"
+  xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+    <types/>
+
+    <message name="returnStringObjectRequest">
+        <part name="String_1" type="xsd:string"/>
+    </message>
+    <message name="returnStringObjectResponse">
+        <part name="result" type="xsd:string"/>
+    </message>
+    <message name="returnBooleanObjectRequest">
+        <part name="Boolean_1" type="xsd:boolean"/>
+    </message>
+    <message name="returnBooleanObjectResponse">
+        <part name="result" type="xsd:boolean"/>
+    </message>
+    <message name="returnBooleanPrimitiveRequest">
+        <part name="boolean_1" type="xsd:boolean"/>
+    </message>
+    <message name="returnBooleanPrimitiveResponse">
+        <part name="result" type="xsd:boolean"/>
+    </message>
+    <message name="returnByteObjectRequest">
+        <part name="Byte_1" type="xsd:byte"/>
+    </message>
+    <message name="returnByteObjectResponse">
+        <part name="result" type="xsd:byte"/>
+    </message>
+    <message name="returnBytePrimitiveRequest">
+        <part name="byte_1" type="xsd:byte"/>
+    </message>
+    <message name="returnBytePrimitiveResponse">
+        <part name="result" type="xsd:byte"/>
+    </message>
+    <message name="returnShortObjectRequest">
+        <part name="Short_1" type="xsd:short"/>
+    </message>
+    <message name="returnShortObjectResponse">
+        <part name="result" type="xsd:short"/>
+    </message>
+    <message name="returnShortPrimitiveRequest">
+        <part name="short_1" type="xsd:short"/>
+    </message>
+    <message name="returnShortPrimitiveResponse">
+        <part name="result" type="xsd:short"/>
+    </message>
+    <message name="returnIntegerObjectRequest">
+        <part name="Integer_1" type="xsd:integer"/>
+    </message>
+    <message name="returnIntegerObjectResponse">
+        <part name="result" type="xsd:integer"/>
+    </message>
+    <message name="returnIntegerPrimitiveRequest">
+        <part name="int_1" type="xsd:int"/>
+    </message>
+    <message name="returnIntegerPrimitiveResponse">
+        <part name="result" type="xsd:int"/>
+    </message>
+    <message name="returnLongObjectRequest">
+        <part name="Long_1" type="xsd:long"/>
+    </message>
+    <message name="returnLongObjectResponse">
+        <part name="result" type="xsd:long"/>
+    </message>
+    <message name="returnLongPrimitiveRequest">
+        <part name="long_1" type="xsd:long"/>
+    </message>
+    <message name="returnLongPrimitiveResponse">
+        <part name="result" type="xsd:long"/>
+    </message>
+    <message name="returnFloatObjectRequest">
+        <part name="Float_1" type="xsd:float"/>
+    </message>
+    <message name="returnFloatObjectResponse">
+        <part name="result" type="xsd:float"/>
+    </message>
+    <message name="returnFloatPrimitiveRequest">
+        <part name="float_1" type="xsd:float"/>
+    </message>
+    <message name="returnFloatPrimitiveResponse">
+        <part name="result" type="xsd:float"/>
+    </message>
+    <message name="returnDoubleObjectRequest">
+        <part name="Double_1" type="xsd:double"/>
+    </message>
+    <message name="returnDoubleObjectResponse">
+        <part name="result" type="xsd:double"/>
+    </message>
+    <message name="returnDoublePrimitiveRequest">
+        <part name="double_1" type="xsd:double"/>
+    </message>
+    <message name="returnDoublePrimitiveResponse">
+        <part name="result" type="xsd:double"/>
+    </message>
+    <portType name="SoapEncoded">
+        <operation name="returnStringObject" parameterOrder="String_1">
+            <input message="test:returnStringObjectRequest"/>
+            <output message="test:returnStringObjectResponse"/>
+        </operation>
+        <operation name="returnBooleanObject" parameterOrder="Boolean_1">
+            <input message="test:returnBooleanObjectRequest"/>
+            <output message="test:returnBooleanObjectResponse"/>
+        </operation>
+        <operation name="returnBooleanPrimitive" parameterOrder="boolean_1">
+            <input message="test:returnBooleanPrimitiveRequest"/>
+            <output message="test:returnBooleanPrimitiveResponse"/>
+        </operation>
+        <operation name="returnByteObject" parameterOrder="Byte_1">
+            <input message="test:returnByteObjectRequest"/>
+            <output message="test:returnByteObjectResponse"/>
+        </operation>
+        <operation name="returnBytePrimitive" parameterOrder="byte_1">
+            <input message="test:returnBytePrimitiveRequest"/>
+            <output message="test:returnBytePrimitiveResponse"/>
+        </operation>
+        <operation name="returnShortObject" parameterOrder="Short_1">
+            <input message="test:returnShortObjectRequest"/>
+            <output message="test:returnShortObjectResponse"/>
+        </operation>
+        <operation name="returnShortPrimitive" parameterOrder="short_1">
+            <input message="test:returnShortPrimitiveRequest"/>
+            <output message="test:returnShortPrimitiveResponse"/>
+        </operation>
+        <operation name="returnIntegerObject" parameterOrder="Integer_1">
+            <input message="test:returnIntegerObjectRequest"/>
+            <output message="test:returnIntegerObjectResponse"/>
+        </operation>
+        <operation name="returnIntegerPrimitive" parameterOrder="int_1">
+            <input message="test:returnIntegerPrimitiveRequest"/>
+            <output message="test:returnIntegerPrimitiveResponse"/>
+        </operation>
+        <operation name="returnLongObject" parameterOrder="Long_1">
+            <input message="test:returnLongObjectRequest"/>
+            <output message="test:returnLongObjectResponse"/>
+        </operation>
+        <operation name="returnLongPrimitive" parameterOrder="long_1">
+            <input message="test:returnLongPrimitiveRequest"/>
+            <output message="test:returnLongPrimitiveResponse"/>
+        </operation>
+        <operation name="returnFloatObject" parameterOrder="Float_1">
+            <input message="test:returnFloatObjectRequest"/>
+            <output message="test:returnFloatObjectResponse"/>
+        </operation>
+        <operation name="returnFloatPrimitive" parameterOrder="float_1">
+            <input message="test:returnFloatPrimitiveRequest"/>
+            <output message="test:returnFloatPrimitiveResponse"/>
+        </operation>
+        <operation name="returnDoubleObject" parameterOrder="Double_1">
+            <input message="test:returnDoubleObjectRequest"/>
+            <output message="test:returnDoubleObjectResponse"/>
+        </operation>
+        <operation name="returnDoublePrimitive" parameterOrder="double_1">
+            <input message="test:returnDoublePrimitiveRequest"/>
+            <output message="test:returnDoublePrimitiveResponse"/>
+        </operation>
+    </portType>
+    <binding name="SoapEncodedBinding" type="test:SoapEncoded">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc"/>
+        <operation name="returnStringObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnBooleanObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnBooleanPrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnByteObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnBytePrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnShortObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnShortPrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnIntegerObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnIntegerPrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnLongObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnLongPrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnFloatObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnFloatPrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnDoubleObject">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+        <operation name="returnDoublePrimitive">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://testing.acme.org/foo/SoapEncoded"/>
+            </output>
+        </operation>
+    </binding>
+
+    <service name="SoapEncodedService">
+        <port name="SoapEncodedPort" binding="test:SoapEncodedBinding">
+            <soap:address location="http://localhost:8000/services/SoapEncoded"/>
+        </port>
+    </service>
+</definitions>

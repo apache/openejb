@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *     http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-->
+
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:pkgen="http://openejb.apache.org/xml/ns/pkgen-2.1"
+    targetNamespace="http://openejb.apache.org/xml/ns/pkgen-2.1"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:element name="key-generator" type="pkgen:key-generatorType"/>
+
+    <xsd:complexType name="emptyType"/>
+
+    <xsd:complexType name="key-generatorType">
+        <xsd:annotation>
+            <xsd:documentation>
+              Primary Key generation element.
+
+              If this is present, a key generator GBean will be created
+              and configured to generate IDs for the surrounding object.
+            </xsd:documentation>
+        </xsd:annotation>
+
+        <xsd:choice>
+            <xsd:element name="uuid" type="pkgen:emptyType"/>
+            <xsd:element name="sequence-table" type="pkgen:sequence-tableType" />
+            <xsd:element name="auto-increment-table" type="pkgen:auto-increment-tableType" />
+            <xsd:element name="sql-generator" type="pkgen:sql-generatorType" />
+            <xsd:element name="custom-generator" type="pkgen:custom-generatorType" />
+        </xsd:choice>
+
+    </xsd:complexType>
+
+    <xsd:complexType name="database-generatedType" >
+        <xsd:annotation>
+            <xsd:documentation>
+                Indicates that the database automatically populates a primary key
+                ID in the listed column(s).  Typically this is used for columns
+                with an AUTO_INCREMENT flag or the equivalent.  This only makes
+                sense if this key generator is used for an EJB or something else
+                with a corresponding database table (not if it's meant to generate
+                unique web session IDs or something like that -- see
+                auto-increment-tableType for that case).
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="identity-column" type="xsd:string"
+                maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="sequence-tableType" >
+        <xsd:annotation>
+            <xsd:documentation>
+                Indicates that a separate table holds a list of table name/ID
+                pairs and the server should fetch the next ID from that table.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="table-name" type="xsd:string"/>
+            <xsd:element name="sequence-name" type="xsd:string"/>
+            <xsd:element name="batch-size" type="xsd:int"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="sql-generatorType" >
+        <xsd:annotation>
+            <xsd:documentation>
+                Indicates that an arbitrary SQL statement should be used to
+                generate the next ID.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="sql" type="xsd:string"/>
+            <xsd:element name="return-type" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="auto-increment-tableType" >
+        <xsd:annotation>
+            <xsd:documentation>
+                Handles the case where an arbitrary SQL statement is executed,
+                and the JDBC driver returns a new automatically generated ID.
+                This should not be used when the destination table itself
+                generates the ID (see database-generatedType), but it could be
+                used for a web session ID or something where there is no
+                naturally matching database table (but you could create one
+                with an AUTO_INCREMENT key, specify an insert statement here,
+                and then capture the newly returned ID and use it as your
+                web session ID).
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="sql" type="xsd:string"/>
+            <xsd:element name="return-type" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="custom-generatorType" >
+        <xsd:annotation>
+            <xsd:documentation>
+                Handles a user-provided generator.  You deploy any old generator
+                as a GBean, and then point to that GBean here.  The generator
+                should implement org.tranql.pkgenerator.PrimaryKeyGenerator.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="generator-name" type="xsd:string"/>
+            <xsd:element name="primary-key-class" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>
