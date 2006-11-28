@@ -130,9 +130,11 @@ public class TSSLink implements GBeanLifecycle {
             String operation = (String) entry.getValue();
 
             int index = ejb.getMethodIndex(method);
-            TransactionPolicyType transactionPolicyType = ejb.getTransactionPolicyManager().getTransactionPolicyType(methodIntf, index);
-            OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getTransactionPolicy(transactionPolicyType);
-            policies.put(operation, operationTxPolicy);
+            if (index > -1) {
+                TransactionPolicyType transactionPolicyType = ejb.getTransactionPolicyManager().getTransactionPolicyType(methodIntf, index);
+                OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getTransactionPolicy(transactionPolicyType);
+                policies.put(operation, operationTxPolicy);
+            }
         }
         ServerTransactionPolicyConfig serverTransactionPolicyConfig = new MappedServerTransactionPolicyConfig(policies);
 
