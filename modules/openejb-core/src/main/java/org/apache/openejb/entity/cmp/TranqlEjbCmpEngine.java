@@ -217,13 +217,21 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
 
     private Set createEjbSelectQueries(Map selects) throws IllegalArgumentException {
         Set queries = new HashSet();
+        Method[] methods = beanClass.getMethods();
+        List list= new ArrayList();
+        for(int i=0;i<methods.length;i++)
+        {
+            if(methods[i].getName().startsWith("ejbSelect")){
+                list.add(new InterfaceMethodSignature(methods[i].getName(), methods[i].getParameterTypes(), true));
+            }
+        }
         for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             SelectEJBQLQuery query = (SelectEJBQLQuery) entry.getKey();
 
             InterfaceMethodSignature signature = new InterfaceMethodSignature(query.getMethodName(), query.getParameterTypes(), true);
             QueryCommand command = (QueryCommand) entry.getValue();
-
+            list.remove(signature);
             Method method = signature.getMethod(beanClass);
             if (method == null) {
                 throw new IllegalArgumentException("Could not find select for signature: " + signature);
@@ -238,6 +246,8 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
                 queries.add(new TranqlSingleValuedQuery(query, command, null, query.getSelectedEJB(), identityDefinerBuilder));
             }
         }
+        if(list.size() != 0)
+            throw new IllegalArgumentException("Could not find entry for ejbSelect method " + ((InterfaceMethodSignature)list.get(0)).getMethodName()+" in ejb descriptor");
         return queries;
     }
 
@@ -245,14 +255,25 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
         Class homeInterface = proxyInfo.getHomeInterface();
         Class localHomeInterface = proxyInfo.getLocalHomeInterface();
 
+        List list= new ArrayList();
+        Class clazz = homeInterface;
+        if(clazz == null){
+            clazz = localHomeInterface;
+        }
+        Method[] methods = clazz.getMethods();
+        for(int i=0;i<methods.length;i++)
+        {
+            if(methods[i].getName().startsWith("find")){
+                list.add(new InterfaceMethodSignature(methods[i].getName(), methods[i].getParameterTypes(), true));
+            }
+        }
         Set queries = new LinkedHashSet();
         for (Iterator iterator = finders.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             FinderEJBQLQuery query = (FinderEJBQLQuery) entry.getKey();
-
             InterfaceMethodSignature signature = new InterfaceMethodSignature(query.getMethodName(), query.getParameterTypes(), true);
             QueryCommand[] commands = (QueryCommand[]) entry.getValue();
-
+            list.remove(signature);
             Method method = signature.getMethod(homeInterface);
             if (method == null) {
                 method = signature.getMethod(localHomeInterface);
@@ -272,6 +293,8 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
                 queries.add(new TranqlSingleValuedQuery(query, commands[0], commands[1], ejb, identityDefinerBuilder));
             }
         }
+        if(list.size() != 0)
+            throw new IllegalArgumentException("Could not find entry for finder method " + ((InterfaceMethodSignature)list.get(0)).getMethodName()+" in ejb descriptor");
         return queries;
     }
 
