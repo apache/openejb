@@ -35,11 +35,12 @@ import org.apache.openejb.corba.transaction.OperationTxPolicy;
 import org.apache.openejb.corba.transaction.MappedServerTransactionPolicyConfig;
 import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
 import org.apache.openejb.transaction.TransactionPolicyType;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-public class TSSLink {
+public class TSSLink implements GBeanLifecycle {
     private final TSSBean tssBean;
     private final RpcEjbDeployment ejb;
     private final String[] jndiNames;
@@ -51,6 +52,12 @@ public class TSSLink {
     }
 
     public TSSLink(String[] jndiNames, TSSBean tssBean, RpcEjbDeployment ejb) {
+        if (tssBean == null) {
+            throw new NullPointerException("No TSSBean supplied");
+        }
+        if (ejb == null) {
+            throw new NullPointerException("No ejb supplied");
+        }
         this.jndiNames = jndiNames;
         this.tssBean = tssBean;
         this.ejb = ejb;
@@ -60,6 +67,14 @@ public class TSSLink {
         if (tssBean != null) {
             tssBean.registerContainer(this);
         }
+    }
+
+    public void doStop() throws Exception {
+        destroy();
+    }
+
+    public void doFail() {
+        destroy();
     }
 
     protected void destroy() {
