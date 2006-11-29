@@ -23,8 +23,6 @@ import javax.ejb.EJBHome;
 import javax.ejb.FinderException;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface MockHome extends EJBHome {
@@ -34,9 +32,9 @@ public interface MockHome extends EJBHome {
 
     int intMethod(int i) throws RemoteException;
 
-    String singleSelect(Integer i) throws FinderException, RemoteException;
+//    String singleSelect(Integer i) throws FinderException, RemoteException;
 
-    Collection multiSelect(Integer i) throws FinderException, RemoteException;
+//    Collection multiSelect(Integer i) throws FinderException, RemoteException;
 
-    Collection multiObject(Integer i) throws FinderException, RemoteException;
+//    Collection multiObject(Integer i) throws FinderException, RemoteException;
 }
