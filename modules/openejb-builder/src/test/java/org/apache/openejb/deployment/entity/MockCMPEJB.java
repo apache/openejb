@@ -49,22 +49,22 @@ public abstract class MockCMPEJB implements EntityBean, TimedObject {
         return i + 1;
     }
 
-    public String ejbHomeSingleSelect(Integer i) throws FinderException {
-        try {
-            String s = ejbSelectSingleValue(i);
-            return s;
-        } catch (FinderException e) {
-            throw e;
-        }
-    }
+//    public String ejbHomeSingleSelect(Integer i) throws FinderException {
+//        try {
+//            String s = ejbSelectSingleValue(i);
+//            return s;
+//        } catch (FinderException e) {
+//            throw e;
+//        }
+//    }
 
-    public Collection ejbHomeMultiSelect(Integer i) throws FinderException {
-        return ejbSelectMultiValue(i);
-    }
+//    public Collection ejbHomeMultiSelect(Integer i) throws FinderException {
+//        return ejbSelectMultiValue(i);
+//    }
 
-    public Collection ejbHomeMultiObject(Integer i) throws FinderException {
-        return ejbSelectMultiObject(i);
-    }
+//    public Collection ejbHomeMultiObject(Integer i) throws FinderException {
+//        return ejbSelectMultiObject(i);
+//    }
 
     public int intMethod(int i) {
         return 1 + i + ((Integer) context.getPrimaryKey()).intValue();
@@ -74,9 +74,9 @@ public abstract class MockCMPEJB implements EntityBean, TimedObject {
         return field;
     }
 
-    public abstract String ejbSelectSingleValue(Integer i) throws FinderException;
-    public abstract Collection ejbSelectMultiValue(Integer i) throws FinderException;
-    public abstract Collection ejbSelectMultiObject(Integer i) throws FinderException;
+//    public abstract String ejbSelectSingleValue(Integer i) throws FinderException;
+//    public abstract Collection ejbSelectMultiValue(Integer i) throws FinderException;
+//    public abstract Collection ejbSelectMultiObject(Integer i) throws FinderException;
 
     public abstract Integer getId();
     public abstract void setId(Integer i);
