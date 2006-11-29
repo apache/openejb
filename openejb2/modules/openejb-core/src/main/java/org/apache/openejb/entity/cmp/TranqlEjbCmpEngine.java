@@ -246,8 +246,9 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
                 queries.add(new TranqlSingleValuedQuery(query, command, null, query.getSelectedEJB(), identityDefinerBuilder));
             }
         }
-        if(list.size() != 0)
+        if(list.size() != 0) {
             throw new IllegalArgumentException("Could not find entry for ejbSelect method " + ((InterfaceMethodSignature)list.get(0)).getMethodName()+" in ejb descriptor");
+        }
         return queries;
     }
 
@@ -293,8 +294,9 @@ public class TranqlEjbCmpEngine implements EjbCmpEngine {
                 queries.add(new TranqlSingleValuedQuery(query, commands[0], commands[1], ejb, identityDefinerBuilder));
             }
         }
-        if(list.size() != 0)
+        if(list.size() != 0) {
             throw new IllegalArgumentException("Could not find entry for finder method " + ((InterfaceMethodSignature)list.get(0)).getMethodName()+" in ejb descriptor");
+        }
         return queries;
     }
 

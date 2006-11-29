@@ -16,6 +16,8 @@
     limitations under the License.
 -->
 
+<!-- $Rev$ $Date$ -->
+
 <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 
     <environment>

@@ -31,9 +31,9 @@ public interface MockLocalHome extends EJBLocalHome {
 
     int intMethod(int i);
 
-    String singleSelect(Integer i) throws FinderException;
+//    String singleSelect(Integer i) throws FinderException;
 
-    Collection multiSelect(Integer i) throws FinderException;
+//    Collection multiSelect(Integer i) throws FinderException;
 
-    Collection multiObject(Integer i) throws FinderException;
+//    Collection multiObject(Integer i) throws FinderException;
 }
