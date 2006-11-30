@@ -331,6 +331,7 @@ public class SocketFactory implements ConnectionHelper {
                 try {
                     socketFactory = (SSLSocketFactory)sslConfig.createSSLFactory(Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
+                    log.error("Unable to create client SSL socket factory", e);
                     throw new IOException("Unable to create client SSL socket factory: " + e.getMessage());
                 }
             }
@@ -356,6 +357,7 @@ public class SocketFactory implements ConnectionHelper {
                 try {
                     serverSocketFactory = (SSLServerSocketFactory)sslConfig.createSSLServerFactory(Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
+                    log.error("Unable to create server SSL socket factory", e);
                     throw new IOException("Unable to create server SSL socket factory: " + e.getMessage());
                 }
             }
@@ -364,6 +366,13 @@ public class SocketFactory implements ConnectionHelper {
             if (cipherSuites == null) {
                 cipherSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, serverSocketFactory.getSupportedCipherSuites());
             }
+            // There's a bit of a timing problem with server-side ORBs.  Part of the ORB shutdown is to
+            // establish a self-connection to shutdown the acceptor threads.  This requires a client
+            // SSL socket factory.  Unfortunately, if this is occurring during server shutdown, the
+            // FileKeystoreManager will get a NullPointerException because some name queries fail because
+            // things are getting shutdown.  Therefore, if we need the server factory, assume we'll also
+            // need the client factory to shutdown, and request it now.
+            getSocketFactory();
         }
         return serverSocketFactory;
     }
