@@ -89,7 +89,7 @@ public class BasicManagedConnectionFactory implements javax.resource.spi.Managed
             Connection connection = DriverManager.getConnection(jdbcUrl, request.getUserName(), request.getPassword());
             return new JdbcManagedConnection(managedConnectionFactory, connection, request);
         } catch (java.sql.SQLException e) {
-            throw (EISSystemException)new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager").initCause(e);
+            throw (EISSystemException)new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager: "+e.getMessage()+". "+e.getErrorCode()+". "+e.getSQLState()).initCause(e);
         }
     }
 

@@ -46,6 +46,7 @@ package org.openejb.resource.jdbc;
 
 import org.openejb.core.EnvProps;
 import org.openejb.util.Logger;
+import org.openejb.loader.SystemInstance;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
@@ -55,7 +56,11 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
+import java.io.File;
 import java.util.Set;
+import java.util.Properties;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class JdbcManagedConnectionFactory implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
 
@@ -74,6 +79,22 @@ public class JdbcManagedConnectionFactory implements javax.resource.spi.ManagedC
 
         if (driver.equals("org.enhydra.instantdb.jdbc.idbDriver")) {
             factory = new ManagedConnectionFactoryPathHack(factory);
+        } else if (driver.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+            factory = new ManagedConnectionFactoryPathHack(factory);
+        } else if (driver.equals("org.hsqldb.jdbcDriver")) {
+            factory = new ManagedConnectionFactoryPathHack(factory);
+        } else if (url.indexOf("conf/") > 0){
+            try {
+                String path = url.substring(url.indexOf("conf/"), url.length());
+                URI uri = new URI("file:///" + path);
+                path = uri.getPath();
+                path = path.substring(1, path.length());
+                SystemInstance.get().getBase().getFile(path);
+                factory = new ManagedConnectionFactoryPathHack(factory);
+            } catch (URISyntaxException e) {
+            } catch (java.io.FileNotFoundException e) {
+            } catch (java.io.IOException e) {
+            }
         }
 
         JdbcConnectionRequestInfo info = new JdbcConnectionRequestInfo(defaultUserName, defaultPassword, driver, url);
