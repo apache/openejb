@@ -374,6 +374,15 @@
                     <name>SystemDatasource</name>
                 </pattern>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                    <![CDATA[SELECT OBJECT(a) FROM EncCmp2 AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>Cmp2RMIIIOPBean</ejb-name>
@@ -397,6 +406,15 @@
                     <return-type>java.lang.Integer</return-type>
                 </auto-increment-table>
             </key-generator>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                    <![CDATA[SELECT OBJECT(a) FROM Cmp2RmiIiop AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
 
         <!--
@@ -478,6 +496,15 @@
                     <return-type>java.lang.Integer</return-type>
                 </auto-increment-table>
             </key-generator>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                    <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
             <query>
                 <query-method>
                     <method-name>findByPrimaryKey</method-name>
@@ -603,6 +630,15 @@
                     <name>SystemDatasource</name>
                 </pattern>
             </resource-ref>
+             <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                    <![CDATA[SELECT OBJECT(a) FROM EncCmpBean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>CmpRMIIIOPBean</ejb-name>
@@ -626,6 +662,15 @@
                     <return-type>java.lang.Integer</return-type>
                 </auto-increment-table>
             </key-generator>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                    <![CDATA[SELECT OBJECT(a) FROM CmpRMIIIOPBean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
 
         <!--

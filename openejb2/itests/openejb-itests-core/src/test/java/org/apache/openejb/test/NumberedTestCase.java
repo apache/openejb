@@ -93,20 +93,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             setUp();
         } catch (Exception e) {
-            Test test = new Test() {
-                public int countTestCases() {
-                    return 0;
-                }
-
-                public void run(TestResult result) {
-                }
-
-                public String toString() {
-                    return name() + ".setUp()";
-                }
-            };
-
-            result.addError(test, e);
+            result.addError(new DummyTest(".setUp()", 0), e);
             return;
         }
         for (int i = 0; i < testMethods.length; i++) {
@@ -115,20 +102,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             tearDown();
         } catch (Exception e) {
-            Test test = new Test() {
-                public int countTestCases() {
-                    return 0;
-                }
-
-                public void run(TestResult result) {
-                }
-
-                public String toString() {
-                    return name() + ".tearDown()";
-                }
-            };
-
-            result.addError(test, e);
+            result.addError(new DummyTest(".tearDown()", 0), e);
             return;
         }
     }
@@ -147,19 +121,7 @@ public class NumberedTestCase extends Assert implements Test {
 
 
     protected Test createTest(final Method testMethod) {
-        Test test = new Test() {
-            public int countTestCases() {
-                return 1;
-            }
-
-            public void run(TestResult result) {
-            }
-
-            public String toString() {
-                return createTestName(testMethod);
-            }
-        };
-        return test;
+        return new DummyTest(createTestName(testMethod), 1);
     }
 
     protected void runTestMethod(Method testMethod) throws Throwable {
@@ -180,7 +142,7 @@ public class NumberedTestCase extends Assert implements Test {
     }
 
     public String getName() {
-	return name();
+        return name();
     }
 
     public String name() {

@@ -102,7 +102,7 @@ public abstract class AbstractTestDatabase implements TestDatabase {
 //            Properties properties = TestManager.getServer().getContextEnvironment();
             Properties properties = new Properties();
             properties.put("test.server.class", "org.apache.openejb.test.RemoteTestServer");
-            properties.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
+            properties.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
             properties.put("java.naming.provider.url", "127.0.0.1:4201");
             properties.put("java.naming.security.principal", "testuser");
             properties.put("java.naming.security.credentials", "testpassword");
