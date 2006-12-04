@@ -146,10 +146,25 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         } catch (SASException e) {
             log.error("SASException", e);
             SASReplyManager.setSASReply(ri.request_id(), generateContextError(e, contextId));
-            throw (RuntimeException) e.getCause();
+            // rethrowing this requires some special handling.  If the root exception is a
+            // RuntimeException, then we can just rethrow it.  Otherwise we need to turn this into
+            // a RuntimeException.
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException)cause;
+            }
+            else {
+                throw new RuntimeException(cause.getMessage(), cause);
+            }
         } catch (Exception e) {
             log.error("Exception", e);
-            throw (RuntimeException) e.getCause();
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException)cause;
+            }
+            else {
+                throw new RuntimeException(cause.getMessage(), cause);
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(savedCL);
         }
