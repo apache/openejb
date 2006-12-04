@@ -24,14 +24,13 @@ import junit.framework.TestResult;
  * 
  */
 public class DummyTest implements Test {
-    private String method;
+
+    private String name;
 
     private int count;
 
-    protected static final String standardPrefix = "test##_";
-
     public DummyTest(String method, int i) {
-        this.method = method;
+        this.name = method;
         this.count = i;
     }
 
@@ -43,27 +42,12 @@ public class DummyTest implements Test {
     }
 
     public String toString() {
-        return name() + removePrefix(method);
+        return getName();
     }
 
     public String getName() {
-        return name();
+        return name;
     }
 
-    public String name() {
-        return "";
-    }
-
-
-    protected static String removePrefix(String methodname) {
-        return removePrefix(standardPrefix, methodname);
-    }
-
-    protected static String removePrefix(String prefix, String methodname) {
-        if (methodname.startsWith(standardPrefix)) {
-            return methodname.substring(prefix.length());
-        }
-        return methodname;
-    }
 }
 
