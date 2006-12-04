@@ -93,18 +93,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             setUp();
         } catch (Exception e) {
-            Test test = new Test() {
-                public int countTestCases() {
-                    return 0;
-                }
-
-                public void run(TestResult result) {
-                }
-
-                public String toString() {
-                    return name() + ".setUp()";
-                }
-            };
+            DummyTest test = new DummyTest(".setup()", 0);
 
             result.addError(test, e);
             return;
@@ -115,18 +104,8 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             tearDown();
         } catch (Exception e) {
-            Test test = new Test() {
-                public int countTestCases() {
-                    return 0;
-                }
 
-                public void run(TestResult result) {
-                }
-
-                public String toString() {
-                    return name() + ".tearDown()";
-                }
-            };
+            DummyTest test = new DummyTest(".teardown()", 0);
 
             result.addError(test, e);
             return;
@@ -147,18 +126,8 @@ public class NumberedTestCase extends Assert implements Test {
 
 
     protected Test createTest(final Method testMethod) {
-        Test test = new Test() {
-            public int countTestCases() {
-                return 1;
-            }
+        DummyTest test = new DummyTest(testMethod.getName(), 1);
 
-            public void run(TestResult result) {
-            }
-
-            public String toString() {
-                return createTestName(testMethod);
-            }
-        };
         return test;
     }
 
@@ -180,13 +149,14 @@ public class NumberedTestCase extends Assert implements Test {
     }
 
     public String getName() {
-	return name();
+        return name();
     }
 
     public String name() {
         return "";
     }
 
+    /*
     protected String createTestName(Method testMethod) {
         return name() + removePrefix(testMethod.getName());
     }
@@ -198,6 +168,7 @@ public class NumberedTestCase extends Assert implements Test {
     protected static String removePrefix(String prefix, String name) {
         return name.substring(prefix.length());
     }
+    */
 }
 
 

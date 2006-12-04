@@ -45,7 +45,7 @@ public class RemoteTestServer implements org.apache.openejb.test.TestServer {
         properties = props;
 
         props.put("test.server.class", "org.apache.openejb.test.RemoteTestServer");
-        props.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
+        props.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
         props.put("java.naming.provider.url", "127.0.0.1:4201");
         props.put("java.naming.security.principal", "testuser");
         props.put("java.naming.security.credentials", "testpassword");
@@ -61,7 +61,7 @@ public class RemoteTestServer implements org.apache.openejb.test.TestServer {
             try {
                 System.out.println("[] START SERVER");
                 serverHasAlreadyBeenStarted = false;
-                Launcher.main(new String[]{"-nowait", "org.openejb.server.Main"});
+                Launcher.main(new String[]{"-nowait", "org.apache.openejb.server.Main"});
                 //oldStart();
             } catch (Exception e) {
                 throw new RuntimeException("Cannot start the server.");
@@ -84,7 +84,7 @@ public class RemoteTestServer implements org.apache.openejb.test.TestServer {
         cmd[1] = "-classpath";
         cmd[2] = classpath;
         cmd[3] = "-Dopenejb.home=" + openejbHome;
-        cmd[4] = "org.openejb.server.Main";
+        cmd[4] = "org.apache.openejb.server.Main";
         for (int i = 0; i < cmd.length; i++) {
             //System.out.println("[] "+cmd[i]);
         }
