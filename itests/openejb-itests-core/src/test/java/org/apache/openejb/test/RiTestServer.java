@@ -34,7 +34,7 @@ public class RiTestServer implements TestServer {
     protected Process server;
     protected boolean startServerProcess;
     protected String configFile;
-    protected String serverClassName = " org.openejb.ri.server.Server ";
+    protected String serverClassName = " org.apache.openejb.ri.server.Server ";
     protected String classPath;
     protected DataInputStream in;
     protected DataInputStream err;
@@ -172,7 +172,7 @@ public class RiTestServer implements TestServer {
 
     public Properties getContextEnvironment() {
         Properties properties = new Properties();
-        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.ri.server.RiInitCtxFactory");
+        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.ri.server.RiInitCtxFactory");
 
         try {
             properties.put(Context.PROVIDER_URL, new URL("http", "127.0.0.1", 1098, ""));
