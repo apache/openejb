@@ -93,9 +93,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             setUp();
         } catch (Exception e) {
-            DummyTest test = new DummyTest(".setup()", 0);
-
-            result.addError(test, e);
+            result.addError(new DummyTest(".setUp()", 0), e);
             return;
         }
         for (int i = 0; i < testMethods.length; i++) {
@@ -104,10 +102,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             tearDown();
         } catch (Exception e) {
-
-            DummyTest test = new DummyTest(".teardown()", 0);
-
-            result.addError(test, e);
+            result.addError(new DummyTest(".tearDown()", 0), e);
             return;
         }
     }
@@ -126,9 +121,7 @@ public class NumberedTestCase extends Assert implements Test {
 
 
     protected Test createTest(final Method testMethod) {
-        DummyTest test = new DummyTest(testMethod.getName(), 1);
-
-        return test;
+        return new DummyTest(createTestName(testMethod), 1);
     }
 
     protected void runTestMethod(Method testMethod) throws Throwable {
@@ -156,7 +149,6 @@ public class NumberedTestCase extends Assert implements Test {
         return "";
     }
 
-    /*
     protected String createTestName(Method testMethod) {
         return name() + removePrefix(testMethod.getName());
     }
@@ -168,7 +160,6 @@ public class NumberedTestCase extends Assert implements Test {
     protected static String removePrefix(String prefix, String name) {
         return name.substring(prefix.length());
     }
-    */
 }
 
 
