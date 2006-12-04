@@ -188,6 +188,14 @@ public class SocketFactory implements ConnectionHelper {
                                     int supports = transportConfig.getSupports();
                                     int requires = transportConfig.getRequires();
 
+                                    // The CSIv2 spec requires that the port for a secure connection be
+                                    // placed in the transport config and the port value in the normal
+                                    // IIOP profile be 0.  If we see a zero port value, then we need to
+                                    // replace it with the transport specified one.
+                                    if (port <= 0) {
+                                        port = transportConfig.getPort();
+                                    }
+
                                     if (log.isDebugEnabled()) {
 
                                         log.debug("IOR from target " + address.getHostName() + ":" + port);
