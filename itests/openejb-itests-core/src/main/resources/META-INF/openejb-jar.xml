@@ -14,6 +14,12 @@
         </moduleId>
 
         <dependencies>
+          <dependency>
+              <groupId>org.apache.geronimo.configs</groupId>
+              <artifactId>j2ee-corba-yoko</artifactId>
+              <version>${geronimoVersion}</version>
+              <type>car</type>
+          </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.configs</groupId>
                 <artifactId>system-database</artifactId>
@@ -26,7 +32,6 @@
                 <version>${junit_version}</version>
             </dependency>
         </dependencies>
-
     </environment>
 
     <cmp-connection-factory>
@@ -812,5 +817,7 @@
       ########################################################
       ########################################################
       -->
+
+    <gbean name="ORBConfigAdapter" class="org.apache.openejb.yoko.ORBConfigAdapterGBean"/>
 
 </openejb-jar>
