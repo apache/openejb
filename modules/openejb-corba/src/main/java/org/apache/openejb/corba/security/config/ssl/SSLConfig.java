@@ -77,11 +77,11 @@ public class SSLConfig {
      *         SSLConfig specifices.
      *
      * @throws KeystoreException
-     *                When a problem occurs while creating the factory.          
+     *                When a problem occurs while creating the factory.
      */
     public SSLSocketFactory createSSLFactory(ClassLoader loader) throws KeystoreException {
         if (manager != null) {
-            // fix up the default algorithm now. 
+            // fix up the default algorithm now.
             if ("default".equalsIgnoreCase(algorithm)) {
                 this.algorithm = KeyManagerFactory.getDefaultAlgorithm();
             }
@@ -104,11 +104,11 @@ public class SSLConfig {
      *         SSLConfig specifices.
      *
      * @throws KeystoreException
-     *                When a problem occurs while creating the factory.          
+     *                When a problem occurs while creating the factory.
      */
     public SSLServerSocketFactory createSSLServerFactory(ClassLoader loader) throws KeystoreException {
         if (manager != null) {
-            // fix up the default algorithm now. 
+            // fix up the default algorithm now.
             if ("default".equalsIgnoreCase(algorithm)) {
                 this.algorithm = KeyManagerFactory.getDefaultAlgorithm();
             }

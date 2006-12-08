@@ -27,8 +27,6 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public abstract class MockCMPEJB implements EntityBean, TimedObject {
