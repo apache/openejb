@@ -295,72 +295,84 @@
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-connector</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-connector-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-core</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-client</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-common</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-deployment</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-interceptor</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-deploy-config</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-j2ee</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-j2ee-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-management</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-kernel</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
@@ -373,162 +385,189 @@
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-security</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-security-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-timer</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-transaction</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-axis</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-axis-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-naming</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-naming-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-service-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-system</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-j2ee-schema</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-webservices</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-webservices-builder</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-util</artifactId>
                 <version>${geronimoVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_2.1_spec</artifactId>
                 <version>${geronimoSpecEjbVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
                 <version>${geronimoSpecJ2eeConnectorVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
                 <version>${geronimoSpecJ2eeDeploymentVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
                 <version>${geronimoSpecJ2eeJaccVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
                 <version>${geronimoSpecJ2eeManagementVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaxr_1.0_spec</artifactId>
                 <version>${geronimoSpecJaxrVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
                 <version>${geronimoSpecJaxrpcVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jsp_2.0_spec</artifactId>
                 <version>${geronimoSpecJspVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jms_1.1_spec</artifactId>
                 <version>${geronimoSpecJmsVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
                 <version>${geronimoSpecJtaVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-qname_1.1_spec</artifactId>
                 <version>${geronimoSpecQnameVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-saaj_1.1_spec</artifactId>
                 <version>${geronimoSpecSaajVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_2.4_spec</artifactId>
                 <version>${geronimoSpecServletVersion}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!--<dependency>-->
