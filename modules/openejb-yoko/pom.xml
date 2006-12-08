@@ -49,6 +49,19 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--- TODO this is bad news.  needed for default principal xml -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-util</artifactId>
         </dependency>
 

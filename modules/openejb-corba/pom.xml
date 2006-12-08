@@ -39,6 +39,32 @@
             <version>${pom.version}</version>
         </dependency>
 
+
+      <dependency>
+          <groupId>org.apache.geronimo.modules</groupId>
+          <artifactId>geronimo-management</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.modules</groupId>
+          <artifactId>geronimo-kernel</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.modules</groupId>
+          <artifactId>geronimo-security</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.modules</groupId>
+          <artifactId>geronimo-timer</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.modules</groupId>
+          <artifactId>geronimo-transaction</artifactId>
+      </dependency>
+
     </dependencies>
 
     <build>
