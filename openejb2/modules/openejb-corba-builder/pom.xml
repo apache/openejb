@@ -43,11 +43,12 @@
             <artifactId>openejb-builder</artifactId>
             <version>${pom.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
         </dependency>
-
+        
         <!--- TODO this is bad news.  needed for default principal xml -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

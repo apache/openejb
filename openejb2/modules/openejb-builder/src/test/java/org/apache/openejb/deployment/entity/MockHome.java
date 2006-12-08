@@ -23,8 +23,6 @@ import javax.ejb.EJBHome;
 import javax.ejb.FinderException;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface MockHome extends EJBHome {
