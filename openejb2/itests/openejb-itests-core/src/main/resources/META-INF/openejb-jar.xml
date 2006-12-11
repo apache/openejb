@@ -511,12 +511,6 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <key-generator>
-                <auto-increment-table>
-                    <sql>INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</sql>
-                    <return-type>java.lang.Integer</return-type>
-                </auto-increment-table>
-            </key-generator>
             <query>
                 <query-method>
                     <method-name>findEmptyCollection</method-name>
