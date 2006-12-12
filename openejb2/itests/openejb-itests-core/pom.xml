@@ -74,10 +74,6 @@
       <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.modules</groupId>
-      <artifactId>geronimo-security</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
       <version>2.3-incubating-SNAPSHOT</version>
