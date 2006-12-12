@@ -21,7 +21,7 @@ import javax.naming.InitialContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.geronimo.security.jaas.UsernamePasswordCallback;
+import org.apache.openejb.test.UsernamePasswordCallback;
 
 import org.apache.openejb.test.NamedTestCase;
 import org.apache.openejb.test.TestManager;
