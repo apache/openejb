@@ -29,7 +29,7 @@ public class QuerySpec implements Serializable {
     private final MethodSignature methodSignature;
     private String ejbQl;
     private boolean local;
-    private boolean flushCacheBeforeQuery;
+    private boolean flushCacheBeforeQuery = true;
     private String prefetchGroup;
 
     public QuerySpec(MethodSignature methodSignature) {
