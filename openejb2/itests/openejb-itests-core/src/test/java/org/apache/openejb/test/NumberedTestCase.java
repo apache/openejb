@@ -93,7 +93,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             setUp();
         } catch (Exception e) {
-            result.addError(new DummyTest(createTestName("setUp"), 0), e);
+            result.addError(new DummyTest(name()+"setUp", 0), e);
             return;
         }
         for (int i = 0; i < testMethods.length; i++) {
@@ -102,7 +102,7 @@ public class NumberedTestCase extends Assert implements Test {
         try {
             tearDown();
         } catch (Exception e) {
-            result.addError(new DummyTest(createTestName("tearDown"), 0), e);
+            result.addError(new DummyTest(name()+"tearDown", 0), e);
             return;
         }
     }
