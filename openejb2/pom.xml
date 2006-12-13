@@ -46,15 +46,11 @@
         | Geronimo specification versions
         |
         -->
-        <geronimoSpecActivationVersion>1.0</geronimoSpecActivationVersion>
-        <geronimoSpecCorbaVersion>1.0-SNAPSHOT</geronimoSpecCorbaVersion>
         <geronimoSpecEjbVersion>1.0</geronimoSpecEjbVersion>
-        <geronimoSpecJ2eeVersion>1.1-SNAPSHOT</geronimoSpecJ2eeVersion>
         <geronimoSpecJ2eeConnectorVersion>1.0</geronimoSpecJ2eeConnectorVersion>
         <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
         <geronimoSpecJ2eeJaccVersion>1.0</geronimoSpecJ2eeJaccVersion>
         <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
-        <geronimoSpecJavamailVersion>1.1-SNAPSHOT</geronimoSpecJavamailVersion>
         <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
         <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
         <geronimoSpecJmsVersion>1.0</geronimoSpecJmsVersion>
@@ -62,7 +58,6 @@
         <geronimoSpecJtaVersion>1.0</geronimoSpecJtaVersion>
         <geronimoSpecQnameVersion>1.0</geronimoSpecQnameVersion>
         <geronimoSpecSaajVersion>1.0</geronimoSpecSaajVersion>
-        <geronimoSpecServletVersion>1.0</geronimoSpecServletVersion>
 
         <antVersion>1.6.5</antVersion>
         <axionVersion>1.0-M3-dev</axionVersion>
@@ -71,8 +66,6 @@
         <castorVersion>0.9.5.3</castorVersion>
         <staxApiVersion>1.0.1</staxApiVersion>
         <staxVersion>1.1.1-dev</staxVersion>
-        <tranqlConnectorVersion>1.3-SNAPSHOT</tranqlConnectorVersion>
-        <tranqlVendorsVersion>1.2-SNAPSHOT</tranqlVendorsVersion>
         <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
         <yokoVersion>1.0-incubating-M2-SNAPSHOT</yokoVersion>
