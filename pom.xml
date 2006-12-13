@@ -24,7 +24,7 @@
     <groupId>org.apache.openejb</groupId>
     <artifactId>openejb</artifactId>
     <packaging>pom</packaging>
-    <version>2.2-incubating-SNAPSHOT</version>
+    <version>2.2-incubating</version>
     <inceptionYear>1999</inceptionYear>
     <description>OpenEJB EJB Container</description>
     <url>http://incubator.apache.org/projects/openejb</url>
