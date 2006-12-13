@@ -68,7 +68,7 @@
         <staxVersion>1.1.1-dev</staxVersion>
         <tranqlVersion>1.4.1</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
-        <yokoVersion>1.0-incubating-M2-SNAPSHOT</yokoVersion>
+        <yokoVersion>1.0-incubating-M2-486709</yokoVersion>
     </properties>
 
     <organization>
@@ -210,22 +210,6 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-
-        <repository>
-            <id>codehaus-m1</id>
-            <name>Codehaus Maven 1 Repository</name>
-            <url>http://dist.codehaus.org</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots Repository</name>
@@ -237,7 +221,7 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
             <releases>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
