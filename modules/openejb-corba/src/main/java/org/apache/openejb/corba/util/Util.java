@@ -427,7 +427,12 @@ public final class Util {
 
                 // copy the result to force replacement
                 // corba does not call writeReplace on remote proxies
-                if (object instanceof Serializable) {
+                //
+                // HOWEVER, if this is an array, then we don't want to do the replacement 
+                // because we can end up with a replacement element that's not compatible with the 
+                // original array type, which results in an ArrayStoreException.  Fortunately, 
+                // the Yoko RMI support appears to be able to sort this out for us correctly. 
+                if (object instanceof Serializable && !object.getClass().isArray()) {
                     try {
                         object = SerializationHandler.copyObj(Thread.currentThread().getContextClassLoader(), object);
                     } catch (Exception e) {
