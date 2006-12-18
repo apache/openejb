@@ -39,7 +39,7 @@
     </ciManagement>
 
     <properties>
-        <geronimoVersion>2.0-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>1.2-SNAPSHOT</geronimoVersion>
 
         <!--
         |
@@ -761,7 +761,7 @@
             <plugin>
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
 
                 <!-- Tools includes custom packagings, install as extention to pick them up -->
                 <extensions>true</extensions>
