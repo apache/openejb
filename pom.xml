@@ -39,7 +39,7 @@
     </ciManagement>
 
     <properties>
-        <geronimoVersion>1.2</geronimoVersion>
+        <geronimoVersion>1.2-beta</geronimoVersion>
 
         <!--
         |
