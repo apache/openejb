@@ -20,9 +20,21 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
 import java.util.Hashtable;
-import javax.naming.*;
+import javax.naming.AuthenticationException;
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 import javax.naming.spi.InitialContextFactory;
+
+
 /**
  * JNDI client
  *
@@ -36,43 +48,43 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     /**
      * Constructs this JNDI context for the client.
-     *
+     * <p/>
      * Opens a socket connection with the NamingServer.
      * Initializes object output/input streams for writing/reading
      * objects with the naming server.
      * Authenticates the user's information with the NamingServer
      *
      * @param environment
-     * @exception NamingException
+     * @throws NamingException
      */
-    JNDIContext(Hashtable environment) throws NamingException{
-        init( environment );
+    JNDIContext(Hashtable environment) throws NamingException {
+        init(environment);
     }
 
-    public JNDIContext(){
+    public JNDIContext() {
     }
 
     /*
      * A neater version of clone
      */
-    public JNDIContext(JNDIContext that){
-        this.tail   = that.tail;
+    public JNDIContext(JNDIContext that) {
+        this.tail = that.tail;
         this.servers = that.servers;
-        this.env    = (Hashtable)that.env.clone();
+        this.env = (Hashtable) that.env.clone();
     }
 
     /**
      * Initializes this JNDI context for the client.
-     *
+     * <p/>
      * Opens a socket connection with the NamingServer.
      * Initializes object output/input streams for writing/reading
      * objects with the naming server.
      * Authenticates the user's information with the NamingServer
      *
      * @param environment
-     * @exception NamingException
+     * @throws NamingException
      */
-    public void init(Hashtable environment) throws NamingException{
+    public void init(Hashtable environment) throws NamingException {
     }
 
 
@@ -84,15 +96,16 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         return res;
     }
 
-    public static void print(String s){
+    public static void print(String s) {
         //System.out.println();
     }
-    public static void println(String s){
+
+    public static void println(String s) {
         //System.out.print(s+'\n');
     }
 
     //TODO:0:Write authentication module
-    protected AuthenticationResponse requestAuthorization(AuthenticationRequest req) throws java.rmi.RemoteException {
+    protected AuthenticationResponse requestAuthorization(AuthenticationRequest req) throws RemoteException {
         RequestInfo reqInfo = new RequestInfo(req, servers);
         AuthenticationResponse res = new AuthenticationResponse();
         ResponseInfo resInfo = new ResponseInfo(res);
@@ -105,57 +118,58 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     //-------------------------------------------------------------//
 
     /**
-      * Creates an Initial Context for beginning name resolution.
-      * Special requirements of this context are supplied
-      * using <code>environment</code>.
-      *<p>
-      * The environment parameter is owned by the caller.
-      * The implementation will not modify the object or keep a reference
-      * to it, although it may keep a reference to a clone or copy.
-      *
-      * @param environment The possibly null environment
-      * 		specifying information to be used in the creation
-      * 		of the initial context.
-      * @return A non-null initial context object that implements the Context
-      *		interface.
-      * @exception NamingException If cannot create an initial context.
-      */
-    public Context getInitialContext(Hashtable environment) throws NamingException{
-        if ( environment == null )
+     * Creates an Initial Context for beginning name resolution.
+     * Special requirements of this context are supplied
+     * using <code>environment</code>.
+     * <p/>
+     * The environment parameter is owned by the caller.
+     * The implementation will not modify the object or keep a reference
+     * to it, although it may keep a reference to a clone or copy.
+     *
+     * @param environment The possibly null environment
+     *                    specifying information to be used in the creation
+     *                    of the initial context.
+     * @return A non-null initial context object that implements the Context
+     *         interface.
+     * @throws NamingException If cannot create an initial context.
+     */
+    public Context getInitialContext(Hashtable environment) throws NamingException {
+        if (environment == null)
             throw new NamingException("Invalid Argument, hashtable cannot be null.");
         else
-            env = (Hashtable)environment.clone();
+            env = (Hashtable) environment.clone();
 
-        String userID    = (String) env.get(Context.SECURITY_PRINCIPAL);
-        String psswrd    = (String) env.get(Context.SECURITY_CREDENTIALS);
+        String userID = (String) env.get(Context.SECURITY_PRINCIPAL);
+        String psswrd = (String) env.get(Context.SECURITY_CREDENTIALS);
         Object serverURL = env.get(Context.PROVIDER_URL);
 
 //        if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
 //        if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
-        if (serverURL == null) throw new ConfigurationException("Context property cannot be null: "+Context.PROVIDER_URL);
+        if (serverURL == null)
+            throw new ConfigurationException("Context property cannot be null: " + Context.PROVIDER_URL);
 
         URL url;
-        if ( serverURL instanceof String ) {
+        if (serverURL instanceof String) {
             try {
-                url = new URL( "http://"+serverURL );
-            } catch (Exception e){
+                url = new URL("http://" + serverURL);
+            } catch (Exception e) {
                 e.printStackTrace();
-                throw new ConfigurationException("Invalid provider URL: "+serverURL);
+                throw new ConfigurationException("Invalid provider URL: " + serverURL);
             }
-        } else if ( serverURL instanceof URL ) {
-            url = (URL)serverURL;
+        } else if (serverURL instanceof URL) {
+            url = (URL) serverURL;
         } else {
-            throw new ConfigurationException("Invalid provider URL: "+serverURL);
+            throw new ConfigurationException("Invalid provider URL: " + serverURL);
         }
 
         try {
             ServerMetaData server = new ServerMetaData();
-            server.address = InetAddress.getByName( url.getHost() );
-            server.port    = url.getPort();
-            
-            servers = new ServerMetaData[] {server};
-        } catch (UnknownHostException  e){
-            throw new ConfigurationException("Invalid provider URL:"+serverURL+": host unknown: "+e.getMessage());
+            server.address = InetAddress.getByName(url.getHost());
+            server.port = url.getPort();
+
+            servers = new ServerMetaData[]{server};
+        } catch (UnknownHostException e) {
+            throw new ConfigurationException("Invalid provider URL:" + serverURL + ": host unknown: " + e.getMessage());
         }
 
         //TODO:1: Either aggressively initiate authentication or wait for the
@@ -166,37 +180,36 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
 
-    public void authenticate(String userID, String psswrd) throws javax.naming.AuthenticationException{
+    public void authenticate(String userID, String psswrd) throws javax.naming.AuthenticationException {
         // TODO:1: Skip this if the identity hasn't been changed and
         // the user already has been authenticated.
-        AuthenticationRequest  req = new AuthenticationRequest(userID, psswrd);
+        AuthenticationRequest req = new AuthenticationRequest(userID, psswrd);
         AuthenticationResponse res = null;
 
         try {
             res = requestAuthorization(req);
-        } catch (java.rmi.RemoteException e) {
-            throw new javax.naming.AuthenticationException(e.getLocalizedMessage());
+        } catch (RemoteException e) {
+            throw new AuthenticationException(e.getLocalizedMessage());
         }
 
         switch (res.getResponseCode()) {
             case AUTH_REDIRECT:
                 ServerMetaData server = res.getServer();
-                servers = new ServerMetaData[] {server};
+                servers = new ServerMetaData[]{server};
                 break;
             case AUTH_DENIED:
-                throw new javax.naming.AuthenticationException("This principle is not authorized.");
+                throw new AuthenticationException("This principle is not authorized.");
         }
     }
 
     // Construct a new handler and proxy.
-    public EJBHomeProxy createEJBHomeProxy(EJBMetaDataImpl ejbData){
+    public EJBHomeProxy createEJBHomeProxy(EJBMetaDataImpl ejbData) {
 
         EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejbData, servers);
         EJBHomeProxy proxy = handler.createEJBHomeProxy();
         handler.ejb.ejbHomeProxy = proxy;
 
         return proxy;
-
     }
 
     //-------------------------------------------------------------//
@@ -209,23 +222,23 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     public Object lookup(String name) throws NamingException {
 
-        if ( name == null ) throw new InvalidNameException("The name cannot be null");
-        else if ( name.equals("") ) return new JNDIContext(this);
-        else if ( !name.startsWith("/") ) name = tail+name;
+        if (name == null) throw new InvalidNameException("The name cannot be null");
+        else if (name.equals("")) return new JNDIContext(this);
+        else if (!name.startsWith("/")) name = tail + name;
 
         JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, name);
 
         JNDIResponse res = null;
-        try{
+        try {
             res = request(req);
-        } catch (Exception e){
-            throw (NamingException)new NamingException("Cannot lookup " + name).initCause(e);
+        } catch (Exception e) {
+            throw (NamingException) new NamingException("Cannot lookup " + name).initCause(e);
         }
 
-        switch ( res.getResponseCode() ) {
+        switch (res.getResponseCode()) {
             case JNDI_EJBHOME:
                 // Construct a new handler and proxy.
-                return createEJBHomeProxy( (EJBMetaDataImpl)res.getResult() );
+                return createEJBHomeProxy((EJBMetaDataImpl) res.getResult());
 
             case JNDI_OK:
                 return res.getResult();
@@ -247,8 +260,9 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
             case JNDI_ERROR:
                 throw (Error) res.getResult();
+
             default:
-                throw new RuntimeException("Invalid response from server :"+res.getResponseCode());
+                throw new RuntimeException("Invalid response from server :" + res.getResponseCode());
         }
     }
 
@@ -257,7 +271,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
     public NamingEnumeration list(String name) throws NamingException {
-        throw new javax.naming.NamingException("TODO: Needs to be implemented");
+        throw new OperationNotSupportedException("TODO: Needs to be implemented");
     }
 
     public NamingEnumeration list(Name name) throws NamingException {
@@ -265,7 +279,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
     public NamingEnumeration listBindings(String name) throws NamingException {
-        throw new javax.naming.NamingException("TODO: Needs to be implemented");
+        throw new OperationNotSupportedException("TODO: Needs to be implemented");
     }
 
     public NamingEnumeration listBindings(Name name) throws NamingException {
@@ -282,7 +296,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
     public NameParser getNameParser(String name) throws NamingException {
-        throw new javax.naming.NamingException("TODO: Needs to be implemented");
+        throw new OperationNotSupportedException("TODO: Needs to be implemented");
     }
 
     public NameParser getNameParser(Name name) throws NamingException {
@@ -290,11 +304,11 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
     public String composeName(String name, String prefix) throws NamingException {
-        throw new javax.naming.NamingException("TODO: Needs to be implemented");
+        throw new OperationNotSupportedException("TODO: Needs to be implemented");
     }
 
     public Name composeName(Name name, Name prefix) throws NamingException {
-        throw new javax.naming.NamingException("TODO: Needs to be implemented");
+        throw new OperationNotSupportedException("TODO: Needs to be implemented");
     }
 
     public Object addToEnvironment(String key, Object value) throws NamingException {
@@ -306,7 +320,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
     public Hashtable getEnvironment() throws NamingException {
-        return (Hashtable)env.clone();
+        return (Hashtable) env.clone();
     }
 
     public String getNameInNamespace() throws NamingException {
@@ -322,25 +336,25 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to add beans to the name space.
      *
      * @param name
      * @param obj
-     * @exception NamingException
+     * @throws NamingException
      */
     public void bind(String name, Object obj) throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
+        throw new OperationNotSupportedException();
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to add beans to the name space.
      *
      * @param name
      * @param obj
-     * @exception NamingException
+     * @throws NamingException
      */
     public void bind(Name name, Object obj) throws NamingException {
         bind(name.toString(), obj);
@@ -348,26 +362,25 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to add beans to the name space.
      *
      * @param name
      * @param obj
-     * @exception NamingException
+     * @throws NamingException
      */
     public void rebind(String name, Object obj) throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
-
+        throw new OperationNotSupportedException();
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to add beans to the name space.
      *
      * @param name
      * @param obj
-     * @exception NamingException
+     * @throws NamingException
      */
     public void rebind(Name name, Object obj) throws NamingException {
         rebind(name.toString(), obj);
@@ -375,24 +388,23 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to remove beans from the name space.
      *
      * @param name
-     * @exception NamingException
+     * @throws NamingException
      */
     public void unbind(String name) throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
-
+        throw new OperationNotSupportedException();
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to remove beans from the name space.
      *
      * @param name
-     * @exception NamingException
+     * @throws NamingException
      */
     public void unbind(Name name) throws NamingException {
         unbind(name.toString());
@@ -400,51 +412,49 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to rename beans.
      *
      * @param oldname
      * @param newname
-     * @exception NamingException
+     * @throws NamingException
      */
-    public void rename(String oldname, String newname)
-    throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
+    public void rename(String oldname, String newname) throws NamingException {
+        throw new OperationNotSupportedException();
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to rename beans.
      *
      * @param oldname
      * @param newname
-     * @exception NamingException
+     * @throws NamingException
      */
-    public void rename(Name oldname, Name newname)
-    throws NamingException {
+    public void rename(Name oldname, Name newname) throws NamingException {
         rename(oldname.toString(), newname.toString());
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to remove a sub-context from the name space.
      *
      * @param name
-     * @exception NamingException
+     * @throws NamingException
      */
     public void destroySubcontext(String name) throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
+        throw new OperationNotSupportedException();
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to remove a sub-context from the name space.
      *
      * @param name
-     * @exception NamingException
+     * @throws NamingException
      */
     public void destroySubcontext(Name name) throws NamingException {
         destroySubcontext(name.toString());
@@ -452,26 +462,25 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to add a sub-context to the name space.
      *
      * @param name
      * @return
-     * @exception NamingException
+     * @throws NamingException
      */
-    public Context createSubcontext(String name)
-    throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
+    public Context createSubcontext(String name) throws NamingException {
+        throw new OperationNotSupportedException();
     }
 
     /**
      * Throws a javax.naming.OperationNotSupportedException.
-     *
+     * <p/>
      * Clients are not allowed to add a sub-context to the name space.
      *
      * @param name
      * @return
-     * @exception NamingException
+     * @throws NamingException
      */
     public Context createSubcontext(Name name) throws NamingException {
         return createSubcontext(name.toString());
