@@ -40,6 +40,10 @@ public class EjbConfigurer implements ModuleConfigurer {
         }
     }
 
+    public ModuleType getModuleType() {
+        return ModuleType.EJB;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
