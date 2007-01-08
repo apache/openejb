@@ -59,7 +59,7 @@ public class CorbaApplicationServer implements ApplicationServer {
     public javax.ejb.Handle getHandle(ProxyInfo proxyInfo) {
         org.omg.CORBA.Object ejbObject = (org.omg.CORBA.Object) getEJBObject(proxyInfo);
         String ior = getOrb().object_to_string(ejbObject);
-        Handle handle = new CORBAHandle(ior, proxyInfo.getPrimaryKey());
+        Handle handle = new CORBAHandle(ior, proxyInfo.getPrimaryKey(), proxyInfo.getRemoteInterface());
         return handle;
     }
 

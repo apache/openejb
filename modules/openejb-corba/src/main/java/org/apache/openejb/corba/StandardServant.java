@@ -220,8 +220,6 @@ public class StandardServant extends Servant implements InvokeHandler {
                                     return Util.writeUserException(method, reply, invocationResult.getException());
                                 }
                                 invocationResult.getResult();
-//
-//                                ejbContainer.getEjbHome().remove(handle.getPrimaryKey());
                             }
                         } catch (RemoveException e) {
 
