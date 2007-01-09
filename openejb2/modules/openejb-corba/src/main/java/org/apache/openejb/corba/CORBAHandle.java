@@ -42,28 +42,22 @@ import org.omg.CORBA.ORB;
  * or J2EE application components directly.
  *
  * @version $Revision$ $Date$
-*/
+ */
 public class CORBAHandle implements Handle, Serializable {
 
     private static final long serialVersionUID = -3390719015323727224L;
 
-    private String ior;
+    // the actual EJBObject instance
+    private EJBObject ejbObject;
     private Object primaryKey;
-    // the remote interface this EJBObject implements
-    private Class  remoteInterface; 
 
-    public CORBAHandle(String ior, Object primaryKey, Class remoteInterface) {
-        this.ior = ior;
+    public CORBAHandle(EJBObject ejb, Object primaryKey) {
+        this.ejbObject = ejb;
         this.primaryKey = primaryKey;
-        this.remoteInterface = remoteInterface; 
     }
 
     public EJBObject getEJBObject() throws RemoteException {
-        try {
-            return (EJBObject) PortableRemoteObject.narrow(getOrb().string_to_object(ior), remoteInterface);
-        } catch (Exception e) {
-            throw new RemoteException("Unable to convert IOR into object", e);
-        }
+        return ejbObject;
     }
 
     public Object getPrimaryKey() {
@@ -74,20 +68,12 @@ public class CORBAHandle implements Handle, Serializable {
         HandleDelegate handleDelegate = getHandleDelegate();
         handleDelegate.writeEJBObject(getEJBObject(), out);
         out.writeObject(primaryKey);
-        out.writeObject(remoteInterface); 
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         HandleDelegate handleDelegate = getHandleDelegate();
-        EJBObject obj = handleDelegate.readEJBObject(in);
+        ejbObject = handleDelegate.readEJBObject(in);
         primaryKey = in.readObject();
-        remoteInterface = (Class)in.readObject(); 
-
-        try {
-            ior = getOrb().object_to_string((org.omg.CORBA.Object) obj);
-        } catch (Exception e) {
-            throw new RemoteException("Unable to convert object to IOR", e);
-        }
     }
 
     private static ORB getOrb() {
