@@ -23,12 +23,14 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
@@ -36,14 +38,19 @@ import javax.transaction.TransactionRolledbackException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.interceptor.InvocationResult;
-import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.omg.CORBA.ORB;
+import org.apache.geronimo.naming.java.RootContext;
+import org.apache.openejb.EJBInterfaceType;
+import org.apache.openejb.EjbInvocation;
+import org.apache.openejb.EjbInvocationImpl;
+import org.apache.openejb.RpcEjbDeployment;
+import org.apache.openejb.corba.util.Util;
 import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TRANSACTION_REQUIRED;
 import org.omg.CORBA.TRANSACTION_ROLLEDBACK;
@@ -54,11 +61,6 @@ import org.omg.CORBA.portable.OutputStream;
 import org.omg.CORBA.portable.ResponseHandler;
 import org.omg.CORBA.portable.UnknownException;
 import org.omg.PortableServer.Servant;
-import org.apache.openejb.RpcEjbDeployment;
-import org.apache.openejb.EJBInterfaceType;
-import org.apache.openejb.EjbInvocation;
-import org.apache.openejb.EjbInvocationImpl;
-import org.apache.openejb.corba.util.Util;
 
 /**
  * @version $Revision$ $Date$
@@ -202,7 +204,14 @@ public class StandardServant extends Servant implements InvokeHandler {
                                     throw new RemoveException("Handle is null");
                                 }
                                 Class remoteInterface = ejbDeploymentContext.getProxyInfo().getRemoteInterface();
-                                if (!remoteInterface.isInstance(handle.getEJBObject())) {
+
+
+                                try {
+                                    EJBObject narrowed = (EJBObject)PortableRemoteObject.narrow(handle.getEJBObject(), remoteInterface); 
+                                    if (narrowed == null) {
+                                        throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
+                                    }
+                                } catch (ClassCastException e) {
                                     throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
                                 }
                             } else {
@@ -272,9 +281,11 @@ public class StandardServant extends Servant implements InvokeHandler {
                 throw new MARSHAL(e.toString());
             } catch (RemoteException e) {
                 log.debug("RemoteException", e);
+                e.printStackTrace(); 
                 throw new UnknownException(e);
             } catch (RuntimeException e) {
                 log.debug("RuntimeException", e);
+                e.printStackTrace(); 
                 RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbDeploymentContext.getContainerId() + ": " + e.getMessage());
                 throw new UnknownException(remoteException);
             } catch (Error e) {
