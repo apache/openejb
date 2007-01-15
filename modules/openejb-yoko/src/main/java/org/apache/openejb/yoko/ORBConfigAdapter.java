@@ -95,10 +95,11 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         // this tells the openejb UtilDelegateImpl which implementation to delegate non-overridden
         // operations to.
         System.setProperty("org.apache.openejb.corba.UtilDelegateClass", "org.apache.yoko.rmi.impl.UtilImpl");
+        // this allows us to hook RMI stub invocation/serialization events. 
+        System.setProperty("org.apache.yoko.rmi.RMIStubInitializerClass", "org.apache.openejb.yoko.RMIStubHandlerFactory");
 
         // ok, now we have a potential classloading problem because of where our util delegates are located.
         // by forcing these classes to load now using our class loader, we can ensure things are properly initialized
-        this.getClass().getClassLoader().loadClass("javax.rmi.PortableRemoteObject");
         this.getClass().getClassLoader().loadClass("javax.rmi.PortableRemoteObject");
 
         log.debug("Started  Yoko ORBConfigAdapter");
