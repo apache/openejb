@@ -159,4 +159,13 @@ public abstract class OpenEjbAbstractRefBuilder extends AbstractNamingBuilder {
         return (String) data.getAttribute("localInterfaceName");
     }
 
+    protected static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
+        if (string == null) {
+            return null;
+        }
+        String s = string.getStringValue();
+        return s == null ? null : s.trim();
+    }
+
+
 }
