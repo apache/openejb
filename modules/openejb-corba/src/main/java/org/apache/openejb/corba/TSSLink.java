@@ -37,6 +37,8 @@ import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxServe
 import org.apache.openejb.transaction.TransactionPolicyType;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
+import org.omg.CORBA.Policy;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -144,5 +146,17 @@ public class TSSLink implements GBeanLifecycle {
     ProxyInfo getProxyInfo() {
         return ejb.getProxyInfo();
     }
-
+    
+    /**
+     * Add the policy overrides (if any) to the list 
+     * of policies used to create a POA instance.
+     * 
+     * @param policies The base set of policies.
+     * 
+     * @return A new Policy array with the overrides added.  Returns
+     *         the same array if no overrides are required.
+     */
+    public Policy[] addPolicyOverrides(Policy[] policies) {
+        return tssBean.addPolicyOverrides(policies); 
+    }
 }

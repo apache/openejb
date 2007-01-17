@@ -65,6 +65,8 @@ public abstract class Adapter implements RefGenerator {
                 parentPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 parentPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
+            // make sure we create this with the appropriate ORB-specific policies. 
+            policies = tssLink.addPolicyOverrides(policies); 
             homePOA = parentPOA.create_POA(tssLink.getContainerId(), parentPOA.the_POAManager(), policies);
 
             homePOA.the_POAManager().activate();

@@ -68,6 +68,8 @@ public class AdapterStateful extends Adapter {
                 homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 homePOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
+            // make sure we create this with the appropriate ORB-specific policies. 
+            policies = tssLink.addPolicyOverrides(policies); 
             poa = homePOA.create_POA(tssLink.getContainerId(), homePOA.the_POAManager(), policies);
             poa.set_servant_manager(new ObjectActivator());
 

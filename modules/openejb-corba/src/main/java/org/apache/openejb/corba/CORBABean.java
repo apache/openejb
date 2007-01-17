@@ -33,6 +33,7 @@ import org.apache.openejb.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
 import org.apache.openejb.corba.util.Util;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
@@ -62,6 +63,9 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
     private POA rootPOA;
     private NameService nameService;
     private AbstractName abstractName;
+    // ORB-specific policy overrides we need to add to POA policies created by 
+    // child TSSBeans.  
+    private Policy[] policyOverrides = null; 
 
     public CORBABean() {
         this.classLoader = null;
@@ -70,6 +74,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
         this.listenerPort = -1;
         this.host = null;
         this.abstractName = null;
+        this.policyOverrides = null; 
     }
 
     /**
@@ -99,6 +104,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
         this.nameService = nameService;
         this.host = host;
         this.listenerPort = listenerPort;
+        this.policyOverrides = null; 
     }
 
     /**
@@ -299,5 +305,40 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
      */
     public String getHost() {
         return host;
+    }
+    
+    /**
+     * Set a set of policy overrides to be used with 
+     * this ORB instance.  These are normally set by 
+     * the ORBConfigAdapter instance when the ORB 
+     * is created. 
+     * 
+     * @param overrides The new override list.
+     */
+    public void setPolicyOverrides(Policy[] overrides) {
+        policyOverrides = overrides; 
+    }
+    
+    /**
+     * Add the policy overrides (if any) to the list 
+     * of policies used to create a POA instance.
+     * 
+     * @param policies The base set of policies.
+     * 
+     * @return A new Policy array with the overrides added.  Returns
+     *         the same array if no overrides are required.
+     */
+    public Policy[] addPolicyOverrides(Policy[] policies) {
+        // just return the same list of no overrides exist 
+        if (policyOverrides == null) {
+            return policies; 
+        }
+        
+        Policy[] newPolicies = new Policy[policies.length + policyOverrides.length]; 
+        
+        System.arraycopy(policies, 0, newPolicies, 0, policies.length); 
+        System.arraycopy(policyOverrides, 0, newPolicies, policies.length, policyOverrides.length); 
+        
+        return newPolicies; 
     }
 }

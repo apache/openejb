@@ -16,30 +16,22 @@
   */
 package org.apache.openejb.yoko;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.net.InetSocketAddress;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.ORB;
-import org.omg.CSIIOP.EstablishTrustInClient;
-import org.omg.Security.Confidentiality;
-import org.omg.Security.EstablishTrustInTarget;
-import org.omg.Security.NoProtection;
-
 import org.apache.geronimo.gbean.GBeanLifecycle;
-
 import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
-
 import org.apache.openejb.corba.CORBABean;
 import org.apache.openejb.corba.CSSBean;
 import org.apache.openejb.corba.NameService;
@@ -49,13 +41,21 @@ import org.apache.openejb.corba.security.config.ConfigException;
 import org.apache.openejb.corba.security.config.css.CSSCompoundSecMechConfig;
 import org.apache.openejb.corba.security.config.css.CSSCompoundSecMechListConfig;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
-import org.apache.openejb.corba.security.config.tss.TSSConfig;
 import org.apache.openejb.corba.security.config.ssl.SSLConfig;
+import org.apache.openejb.corba.security.config.tss.TSSConfig;
 import org.apache.openejb.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
-
 import org.apache.yoko.orb.CosNaming.tnaming.TransientNameService;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientServiceException;
+import org.apache.yoko.orb.OB.ZERO_PORT_POLICY_ID; 
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyError;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.Security.Confidentiality;
+import org.omg.Security.EstablishTrustInTarget;
+import org.omg.Security.NoProtection;
 
 
 /**
@@ -124,7 +124,30 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * @exception ConfigException
      */
     public ORB createServerORB(CORBABean server)  throws ConfigException {
-        return createORB(server.getURI(), (ORBConfiguration)server, translateToArgs(server), translateToProps(server));
+        ORB orb = createORB(server.getURI(), (ORBConfiguration)server, translateToArgs(server), translateToProps(server));
+        
+        // check the tss config for a transport mech definition.  If we have one, then 
+        // the port information will be passed in that config, and the port in the IIOP profile 
+        // needs to be zero. 
+        TSSConfig config = server.getTssConfig();
+        TSSTransportMechConfig transportMech = config.getTransport_mech();
+        if (transportMech != null) {
+            if (transportMech instanceof TSSSSLTransportConfig) {
+                Any any = orb.create_any();
+                any.insert_boolean(true);
+
+                try {
+                    Policy portPolicy = orb.create_policy(ZERO_PORT_POLICY_ID.value, any);
+                    Policy[] overrides = new Policy [] { portPolicy }; 
+                    server.setPolicyOverrides(overrides); 
+                } catch (org.omg.CORBA.PolicyError e) {
+                    // shouldn't happen, but we'll let things continue with no policy set. 
+                }
+                
+            }
+        }
+        
+        return orb; 
     }
 
     /**
@@ -294,6 +317,17 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         }
         else {
             result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost());
+        }
+        
+        // check the tss config for a transport mech definition.  If we have one, then 
+        // the port information will be passed in that config, and the port in the IIOP profile 
+        // needs to be zero. 
+        TSSConfig config = server.getTssConfig();
+        TSSTransportMechConfig transportMech = config.getTransport_mech();
+        if (transportMech != null) {
+            if (transportMech instanceof TSSSSLTransportConfig) {
+                result.put("yoko.orb.policy.zero_port", "true"); 
+            }
         }
 
         if (log.isDebugEnabled()) {

@@ -121,6 +121,9 @@ public class TSSBean implements GBeanLifecycle {
                     rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                     rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
+            // there may be ORB-specific policy overrides required. 
+            policies = server.addPolicyOverrides(policies); 
+            
             localPOA = rootPOA.create_POA(POAName, rootPOA.the_POAManager(), policies);
 
             localPOA.the_POAManager().activate();
@@ -191,5 +194,17 @@ public class TSSBean implements GBeanLifecycle {
             }
         }
     }
-
+    
+    /**
+     * Add the policy overrides (if any) to the list 
+     * of policies used to create a POA instance.
+     * 
+     * @param policies The base set of policies.
+     * 
+     * @return A new Policy array with the overrides added.  Returns
+     *         the same array if no overrides are required.
+     */
+    public Policy[] addPolicyOverrides(Policy[] policies) {
+        return server.addPolicyOverrides(policies); 
+    }
 }
