@@ -58,6 +58,7 @@
         <geronimoSpecJtaVersion>1.0</geronimoSpecJtaVersion>
         <geronimoSpecQnameVersion>1.0</geronimoSpecQnameVersion>
         <geronimoSpecSaajVersion>1.0</geronimoSpecSaajVersion>
+        <geronimoSpecServletVersion>1.1</geronimoSpecServletVersion>
 
         <antVersion>1.6.5</antVersion>
         <axionVersion>1.0-M3-dev</axionVersion>
