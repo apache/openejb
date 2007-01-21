@@ -49,7 +49,7 @@
         <geronimoSpecEjbVersion>1.0</geronimoSpecEjbVersion>
         <geronimoSpecJ2eeConnectorVersion>1.0</geronimoSpecJ2eeConnectorVersion>
         <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
-        <geronimoSpecJ2eeJaccVersion>1.0-SNAPSHOT</geronimoSpecJ2eeJaccVersion>
+        <geronimoSpecJ2eeJaccVersion>1.1</geronimoSpecJ2eeJaccVersion>
         <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
         <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
         <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
@@ -496,7 +496,7 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jacc_1.1_spec</artifactId>
+                <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
                 <version>${geronimoSpecJ2eeJaccVersion}</version>
                 <scope>provided</scope>
             </dependency>
