@@ -22,6 +22,7 @@
 
   <bean id="TrackedConnectionAssociator" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     <constructor-arg index="0" ref="TransactionManager"/>
+    <constructor-arg index="1" value="false"/>
   </bean>
 
   <bean id="ThreadPool" class="org.apache.geronimo.pool.ThreadPool">
