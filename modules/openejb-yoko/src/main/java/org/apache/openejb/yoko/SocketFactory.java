@@ -187,14 +187,8 @@ public class SocketFactory implements ConnectionHelper {
 
                                     int supports = transportConfig.getSupports();
                                     int requires = transportConfig.getRequires();
-
-                                    // The CSIv2 spec requires that the port for a secure connection be
-                                    // placed in the transport config and the port value in the normal
-                                    // IIOP profile be 0.  If we see a zero port value, then we need to
-                                    // replace it with the transport specified one.
-                                    if (port <= 0) {
-                                        port = transportConfig.getPort();
-                                    }
+                                    int sslPort = transportConfig.getPort(); 
+                                    String sslHost = transportConfig.getHostname(); 
 
                                     if (log.isDebugEnabled()) {
 
@@ -204,11 +198,11 @@ public class SocketFactory implements ConnectionHelper {
                                     }
 
                                     // if we don't require any TLS, then just create a plain socket.
-                                    if ((NoProtection.value & requires) == NoProtection.value) {
+                                    if (requires == 0 || (NoProtection.value & requires) == NoProtection.value) {
                                         break;
                                     }
                                     // we need SSL, so create an SSLSocket for this connection.
-                                    return createSSLSocket(address.getHostName(), port, supports, requires);
+                                    return createSSLSocket(sslHost, sslPort, supports, requires);
                                 }
                             }
                         } catch (Exception e) {
@@ -457,7 +451,7 @@ public class SocketFactory implements ConnectionHelper {
         // get a set of cipher suites appropriate for this connections requirements.
         // We request this for each connection, since the outgoing IOR's requirements may be different from
         // our server listener requirements.
-        String[] iorSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, serverSocketFactory.getSupportedCipherSuites());
+        String[] iorSuites = SSLCipherSuiteDatabase.getCipherSuites(requires, supports, factory.getSupportedCipherSuites());
         socket.setEnabledCipherSuites(iorSuites);
         socket.setWantClientAuth(authSupported);
         socket.setNeedClientAuth(authRequired);
