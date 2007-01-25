@@ -198,11 +198,9 @@ public class SocketFactory implements ConnectionHelper {
                         port = (int) body.port;
                 } catch (org.omg.IOP.CodecPackage.FormatMismatch e) {
                     // just keep the orignal port. 
-                    e.printStackTrace(); 
                     break; 
                 } catch (org.omg.IOP.CodecPackage.TypeMismatch e) {
                     // just keep the orignal port. 
-                    e.printStackTrace(); 
                     break; 
                 }
 
@@ -249,7 +247,6 @@ public class SocketFactory implements ConnectionHelper {
                                 }
                             }
                         } catch (Exception e) {
-                            e.printStackTrace(); 
                             // do nothing
                         }
                     }
