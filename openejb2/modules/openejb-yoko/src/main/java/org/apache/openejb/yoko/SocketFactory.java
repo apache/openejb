@@ -24,6 +24,7 @@ import java.net.Socket;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -31,37 +32,37 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.openejb.corba.ORBConfiguration;
+import org.apache.openejb.corba.security.config.ConfigUtil;
+import org.apache.openejb.corba.security.config.css.CSSConfig;
+import org.apache.openejb.corba.security.config.ssl.SSLCipherSuiteDatabase;
+import org.apache.openejb.corba.security.config.ssl.SSLConfig;
+import org.apache.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
+import org.apache.openejb.corba.security.config.tss.TSSConfig;
+import org.apache.openejb.corba.security.config.tss.TSSSSLTransportConfig;
+import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
+import org.apache.openejb.corba.util.Util;
+import org.apache.yoko.orb.OCI.IIOP.ConnectionHelper;
+import org.apache.yoko.orb.OCI.ProfileInfo;
+import org.apache.yoko.orb.OCI.ProfileInfoHolder;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.EstablishTrustInClient;
 import org.omg.CSIIOP.EstablishTrustInTarget;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
-import org.omg.IOP.TaggedComponent;
-import org.omg.CORBA.DynAnyPackage.Invalid;
-import org.omg.CORBA.Policy;
+import org.omg.IIOP.ProfileBody_1_0;
+import org.omg.IIOP.ProfileBody_1_0Helper;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 import org.omg.IOP.IOR;
-
-import org.apache.openejb.corba.ORBConfiguration;
-import org.apache.openejb.corba.security.config.ConfigUtil;
-import org.apache.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
-import org.apache.openejb.corba.security.config.tss.TSSSSLTransportConfig;
-import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
-import org.apache.openejb.corba.security.config.css.CSSConfig;
-import org.apache.openejb.corba.security.config.tss.TSSConfig;
-import org.apache.openejb.corba.security.config.ssl.SSLConfig;
-import org.apache.openejb.corba.security.config.ssl.SSLCipherSuiteDatabase;
-import org.apache.openejb.corba.util.Util;
-
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-
-import org.apache.yoko.orb.OCI.IIOP.ConnectionHelper;
-import org.apache.yoko.orb.OCI.ProfileInfo;
-import org.apache.yoko.orb.OCI.ProfileInfoHolder;
+import org.omg.IOP.TaggedComponent;
 
 
 /**
@@ -74,6 +75,8 @@ public class SocketFactory implements ConnectionHelper {
 
     private final static Log log = LogFactory.getLog(SocketFactory.class);
 
+    // the configuration we're attached to. 
+    private String configName = null; 
     // The initialized SSLSocketFactory obtained from the Geronimo KeystoreManager.
     private SSLSocketFactory socketFactory = null;
     // The initialized SSLServerSocketFactory obtained from the Geronimo KeystoreManager.
@@ -107,8 +110,10 @@ public class SocketFactory implements ConnectionHelper {
      */
     public void init(ORB orb, String configName) {
         this.orb = orb;
+        this.configName = configName; 
         clientAuthSupported = false;
         clientAuthRequired = false;
+
         // retrieve the configuration from the config adapter registry.
         config = (ORBConfiguration)ORBConfigAdapter.getConfiguration(configName);
         if (config == null) {
@@ -168,6 +173,42 @@ public class SocketFactory implements ConnectionHelper {
      * @exception ConnectException
      */
     public Socket createSocket(IOR ior, Policy[] policies, InetAddress address, int port) throws IOException, ConnectException {
+
+        String host = address.getHostName(); 
+
+        // the Yoko ORB will use both the primary and secondary targets for connetions, which 
+        // sometimes gets us into trouble, forcing us to use an SSL target when we really need to 
+        // use the plain socket connection.  Therefore, we will ignore what's passed to us, 
+        // and extract the primary port information directly from the profile. 
+        for (int i = 0; i < ior.profiles.length; i++) {
+            if (ior.profiles[i].tag == org.omg.IOP.TAG_INTERNET_IOP.value) {
+                try {
+                    //
+                    // Get the IIOP profile body
+                    //
+                    byte[] data = ior.profiles[i].profile_data;
+                    ProfileBody_1_0 body = ProfileBody_1_0Helper.extract(Util.getCodec().decode_value(data, ProfileBody_1_0Helper.type()));
+
+                    //
+                    // Create new connector for this profile
+                    //                                             
+                    if (body.port < 0)
+                        port = 0xffff + (int) body.port + 1;
+                    else
+                        port = (int) body.port;
+                } catch (org.omg.IOP.CodecPackage.FormatMismatch e) {
+                    // just keep the orignal port. 
+                    e.printStackTrace(); 
+                    break; 
+                } catch (org.omg.IOP.CodecPackage.TypeMismatch e) {
+                    // just keep the orignal port. 
+                    e.printStackTrace(); 
+                    break; 
+                }
+
+            }
+        }
+
         try {
             ProfileInfoHolder holder = new ProfileInfoHolder();
             // we need to extract the profile information from the IOR to see if this connection has
@@ -187,8 +228,9 @@ public class SocketFactory implements ConnectionHelper {
 
                                     int supports = transportConfig.getSupports();
                                     int requires = transportConfig.getRequires();
-                                    int sslPort = transportConfig.getPort(); 
-                                    String sslHost = transportConfig.getHostname(); 
+                                    // override the port and hostname with what's configured here. 
+                                    port = transportConfig.getPort(); 
+                                    host = transportConfig.getHostname(); 
 
                                     if (log.isDebugEnabled()) {
 
@@ -197,15 +239,17 @@ public class SocketFactory implements ConnectionHelper {
                                         log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
                                     }
 
-                                    // if we don't require any TLS, then just create a plain socket.
-                                    if (requires == 0 || (NoProtection.value & requires) == NoProtection.value) {
+                                    // TLS is configured.  If this is explicitly noprotection, then
+                                    // just go create a plain socket using the configured port. 
+                                    if (port >= 0 && (NoProtection.value & requires) == NoProtection.value) {
                                         break;
                                     }
                                     // we need SSL, so create an SSLSocket for this connection.
-                                    return createSSLSocket(sslHost, sslPort, supports, requires);
+                                    return createSSLSocket(host, port, supports, requires);
                                 }
                             }
                         } catch (Exception e) {
+                            e.printStackTrace(); 
                             // do nothing
                         }
                     }
@@ -213,8 +257,8 @@ public class SocketFactory implements ConnectionHelper {
             }
 
             // if security is not required, just create a plain Socket.
-            if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + address.getHostName() + ":" + port);
-            return new Socket(address, port);
+            if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + host + ":" + port);
+            return new Socket(host, port);
 
         } catch (IOException ex) {
             log.error("Exception creating a client socket to "  + address.getHostName() + ":" + port, ex);
