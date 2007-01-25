@@ -227,23 +227,22 @@ public class SocketFactory implements ConnectionHelper {
                                     int supports = transportConfig.getSupports();
                                     int requires = transportConfig.getRequires();
                                     // override the port and hostname with what's configured here. 
-                                    port = transportConfig.getPort(); 
-                                    host = transportConfig.getHostname(); 
+                                    int sslPort = transportConfig.getPort(); 
+                                    String sslHost = transportConfig.getHostname(); 
 
                                     if (log.isDebugEnabled()) {
-
-                                        log.debug("IOR from target " + address.getHostName() + ":" + port);
+                                        log.debug("IOR from target " + sslHost + ":" + sslPort);
                                         log.debug("   SUPPORTS: " + ConfigUtil.flags(supports));
                                         log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
                                     }
 
                                     // TLS is configured.  If this is explicitly noprotection, then
                                     // just go create a plain socket using the configured port. 
-                                    if (port >= 0 && (NoProtection.value & requires) == NoProtection.value) {
+                                    if ((NoProtection.value & requires) == NoProtection.value) {
                                         break;
                                     }
                                     // we need SSL, so create an SSLSocket for this connection.
-                                    return createSSLSocket(host, port, supports, requires);
+                                    return createSSLSocket(sslHost, sslPort, supports, requires);
                                 }
                             }
                         } catch (Exception e) {
