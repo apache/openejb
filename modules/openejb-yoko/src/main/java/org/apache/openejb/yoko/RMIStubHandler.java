@@ -51,11 +51,6 @@ public class RMIStubHandler extends org.apache.yoko.rmi.impl.RMIStubHandler {
         clientContext = ClientContextManager.getClientContext();
     }
 
-    public Object stubWriteReplace(RMIStub stub) {
-        String ior = getOrb().object_to_string(stub);
-        return new CORBAEJBMemento(ior, stub instanceof EJBHome);
-    }
-    
     public Object invoke(RMIStub stub, MethodDescriptor method, Object[] args) throws Throwable {
         ClientContext oldContext = ClientContextManager.getClientContext();
         // object types must bbe written in the context of the corba application server
