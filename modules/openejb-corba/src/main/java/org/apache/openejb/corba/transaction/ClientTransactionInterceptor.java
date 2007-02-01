@@ -32,7 +32,6 @@ import org.omg.CosTSInteroperation.TAG_OTS_POLICY;
 import org.omg.CosTransactions.OTSPolicyValueHelper;
 import org.omg.CosTransactions.ADAPTS;
 
-import org.apache.openejb.corba.ClientContextManager;
 import org.apache.openejb.corba.util.Util;
 import org.apache.openejb.corba.util.TypeCode;
 
@@ -86,7 +85,8 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
 
         short value = OTSPolicyValueHelper.extract(any);
         if (value == ADAPTS.value) {
-            ClientTransactionPolicyConfig clientTransactionPolicyConfig = ClientContextManager.getClientContext().getTransactionConfig();
+            ClientTransactionPolicy clientTransactionPolicy = (ClientTransactionPolicy) ri.get_request_policy(ClientTransactionPolicyFactory.POLICY_TYPE);
+            ClientTransactionPolicyConfig clientTransactionPolicyConfig = clientTransactionPolicy.getClientTransactionPolicyConfig();
             if (clientTransactionPolicyConfig == null) return;
 
             if (log.isDebugEnabled()) log.debug("Client has a transaction policy");

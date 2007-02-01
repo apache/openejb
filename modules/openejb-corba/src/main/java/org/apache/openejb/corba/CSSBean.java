@@ -29,10 +29,15 @@ import org.apache.openejb.corba.security.config.ConfigAdapter;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
 import org.apache.openejb.corba.security.config.ssl.SSLConfig;
 import org.apache.openejb.corba.security.config.tss.TSSConfig;
+import org.apache.openejb.corba.security.ClientPolicy;
 import org.apache.openejb.corba.transaction.ClientTransactionPolicyConfig;
+import org.apache.openejb.corba.transaction.ClientTransactionPolicy;
 import org.apache.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
+import org.omg.CORBA.PolicyManager;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.SetOverrideType;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
@@ -63,7 +68,6 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
     private ORB cssORB;
     // ORB used for nameservice lookups.
     private ORB nssORB;
-    private ClientContext context;
     private AbstractName abstractName;
 
     public CSSBean() {
@@ -149,15 +153,6 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
 
             NameComponent[] nameComponent = ic.to_name(name);
             org.omg.CORBA.Object bean = ic.resolve(nameComponent);
-            String beanIOR = nssORB.object_to_string(bean);
-
-            ClientContext oldClientContext = ClientContextManager.getClientContext();
-            try {
-                ClientContextManager.setClientContext(context);
-                bean = cssORB.string_to_object(beanIOR);
-            } finally {
-                ClientContextManager.setClientContext(oldClientContext);
-            }
             return bean;
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
@@ -189,11 +184,9 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             nssORB = configAdapter.createNameServiceClientORB(this);
             // the configAdapter creates the ORB instance for us.
             cssORB = configAdapter.createClientORB(this);
-
-            // create a client context with the security and transaction characteristics.
-            context = new ClientContext();
-            context.setSecurityConfig(cssConfig);
-            context.setTransactionConfig(buildClientTransactionPolicyConfig());
+            PolicyManager policyManager = (PolicyManager) cssORB.resolve_initial_references("ORBPolicyManager");
+            Policy[] policies = new Policy[] {new ClientPolicy(cssConfig), new ClientTransactionPolicy(buildClientTransactionPolicyConfig())};
+            policyManager.set_policy_overrides(policies, SetOverrideType.ADD_OVERRIDE);
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
