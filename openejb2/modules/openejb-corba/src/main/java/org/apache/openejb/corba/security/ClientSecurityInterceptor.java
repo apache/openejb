@@ -28,7 +28,6 @@ import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 
-import org.apache.openejb.corba.ClientContextManager;
 import org.apache.openejb.corba.security.config.css.CSSCompoundSecMechConfig;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
 import org.apache.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
@@ -68,7 +67,8 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
 
             if (log.isDebugEnabled()) log.debug("Target has a security policy");
 
-            CSSConfig config = ClientContextManager.getClientContext().getSecurityConfig();
+            ClientPolicy clientPolicy = (ClientPolicy) ri.get_request_policy(ClientPolicyFactory.POLICY_TYPE);
+            CSSConfig config = clientPolicy.getConfig();
             if (config == null) return;
 
             if (log.isDebugEnabled()) log.debug("Client has a security policy");

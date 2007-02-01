@@ -23,22 +23,13 @@ import javax.ejb.EJBHome;
 
 import org.omg.CORBA.ORB;
 import org.apache.openejb.corba.CORBAEJBMemento;
-import org.apache.openejb.corba.ClientContext;
-import org.apache.openejb.corba.ClientContextHolder;
-import org.apache.openejb.corba.ClientContextManager;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class ClientContextHolderStub extends Stub implements ClientContextHolder {
-    private final ClientContext clientContext;
+public abstract class ClientContextHolderStub extends Stub {
 
     protected ClientContextHolderStub() {
-        clientContext = ClientContextManager.getClientContext();
-    }
-
-    public ClientContext getClientContext() {
-        return clientContext;
     }
 
     public final Object writeReplace() {

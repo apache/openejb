@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+
 import javax.ejb.EJBObject;
 import javax.rmi.CORBA.Util;
 
@@ -31,14 +32,13 @@ import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
 import org.omg.CORBA_2_3.portable.InputStream;
 import org.omg.CORBA_2_3.portable.OutputStream;
-import org.apache.openejb.corba.ClientContext;
-import org.apache.openejb.corba.ClientContextManager;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StubMethodInterceptor implements MethodInterceptor {
     private static final Method ISIDENTICAL;
+
     static {
         try {
             ISIDENTICAL = EJBObject.class.getMethod("isIdentical", new Class[]{EJBObject.class});
@@ -60,7 +60,7 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
         // handle is identical in stub to avoid unnecessary round trip
         if (method.equals(ISIDENTICAL)) {
-            org.omg.CORBA.Object otherObject = (org.omg.CORBA.Object)args[0];
+            org.omg.CORBA.Object otherObject = (org.omg.CORBA.Object) args[0];
             return new Boolean(stub._is_equivalent(otherObject));
         }
 
@@ -69,89 +69,82 @@ public class StubMethodInterceptor implements MethodInterceptor {
         if (operationName == null) {
             throw new IllegalStateException("Unknown method: " + method);
         }
-        ClientContext oldContext = ClientContextManager.getClientContext();
 
-        try {
-            ClientContextManager.setClientContext(stub.getClientContext());
+        while (true) {
+            // if this is a stub to a remote object we invoke over the wire
+            if (!Util.isLocal(stub)) {
 
-            while (true) {
-                // if this is a stub to a remote object we invoke over the wire
-                if (!Util.isLocal(stub)) {
+                InputStream in = null;
+                try {
+                    // create the request output stream
+                    OutputStream out = (OutputStream) stub._request(operationName, true);
 
-                    InputStream in = null;
+                    // write the arguments
+                    Class[] parameterTypes = method.getParameterTypes();
+                    for (int i = 0; i < parameterTypes.length; i++) {
+                        Class parameterType = parameterTypes[i];
+                        org.apache.openejb.corba.util.Util.writeObject(parameterType, args[i], out);
+                    }
+
+                    // send the invocation
+                    in = (InputStream) stub._invoke(out);
+
+                    // read the result
+                    Object result = org.apache.openejb.corba.util.Util.readObject(method.getReturnType(), in);
+                    return result;
+                } catch (RemarshalException exception) {
+                    continue;
+                } catch (ApplicationException exception) {
+                    org.apache.openejb.corba.util.Util.throwException(method, (InputStream) exception.getInputStream());
+                } catch (SystemException e) {
+                    throw Util.mapSystemException(e);
+                } finally {
+                    stub._releaseReply(in);
+                }
+            } else {
+                // get the servant
+                ServantObject servantObject = stub._servant_preinvoke(operationName, type);
+                if (servantObject == null) {
+                    continue;
+                }
+
+                try {
+                    // copy the arguments
+                    Object[] argsCopy = Util.copyObjects(args, stub._orb());
+
+                    // invoke the servant
+                    Object result = null;
                     try {
-                        // create the request output stream
-                        OutputStream out = (OutputStream) stub._request(operationName, true);
-
-                        // write the arguments
-                        Class[] parameterTypes = method.getParameterTypes();
-                        for (int i = 0; i < parameterTypes.length; i++) {
-                            Class parameterType = parameterTypes[i];
-                            org.apache.openejb.corba.util.Util.writeObject(parameterType, args[i], out);
+                        result = method.invoke(servantObject.servant, argsCopy);
+                    } catch (InvocationTargetException e) {
+                        if (e.getCause() != null) {
+                            throw e.getCause();
                         }
-
-                        // send the invocation
-                        in = (InputStream) stub._invoke(out);
-
-                        // read the result
-                        Object result = org.apache.openejb.corba.util.Util.readObject(method.getReturnType(), in);
-                        return result;
-                    } catch (RemarshalException exception) {
-                        continue;
-                    } catch (ApplicationException exception) {
-                        org.apache.openejb.corba.util.Util.throwException(method, (InputStream) exception.getInputStream());
-                    } catch (SystemException e) {
-                        throw Util.mapSystemException(e);
-                    } finally {
-                        stub._releaseReply(in);
-                    }
-                } else {
-                    // get the servant
-                    ServantObject servantObject = stub._servant_preinvoke(operationName, type);
-                    if (servantObject == null) {
-                        continue;
+                        throw e;
                     }
 
-                    try {
-                        // copy the arguments
-                        Object[] argsCopy = Util.copyObjects(args, stub._orb());
+                    // copy the result
+                    result = Util.copyObject(result, stub._orb());
 
-                        // invoke the servant
-                        Object result = null;
-                        try {
-                            result = method.invoke(servantObject.servant, argsCopy);
-                        } catch (InvocationTargetException e) {
-                            if (e.getCause() != null) {
-                                throw e.getCause();
-                            }
-                            throw e;
+                    return result;
+                } catch (Throwable throwable) {
+                    // copy the exception
+                    Throwable throwableCopy = (Throwable) Util.copyObject(throwable, stub._orb());
+
+                    // if it is one of my exception rethrow it
+                    Class[] exceptionTypes = method.getExceptionTypes();
+                    for (int i = 0; i < exceptionTypes.length; i++) {
+                        Class exceptionType = exceptionTypes[i];
+                        if (exceptionType.isInstance(throwableCopy)) {
+                            throw throwableCopy;
                         }
-
-                        // copy the result
-                        result = Util.copyObject(result, stub._orb());
-
-                        return result;
-                    } catch (Throwable throwable) {
-                        // copy the exception
-                        Throwable throwableCopy = (Throwable) Util.copyObject(throwable, stub._orb());
-
-                        // if it is one of my exception rethrow it
-                        Class[] exceptionTypes = method.getExceptionTypes();
-                        for (int i = 0; i < exceptionTypes.length; i++) {
-                            Class exceptionType = exceptionTypes[i];
-                            if (exceptionType.isInstance(throwableCopy)) {
-                                throw throwableCopy;
-                            }
-                        }
-
-                        throw Util.wrapException(throwableCopy);
-                    } finally {
-                        stub._servant_postinvoke(servantObject);
                     }
+
+                    throw Util.wrapException(throwableCopy);
+                } finally {
+                    stub._servant_postinvoke(servantObject);
                 }
             }
-        } finally {
-            ClientContextManager.setClientContext(oldContext);
         }
     }
 }
