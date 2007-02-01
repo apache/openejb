@@ -86,6 +86,9 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
         short value = OTSPolicyValueHelper.extract(any);
         if (value == ADAPTS.value) {
             ClientTransactionPolicy clientTransactionPolicy = (ClientTransactionPolicy) ri.get_request_policy(ClientTransactionPolicyFactory.POLICY_TYPE);
+            if (clientTransactionPolicy == null) {
+                return; 
+            }
             ClientTransactionPolicyConfig clientTransactionPolicyConfig = clientTransactionPolicy.getClientTransactionPolicyConfig();
             if (clientTransactionPolicyConfig == null) return;
 
