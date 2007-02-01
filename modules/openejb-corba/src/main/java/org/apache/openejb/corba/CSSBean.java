@@ -153,6 +153,11 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
 
             NameComponent[] nameComponent = ic.to_name(name);
             org.omg.CORBA.Object bean = ic.resolve(nameComponent);
+
+            //Install the client interceptors
+            String beanIOR = nssORB.object_to_string(bean);
+            bean = cssORB.string_to_object(beanIOR);
+
             return bean;
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
