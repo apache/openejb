@@ -119,4 +119,22 @@ public class CSSCompoundSecMechConfig implements Serializable {
 
         return context;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSCompoundSecMechConfig: [\n");
+        buf.append(moreSpaces).append("SUPPORTS: ").append(ConfigUtil.flags(supports)).append("\n");
+        buf.append(moreSpaces).append("REQUIRES: ").append(ConfigUtil.flags(requires)).append("\n");
+        transport_mech.toString(moreSpaces, buf);
+        as_mech.toString(moreSpaces, buf);
+        sas_mech.toString(moreSpaces, buf);
+        buf.append(spaces).append("]\n");
+    }
+    
 }

@@ -33,6 +33,7 @@ import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
 
 import org.apache.openejb.corba.security.SASException;
+import org.apache.openejb.corba.security.config.ConfigUtil;
 import org.apache.openejb.corba.util.Util;
 
 
@@ -133,5 +134,20 @@ public class TSSSECIOPTransportConfig extends TSSTransportMechConfig {
     public Subject check(SSLSession session) throws SASException {
         return new Subject();
     }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSSASMechConfig: [\n");
+        buf.append(moreSpaces).append("SUPPORTS  : ").append(ConfigUtil.flags(supports)).append("\n");
+        buf.append(moreSpaces).append("REQUIRES  : ").append(ConfigUtil.flags(requires)).append("\n");
+        buf.append(moreSpaces).append("mechOID   : ").append(mechOID).append("\n");
+        buf.append(moreSpaces).append("targetName: ").append(targetName).append("\n");
+        for (Iterator iterator = addresses.iterator(); iterator.hasNext();) {
+            TSSTransportAddressConfig tssTransportAddressConfig = (TSSTransportAddressConfig) iterator.next();
+            tssTransportAddressConfig.toString(moreSpaces, buf);
+        }
+       buf.append(spaces).append("]\n");
+    }
+    
 
 }

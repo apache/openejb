@@ -41,4 +41,9 @@ public class TSSITTAbsent extends TSSSASIdentityToken {
     public Subject check(IdentityToken identityToken) throws SASException {
         return null;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("TSSITTAbsent\n");
+    }
+
 }

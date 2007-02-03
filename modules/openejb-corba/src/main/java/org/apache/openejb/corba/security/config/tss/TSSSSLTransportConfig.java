@@ -16,6 +16,8 @@
  */
 package org.apache.openejb.corba.security.config.tss;
 
+import java.util.Iterator;
+
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
@@ -38,6 +40,7 @@ import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
 
 import org.apache.openejb.corba.security.SASException;
+import org.apache.openejb.corba.security.config.ConfigUtil;
 
 
 /**
@@ -157,6 +160,17 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
             if (log.isDebugEnabled()) log.debug("Unverified peer, returning null");
             return null;
         }
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSSASMechConfig: [\n");
+        buf.append(moreSpaces).append("SUPPORTS: ").append(ConfigUtil.flags(supports)).append("\n");
+        buf.append(moreSpaces).append("REQUIRES: ").append(ConfigUtil.flags(requires)).append("\n");
+        buf.append(moreSpaces).append("port    : ").append(port).append("\n");
+        buf.append(moreSpaces).append("hostName: ").append(hostname).append("\n");
+        buf.append(moreSpaces).append("handshakeTimeout: ").append(handshakeTimeout).append("\n");
+       buf.append(spaces).append("]\n");
     }
 
 }

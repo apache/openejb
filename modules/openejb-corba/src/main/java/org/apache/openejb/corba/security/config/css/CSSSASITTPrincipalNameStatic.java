@@ -63,4 +63,19 @@ public class CSSSASITTPrincipalNameStatic implements CSSSASIdentityToken {
         }
         return token;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSSASITTPrincipalNameStatic: [\n");
+        buf.append(moreSpaces).append("oid: ").append(oid).append("\n");
+        buf.append(moreSpaces).append("name: ").append(name).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

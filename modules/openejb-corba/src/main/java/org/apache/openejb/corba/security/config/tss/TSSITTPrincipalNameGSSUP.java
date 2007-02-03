@@ -108,4 +108,14 @@ public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
 
         return subject;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSITTPrincipalNameGSSUP: [\n");
+        buf.append(moreSpaces).append("principalClass: ").append(principalClass).append("\n");
+        buf.append(moreSpaces).append("domain: ").append(domainName).append("\n");
+        buf.append(moreSpaces).append("realm: ").append(realmName).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

@@ -115,4 +115,21 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
 
         return token;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSSASITTPrincipalNameDynamic: [\n");
+        buf.append(moreSpaces).append("oid: ").append(oid).append("\n");
+        buf.append(moreSpaces).append("principalClass: ").append(principalClass).append("\n");
+        buf.append(moreSpaces).append("domain: ").append(domain).append("\n");
+        buf.append(moreSpaces).append("realm: ").append(realm).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+    
 }

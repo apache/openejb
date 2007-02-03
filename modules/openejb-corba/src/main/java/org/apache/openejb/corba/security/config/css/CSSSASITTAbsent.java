@@ -30,4 +30,10 @@ public class CSSSASITTAbsent implements CSSSASIdentityToken {
         token.absent(true);
         return token;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("CSSSASITTAbsent\n");
+    }
+
+
 }

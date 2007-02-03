@@ -81,4 +81,27 @@ public class TSSConfig implements Serializable {
 
         return transportSubject;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSConfig: [\n");
+        if (defaultPrincipal != null) {
+            buf.append(moreSpaces).append("defaultPrincipal: ").append(defaultPrincipal.toString()).append("\n");
+        } else {
+            buf.append(moreSpaces).append("defaultPrincipal null\n");
+        }
+        if (transport_mech != null) {
+            transport_mech.toString(moreSpaces, buf);
+        } else {
+            buf.append(moreSpaces).append("null transport_mech\n");
+        }
+        mechListConfig.toString(moreSpaces, buf);
+        buf.append(spaces).append("]\n");
+    }
 }

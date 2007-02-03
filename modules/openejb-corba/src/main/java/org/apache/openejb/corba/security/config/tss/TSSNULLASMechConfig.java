@@ -64,4 +64,9 @@ public class TSSNULLASMechConfig extends TSSASMechConfig {
     public Subject check(EstablishContext msg) throws SASException {
         return null;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("TSSNULLASMechConfig\n");
+    }
+
 }

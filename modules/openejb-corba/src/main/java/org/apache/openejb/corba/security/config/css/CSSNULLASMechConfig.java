@@ -43,4 +43,9 @@ public class CSSNULLASMechConfig implements CSSASMechConfig {
     public byte[] encode() {
         return new byte[0];
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("CSSNULLASMechConfig\n");
+    }
+
 }

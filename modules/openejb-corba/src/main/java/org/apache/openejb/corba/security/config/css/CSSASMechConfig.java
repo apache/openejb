@@ -26,15 +26,18 @@ import org.apache.openejb.corba.security.config.tss.TSSASMechConfig;
  */
 public interface CSSASMechConfig extends Serializable {
 
-    public short getSupports();
+    short getSupports();
 
-    public short getRequires();
+    short getRequires();
 
-    public boolean canHandle(TSSASMechConfig asMech);
+    boolean canHandle(TSSASMechConfig asMech);
 
     /**
      * Encode the client authentication token
      * @return the encoded client authentication token
      */
-    public byte[] encode();
+    byte[] encode();
+
+    void toString(String spaces, StringBuffer buf);
+
 }

@@ -84,4 +84,13 @@ public class TSSITTDistinguishedName extends TSSSASIdentityToken {
 
         return subject;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSITTDistinguishedName: [\n");
+        buf.append(moreSpaces).append("domain: ").append(domainName).append("\n");
+        buf.append(moreSpaces).append("realm: ").append(realmName).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

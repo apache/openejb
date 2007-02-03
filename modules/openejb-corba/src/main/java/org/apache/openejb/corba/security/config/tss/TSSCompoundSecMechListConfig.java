@@ -18,6 +18,8 @@ package org.apache.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.security.auth.Subject;
 
 import org.omg.CORBA.Any;
@@ -102,4 +104,20 @@ public class TSSCompoundSecMechListConfig implements Serializable {
 
         return result;
     }
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("TSSCompoundSecMechListConfig: [\n");
+        for (Iterator availMechs = mechs.iterator(); availMechs.hasNext();) {
+            TSSCompoundSecMechConfig aConfig = (TSSCompoundSecMechConfig) availMechs.next();
+            aConfig.toString(spaces + "  ", buf);
+            buf.append("\n");
+        }
+        buf.append(spaces).append("]\n");
+    }
+
 }

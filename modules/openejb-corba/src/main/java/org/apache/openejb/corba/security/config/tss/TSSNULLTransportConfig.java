@@ -60,4 +60,9 @@ public class TSSNULLTransportConfig extends TSSTransportMechConfig {
     public Subject check(SSLSession session) throws SASException {
         return null;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("TSSNULLTransportConfig\n");
+    }
+
 }

@@ -67,9 +67,9 @@ public class TSSCompoundSecMechConfig implements Serializable {
     public short getSupports() {
         short result = 0;
 
-        result |= transport_mech.getSupports();
-        result |= as_mech.getSupports();
-        result |= sas_mech.getSupports();
+        if (transport_mech != null) result |= transport_mech.getSupports();
+        if (as_mech != null) result |= as_mech.getSupports();
+        if (sas_mech != null) result |= sas_mech.getSupports();
 
         return result;
     }
@@ -77,9 +77,9 @@ public class TSSCompoundSecMechConfig implements Serializable {
     public short getRequires() {
         short result = 0;
 
-        result |= transport_mech.getRequires();
-        result |= as_mech.getRequires();
-        result |= sas_mech.getRequires();
+        if (transport_mech != null) result |= transport_mech.getRequires();
+        if (as_mech != null) result |= as_mech.getRequires();
+        if (sas_mech != null) result |= sas_mech.getRequires();
 
         return result;
     }
@@ -137,4 +137,29 @@ public class TSSCompoundSecMechConfig implements Serializable {
 
         return asSubject;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSCompoundSecMechConfig: [\n");
+        buf.append(moreSpaces).append("SUPPORTS (aggregate): ").append(ConfigUtil.flags(getSupports())).append("\n");
+        buf.append(moreSpaces).append("REQUIRES (aggregate): ").append(ConfigUtil.flags(getRequires())).append("\n");
+        if (transport_mech != null) {
+            transport_mech.toString(moreSpaces, buf);
+        }
+        if (as_mech != null) {
+            as_mech.toString(moreSpaces, buf);
+        }
+        if (sas_mech != null) {
+            sas_mech.toString(moreSpaces, buf);
+        }
+        buf.append(spaces).append("]\n");
+    }
+
+
 }
