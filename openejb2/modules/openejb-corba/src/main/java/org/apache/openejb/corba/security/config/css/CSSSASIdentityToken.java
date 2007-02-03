@@ -26,5 +26,8 @@ import org.omg.CSI.IdentityToken;
  */
 public interface CSSSASIdentityToken extends Serializable {
 
-    public IdentityToken encodeIdentityToken();
+    IdentityToken encodeIdentityToken();
+
+    void toString(String spaces, StringBuffer buf);
+
 }

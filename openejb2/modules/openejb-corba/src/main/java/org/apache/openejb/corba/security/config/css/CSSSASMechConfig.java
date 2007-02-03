@@ -22,6 +22,7 @@ import org.omg.CSI.AuthorizationElement;
 import org.omg.CSI.IdentityToken;
 
 import org.apache.openejb.corba.security.config.tss.TSSSASMechConfig;
+import org.apache.openejb.corba.security.config.ConfigUtil;
 
 
 /**
@@ -75,4 +76,22 @@ public class CSSSASMechConfig implements Serializable {
     public IdentityToken encodeIdentityToken() {
         return identityToken.encodeIdentityToken();
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSSASMechConfig: [\n");
+        buf.append(moreSpaces).append("SUPPORTS: ").append(ConfigUtil.flags(supports)).append("\n");
+        buf.append(moreSpaces).append("REQUIRES: ").append(ConfigUtil.flags(requires)).append("\n");
+        if (identityToken != null) {
+            identityToken.toString(moreSpaces, buf);
+        }
+        buf.append(spaces).append("]\n");
+    }
+
 }

@@ -30,4 +30,9 @@ public class CSSSASITTAnonymous implements CSSSASIdentityToken {
         token.anonymous(true);
         return token;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("CSSSASITTAnonymous\n");
+    }
+
 }

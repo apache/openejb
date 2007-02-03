@@ -83,4 +83,12 @@ public abstract class TSSTransportMechConfig implements Serializable {
 
     public abstract Subject check(SSLSession session) throws SASException;
 
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    abstract void toString(String spaces, StringBuffer buf);
+
 }

@@ -51,4 +51,7 @@ public abstract class TSSASMechConfig implements Serializable {
     }
 
     public abstract Subject check(EstablishContext msg) throws SASException;
+
+    public abstract void toString(String spaces, StringBuffer buf);
+
 }

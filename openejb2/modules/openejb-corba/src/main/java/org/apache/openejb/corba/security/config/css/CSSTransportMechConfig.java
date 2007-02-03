@@ -26,9 +26,12 @@ import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
  */
 public interface CSSTransportMechConfig extends Serializable {
 
-    public short getSupports();
+    short getSupports();
 
-    public short getRequires();
+    short getRequires();
 
-    public boolean canHandle(TSSTransportMechConfig transMech);
+    boolean canHandle(TSSTransportMechConfig transMech);
+
+    void toString(String spaces, StringBuffer buf);
+
 }

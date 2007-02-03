@@ -46,4 +46,9 @@ public class TSSITTAnonymous extends TSSSASIdentityToken {
         //TODO the presence of an identity token is an identity assertion.
         return null;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("TSSITTAnonymous\n");
+    }
+
 }

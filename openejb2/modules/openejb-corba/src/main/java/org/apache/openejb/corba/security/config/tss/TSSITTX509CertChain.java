@@ -48,4 +48,13 @@ public class TSSITTX509CertChain extends TSSSASIdentityToken {
     public Subject check(IdentityToken identityToken) throws SASException {
         throw new SASException(1, new Exception("NYI -- cert chain identity token"));
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSITTX509CertChain (NYI): [\n");
+        buf.append(moreSpaces).append("domain: ").append(domainName).append("\n");
+        buf.append(moreSpaces).append("realm: ").append(realmName).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

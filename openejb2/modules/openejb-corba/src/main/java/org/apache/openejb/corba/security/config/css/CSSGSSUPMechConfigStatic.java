@@ -18,6 +18,7 @@ package org.apache.openejb.corba.security.config.css;
 
 import org.apache.openejb.corba.security.config.tss.TSSASMechConfig;
 import org.apache.openejb.corba.security.config.tss.TSSGSSUPMechConfig;
+import org.apache.openejb.corba.security.config.ConfigUtil;
 import org.apache.openejb.corba.util.Util;
 
 
@@ -60,4 +61,20 @@ public class CSSGSSUPMechConfigStatic implements CSSASMechConfig {
         }
         return encoding;
     }
+    
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSGSSUPMechConfigStatic: [\n");
+        buf.append(moreSpaces).append("username: ").append(username).append("\n");
+        buf.append(moreSpaces).append("password: ").append(password).append("\n");
+        buf.append(moreSpaces).append("domain:   ").append(domain).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

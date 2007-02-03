@@ -17,6 +17,7 @@
 package org.apache.openejb.corba.security.config.css;
 
 import org.apache.openejb.corba.security.config.tss.TSSTransportMechConfig;
+import org.apache.openejb.corba.security.config.ConfigUtil;
 
 
 /**
@@ -50,5 +51,19 @@ public class CSSSSLTransportConfig implements CSSTransportMechConfig {
         if ((requires & transMech.getSupports()) != requires) return false;
 
         return true;
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSSSLTransportConfig: [\n");
+        buf.append(moreSpaces).append("SUPPORTS: ").append(ConfigUtil.flags(supports)).append("\n");
+        buf.append(moreSpaces).append("REQUIRES: ").append(ConfigUtil.flags(requires)).append("\n");
+        buf.append(spaces).append("]\n");
     }
 }

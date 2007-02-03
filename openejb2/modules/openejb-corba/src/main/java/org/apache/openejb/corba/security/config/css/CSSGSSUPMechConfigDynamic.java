@@ -83,4 +83,18 @@ public class CSSGSSUPMechConfigDynamic implements CSSASMechConfig {
         }
         return encoding;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("CSSGSSUPMechConfigDynamic: [\n");
+        buf.append(moreSpaces).append("domain:   ").append(domain).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

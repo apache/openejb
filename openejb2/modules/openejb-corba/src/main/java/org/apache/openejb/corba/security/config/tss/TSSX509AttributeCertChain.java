@@ -21,5 +21,9 @@ package org.apache.openejb.corba.security.config.tss;
  * @version $Revision$ $Date$
  */
 public class TSSX509AttributeCertChain extends TSSSASMechConfig {
+    
+    protected String getName() {
+        return "TSSX509AttributeCertChain";
+    }
 
 }

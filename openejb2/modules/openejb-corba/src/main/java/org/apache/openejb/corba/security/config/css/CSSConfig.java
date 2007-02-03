@@ -35,4 +35,17 @@ public final class CSSConfig implements Serializable {
     public List findCompatibleSet(TSSCompoundSecMechListConfig mechListConfig) {
         return mechList.findCompatibleSet(mechListConfig);
     }
+
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("CSSConfig: [\n");
+        mechList.toString(spaces + "  ", buf);
+        buf.append(spaces).append("]\n");
+    }
 }

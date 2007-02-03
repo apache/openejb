@@ -42,4 +42,18 @@ public class TSSEntity implements Serializable {
     public void setDistinguishedName(X500Principal distinguishedName) {
         this.distinguishedName = distinguishedName;
     }
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSEntity: [\n");
+        buf.append(moreSpaces).append("hostname: ").append(hostname).append("\n");
+        buf.append(moreSpaces).append("distinguishedName: ").append(distinguishedName).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

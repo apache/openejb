@@ -117,4 +117,19 @@ public class TSSGSSUPMechConfig extends TSSASMechConfig {
 
         return result;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    public void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSGSSUPMechConfig: [\n");
+        buf.append(moreSpaces).append("targetName:   ").append(targetName).append("\n");
+        buf.append(moreSpaces).append("required  :   ").append(required).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

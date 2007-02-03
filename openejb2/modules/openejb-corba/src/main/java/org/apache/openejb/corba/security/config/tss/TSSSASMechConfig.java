@@ -33,6 +33,7 @@ import org.omg.CSIIOP.SAS_ContextSec;
 import org.omg.CSIIOP.ServiceConfiguration;
 import org.omg.IOP.Codec;
 import org.apache.openejb.corba.security.SASException;
+import org.apache.openejb.corba.security.config.ConfigUtil;
 import org.apache.openejb.corba.util.Util;
 
 
@@ -147,9 +148,6 @@ public class TSSSASMechConfig implements Serializable {
     }
 
     public Subject check(EstablishContext msg) throws SASException {
-//        Subject result = null;
-
-//        try {
         if (msg.identity_token != null) {
             IdentityToken identityToken = msg.identity_token;
             int discriminator = identityToken.discriminator();
@@ -162,44 +160,34 @@ public class TSSSASMechConfig implements Serializable {
         } else {
             return null;
         }
-//                switch (discriminator) {
-//                    case org.omg.CSI.ITTAbsent.value:
-//                        break;
-//                    case org.omg.CSI.ITTAnonymous.value:
-//                        //TODO implement this one or figure out if this is correct???
-//                        break;
-//                    case ITTPrincipalName.value:
-//                        byte[] principalNameToken = identityToken.principal_name();
-//                        Any any = Util.getCodec().decode_value(principalNameToken, GSS_NT_ExportedNameHelper.type());
-//                        byte[] principalNameBytes = GSS_NT_ExportedNameHelper.extract(any);
-//                        String principalName = Util.decodeGSSExportName(principalNameBytes);
-//                        Principal basePrincipal = new GeronimoUserPrincipal(principalName);
-//                        //TODO parameterize or otherwise select realm name
-//                        Principal wrappedPrincipal = new RealmPrincipal("cts-properties-realm", basePrincipal);
-//                        result = new Subject();
-//                        result.getPrincipals().add(basePrincipal);
-//                        result.getPrincipals().add(wrappedPrincipal);
-//                        break;
-//                    case org.omg.CSI.ITTX509CertChain.value:
-//                        byte[] ccChainBytes = identityToken.certificate_chain();
-//                        //TODO implement this one
-//                        throw new SASException(1, new Exception("NYI -- cert chain identity token"));
-//                    case org.omg.CSI.ITTDistinguishedName.value:
-//                        //TODO implement this one
-//                        throw new SASException(1, new Exception("NYI -- distinguished name identity token"));
-//                    default:
-//                        throw new SASException(1);
-//                }
-//
-//            }
-//        } catch (TypeMismatch typeMismatch) {
-//            throw new SASException(1, typeMismatch);
-//        } catch (FormatMismatch formatMismatch) {
-//            throw new SASException(1, formatMismatch);
-////        } catch (UnsupportedEncodingException e) {
-////            throw new SASException(1, e);
-//        }
-//
-//        return result;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append(getName()).append(": [\n");
+        buf.append(moreSpaces).append("required: ").append(required).append("\n");
+        buf.append(moreSpaces).append("SUPPORTS: ").append(ConfigUtil.flags(supports)).append("\n");
+        buf.append(moreSpaces).append("REQUIRES: ").append(ConfigUtil.flags(requires)).append("\n");
+        for (Iterator iterator = privilegeAuthorities.iterator(); iterator.hasNext();) {
+            TSSServiceConfigurationConfig tssServiceConfigurationConfig = (TSSServiceConfigurationConfig) iterator.next();
+            tssServiceConfigurationConfig.toString(moreSpaces, buf);
+        }
+        buf.append("\n");
+        for (Iterator iterator = idTokens.values().iterator(); iterator.hasNext();) {
+            TSSSASIdentityToken identityToken = (TSSSASIdentityToken) iterator.next();
+            identityToken.toString(moreSpaces, buf);
+        }
+        buf.append(spaces).append("]\n");
+    }
+
+    protected String getName() {
+        return "TSSSASMechConfig";
+    }
+    
 }

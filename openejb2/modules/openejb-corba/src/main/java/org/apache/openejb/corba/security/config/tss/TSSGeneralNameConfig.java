@@ -60,4 +60,12 @@ public class TSSGeneralNameConfig extends TSSServiceConfigurationConfig {
             throw new ConfigException("Unable to encode GeneralName", e);
         }
     }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSGeneralNameConfig: [\n");
+        buf.append(moreSpaces).append("name: ").append(name).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

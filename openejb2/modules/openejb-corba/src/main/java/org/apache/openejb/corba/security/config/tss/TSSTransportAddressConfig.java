@@ -49,4 +49,19 @@ public class TSSTransportAddressConfig implements Serializable {
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        toString("", buf);
+        return buf.toString();
+    }
+
+    void toString(String spaces, StringBuffer buf) {
+        String moreSpaces = spaces + "  ";
+        buf.append(spaces).append("TSSTransportAddressConfig: [\n");
+        buf.append(moreSpaces).append("port    : ").append(port).append("\n");
+        buf.append(moreSpaces).append("hostName: ").append(hostname).append("\n");
+        buf.append(spaces).append("]\n");
+    }
+
 }

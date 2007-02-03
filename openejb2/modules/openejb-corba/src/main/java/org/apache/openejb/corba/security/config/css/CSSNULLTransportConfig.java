@@ -41,4 +41,8 @@ public class CSSNULLTransportConfig implements CSSTransportMechConfig {
 
         return true;
     }
+
+    public void toString(String spaces, StringBuffer buf) {
+        buf.append(spaces).append("CSSNULLTransportConfig\n");
+    }
 }
