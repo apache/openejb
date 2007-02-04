@@ -48,7 +48,7 @@ public class CSSSASITTPrincipalNameStatic implements CSSSASIdentityToken {
 
         if (token == null) {
             Any any = Util.getORB().create_any();
-
+            //TODO consider including a domain in this scoped-username
             GSS_NT_ExportedNameHelper.insert(any, Util.encodeGSSExportName(oid, name));
 
             byte[] encoding = null;

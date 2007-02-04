@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.rmi.Remote;
 import java.rmi.UnexpectedException;
 import java.rmi.RemoteException;
@@ -33,6 +34,9 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 import javax.ejb.spi.HandleDelegate;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -269,6 +273,65 @@ public final class Util {
         }
         return result;
     }
+
+    private static final Pattern SCOPED_NAME_EXTRACTION_PATTERN = Pattern.compile("(\\\\\\\\)|(\\\\@)|(@)|(\\z)");
+
+    /**
+     * See csiv2 spec 16.2.5 par. 63-64.  We extract the username if any and un-escape any
+     * escaped \ and @ characters.
+     * 
+     * @param scopedNameBytes
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static String extractUserNameFromScopedName(byte[] scopedNameBytes) throws UnsupportedEncodingException {
+        String scopedUserName = new String(scopedNameBytes, "UTF8");
+        return extractUserNameFromScopedName(scopedUserName);
+    }
+
+    public static String extractUserNameFromScopedName(String scopedUserName) {
+        Matcher m = SCOPED_NAME_EXTRACTION_PATTERN.matcher(scopedUserName);
+        StringBuffer buf = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(buf, "");
+            if (m.group(1) != null) {
+                buf.append('\\');
+            } else if (m.group(2) != null) {
+                buf.append("@");
+            } else if (m.group(3) != null) {
+                break;
+            }
+        }
+        return buf.toString();
+    }
+
+    private static final Pattern SCOPED_NAME_ESCAPE_PATTERN = Pattern.compile("(\\\\)|(@)");
+
+    public static String buildScopedUserName(String user, String domain) {
+        StringBuffer buf = new StringBuffer();
+        if (user != null) {
+            escape(user, buf);
+        }
+        if (domain != null) {
+            buf.append('@');
+            escape(domain, buf);
+        }
+        return buf.toString();
+    }
+
+    private static void escape(String s, StringBuffer buf) {
+        Matcher m = SCOPED_NAME_ESCAPE_PATTERN.matcher(s);
+        while (m.find()) {
+            m.appendReplacement(buf, "");
+            if (m.group(1) != null) {
+                buf.append("\\\\");
+            } else if (m.group(2) != null) {
+                buf.append("\\@");
+            }
+        }
+        m.appendTail(buf);
+    }
+
 
     /**
      * Encode a mechanism independent initial context token (GSSToken). Defined
