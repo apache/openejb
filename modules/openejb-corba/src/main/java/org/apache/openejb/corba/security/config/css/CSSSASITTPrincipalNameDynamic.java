@@ -97,6 +97,7 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
 
             Any any = Util.getORB().create_any();
 
+            //TODO consider including a domain in this scoped-username
             GSS_NT_ExportedNameHelper.insert(any, Util.encodeGSSExportName(oid, principalName));
 
             byte[] encoding = null;

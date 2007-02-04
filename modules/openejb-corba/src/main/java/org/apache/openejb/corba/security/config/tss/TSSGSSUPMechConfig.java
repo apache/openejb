@@ -17,6 +17,9 @@
 package org.apache.openejb.corba.security.config.tss;
 
 import java.io.UnsupportedEncodingException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -94,17 +97,19 @@ public class TSSGSSUPMechConfig extends TSSASMechConfig {
             if (msg.client_authentication_token != null && msg.client_authentication_token.length > 0) {
                 InitialContextToken token = new InitialContextToken();
 
-                if (!Util.decodeGSSUPToken(Util.getCodec(), msg.client_authentication_token, token)) throw new SASException(2);
+                if (!Util.decodeGSSUPToken(Util.getCodec(), msg.client_authentication_token, token))
+                    throw new SASException(2);
 
                 if (token.target_name == null) return null;
 
                 String tokenTargetName = (token.target_name == null ? targetName : new String(token.target_name, "UTF8"));
 
                 if (!targetName.equals(tokenTargetName)) throw new SASException(2);
+                String userName = Util.extractUserNameFromScopedName(token.username);
 
                 LoginContext context = new LoginContext(tokenTargetName,
-                                                        new UsernamePasswordCallback(new String(token.username, "UTF8"),
-                                                                                     new String(token.password, "UTF8").toCharArray()));
+                        new UsernamePasswordCallback(userName,
+                                new String(token.password, "UTF8").toCharArray()));
                 context.login();
                 result = ContextManager.getServerSideSubject(context.getSubject());
             }

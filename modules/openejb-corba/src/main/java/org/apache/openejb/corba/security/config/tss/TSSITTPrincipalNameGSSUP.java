@@ -81,6 +81,7 @@ public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
         }
         byte[] principalNameBytes = GSS_NT_ExportedNameHelper.extract(any);
         String principalName = Util.decodeGSSExportName(principalNameBytes);
+        principalName = Util.extractUserNameFromScopedName(principalName);
         Principal basePrincipal = null;
         try {
             getConstructor();

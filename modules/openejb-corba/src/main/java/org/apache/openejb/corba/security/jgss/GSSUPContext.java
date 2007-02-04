@@ -234,8 +234,9 @@ public final class GSSUPContext implements GSSContextSpi {
         protReady = true;
 
         if (credential == null) return new byte[0];
-
-        return Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), credential.getUsername(), new String(credential.getPassword()), "GSSUP-REALM");
+        //TODO there isn't a domain apparently available in this class, so its' hard to see how to construct a full scoped username
+        String scopedUsername = Util.buildScopedUserName(credential.getUsername(), null);
+        return Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), scopedUsername, new String(credential.getPassword()), "GSSUP-REALM");
     }
 
     public Provider getProvider() {

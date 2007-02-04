@@ -55,7 +55,8 @@ public class CSSGSSUPMechConfigStatic implements CSSASMechConfig {
 
     public byte[] encode() {
         if (encoding == null) {
-            encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), username, password, domain);
+            String scopedUserName = Util.buildScopedUserName(username, domain);
+            encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), scopedUserName, password, domain);
 
             if (encoding == null) encoding = new byte[0];
         }
