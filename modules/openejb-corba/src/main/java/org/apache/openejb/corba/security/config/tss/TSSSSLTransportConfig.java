@@ -164,7 +164,7 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
 
     void toString(String spaces, StringBuffer buf) {
         String moreSpaces = spaces + "  ";
-        buf.append(spaces).append("TSSSASMechConfig: [\n");
+        buf.append(spaces).append("TSSSSLTransportConfig: [\n");
         buf.append(moreSpaces).append("SUPPORTS: ").append(ConfigUtil.flags(supports)).append("\n");
         buf.append(moreSpaces).append("REQUIRES: ").append(ConfigUtil.flags(requires)).append("\n");
         buf.append(moreSpaces).append("port    : ").append(port).append("\n");
