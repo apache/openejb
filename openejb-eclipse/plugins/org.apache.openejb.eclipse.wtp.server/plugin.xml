@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.wst.server.core.runtimeTypes">
+      <runtimeType
+            class="org.eclipse.jst.server.generic.core.internal.GenericServerRuntime"
+            description="%plugin.runtimetype.description"
+            id="org.apache.openejb.eclipse.wtp.runtime"
+            name="%plugin.runtimetype.name"
+            vendor="%plugin.provider.short"
+            vendorId="%plugin.provider.acronym"
+            version="3.x">
+         <moduleType
+               types="jst.ejb"
+               versions="1.0, 1.1, 2.1, 3.0"/>
+      </runtimeType>
+   </extension>
+   <extension
+         point="org.eclipse.wst.server.core.serverTypes">
+      <serverType
+            behaviourClass="org.eclipse.jst.server.generic.core.internal.ExternalServerBehaviour"
+            class="org.eclipse.jst.server.generic.core.internal.GenericServer"
+            description="%plugin.servertype.description"
+            hasConfiguration="false"
+            id="org.apache.openejb.eclipse.wtp.server"
+            initialState="stopped"
+            launchConfigId="org.eclipse.jst.server.generic.core.ExternalLaunchConfigurationType"
+            launchModes="run.debug"
+            name="%plugin.servertype.name"
+            runtime="true"
+            runtimeTypeId="org.apache.openejb.eclipse.wtp.runtime"
+            startBeforePublish="true"
+            supportsRemoteHosts="false"/>
+   </extension>
+   <extension
+         point="org.eclipse.wst.server.ui.wizardFragments">
+      <fragment
+            class="org.eclipse.jst.server.generic.ui.internal.GenericServerRuntimeWizardFragment"
+            id="org.eclipse.jst.server.generic.runtime"
+            typeIds="org.apache.openejb.eclipse.wtp.runtime"/>
+      <fragment
+            class="org.eclipse.jst.server.generic.ui.internal.GenericServerWizardFragment"
+            id="org.eclipse.jst.server.generic.server"
+            typeIds="org.apache.openejb.eclipse.wtp.server"/>
+   </extension>
+   <extension
+         point="org.eclipse.jst.server.core.runtimeClasspathProviders">
+         <runtimeClasspathProvider class="org.eclipse.jst.server.generic.core.internal.GenericServerRuntimeTargetHandler"
+			id="org.apache.openejb.eclipse.wtp.runtimeClasspathProvider"
+			runtimeTypeIds="org.apache.openejb.*"/>
+   </extension>
+   <extension
+         point="org.eclipse.jst.server.generic.core.serverdefinition">
+      <serverdefinition
+            definitionfile="openejb.serverdef"
+            id="org.apache.openejb.eclipse.wtp.runtime"/>
+   </extension>
+   <extension
+         point="org.eclipse.jst.server.generic.core.genericpublisher">
+      <genericpublisher
+            class="org.apache.openejb.eclipse.wtp.OpenEJBPublisher"
+            id="org.apache.openejb.eclipse.wtp.publisher"/>
+   </extension>
+   <extension
+         point="org.eclipse.wst.server.ui.serverImages">
+      <image
+            icon="images/logo_ejb.gif"
+            id="org.apache.openejb.eclipse.wtp.serverImage"
+            typeIds="org.apache.openejb.eclipse.wtp.runtime"/>
+   </extension>
+
+</plugin>

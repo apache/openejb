@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ServerRuntime
+	xmlns:tns="http://eclipse.org/jst/server/generic/ServerTypeDefinition"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://eclipse.org/jst/server/generic/ServerTypeDefinition"
+	name="Apache OpenEJB EJB Container" version="3.0">
+<property
+	id="openEJBHome"
+	label="%plugin.serverdef.openejb.home"
+	type="directory"
+	context="runtime"
+	default="/YOUR/PATH/TO/OPENEJB" />
+</tns:ServerRuntime>
