@@ -65,7 +65,7 @@
    <extension
          point="org.eclipse.wst.server.ui.serverImages">
       <image
-            icon="images/logo_ejb.gif"
+            icon="icons/obj16/logo_ejb.gif"
             id="org.apache.openejb.eclipse.wtp.serverImage"
             typeIds="org.apache.openejb.eclipse.wtp.runtime"/>
    </extension>
