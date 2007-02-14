@@ -1,4 +1,4 @@
-package org.apache.openejb.eclipse.wtp;
+package org.apache.openejb.st.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;

@@ -60,7 +60,7 @@
          name="%plugin.servertype.publisher.name"
          point="org.eclipse.jst.server.generic.core.genericpublisher">
       <genericpublisher
-            class="org.apache.openejb.st.OpenEJBPublisher"
+            class="org.apache.openejb.st.core.OpenEJBPublisher"
             id="org.apache.openejb.st.publisher"/>
    </extension>
    <extension
