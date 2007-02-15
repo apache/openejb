@@ -68,6 +68,10 @@
       <image
             icon="icons/obj16/logo_ejb.gif"
             id="org.apache.openejb.st.serverImage"
+            typeIds="org.apache.openejb.st.server"/>
+      <image
+            icon="icons/obj16/logo_ejb.gif"
+            id="org.apache.openejb.st.runtimeImage"
             typeIds="org.apache.openejb.st.runtime"/>
    </extension>
 

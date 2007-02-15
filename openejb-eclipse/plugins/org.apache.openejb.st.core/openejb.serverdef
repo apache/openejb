@@ -9,5 +9,5 @@
 	label="%plugin.serverdef.openejb.home"
 	type="directory"
 	context="runtime"
-	default="/YOUR/PATH/TO/OPENEJB" />
+	default="" />
 </tns:ServerRuntime>
