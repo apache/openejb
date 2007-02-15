@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenEjb Server Tools UI Plug-in
+Bundle-SymbolicName: org.apache.openejb.st.ui;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: org.apache.openejb.st.ui.Activator
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.apache.openejb.st.core,
+ org.eclipse.wst.server.ui,
+ org.eclipse.jst.server.ui,
+ org.eclipse.jst.server.generic.ui
+Eclipse-LazyStart: true

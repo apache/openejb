@@ -1,14 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %plugin.name
-Bundle-SymbolicName: org.apache.openejb.eclipse.wtp.server;singleton:=true
+Bundle-SymbolicName: org.apache.openejb.st.core;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Vendor: %plugin.provider
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.wst.server.core,
- org.eclipse.wst.server.ui,
  org.eclipse.jst.server.core,
- org.eclipse.jst.server.ui,
  org.eclipse.jst.server.generic.core,
- org.eclipse.core.runtime,
- org.eclipse.jst.server.generic.ui
+ org.eclipse.core.runtime
+ 

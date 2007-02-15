@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+	<extension
+		point="org.eclipse.wst.server.ui.wizardFragments">
+		<fragment
+            class="org.eclipse.jst.server.generic.ui.internal.GenericServerRuntimeWizardFragment"
+            id="org.eclipse.jst.server.generic.runtime"
+            typeIds="org.apache.openejb.st.runtime"/>
+      <fragment
+            class="org.eclipse.jst.server.generic.ui.internal.GenericServerWizardFragment"
+            id="org.eclipse.jst.server.generic.server"
+            typeIds="org.apache.openejb.st.server"/>
+   </extension>
+   
+     <extension
+         point="org.eclipse.wst.server.ui.serverImages">
+      <image
+            icon="icons/obj16/logo_ejb.gif"
+            id="org.apache.openejb.st.runtime.image"
+            typeIds="org.apache.openejb.st.runtime"/>
+      <image
+            icon="icons/obj16/logo_ejb.gif"
+            id="org.apache.openejb.st.server.image"
+            typeIds="org.apache.openejb.st.server"/>
+   </extension>
+
+</plugin>

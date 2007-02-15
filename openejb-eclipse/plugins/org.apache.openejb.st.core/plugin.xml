@@ -26,24 +26,14 @@
             id="org.apache.openejb.st.server"
             initialState="stopped"
             launchConfigId="org.eclipse.jst.server.generic.core.ExternalLaunchConfigurationType"
-            launchModes="run.debug"
+            launchModes="run,debug"
             name="%plugin.servertype.name"
             runtime="true"
             runtimeTypeId="org.apache.openejb.st.runtime"
             startBeforePublish="true"
             supportsRemoteHosts="false"/>
    </extension>
-   <extension
-         point="org.eclipse.wst.server.ui.wizardFragments">
-      <fragment
-            class="org.eclipse.jst.server.generic.ui.internal.GenericServerRuntimeWizardFragment"
-            id="org.eclipse.jst.server.generic.runtime"
-            typeIds="org.apache.openejb.st.runtime"/>
-      <fragment
-            class="org.eclipse.jst.server.generic.ui.internal.GenericServerWizardFragment"
-            id="org.eclipse.jst.server.generic.server"
-            typeIds="org.apache.openejb.st.server"/>
-   </extension>
+  
    <extension
          point="org.eclipse.jst.server.core.runtimeClasspathProviders">
          <runtimeClasspathProvider class="org.eclipse.jst.server.generic.core.internal.GenericServerRuntimeTargetHandler"
@@ -63,16 +53,6 @@
             class="org.apache.openejb.st.core.OpenEJBPublisher"
             id="org.apache.openejb.st.publisher"/>
    </extension>
-   <extension
-         point="org.eclipse.wst.server.ui.serverImages">
-      <image
-            icon="icons/obj16/logo_ejb.gif"
-            id="org.apache.openejb.st.serverImage"
-            typeIds="org.apache.openejb.st.server"/>
-      <image
-            icon="icons/obj16/logo_ejb.gif"
-            id="org.apache.openejb.st.runtimeImage"
-            typeIds="org.apache.openejb.st.runtime"/>
-   </extension>
+
 
 </plugin>
