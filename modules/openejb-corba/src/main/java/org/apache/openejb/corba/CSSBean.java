@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.InvalidConfigurationException; 
 import org.apache.openejb.corba.security.config.ConfigAdapter;
 import org.apache.openejb.corba.security.config.css.CSSConfig;
 import org.apache.openejb.corba.security.config.ssl.SSLConfig;
@@ -154,11 +155,17 @@ public class CSSBean implements GBeanLifecycle, ORBConfiguration {
             NameComponent[] nameComponent = ic.to_name(name);
             org.omg.CORBA.Object bean = ic.resolve(nameComponent);
 
-            //Install the client interceptors
+            // Ok, now we have an object reference from the naming service, but we need to 
+            // activate that object on the cssORB instance before we hand it out.  Activating it 
+            // on the cssORB will ensure that all of the interceptors and policies we define on the 
+            // cssORB will get used for all requests involving this bean. 
             String beanIOR = nssORB.object_to_string(bean);
             bean = cssORB.string_to_object(beanIOR);
 
             return bean;
+        } catch (NoSuchMethodError e) {
+            log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 
+            throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
             throw new RuntimeException(ue);
