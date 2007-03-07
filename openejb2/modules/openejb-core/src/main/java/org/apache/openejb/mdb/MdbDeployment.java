@@ -19,6 +19,7 @@ package org.apache.openejb.mdb;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
@@ -87,6 +88,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
                          MdbContainer ejbContainer,
 
                          String policyContextId,
+                         DefaultPrincipal defaultPrincipal,
                          Subject runAs,
 
                          boolean beanManagedTransactions,
@@ -106,6 +108,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
                 activationSpecWrapper,
                 ejbContainer,
                 policyContextId,
+                defaultPrincipal,
                 runAs,
                 beanManagedTransactions,
                 transactionPolicies,
@@ -127,6 +130,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
                          MdbContainer ejbContainer,
 
                          String policyContextId,
+                         DefaultPrincipal defaultPrincipal,
                          Subject runAs,
 
                          boolean beanManagedTransactions,
@@ -147,7 +151,7 @@ public class MdbDeployment extends AbstractEjbDeployment implements MessageEndpo
                 ejbContainer,
                 false,
                 policyContextId,
-                null,
+                defaultPrincipal,
                 runAs,
                 beanManagedTransactions,
                 transactionPolicies,

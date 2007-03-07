@@ -38,7 +38,9 @@ import org.apache.openejb.transaction.TransactionContextInterceptor;
 import org.apache.openejb.transaction.DefaultUserTransaction;
 import org.apache.openejb.dispatch.DispatchInterceptor;
 import org.apache.openejb.naming.ComponentContextInterceptor;
+import org.apache.openejb.security.DefaultSubjectInterceptor;
 import org.apache.openejb.security.EJBIdentityInterceptor;
+import org.apache.openejb.security.EjbRunAsInterceptor;
 
 import javax.ejb.Timer;
 import javax.transaction.TransactionManager;
@@ -84,6 +86,9 @@ public class DefaultMdbContainer implements MdbContainer {
             invocationChain = new EJBIdentityInterceptor(invocationChain);
         }
 
+        // Sets the run as subject which is used when this ejb calls another ejb
+        invocationChain = new EjbRunAsInterceptor(invocationChain);
+
         if (trackedConnectionAssociator != null) {
             invocationChain = new ConnectionTrackingInterceptor(invocationChain, trackedConnectionAssociator);
         }
@@ -102,6 +107,9 @@ public class DefaultMdbContainer implements MdbContainer {
 
         // logs system exceptions
         invocationChain = new SystemExceptionInterceptor(invocationChain);
+
+        // sets the invocation subject when the invocation has no subject associated
+        invocationChain = new DefaultSubjectInterceptor(invocationChain);
 
         this.invocationChain = invocationChain;
 

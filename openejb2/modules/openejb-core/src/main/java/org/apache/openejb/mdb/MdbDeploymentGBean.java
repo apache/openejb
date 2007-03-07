@@ -19,6 +19,7 @@ package org.apache.openejb.mdb;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.openejb.MdbContainer;
@@ -50,6 +51,7 @@ public final class MdbDeploymentGBean {
         infoFactory.addReference("ejbContainer", MdbContainer.class, "MdbContainer");
 
         infoFactory.addAttribute("policyContextId", String.class, true);
+        infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addAttribute("runAs", Subject.class, true);
 
         infoFactory.addAttribute("beanManagedTransactions", boolean.class, true);
@@ -75,6 +77,7 @@ public final class MdbDeploymentGBean {
             "ejbContainer",
 
             "policyContextId",
+            "defaultPrincipal",
             "runAs",
 
             "beanManagedTransactions",
