@@ -87,11 +87,11 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
             String tssLink = tssLinks[i];
             URI moduleURI = module.getModuleURI();
             String moduleString = moduleURI == null ? null : moduleURI.toString();
-            AbstractNameQuery tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleString, tssLink, NameFactory.EJB_MODULE, NameFactory.EJB_MODULE);
+            AbstractNameQuery tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, moduleString, tssLink, NameFactory.CORBA_TSS, NameFactory.EJB_MODULE);
             try {
                 localConfiguration.findGBean(tssBeanName);
             } catch (GBeanNotFoundException e) {
-                tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssLink, null, NameFactory.EJB_MODULE);
+                tssBeanName = ENCConfigBuilder.buildAbstractNameQuery(null, null, tssLink, NameFactory.CORBA_TSS, null);
                 try {
                     localConfiguration.findGBean(tssBeanName);
                 } catch (GBeanNotFoundException e1) {
