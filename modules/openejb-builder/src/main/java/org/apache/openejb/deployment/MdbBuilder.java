@@ -47,6 +47,7 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
     private String ejbContainerName;
 
     private String policyContextId;
+    private DefaultPrincipal defaultPrincipal;
     private Subject runAs;
 
     private boolean beanManagedTransactions = false;
@@ -86,11 +87,11 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
     }
 
     public DefaultPrincipal getDefaultPrincipal() {
-        return null;  // RETURN NOTHING
+        return defaultPrincipal;
     }
 
     public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
-        // DO NOTHING
+        this.defaultPrincipal = defaultPrincipal;
     }
 
     public Subject getRunAs() {
@@ -167,6 +168,7 @@ public class MdbBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
         gbean.setReferencePattern("ejbContainer", ejbContainerQuery);
 
         gbean.setAttribute("policyContextId", policyContextId);
+        gbean.setAttribute("defaultPrincipal", defaultPrincipal);
         gbean.setAttribute("runAs", runAs);
 
         gbean.setAttribute("beanManagedTransactions", new Boolean(beanManagedTransactions));
