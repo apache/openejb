@@ -69,7 +69,7 @@
         <staxVersion>1.1.1-dev</staxVersion>
         <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
-        <yokoVersion>1.0-incubating-M2-SNAPSHOT</yokoVersion>
+        <yokoVersion>1.0-incubating-M2</yokoVersion>
     </properties>
 
     <organization>
@@ -239,6 +239,21 @@
             </snapshots>
             <releases>
                 <enabled>false</enabled>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>apache-incubator</id>
+            <name>Apache Incubator Repository</name>
+            <url>http://people.apache.org/repo/m2-incubating-repository</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
