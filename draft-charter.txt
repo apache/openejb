@@ -34,13 +34,11 @@
          * Jacek Laskowski     (jlaskowski@apache.org)
          * Brett Porter        (brett@apache.org)
          * Dain Sundstrom      (dain@apache.org)
-         * Jason van Zyl       (jvanzyl@apache.org)
-         * Henri Yandell       (bayard@apache.org)
 
-       NOW, THEREFORE, BE IT FURTHER RESOLVED, that <TBD> be and hereby
-       is appointed to the office of Vice President, OpenEJB, to serve
-       in accordance with and subject to the direction of the Board of
-       Directors and the Bylaws of the Foundation until death,
+       NOW, THEREFORE, BE IT FURTHER RESOLVED, that David Blevins be and
+       hereby is appointed to the office of Vice President, OpenEJB, to
+       serve in accordance with and subject to the direction of the Board
+       of Directors and the Bylaws of the Foundation until death,
        resignation, retirement, removal or disqualification, or until a
        successor is appointed; and be it further
 
