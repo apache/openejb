@@ -67,7 +67,7 @@
         <castorVersion>0.9.5.3</castorVersion>
         <staxApiVersion>1.0.1</staxApiVersion>
         <staxVersion>1.1.1-dev</staxVersion>
-        <tranqlVersion>1.4-SNAPSHOT</tranqlVersion>
+        <tranqlVersion>1.4.1</tranqlVersion>
         <xmlbeansVersion>2.0.0</xmlbeansVersion>
         <yokoVersion>1.0-incubating-M2</yokoVersion>
     </properties>
@@ -872,6 +872,117 @@
                 </site>
             </distributionManagement>
         </profile>
-    </profiles>
 
+        <profile>
+            <!-- Problems: it's not signing JavaDoc and Source JARs -->
+            <id>staging</id>
+
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>apache.org</id>
+                    <name>Maven Plugin Snapshots</name>
+                    <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+
+            <build>
+                <plugins>
+                    <!-- We want the sources JAR published with the release -->
+                    <plugin>
+                        <inherited>true</inherited>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- We want the JavaDoc JAR published with the release -->
+                    <plugin>
+                        <inherited>true</inherited>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.2</version>
+                        <configuration>
+                            <source>1.5</source>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- We want to deploy the artifact to a staging location for perusal -->
+                    <plugin>
+                        <inherited>true</inherited>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>2.3-20061210.174233-3</version>
+                        <configuration>
+                            <updateReleaseInfo>true</updateReleaseInfo>
+                            <altDeploymentRepository>${deploy.altRepository}</altDeploymentRepository>
+                        </configuration>
+                    </plugin>
+                    <!-- We want to deploy the site to a staging location for perusal -->
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <version>2.0-beta-5</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>stage-deploy</goal>
+                                </goals>
+                                <configuration>
+                                    <stagingSiteURL>${staging.siteURL}</stagingSiteURL>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- We want to sign the artifact, the POM, and all attached artifacts -->
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.0-alpha-2-20061214.035657-1</version>
+                        <configuration>
+                            <passphrase>${gpg.passphrase}</passphrase>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- We want to package up license resources in the JARs produced -->
+                    <plugin>
+                        <artifactId>maven-remote-resources-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>process</goal>
+                                </goals>
+                                <configuration>
+                                    <resourceBundles>
+                                        <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
+                                    </resourceBundles>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
