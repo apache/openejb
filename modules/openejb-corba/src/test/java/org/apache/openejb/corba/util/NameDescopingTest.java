@@ -27,7 +27,7 @@ import org.apache.openejb.corba.util.Util;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class NameDescopingTest extends TestCase {
 

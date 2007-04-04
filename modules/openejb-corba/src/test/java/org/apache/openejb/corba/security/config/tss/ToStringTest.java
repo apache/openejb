@@ -23,7 +23,7 @@ package org.apache.openejb.corba.security.config.tss;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ToStringTest extends TestCase {
     
