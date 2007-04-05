@@ -779,38 +779,23 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-                <version>1.1</version>
-
-                <!-- Tools includes custom packagings, install as extention to pick them up -->
-                <extensions>true</extensions>
-
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.0-alpha-4</version>
                 <executions>
                     <execution>
-                        <id>validate-java-version</id>
-                        <phase>validate</phase>
                         <goals>
-                            <goal>require-java-version</goal>
+                            <goal>process</goal>
                         </goals>
                         <configuration>
-                            <version>1.5*</version>
+                            <resourceBundles>
+                                <resourceBundle>org.apache:apache-incubator-disclaimer-resource-bundle:1.1</resourceBundle>
+                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.2</resourceBundle>
+                            </resourceBundles>
+                            <properties>
+                                <addLicense>true</addLicense>
+                                <projectName>Apache OpenEJB Project</projectName>
+                            </properties>
                         </configuration>
-                    </execution>
-
-                    <!--
-                    NOTE: This will copy LICENSE.txt and NOTICE.txt to classes/META-INF.
-
-                          Its a itty-bitty HACK to avoid adding resource definitions to
-                          the build, which causes the Eclipse plugin to generate invalid
-                          .classpath files. :-(
-                    -->
-                    <execution>
-                        <id>install-legal-files</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-legal-files</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -961,23 +946,6 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- We want to package up license resources in the JARs produced -->
-                    <plugin>
-                        <artifactId>maven-remote-resources-plugin</artifactId>
-                        <version>1.0-alpha-1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>process</goal>
-                                </goals>
-                                <configuration>
-                                    <resourceBundles>
-                                        <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
-                                    </resourceBundles>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
