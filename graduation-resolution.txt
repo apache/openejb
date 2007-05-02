@@ -15,7 +15,8 @@
        RESOLVED, that The Apache OpenEJB Project be and hereby is
        responsible for the creation and maintenance of a software
        project related to enterprise application containers and object
-       distribution services; and be it further
+       distribution services [based on, but not limited to the
+       Enterprise JavaBeans Specification]; and be it further
 
        RESOLVED, that the office of "Vice President, OpenEJB" be and
        hereby is created, the person holding such office to serve at the
