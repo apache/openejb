@@ -195,6 +195,19 @@ $content
 	<!-- $TITLE -->
 	$title
                 </td>
+
+                <!-- Google CSE Search Box Begins  -->
+                <td align='right'>
+                  <form id="searchbox_010475492895890475512:_t4iqjrgx90" action="http://www.google.com/cse">
+                    <input type="hidden" name="cx" value="010475492895890475512:_t4iqjrgx90" />
+                    <input type="hidden" name="cof" value="FORID:0" />
+                    <input name="q" type="text" size="25" />
+                    <input type="submit" name="sa" value="Search" />
+                  </form>
+                  <script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_010475492895890475512%3A_t4iqjrgx90"></script>
+                </td>
+                <!-- Google CSE Search Box Ends -->
+
                  <td align="right" style="padding-left:0px;"><a style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=$page.title">[ edit ]</a></td>
                 <td align="right" width="25">
 
