@@ -166,9 +166,9 @@ $content
 	      <table style="padding:0px;margin:0px;">
             <tr>
                 <td>
-	            <a href="http://incubator.apache.org"/>
-	              <img src="http://incubator.apache.org/images/apache-incubator-logo.png" border="0">
-	            </a>
+	            <A href="http://www.apache.org/">
+	              <IMG src="http://www.apache.org/images/asf-logo.gif" border="0" width="258" height="66">
+	            </A>
                 </td>
             <tr>
 <!--
@@ -270,7 +270,7 @@ $content
      </p>
      <span class="bodyGrey">
      <small><notice><!-- $FOOTER -->
-Apache OpenEJB is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Geronimo PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+Apache OpenEJB is an project of The Apache Software Foundation (ASF)
      </notice> <br>
      &nbsp;<br>
           Powered by <a href="http://atlassian.com/">Atlassian</a> <a href="http://atlassian.com/confluence/">Confluence</a>.
