@@ -1,0 +1,17 @@
+<project name="deployextension"  default="deploy.j2ee.ejb"  basedir=".">
+	<target name="deploy.j2ee.ejb">
+		<jar destfile="${project.working.dir}/${module.name}.jar"> 
+			<zipfileset dir="${module.dir}">
+	        	<include name="**/*.*"/>
+	       		<exclude name="**/*.java"/>
+			</zipfileset>
+		</jar>
+  		<move file="${project.working.dir}/${module.name}.jar" todir="${server.publish.dir}"/>
+		
+	</target>
+	<target name="undeploy.j2ee.ejb">
+		<delete file="${server.publish.dir}/${module.name}.jar" failonerror="false"> </delete>
+		
+	</target>
+	
+</project>

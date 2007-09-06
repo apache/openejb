@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension point="org.eclipse.wst.server.core.runtimeTypes">
+	    <runtimeType
+	       id="org.apache.openejb.server.generic.runtime.openejb3"
+	       name="%openejbRuntimeTypeName"
+	       description="%openejbRuntimeTypeDescription"
+	       vendor="%openejbCategory"
+	       version="3.0.0"
+	       class="org.eclipse.jst.server.generic.core.internal.GenericServerRuntime">
+	      <moduleType
+	         types="jst.ejb"
+	         versions="2.1, 3.0"/>
+	    </runtimeType>
+ 	</extension>
+
+	<extension point="org.eclipse.wst.server.core.serverTypes">
+	     <serverType
+	           runtime="true"
+	           class="org.eclipse.jst.server.generic.core.internal.GenericServer"
+	           id="org.apache.openejb.server.generic.openejb3"
+	           initialState="stopped"
+	           supportsRemoteHosts="false"
+	           runtimeTypeId="org.apache.openejb.server.generic.runtime.openejb3"
+	           description="%openejbRuntimeTypeDescription"
+	           launchConfigId="org.eclipse.jst.server.generic.core.launchConfigurationType"
+	           behaviourClass="org.eclipse.jst.server.generic.core.internal.GenericServerBehaviour"
+	           name="%openejbServerTypeName"
+	           startTimeout="20000"
+		       stopTimeout="20000"
+	           hasConfiguration="false"
+	           launchModes="run">
+	          
+	     </serverType>
+	</extension>
+    <extension point="org.eclipse.wst.server.ui.wizardFragments">
+	     <fragment
+	        id="org.eclipse.jst.server.generic.runtime"
+	        typeIds="org.apache.openejb.server.generic.runtime.openejb3"
+	        class="org.eclipse.jst.server.generic.ui.internal.GenericServerRuntimeWizardFragment"/>           
+	     <fragment
+	        id="org.eclipse.jst.server.generic.server"
+	        typeIds="org.apache.openejb.server.generic.openejb3"
+	        class="org.eclipse.jst.server.generic.ui.internal.GenericServerWizardFragment"/>   
+	</extension>´
+	
+   <extension point="org.eclipse.jst.server.core.runtimeClasspathProviders">
+     <runtimeClasspathProvider
+        id="org.eclipse.jst.server.generic.runtimeTarget"
+        runtimeTypeIds="org.apache.openejb.server.generic.runtime.openejb*"
+        class="org.eclipse.jst.server.generic.core.internal.GenericServerRuntimeTargetHandler"/>
+	</extension>
+	
+   <extension point="org.eclipse.jst.server.generic.core.serverdefinition">
+		<serverdefinition id="org.apache.openejb.server.generic.runtime.openejb3" definitionfile="/servers/openejb3.serverdef">
+		</serverdefinition>
+   </extension>
+
+  <extension point="org.eclipse.wst.common.project.facet.core.runtimes">
+     <runtime-component-type
+       id="org.apache.openejb.server.generic.runtime.openejb"/>
+
+    <runtime-component-version
+       type="org.apache.openejb.server.generic.runtime.openejb"
+       version="3.0.0"/>
+    <adapter>
+      <runtime-component
+         id="org.apache.openejb.server.generic.runtime.openejb"/>
+      <factory
+         class="org.eclipse.jst.server.core.internal.RuntimeClasspathProvider$Factory"/>
+      <type
+         class="org.eclipse.jst.common.project.facet.core.IClasspathProvider"/>
+    </adapter>
+
+    <adapter>
+      <runtime-component id="org.apache.openejb.server.generic.runtime.openejb"/>
+      <factory class="org.eclipse.jst.server.ui.internal.RuntimeLabelProvider$Factory"/>
+      <type class="org.eclipse.wst.common.project.facet.ui.IRuntimeComponentLabelProvider"/>
+    </adapter>
+    <supported>
+      <runtime-component
+         id="org.apache.openejb.server.generic.runtime.openejb"
+         version="3.0.0"/>
+       <facet
+         id="jst.ejb"
+         version="2.1, 3.0"/>
+
+    </supported>
+
+  </extension>
+
+
+  <extension point="org.eclipse.jst.server.core.runtimeFacetMappings">
+    <runtimeFacetMapping
+      runtimeTypeId="org.apache.openejb.server.generic.runtime.openejb3"
+      runtime-component="org.apache.openejb.server.generic.runtime.openejb"
+      version="3.0.0"/>
+  </extension>
+</plugin>
