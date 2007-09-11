@@ -1,3 +1,4 @@
+# Instructions to build and run the plugin
 Below are instructions on how to build and run the plugin project.
 
 1. Download the xxx_final.zip file attached to this issue
@@ -36,3 +37,4 @@ DEPLOYING AN EJB
 3. Once you are finished compiling the EJB, drag the EJB project on top of the server in the Servers view
 4. Start the server
 5. Your EJB is now deployed to the server
+
