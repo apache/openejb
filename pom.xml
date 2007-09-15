@@ -147,6 +147,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- Add NOTICE and LICENSE to generated JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-remote-resources-plugin</artifactId>
@@ -158,18 +159,15 @@
             </goals>
             <configuration>
               <resourceBundles>
-                <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
+                <resourceBundle>org.apache:apache-jar-resource-bundle:1.2</resourceBundle>
               </resourceBundles>
-              <appendedResourcesDirectory>${basedir}/../src/main/appended-resources</appendedResourcesDirectory>
+              <appendedResourcesDirectory>${basedir}/../../src/main/appended-resources</appendedResourcesDirectory>
+              <properties>
+                <projectName>Apache OpenEJB</projectName>
+              </properties>
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <resourceBundles>
-            <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
-          </resourceBundles>
-          <appendedResourcesDirectory>${basedir}/../src/main/appended-resources</appendedResourcesDirectory>
-        </configuration>
       </plugin>
     </plugins>
   </build>
