@@ -26,6 +26,7 @@ import javax.jms.MessageListener;
 
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.InterfaceType;
+import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.Classes;
@@ -54,9 +55,13 @@ public class JndiBuilder {
 
     private final Context context;
     private static final String JNDINAME_STRATEGY_CLASS = "openejb.jndiname.strategy.class";
+    private static final String JNDINAME_FAILONCOLLISION = "openejb.jndiname.failoncollision";
+    private final boolean failOnCollision;
 
     public JndiBuilder(Context context) {
         this.context = context;
+        String property = SystemInstance.get().getProperty(JNDINAME_FAILONCOLLISION, "true");
+        failOnCollision = "true".equalsIgnoreCase(property);
     }
 
     public void build(EjbJarInfo ejbJar, HashMap<String, DeploymentInfo> deployments) {
@@ -330,9 +335,17 @@ public class JndiBuilder {
                 context.bind(name, ref);
                 bindings.add(name);
                 beanInfo.jndiNames.add(externalName);
-                logger.info("Jndi(name=" + externalName +")");
+                logger.info("Jndi(name=" + externalName +") bound to Ejb(deployment-id="+beanInfo.ejbDeploymentId+")");
             } catch (NameAlreadyBoundException e) {
-                logger.error("Jndi name already in use: could not be bound; it may be taken by another ejb.  Jndi(name=" + name +")");
+                DeploymentInfo deployment = findNameOwner(name);
+                if (deployment != null){
+                    logger.error("Jndi(name=" + externalName +") cannot be bound to Ejb(deployment-id="+beanInfo.ejbDeploymentId+").  Name already taken by Ejb(deployment-id="+deployment.getDeploymentID()+")");
+                } else {
+                    logger.error("Jndi(name=" + externalName +") cannot be bound to Ejb(deployment-id="+beanInfo.ejbDeploymentId+").  Name already taken by another object in the system.");
+                }
+                // Construct a new exception as the IvmContext doesn't include
+                // the name in the exception that it throws
+                if (failOnCollision) throw new NameAlreadyBoundException(externalName);
             }
         } else {
             try {
@@ -340,16 +353,27 @@ public class JndiBuilder {
                 bindings.add(name);
             } catch (NameAlreadyBoundException e) {
                 logger.error("Jndi name could not be bound; it may be taken by another ejb.  Jndi(name=" + name +")");
-                throw e;
+                // Construct a new exception as the IvmContext doesn't include
+                // the name in the exception that it throws
+                throw new NameAlreadyBoundException(name);
             }
         }
 
     }
 
-    private static List<Class> asList(Class interfce) {
-        List<Class> list = new ArrayList<Class>();
-        list.add(interfce);
-        return list;
+    /**
+     * This may not be that performant, but it's certain to be faster than the
+     * user having to track down which deployment is using a particular jndi name
+     * @param name
+     * @return
+     */
+    private DeploymentInfo findNameOwner(String name) {
+        ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
+        for (DeploymentInfo deploymentInfo : containerSystem.deployments()) {
+            Bindings bindings = deploymentInfo.get(Bindings.class);
+            if (bindings != null && bindings.getBindings().contains(name)) return deploymentInfo;
+        }
+        return null;
     }
 
     protected static final class Bindings {
