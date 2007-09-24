@@ -91,6 +91,26 @@ $content
   <script language="JavaScript" src="functions.js" type="text/javascript"></script>
  </head>
   <body bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+
+<!-- Delay the loading of the external javascript file needed for labels (as it takes too long to load and visibly holds loading of the page body) -->
+<!-- To do this without javascript errors over undefined functions, we need to declare stubs here (that are overrided later by the proper implementations) -->
+<script language="JavaScript" type="text/javascript">
+    function doAddLabel(hideTextfieldAfterAddParam)
+    {
+        // stub
+    }
+
+    function onAddLabel()
+    {
+        // stub
+    }
+
+    function showLabelsInput()
+    {
+        // stub
+    }
+</script>
+
   <a name="top"></a>
   <table border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
    <tr>
@@ -282,5 +302,12 @@ Apache OpenEJB is an project of The Apache Software Foundation (ASF)
     <td width="120" height="25" valign="top" align="left">&nbsp;</td>
    </tr>
   </table>
+
+<!-- Needed for composition plugin -->
+<!-- delay the loading of large javascript files to the end so that they don't interfere with the loading of page content -->
+<span style="display: none">
+    <script type="text/javascript" language="JavaScript" src="http://cwiki.apache.org/confluence/labels-javascript"></script>
+</span>
+
   </body>
  </html>
