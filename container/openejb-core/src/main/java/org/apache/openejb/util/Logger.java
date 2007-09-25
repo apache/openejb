@@ -18,6 +18,8 @@ package org.apache.openejb.util;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.SimpleLayout;
 import org.apache.openejb.loader.FileUtils;
 import org.apache.openejb.loader.SystemInstance;
 
@@ -32,10 +34,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Logger {
 
@@ -118,102 +122,147 @@ public class Logger {
     private static final Computable<String, MessageFormat> messageFormatCache = new Memoizer<String, MessageFormat>(
             messageFormatResolver);
 
-	private static final String LOGGING_PROPERTIES_FILE = "logging.properties";
-	private static final String EMBEDDED_PROPERTIES_FILE = "embedded.logging.properties";
-	static {
-		try {
-			String prop = System.getProperty("openejb.logger.external","false");
-			boolean externalLogging = Boolean.parseBoolean(prop);
-			if(!externalLogging)
-				configureInternal();
-		} catch (Exception e) {
-         // The fall back here is that if log4j.configuration system property is set, then that configuration file will be used. 
-			e.printStackTrace();
-		}
-	}
+    private static final String LOGGING_PROPERTIES_FILE = "logging.properties";
+    private static final String EMBEDDED_PROPERTIES_FILE = "embedded.logging.properties";
 
-	private static void configureInternal() throws IOException {
-		
-		System.setProperty("openjpa.Log", "log4j");
-		SystemInstance system = SystemInstance.get();
-		FileUtils base = system.getBase();
-		File confDir = base.getDirectory("conf");
-		File loggingPropertiesFile = new File(confDir, LOGGING_PROPERTIES_FILE);
-		if (confDir.exists()) {
-			if (loggingPropertiesFile.exists()) {
-				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(loggingPropertiesFile));
-				Properties props = new Properties();
-				props.load(bis);
-                preprocessProperties(props);
-                PropertyConfigurator.configure(props);
-				try{
-					bis.close();
-				}catch(IOException e){
-					
-				}
-			} else {
-				installLoggingPropertiesFile(loggingPropertiesFile);
-			}
-		}else{
-			configureEmbedded();
-		} 
-	}
-
-    private static void preprocessProperties(Properties props) {
-        String openejbHome = SystemInstance.get().getHome().getDirectory().getAbsolutePath();
-        String openejbBase = SystemInstance.get().getBase().getDirectory().getAbsolutePath();
-        for (Map.Entry<Object, Object> entry : props.entrySet()) {
-            String value = (String) entry.getValue();
-            value = value.replace("${openejb.home}", openejbHome);
-            value = value.replace("${openejb.base}", openejbBase);
-            entry.setValue(value);
+    static {
+        try {
+            String prop = System.getProperty("openejb.logger.external", "false");
+            boolean externalLogging = Boolean.parseBoolean(prop);
+            if (!externalLogging)
+                configureInternal();
+        } catch (Exception e) {
+            // The fall back here is that if log4j.configuration system property is set, then that configuration file will be used.
+            e.printStackTrace();
         }
     }
 
-    private static void configureEmbedded(){
-    	URL resource = Thread.currentThread().getContextClassLoader().getResource(EMBEDDED_PROPERTIES_FILE);
-    	if(resource != null)
-    		PropertyConfigurator.configure(resource);
-    	else
-    		System.out.println("FATAL ERROR WHILE CONFIGURING LOGGING!!!. MISSING embedded.logging.properties FILE ");
+    private static void configureInternal() throws IOException {
+
+        System.setProperty("openjpa.Log", "log4j");
+        SystemInstance system = SystemInstance.get();
+        FileUtils base = system.getBase();
+        File confDir = base.getDirectory("conf");
+        File loggingPropertiesFile = new File(confDir, LOGGING_PROPERTIES_FILE);
+        if (confDir.exists()) {
+            if (loggingPropertiesFile.exists()) {
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(loggingPropertiesFile));
+                Properties props = new Properties();
+                props.load(bis);
+                preprocessProperties(props);
+                PropertyConfigurator.configure(props);
+                try {
+                    bis.close();
+                } catch (IOException e) {
+
+                }
+            } else {
+                installLoggingPropertiesFile(loggingPropertiesFile);
+            }
+        } else {
+            configureEmbedded();
+        }
+    }
+
+    private static void preprocessProperties(Properties properties) {
+        FileUtils base = SystemInstance.get().getBase();
+        File confDir = new File(base.getDirectory(), "conf");
+        File baseDir = base.getDirectory();
+        File userDir = new File("foo").getParentFile();
+
+        File[] paths = {confDir, baseDir, userDir};
+
+        List missing = new ArrayList();
+
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
+
+
+            if (key.endsWith(".File")) {
+
+                boolean found = false;
+                for (int i = 0; i < paths.length && !found; i++) {
+                    File path = paths[i];
+                    File logfile = new File(path, value);
+                    if (logfile.getParentFile().exists()) {
+                        properties.setProperty(key, logfile.getAbsolutePath());
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    File logfile = new File(paths[0], value);
+                    missing.add(logfile);
+                }
+            }
+        }
+
+        if (missing.size() > 0) {
+            org.apache.log4j.Logger logger = getFallabckLogger();
+
+            logger.error("Logging may not operate as expected.  The directories for the following files do not exist so no file can be created.  See the list below.");
+            for (int i = 0; i < missing.size(); i++) {
+                File file = (File) missing.get(i);
+                logger.error("[" + i + "] " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    private static org.apache.log4j.Logger getFallabckLogger() {
+        org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("OpenEJB.logging");
+
+        SimpleLayout simpleLayout = new SimpleLayout();
+        ConsoleAppender newAppender = new ConsoleAppender(simpleLayout);
+        logger.addAppender(newAppender);
+        return logger;
+    }
+
+    private static void configureEmbedded() {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(EMBEDDED_PROPERTIES_FILE);
+        if (resource != null)
+            PropertyConfigurator.configure(resource);
+        else
+            System.out.println("FATAL ERROR WHILE CONFIGURING LOGGING!!!. MISSING embedded.logging.properties FILE ");
     }
 
     private static void installLoggingPropertiesFile(File loggingPropertiesFile) throws IOException {
-    	URL resource = Thread.currentThread().getContextClassLoader().getResource(LOGGING_PROPERTIES_FILE);
-        if(resource == null){
-        	System.out.println("FATAL ERROR WHILE CONFIGURING LOGGING!!!. MISSING logging.properties FILE ");
-        	return;
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(LOGGING_PROPERTIES_FILE);
+        if (resource == null) {
+            System.out.println("FATAL ERROR WHILE CONFIGURING LOGGING!!!. MISSING logging.properties FILE ");
+            return;
         }
-    	InputStream in = resource.openStream();
-    	in = new BufferedInputStream(in);
-    	ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        InputStream in = resource.openStream();
+        in = new BufferedInputStream(in);
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
         byte buf[] = new byte[4096];
         int i = in.read(buf);
-        while(i != -1){
-        	bao.write(buf);
-        	i = in.read(buf);
+        while (i != -1) {
+            bao.write(buf);
+            i = in.read(buf);
         }
         byte[] byteArray = bao.toByteArray();
         ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
-        
+
         Properties props = new Properties();
         props.load(bis);
         preprocessProperties(props);
-		BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(loggingPropertiesFile));
-		bout.write(byteArray);
+        BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(loggingPropertiesFile));
+        bout.write(byteArray);
         PropertyConfigurator.configure(props);
         try {
-			bout.close();
-		} catch (IOException e) {
-			
-		}
-        try {
-			in.close();
-		} catch (IOException e) {
+            bout.close();
+        } catch (IOException e) {
 
-		}
+        }
+        try {
+            in.close();
+        } catch (IOException e) {
+
+        }
 
     }
+
     /**
      * Given a key and a baseName, this method computes a message for a key. if
      * the key is not found in this ResourceBundle for this baseName, then it
@@ -256,7 +305,7 @@ public class Logger {
     /**
      * Finds a Logger from the cache and returns it. If not found in cache then builds a Logger and returns it.
      *
-     * @param category     - The category of the logger
+     * @param category - The category of the logger
      * @param baseName - The baseName for the ResourceBundle
      * @return Logger
      */
@@ -287,11 +336,12 @@ public class Logger {
         String name = clazz.getName();
         return name.substring(0, name.lastIndexOf("."));
     }
-    
-    public Logger getLogger(String moduleId){
-    	return Logger.getInstance(this.category,this.baseName);
-    	
+
+    public Logger getLogger(String moduleId) {
+        return Logger.getInstance(this.category, this.baseName);
+
     }
+
     /**
      * Formats a given message
      *
