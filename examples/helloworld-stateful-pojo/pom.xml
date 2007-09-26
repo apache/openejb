@@ -3,7 +3,7 @@
   <groupId>org.acme</groupId>
   <artifactId>simple-app</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>3.0-beta-1-SNAPSHOT</version>
   <name>OpenEJB :: Examples :: HelloWorld Stateful POJO</name>
   <build>
     <defaultGoal>install</defaultGoal>
