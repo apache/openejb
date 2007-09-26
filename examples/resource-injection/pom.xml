@@ -3,7 +3,7 @@
   <groupId>org.apache.openejb</groupId>
   <artifactId>resource-injection</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>3.0-beta-1</version>
   <name>OpenEJB :: Examples :: Resource Injection</name>
   <build>
     <defaultGoal>install</defaultGoal>

@@ -24,7 +24,7 @@
   <groupId>org.apache.openejb</groupId>
   <artifactId>ejb-injection-sample</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>3.0-beta-1</version>
   <name>OpenEJB :: Examples :: EJB Injection</name>
   <build>
     <defaultGoal>install</defaultGoal>
