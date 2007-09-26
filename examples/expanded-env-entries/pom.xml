@@ -3,7 +3,7 @@
   <groupId>org.apache.openejb</groupId>
   <artifactId>expanded-env-entries</artifactId>
   <packaging>jar</packaging>
-  <version>3.0-beta-1-SNAPSHOT</version>
+  <version>3.0-beta-1</version>
   <name>OpenEJB :: Examples :: Expanded support for Env Entries</name>
   <build>
     <defaultGoal>install</defaultGoal>
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
-      <version>3.0-beta-1-SNAPSHOT</version>
+      <version>3.0-beta-1</version>
       <scope>test</scope>
     </dependency>
 
