@@ -11,7 +11,7 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 #########################################################################
-## APACHE GERONIMO DEPENDENCIES                                        ##
+## APACHE OPENEJB DEPENDENCIES                                         ##
 #########################################################################
 
 A binary distribution of Apache OpenEJB, or an Apache OpenEJB server 
