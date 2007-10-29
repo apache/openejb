@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.openejb</groupId>
+    <artifactId>eclipse-plugins-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>${artifactId}</name>
+    <parent>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>eclipse-plugins</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>.</directory>
+                            <includes>
+                                <include>.metadata</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-eclipse-plugin</artifactId>
+			<configuration>
+				<additionalProjectnatures>
+					<projectnature>org.eclipse.pde.PluginNature</projectnature>
+				</additionalProjectnatures>
+				<classpathContainers>
+					<classpathContainer>org.eclipse.pde.core.requiredPlugins</classpathContainer>
+					<classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
+				</classpathContainers>
+			</configuration>
+		</plugin>
+                <plugin>
+                    <groupId>org.apache.geronimo.devtools</groupId>
+                    <artifactId>maven-eclipsepde-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>initialize</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>manifestbundles</goal>
+                                <goal>install</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>validate-bundle-classpath</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>validatemanifest</goal>
+                            </goals>
+                            <configuration>
+                                <classpathEntriesDir>lib</classpathEntriesDir>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifestFile>${basedir}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <executions>
+                        <!-- workaround for bugzilla 147936 -->
+                        <execution>
+                            <id>backup</id>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <tasks>
+                                    <copy file="${basedir}/.classpath" todir="${project.build.directory}" overwrite="false" failonerror="false"/>
+                                    <copy file="${basedir}/.project" todir="${project.build.directory}" overwrite="false" failonerror="false"/>
+                                </tasks>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>restore</id>
+                            <phase>compile</phase>
+                            <configuration>
+                                <tasks>
+                                    <copy file="${project.build.directory}/.classpath" todir="${basedir}" overwrite="true" failonerror="false"/>
+                                    <copy file="${project.build.directory}/.project" todir="${basedir}" overwrite="true" failonerror="false"/>
+                                </tasks>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                        <!-- /workaround -->
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <configuration>
+                        <filesets>
+                            <fileset>
+                                <directory>.</directory>
+                                <includes>
+                                    <include>lib</include>
+                                </includes>
+                            </fileset>
+                        </filesets>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <modules>
+        <module>org.apache.openejb.helper.annotation</module>
+	<module>org.eclipse.jst.server.generic.openejb</module>
+    </modules>
+</project>

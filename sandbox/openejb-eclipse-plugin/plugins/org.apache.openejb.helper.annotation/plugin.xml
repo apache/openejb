@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="org.apache.openejb.helper.annotation.context"
+            nameFilter="ejb-jar.xml"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="org.apache.openejb.helper.annotation.menu1"
+               label="OpenEjb"
+               path="additions">
+            <separator name="group1"/>
+         </menu>
+         <action
+               class="org.apache.openejb.helper.annotation.actions.GenerateAnnotationsAction"
+               enablesFor="1"
+               id="org.apache.openejb.helper.annotation.popup.generate"
+               label="Generate annotations"
+               menubarPath="org.apache.openejb.helper.annotation.menu1/group1"/>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+         
+      <actionSet
+            id="org.apache.openejb.helper.annotation.actionSet"
+            label="OpenEjb Action Set"
+            visible="true">
+         <menu
+               id="org.apache.openejb.helper.annotation.actionSet.menu"
+               label="OpenEjb">
+            <separator name="org.apache.openejb.helper.annotation.menu.group1"/>
+         </menu>
+         <action
+               class="org.apache.openejb.helper.annotation.actions.GenerateAnnotationsAction"
+               enablesFor="1"
+               icon="icons/sample.gif"
+               id="org.apache.openejb.helper.annotation.menu.generate"
+               label="Generate annotations"
+               menubarPath="org.apache.openejb.helper.annotation.actionSet.menu/org.apache.openejb.helper.annotation.menu.group1">
+           <selection class="org.eclipse.core.resources.IFile" name="ejb-jar.xml"/>
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>
