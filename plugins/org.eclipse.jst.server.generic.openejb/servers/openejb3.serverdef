@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ServerRuntime
+	xmlns:tns="http://eclipse.org/jst/server/generic/ServerTypeDefinition"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://eclipse.org/jst/server/generic/ServerTypeDefinition ServerTypeDefinitionSchema.xsd "
+	name="OpenEJB" version="3.0.0">
+<property id="serverRootDirectory"
+	label="%ApplicationServerDirectory"
+	type="directory"
+	context="runtime"
+	default="/your_server_root" />
+<property id="serverAddress"
+	label="%serverAddress"
+	type="string"
+	context="server"
+	default="127.0.0.1" />
+<property id="port"
+	label="%serverPort"
+	type="string"
+	context="server"
+	default="4201" />
+
+
+	<port>
+		<no>${port}</no>
+		<name>ejbd</name>
+		<protocol>ejbd</protocol>
+	</port>
+
+	<module>
+		<type>jst.ejb</type>
+		<publishDir>${serverRootDirectory}/apps</publishDir>
+		<publisherReference>org.eclipse.jst.server.generic.antpublisher</publisherReference>
+	</module>
+
+
+	<project>
+		<classpathReference>openejb.project</classpathReference>
+	</project>
+	
+	<start>
+		<mainClass>org.apache.openejb.cli.Bootstrap</mainClass>
+		<workingDirectory>${serverRootDirectory}</workingDirectory>
+		<programArguments>start</programArguments>
+		<vmParameters>-Dopenejb.home=${serverRootDirectory} -javaagent:${serverRootDirectory}/lib/openejb-javaagent-3.0.0-SNAPSHOT.jar  </vmParameters>
+		<classpathReference>openejb</classpathReference>
+	</start>
+
+	<stop>
+		<mainClass>org.apache.openejb.cli.Bootstrap</mainClass>
+		<workingDirectory>${serverRootDirectory}</workingDirectory>
+		<programArguments>stop</programArguments>
+		<vmParameters>-Dopenejb.home=${serverRootDirectory} -javaagent:${serverRootDirectory}/lib/openejb-javaagent-3.0.0-SNAPSHOT.jar </vmParameters>
+		<classpathReference>openejb</classpathReference>
+	</stop>
+	<publisher id="org.eclipse.jst.server.generic.antpublisher">
+		<publisherdata>
+			<dataname>build.file</dataname>
+			<datavalue>/buildfiles/openejb.xml</datavalue>
+		</publisherdata>
+		<publisherdata>
+			<dataname>target.publish.jst.ejb</dataname>
+			<datavalue>deploy.j2ee.ejb</datavalue>
+		</publisherdata>
+		<publisherdata>
+			<dataname>target.unpublish.jst.ejb</dataname>
+			<datavalue>undeploy.j2ee.ejb</datavalue>
+		</publisherdata>		
+	</publisher>
+
+	<classpath id="openejb" >
+		<archive path="${serverRootDirectory}/lib/openejb-core-3.0.0-SNAPSHOT.jar" />
+		<archive path="${serverRootDirectory}/lib/openejb-javaagent-3.0.0-SNAPSHOT.jar" />
+		<archive path="${serverRootDirectory}/lib/geronimo-ejb_3.0_spec-1.0.jar" />
+	</classpath>
+	<classpath id="openejb.project" >
+		<archive path="${serverRootDirectory}/lib/geronimo-ejb_3.0_spec-1.0.jar" />
+	</classpath>
+
+</tns:ServerRuntime>

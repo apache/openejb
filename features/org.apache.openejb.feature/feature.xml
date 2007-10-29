@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.apache.openejb.feature"
+      label="OpenEJB"
+      version="1.0.0"
+      provider-name="Apache OpenEJB Project"
+      image="bigG.gif">
+
+   <description url="http://openejb.apache.org/devtools">
+      %description
+   </description>
+
+   <copyright url="http://www.apache.org/licenses/LICENSE-2.0.txt">
+      $copyright
+   </copyright>
+
+   <license url="http://www.apache.org/licenses/LICENSE-2.0.txt">
+      %license
+   </license>
+
+   <url>
+      <update label="Apache OpenEJB Eclipse Update Site" url="http://www.jrg.me.uk/update-site/"/>
+   </url>
+
+   <plugin
+         id="org.eclipse.jst.server.generic.openejb"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.openejb.helper.annotation"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
+</feature>
