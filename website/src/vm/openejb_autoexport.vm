@@ -1,8 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 ##
 #set ($images = "http://openejb.apache.org/images")
 #set ($siteroot = "http://cwiki.apache.org/OPENEJB")
-#set ($pageContentHeaderEnabled = false)
 ##
 #if ( $page.title.equals("Index") )
     #set ($title = "Home")
@@ -55,266 +54,194 @@
             ##set ($content = $content.substring(3, $content.length()))
             ##set ($end = $content.length() - 4)
             ##set ($content = $content.substring(0, $end))
-    <td width="120" height="5" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="350" height="11" border="0">
 <div id="RightContent">
 $content
 </div>
-</td>
 
         #end
     #end
 #end
 ##
-#macro (pageContent)
-    <div id="PageContent">
-        #if ($pageContentHeaderEnabled)
-            <div class="pageheader" style="padding: 6px 0px 0px 0px;">
-                <div style="margin: 0px 10px 0px 10px" class="smalltext">$page.space.name</div>
-                <div style="margin: 0px 10px 8px 10px" class="pagetitle">$page.title</div>
-            </div>
-        #end
+<HTML>
+  <HEAD>
+    <!-- $PAGETITLE -->
+    <TITLE>OpenEJB - $title</TITLE>
+    <LINK href="http://openejb.apache.org/all.css" rel="stylesheet" type="text/css">
+    <!--[if IE]><link rel="stylesheet" type="text/css" media="screen, projection" href="openejb.apache.org/ie.css"><![endif]-->
 
-        <div class="pagecontent">
-            <div class="wiki-content">
-                $body
-            </div>
-        </div>
-    </div>
-#end
- <html>
- <head>
-  <!-- $PAGETITLE -->
-  <title>OpenEJB - $title</title>
-  <link href="http://openejb.apache.org/default.css" rel="stylesheet" type="text/css" />
-  <link href="http://openejb.apache.org/style.css" rel="stylesheet" type="text/css" />
-  <link rel="SHORTCUT ICON" href="http://openejb.apache.org/images/favicon.ico">
-  <script language="JavaScript" src="functions.js" type="text/javascript"></script>
- </head>
-  <body bgcolor="#ffffff" link="#6763a9" vlink="#6763a9" topmargin="0" bottommargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+    <LINK rel="SHORTCUT ICON" href="http://openejb.apache.org/images/favicon.ico">
+    <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
+    <META http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  </HEAD>
+  <BODY>
 
-<!-- Delay the loading of the external javascript file needed for labels (as it takes too long to load and visibly holds loading of the page body) -->
-<!-- To do this without javascript errors over undefined functions, we need to declare stubs here (that are overrided later by the proper implementations) -->
-<script language="JavaScript" type="text/javascript">
-    function doAddLabel(hideTextfieldAfterAddParam)
-    {
-        // stub
-    }
+    <!-- Delay the loading of the external javascript file needed for labels (as it takes too long to load and visibly holds loading of the page body) -->
+    <!-- To do this without javascript errors over undefined functions, we need to declare stubs here (that are overrided later by the proper implementations) -->
+    <SCRIPT language="JavaScript" type="text/javascript">
+      function doAddLabel(hideTextfieldAfterAddParam)
+      {
+      // stub
+      }
 
-    function onAddLabel()
-    {
-        // stub
-    }
+      function onAddLabel()
+      {
+      // stub
+      }
 
-    function showLabelsInput()
-    {
-        // stub
-    }
-</script>
+      function showLabelsInput()
+      {
+      // stub
+      }
+    </SCRIPT>
 
-  <a name="top"></a>
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" height="400">
-   <tr>
-    <td width="20" valign="top" align="left" bgcolor="#7270c2"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="1" border="0"></td>
-    <td width="95" valign="top" align="left" bgcolor="#7270c2"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="1" border="0"></td>
-    <td width="7" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" border="0" width="1" height="1"></td>
-    <td width="40" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="40" height="6" border="0"></td>
-    <td width="100%" valign="top" align="left" bgcolor="#5A5CB8"><img src="http://openejb.apache.org/images/top_2.gif" width="430" height="6" border="0"></td>
-    <td width="120" valign="top" align="left" bgcolor="#E24717"><img src="http://openejb.apache.org/images/top_3.gif" width="120" height="6" border="0"></td>
-   </tr>
-   <tr>
-    <td width="20" bgcolor="#7270c2" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" border="0" width="1" height="1"></td>
-    <td width="95" bgcolor="#7270c2" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" border="0" width="1" height="1"></td>
-    <td width="7" bgcolor="#ffffff" valign="top" align="left"></td>
-    <td width="40" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="1" border="0"></td>
-    <td id="breadcrumbs" width="100%" valign="middle" align="left">
-      <!-- $TOP_NAV_BAR -->
-      <span id="Content">
-        #renderPage("QuickLinks")
-      </span>
-     <img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="2" border="0"></td>
-    <td width="120" height="20" valign="top" align="left">&nbsp;</td>
-   </tr>
-   <tr>
-    <td width="20" bgcolor="#7270c2" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="20" height="3" border="0"></td>
-    <td width="95" bgcolor="#7270c2" valign="top" align="left"><img src="http://openejb.apache.org/images/line_sm.gif" width="105" height="3" border="0"></td>
-    <td width="7" bgcolor="#a9a5de" valign="top" align="left"><img src="http://openejb.apache.org/images/line_sm.gif" width="7" height="3" border="0"></td>
-    <td width="40" valign="top" align="left"><img src="http://openejb.apache.org/images/line_light.gif" width="40" height="3" border="0"></td>
-    <td width="100%" valign="top" align="left"><img src="http://openejb.apache.org/images/line_light.gif" width="430" height="3" border="0"></td>
-    <td width="120" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" border="0" width="1" height="1"></td>
-   </tr>
-   <tr>
-    <td bgcolor="#7270c2" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="20" height="10" border="0"></td>
-    <td id="leftColumn" valign="top" style="padding-top: 0px;">
-    <span id="Content">
-      #renderPage("Navigation")
-    </span>
+    <A name="top"></A>
+    <TABLE class="frameTable" cellpadding="0" cellspacing="0" border="0">
+      <TR class="Row1">
+        <TD class="Col1"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col2"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col3"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+      </TR>
+      <TR class="Row2">
+        <TD class="Col1"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col2">&nbsp;</TD>
+        <TD class="Col3" id="breadcrumbs">
+          <!-- $TOP_NAV_BAR -->
+          #renderPage('QuickLinks')
+        </TD>
+        <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5">&nbsp;</TD>
+      </TR>
+      <TR class="Row3">
+        <TD class="Col1"><IMG alt="" class="Row3Img" id="thinLine" src="http://openejb.apache.org/images/line_sm.gif"></TD>
+        <TD class="Col2"><IMG alt="" class="Row3Img" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col3"><IMG alt="" class="Row3Img" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5"><IMG alt="" class="Row3Img" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+      </TR>
+      <TR class="Row4">
+        <TD class="Col1">
+          <SPAN id="Navigation">
 
-            <h3 class="heading3">Feeds</h3>
-            <table border="0" cellspacing="4px">
-            <tr>
-              <td align="right">
-                <a href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false"><img src="http://openejb.apache.org/images/rss.gif" border="0"></a><br/>
-              </td>
-              <td align="left">
-                <a href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</a>
-              </td>
-            </tr>
-            <tr>
-              <td align="right">
-                <a href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB"><img src="http://openejb.apache.org/images/rss.gif" border="0"></a>
-              </td>
-              <td align="left">
-                <a href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</a>
-              </td>
-            </tr>
-            </table>
-        </td>
-    <td width="7" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</td>
-    <td width="40" valign="top" align="left">&nbsp;</td>
-    <td rowspan="4" width="100%" valign="top">
-     <table cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr>
-       <td valign="top" align="left"><br>
-          <table cols="3" rows="1" border="0" cellpadding="0" cellspacing="0" width="100%">
-          <tr>
-           <td valign="top" width="200" align="left">
-           <A HREF="http://openejb.org">
-           <img border="0" hspace="0" src="http://openejb.apache.org/images/logo_openejb.gif" vspace="0" >
-           </A>
-           </td>
-           <td align="right" valign="middle" style="padding:0px;margin:0px;">
-	      <table style="padding:0px;margin:0px;">
-            <tr>
-                <td>
-	            <A href="http://www.apache.org/">
-	              <IMG src="http://www.apache.org/images/asf-logo.gif" border="0" width="258" height="66">
-	            </A>
-                </td>
-            <tr>
-<!--
-	        <tr>
-	            <td align="right" valign="top" style="font-size:12px;color:#777777">
-	            [OpenEJB is a Podling in the Apache Incubator]
-	            </td>
-	        </tr>
--->
-          </table>
-           </td>
-          </tr>
-          </table>
-	<br>
-      </td>
-      </tr>
-      <tr>
-       <td valign="top" align="left">
-         <img border="0" height="7" hspace="0" src="http://openejb.apache.org/images/dotTrans.gif"><br>
-          <div id="page_title">
-            <table width="100%">
-              <tr>
-                <td>
-	<!-- $TITLE -->
-	$title
-                </td>
+            #renderPage("Navigation")
 
+            <H3>
+              <A name="Navigation-Feeds"></A>
+              Feeds
+            </H3>
+
+            <UL class="feeds">
+            <li>
+              <A href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">
+              <IMG src="http://openejb.apache.org/images/rss.gif"></a>
+              <A class="feedsText" href="http://cwiki.apache.org/confluence/spaces/rss.action?key=OPENEJB&newPages=false">Site</a>
+            </li>
+
+            <li><A href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">
+              <IMG src="http://openejb.apache.org/images/rss.gif"></a>
+              <A class="feedsText" href="http://cwiki.apache.org/confluence/spaces/blogrss.action?key=OPENEJB">News</a>
+            </li>
+            </ul>
+          </SPAN>
+        </TD>
+        <TD class="Col2">&nbsp;</TD>
+        <TD class="Col3">
+          <TABLE id="PageHeader" border="0" width="100%">
+            <TR>
+              <TD>
+                <A href="http://openejb.org/">
+                  <IMG hspace="0" src="http://openejb.apache.org/images/logo_openejb.gif" vspace="0">
+                </A>
+              </TD>
+              <TD align="right">
+                <A href="http://www.apache.org/">
+                  <IMG src="http://www.apache.org/images/asf-logo.gif" width="258" height="66">
+                </A>
+              </TD>
+            </TR>
+            <TR>
+              <TD  id="page_title">
+                <!-- $TITLE -->
+                $title
+              </TD>
+
+              <TD align="right">
+                <br><br>
                 <!-- Google CSE Search Box Begins  -->
-                <td align='right'>
-                  <form id="searchbox_010475492895890475512:_t4iqjrgx90" action="http://www.google.com/cse">
-                    <input type="hidden" name="cx" value="010475492895890475512:_t4iqjrgx90" />
-                    <input type="hidden" name="cof" value="FORID:0" />
-                    <input name="q" type="text" size="25" />
-                    <input type="submit" name="sa" value="Search" />
-                  </form>
-                  <script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_010475492895890475512%3A_t4iqjrgx90"></script>
-                </td>
+                <FORM id="searchbox_010475492895890475512:_t4iqjrgx90" action="http://www.google.com/cse">
+                  <INPUT type="hidden" name="cx" value="010475492895890475512:_t4iqjrgx90">
+                  <INPUT type="hidden" name="cof" value="FORID:0">
+                  <INPUT name="q" type="text" size="25">
+                  <INPUT type="submit" name="sa" value="Search">
+                </FORM>
+                <SCRIPT type="text/javascript"
+                        src="http://www.google.com/coop/cse/brand?form=searchbox_010475492895890475512:_t4iqjrgx90"></SCRIPT>
                 <!-- Google CSE Search Box Ends -->
 
-                 <td align="right" style="padding-left:0px;"><a style="color:#999;font-size:small;font-weight:normal;" href="http://cwiki.apache.org/confluence/pages/editpage.action?spaceKey=OPENEJB&title=$page.title">[ edit ]</a></td>
-                <td align="right" width="25">
+              </TD>
+            </TR>
+          </TABLE>
+          <P>
+            <!-- $BODY -->
+            <DIV id="PageContent">
+              $body
+            </DIV>
+          </P>
+        </TD>
+        <TD class="Col4"><IMG src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5">
+          #renderRightSidePage("${title}Links")
+        </TD>
+      </TR>
+      <TR  class="Row5">
+        <TD class="Col1">&nbsp;</TD>
+        <TD class="Col2">&nbsp;</TD>
+        <TD class="Col3">
+          <br>
+          <br>
+          <IMG width="100%" height="1" src="http://openejb.apache.org/images/line_light.gif">
+          <table width="100%">
+            <tr>
+              <td>
+                <SPAN class="bodyGrey">
+                  <SMALL>
+                    <NOTICE><!-- $FOOTER -->
+                      Apache OpenEJB is an project of The Apache Software Foundation (ASF)
+                    </NOTICE>
+                    <BR>
+                    Site Powered by
+                    <A href="http://atlassian.com/">Atlassian</A>
+                    <A href="http://atlassian.com/confluence/">Confluence</A>
+                    .
+                  </SMALL>
+                </SPAN>
+              </td>
+              <td align="right">
+                <A style="color:#999;font-size:small;font-weight:normal;" href="$confluenceUri/pages/editpage.action?spaceKey=OPENEJB&title=$page.title">[ edit ]</A>
+              </td>
+            </tr>
+          </table>
+          <br>
+        </TD>
+        <TD class="Col4"><IMG src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5">&nbsp;</TD>
+      </TR>
+    </TABLE>
 
-            <script type="text/javascript" language="javascript">
-                document.write('<a href="$confluenceUri/pages/viewpage');
-                document.write('.action?pageId=$page.id&decorator=printable">');
-            </script>
-            <img src="http://cwiki.apache.org/confluence/images/icons/print_16.gif" height="16" width="16" border="0" align="absmiddle" title="Print"></a>
+    <!-- Needed for composition plugin -->
+    <!-- delay the loading of large javascript files to the end so that they don't interfere with the loading of page content -->
+    <SPAN style="display: none">
+      <SCRIPT type="text/javascript" language="JavaScript"
+              src="http://cwiki.apache.org/confluence/labels-javascript"></SCRIPT>
 
-                </td>
-              </tr>
-            </table>
-          </div>
-        <img border="0" height="1" hspace="0" src="http://openejb.apache.org/images/dotTrans.gif"></td>
-      </tr>
-     </table>
-     <p>
-     <!-- $BODY -->
-        #pageContent()
-     </p>
-    </td>
+      <SCRIPT src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+      </SCRIPT>
+      <SCRIPT type="text/javascript">
+        _uacct = "UA-2717626-1";
+        urchinTracker();
+      </SCRIPT>
+    </SPAN>
 
-        #renderRightSidePage("${title}Links")
-
-   </tr>
-   <tr height="5">
-    <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</td>
-    <td width="95" height="5" bgcolor="#7270c2" valign="top">&nbsp;</td>
-    <td width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</td>
-    <td width="40" height="5" valign="top" align="left">&nbsp;</td>
-    <td width="120" height="5" valign="top" align="left">&nbsp;</td>
-   </tr>
-   <tr>
-    <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</td>
-    <td width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</td>
-    <td width="7" bgcolor="#a9a5de" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="25" border="0"></td>
-    <td width="40" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="25" border="0"></td>
-    <td width="120" valign="top" align="left">&nbsp;</td>
-   </tr>
-   <tr>
-    <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&nbsp;</td>
-    <td width="95" bgcolor="#7270c2" valign="BOTTOM" align="left">&nbsp;</td>
-    <td width="7" bgcolor="#a9a5de" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="25" border="0"></td>
-    <td width="40" valign="top" align="left"><img src="http://openejb.apache.org/images/dotTrans.gif" width="1" height="25" border="0"></td>
-    <td width="120" valign="top" align="left">&nbsp;</td>
-   </tr>
-   <tr height="5">
-    <td width="20" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><img src="http://openejb.apache.org/images/stripes1.gif" width="20" height="125" border="0"></td>
-    <td width="95" rowspan="2" height="100%" bgcolor="#7270c2" valign="bottom" align="left"><img src="http://openejb.apache.org/images/stripe105.gif" width="105" height="125" border="0"></td>
-    <td width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top" align="left">&nbsp;</td>
-    <td width="40" height="100%" valign="top" align="left">&nbsp;</td>
-    <td width="120" height="100%" valign="top" align="left">&nbsp;</td>
-   </tr>
-   <tr height="5">
-    <td width="40" height="25" valign="top" align="left">&nbsp;</td>
-    <td width="100%" height="25" valign="bottom" align="left"><br>
-     <br>
-     <img src="http://openejb.apache.org/images/line_light.gif" border="0" width="430" height="3"><br>
-     <p>
-     </p>
-     <span class="bodyGrey">
-     <small><notice><!-- $FOOTER -->
-Apache OpenEJB is an project of The Apache Software Foundation (ASF)
-     </notice> <br>
-     &nbsp;<br>
-          Powered by <a href="http://atlassian.com/">Atlassian</a> <a href="http://atlassian.com/confluence/">Confluence</a>.
-     </small>
-     </span>
-     <p>
-     </p>
-     </td>
-    <td width="120" height="25" valign="top" align="left">&nbsp;</td>
-   </tr>
-  </table>
-
-<!-- Needed for composition plugin -->
-<!-- delay the loading of large javascript files to the end so that they don't interfere with the loading of page content -->
-<span style="display: none">
-    <script type="text/javascript" language="JavaScript" src="http://cwiki.apache.org/confluence/labels-javascript"></script>
-
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-</script>
-<script type="text/javascript">
-_uacct = "UA-2717626-1";
-urchinTracker();
-</script>
-</span>
-
-  </body>
- </html>
+  </BODY>
+</HTML>

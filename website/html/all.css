@@ -1,0 +1,834 @@
+body {
+	background: #fff;
+  font-family: arial, helvetica, sans-serif;
+  font-size: 12px;
+	margin: 0px;
+	padding: 0px;
+  line-height: 16px;
+  color: #222222;
+}
+
+a {
+  color: #7270c2;
+  text-decoration: none;
+}
+
+a:active, a:hover {
+  text-decoration: underline;
+}
+
+img {
+  border : 0px;
+}
+
+.frameTable {
+  border: 0px;
+  padding: 0px;
+
+}
+
+.Row1 {
+  height: 6px;
+}
+
+.Row1 .Col3, .Row1 .Col4 {
+  background: #5A5CB8;
+}
+
+.Row1 .Col5 {
+  background: #E24717;
+}
+
+.Row2 {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.Row2 .Col3, .Row2 .Col4 {
+  /*border-top: 1px solid #cbcbeb;*/
+  padding-left: 12px;
+  padding-right: 12px;
+  font-size: x-small;
+  color: #cccccc;
+}
+
+.Col1 {
+  background: #7270c2;
+  width: 110px;
+  padding-left: 20px;
+  border-right: 7px solid;
+}
+
+.Col2 {
+  width: 40px;
+}
+
+.Col4 {
+  width: 20px;
+}
+
+.Col5 {
+  /*min-width: 20px;*/
+  max-width: 280px;
+  /*width: 280px;*/
+}
+
+.Row4 .Col5 {
+  padding: 20px;
+}
+
+.Row1 .Col1, .Row2 .Col1 {
+  border-right-color: #fff;
+}
+
+.Row3 .Col1 {
+  border-right-color: #6260b2;
+}
+
+.Row3Img {
+  height: 0px;
+}
+
+#thinLine {
+  height: 3px;
+  width: 107px;
+}
+
+.Row2 .Col3 {
+  border-bottom: 1px solid #4b4b7e;
+}
+
+.Row3 .Col3 {
+  border-top: 1px solid #cbcbeb;
+}
+
+.Row3 .Col2 {
+  border-top: 1px solid #dbdbfb;
+}
+
+.Row4 .Col1, .Row5 .Col1, .Row6 .Col1 {
+  border-right-color: #a9a5de;
+}
+
+.Row4 {
+  vertical-align: top;
+}
+
+.Row4 .Col5 {
+  padding: 10px;
+}
+
+.Row5 .Col1 {
+  background: url(http://openejb.apache.org/images/stripe105.gif) repeat-x left top;
+}
+
+.bodyGrey {
+	font-size: 11px;
+	font-family: "Tahoma", "Helvetica", "Arial", "sans-serif";
+	line-height: 14px; color: #666666;
+}
+
+
+/* Navigation ------------------------------*/
+
+#Navigation h3, #Navigation a {
+  color: #cbcbeb;
+}
+
+#Navigation h3 {
+  font-size: 14px;
+  border-bottom: 1px solid #8280d2;
+  border-right: 1px solid #8280d2;
+  margin-bottom: .5em;
+}
+
+#Navigation ul {
+  margin: 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-left: 15px;
+}
+
+#Navigation li {
+  margin: 0px;
+  margin-right: 15%;
+  line-height: 17px;
+  font-size: 11px;
+  list-style: none;
+}
+
+#Navigation .feeds {
+  padding-left: 0px;
+}
+
+#Navigation .feedsText  {
+  vertical-align: top;
+}
+
+/* Page Header ---------------------------*/
+
+#PageHeader {
+  margin-top: 20px;
+  border-bottom: 1px solid black;
+}
+
+#page_title {
+  font-weight: bold;
+  font-size: x-large;
+  vertical-align: bottom;
+  padding-bottom: 15px;
+}
+
+/* Right Content --------------------------*/
+
+#RightContent {
+  /*padding: 12px;*/
+  width: 280px;
+}
+
+#RightContent .panel {
+  border: 2px solid #a9a5de;
+  font-size: 14px;
+  padding: 0px;
+  margin-bottom: .5em;
+}
+
+#RightContent .panelHeader{
+  /*color: #efefff;*/
+  /*background: #7270c2;*/
+  background: #eef url(http://openejb.apache.org/images/openejb_buttonl.gif) no-repeat right;
+  font-size: 14px;
+  padding: 3px;
+  padding-left: 5px;
+  margin-bottom: .5em;
+}
+#RightContent .panelHeader b{
+  /*padding-left: 9px;*/
+}
+
+#RightContent .panelContent {
+  border: 0px;
+  font-size: 12px;
+  padding-right: 5px;
+  padding-left: 5px;
+  margin-bottom: .5em;
+}
+
+#RightContent .panelContent .tableview {
+  font-size: 9px;
+}
+
+#RightContent .panelContent .tabletitle {
+  font-size: 10px;
+}
+
+/* Confluence related-css */
+
+.noteMacro { border-style: solid; border-width: 1px; border-color: #F0C000; background-color: #FFFFCE; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.warningMacro { border-style: solid; border-width: 1px; border-color: #c00; background-color: #fcc; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.infoMacro { border-style: solid; border-width: 1px; border-color: #3c78b5; background-color: #D8E4F1; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.tipMacro { border-style: solid; border-width: 1px; border-color: #090; background-color: #dfd; text-align:left; margin-top: 5px; margin-bottom: 5px}
+.informationMacroPadding { padding: 5px 0 0 5px; }
+
+/* section headers */
+
+h1, h2, h3, h4, h5 {
+  margin-bottom: .5em;
+  font-weight: bold;
+}
+
+h1 {
+  padding: 4px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-top: 1px solid #cccccc;
+  border-left: 1px solid #cccccc;
+  color: #000000;
+  font-size: 18px;
+  background-color: #eeeeee;
+}
+
+h2 {
+  font-size: 16px;
+}
+
+h3 {
+  font-size: 14px;
+}
+
+h4 {
+  font-size: 13px;
+  font-style: italic;
+}
+
+
+/* News / Blog */
+
+.blogSurtitle {
+  border-top: 1px dotted #cccccc;
+  padding-top: 10px;
+}
+
+.blogHeading {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 10px 0px 0px 0px;
+}
+
+
+/* Random Confluence stuff */
+table.confluenceTable
+{
+    margin: 5px;
+    border-collapse: collapse;
+}
+
+td.confluenceTd
+{
+    border: 1px solid #ccc;
+    padding: 3px 4px 3px 4px;
+}
+
+th.confluenceTh
+{
+    border: 1px solid #ccc;
+    padding: 3px 4px 3px 4px;
+    background: #f0f0f0;
+    text-align: center;
+}
+
+table.bodyTable, table.wikitable {
+  margin: 10px;
+  border-collapse: collapse;
+  border-spacing: 0pt;
+  background-color: #eeeeee;
+}
+
+#Content table.grid {
+  border: 1px solid #000000;
+}
+
+table.grid {
+  padding: 0px;
+  border-collapse: collapse;
+  border-spacing: 0pt;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+table.grid th {
+  background-color: #eeeeee;
+  font-size: smaller;
+  padding: 4px;
+  border: 1px solid #bbbbbb;
+}
+
+table.grid td {
+  font-size: x-small;
+  border: 1px solid #bbbbbb;
+  padding: 3px;
+}
+
+table.bodyTable th, table.bodyTable td, table.wikitable th, table.wikitable td {
+  border: 1px solid #999999;
+  font-size: smaller;
+  padding: 4px;
+}
+
+
+table.bodyTable th, table.wikitable th {
+  text-align: left;
+  background-color: #dddddd;
+  border: 2px solid #999999;
+  padding: 4px;
+}
+
+.nobr
+  white-space: nowrap;
+}
+
+table.bodyTable td {
+  padding: 4px;
+}
+
+.code {
+ 	border: 1px dashed #3c78b5;
+    font-size: 11px;
+	font-family: Courier;
+    margin: 10px;
+	line-height: 13px;
+}
+
+.codeHeader {
+    background-color: #f0f0f0;
+ 	border-bottom: 1px dashed #3c78b5;
+    padding: 3px;
+	text-align: center;
+}
+
+.codeContent {
+    text-align: left;
+    background-color: #f0f0f0;
+    padding: 3px;
+}
+
+.code-keyword {
+  color: #000091;
+  background-color: inherit;
+}
+
+.code-object {
+  color: #910091;
+  background-color: inherit;
+}
+
+.code-quote {
+  color: #009100;
+  background-color: inherit;
+}
+
+.code-comment {
+  color: #808080;
+  background-color: inherit;
+}
+
+
+.code-xml .code-keyword {
+  color: inherit;
+  font-weight: bold;
+}
+
+.code-tag {
+  color: #000091;
+  background-color: inherit;
+}
+
+.preformatted {
+        border: 1px dashed #3c78b5;
+    font-size: 11px;
+        font-family: Courier;
+    margin: 10px;
+        line-height: 13px;
+}
+
+.preformattedHeader {
+    background-color: #f0f0f0;
+        border-bottom: 1px dashed #3c78b5;
+    padding: 3px;
+        text-align: center;
+}
+
+.preformattedContent {
+    background-color: #f0f0f0;
+    padding: 3px;
+}
+
+pre {
+    padding: 0px;
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    text-align: left;
+}
+
+.source {
+  padding: 12px;
+  margin: 1em;
+  border: 1px solid #7270c2;
+  border-left: 2px solid #7270c2;
+  border-right: 2px solid #7270c2;
+  color: #555555;
+}
+
+
+.java-keyword {
+  color: #7270c2;
+}
+
+.java-object {
+  color: #000099;
+}
+
+.java-quote {
+  color: #990000;
+}
+
+#footer {
+  padding-left: 4px;
+  border-top: 3px solid #eeeeee;
+  color: #888888;
+  font-size: x-small;
+}
+
+
+blockquote {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 5px;
+  margin-right: 0px;
+  color: #555;
+  border-left: 1px solid #3c78b5;
+}
+
+input[type="text"] {
+  margin: 0px;
+  border: 1px solid #999999;
+  background-color: #dddddd;
+}
+
+input.required {
+  margin: 0px;
+  border: 1px solid #990000;
+}
+
+input {
+  border: 1px solid #999999;
+}
+
+textarea {
+  border: 1px solid #999999;
+}
+
+textarea.required {
+  border: 1px solid #990000;
+}
+
+label {
+  font-size: smaller;
+}
+
+label.required {
+  color: #990000;
+}
+
+.searchResults {
+  color: black;
+}
+
+.searchResults b {
+  color: #7270c2;
+}
+
+
+.linecomment { color: #bbbbbb; }
+.blockcomment { color: #bbbbbb; }
+.prepro { color: #0000BB; }
+.select {}
+.quote { color: #770000; }
+.category1 { color: #7270c2; }
+.category2 { color: #0000BB; }
+.category3 { color: #0000BB; }
+
+.monospaced {
+  margin: 1em;
+  line-height: 1.7em;
+  font-size: 1em;
+  color: #777;
+}
+
+.greenbar {
+  background-color: green;
+}
+
+.redbar {
+  background-color: red;
+}
+
+tr.testpassed td {
+  padding: 0px;
+  padding-left: 1px;
+  padding-right: 1px;
+  margin: 0px;
+}
+
+tr td.noformatting {
+  border: none;
+  padding: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin: 0px;
+}
+
+.greybox {
+  background: #f0f0f0;
+  font-weight: bold;
+  text-decoration: none;
+  color: black;
+  border: 1px solid #ddd;
+  padding: 3px;
+  margin: 1px 1px 1px 1px;
+}
+
+
+.header_name {
+	font-size: smaller;
+	padding: 2px;
+	padding-right: 1ex;
+	border-right: 1px solid #555;
+	background-color: #ccc;
+}
+
+.header_value {
+	font-size: smaller;
+	background-color: #ddd;
+	padding: 2px;
+}
+
+.header_fields {
+	width: 100%;
+	border: 1px solid #999;
+	background-color: #fff;
+}
+
+.email_body {
+	margin: 2ex;
+	padding: 1ex;
+	padding-left: 2ex;
+	padding-right: 2ex;
+	border: 1px solid #999;
+	font-size: smaller;
+}
+
+.email_body pre {
+	padding: 0px;
+	margin: 0px;
+}
+
+.email_body blockquote {
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid #ccc;
+}
+
+.msg_navblock {
+	margin-bottom: 2ex;
+	border: 1px solid #999;
+	background-color: #fff;
+}
+
+.msg_navblock th {
+	border: 1px solid #ccc;
+	font-size: smaller;
+}
+
+.msg_navblock td {
+	border: 1px solid #ccc;
+	font-size: smaller;
+}
+
+.single_entry {
+	border: 1px solid #aaa;
+	padding: .5ex;
+	padding-left: 1ex;
+	border-left: 1px solid #090;
+	margin: 2px;
+	background-color: #eee;
+}
+
+.root_entry {
+	border: 1px solid #aaa;
+	padding: .5ex;
+	padding-left: 1ex;
+	border-left: 1px solid #090;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	background-color: #eee;
+}
+
+.root_entry .sub_entry {
+	padding: .5ex;
+	padding-left: 1ex;
+	margin: 2px;
+	margin-left: 1ex;
+	border-left: 1px solid #999;
+}
+
+.list_entry {
+	border: 1px solid #aaa;
+	padding: 1ex;
+	margin-top: 1ex;
+	margin-bottom: 1ex;
+}
+
+.list_entry td {
+	border: 1px solid #999;
+}
+
+.project_entry {
+	border: 1px solid #aaa;
+	padding: 1ex;
+	margin-top: 1ex;
+	margin-bottom: 1ex;
+}
+
+.update-tabletitle {
+  padding-left: 4px;
+  color: #E24717;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.update-title a {
+  font-size: 11px;
+  text-decoration: underline;
+  font-weight: normal;
+}
+
+.update-description {
+  font-size: smaller;
+  line-height: 12px;
+}
+
+.update-details {
+  font-size: smaller;
+  color: #777777;
+}
+
+.update-details a {
+  font-size: 10px;
+  color: #777777;
+}
+
+
+div.Updated {
+  margin-left: 13px;
+  margin-right: 5px;
+}
+
+div.Updated td {
+	border-bottom: 1px solid #bbb;
+	padding: 4px;
+	background-color: #fff;
+}
+
+div.Updated div.title {
+  border: 1px solid #999;
+  padding: 2px;
+  background-color: #eee;
+  font-weight: bold;
+  color: #000;
+}
+
+div.Updated div.page a, div.Updated div.smalltext a {
+  font-weight: normal;
+  color: #8280d2;
+}
+
+div.Updated div.smalltext {
+  font-size: 11px;
+  text-align: left;
+  font-weight: normal;
+  color: #555;
+}
+
+/****** Deck Settings *******/
+
+/* Global settings */
+.deck {
+	padding: 0px; margin: 0px;
+}
+
+.deck .tabBar {
+	padding: 0px;
+	padding-right: 8px;
+	margin: 0px;
+	position: relative;
+	z-index: 2;
+	font: bold 11px Verdana, sans-serif;
+}
+
+.deck .tabBar table tbody tr td {
+	margin: 0px; padding: 0px; border: 0px;
+}
+
+.deck .tabBar .tab {
+	margin: 0px; padding: 0px;
+	padding-left: 8px;
+}
+
+.deck .tabBar .tab a {
+	display: block;
+	padding: 1px 0.5em;
+	vertical-align: text-bottom;
+	background: #3c78b5;
+	border: 1px solid #3c78b5;
+	color: #ffffff;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.deck .tabBar .tab a:hover {
+	color: #ffffff;
+	background: #003366;
+	border-color: #003366;
+}
+
+.deck .tabBar .tab#current a {
+	background: white;
+	border: 1px solid #3c78b5;
+	color: black;
+}
+
+.deck .tabBar .tab#current a:hover {
+	cursor: default;
+}
+
+.deck .cards.tabbed {
+	border: 1px solid #3c78b5;
+}
+
+/* Hack to get around clipping problem with no tabs... */
+.deck .cards.untabbed .card {
+	overflow: hidden;
+}
+
+.deck .cards.tabbed .card {
+	margin: 0px;
+	padding: 8px;
+	position: relative;
+	z-index: 1;
+}
+
+/* Tabs at the top */
+
+.deck .tabBar.top {
+	bottom: -1px;
+	margin-top: 3px;
+}
+
+.deck .tabBar.top table tbody tr td {
+	vertical-align: bottom;
+}
+
+.deck .tabBar.top .tab a {
+	margin-bottom: 1px;
+}
+
+.deck .tabBar.top .tab#current a {
+	border-bottom: 1px solid white;
+	padding-bottom: 2px;
+	margin-bottom: 0px;
+}
+
+/* Tabs at the bottom */
+
+.deck .tabBar.bottom {
+	top: -1px;
+	margin-bottom: 3px;
+}
+
+.deck .tabBar.bottom table tbody tr td {
+	vertical-align: top;
+}
+
+.deck .tabBar.bottom .tab a {
+	margin-top: 1px;
+}
+
+.deck .tabBar.bottom .tab#current a {
+	border-top: 1px solid white;
+	padding-top: 2px;
+	margin-top: 0px;
+}
+
