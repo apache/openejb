@@ -17,34 +17,19 @@
 
 package org.apache.openejb.helper.annotation;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
+import org.eclipse.ltk.core.refactoring.Change;
 
 public interface IJavaProjectAnnotationFacade {
 
-	/**
-	 * Adds an annotation to a class
-	 * @param targetClass Fully qualified name of the class to add the annotation to
-	 * @param annotation Fully qualified name of the annotation
-	 */
-	public void addClassAnnotation(String targetClass,	String annotation);
+	public void addClassAnnotation(String targetClass, Class<? extends Annotation> annotation, Map<String,Object> properties);
 
-	/**
-	 * Adds an annotation to a class, with the specified properties
-	 * @param targetClass Fully qualified name of the class to add the annotation to
-	 * @param annotation Fully qualified name of the annotation
-	 * @param properties Properties for the annotation to be added
-	 */
-	public void addClassAnnotation(String targetClass, String annotation, Map<String, Object> properties);
+	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<?> annotationClass, Map<String, Object> properties);
 
-	public void addClassAnnotation(String targetClass, Class annotation, Map<String,Object> properties);
+	public void addFieldAnnotation(String targetClass, String targetField, Class<?> annotation, Map<String, Object> properties);
 
-	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, Class annotationClass, Map<String, Object> properties);
+	public Change getChange();
 
-	public void addMethodAnnotation(String targetClass, String methodName, String annotationToAdd, Map<String, Object> properties);
-
-	public void addFieldAnnotation(String targetClass, String targetField, Class annotation, Map<String, Object> properties);
-
-	public void addFieldAnnotation(String targetClass, String targetField, String annotation, Map<String, Object> properties);
-	
 	
 }

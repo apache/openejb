@@ -48,6 +48,58 @@
                     </execution>
                 </executions>
             </plugin>
+	    <plugin>
+		<artifactId>maven-dependency-plugin</artifactId>
+		<executions>
+			<execution>
+				<id>copy</id>
+				<phase>integration-test</phase>
+				<goals>
+					<goal>copy</goal>
+				</goals>
+				<configuration>
+					<outputDirectory>${settings.localRepository}/eclipse/eclipse/plugins</outputDirectory>
+					<overWriteSnapshots>
+						true
+					</overWriteSnapshots>
+					<artifactItems>
+						<artifactItem>
+						    <groupId>org.apache.openejb</groupId>
+						    <artifactId>org.apache.openejb.helper.annotation</artifactId>
+						    <version>1.0.0</version>
+						</artifactItem>
+						<artifactItem>
+						    <groupId>org.apache.openejb</groupId>
+						    <artifactId>org.apache.openejb.helper.annotation.test</artifactId>
+						    <version>1.0.0</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
+	    <plugin>
+	    <artifactId>maven-antrun-plugin</artifactId>
+	    <executions>
+		<execution>
+		    <id>test</id>
+		    <phase>integration-test</phase>
+		    <configuration>
+			<tasks>
+				<echo message="Running tests..."/>
+				<property name="LOCAL_M2_REPO" value="${settings.localRepository}" />
+				<property name="java.home" value="${java.home}" />
+				<ant antfile="${basedir}/test.xml">
+					<target name="run"></target>
+				</ant>
+			</tasks>
+		    </configuration>
+		    <goals>
+			<goal>run</goal>
+		    </goals>
+		</execution>
+	    </executions>
+	</plugin>
         </plugins>
     </build>
     <dependencies>
@@ -66,5 +118,10 @@
             <artifactId>org.apache.openejb.feature</artifactId>
             <version>1.0.0</version>
         </dependency>
+	<dependency>
+	    <groupId>org.apache.openejb</groupId>
+	    <artifactId>org.apache.openejb.helper.annotation.test</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
     </dependencies>
 </project>
