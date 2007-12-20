@@ -22,7 +22,7 @@
 <project name="EuropaArtifacts">
 
     <target name="init">
-        <property name="europa_drop"    value="R-3.3.1-200709211145"/>
+        <property name="europa_drop"    value="R-3.3.1.1-200710231652"/>
         <property name="dtp_drop"       value="1.5"/>
         <property name="emf_drop"       value="2.3.1/R200709252135"/>
         <property name="gef_drop"       value="R-3.3.1-200709241000"/>
@@ -32,15 +32,16 @@
         <property name="europa_win32_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
         <property name="europa_linux_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
         <property name="europa_macos_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
+	<property name="testing_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
 
         <property name="dtp_download_url"   value="${base_url}/datatools/downloads/${dtp_drop}/"/>
         <property name="emf_download_url"   value="${base_url}/modeling/emf/emf/downloads/drops/${emf_drop}/"/>
         <property name="gef_download_url"   value="${base_url}/tools/gef/downloads/drops/${gef_drop}/"/>
         <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R2.0/${wtp_drop}/"/>
 
-        <property name="europa_jee_win32"       value="eclipse-SDK-3.3.1-win32.zip"/>
-        <property name="europa_jee_linux"       value="eclipse-SDK-3.3.1-linux-gtk.tar"/>
-        <property name="europa_jee_macos"       value="eclipse-SDK-3.3.1-macosx-carbon.tar"/>
+        <property name="europa_jee_win32"       value="eclipse-SDK-3.3.1.1-win32.zip"/>
+        <property name="europa_jee_linux"       value="eclipse-SDK-3.3.1.1-linux-gtk.tar"/>
+        <property name="europa_jee_macos"       value="eclipse-SDK-3.3.1.1-macosx-carbon.tar"/>
         <property name="europa_jee_linux_gz"    value="${europa_jee_linux}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
@@ -48,6 +49,7 @@
         <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.3.1.zip"/>
         <property name="gef_sdk"    value="GEF-SDK-3.3.1.zip"/>
         <property name="wtp_sdk"    value="wtp-sdk-${wtp_drop}.zip"/>
+	<property name="testing"    value="eclipse-test-framework-3.3.1.1.zip"/>
 
         <property name="protocol"   value="&amp;r=1&amp;protocol=http"/>
     </target>
@@ -103,7 +105,8 @@
         <antcall target="dtp"/>  
         <antcall target="emf"/> 
         <antcall target="gef"/>  
-        <antcall target="wtp"/>  
+        <antcall target="wtp"/>
+	<antcall target="test-api"/>
     </target>
 
     <target name="dtp" depends="init" description="Download Data Tools Platform (DTP) artifact">
@@ -121,6 +124,22 @@
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
+    <target name="test-api" depends="init" description="Download Eclipse Test framework">
+        <echo>-----------------------------------------</echo>
+        <echo>Downloading ${testing_url}${testing}</echo>
+        <echo>-----------------------------------------</echo>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <get src="${testing_url}${testing}${protocol}"
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${testing}" 
+             verbose="true"
+             usetimestamp="true"/>
+        <echo>Unzipping ${testing} to the expected location in ${LOCAL_M2_REPO}</echo>
+        <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${testing}" 
+               dest="${LOCAL_M2_REPO}/eclipse"/>
+    </target>
+
+    
     <target name="emf" depends="init" description="Download Eclipse Modeling Framework (EMF) artifact">
         <echo>-----------------------------------------</echo>
         <echo>Downloading ${emf_download_url}${emf_sdo}</echo>

@@ -17,11 +17,6 @@
 
 package org.apache.openejb.helper.annotation.wizards;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.openejb.helper.annotation.JavaProjectAnnotationFacade;
 import org.apache.openejb.helper.annotation.OpenEjbXmlConverter;
 import org.eclipse.core.resources.IFile;
@@ -32,7 +27,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.xml.sax.InputSource;
 
 public class EJBMigrationRefactoring extends Refactoring {
@@ -40,12 +34,17 @@ public class EJBMigrationRefactoring extends Refactoring {
 	protected String ejbJarXmlFile;
 	protected String openEjbJarXmlFile;
 	protected IProject project;
+	protected RefactoringStatus status = new RefactoringStatus();
 	
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
+		
+	
 			throws CoreException, OperationCanceledException {
 
-		return new RefactoringStatus();
+		status = new RefactoringStatus();
+		
+		return status;
 	}
 
 	@Override
@@ -76,6 +75,11 @@ public class EJBMigrationRefactoring extends Refactoring {
 		JavaProjectAnnotationFacade annotationFacade = new JavaProjectAnnotationFacade(project);
 		OpenEjbXmlConverter converter = new OpenEjbXmlConverter(annotationFacade);
 		converter.convert(new InputSource(file.getContents()));
+		
+		String[] warnings = annotationFacade.getWarnings();
+		for (String warning : warnings) {
+			status.addWarning(warning);
+		}
 		
 		return annotationFacade.getChange();
 	}
@@ -108,6 +112,4 @@ public class EJBMigrationRefactoring extends Refactoring {
 	public void setProject(IProject project) {
 		this.project = project;
 	}
-
-	
 }

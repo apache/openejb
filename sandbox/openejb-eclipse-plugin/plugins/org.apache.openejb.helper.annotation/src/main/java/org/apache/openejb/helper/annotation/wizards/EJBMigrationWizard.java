@@ -17,12 +17,14 @@
 
 package org.apache.openejb.helper.annotation.wizards;
 
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
 public class EJBMigrationWizard extends RefactoringWizard {
-	public EJBMigrationWizard(Refactoring refactoring, int flags) {
+	private final EJBMigrationRefactoring refactoring;
+
+	public EJBMigrationWizard(EJBMigrationRefactoring refactoring, int flags) {
 		super(refactoring, flags);
+		this.refactoring = refactoring;
 	}
 
 	protected EJBJarSelectionPage ejbJarSelectionPage;
@@ -30,4 +32,5 @@ public class EJBMigrationWizard extends RefactoringWizard {
 	@Override
 	protected void addUserInputPages() {
 	}
+
 }

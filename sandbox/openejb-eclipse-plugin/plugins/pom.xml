@@ -121,6 +121,7 @@
                             <goals>
                                 <goal>run</goal>
                             </goals>
+			    
                         </execution>
                         <!-- /workaround -->
                     </executions>
@@ -143,6 +144,7 @@
     </build>
     <modules>
         <module>org.apache.openejb.helper.annotation</module>
+	<module>org.apache.openejb.helper.annotation.test</module>
 	<module>org.eclipse.jst.server.generic.openejb</module>
     </modules>
 </project>

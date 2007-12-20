@@ -13,12 +13,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.eclipse.ui.ide,
  org.eclipse.ltk.ui.refactoring,
- org.eclipse.ltk.core.refactoring
+ org.eclipse.ltk.core.refactoring,
+ org.junit
 Eclipse-LazyStart: true
-Export-Package: org.apache.openejb.helper.annotation,
- org.apache.openejb.helper.annotation.actions
 Bundle-ClassPath: .,
- lib/jaxb-impl-2.0.jar,
+ lib/jaxb-impl-2.0.3.jar,
  lib/activation-1.1.jar,
  lib/jaxb-api-2.0.jar,
  lib/jsr173-1.0.jar,
@@ -27,5 +26,8 @@ Bundle-ClassPath: .,
  lib/geronimo-stax-api_1.0_spec-1.0.jar,
  lib/openejb-jee-3.0.0-SNAPSHOT.jar,
  lib/xbean-finder-3.2-SNAPSHOT.jar,
- lib/geronimo-ejb_3.0_spec-1.0.jar
+ lib/geronimo-ejb_3.0_spec-1.0.jar,
+ lib/geronimo-annotation_1.0_spec-1.1.jar,
+ lib/geronimo-interceptor_3.0_spec-1.0.jar
 Main-Class: org.apache.openejb.helper.annotation.cli.Main
+Export-Package: org.apache.openejb.helper.annotation
