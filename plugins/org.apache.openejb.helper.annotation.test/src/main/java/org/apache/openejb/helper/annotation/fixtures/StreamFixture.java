@@ -14,25 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.openejb.helper.annotation.fixtures;
 
-package org.apache.openejb.helper.annotation.wizards;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
+public class StreamFixture {
 
-public class EJBMigrationWizard extends RefactoringWizard {
-	private final EJBMigrationRefactoring refactoring;
-
-	public EJBMigrationWizard(EJBMigrationRefactoring refactoring, int flags) {
-		super(refactoring, flags);
-		this.refactoring = refactoring;
-	}
-
-	protected EJBJarSelectionPage ejbJarSelectionPage;
-	
-	@Override
-	protected void addUserInputPages() {
-		addPage(new ProjectSelectionPage(this.refactoring));
-		addPage(new EJBJarSelectionPage(this.refactoring));
+	public void streamCopy(InputStream is, OutputStream os) throws IOException {
+		byte[] buffer = new byte[1024];
+		int bytesRead = -1;
+		
+		while ((bytesRead = is.read(buffer)) > -1) {
+			os.write(buffer, 0, bytesRead);
+		}
+		
+		is.close();
+		os.close();
 	}
 
 }

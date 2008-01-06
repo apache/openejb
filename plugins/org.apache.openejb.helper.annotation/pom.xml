@@ -120,9 +120,39 @@
                   <version>1.1</version>
                 </artifactItem>
                 <artifactItem>
-			        <groupId>org.apache.geronimo.specs</groupId>
-			        <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-			        <version>1.0</version>
+                  <groupId>org.apache.geronimo.specs</groupId>
+                  <artifactId>geronimo-interceptor_3.0_spec</artifactId>
+                  <version>1.0</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.openejb</groupId>
+                  <artifactId>openejb-core</artifactId>
+                  <version>3.0.0-SNAPSHOT</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.openejb</groupId>
+                  <artifactId>openejb-loader</artifactId>
+                  <version>3.0.0-SNAPSHOT</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>wsdl4j</groupId>
+                  <artifactId>wsdl4j</artifactId>
+                  <version>1.6.1</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.geronimo.specs</groupId>
+                  <artifactId>geronimo-jpa_3.0_spec</artifactId>
+                  <version>1.1</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>log4j</groupId>
+                  <artifactId>log4j</artifactId>
+                  <version>1.2.12</version>
+                </artifactItem>
+                <artifactItem>
+			      <groupId>org.codehaus.swizzle</groupId>
+			      <artifactId>swizzle-stream</artifactId>
+			      <version>1.0.1</version>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -183,6 +213,16 @@
       <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-core</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-loader</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>javax.xml</groupId>
       <artifactId>jsr173</artifactId>
       <version>1.0</version>
@@ -193,9 +233,29 @@
       <version>1.1</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-        <version>1.0</version>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-interceptor_3.0_spec</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>wsdl4j</groupId>
+      <artifactId>wsdl4j</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jpa_3.0_spec</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.12</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.swizzle</groupId>
+      <artifactId>swizzle-stream</artifactId>
+      <version>1.0.1</version>
     </dependency>
   </dependencies>
 </project>

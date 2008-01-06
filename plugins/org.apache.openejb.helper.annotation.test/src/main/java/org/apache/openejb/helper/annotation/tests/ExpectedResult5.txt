@@ -1,0 +1,13 @@
+package org.apache.openejb.test;
+
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+
+@TransactionManagement(value=TransactionManagementType.BEAN)
+public class TestBean5 {
+
+	public void echoHelloWorld() {
+		System.out.println("Hello, world!");
+	}
+	
+}

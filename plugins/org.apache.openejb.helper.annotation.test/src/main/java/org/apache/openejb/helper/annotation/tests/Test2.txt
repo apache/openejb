@@ -1,0 +1,11 @@
+package org.apache.openejb.test;
+
+import javax.ejb.Stateless;
+
+public class TestBean2 {
+
+	public void echoHelloWorld() {
+		System.out.println("Hello, world!");
+	}
+	
+}

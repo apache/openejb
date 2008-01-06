@@ -1,0 +1,19 @@
+package org.apache.openejb.test;
+
+import javax.ejb.EJBException;
+import javax.ejb.MessageDrivenBean;
+import javax.ejb.MessageDrivenContext;
+import javax.ejb.MessageDriven;
+import javax.ejb.ActivationConfigProperty;
+
+@MessageDriven(activationConfig={@ActivationConfigProperty(propertyValue="javax.jms.Queue", propertyName="destinationType")})
+public class TestBean8 implements MessageDrivenBean {
+
+	public void ejbRemove() throws EJBException {
+	}
+
+	public void setMessageDrivenContext(MessageDrivenContext ctx)
+			throws EJBException {
+	}
+
+}

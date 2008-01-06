@@ -1,0 +1,16 @@
+package org.apache.openejb.test;
+
+import javax.persistence.ManyToMany;
+
+public class TestBean6 {
+
+	@ManyToMany
+	public void echoHelloWorld(String name) {
+		System.out.println("Hello, world!");
+	}
+
+	public void echoHelloWorld() {
+		System.out.println("Hello, world!");
+	}
+	
+}

@@ -8,6 +8,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
+ org.eclipse.core.commands,
  org.eclipse.jdt.core,
  org.eclipse.core.filebuffers,
  org.eclipse.jface.text,
@@ -25,9 +26,15 @@ Bundle-ClassPath: .,
  lib/geronimo-activation_1.1_spec-1.0.jar,
  lib/geronimo-stax-api_1.0_spec-1.0.jar,
  lib/openejb-jee-3.0.0-SNAPSHOT.jar,
+ lib/openejb-core-3.0.0-SNAPSHOT.jar,
+ lib/openejb-loader-3.0.0-SNAPSHOT.jar,
  lib/xbean-finder-3.2-SNAPSHOT.jar,
  lib/geronimo-ejb_3.0_spec-1.0.jar,
  lib/geronimo-annotation_1.0_spec-1.1.jar,
- lib/geronimo-interceptor_3.0_spec-1.0.jar
+ lib/geronimo-interceptor_3.0_spec-1.0.jar,
+ lib/wsdl4j-1.6.1.jar,
+ lib/geronimo-jpa_3.0_spec-1.1.jar,
+ lib/log4j-1.2.12.jar,
+ lib/swizzle-stream-1.0.1.jar
 Main-Class: org.apache.openejb.helper.annotation.cli.Main
 Export-Package: org.apache.openejb.helper.annotation

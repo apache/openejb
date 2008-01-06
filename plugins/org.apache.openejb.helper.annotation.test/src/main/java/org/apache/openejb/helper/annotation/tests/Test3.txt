@@ -1,0 +1,9 @@
+package org.apache.openejb.test;
+
+public class TestBean3 {
+
+	public void echoHelloWorld() {
+		System.out.println("Hello, world!");
+	}
+	
+}
