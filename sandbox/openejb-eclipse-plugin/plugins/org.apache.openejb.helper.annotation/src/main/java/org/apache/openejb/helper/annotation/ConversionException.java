@@ -14,25 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.openejb.helper.annotation;
 
-package org.apache.openejb.helper.annotation.wizards;
+/**
+ * Represents a conversion error from trying to generate annotations
+ * using the OpenEjbXmlConverter
+ */
+public class ConversionException extends Exception {
 
-import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
-
-public class EJBMigrationWizard extends RefactoringWizard {
-	private final EJBMigrationRefactoring refactoring;
-
-	public EJBMigrationWizard(EJBMigrationRefactoring refactoring, int flags) {
-		super(refactoring, flags);
-		this.refactoring = refactoring;
+	public ConversionException() {
 	}
 
-	protected EJBJarSelectionPage ejbJarSelectionPage;
-	
-	@Override
-	protected void addUserInputPages() {
-		addPage(new ProjectSelectionPage(this.refactoring));
-		addPage(new EJBJarSelectionPage(this.refactoring));
+	/**
+	 * @param message
+	 */
+	public ConversionException(String message) {
+		super(message);
 	}
 
+	/**
+	 * @param throwable
+	 */
+	public ConversionException(Throwable throwable) {
+		super(throwable);
+	}
+
+	/**
+	 * @param message
+	 * @param throwable
+	 */
+	public ConversionException(String message, Throwable throwable) {
+		super(message, throwable);
+	}
 }

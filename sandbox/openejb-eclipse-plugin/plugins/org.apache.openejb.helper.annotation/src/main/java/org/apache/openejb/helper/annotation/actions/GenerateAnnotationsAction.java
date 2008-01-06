@@ -23,6 +23,8 @@ import org.apache.openejb.helper.annotation.wizards.EJBMigrationWizard;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -56,12 +58,10 @@ public class GenerateAnnotationsAction implements IObjectActionDelegate, IWorkbe
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void run(IAction action) {
-		if (resource == null) {
-			return;
+		EJBMigrationRefactoring refactoring = new EJBMigrationRefactoring(ResourcesPlugin.getWorkspace().getRoot());
+		if (resource instanceof IProject || resource instanceof IFile) {
+			refactoring.setProject(resource.getProject());			
 		}
-
-		EJBMigrationRefactoring refactoring = new EJBMigrationRefactoring();
-		refactoring.setProject(resource.getProject());
 		
 		if (resource instanceof IFile) {
 			refactoring.setEjbJarXmlFile(resource.getProjectRelativePath().toString());
@@ -71,7 +71,6 @@ public class GenerateAnnotationsAction implements IObjectActionDelegate, IWorkbe
 		try {
 			op.run(Activator.getWorkbenchWindow().getShell(), "Dialog");
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -91,17 +90,17 @@ public class GenerateAnnotationsAction implements IObjectActionDelegate, IWorkbe
 			if (firstElement instanceof IProject) {
 				resource = (IProject) firstElement;
 			}
+			
+			if (firstElement instanceof IJavaProject) {
+				resource =  ((IJavaProject)firstElement).getResource();
+			}
 		}
 	}
 
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void init(IWorkbenchWindow window) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -1,0 +1,12 @@
+package org.apache.openejb.test;
+
+import javax.persistence.Entity;
+
+@Entity(name="Test")
+public class TestBean4 {
+
+	public void echoHelloWorld() {
+		System.out.println("Hello, world!");
+	}
+	
+}

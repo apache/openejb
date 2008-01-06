@@ -1,0 +1,13 @@
+package org.apache.openejb.test;
+
+import javax.ejb.Remote;
+import org.apache.openejb.test.Test7;
+
+@Remote(value={org.apache.openejb.test.Test7.class})
+public class TestBean7 {
+
+	public void echoHelloWorld() {
+		System.out.println("Hello, world!");
+	}
+	
+}

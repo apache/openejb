@@ -17,8 +17,6 @@
  
 package org.apache.openejb.helper.annotation;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,12 +41,18 @@ import javax.ejb.TransactionManagementType;
 import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.Interceptors;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.sax.SAXSource;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.config.AppModule;
+import org.apache.openejb.config.CmpJpaConversion;
+import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.config.InitEjbDeployments;
+import org.apache.openejb.config.OpenEjb2Conversion;
 import org.apache.openejb.jee.ActivationConfig;
 import org.apache.openejb.jee.ActivationConfigProperty;
 import org.apache.openejb.jee.ApplicationException;
@@ -71,8 +75,17 @@ import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.StatefulBean;
 import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.TransactionType;
+import org.apache.openejb.jee.jpa.Attributes;
+import org.apache.openejb.jee.jpa.Basic;
+import org.apache.openejb.jee.jpa.Column;
+import org.apache.openejb.jee.jpa.EntityMappings;
+import org.apache.openejb.jee.jpa.FetchType;
+import org.apache.openejb.jee.oejb2.JaxbOpenejbJar2;
+import org.apache.openejb.jee.oejb2.OpenejbJarType;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.eclipse.core.resources.IProject;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Scans an ejb-jar.xml file using a JAXB parser, and adds annotations
@@ -113,19 +126,193 @@ public class OpenEjbXmlConverter {
 	 * Parses the XML
 	 * @param source An input source to the content of ejb-jar.xml
 	 * @return Whether or not the parsing was successful
+	 * @throws ConversionException 
 	 */
-	public boolean convert(InputSource source) {
-		try {
-			EjbJar ejbJar = (EjbJar) JaxbJavaee.unmarshal(EjbJar.class, source.getByteStream());
-			
+	public boolean convert(InputSource source) throws ConversionException {
+		return convert(source, null);
+	}
+
+	/**
+	 * Parses the XML
+	 * @param ejbJarSrc An input source to the content of ejb-jar.xml
+	 * @param openEjbJarSrc An input source to the content of openejb-jar.xml (optional)
+	 * @return Whether or not the parsing was successful
+	 * @throws ConversionException 
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean convert(InputSource ejbJarSrc, InputSource openEjbJarSrc) throws ConversionException {
+		try {	
+			EjbJar ejbJar = (EjbJar) JaxbJavaee.unmarshal(EjbJar.class, ejbJarSrc.getByteStream());
+	        EjbModule ejbModule = new EjbModule(ejbJar, new OpenejbJar());
+
 			processEnterpriseBeans(ejbJar);
 			processApplicationExceptions(ejbJar);
 			
+			if (openEjbJarSrc != null) {
+		        InitEjbDeployments initEjbDeployments = new InitEjbDeployments();
+		        initEjbDeployments.deploy(ejbModule, new HashMap<String,String>());
+		        AppModule appModule = new AppModule(getClass().getClassLoader(), "TestModule");
+		        appModule.getEjbModules().add(ejbModule);
+
+		        JAXBElement element = (JAXBElement) JaxbOpenejbJar2.unmarshal(OpenejbJarType.class, openEjbJarSrc.getByteStream());
+		        OpenejbJarType openejbJarType = (OpenejbJarType) element.getValue();
+		        ejbModule.getAltDDs().put("openejb-jar.xml", openejbJarType);
+
+		        CmpJpaConversion cmpJpaConversion = new CmpJpaConversion();
+		        cmpJpaConversion.deploy(appModule);
+
+		        OpenEjb2Conversion openEjb2Conversion = new OpenEjb2Conversion();
+		        openEjb2Conversion.deploy(appModule);
+
+				processEntityBeans(appModule);
+			}
+			
 			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+		} catch (JAXBException e) {
+			throw new ConversionException("Unable to unmarshal XML", e);
+		} catch (ParserConfigurationException e) {
+			throw new ConversionException("Unable to unmarshal XML (parser configuration error)", e);
+		} catch (SAXException e) {
+			throw new ConversionException("Unable to unmarshal XML (SAX error - XML badly formed?)", e);
+		} catch (OpenEJBException e) {
+			throw new ConversionException("Unable to convert openejb-jar.xml to orm.xml");
 		}
+	}
+
+	private void processEntityBeans(AppModule appModule) {
+		EntityMappings entityMappings = appModule.getCmpMappings();
+		List<EntityBean> entityBeans = getEntityBeans(appModule);
+		
+		for (EntityBean entityBean : entityBeans) {
+			annotationHelper.addClassAnnotation(entityBean.getEjbClass(), Entity.class, null);
+			org.apache.openejb.jee.jpa.Entity entity = getEntity(entityMappings, entityBean.getEjbName());
+			
+			if (entity != null) {
+				addTableAnnotation(entityBean, entity);
+			
+				Attributes attributes = entity.getAttributes();
+				addBasicAnnotations(entityBean, attributes.getBasic());
+			}
+		}
+	}
+
+	private void addBasicAnnotations(EntityBean entityBean,	List<Basic> basicAttributes) {
+		for (Basic basic : basicAttributes) {
+			String fieldName = basic.getName();
+			Column column = basic.getColumn();
+			
+			addBasicAnnotation(entityBean, fieldName, basic, column);
+		}
+	}
+
+	private void addBasicAnnotation(EntityBean entityBean, String fieldName, Basic basic, Column column) {
+		addColumnAnnotation(entityBean, fieldName, column);
+		Boolean optional = basic.isOptional();
+		FetchType fetchType = basic.getFetch();
+		
+		Map<String, Object> basicProps = new HashMap<String, Object>();
+		if (optional != null) basicProps.put("optional", optional.booleanValue());
+		if (fetchType != null) basicProps.put("fetch", fetchType.value());
+		
+//		annotationHelper.addFieldAnnotation(entityBean.getEjbClass(), fieldName, javax.persistence.Basic.class, basicProps);
+
+		String methodName = convertFieldNameToGetterName(fieldName);
+		annotationHelper.addMethodAnnotation(entityBean.getEjbClass(), methodName, new String[0], javax.persistence.Basic.class, basicProps);
+ 	}
+
+	private String convertFieldNameToGetterName(String fieldName) {
+		String methodName = "get" + capitaliseFirstLetter(fieldName);
+		return methodName;
+	}
+
+	private String capitaliseFirstLetter(String fieldName) {
+		if (fieldName == null) {
+			return null;
+		}
+		
+		if (fieldName.length() == 0) {
+			return fieldName;
+		}
+		
+		String firstLetter = fieldName.substring(0, 1).toUpperCase();
+		String restOfWord = "";
+		
+		if (fieldName.length() > 1) {
+			restOfWord = fieldName.substring(1);
+		}
+		
+		return firstLetter + restOfWord;
+	}
+
+	private void addColumnAnnotation(EntityBean entityBean, String fieldName, Column column) {
+		Map<String, Object> columnProps = new HashMap<String, Object>();
+		if (column.getName() != null) columnProps.put("name", column.getName());
+		if (column.isUnique() != null) columnProps.put("unique", column.isUnique().booleanValue());
+		if (column.isNullable() != null) columnProps.put("nullable", column.isNullable().booleanValue());
+		if (column.isInsertable() != null) columnProps.put("insertable", column.isInsertable().booleanValue());
+		if (column.isUpdatable() != null) columnProps.put("updatable", column.isUpdatable().booleanValue());
+		if (column.getColumnDefinition() != null) columnProps.put("columnDefinition", column.getColumnDefinition());
+		if (column.getTable() != null) columnProps.put("table", column.getTable());
+		if (column.getLength() != null) columnProps.put("length", column.getLength().intValue());
+		if (column.getPrecision() != null) columnProps.put("precision", column.getPrecision().intValue());
+		if (column.getScale() != null) columnProps.put("scale", column.getScale().intValue());
+		
+//		annotationHelper.addFieldAnnotation(entityBean.getEjbClass(), fieldName, javax.persistence.Column.class, columnProps);
+
+		String methodName = convertFieldNameToGetterName(fieldName);
+		annotationHelper.addMethodAnnotation(entityBean.getEjbClass(), methodName, new String[0], javax.persistence.Column.class, columnProps);
+
+	}
+
+	private void addTableAnnotation(EntityBean entityBean,
+			org.apache.openejb.jee.jpa.Entity entity) {
+		String tableName = entity.getTable().getName();
+		String schemaName = entity.getTable().getSchema();
+		String catalogName = entity.getTable().getCatalog();
+		
+		Map<String, Object> tableProperties = new HashMap<String, Object>();
+		if (tableName != null && tableName.length() > 0) {
+			tableProperties.put("name", tableName);
+		}
+		
+		if (schemaName != null && schemaName.length() > 0) {
+			tableProperties.put("schema", schemaName);
+		}
+		
+		if (catalogName != null && catalogName.length() > 0) {
+			tableProperties.put("catalog", catalogName);
+		}
+		
+		annotationHelper.addClassAnnotation(entityBean.getEjbClass(), Table.class, tableProperties);
+	}
+
+	private org.apache.openejb.jee.jpa.Entity getEntity(EntityMappings entityMappings, String ejbName) {
+		List<org.apache.openejb.jee.jpa.Entity> entities = entityMappings.getEntity();
+		
+		for (org.apache.openejb.jee.jpa.Entity entity : entities) {
+			if (entity.getName().equals(ejbName)) {
+				return entity;
+			}
+		}
+		
+		return null;
+	}
+
+	private List<EntityBean> getEntityBeans(AppModule appModule) {
+		List<EntityBean> result = new ArrayList<EntityBean>();
+		
+		List<EjbModule> ejbModules = appModule.getEjbModules();
+		for (EjbModule ejbModule : ejbModules) {
+			EnterpriseBean[] enterpriseBeans = ejbModule.getEjbJar().getEnterpriseBeans();
+			
+			for (EnterpriseBean enterpriseBean : enterpriseBeans) {
+				if (enterpriseBean instanceof EntityBean) {
+					result.add((EntityBean) enterpriseBean);
+				}
+			}
+		}
+		
+		return result;
 	}
 
 	private void processApplicationExceptions(EjbJar ejbJar) {
@@ -148,9 +335,6 @@ public class OpenEjbXmlConverter {
 			if (bean instanceof SessionBean) {
 				SessionBean sessionBean = (SessionBean) bean;
 				processSessionBean(sessionBean);
-			} else if (bean instanceof EntityBean) {
-				EntityBean entityBean = (EntityBean) bean;
-				processEntityBean(entityBean);
 			} else if (bean instanceof MessageDrivenBean) {
 				MessageDrivenBean messageDriven = (MessageDrivenBean) bean;
 				processMessageDrivenBean(messageDriven);
@@ -233,8 +417,6 @@ public class OpenEjbXmlConverter {
 		annotationHelper.addClassAnnotation(bean.getEjbClass(), MessageDriven.class, props);
 	}
 
-	private void processEntityBean(EntityBean entityBean) {
-	}
 
 	public void processSessionBean(SessionBean sessionBean) {
 		String ejbClass = sessionBean.getEjbClass();

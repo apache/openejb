@@ -11,7 +11,7 @@
             objectClass="org.eclipse.core.resources.IFile">
          <menu
                id="org.apache.openejb.helper.annotation.menu1"
-               label="OpenEjb"
+               label="OpenEJB"
                path="additions">
             <separator name="group1"/>
          </menu>
@@ -32,17 +32,15 @@
             visible="true">
          <menu
                id="org.apache.openejb.helper.annotation.actionSet.menu"
-               label="OpenEjb">
+               label="OpenEJB">
             <separator name="org.apache.openejb.helper.annotation.menu.group1"/>
          </menu>
          <action
                class="org.apache.openejb.helper.annotation.actions.GenerateAnnotationsAction"
-               enablesFor="1"
                icon="icons/sample.gif"
                id="org.apache.openejb.helper.annotation.menu.generate"
                label="Generate annotations"
                menubarPath="org.apache.openejb.helper.annotation.actionSet.menu/org.apache.openejb.helper.annotation.menu.group1">
-           <selection class="org.eclipse.core.resources.IFile" name="ejb-jar.xml"/>
          </action>
       </actionSet>
    </extension>
