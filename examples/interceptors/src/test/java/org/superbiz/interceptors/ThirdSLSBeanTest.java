@@ -25,10 +25,12 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 
+import junit.framework.TestCase;
+
 /**
  * @version $Rev$ $Date$
  */
-public class ThirdSLSBeanTest {
+public class ThirdSLSBeanTest extends TestCase {
     private InitialContext initCtx;
 
     @Before
@@ -40,8 +42,7 @@ public class ThirdSLSBeanTest {
         initCtx = new InitialContext(properties);
     }
 
-    // TODO: Enable it once OPENEJB-583 gets fixed
-    //@Test
+    @Test
     public void testMethodWithDefaultInterceptorsExcluded() throws Exception {
         ThirdSLSBeanLocal bean = (ThirdSLSBeanLocal) initCtx.lookup("ThirdSLSBeanLocal");
 
@@ -59,8 +60,7 @@ public class ThirdSLSBeanTest {
         assert expected.equals(actual) : "Expected " + expected + ", but got " + actual;
     }
 
-    // TODO: Enable it once OPENEJB-583 gets fixed
-    //@Test
+    @Test
     public void testMethodWithDefaultAndClassInterceptorsExcluded() throws Exception {
         ThirdSLSBeanLocal bean = (ThirdSLSBeanLocal) initCtx.lookup("ThirdSLSBeanLocal");
 
