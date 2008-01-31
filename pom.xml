@@ -1,28 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Licensed to the Apache Software Foundation (ASF) under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The ASF licenses this file to You under the Apache License, Version 2.0
-    (the "License"); you may not use this file except in compliance with
-    the License.  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
-
-<!-- $Rev$ $Date$ -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -37,7 +13,7 @@
   <name>OpenEJB</name>
   <packaging>pom</packaging>
 
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0-beta-2</version>
 
   <description>
     Apache OpenEJB is an open source, modular, configurable and extendable EJB Container System and EJB Server.
@@ -89,11 +65,9 @@
   </ciManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/openejb3/</connection>
-    <developerConnection>
-      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/openejb3/
-    </developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/openejb/trunk/openejb3</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/openejb-3.0-beta-2</connection>
+    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/tags/openejb-3.0-beta-2</developerConnection>
+    <url>http://svn.apache.org/viewvc/incubator/openejb/tags/openejb-3.0-beta-2</url>
   </scm>
 
   <properties>
@@ -106,8 +80,17 @@
               as the maven-release-plugin will not update this value.
     <version>3.0-SNAPSHOT</version>
         -->
-    <derbyVersion>10.3.2.1</derbyVersion>
-    <xbeanVersion>3.3-SNAPSHOT</xbeanVersion>
+    <xbeanVersion>3.3</xbeanVersion>
+
+
+    <!-- OSGi bundles properties -->
+    <openejb.osgi.import.pkg>*</openejb.osgi.import.pkg>
+    <openejb.osgi.private.pkg>!*</openejb.osgi.private.pkg>
+    <openejb.osgi.export>${openejb.osgi.export.pkg}*;version=${openejb.osgi.export.version}</openejb.osgi.export>
+    <openejb.osgi.export.pkg>org.apache.openejb</openejb.osgi.export.pkg>
+    <openejb.osgi.export.version>${project.version}</openejb.osgi.export.version>
+    <openejb.osgi.import>${openejb.osgi.import.pkg}</openejb.osgi.import>
+    <openejb.osgi.symbolic.name>${groupId}.${artifactId}</openejb.osgi.symbolic.name>
   </properties>
 
   <build>
@@ -118,7 +101,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.4-SNAPSHOT</version>
+          <version>2.4</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -129,6 +112,25 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.swizzle</groupId>
+        <artifactId>dependency-report-plugin</artifactId>
+        <version>1.0.2</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <formats>
+            <format>txt</format>
+            <format>xml</format>
+          </formats>
         </configuration>
       </plugin>
       <plugin>
@@ -184,10 +186,46 @@
           <arguments>-Prelease</arguments>
         </configuration>
       </plugin>
+	  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-jar-plugin</artifactId>
+	    <version>2.1</version>
+	    <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+	    </configuration>
+      </plugin>
+	  <plugin>
+        <groupId>org.apache.felix</groupId>
+	    <artifactId>maven-bundle-plugin</artifactId>
+	    <version>1.2.0</version>
+	    <configuration>
+	      <instructions>
+	        <Bundle-Name>${artifactId}</Bundle-Name>
+	        <Bundle-SymbolicName>${openejb.osgi.symbolic.name}</Bundle-SymbolicName>
+	        <Export-Package>${openejb.osgi.export}</Export-Package>
+	        <Import-Package>${openejb.osgi.import}</Import-Package>
+	        <Private-Package>${openejb.osgi.private.pkg}</Private-Package>
+	        <Implementation-Title>Apache OpenEJB</Implementation-Title>
+	        <Implementation-Version>${project.version}</Implementation-Version>
+	      </instructions>
+	    </configuration>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
   <modules>
+    <module>deps</module>
     <module>itests</module>
     <module>container</module>
     <module>server</module>
@@ -416,9 +454,9 @@
         <version>2.2.3</version>
       </dependency>
       <dependency>
-        <groupId>cglib</groupId>
-        <artifactId>cglib-nodep</artifactId>
-        <version>2.1_3</version>
+        <groupId>commons-cli</groupId>
+        <artifactId>commons-cli</artifactId>
+        <version>1.1</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -474,6 +512,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -512,6 +554,10 @@
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -556,24 +602,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>${derbyVersion}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbyclient</artifactId>
-        <version>${derbyVersion}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbynet</artifactId>
-        <version>${derbyVersion}</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-connector</artifactId>
-        <version>2.1-SNAPSHOT</version>
+        <version>2.1</version>
         <exclusions>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -592,7 +623,7 @@
       <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-transaction</artifactId>
-        <version>2.0.2</version>
+        <version>2.1</version>
         <exclusions>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -624,98 +655,61 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-activation_1.1_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-annotation_1.0_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ejb_3.0_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-        <version>1.1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jacc_1.1_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jpa_3.0_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jta_1.1_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-saaj_1.1_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jms_1.1_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_2.5_spec</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-        <version>1.1.1</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-persistence-jdbc</artifactId>
+        <artifactId>openjpa</artifactId>
         <version>1.0.1</version>
         <exclusions>
           <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-jdbc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-jdbc-5</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-kernel</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-kernel-5</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-lib-5</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-lib</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-persistence</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-persistence-jdbc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-xmlstore</artifactId>
+          </exclusion>
+          <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_3.0_spec</artifactId>
           </exclusion>
           <exclusion>
             <groupId>javax.xml.bind</groupId>
@@ -727,11 +721,37 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <!--
+      Required for openjpa (their uber pom is messed)
+      -->
+      <dependency>
+        <groupId>net.sourceforge.serp</groupId>
+        <artifactId>serp</artifactId>
+        <version>1.13.1</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2</version>
+      </dependency>
+      <!--
+      end: Required for openjpa
+      -->
+
       <dependency>
         <groupId>com.sun.xml.bind</groupId>
         <artifactId>jaxb-impl</artifactId>
         <version>2.0.5</version>
         <exclusions>
+          <exclusion>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>javax.xml</groupId>
             <artifactId>jsr173</artifactId>
@@ -745,6 +765,11 @@
             <artifactId>jsr173_api</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-xjc</artifactId>
+        <version>2.0.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
@@ -773,9 +798,9 @@
         <version>1.0.1</version>
       </dependency>
       <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.3-SNAPSHOT</version>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>commons-dbcp-all</artifactId>
+        <version>1.3</version>
       </dependency>
       <dependency>
         <groupId>commons-collections</groupId>
@@ -789,88 +814,20 @@
         <version>1.4</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.apache.axis2</groupId>
-        <artifactId>axis2-jaxws-api</artifactId>
-        <version>1.3</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-saaj-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-dom</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>wstx-asl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
 
       <dependency>
           <groupId>wsdl4j</groupId>
           <artifactId>wsdl4j</artifactId>
           <version>1.6.1</version>
       </dependency>
-      <dependency>
-          <groupId>org.apache.axis2</groupId>
-          <artifactId>axis2-saaj-api</artifactId>
-          <version>1.3</version>
-          <exclusions>
-            <exclusion>
-              <groupId>javax.servlet</groupId>
-              <artifactId>servlet-api</artifactId>
-            </exclusion>
-          </exclusions>
-      </dependency>
+
       <dependency>
         <groupId>xmlunit</groupId>
         <artifactId>xmlunit</artifactId>
         <version>1.1</version>
         <scope>test</scope>
       </dependency>
+
     </dependencies>
   </dependencyManagement>
   <distributionManagement>

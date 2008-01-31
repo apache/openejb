@@ -14,35 +14,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.util;
+package org.apache.openejb.resource.jdbc;
 
-import junit.framework.TestCase;
+import org.apache.openejb.util.Join;
 
-import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @version $Rev$ $Date$
  */
-public class CaseInsensitivePropertiesTest extends TestCase {
+public class IsolationLevels {
 
-    public void test() throws Exception {
-        Properties p = new CaseInsensitiveProperties();
-
-        assertEquals(0, p.size());
-
-        p.setProperty("FoO", "true");
-
-        assertEquals(1, p.size());
-
-        p.setProperty("Foo", "false");
-
-        // should still be size 1
-        assertEquals(1, p.size());
-
-        assertEquals("false", p.getProperty("FoO"));
-        assertEquals("false", p.getProperty("Foo"));
-
-        assertTrue(p.containsKey("Foo"));
-
+    private static Map<String,Integer> isolation = new HashMap<String,Integer>();
+    static {
+        isolation.put("NONE", 0);
+        isolation.put("READ_COMMITTED", 2);
+        isolation.put("READ_UNCOMMITTED", 1);
+        isolation.put("REPEATABLE_READ", 4);
+        isolation.put("SERIALIZABLE", 8);
     }
+
+    public static int getIsolationLevel(String s) {
+        if (!isolation.containsKey(s)) throw new IllegalArgumentException("No such transaction isolation level '"+s+"'.  Possible values are "+Join.join(", ", isolation.keySet()));
+        int level = isolation.get(s);
+        return level;
+    }
+
+
 }

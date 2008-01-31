@@ -19,12 +19,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>container</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0-beta-2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openejb-jee</artifactId>
@@ -53,20 +52,13 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-activation_1.1_spec</artifactId>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>5.0-1</version>
     </dependency>
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-finder</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-stax-api_1.0_spec</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

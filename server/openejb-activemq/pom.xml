@@ -16,12 +16,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>server</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0-beta-2</version>
     </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openejb-activemq</artifactId>
@@ -34,16 +33,8 @@
       <version>${version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jms_1.1_spec</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

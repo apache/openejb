@@ -16,30 +16,19 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<openejb>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>openejb</artifactId>
+    <groupId>org.apache.openejb</groupId>
+    <version>3.0-beta-2</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>deps</artifactId>
+  <packaging>pom</packaging>
+  <name>OpenEJB :: Dependencies</name>
 
-  <Container id="Default CMP Container" ctype="CMP_ENTITY">
-    Engine         instantdb
-    ConnectorName  Default JDBC Database
-    JdbcDriver     org.enhydra.instantdb.jdbc.idbDriver
-    JdbcUrl        jdbc:idb:META-INF/instantdb.properties
-    UserName       Admin
-    Password       pass
-  </Container>
-
-  <Container id="Default BMP Container" ctype="BMP_ENTITY"/>
-
-  <Container id="Default Stateful Container" ctype="STATEFUL"/>
-
-  <Container id="Default Stateless Container" ctype="STATELESS"/>
-
-  <Connector id="Default JDBC Database">
-    JdbcDriver     org.enhydra.instantdb.jdbc.idbDriver
-    JdbcUrl        jdbc:idb:META-INF/instantdb.properties
-    UserName       Admin
-    Password       pass
-  </Connector>
-
-  <Deployments dir="."/>
-
-</openejb>
+  <modules>
+    <module>commons-dbcp-all</module>
+    <module>javaee-api</module>
+  </modules>
+</project>

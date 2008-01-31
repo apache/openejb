@@ -51,12 +51,15 @@
 
     CmpEngineFactory org.apache.openejb.core.cmp.jpa.JpaCmpEngineFactory
 
-    #Engine  derby
+    # Engine  derby
+    # @hidden
+
     Engine  instantdb
 
 
     # ConnectorName is he id of the Connector element which
     # should provide connectivity for this CMP Container
+    # @hidden
 
     ConnectorName  Default JDBC Database
   </ServiceProvider>
@@ -270,7 +273,7 @@
 
     # Url for creating connections
 
-    JdbcUrl jdbc:hsqldb:file:hsqldb
+    JdbcUrl jdbc:hsqldb:file:data/hsqldb/hsqldb
 
     # Default user name
 
@@ -298,7 +301,7 @@
     # If not set then the setReadOnly method will not be called.
     # (Some drivers don't support read only mode, ex: Informix)
 
-    # DefaultReadOnly
+    DefaultReadOnly
 
 
     # The default TransactionIsolation state of new connections
@@ -312,7 +315,7 @@
     #
     # Note: Most JDBC drivers do not support all isolation levels
 
-    # DefaultTransactionIsolation
+    DefaultTransactionIsolation
 
 
     # The initial number of connections that are created when the
@@ -350,7 +353,7 @@
     # this query MUST be an SQL SELECT statement that returns at
     # least one row.
 
-    # ValidationQuery
+    ValidationQuery
 
     # If true connections will be validated before being returned
     # from the pool. If the validation fails, the connection is
@@ -450,22 +453,18 @@
 
     # Driver class name
 
-    #JdbcDriver org.apache.derby.jdbc.EmbeddedDriver
     JdbcDriver org.hsqldb.jdbcDriver
 
     # Url for creating connections
 
-    #JdbcUrl jdbc:derby:derbyDB;create=true
-    JdbcUrl jdbc:hsqldb:file:hsqldb
+    JdbcUrl jdbc:hsqldb:file:data/hsqldb/hsqldb
 
     # Default user name
 
-    #UserName admin
     UserName sa
 
     # Default password
 
-    #Password pass
     Password
 
     # The connection properties that will be sent to the JDBC
@@ -486,7 +485,7 @@
     # If not set then the setReadOnly method will not be called.
     # (Some drivers don't support read only mode, ex: Informix)
 
-    # DefaultReadOnly
+    DefaultReadOnly
 
 
     # The default TransactionIsolation state of new connections
@@ -500,7 +499,7 @@
     #
     # Note: Most JDBC drivers do not support all isolation levels
 
-    # DefaultTransactionIsolation
+    DefaultTransactionIsolation
 
 
     # The initial number of connections that are created when the
@@ -538,7 +537,7 @@
     # this query MUST be an SQL SELECT statement that returns at
     # least one row.
 
-    # ValidationQuery
+    ValidationQuery
 
     # If true connections will be validated before being returned
     # from the pool. If the validation fails, the connection is
@@ -635,7 +634,7 @@
           id="Default JMS Resource Adapter"
           service="Resource"
           types="ActiveMQResourceAdapter"
-          class-name="org.apache.activemq.ra.ActiveMQResourceAdapter">
+          class-name="org.apache.openejb.resource.activemq.ActiveMQResourceAdapter">
 
     # Broker configuration
     BrokerXmlConfig broker:(tcp://localhost:61616)?useJmx=false
@@ -643,8 +642,8 @@
     # Broker address
     ServerUrl vm://localhost?async=true
 
-    # Specifies the size of the thread pool available to AciveMQ.
-    ThreadPoolSize 30
+    # DataSource for persistence messages
+    DataSource Default Unmanaged JDBC Database
 
   </ServiceProvider>
 
@@ -679,6 +678,9 @@
           types="javax.jms.Queue, Queue"
           constructor="destination"
           class-name="org.apache.activemq.command.ActiveMQQueue">
+
+    # Specifies the name of the queue
+
     destination
   </ServiceProvider>
 
@@ -688,6 +690,9 @@
           types="javax.jms.Topic, Topic"
           constructor="destination"
           class-name="org.apache.activemq.command.ActiveMQTopic">
+
+    # Specifies the name of the topic
+
     destination
   </ServiceProvider>
 

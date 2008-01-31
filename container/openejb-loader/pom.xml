@@ -19,27 +19,39 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>container</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0-beta-2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openejb-loader</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: Container :: Loader</name>
+  <properties>
+    <openejb.osgi.import.pkg>
+      org.apache.catalina*;resolution:=optional,
+      *
+    </openejb.osgi.import.pkg>
+  </properties>
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-servlet_2.5_spec</artifactId>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>5.0-1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
       <artifactId>catalina</artifactId>
       <version>6.0.13</version>
       <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>servlet-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

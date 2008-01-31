@@ -19,17 +19,24 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>server</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0-beta-2</version>
     </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openejb-client</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: Server :: Client</name>
+  <properties>
+    <openejb.osgi.import.pkg>
+      *
+    </openejb.osgi.import.pkg>
+    <openejb.osgi.require.bundle>
+      org.apache.openejb.openejb-core
+    </openejb.osgi.require.bundle>
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -59,32 +66,33 @@
           </excludes>
         </configuration>
       </plugin>
+	  <plugin>
+        <groupId>org.apache.felix</groupId>
+	    <artifactId>maven-bundle-plugin</artifactId>
+	    <configuration>
+	      <instructions>
+	        <Bundle-Name>${artifactId}</Bundle-Name>
+	        <Bundle-SymbolicName>${openejb.osgi.symbolic.name}</Bundle-SymbolicName>
+	        <Export-Package>${openejb.osgi.export}</Export-Package>
+	        <Import-Package>${openejb.osgi.import}</Import-Package>
+	        <Private-Package>${openejb.osgi.private.pkg}</Private-Package>
+	        <Implementation-Title>Apache OpenEJB</Implementation-Title>
+	        <Implementation-Version>${project.version}</Implementation-Version>
+            <Require-Bundle>${openejb.osgi.require.bundle}</Require-Bundle>
+	      </instructions>
+	    </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-ejb_3.0_spec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-      <optional>true</optional>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>5.0-1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.javamail</groupId>
       <artifactId>geronimo-javamail_1.4_mail</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>axis2-jaxws-api</artifactId>
-      <version>1.3</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
