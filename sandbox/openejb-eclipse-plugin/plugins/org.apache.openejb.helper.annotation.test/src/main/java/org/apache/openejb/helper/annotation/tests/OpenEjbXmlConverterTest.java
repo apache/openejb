@@ -17,6 +17,7 @@
  
 package org.apache.openejb.helper.annotation.tests;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -537,19 +538,30 @@ public class OpenEjbXmlConverterTest extends TestCase {
 		final IJavaProjectAnnotationFacade facade = context.mock(IJavaProjectAnnotationFacade.class);
 		OpenEjbXmlConverter converter = new OpenEjbXmlConverter(facade);
 
+		final Map<String,Object> expectedMap = new HashMap<String, Object>();
+		expectedMap.put("destination", "TestQueue");
+		expectedMap.put("destinationType", "javax.jms.Queue");
+		
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.MessageDrivenBean1", MessageDriven.class, createActivationConfigProperty("destinationType", "javax.jms.Queue"));
+			one(facade).addClassAnnotation("test.MessageDrivenBean1", MessageDriven.class, createActivationConfig(expectedMap, "Test"));
 		}
 
-		private Map<String, Object> createActivationConfigProperty(
-				String propertyName, String propertyValue) {
+		private Map<String, Object> createActivationConfig(Map<String,Object> inMap, String name) {
+			List<Map<String, Object>> configProperties = new ArrayList<Map<String, Object>>();
 
-			Map<String, Object> activationConfigProperty = createNameValuePair("propertyName", propertyName);
-			activationConfigProperty.put("propertyValue", propertyValue);
+			Iterator<String> iterator = inMap.keySet().iterator();
+			while (iterator.hasNext()) {
+				String propertyName = (String) iterator.next();
+				String propertyValue = inMap.get(propertyName).toString();
+				
+				Map<String, Object> activationConfigProperty = createNameValuePair("propertyName", propertyName);
+				activationConfigProperty.put("propertyValue", propertyValue);
+				configProperties.add(activationConfigProperty);
+			}
 			
-			Map<String, Object> props = createNameValuePair("activationConfig", new Object[] { activationConfigProperty });
-			
+			Map<String, Object> props = createNameValuePair("activationConfig", configProperties.toArray(new Object[0]));			
+			props.put("name", name);
 			return props;
 		}});
 

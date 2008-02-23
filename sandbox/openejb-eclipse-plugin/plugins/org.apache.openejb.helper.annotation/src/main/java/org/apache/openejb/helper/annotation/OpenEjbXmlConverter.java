@@ -42,6 +42,7 @@ import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.Interceptors;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
 import javax.persistence.Table;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -77,9 +78,13 @@ import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.TransactionType;
 import org.apache.openejb.jee.jpa.Attributes;
 import org.apache.openejb.jee.jpa.Basic;
+import org.apache.openejb.jee.jpa.CascadeType;
 import org.apache.openejb.jee.jpa.Column;
 import org.apache.openejb.jee.jpa.EntityMappings;
 import org.apache.openejb.jee.jpa.FetchType;
+import org.apache.openejb.jee.jpa.NamedQuery;
+import org.apache.openejb.jee.jpa.OneToMany;
+import org.apache.openejb.jee.jpa.QueryHint;
 import org.apache.openejb.jee.oejb2.JaxbOpenejbJar2;
 import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
@@ -192,8 +197,108 @@ public class OpenEjbXmlConverter {
 			
 				Attributes attributes = entity.getAttributes();
 				addBasicAnnotations(entityBean, attributes.getBasic());
+				addNamedQueriesAnnotations(entityBean, entity);
+				addRelationshipAnnotations(entityBean, entity);
 			}
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void addRelationshipAnnotations(EntityBean entityBean,
+			org.apache.openejb.jee.jpa.Entity entity) {
+
+		List<OneToMany> relationships = entity.getAttributes().getOneToMany();
+		for (OneToMany relationship : relationships) {
+			
+			
+			String targetEntity = relationship.getTargetEntity();
+			FetchType fetch = relationship.getFetch();
+			CascadeType cascade = relationship.getCascade();
+			String mappedBy = relationship.getMappedBy();
+			String name = relationship.getName();
+			
+			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+			
+			Map oneToManyProperties = new HashMap();
+			if (fetch != null) {
+				oneToManyProperties.put("fetch", fetch.value());
+			}
+			
+			if (mappedBy != null) {
+				oneToManyProperties.put("mappedBy", mappedBy);
+			}
+			
+			if (cascade != null) {
+				List cascadeList = new ArrayList();
+				if (cascade.isCascadeAll()) {
+					cascadeList.add(javax.persistence.CascadeType.ALL);
+				}
+				
+				if (cascade.isCascadeMerge()) {
+					cascadeList.add(javax.persistence.CascadeType.MERGE);
+				}
+				
+				if (cascade.isCascadePersist()) {
+					cascadeList.add(javax.persistence.CascadeType.PERSIST);
+				}
+				
+				if (cascade.isCascadeRefresh()) {
+					cascadeList.add(javax.persistence.CascadeType.REFRESH);
+				}
+				
+				if (cascade.isCascadeRemove()) {
+					cascadeList.add(javax.persistence.CascadeType.REMOVE);
+				}
+				
+				oneToManyProperties.put("cascade", cascadeList.toArray(new Object[0]));
+			}
+			
+			if (targetEntity != null && targetEntity.length() > 0) {
+				oneToManyProperties.put("targetEntity", targetEntity);
+			}
+		
+			annotationHelper.addMethodAnnotation(entityBean.getEjbClass(), nameGetter, new String[] {} , javax.persistence.OneToMany.class, oneToManyProperties);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void addNamedQueriesAnnotations(EntityBean entityBean,
+			org.apache.openejb.jee.jpa.Entity entity) {
+
+		
+		List<NamedQuery> namedQueries = entity.getNamedQuery();
+		List namedQueriesValues = new ArrayList();
+		
+		for (NamedQuery namedQuery : namedQueries) {
+			String name = namedQuery.getName();
+			String query = namedQuery.getQuery();
+			
+			List<QueryHint> hints = namedQuery.getHint();
+			
+			List hintProperties = new ArrayList();
+			
+			for (QueryHint hint : hints) {
+				String hintName = hint.getName();
+				String hintValue = hint.getValue();
+				
+				Map hintProperty = new HashMap();
+				hintProperty.put("name", hintName);
+				hintProperty.put("value", hintValue);
+				hintProperties.add(hintProperty);
+			}
+			
+			Map namedQueryProperties = new HashMap();
+			namedQueryProperties.put("name", name);
+			namedQueryProperties.put("query", query);
+			namedQueryProperties.put("hints", hintProperties.toArray(new Object[0]));
+			
+			namedQueriesValues.add(namedQueryProperties);
+		}
+		
+		Map namedQueriesProperties = new HashMap();
+		namedQueriesProperties.put("value", namedQueriesValues.toArray(new Object[0]));
+		
+		annotationHelper.addClassAnnotation(entityBean.getEjbClass(), NamedQueries.class, namedQueriesProperties);
 	}
 
 	private void addBasicAnnotations(EntityBean entityBean,	List<Basic> basicAttributes) {
@@ -410,19 +515,40 @@ public class OpenEjbXmlConverter {
 				
 				activationConfigPropertiesList.add(configProps);
 			}
+			
+			if (bean.getMessageDestinationLink() != null && bean.getMessageDestinationLink().length() > 0) {
+				if (! hasConfigProperty(activationConfigPropertiesList, "destination")) {
+					HashMap<String, Object> configProps = new HashMap<String, Object>();
+					configProps.put("propertyName", "destination");
+					configProps.put("propertyValue", bean.getMessageDestinationLink());
+					
+					activationConfigPropertiesList.add(configProps);
+				}
+			}
 
 			props.put("activationConfig", activationConfigPropertiesList.toArray(new HashMap[0]));
 		}
 		
+		props.put("name", bean.getEjbName());
 		annotationHelper.addClassAnnotation(bean.getEjbClass(), MessageDriven.class, props);
 	}
 
+
+	private boolean hasConfigProperty(List<Map<String, Object>> activationConfigPropertiesList, String propertyName) {
+		for (Map<String,Object> configProperty : activationConfigPropertiesList) {
+			if (configProperty.get("propertyName") != null && configProperty.get("propertyName").toString().equals(propertyName)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	public void processSessionBean(SessionBean sessionBean) {
 		String ejbClass = sessionBean.getEjbClass();
 		if (sessionBean instanceof StatelessBean || sessionBean.getSessionType() == SessionType.STATELESS) {
 			annotationHelper.addClassAnnotation(ejbClass, Stateless.class, null);
-		} else if (sessionBean instanceof StatefulBean || sessionBean.getSessionType() == SessionType.STATELESS) {
+		} else if (sessionBean instanceof StatefulBean || sessionBean.getSessionType() == SessionType.STATEFUL) {
 			annotationHelper.addClassAnnotation(ejbClass, Stateful.class, null);
 		} 
 		
