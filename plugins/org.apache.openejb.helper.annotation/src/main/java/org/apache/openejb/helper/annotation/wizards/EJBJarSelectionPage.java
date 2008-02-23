@@ -124,8 +124,14 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
 				
+				if (element == null) {
+					return false;
+				}
+				
 				if (element instanceof IFile) {
-					return ((IFile)element).getFileExtension().equals("xml");
+					IFile file = ((IFile)element);
+					String extension = file.getFileExtension();
+					return (extension != null && extension.equals("xml"));
 				}
 				
 				if (element instanceof IProject) {
