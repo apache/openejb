@@ -115,17 +115,17 @@ javax.naming.InitialContext
     private DeploymentInfo getDeployment(String id, javax.servlet.jsp.JspWriter out) {
         // due to crazy class loader stuff, we need to use reflection
         try {
-            Class<?> clazz = getClass().getClassLoader().getParent().getParent().loadClass("org.apache.openejb.loader.SystemInstance");
+            Class clazz = getClass().getClassLoader().getParent().getParent().loadClass("org.apache.openejb.loader.SystemInstance");
 //            out.print("clazz=" + clazz + "<br><br>");
 //            out.print("resource=" + clazz.getClassLoader().getResource("") + "<br><br>");
 
-            Method getMethod = clazz.getMethod("get");
+            Method getMethod = clazz.getMethod("get", new Class[0]);
 //            out.print("getMethod=" + getMethod + "<br><br>");
 
-            Object systemInstance = getMethod.invoke(null);
+            Object systemInstance = getMethod.invoke(null, new Object[0]);
 //            out.print("systemInstance=" + systemInstance + "<br><br>");
 
-            Method getComponentMethod = clazz.getMethod("getComponent", Class.class);
+            Method getComponentMethod = clazz.getMethod("getComponent", new Class[]{Class.class});
 //            out.print("getComponentMethod=" + getComponentMethod + "<br><br>");
 
 //            Field field = clazz.getDeclaredField("components");
@@ -133,7 +133,7 @@ javax.naming.InitialContext
 //            Object components = field.get(systemInstance);
 //            out.print("components=" + components + "<br><br>");
 
-            ContainerSystem containerSystem = (ContainerSystem) getComponentMethod.invoke(systemInstance, ContainerSystem.class);
+            ContainerSystem containerSystem = (ContainerSystem) getComponentMethod.invoke(systemInstance, new Object[]{ContainerSystem.class});
 //            out.print("containerSystem=" + containerSystem + "<br><br>");
             if (containerSystem == null) {
                 return null;
@@ -159,22 +159,17 @@ javax.naming.InitialContext
         }
         String type = null;
 
-        switch (ejb.getComponentType()) {
-            case CMP_ENTITY:
-                type = "EntityBean with Container-Managed Persistence";
-                break;
-            case BMP_ENTITY:
-                type = "EntityBean with Bean-Managed Persistence";
-                break;
-            case STATEFUL:
-                type = "Stateful SessionBean";
-                break;
-            case STATELESS:
-                type = "Stateless SessionBean";
-                break;
-            default:
-                type = "Unkown Bean Type";
-                break;
+        BeanType beanType = ejb.getComponentType();
+        if (beanType == BeanType.CMP_ENTITY) {
+            type = "EntityBean with Container-Managed Persistence";
+        } else if (beanType == BeanType.BMP_ENTITY) {
+            type = "EntityBean with Bean-Managed Persistence";
+        } else if (beanType == BeanType.STATEFUL) {
+            type = "Stateful SessionBean";
+        } else if (beanType == BeanType.STATELESS) {
+            type = "Stateless SessionBean";
+        } else {
+            type = "Unkown Bean Type";
         }
         out.print("<b>" + type + "</b><br>");
         out.print("<table>");
@@ -193,9 +188,9 @@ javax.naming.InitialContext
         // Browse JNDI with this ejb
         //javax.servlet.http.HttpSession session = this.session;
         //noinspection unchecked
-        Map<String, Object> objects = (Map<String, Object>) session.getAttribute("objects");
+        Map objects = (Map) session.getAttribute("objects");
         if (objects == null) {
-            objects = new HashMap<String, Object>();
+            objects = new HashMap();
             session.setAttribute("objects", objects);
         }
 

@@ -273,11 +273,11 @@ This is the private namespace of an Enterprise JavaBean.
     }
 
     private Object getDeploymentId(Object ejb) throws Exception {
-        Class<?> proxyManagerClass = Class.forName("org.apache.openejb.util.proxy.ProxyManager");
-        Method getInvocationHandlerMethod = proxyManagerClass.getMethod("getInvocationHandler", Object.class);
-        Object handler = getInvocationHandlerMethod.invoke(null, ejb);
+        Class proxyManagerClass = Class.forName("org.apache.openejb.util.proxy.ProxyManager");
+        Method getInvocationHandlerMethod = proxyManagerClass.getMethod("getInvocationHandler", new Class[]{Object.class});
+        Object handler = getInvocationHandlerMethod.invoke(null, new Object[]{ejb});
 
-        Class<?> baseEjbProxyHandler = Class.forName("org.apache.openejb.core.ivm.BaseEjbProxyHandler");
+        Class baseEjbProxyHandler = Class.forName("org.apache.openejb.core.ivm.BaseEjbProxyHandler");
         Field field = baseEjbProxyHandler.getField("deploymentID");
         Object deploymentID = field.get(handler);
         return deploymentID;

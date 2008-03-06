@@ -22,11 +22,14 @@ import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
 import org.apache.catalina.Lifecycle;
+import org.apache.catalina.ContainerListener;
+import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.core.ContainerBase;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.core.StandardServer;
+import org.apache.openejb.tomcat.common.TomcatVersion;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -34,7 +37,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GlobalListenerSupport implements PropertyChangeListener, LifecycleListener {
+public class GlobalListenerSupport implements PropertyChangeListener, LifecycleListener, ContainerListener {
     private final StandardServer standardServer;
     private final ContextListener contextListener;
 
@@ -50,9 +53,7 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         if (source instanceof StandardContext) {
             StandardContext standardContext = (StandardContext) source;
             String type = event.getType();
-            if (Lifecycle.INIT_EVENT.equals(type)) {
-                contextListener.init(standardContext);
-            } else if (Lifecycle.BEFORE_START_EVENT.equals(type)) {
+            if (Lifecycle.BEFORE_START_EVENT.equals(type)) {
                 contextListener.beforeStart(standardContext);
             } else if (Lifecycle.START_EVENT.equals(type)) {
                 contextListener.start(standardContext);
@@ -64,13 +65,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
                 contextListener.stop(standardContext);
             } else if (Lifecycle.AFTER_STOP_EVENT.equals(type)) {
                 contextListener.afterStop(standardContext);
-            } else if (Lifecycle.DESTROY_EVENT.equals(type)) {
-                contextListener.destroy(standardContext);
             }
         } else if (source instanceof StandardHost) {
             StandardHost standardHost = (StandardHost) source;
             String type = event.getType();
-            if (Lifecycle.PERIODIC_EVENT.equals(type)) {
+            if ("periodic".equals(type)) {
                 contextListener.checkHost(standardHost);
             }
         } else if (source instanceof StandardServer) {
@@ -78,6 +77,17 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
             String type = event.getType();
             if (Lifecycle.AFTER_STOP_EVENT.equals(type)) {
                 contextListener.afterStop(standardServer);
+            }
+        }
+    }
+
+    public void containerEvent(ContainerEvent event) {
+        Object source = event.getSource();
+        if (source instanceof StandardHost) {
+            String type = event.getType();
+            if ("pre-install".equals(type)) {
+                Object newValue = event.getData();
+                contextAdded((StandardContext) newValue);
             }
         }
     }
@@ -131,7 +141,14 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
     }
 
     private void hostAdded(StandardHost host) {
-        addContextListener(host);
+        if (TomcatVersion.v50.isTheVersion()) {
+            // Tomcat5 fires events throught the container listener interface
+            host.addContainerListener(this);
+        } else {
+            // Tomcat6 doen't actually fire a before start event, so we need to
+            // hook the map
+            addContextListener(host);
+        }
         host.addLifecycleListener(this);
         for (Container child : host.findChildren()) {
             if (child instanceof StandardContext) {

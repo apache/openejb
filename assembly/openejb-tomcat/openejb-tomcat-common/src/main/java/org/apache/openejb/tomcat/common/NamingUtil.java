@@ -18,6 +18,7 @@
 package org.apache.openejb.tomcat.common;
 
 import org.apache.naming.EjbRef;
+import org.apache.catalina.deploy.NamingResources;
 
 import javax.naming.RefAddr;
 import javax.naming.Reference;
@@ -61,7 +62,7 @@ public class NamingUtil {
         return Boolean.parseBoolean("" + value);
     }
 
-    public static void setStaticValue(Resource resource, Object value) {
+    public static void setStaticValue(NamingResources naming, Resource resource, Object value) {
         setStaticValue(resource, null, value);
     }
 
@@ -110,7 +111,7 @@ public class NamingUtil {
      * is not available in the common classloader in tomcat 55
      */
     public interface Resource {
-        void setProperty(String name, Object value);
+        void setProperty(String name, String value);
     }
 
 }

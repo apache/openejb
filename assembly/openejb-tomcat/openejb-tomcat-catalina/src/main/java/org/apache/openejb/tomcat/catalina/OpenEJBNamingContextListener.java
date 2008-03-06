@@ -25,7 +25,6 @@ import org.apache.catalina.deploy.ContextEjb;
 import org.apache.catalina.deploy.ContextEnvironment;
 import org.apache.catalina.deploy.ContextLocalEjb;
 import org.apache.catalina.deploy.ContextResource;
-import org.apache.catalina.deploy.ContextResourceEnvRef;
 import org.apache.catalina.deploy.ContextResourceLink;
 import org.apache.catalina.deploy.NamingResources;
 import org.apache.openejb.OpenEJBException;
@@ -33,6 +32,7 @@ import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ResourceInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.tomcat.catalina.BackportUtil.ContextResourceEnvRef;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 
@@ -40,6 +40,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 public class OpenEJBNamingContextListener implements LifecycleListener, PropertyChangeListener {
@@ -219,7 +220,7 @@ public class OpenEJBNamingContextListener implements LifecycleListener, Property
         }
 
         // Resources Env
-        ContextResourceEnvRef[] resourceEnvRefs = namingResources.findResourceEnvRefs();
+        List<ContextResourceEnvRef> resourceEnvRefs = BackportUtil.findResourceEnvRefs(namingResources);
         for (ContextResourceEnvRef resourceEnvRef : resourceEnvRefs) {
             addResourceEnvRef(resourceEnvRef);
         }

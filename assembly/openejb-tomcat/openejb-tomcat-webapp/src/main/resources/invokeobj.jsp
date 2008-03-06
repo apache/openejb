@@ -193,7 +193,7 @@ java.util.Set
      */
     public void printObjectList() throws Exception {
 
-        Map<String, Object> objects = getObjectMap();
+        Map objects = getObjectMap();
         if (objects.size() == 0) {
             out.print("<b>No object have been created</b><br>");
             out.print("<table>");
@@ -578,11 +578,10 @@ java.util.Set
         getObjectMap().remove(objID);
     }
 
-    @SuppressWarnings({"unchecked"})
-    public Map<String, Object> getObjectMap() {
-        Map<String, Object> objects = (Map<String, Object>) session.getAttribute("objects");
+    public Map getObjectMap() {
+        Map objects = (Map) session.getAttribute("objects");
         if (objects == null) {
-            objects = new HashMap<String, Object>();
+            objects = new HashMap();
             session.setAttribute("objects", objects);
         }
         return objects;
@@ -592,18 +591,17 @@ java.util.Set
     // Invocation list support
     /*-----------------------------------------------------------*/
     public Invocation getInvocation(String invID) {
-        return getInvocationMap().get(invID);
+        return (Invocation) getInvocationMap().get(invID);
     }
 
     public void setInvocation(String invID, Invocation obj) {
         getInvocationMap().put(invID, obj);
     }
 
-    @SuppressWarnings({"unchecked"})
-    public Map<String, Invocation> getInvocationMap() {
-        Map<String, Invocation> invocations = (Map<String, Invocation>) session.getAttribute("invocations");
+    public Map getInvocationMap() {
+        Map invocations = (Map) session.getAttribute("invocations");
         if (invocations == null) {
-            invocations = new HashMap<String, Invocation>();
+            invocations = new HashMap();
             session.setAttribute("invocations", invocations);
         }
         return invocations;
@@ -612,10 +610,10 @@ java.util.Set
     /*-----------------------------------------------------------*/
     // String conversion support
     /*-----------------------------------------------------------*/
-    final Map<Class, Converter> converters = initConverters();
+    final Map converters = initConverters();
 
     public Converter getConverter(Class type) {
-        Converter con = converters.get(type);
+        Converter con = (Converter) converters.get(type);
         if (con == null) {
             con = defaultConverter;
         }
@@ -624,8 +622,8 @@ java.util.Set
 
     final Converter defaultConverter = new ObjectConverter();
 
-    private Map<Class, Converter> initConverters() {
-        Map<Class, Converter> map = new HashMap<Class, Converter>();
+    private Map initConverters() {
+        Map map = new HashMap();
 
         map.put(String.class, new StringConverter());
         map.put(Character.class, new CharacterConverter());

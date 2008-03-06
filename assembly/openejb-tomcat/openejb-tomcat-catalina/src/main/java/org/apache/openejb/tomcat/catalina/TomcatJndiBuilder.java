@@ -22,7 +22,6 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.deploy.ContextEjb;
 import org.apache.catalina.deploy.ContextEnvironment;
 import org.apache.catalina.deploy.ContextResource;
-import org.apache.catalina.deploy.ContextResourceEnvRef;
 import org.apache.catalina.deploy.ContextTransaction;
 import org.apache.catalina.deploy.NamingResources;
 import org.apache.naming.ContextAccessController;
@@ -46,6 +45,7 @@ import org.apache.openejb.core.webservices.PortRefData;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.persistence.JtaEntityManager;
 import org.apache.openejb.persistence.JtaEntityManagerRegistry;
+import org.apache.openejb.tomcat.catalina.BackportUtil.ContextResourceEnvRef;
 import static org.apache.openejb.tomcat.common.NamingUtil.DEPLOYMENT_ID;
 import static org.apache.openejb.tomcat.common.NamingUtil.EXTENDED;
 import static org.apache.openejb.tomcat.common.NamingUtil.EXTERNAL;
@@ -68,6 +68,8 @@ import org.apache.openejb.tomcat.common.PersistenceUnitFactory;
 import org.apache.openejb.tomcat.common.PersistenceContextFactory;
 import org.apache.openejb.tomcat.common.UserTransactionFactory;
 import org.apache.openejb.tomcat.common.NamingUtil;
+import org.apache.openejb.tomcat.common.TomcatVersion;
+import static org.apache.openejb.tomcat.catalina.BackportUtil.setRefProperty;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -142,9 +144,11 @@ public class TomcatJndiBuilder {
         for (ServiceReferenceInfo ref : webAppInfo.jndiEnc.serviceRefs) {
             mergeRef(naming, ref);
         }
-        ContextTransaction contextTransaction = new ContextTransaction();
-        contextTransaction.setProperty(Constants.FACTORY, UserTransactionFactory.class.getName());
-        naming.setTransaction(contextTransaction);
+        if (TomcatVersion.v6.isTheVersion() || TomcatVersion.v55.isTheVersion()) {
+            ContextTransaction contextTransaction = new ContextTransaction();
+            contextTransaction.setProperty(Constants.FACTORY, UserTransactionFactory.class.getName());
+            naming.setTransaction(contextTransaction);
+        }
     }
 
     public void mergeRef(NamingResources naming, EnvEntryInfo ref) {
@@ -180,23 +184,23 @@ public class TomcatJndiBuilder {
             addEntry = true;
         }
 
-        ejb.setProperty(Constants.FACTORY, EjbFactory.class.getName());
-        ejb.setProperty(NAME, ref.referenceName);
+        setRefProperty(ejb, ref.referenceName, naming, Constants.FACTORY, EjbFactory.class.getName());
+        setRefProperty(ejb, ref.referenceName, naming, NAME, ref.referenceName);
         ejb.setHome(ref.homeType);
         ejb.setRemote(ref.interfaceType);
         ejb.setLink(null);
         ejb.setType(ref.interfaceType);
         if (useCrossClassLoaderRef) {
-            ejb.setProperty(EXTERNAL, "" + ref.externalReference);
+            setRefProperty(ejb, ref.referenceName, naming, EXTERNAL, "" + ref.externalReference);
         }
 
         if (ref.ejbDeploymentId != null) {
-            ejb.setProperty(DEPLOYMENT_ID, ref.ejbDeploymentId);
+            setRefProperty(ejb, ref.referenceName, naming, DEPLOYMENT_ID, ref.ejbDeploymentId);
         }
 
         if (ref.location != null) {
-            ejb.setProperty(JNDI_NAME, ref.location.jndiName);
-            ejb.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+            setRefProperty(ejb, ref.referenceName, naming, JNDI_NAME, ref.location.jndiName);
+            setRefProperty(ejb, ref.referenceName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
         }
 
         if (addEntry) {
@@ -221,21 +225,21 @@ public class TomcatJndiBuilder {
             addEntry = true;
         }
 
-        ejb.setProperty(Constants.FACTORY, EjbFactory.class.getName());
-        ejb.setProperty(NAME, ref.referenceName);
+        setRefProperty(ejb, ref.referenceName, naming, Constants.FACTORY, EjbFactory.class.getName());
+        setRefProperty(ejb, ref.referenceName, naming, NAME, ref.referenceName);
         ejb.setHome(ref.homeType);
         ejb.setRemote(null);
-        ejb.setProperty(LOCAL, ref.interfaceType);
+        setRefProperty(ejb, ref.referenceName, naming, LOCAL, ref.interfaceType);
         ejb.setLink(null);
         ejb.setType(ref.interfaceType);
 
         if (ref.ejbDeploymentId != null) {
-            ejb.setProperty(DEPLOYMENT_ID, ref.ejbDeploymentId);
+            setRefProperty(ejb, ref.referenceName, naming, DEPLOYMENT_ID, ref.ejbDeploymentId);
         }
 
         if (ref.location != null) {
-            ejb.setProperty(JNDI_NAME, ref.location.jndiName);
-            ejb.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+            setRefProperty(ejb, ref.referenceName, naming, JNDI_NAME, ref.location.jndiName);
+            setRefProperty(ejb, ref.referenceName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
         }
 
         if (addEntry) {
@@ -260,21 +264,21 @@ public class TomcatJndiBuilder {
             addEntry = true;
         }
 
-        resource.setProperty(Constants.FACTORY, PersistenceContextFactory.class.getName());
-        resource.setProperty(NAME, ref.referenceName);
+        setRefProperty(resource, ref.referenceName, naming, Constants.FACTORY, PersistenceContextFactory.class.getName());
+        setRefProperty(resource, ref.referenceName, naming, NAME, ref.referenceName);
         resource.setType(EntityManager.class.getName());
 
         if (ref.persistenceUnitName != null) {
-            resource.setProperty(UNIT, ref.persistenceUnitName);
+            setRefProperty(resource, ref.referenceName, naming, UNIT, ref.persistenceUnitName);
         }
-        resource.setProperty(EXTENDED, "" + ref.extended);
+        setRefProperty(resource, ref.referenceName, naming, EXTENDED, "" + ref.extended);
         if (ref.properties != null) {
             // resource.setProperty(NamingConstants.PROPERTIES, ref.properties);
         }
 
         if (ref.location != null) {
-            resource.setProperty(JNDI_NAME, ref.location.jndiName);
-            resource.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_NAME, ref.location.jndiName);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
         } else {
             Context context = SystemInstance.get().getComponent(ContainerSystem.class).getJNDIContext();
             EntityManagerFactory factory;
@@ -287,7 +291,7 @@ public class TomcatJndiBuilder {
             JtaEntityManagerRegistry jtaEntityManagerRegistry = SystemInstance.get().getComponent(JtaEntityManagerRegistry.class);
             JtaEntityManager jtaEntityManager = new JtaEntityManager(jtaEntityManagerRegistry, factory, ref.properties, ref.extended);
             Object object = jtaEntityManager;
-            setResource(resource, object);
+            setResource(naming, resource, object);
         }
 
         if (addEntry) {
@@ -312,17 +316,17 @@ public class TomcatJndiBuilder {
             addEntry = true;
         }
 
-        resource.setProperty(Constants.FACTORY, PersistenceUnitFactory.class.getName());
-        resource.setProperty(NAME, ref.referenceName);
+        setRefProperty(resource, ref.referenceName, naming, Constants.FACTORY, PersistenceUnitFactory.class.getName());
+        setRefProperty(resource, ref.referenceName, naming, NAME, ref.referenceName);
         resource.setType(EntityManagerFactory.class.getName());
 
         if (ref.persistenceUnitName != null) {
-            resource.setProperty(UNIT, ref.persistenceUnitName);
+            setRefProperty(resource, ref.referenceName, naming, UNIT, ref.persistenceUnitName);
         }
 
         if (ref.location != null) {
-            resource.setProperty(JNDI_NAME, ref.location.jndiName);
-            resource.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_NAME, ref.location.jndiName);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
         } else {
             // TODO: This will not work if webapps don't use AutoConfi
             Context context = SystemInstance.get().getComponent(ContainerSystem.class).getJNDIContext();
@@ -332,7 +336,7 @@ public class TomcatJndiBuilder {
             } catch (NamingException e) {
                 throw new IllegalStateException("PersistenceUnit '" + ref.unitId + "' not found for EXTENDED ref '" + ref.referenceName + "'");
             }
-            setResource(resource, factory);
+            setResource(naming, resource, factory);
         }
 
         if (addEntry) {
@@ -356,13 +360,13 @@ public class TomcatJndiBuilder {
             addEntry = true;
         }
 
-        resource.setProperty(Constants.FACTORY, ResourceFactory.class.getName());
-        resource.setProperty(NAME, ref.referenceName);
+        setRefProperty(resource, ref.referenceName, naming, Constants.FACTORY, ResourceFactory.class.getName());
+        setRefProperty(resource, ref.referenceName, naming, NAME, ref.referenceName);
         resource.setType(ref.referenceType);
         resource.setAuth(ref.referenceAuth);
 
         if (ref.resourceID != null) {
-            resource.setProperty(RESOURCE_ID, ref.resourceID);
+            setRefProperty(resource, ref.referenceName, naming, RESOURCE_ID, ref.resourceID);
         }
 
         if (ref.properties != null) {
@@ -370,8 +374,8 @@ public class TomcatJndiBuilder {
         }
 
         if (ref.location != null) {
-            resource.setProperty(JNDI_NAME, ref.location.jndiName);
-            resource.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_NAME, ref.location.jndiName);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
         }
 
         if (addEntry) {
@@ -387,40 +391,35 @@ public class TomcatJndiBuilder {
     }
 
     public void mergeRef(NamingResources naming, ResourceEnvReferenceInfo ref) {
-        ContextResourceEnvRef resourceEnv = naming.findResourceEnvRef(ref.resourceEnvRefName);
+        ContextResourceEnvRef resourceEnv = BackportUtil.findResourceEnvRef(naming,  ref.resourceEnvRefName);
         boolean addEntry = false;
         if (resourceEnv == null) {
-            resourceEnv = new ContextResourceEnvRef();
-            resourceEnv.setName(ref.resourceEnvRefName);
-            addEntry = true;
+            resourceEnv = BackportUtil.createResourceEnvRef(ref.resourceEnvRefName, ref.resourceEnvRefType);
         }
 
         if (UserTransaction.class.getName().equals(ref.resourceEnvRefType)) {
-            resourceEnv.setProperty(Constants.FACTORY, UserTransactionFactory.class.getName());
+            setRefProperty(resourceEnv, ref.resourceEnvRefName, naming, Constants.FACTORY, UserTransactionFactory.class.getName());
         } else {
-            resourceEnv.setProperty(Constants.FACTORY, ResourceFactory.class.getName());
-            resourceEnv.setProperty(NAME, ref.resourceEnvRefName);
+            setRefProperty(resourceEnv, ref.resourceEnvRefName, naming, Constants.FACTORY, ResourceFactory.class.getName());
+            setRefProperty(resourceEnv, ref.resourceEnvRefName, naming, NAME, ref.resourceEnvRefName);
             resourceEnv.setType(ref.resourceEnvRefType);
 
             if (ref.resourceID != null) {
-                resourceEnv.setProperty(RESOURCE_ID, ref.resourceID);
+                setRefProperty(resourceEnv, ref.resourceEnvRefName, naming, RESOURCE_ID, ref.resourceID);
             }
 
             if (ref.location != null) {
-                resourceEnv.setProperty(JNDI_NAME, ref.location.jndiName);
-                resourceEnv.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+                setRefProperty(resourceEnv, ref.resourceEnvRefName, naming, JNDI_NAME, ref.location.jndiName);
+                setRefProperty(resourceEnv, ref.resourceEnvRefName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
             }
         }
 
         if (addEntry) {
-            naming.addResourceEnvRef(resourceEnv);
+            BackportUtil.addResourceEnvRef(naming, resourceEnv);
         }
 
         if (replaceEntry) {
-            ContextAccessController.setWritable(namingContextListener.getName(), standardContext);
-            if (!addEntry) namingContextListener.removeResourceEnvRef(resourceEnv.getName());
-            namingContextListener.addResourceEnvRef(resourceEnv);
-            ContextAccessController.setReadOnly(namingContextListener.getName());
+            BackportUtil.replaceResourceEnvRefInListener(namingContextListener, standardContext, addEntry, resourceEnv);
         }
     }
 
@@ -433,8 +432,8 @@ public class TomcatJndiBuilder {
             addEntry = true;
         }
 
-        resource.setProperty(Constants.FACTORY, WsFactory.class.getName());
-        resource.setProperty(NAME, ref.referenceName);
+        setRefProperty(resource, ref.referenceName, naming, Constants.FACTORY, WsFactory.class.getName());
+        setRefProperty(resource, ref.referenceName, naming, NAME, ref.referenceName);
         if (ref.referenceType != null) {
             resource.setType(ref.referenceType);
         } else {
@@ -442,29 +441,29 @@ public class TomcatJndiBuilder {
         }
 
         if (ref.location != null) {
-            resource.setProperty(JNDI_NAME, ref.location.jndiName);
-            resource.setProperty(JNDI_PROVIDER_ID, ref.location.jndiProviderId);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_NAME, ref.location.jndiName);
+            setRefProperty(resource, ref.referenceName, naming, JNDI_PROVIDER_ID, ref.location.jndiProviderId);
         } else {
             // ID
             if (ref.id != null) {
-                resource.setProperty(WS_ID, ref.id);
+                setRefProperty(resource, ref.referenceName, naming, WS_ID, ref.id);
             }
             // Service QName
             if (ref.serviceQName != null) {
-                resource.setProperty(WS_QNAME, ref.serviceQName.toString());
+                setRefProperty(resource, ref.referenceName, naming, WS_QNAME, ref.serviceQName.toString());
             }
             // Service Class
-            resource.setProperty(WS_CLASS, ref.serviceType);
+            setRefProperty(resource, ref.referenceName, naming, WS_CLASS, ref.serviceType);
 
             // Port QName
             if (ref.portQName != null) {
-                resource.setProperty(WS_PORT_QNAME, ref.portQName.toString());
+                setRefProperty(resource, ref.referenceName, naming, WS_PORT_QNAME, ref.portQName.toString());
             }
 
             // add the wsdl url
             URL wsdlURL = getWsdlUrl(ref);
             if (wsdlURL != null) {
-                resource.setProperty(WSDL_URL, wsdlURL.toString());
+                setRefProperty(resource, ref.referenceName, naming, WSDL_URL, wsdlURL.toString());
             }
 
             // add port refs
@@ -478,15 +477,15 @@ public class TomcatJndiBuilder {
                     portRef.getProperties().putAll(portRefInfo.properties);
                     portRefs.add(portRef);
                 }
-                setResource(resource, "port-refs", portRefs);
+                setResource(naming, resource, "port-refs", portRefs);
             }
 
             // add the handle chains
             if (!ref.handlerChains.isEmpty()) {
                 try {
                     List<HandlerChainData> handlerChains = WsBuilder.toHandlerChainData(ref.handlerChains, standardContext.getLoader().getClassLoader());
-                    setResource(resource, "handler-chains", handlerChains);
-                    setResource(resource, "injections", injections);
+                    setResource(naming, resource, "handler-chains", handlerChains);
+                    setResource(naming, resource, "injections", injections);
                 } catch (OpenEJBException e) {
                     throw new IllegalArgumentException("Error creating handler chain for web service-ref " + ref.referenceName);
                 }
@@ -542,23 +541,25 @@ public class TomcatJndiBuilder {
         return wsdlUrl;
     }
 
-    private void setResource(ContextResource resource, String name, Object object) {
-        setStaticValue(new Resource(resource), name, object);
+    private void setResource(NamingResources naming, ContextResource resource, String name, Object object) {
+        setStaticValue(new Resource(naming, resource), name, object);
     }
 
-    private void setResource(ContextResource resource, Object object) {
-        setStaticValue(new Resource(resource), object);
+    private void setResource(NamingResources naming, ContextResource resource, Object object) {
+        setStaticValue(naming, new Resource(naming, resource), object);
     }
 
     private static class Resource implements NamingUtil.Resource {
+        private final NamingResources namingResources;
         private final ContextResource contextResource;
 
-        public Resource(ContextResource contextResource) {
+        private Resource(NamingResources namingResources, ContextResource contextResource) {
+            this.namingResources = namingResources;
             this.contextResource = contextResource;
         }
 
-        public void setProperty(String name, Object value) {
-            contextResource.setProperty(name, value);
+        public void setProperty(String name, String value) {
+            setRefProperty(contextResource, contextResource.getName(), namingResources, name, value);
         }
     }
 }

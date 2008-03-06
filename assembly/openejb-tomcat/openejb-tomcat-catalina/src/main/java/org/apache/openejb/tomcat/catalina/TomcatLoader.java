@@ -32,6 +32,7 @@ import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.tomcat.installer.Installer;
 import org.apache.openejb.tomcat.installer.Paths;
+import org.apache.openejb.tomcat.common.TomcatVersion;
 import org.apache.openejb.assembler.classic.WebAppBuilder;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.core.ThreadContext;
@@ -142,6 +143,15 @@ public class TomcatLoader implements Loader {
             try {
                 ServerService serverService = (ServerService) Class.forName("org.apache.openejb.server.cxf.CxfService").newInstance();
                 serverService.start();
+            } catch (NoSuchMethodError e) {
+                Logger logger = Logger.getInstance(LogCategory.OPENEJB_STARTUP, getClass());
+                if (TomcatVersion.v50.isTheVersion()) {
+                    logger.warning("Webservices are disabled because Tomcat 5.0 includes an out dated XML parser.  " +
+                            "To enable webservices, simply delete 'common/endorsed/xercesImpl.jar' and " +
+                            "'common/endorsed/xml-apis.jar' in the Tomcat 5.0 installation directory");
+                } else {
+                    logger.warning("Webservices failed to start", e);
+                }
             } catch (ClassNotFoundException ignored) {
             } catch (Exception e) {
                 Logger logger = Logger.getInstance(LogCategory.OPENEJB_STARTUP, getClass());
@@ -205,16 +215,12 @@ public class TomcatLoader implements Loader {
                             if (hostChild instanceof StandardContext) {
                                 StandardContext standardContext = (StandardContext) hostChild;
                                 int state = standardContext.getState();
-                                if (state == 0) {
-                                    // context only initialized
-                                    tomcatWebAppBuilder.init(standardContext);
-                                } else if (state == 1) {
+                                if (state == 1) {
                                     // context already started
                                     standardContext.addParameter("openejb.start.late", "true");
                                     ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
                                     Thread.currentThread().setContextClassLoader(standardContext.getLoader().getClassLoader());
                                     try {
-                                        tomcatWebAppBuilder.init(standardContext);
                                         tomcatWebAppBuilder.beforeStart(standardContext);
                                         tomcatWebAppBuilder.start(standardContext);
                                         tomcatWebAppBuilder.afterStart(standardContext);

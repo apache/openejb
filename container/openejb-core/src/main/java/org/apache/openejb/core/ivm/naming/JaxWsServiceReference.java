@@ -159,6 +159,9 @@ public class JaxWsServiceReference extends Reference {
     private PortAddressRegistry getPortAddressRegistry() {
         if (portAddressRegistry == null) {
             portAddressRegistry = SystemInstance.get().getComponent(PortAddressRegistry.class);
+            if (portAddressRegistry == null) {
+                throw new IllegalStateException("Webservices have not been started");
+            }
         }
         return portAddressRegistry;
     }

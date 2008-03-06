@@ -187,7 +187,7 @@ java.util.Properties
                 Class[] params = new Class[0];
                 Method create = null;
                 create = homeInterface.getDeclaredMethod("create", params);
-                ejbObject = create.invoke(ejbHome);
+                ejbObject = create.invoke(ejbHome, new Object[0]);
 
                 if (ejbObject instanceof java.rmi.Remote) out.println(OK);
 
@@ -219,8 +219,8 @@ java.util.Properties
 
             Object returnValue = null;
             try {
-                Method businessMethod = remoteInterface.getDeclaredMethod("getMBeanCount");
-                returnValue = businessMethod.invoke(ejbObject);
+                Method businessMethod = remoteInterface.getDeclaredMethod("getMBeanCount", new Class[0]);
+                returnValue = businessMethod.invoke(ejbObject, new Object[0]);
 
                 if (returnValue instanceof java.lang.Integer) out.println(OK);
 

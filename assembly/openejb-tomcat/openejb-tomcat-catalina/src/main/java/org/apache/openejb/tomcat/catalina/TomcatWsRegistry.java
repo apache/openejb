@@ -31,7 +31,6 @@ import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.authenticator.DigestAuthenticator;
 import org.apache.catalina.authenticator.NonLoginAuthenticator;
 import org.apache.catalina.authenticator.SSLAuthenticator;
-import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.deploy.LoginConfig;
@@ -40,11 +39,11 @@ import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.openejb.server.httpd.HttpListener;
 import org.apache.openejb.server.webservices.WsRegistry;
 import org.apache.openejb.server.webservices.WsServlet;
+import org.apache.openejb.tomcat.catalina.BackportUtil.Connector;
 import static org.apache.openejb.tomcat.catalina.TomcatWebAppBuilder.IGNORE_CONTEXT;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -58,7 +57,7 @@ public class TomcatWsRegistry implements WsRegistry {
         StandardServer standardServer = (StandardServer) ServerFactory.getServer();
         for (Service service : standardServer.findServices()) {
             if (service.getContainer() instanceof Engine) {
-                connectors = Arrays.asList(service.findConnectors());
+                connectors = BackportUtil.findConnectors(service);
                 engine = (Engine) service.getContainer();
                 break;
             }

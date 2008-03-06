@@ -27,6 +27,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.ServerFactory;
 import org.apache.catalina.Service;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.core.StandardServer;
@@ -171,6 +172,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
                     contextInfo.appInfo = appInfo;
                     contextInfo.deployer = deployer;
                     contextInfo.standardContext = standardContext;
+                    // todo not a valid Tomcat6 method
                     deployer.manageApp(standardContext);
                 }
             }
@@ -183,6 +185,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
             if (contextInfo != null && contextInfo.deployer != null) {
                 StandardContext standardContext = contextInfo.standardContext;
                 HostConfig deployer = contextInfo.deployer;
+                // todo not a valid Tomcat6 method
                 deployer.unmanageApp(standardContext.getPath());
                 deleteDir(new File(standardContext.getServletContext().getRealPath("")));
                 removeContextInfo(standardContext);
@@ -206,9 +209,6 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
     //
     // Tomcat Listener
     //
-
-    public void init(StandardContext standardContext) {
-    }
 
     public void beforeStart(StandardContext standardContext) {
     }
@@ -372,7 +372,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
         }
 
 
-        OpenEJBValve openejbValve = new OpenEJBValve();
+        Valve openejbValve = BackportUtil.newOpenEJBValve();
         standardContext.getPipeline().addValve(openejbValve);
     }
 
@@ -396,15 +396,13 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
         removeContextInfo(standardContext);
     }
 
-    public void destroy(StandardContext standardContext) {
-    }
-
     public void afterStop(StandardServer standardServer) {
         // clean ear based webapps after shutdown
         for (ContextInfo contextInfo : infos.values()) {
             if (contextInfo != null && contextInfo.deployer != null) {
                 StandardContext standardContext = contextInfo.standardContext;
                 HostConfig deployer = contextInfo.deployer;
+                // todo not a valid Tomcat6 method
                 deployer.unmanageApp(standardContext.getPath());
                 String realPath = standardContext.getServletContext().getRealPath("");
                 if (realPath != null) {
@@ -629,13 +627,15 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
 
         // remove all jndi entries where there is a configured Tomcat resource or resource-link
         webApp = webModule.getWebApp();
-        for (ContextResource resource : naming.findResources()) {
-            String name = resource.getName();
-            removeRef(webApp, name);
-        }
-        for (ContextResourceLink resourceLink : naming.findResourceLinks()) {
-            String name = resourceLink.getName();
-            removeRef(webApp, name);
+        if (TomcatVersion.v55.isTheVersion() || TomcatVersion.v6.isTheVersion()) {
+            for (ContextResource resource : naming.findResources()) {
+                String name = resource.getName();
+                removeRef(webApp, name);
+            }
+            for (ContextResourceLink resourceLink : naming.findResourceLinks()) {
+                String name = resourceLink.getName();
+                removeRef(webApp, name);
+            }
         }
 
         // remove all env entries from the web xml that are not overridable

@@ -22,14 +22,12 @@ import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.core.StandardHost;
 
 public interface ContextListener {
-    void init(StandardContext context);
     void beforeStart(StandardContext context);
     void start(StandardContext context);
     void afterStart(StandardContext context);
     void beforeStop(StandardContext context);
     void stop(StandardContext context);
     void afterStop(StandardContext context);
-    void destroy(StandardContext context);
 
     void afterStop(StandardServer standardServer);
 

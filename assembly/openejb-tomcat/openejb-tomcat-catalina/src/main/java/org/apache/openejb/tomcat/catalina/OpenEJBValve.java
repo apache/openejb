@@ -20,6 +20,7 @@ package org.apache.openejb.tomcat.catalina;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.catalina.Wrapper;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.SecurityService;
 import org.apache.openejb.util.OpenEjbVersion;
@@ -37,8 +38,10 @@ public class OpenEJBValve extends ValveBase {
 
     public void invoke(Request request, Response response) throws IOException, ServletException {
         Object oldState = null;
-        if (securityService != null && request.getWrapper() != null) {
-            oldState = securityService.enterWebApp(request.getWrapper().getRealm(), request.getUserPrincipal(), request.getWrapper().getRunAs());
+
+        Wrapper wrapper = request.getWrapper();
+        if (securityService != null && wrapper != null) {
+            oldState = securityService.enterWebApp(wrapper.getRealm(), request.getUserPrincipal(), wrapper.getRunAs());
         }
 
         try {

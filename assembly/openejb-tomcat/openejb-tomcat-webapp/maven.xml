@@ -99,6 +99,10 @@
       <copy todir="${tomcat.home}/conf">
         <fileset dir="${basedir}/src/test/conf"/>
       </copy>
+
+      <!-- Tomcat5 xml libraries don't work with cxf -->
+      <delete file="${tomcat.home}/common/endorsed/xercesImpl.jar"/>
+      <delete file="${tomcat.home}/common/endorsed/xml-apis.jar"/>
     </goal>
 
     <goal name="setup:tomcat-src">

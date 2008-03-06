@@ -176,10 +176,10 @@ java.util.Properties
             printTest("Was OpenEJB initialized (aka started)");
 
             try {
-                Method isInitialized = openejb.getDeclaredMethod("isInitialized");
-                Boolean running = (Boolean) isInitialized.invoke(openejb);
+                Method isInitialized = openejb.getDeclaredMethod("isInitialized", new Class[0]);
+                Boolean running = (Boolean) isInitialized.invoke(openejb, new Object[0]);
 
-                if (running) {
+                if (running.booleanValue()) {
                     out.print(OK);
                 } else {
                     out.print(FAIL);

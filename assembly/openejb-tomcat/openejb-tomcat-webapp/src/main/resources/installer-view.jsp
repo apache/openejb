@@ -24,6 +24,7 @@
 <%@ page import="org.apache.openejb.tomcat.installer.Paths" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Iterator" %>
 <%
     Installer installer = (Installer) request.getAttribute("installer");
     Paths paths = (Paths) request.getAttribute("paths");
@@ -95,7 +96,8 @@
                 <img border='0' height='3' width='360' src='images/line_light.gif'><br>
                 <table width='360' cellspacing='4' cellpadding='4' border='0'>
 <%
-        for (String info : installer.getInfos()) {
+        for (Iterator iterator = installer.getInfos().iterator(); iterator.hasNext();) {
+            String info = (String) iterator.next();
 %>
                     <tr>
                         <td><font size='2'><%= info %></font></td>
@@ -112,7 +114,7 @@
             Please, <b>restart Tomcat</b> and reload this page to verify installation.
 <%
         } else {
-            List<String> errors = new ArrayList<String>(paths.getErrors());
+            List errors = new ArrayList(paths.getErrors());
             errors.addAll(installer.getErrors());
             if (!errors.isEmpty()) {
 %>          Installation Failed<br><br>
@@ -120,7 +122,8 @@
                 <img border='0' height='3' width='360' src='images/line_light.gif'><br>
                 <table width='300' cellspacing='4' cellpadding='4' border='0'>
 <%
-                for (String error : errors) {
+            for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
+                String error = (String) iterator.next();
 %>
                     <tr>
                         <td><font size='2'><%= error %></font></td>
