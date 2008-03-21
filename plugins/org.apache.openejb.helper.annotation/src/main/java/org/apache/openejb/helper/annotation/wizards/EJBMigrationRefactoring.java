@@ -17,9 +17,19 @@
 
 package org.apache.openejb.helper.annotation.wizards;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.openejb.helper.annotation.ConversionException;
-import org.apache.openejb.helper.annotation.JavaProjectAnnotationFacade;
+import org.apache.openejb.helper.annotation.Converter;
+import org.apache.openejb.helper.annotation.EjbReferencesConverter;
+import org.apache.openejb.helper.annotation.EntityBeanConverter;
+import org.apache.openejb.helper.annotation.EntityBeanPojoConverter;
+import org.apache.openejb.helper.annotation.JDTFacade;
 import org.apache.openejb.helper.annotation.OpenEjbXmlConverter;
+import org.apache.openejb.helper.annotation.SessionBeanConverter;
+import org.apache.openejb.helper.annotation.SessionBeanInterfaceModifier;
+import org.apache.openejb.helper.annotation.SessionBeanRemoteAnnotationAdder;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -40,6 +50,9 @@ public class EJBMigrationRefactoring extends Refactoring {
 	protected IProject project;
 	protected RefactoringStatus status;
 	private final IWorkspaceRoot workspaceRoot;
+	protected boolean ejb3Interfaces;
+	protected boolean remoteAndRemoteHomeAnnotations;
+	protected boolean convertEntityBeansToPojos;
 	
 	public EJBMigrationRefactoring(IWorkspaceRoot workspaceRoot) {
 		this.workspaceRoot = workspaceRoot;
@@ -90,17 +103,36 @@ public class EJBMigrationRefactoring extends Refactoring {
 				}
 			}
 			
-			JavaProjectAnnotationFacade annotationFacade = new JavaProjectAnnotationFacade(project);
-			OpenEjbXmlConverter converter = new OpenEjbXmlConverter(annotationFacade);
+			JDTFacade jdtFacade = new JDTFacade(project);
 			
+			List<Converter> converterList = new ArrayList<Converter>();
+			converterList.add(new SessionBeanConverter(jdtFacade));
+			converterList.add(new EntityBeanConverter(jdtFacade));
+			converterList.add(new EjbReferencesConverter(jdtFacade));
+			
+			if (ejb3Interfaces) {
+				converterList.add(new SessionBeanInterfaceModifier(jdtFacade));
+			}
+			
+			if (remoteAndRemoteHomeAnnotations) {
+				converterList.add(new SessionBeanRemoteAnnotationAdder(jdtFacade));
+			}
+			
+			if (convertEntityBeansToPojos) {
+				converterList.add(new EntityBeanPojoConverter(jdtFacade));
+			}
+			
+			Converter[] converters = converterList.toArray(new Converter[0]);
+			
+			OpenEjbXmlConverter converter = new OpenEjbXmlConverter(converters);
 			converter.convert(ejbJarInputSource, openEjbJarInputSource);
 
-			String[] warnings = annotationFacade.getWarnings();
+			String[] warnings = jdtFacade.getWarnings();
 			for (String warning : warnings) {
 				status.addWarning(warning);
 			}
 
-			return annotationFacade.getChange();
+			return jdtFacade.getChange();
 
 		} catch (ConversionException e) {
 			throw new CoreException(new Status(IStatus.ERROR, "org.apache.openejb.helper.annotation", e.getMessage()));
@@ -144,5 +176,29 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 	public IWorkspaceRoot getWorkspaceRoot() {
 		return workspaceRoot;
+	}
+
+	public boolean isEjb3Interfaces() {
+		return ejb3Interfaces;
+	}
+
+	public void setEjb3Interfaces(boolean ejb3Interfaces) {
+		this.ejb3Interfaces = ejb3Interfaces;
+	}
+
+	public boolean isRemoteAndRemoteHomeAnnotations() {
+		return remoteAndRemoteHomeAnnotations;
+	}
+
+	public void setRemoteAndRemoteHomeAnnotations(boolean remoteAndRemoteHomeAnnotations) {
+		this.remoteAndRemoteHomeAnnotations = remoteAndRemoteHomeAnnotations;
+	}
+
+	public boolean isConvertEntityBeansToPojos() {
+		return convertEntityBeansToPojos;
+	}
+
+	public void setConvertEntityBeansToPojos(boolean convertEntityBeansToPojos) {
+		this.convertEntityBeansToPojos = convertEntityBeansToPojos;
 	}
 }

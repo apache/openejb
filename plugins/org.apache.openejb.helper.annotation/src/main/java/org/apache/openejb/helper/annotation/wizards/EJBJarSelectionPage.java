@@ -27,6 +27,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -46,6 +48,9 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 	private final EJBMigrationRefactoring refactoring;
 	private Text ejbJarXmlText;
 	private Text openEjbJarXmlText;
+	private Button ejb3Interfaces;
+	private Button remoteAndRemoteHomeAnnotations;
+	private Button convertEntityBeansToPojos;
 	
 	public EJBJarSelectionPage(EJBMigrationRefactoring refactoring) {
 		super("wizardPage");
@@ -110,7 +115,46 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 				}
 			}
 		});
-
+		
+		GridData checkData = new GridData();
+		checkData.horizontalSpan = 3;
+		checkData.horizontalAlignment = GridData.FILL;
+		
+		ejb3Interfaces = new Button(container, SWT.CHECK);
+		ejb3Interfaces.setLayoutData(checkData);
+		ejb3Interfaces.setText("Alter session bean interfaces");
+		ejb3Interfaces.setSelection(true);
+		ejb3Interfaces.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				checkPage();
+			}
+		});
+		
+		remoteAndRemoteHomeAnnotations = new Button(container, SWT.CHECK);
+		remoteAndRemoteHomeAnnotations.setLayoutData(checkData);
+		remoteAndRemoteHomeAnnotations.setText("Add @Remote and @RemoteHome annotations");
+		remoteAndRemoteHomeAnnotations.setSelection(false);
+		remoteAndRemoteHomeAnnotations.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				checkPage();
+			}
+		});
+		
+		convertEntityBeansToPojos = new Button(container, SWT.CHECK);
+		convertEntityBeansToPojos.setLayoutData(checkData);
+		convertEntityBeansToPojos.setText("Convert entity beans to POJOs");
+		convertEntityBeansToPojos.setSelection(true);
+		convertEntityBeansToPojos.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				checkPage();
+			}
+		});
 		
 		setControl(container);
 		checkPage();
@@ -167,6 +211,9 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		
 		refactoring.setEjbJarXmlFile(ejbJarXmlFile);
 		refactoring.setOpenEjbJarXmlFile(openEjbJarXmlFile);
+		refactoring.setConvertEntityBeansToPojos(convertEntityBeansToPojos.getSelection());
+		refactoring.setEjb3Interfaces(ejb3Interfaces.getSelection());
+		refactoring.setRemoteAndRemoteHomeAnnotations(remoteAndRemoteHomeAnnotations.getSelection());
 		
 		if (refactoring.getProject() == null) {
 			setErrorMessage(null);
