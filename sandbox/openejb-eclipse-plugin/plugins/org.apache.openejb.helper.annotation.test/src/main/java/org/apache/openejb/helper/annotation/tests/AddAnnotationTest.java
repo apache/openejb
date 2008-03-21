@@ -33,7 +33,7 @@ import javax.persistence.ManyToMany;
 
 import junit.framework.TestCase;
 
-import org.apache.openejb.helper.annotation.JavaProjectAnnotationFacade;
+import org.apache.openejb.helper.annotation.JDTFacade;
 import org.apache.openejb.helper.annotation.fixtures.ProjectFixture;
 import org.apache.openejb.helper.annotation.fixtures.StreamFixture;
 import org.eclipse.core.runtime.CoreException;
@@ -96,7 +96,7 @@ public class AddAnnotationTest extends TestCase {
 
 	public void testShouldAddAnAnnotationToAJavaSourceFile() throws Exception {
 		addNewClassToProject("org.apache.openejb.test.TestBean1", getStreamContents(getClass().getResourceAsStream("Test1.txt")));
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean1", Stateless.class, null);
 		
 		Change change = facade.getChange();
@@ -109,7 +109,7 @@ public class AddAnnotationTest extends TestCase {
 	public void testShouldAddAnAnnotationToAJavaSourceFileAndNotAddAnImportIfTheImportAlreadyExists() throws Exception {
 		addNewClassToProject("org.apache.openejb.test.TestBean2", getStreamContents(getClass().getResourceAsStream("Test2.txt")));
 		
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean2", Stateless.class, null);
 		
 		Change change = facade.getChange();
@@ -121,7 +121,7 @@ public class AddAnnotationTest extends TestCase {
 
 	public void testShouldAddAnAnnotationToAJavaSourceFileAndNotAddAnImportIfThePackageIsAlreadyImported() throws Exception {
 		addNewClassToProject("org.apache.openejb.test.TestBean3", getStreamContents(getClass().getResourceAsStream("Test3.txt")));
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean3", Stateless.class, null);
 		
 		Change change = facade.getChange();
@@ -136,7 +136,7 @@ public class AddAnnotationTest extends TestCase {
 		Map<String,Object> properties = new HashMap<String,Object>();
 		properties.put("name", "Test");
 
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean4", Entity.class, properties);
 		
 		Change change = facade.getChange();
@@ -151,7 +151,7 @@ public class AddAnnotationTest extends TestCase {
 		Map<String,Object> properties = new HashMap<String,Object>();
 		properties.put("value", TransactionManagementType.BEAN);
 
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean5", TransactionManagement.class, properties);
 		
 		Change change = facade.getChange();
@@ -164,7 +164,7 @@ public class AddAnnotationTest extends TestCase {
 	public void testShouldAddMethodAnnotationWithEnumProperty() throws Exception {
 		addNewClassToProject("org.apache.openejb.test.TestBean6", getStreamContents(getClass().getResourceAsStream("Test6.txt")));
 
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addMethodAnnotation("org.apache.openejb.test.TestBean6", "echoHelloWorld", new String[] {"java.lang.String"}, ManyToMany.class, null);
 		
 		Change change = facade.getChange();
@@ -177,7 +177,7 @@ public class AddAnnotationTest extends TestCase {
 	public void testShouldAddAnnotationWithClassAttributeWithStringPassedIn() throws Exception {
 		addNewClassToProject("org.apache.openejb.test.TestBean7", getStreamContents(getClass().getResourceAsStream("Test7.txt")));
 
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		Map<String, Object> properties = new HashMap<String,Object>();
 		properties.put("value", new String[] { "org.apache.openejb.test.Test7" });
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean7", Remote.class, properties);
@@ -192,7 +192,7 @@ public class AddAnnotationTest extends TestCase {
 	public void testShouldAddAnnotationWithNestedAttributes() throws Exception {
 		addNewClassToProject("org.apache.openejb.test.TestBean8", getStreamContents(getClass().getResourceAsStream("Test8.txt")));
 
-		JavaProjectAnnotationFacade facade = new JavaProjectAnnotationFacade(fixture.getProject());
+		JDTFacade facade = new JDTFacade(fixture.getProject());
 		Map<String, Object> properties = new HashMap<String, Object>();
 		
 		Map<String, Object> activationConfigProperty = new HashMap<String, Object>();

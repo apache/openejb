@@ -17,7 +17,6 @@
 package org.apache.openejb.helper.annotation.wizards;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;

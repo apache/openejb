@@ -15,7 +15,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ltk.core.refactoring,
- org.junit
+ org.junit,
+ org.eclipse.jdt.ui,
+ org.eclipse.search
 Eclipse-LazyStart: true
 Bundle-ClassPath: .,
  lib/jaxb-impl-2.0.3.jar,
