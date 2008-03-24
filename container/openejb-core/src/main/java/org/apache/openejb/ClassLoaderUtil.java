@@ -18,19 +18,40 @@
 package org.apache.openejb;
 
 import java.beans.Introspector;
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.jar.JarFile;
+
+import org.apache.openejb.core.TempClassLoader;
+import org.apache.openejb.util.URLs;
+import org.apache.openejb.util.Logger;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.UrlCache;
 
 /**
  * @version $Revision$ $Date$
  */
 public class ClassLoaderUtil {
+    private static final Logger logger = Logger.getInstance(LogCategory.OPENEJB, ClassLoaderUtil.class);
+    private static final Map<String,List<ClassLoader>> classLoadersByApp = new HashMap<String,List<ClassLoader>>();
+    private static final Map<ClassLoader, Set<String>> appsByClassLoader = new HashMap<ClassLoader,Set<String>>();
+
+    private static final UrlCache urlCache = new UrlCache();
 
     public static ClassLoader getContextClassLoader() {
         return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
@@ -38,6 +59,85 @@ public class ClassLoaderUtil {
                 return Thread.currentThread().getContextClassLoader();
             }
         });
+    }
+
+    public static URLClassLoader createClassLoader(String appId, URL[] urls, ClassLoader parent) {
+        urls = urlCache.cacheUrls(appId, urls);
+        URLClassLoader classLoader = new URLClassLoader(urls, parent);
+
+        List<ClassLoader> classLoaders = classLoadersByApp.get(appId);
+        if (classLoaders == null) {
+            classLoaders = new ArrayList<ClassLoader>(2);
+            classLoadersByApp.put(appId, classLoaders);
+        }
+        classLoaders.add(classLoader);
+
+        Set<String> apps = appsByClassLoader.get(classLoader);
+        if (apps == null) {
+            apps = new LinkedHashSet<String>(1);
+            appsByClassLoader.put(classLoader, apps);
+        }
+        apps.add(appId);
+
+        return classLoader;
+    }
+
+    public static void destroyClassLoader(ClassLoader classLoader) {
+        logger.debug("Destroying classLoader " + toString(classLoader));
+
+        // remove from the indexes
+        Set<String> apps = appsByClassLoader.remove(classLoader);
+        if (apps != null) {
+            for (String appId : apps) {
+                List<ClassLoader> classLoaders = classLoadersByApp.get(appId);
+                if (classLoaders != null) {
+                    classLoaders.remove(classLoader);
+                    // if this is the last class loader in the app, clean up the app
+                    if (classLoaders.isEmpty()) {
+                        destroyClassLoader(appId);
+                    }
+                }
+            }
+        }
+
+        // clear the lame openjpa caches
+        cleanOpenJPACache(classLoader);
+    }
+
+    public static void destroyClassLoader(String appId) {
+        logger.debug("Destroying classLoaders for application " + appId);
+
+        List<ClassLoader> classLoaders = classLoadersByApp.remove(appId);
+        if (classLoaders != null) {
+            for (ClassLoader classLoader : classLoaders) {
+                // get the apps using the class loader
+                Set<String> apps = appsByClassLoader.get(classLoader);
+                if (apps == null) apps = Collections.emptySet();
+
+                // this app is no longer using the class loader
+                apps.remove(appId);
+
+                // if no apps are using the class loader, destroy it
+                if (apps.isEmpty()) {
+                    appsByClassLoader.remove(classLoader);
+                    destroyClassLoader(classLoader);
+                } else {
+                    logger.debug("ClassLoader " + toString(classLoader) + " held open by the applications" + apps);
+                }
+            }
+        }
+        urlCache.releaseUrls(appId);
+        clearSunJarFileFactoryCache(appId);
+    }
+
+    public static URLClassLoader createTempClassLoader(ClassLoader parent) {
+        return new TempClassLoader(parent);
+    }
+
+    public static URLClassLoader createTempClassLoader(String appId, URL[] urls, ClassLoader parent) {
+        URLClassLoader classLoader = createClassLoader(appId, urls, parent);
+        TempClassLoader tempClassLoader = new TempClassLoader(classLoader);
+        return tempClassLoader;
     }
 
     /**
@@ -51,6 +151,56 @@ public class ClassLoaderUtil {
         clearSunSoftCache(ObjectStreamClass.class, "localDescs");
         clearSunSoftCache(ObjectStreamClass.class, "reflectors");
         Introspector.flushCaches();
+    }
+
+    public static void clearSunJarFileFactoryCache(String jarLocation) {
+        logger.debug("Clearing Sun JarFileFactory cache for directory " + jarLocation);
+
+        try {
+            Class jarFileFactory = Class.forName("sun.net.www.protocol.jar.JarFileFactory");
+
+            Field fileCacheField = jarFileFactory.getDeclaredField("fileCache");
+
+            fileCacheField.setAccessible(true);
+            Map fileCache = (Map) fileCacheField.get(null);
+
+            Field urlCacheField = jarFileFactory.getDeclaredField("urlCache");
+            urlCacheField.setAccessible(true);
+            Map urlCache = (Map) urlCacheField.get(null);
+
+            List<URL> urls = new ArrayList<URL>();
+            for (Object item : fileCache.keySet()) {
+                URL url = (URL) item;
+                if (isParent(jarLocation, URLs.toFile(url))) {
+                    urls.add(url);
+                }
+            }
+
+            for (URL url : urls) {
+                JarFile jarFile = (JarFile) fileCache.remove(url);
+                if (jarFile == null) continue;
+
+                urlCache.remove(jarFile);
+                jarFile.close();
+            }
+        } catch (ClassNotFoundException e) {
+            // not a sun vm
+        } catch (NoSuchFieldException e) {
+            // different version of sun vm?
+        } catch (Throwable e) {
+            logger.error("Unable to clear Sun JarFileFactory cache", e);
+        }
+    }
+
+    private static boolean isParent(String jarLocation, File file) {
+        File dir = new File(jarLocation);
+        while (file != null) {
+            if (file.equals(dir)) {
+                return true;
+            }
+            file = file.getParentFile();
+        }
+        return false;
     }
 
     /**
@@ -84,6 +234,14 @@ public class ClassLoaderUtil {
             deRegisterMethod.invoke(null, classLoader);
         } catch (Throwable ignored) {
             // there is nothing a user could do about this anyway
+        }
+    }
+
+    private static String toString(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return "null";
+        } else {
+            return classLoader.getClass().getSimpleName() + "@" + System.identityHashCode(classLoader);
         }
     }
 }

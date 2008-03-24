@@ -19,6 +19,8 @@ package org.apache.openejb.core.mdb;
 
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.core.CoreDeploymentInfo;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.ActivationSpec;
@@ -35,14 +37,16 @@ public class EndpointFactory implements MessageEndpointFactory {
     private final MdbInstanceFactory instanceFactory;
     private final ClassLoader classLoader;
     private final Class[] interfaces;
+    private final boolean txRecovery;
 
-    public EndpointFactory(ActivationSpec activationSpec, MdbContainer container, CoreDeploymentInfo deploymentInfo, MdbInstanceFactory instanceFactory) {
+    public EndpointFactory(ActivationSpec activationSpec, MdbContainer container, CoreDeploymentInfo deploymentInfo, MdbInstanceFactory instanceFactory, boolean txRecovery) {
         this.activationSpec = activationSpec;
         this.container = container;
         this.deploymentInfo = deploymentInfo;
         this.instanceFactory = instanceFactory;
         classLoader = container.getMessageListenerInterface().getClassLoader();
         interfaces = new Class[]{container.getMessageListenerInterface(), MessageEndpoint.class};
+        this.txRecovery = txRecovery;
     }
 
     public ActivationSpec getActivationSpec() {
@@ -54,6 +58,9 @@ public class EndpointFactory implements MessageEndpointFactory {
     }
 
     public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException {
+        if (txRecovery) {
+            xaResource = new WrapperNamedXAResource(xaResource, container.getContainerID().toString());
+        }
         EndpointHandler endpointHandler = new EndpointHandler(container, deploymentInfo, instanceFactory, xaResource);
         MessageEndpoint messageEndpoint = (MessageEndpoint) Proxy.newProxyInstance(classLoader, interfaces, endpointHandler);
         return messageEndpoint;

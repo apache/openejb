@@ -14,45 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.jee;
+package org.apache.openejb.assembler.classic;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MethodTransaction {
-    private final Method method;
-    private final TransAttribute attribute;
+public class MethodAttributeInfo extends InfoObject {
 
-    public MethodTransaction(TransAttribute attribute, Method method) {
-        this.attribute = attribute;
-        this.method = method;
-    }
+    public final List<MethodInfo> methods = new ArrayList<MethodInfo>();
 
-    public TransAttribute getAttribute() {
-        return attribute;
-    }
-
-    public String getEjbName() {
-        return method.getEjbName();
-    }
-
-    public MethodIntf getMethodIntf() {
-        return method.getMethodIntf();
-    }
-
-    public String getMethodName() {
-        return method.getMethodName();
-    }
-
-    public MethodParams getMethodParams() {
-        return method.getMethodParams();
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public String getClassName() {
-        return method.getClassName();
-    }
 }

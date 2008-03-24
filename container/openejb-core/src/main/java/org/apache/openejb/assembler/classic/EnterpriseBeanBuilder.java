@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.assembler.classic;
 
+import static org.apache.openejb.assembler.classic.MethodInfoUtil.matchingMethods;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Injection;
 import org.apache.openejb.OpenEJBException;
@@ -223,10 +224,10 @@ class EnterpriseBeanBuilder {
                     List<Method> finderMethods = new ArrayList<Method>();
 
                     if (home != null) {
-                        AssemblerTool.resolveMethods(finderMethods, home, query.method);
+                        finderMethods.addAll(matchingMethods(query.method, home));
                     }
                     if (localhome != null) {
-                        AssemblerTool.resolveMethods(finderMethods, localhome, query.method);
+                        finderMethods.addAll(matchingMethods(query.method, localhome));
                     }
 
                     for (Method method : finderMethods) {
@@ -334,7 +335,7 @@ class EnterpriseBeanBuilder {
         }
 
         try {
-            method = clazz.getDeclaredMethod(info.methodName, parameterTypes.toArray(new Class[parameterTypes.size()]));
+            method = clazz.getMethod(info.methodName, parameterTypes.toArray(new Class[parameterTypes.size()]));
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Callback method does not exist: " + clazz.getName() + "." + info.methodName, e);
         }

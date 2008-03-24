@@ -16,14 +16,16 @@
  */
 package org.apache.openejb.assembler.classic;
 
+import org.apache.openejb.util.Join;
+
 import java.util.List;
 import java.util.ArrayList;
 
-public class MethodPermissionInfo extends InfoObject {
+public class MethodPermissionInfo extends MethodAttributeInfo {
 
     public String description;
     public final List<String> roleNames = new ArrayList<String>();
-    public final List<MethodInfo> methods = new ArrayList<MethodInfo>();
+    public boolean excluded;
     public boolean unchecked;
 
 }

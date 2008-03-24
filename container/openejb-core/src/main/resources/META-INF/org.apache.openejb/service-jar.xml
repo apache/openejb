@@ -46,22 +46,10 @@
   <ServiceProvider id="Default CMP Container"
                    service="Container"
                    types="CMP_ENTITY"
-                   constructor="id, transactionManager, securityService, CmpEngineFactory, Engine, ConnectorName"
+                   constructor="id, transactionManager, securityService, CmpEngineFactory"
                    class-name="org.apache.openejb.core.cmp.CmpContainer">
 
     CmpEngineFactory org.apache.openejb.core.cmp.jpa.JpaCmpEngineFactory
-
-    # Engine  derby
-    # @hidden
-
-    Engine  instantdb
-
-
-    # ConnectorName is he id of the Connector element which
-    # should provide connectivity for this CMP Container
-    # @hidden
-
-    ConnectorName  Default JDBC Database
   </ServiceProvider>
 
   <!--
@@ -181,7 +169,7 @@
           id="Default MDB Container"
           service="Container"
           types="MESSAGE"
-          constructor="id, transactionManager, securityService, ResourceAdapter, MessageListenerInterface, ActivationSpecClass, InstanceLimit"
+          constructor="id, transactionManager, securityService, ResourceAdapter, MessageListenerInterface, ActivationSpecClass, InstanceLimit, TxRecovery"
           class-name="org.apache.openejb.core.mdb.MdbContainer">
 
     # The resource adapter delivers messages to the container
@@ -200,6 +188,10 @@
     # allowed to exist for each MDB deployment.
 
     InstanceLimit 10
+
+    # Specifies whether to use NamedXAResource wrappers to allow the geronimo tm
+    # to log and recover in doubt transactions.
+    TxRecovery false
 
   </ServiceProvider>
 
@@ -236,11 +228,28 @@
   # Default Transaction Manager implementation
   # ================================================
   -->
-  <ServiceProvider
-          id="Default Transaction Manager"
-          service="TransactionManager"
-          types="TransactionManager"
-          class-name="org.apache.geronimo.transaction.manager.GeronimoTransactionManager"/>
+    <ServiceProvider
+            id="Default Transaction Manager"
+            service="TransactionManager"
+            types="TransactionManager"
+            factory-name="create"
+            constructor="defaultTransactionTimeoutSeconds, tmId, bufferClassName, bufferSizeKb, checksumEnabled, adler32Checksum, flushSleepTimeMilliseconds, logFileDir, logFileExt, logFileName, maxBlocksPerFile, maxBuffers, maxLogFiles, minBuffers, threadsWaitingForceThreshold"
+            class-name="org.apache.openejb.resource.GeronimoTransactionManagerFactory">
+           defaultTransactionTimeoutSeconds 600
+           bufferSizeKb 32
+           checksumEnabled true
+           adler32Checksum true
+           flushSleepTimeMilliseconds 50
+           logFileDir txlog
+           logFileExt log
+           logFileName howl
+           maxBlocksPerFile -1
+           maxBuffers 0
+        # set to 0 or less to disable transaction logging and recovery
+           maxLogFiles 2
+           minBuffers 4
+           threadsWaitingForceThreshold -1
+    </ServiceProvider>
 
   <!--
   # ================================================
@@ -252,7 +261,7 @@
           service="Resource"
           types="javax.sql.DataSource, DataSource"
           factory-name="create"
-          constructor="JtaManaged"
+          constructor="JtaManaged,TxRecovery"
           class-name="org.apache.openejb.resource.jdbc.DataSourceFactory">
 
     # Determines wether or not this data source should be JTA managed
@@ -266,6 +275,10 @@
     # "JtaManaged=false" can be used as a 'non-jta-data-source'
 
     JtaManaged = true
+
+    # Specifies whether to use NamedXAResource wrappers to allow the geronimo tm
+    # to log and recover in doubt transactions.
+    TxRecovery false
 
     # Driver class name
 
@@ -446,10 +459,12 @@
           service="Resource"
           types="javax.sql.DataSource, DataSource"
           factory-name="create"
-          constructor="JtaManaged"
+          constructor="JtaManaged,TxRecovery"
           class-name="org.apache.openejb.resource.jdbc.DataSourceFactory">
 
     JtaManaged = false
+    TxRecovery false
+
 
     # Driver class name
 
