@@ -1,0 +1,27 @@
+Installation
+
+  Installation is easiest from an update site. In Eclipse, select Help, Software Updates, Find and install...
+  
+  
+[images/install_step_1.jpg] 
+  
+  Select 'Search for new features to install'
+  
+[images/install_step_2.jpg]
+
+  Select 'New Remote site'. Enter 'OpenEJB' for the name and {http://www.jrg.me.uk/update-site} for the URL. Click 'Ok' and make sure your new update site is selected.
+  Then select 'Finish'
+  
+[images/install_step_3.jpg]
+
+  Check the box to install the OpenEJB feature. Click 'Next'
+  
+[images/install_step_4.jpg]
+
+  Read and make sure you're happy with the license agreement.
+  
+[images/install_step5.jpg]
+
+  Check the installation location, and change it if you wish to. Select 'Finish'.
+  
+  Restarting the workbench when the installation is finished is recommended. 
