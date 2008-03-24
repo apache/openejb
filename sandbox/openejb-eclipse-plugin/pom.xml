@@ -210,5 +210,15 @@
 	<module>features</module>
 	<module>assembly</module>
     </modules>
-                        
+          
+     <reporting>
+     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+
 </project>
