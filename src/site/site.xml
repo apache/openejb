@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="OpenEJB Eclipse">
+  <body>
+    <menu name="Using the plugins">
+      <item name="Installation" href="/installation.html"/>
+      <item name="Building from source" href="/building.html"/>
+      <item name="Running a server" href="/server.html"/>
+      <item name="Generating annotations" href="/annotations.html"/>
+    </menu>
+      ${reports}
+  </body>
+</project>
