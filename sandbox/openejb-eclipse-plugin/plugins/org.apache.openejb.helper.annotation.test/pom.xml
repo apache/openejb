@@ -37,6 +37,12 @@
 					<include>plugin_*.properties</include>
 				</includes>
 			</resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
 			<resource>
 				<targetPath>META-INF</targetPath>
 				<directory>META-INF</directory>
