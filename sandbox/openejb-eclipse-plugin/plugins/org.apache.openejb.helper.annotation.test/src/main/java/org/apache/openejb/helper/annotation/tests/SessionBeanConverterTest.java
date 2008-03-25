@@ -17,7 +17,6 @@
  
 package org.apache.openejb.helper.annotation.tests;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,8 +29,6 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
 import javax.ejb.MessageDriven;
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -48,7 +45,6 @@ import org.apache.openejb.helper.annotation.Converter;
 import org.apache.openejb.helper.annotation.IJDTFacade;
 import org.apache.openejb.helper.annotation.OpenEjbXmlConverter;
 import org.apache.openejb.helper.annotation.SessionBeanConverter;
-import org.apache.openejb.jee.ActivationConfig;
 import org.apache.openejb.jee.AssemblyDescriptor;
 import org.apache.openejb.jee.ContainerTransaction;
 import org.apache.openejb.jee.EjbJar;
@@ -91,12 +87,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.Test1Bean", Stateless.class, null);
-			one(facade).addClassAnnotation("test.Test2Bean", Stateless.class, null);
+			one(facade).addClassAnnotation("test.Test1Bean", Stateless.class, null); //$NON-NLS-1$
+			one(facade).addClassAnnotation("test.Test2Bean", Stateless.class, null); //$NON-NLS-1$
 		}});
 
 		// execute
-		converter.convert(new InputSource(getClass().getResourceAsStream("sample-openejb-jar-two-statelessessionbeans.xml")));
+		converter.convert(new InputSource(getClass().getResourceAsStream("sample-openejb-jar-two-statelessessionbeans.xml"))); //$NON-NLS-1$
 
 		// verify
 		context.assertIsSatisfied();
@@ -109,21 +105,21 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", TransactionManagement.class, createNameValuePair("value", TransactionManagementType.BEAN));
-			one(facade).addClassAnnotation("test.TestBean", TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY));
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[] { "java.lang.String" }, TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY));
+			one(facade).addClassAnnotation("test.TestBean", TransactionManagement.class, createNameValuePair("value", TransactionManagementType.BEAN)); //$NON-NLS-1$ //$NON-NLS-2$
+			one(facade).addClassAnnotation("test.TestBean", TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY)); //$NON-NLS-1$ //$NON-NLS-2$
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[] { "java.lang.String" }, TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}});
 
 
 		EnterpriseBean enterpriseBean = new StatefulBean();
-		enterpriseBean.setEjbName("TestBean");
-		enterpriseBean.setEjbClass("test.TestBean");
+		enterpriseBean.setEjbName("TestBean"); //$NON-NLS-1$
+		enterpriseBean.setEjbClass("test.TestBean"); //$NON-NLS-1$
 		enterpriseBean.setTransactionType(TransactionType.BEAN);
 		
 		AssemblyDescriptor descriptor = new AssemblyDescriptor();
 		
-		addMethodTransactionToDescriptor(descriptor, "TestBean", "*", new String[0]);
-		addMethodTransactionToDescriptor(descriptor, "TestBean", "test", new String[] { "java.lang.String" });
+		addMethodTransactionToDescriptor(descriptor, "TestBean", "*", new String[0]); //$NON-NLS-1$ //$NON-NLS-2$
+		addMethodTransactionToDescriptor(descriptor, "TestBean", "test", new String[] { "java.lang.String" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		// execute
 		converter.processTransactionManagement(enterpriseBean, descriptor);
@@ -140,12 +136,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], RolesAllowed.class, createNameValuePair("value", new String[] { "Admin" }));
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], RolesAllowed.class, createNameValuePair("value", new String[] { "Admin" })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
-		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "test", new String[] { "Admin" }, false, false);
+		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
+		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "test", new String[] { "Admin" }, false, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		// execute
 		converter.processMethodPermissions(ejbJar);
@@ -192,12 +188,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", RolesAllowed.class, createNameValuePair("value", new String[] { "Admin" }));
+			one(facade).addClassAnnotation("test.TestBean", RolesAllowed.class, createNameValuePair("value", new String[] { "Admin" })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
-		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "*", new String[] { "Admin" }, false, false);
+		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
+		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "*", new String[] { "Admin" }, false, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		// execute
 		converter.processMethodPermissions(ejbJar);
@@ -214,12 +210,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], PermitAll.class, null);
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], PermitAll.class, null); //$NON-NLS-1$ //$NON-NLS-2$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
-		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "test", new String[] { "Admin" }, true, false);
+		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
+		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "test", new String[] { "Admin" }, true, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		// execute
 		converter.processMethodPermissions(ejbJar);
@@ -236,12 +232,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", PermitAll.class, null);
+			one(facade).addClassAnnotation("test.TestBean", PermitAll.class, null); //$NON-NLS-1$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
-		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "*", new String[] { "Admin" }, true, false);
+		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
+		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "*", new String[] { "Admin" }, true, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		// execute
 		converter.processMethodPermissions(ejbJar);
@@ -258,12 +254,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], DenyAll.class, null);
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], DenyAll.class, null); //$NON-NLS-1$ //$NON-NLS-2$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
-		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "test", new String[] { "Admin" }, true, true);
+		addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
+		addMethodToEjbJarDescriptor(ejbJar, "TestBean", "test", new String[] { "Admin" }, true, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		// execute
 		converter.processMethodPermissions(ejbJar);
@@ -280,14 +276,14 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", RunAs.class, createNameValuePair("value", "Administrator"));
+			one(facade).addClassAnnotation("test.TestBean", RunAs.class, createNameValuePair("value", "Administrator")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		SecurityIdentity securityIdentity = new SecurityIdentity();
-		securityIdentity.setRunAs("Administrator");
+		securityIdentity.setRunAs("Administrator"); //$NON-NLS-1$
 		bean.setSecurityIdentity(securityIdentity);
 		
 		// execute
@@ -305,14 +301,14 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", DeclareRoles.class, createNameValuePair("value", new String[] { "Admin" }));
+			one(facade).addClassAnnotation("test.TestBean", DeclareRoles.class, createNameValuePair("value", new String[] { "Admin" })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		RemoteBean remoteBean = (RemoteBean) bean;
-		remoteBean.getSecurityRoleRef().add(new SecurityRoleRef("Admin"));
+		remoteBean.getSecurityRoleRef().add(new SecurityRoleRef("Admin")); //$NON-NLS-1$
 		
 		// execute
 		converter.processDeclaredRoles(bean);
@@ -329,11 +325,11 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
+			one(facade).addClassAnnotation("test.TestBean", Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Interceptor interceptor = new Interceptor(SessionBeanConverterTest.class);
 		ejbJar.addInterceptor(interceptor);
@@ -357,11 +353,11 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Interceptor interceptor = new Interceptor(SessionBeanConverterTest.class);
 		ejbJar.addInterceptor(interceptor);
@@ -369,7 +365,7 @@ public class SessionBeanConverterTest extends TestCase {
 		
 		InterceptorBinding binding = new InterceptorBinding(bean, interceptor);
 		NamedMethod method = new NamedMethod();
-		method.setMethodName("test");
+		method.setMethodName("test"); //$NON-NLS-1$
 		method.setMethodParams(new MethodParams());
 		binding.setMethod(method);
 		interceptorBindings.add(binding);
@@ -389,12 +385,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
-			one(facade).addClassAnnotation("test.TestBean", ExcludeDefaultInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
+			one(facade).addClassAnnotation("test.TestBean", Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$
+			one(facade).addClassAnnotation("test.TestBean", ExcludeDefaultInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Interceptor interceptor = new Interceptor(SessionBeanConverterTest.class);
 		ejbJar.addInterceptor(interceptor);
@@ -419,12 +415,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], ExcludeDefaultInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], ExcludeDefaultInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Interceptor interceptor = new Interceptor(SessionBeanConverterTest.class);
 		ejbJar.addInterceptor(interceptor);
@@ -433,7 +429,7 @@ public class SessionBeanConverterTest extends TestCase {
 		InterceptorBinding binding = new InterceptorBinding(bean, interceptor);
 		binding.setExcludeDefaultInterceptors(true);
 		NamedMethod method = new NamedMethod();
-		method.setMethodName("test");
+		method.setMethodName("test"); //$NON-NLS-1$
 		method.setMethodParams(new MethodParams());
 		binding.setMethod(method);
 		interceptorBindings.add(binding);
@@ -453,12 +449,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
-			one(facade).addClassAnnotation("test.TestBean", ExcludeClassInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
+			one(facade).addClassAnnotation("test.TestBean", Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$
+			one(facade).addClassAnnotation("test.TestBean", ExcludeClassInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Interceptor interceptor = new Interceptor(SessionBeanConverterTest.class);
 		ejbJar.addInterceptor(interceptor);
@@ -483,12 +479,12 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], ExcludeClassInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() }));
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], ExcludeClassInterceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			one(facade).addMethodAnnotation("test.TestBean", "test", new String[0], Interceptors.class, createNameValuePair("value", new String[] { SessionBeanConverterTest.class.getCanonicalName() })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
+		EnterpriseBean bean = addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Interceptor interceptor = new Interceptor(SessionBeanConverterTest.class);
 		ejbJar.addInterceptor(interceptor);
@@ -497,7 +493,7 @@ public class SessionBeanConverterTest extends TestCase {
 		InterceptorBinding binding = new InterceptorBinding(bean, interceptor);
 		binding.setExcludeClassInterceptors(true);
 		NamedMethod method = new NamedMethod();
-		method.setMethodName("test");
+		method.setMethodName("test"); //$NON-NLS-1$
 		method.setMethodParams(new MethodParams());
 		binding.setMethod(method);
 		interceptorBindings.add(binding);
@@ -517,13 +513,13 @@ public class SessionBeanConverterTest extends TestCase {
 
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.TestBean", Stateful.class, null);
+			one(facade).addClassAnnotation("test.TestBean", Stateful.class, null); //$NON-NLS-1$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
-		StatefulBean bean = (StatefulBean) addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean");
-		bean.setHome("test.TestHome");
-		bean.setRemote("test.Test");
+		StatefulBean bean = (StatefulBean) addStatefulBeanToEjbJar(ejbJar, "TestBean", "test.TestBean"); //$NON-NLS-1$ //$NON-NLS-2$
+		bean.setHome("test.TestHome"); //$NON-NLS-1$
+		bean.setRemote("test.Test"); //$NON-NLS-1$
 		
 		// execute
 		converter.processSessionBean((SessionBean) bean);
@@ -539,18 +535,18 @@ public class SessionBeanConverterTest extends TestCase {
 		SessionBeanConverter converter = new SessionBeanConverter(facade);
 
 		final Map<String,Object> expectedMap = new HashMap<String, Object>();
-		expectedMap.put("destination", "TestQueue");
-		expectedMap.put("destinationType", "javax.jms.Queue");
+		expectedMap.put("destination", "TestQueue"); //$NON-NLS-1$ //$NON-NLS-2$
+		expectedMap.put("destinationType", "javax.jms.Queue"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// expectations
 		context.checking(new Expectations(){{
-			one(facade).addClassAnnotation("test.MessageDrivenBean1", MessageDriven.class, createNameValuePair("name", "Test"));
+			one(facade).addClassAnnotation("test.MessageDrivenBean1", MessageDriven.class, createNameValuePair("name", "Test")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}});
 
 		EjbJar ejbJar = new EjbJar();
 		MessageDrivenBean bean = new MessageDrivenBean();
-		bean.setEjbName("Test");
-		bean.setEjbClass("test.MessageDrivenBean1");
+		bean.setEjbName("Test"); //$NON-NLS-1$
+		bean.setEjbClass("test.MessageDrivenBean1"); //$NON-NLS-1$
 		
 		ejbJar.addEnterpriseBean(bean);
 		

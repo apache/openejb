@@ -25,6 +25,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.ui.PlatformUI;
 
 public class ProjectSelectionPage extends UserInputWizardPage {
 
@@ -32,13 +33,19 @@ public class ProjectSelectionPage extends UserInputWizardPage {
 	private final IProject[] projects;
 	private List list;
 
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp(
+				"org.apache.openejb.help.test_id");
+	}
+
 	public ProjectSelectionPage(EJBMigrationRefactoring refactoring) {
-		super("wizardPage");
+		super(Messages.getString("org.apache.openejb.helper.annotation.wizards.projectSelectionWzd.pageName")); //$NON-NLS-1$
 		this.refactoring = refactoring;
 		projects = refactoring.getWorkspaceRoot().getProjects();
 		
-		setTitle("EJB 3.0 Annotation Wizard");
-		setDescription("Please select the project you'd like to work on");
+		setTitle(Messages.getString("org.apache.openejb.helper.annotation.wizards.projectSelectionWzd.pageTitle")); //$NON-NLS-1$
+		setDescription(Messages.getString("org.apache.openejb.helper.annotation.wizards.projectSelectionWzd.pageDescription")); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -95,7 +102,7 @@ public class ProjectSelectionPage extends UserInputWizardPage {
 
 	protected void checkPage() {
 		if (getSelectedProject() == null) {
-			setErrorMessage("Please select a project");
+			setErrorMessage(Messages.getString("org.apache.openejb.helper.annotation.wizards.projectSelectionWzd.pageErrorMsg.1")); //$NON-NLS-1$
 			setPageComplete(false);
 			return;
 		} 

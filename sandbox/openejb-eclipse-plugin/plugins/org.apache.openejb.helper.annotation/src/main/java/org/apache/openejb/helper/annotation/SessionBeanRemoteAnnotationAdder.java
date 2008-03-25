@@ -68,7 +68,7 @@ public class SessionBeanRemoteAnnotationAdder implements Converter {
 			
 			if (sessionBean.getHome() != null && sessionBean.getHome().length() > 0) {
 				Map<String, Object> props = new HashMap<String, Object>();
-				props.put("value", sessionBean.getHome());
+				props.put("value", sessionBean.getHome()); //$NON-NLS-1$
 				
 				facade.addClassAnnotation(ejbClass, RemoteHome.class, props);
 			}

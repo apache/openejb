@@ -34,7 +34,9 @@
 				<directory>.</directory>
 				<includes>
 					<include>plugin.xml</include>
+					<include>about.html</include>
 					<include>plugin.properties</include>
+					<include>plugin_*.properties</include>
 				</includes>
 			</resource>
 			<resource>

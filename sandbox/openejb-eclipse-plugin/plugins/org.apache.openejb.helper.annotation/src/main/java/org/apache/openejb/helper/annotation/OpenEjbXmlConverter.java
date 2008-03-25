@@ -46,11 +46,11 @@ import org.xml.sax.SAXException;
  */
 public class OpenEjbXmlConverter {
 
-	public static final String CLS_TRANSACTION_ATTRIBUTE = "javax.ejb.TransactionAttribute";
-	public static final String CLS_APPLICATION_EXCEPTION = "javax.ejb.ApplicationException";
-	public static final String CLS_STATEFUL = "javax.ejb.Stateful";
-	public static final String CLS_STATELESS = "javax.ejb.Stateless";
-	public static final String CLS_MESSAGE_DRIVEN = "javax.ejb.MessageDriven";
+	public static final String CLS_TRANSACTION_ATTRIBUTE = "javax.ejb.TransactionAttribute"; //$NON-NLS-1$
+	public static final String CLS_APPLICATION_EXCEPTION = "javax.ejb.ApplicationException"; //$NON-NLS-1$
+	public static final String CLS_STATEFUL = "javax.ejb.Stateful"; //$NON-NLS-1$
+	public static final String CLS_STATELESS = "javax.ejb.Stateless"; //$NON-NLS-1$
+	public static final String CLS_MESSAGE_DRIVEN = "javax.ejb.MessageDriven"; //$NON-NLS-1$
 	public static final String STATELESS_CLASS = CLS_STATELESS;
 	private Converter[] converters;
 	
@@ -78,7 +78,7 @@ public class OpenEjbXmlConverter {
 	 * @return Whether or not the parsing was successful
 	 * @throws ConversionException 
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	public boolean convert(InputSource ejbJarSrc, InputSource openEjbJarSrc) throws ConversionException {
 		AppModule appModule = getAppModule(ejbJarSrc, openEjbJarSrc);
 		
@@ -90,7 +90,7 @@ public class OpenEjbXmlConverter {
 	}
 
 	private AppModule getAppModule(InputSource ejbJarSrc, InputSource openEjbJarSrc) throws ConversionException {
-		AppModule appModule = new AppModule(getClass().getClassLoader(), "ModuleToConvert");
+		AppModule appModule = new AppModule(getClass().getClassLoader(), "ModuleToConvert"); //$NON-NLS-1$
 		
 		try {	
 			EjbJar ejbJar = (EjbJar) JaxbJavaee.unmarshal(EjbJar.class, ejbJarSrc.getByteStream());
@@ -103,7 +103,7 @@ public class OpenEjbXmlConverter {
 
 		        JAXBElement<?> element = (JAXBElement<?>) JaxbOpenejbJar2.unmarshal(OpenejbJarType.class, openEjbJarSrc.getByteStream());
 		        OpenejbJarType openejbJarType = (OpenejbJarType) element.getValue();
-		        ejbModule.getAltDDs().put("openejb-jar.xml", openejbJarType);
+		        ejbModule.getAltDDs().put("openejb-jar.xml", openejbJarType); //$NON-NLS-1$
 
 		        CmpJpaConversion cmpJpaConversion = new CmpJpaConversion();
 		        cmpJpaConversion.deploy(appModule);
@@ -114,13 +114,13 @@ public class OpenEjbXmlConverter {
 			
 			return appModule;
 		} catch (JAXBException e) {
-			throw new ConversionException("Unable to unmarshal XML", e);
+			throw new ConversionException(Messages.getString("org.apache.openejb.helper.annotation.conversionExceptionMsg.1"), e); //$NON-NLS-1$
 		} catch (ParserConfigurationException e) {
-			throw new ConversionException("Unable to unmarshal XML (parser configuration error)", e);
+			throw new ConversionException(Messages.getString("org.apache.openejb.helper.annotation.conversionExceptionMsg.2"), e); //$NON-NLS-1$
 		} catch (SAXException e) {
-			throw new ConversionException("Unable to unmarshal XML (SAX error - XML badly formed?)", e);
+			throw new ConversionException(Messages.getString("org.apache.openejb.helper.annotation.conversionExceptionMsg.3"), e); //$NON-NLS-1$
 		} catch (OpenEJBException e) {
-			throw new ConversionException("Unable to convert openejb-jar.xml to orm.xml");
+			throw new ConversionException(Messages.getString("org.apache.openejb.helper.annotation.conversionExceptionMsg.4")); //$NON-NLS-1$
 		}
 	}
 }

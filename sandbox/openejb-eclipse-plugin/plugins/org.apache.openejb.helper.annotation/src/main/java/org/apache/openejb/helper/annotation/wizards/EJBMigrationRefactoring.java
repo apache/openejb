@@ -64,12 +64,12 @@ public class EJBMigrationRefactoring extends Refactoring {
 		status = new RefactoringStatus();
 		
 		if (ejbJarXmlFile == null || ejbJarXmlFile.length() == 0) {
-			status.addError("No ejb-jar.xml specified");
+			status.addError(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbMigrationWzd.errorMsg.1")); //$NON-NLS-1$
 		}
 
 		IFile file = project.getFile(ejbJarXmlFile);
 		if (! (file.exists())) {
-			status.addError("Specified ejb-jar.xml does not exist");
+			status.addError(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbMigrationWzd.errorMsg.2")); //$NON-NLS-1$
 		}
 
 		
@@ -135,18 +135,18 @@ public class EJBMigrationRefactoring extends Refactoring {
 			return jdtFacade.getChange();
 
 		} catch (ConversionException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.apache.openejb.helper.annotation", e.getMessage()));
+			throw new CoreException(new Status(IStatus.ERROR, "org.apache.openejb.helper.annotation", e.getMessage())); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	public String getName() {
-		return "EJB 3.0 Annotation Migration Refactoring Wizard";
+		return Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbMigrationWzd.refactoringName"); //$NON-NLS-1$
 	}
 
 	public String getEjbJarXmlFile() {
 		if (ejbJarXmlFile == null)
-			ejbJarXmlFile = "";
+			ejbJarXmlFile = ""; //$NON-NLS-1$
 		
 		return ejbJarXmlFile;
 	}
@@ -157,7 +157,7 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 	public String getOpenEjbJarXmlFile() {
 		if (openEjbJarXmlFile == null)
-			openEjbJarXmlFile = "";
+			openEjbJarXmlFile = ""; //$NON-NLS-1$
 		
 		return openEjbJarXmlFile;
 	}

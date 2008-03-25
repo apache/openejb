@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenEJB :: EJB 3.0 Migration Eclipse Test Plugin
+Bundle-Name: %pluginName
 Bundle-SymbolicName: org.apache.openejb.helper.annotation.test;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Activator: org.apache.openejb.helper.annotation.tests.Activator
@@ -33,3 +33,4 @@ Bundle-Classpath: .,
  lib/openjpa-persistence-1.0.1.jar
 Export-Package: org.apache.openejb.helper.annotation.fixtures,
  org.apache.openejb.helper.annotation.tests
+Bundle-Vendor: %providerName

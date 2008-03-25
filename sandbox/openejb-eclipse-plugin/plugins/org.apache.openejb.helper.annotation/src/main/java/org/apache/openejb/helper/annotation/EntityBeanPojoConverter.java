@@ -118,15 +118,15 @@ public class EntityBeanPojoConverter implements Converter {
 		String fieldType = facade.getMethodReturnType(cls, getterMethodName, emptySignature);
 		facade.addField(cls, fieldName, fieldType);
 		
-		String getterMethodBody = "return " + fieldName + ";";
-		String setterMethodBody = "this." + fieldName + " = ${0};";
+		String getterMethodBody = "return " + fieldName + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+		String setterMethodBody = "this." + fieldName + " = ${0};"; //$NON-NLS-1$ //$NON-NLS-2$
 		
 		facade.removeAbstractModifierFromMethod(cls, getterMethodName, emptySignature, getterMethodBody);
 		facade.removeAbstractModifierFromMethod(cls, setterMethodName, new String[] { fieldType }, setterMethodBody);
 	}
 
 	private String convertFieldNameToGetterName(String fieldName) {
-		String methodName = "get" + capitaliseFirstLetter(fieldName);
+		String methodName = "get" + capitaliseFirstLetter(fieldName); //$NON-NLS-1$
 		return methodName;
 	}
 
@@ -140,7 +140,7 @@ public class EntityBeanPojoConverter implements Converter {
 		}
 
 		String firstLetter = fieldName.substring(0, 1).toUpperCase();
-		String restOfWord = "";
+		String restOfWord = ""; //$NON-NLS-1$
 
 		if (fieldName.length() > 1) {
 			restOfWord = fieldName.substring(1);
@@ -150,7 +150,7 @@ public class EntityBeanPojoConverter implements Converter {
 	}
 
 	private String convertFieldNameToSetterName(String fieldName) {
-		String methodName = "set" + capitaliseFirstLetter(fieldName);
+		String methodName = "set" + capitaliseFirstLetter(fieldName); //$NON-NLS-1$
 		return methodName;
 	}
 }

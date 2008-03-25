@@ -36,6 +36,9 @@
                 <includes>
                     <include>feature.xml</include>
                     <include>feature.properties</include>
+					<include>feature_*.properties</include>
+					<include>license.html</include>
+					<include>bigG.gif</include>
                 </includes>
             </resource>
             <resource>
@@ -44,12 +47,6 @@
                 <includes>
                     <include>LICENSE</include>
                     <include>NOTICE</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>..</directory>
-                <includes>
-                    <include>bigG.gif</include>
                 </includes>
             </resource>
         </resources>

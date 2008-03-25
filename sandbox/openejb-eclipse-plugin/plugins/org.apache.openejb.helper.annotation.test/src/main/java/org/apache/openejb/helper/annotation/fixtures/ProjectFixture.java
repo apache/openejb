@@ -21,7 +21,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -33,9 +32,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 public class ProjectFixture {
@@ -47,7 +44,7 @@ public class ProjectFixture {
 		try {
 			project = ResourcesPlugin.getWorkspace()
 				.getRoot()
-				.getProject("TestProject");
+				.getProject("TestProject"); //$NON-NLS-1$
 			
 			project.create(null);
 			project.open(null);
@@ -55,8 +52,8 @@ public class ProjectFixture {
 			
 			addJavaNature();
 			
-			IFile j2eeJar = project.getFile("javaee.jar");
-			j2eeJar.create(getClass().getResourceAsStream("javaee.jar"), true, null);
+			IFile j2eeJar = project.getFile("javaee.jar"); //$NON-NLS-1$
+			j2eeJar.create(getClass().getResourceAsStream("javaee.jar"), true, null); //$NON-NLS-1$
 			
 			javaProject.setRawClasspath(new IClasspathEntry[]{ JavaRuntime.getDefaultJREContainerEntry(), JavaCore.newLibraryEntry(j2eeJar.getFullPath(), null, null) }, null);
 			
@@ -64,7 +61,7 @@ public class ProjectFixture {
 			addBinFolder();
 			
 		} catch (Exception e) {
-			throw new RuntimeException("Unable to create Eclipse project", e);
+			throw new RuntimeException(Messages.getString("org.apache.openejb.helper.annotation.fixtures.runtimeExceptionMsg"), e); //$NON-NLS-1$
 		}
 	}
 	
@@ -75,14 +72,14 @@ public class ProjectFixture {
 
 	protected void addBinFolder() throws CoreException {
 		IProject project = javaProject.getProject();
-		IFolder folder = project.getFolder("bin");
+		IFolder folder = project.getFolder("bin"); //$NON-NLS-1$
 		
 		IPath outputLocation= folder.getFullPath();
 		javaProject.setOutputLocation(outputLocation, null);
 	}
 
 	protected void addSrcFolder() throws CoreException {
-		IFolder folder = project.getFolder("src");
+		IFolder folder = project.getFolder("src"); //$NON-NLS-1$
 		folder.create(false, true, null);
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(folder);
 
@@ -104,7 +101,7 @@ public class ProjectFixture {
 		String className = getClassName(fullClassName);
 		String packageName = getPackageName(fullClassName);
 		
-		IFolder folder = project.getFolder("src");
+		IFolder folder = project.getFolder("src"); //$NON-NLS-1$
 		if (! folder.exists()) {
 			addSrcFolder();
 		}
@@ -112,17 +109,17 @@ public class ProjectFixture {
 		IPackageFragmentRoot packageFragmentRoot = javaProject.findPackageFragmentRoot(folder.getFullPath());
 		IPackageFragment packageFragment = packageFragmentRoot.createPackageFragment(packageName, true, null);
 
-		ICompilationUnit cu = packageFragment.createCompilationUnit(className + ".java", content, true, null);
+		ICompilationUnit cu = packageFragment.createCompilationUnit(className + ".java", content, true, null); //$NON-NLS-1$
 		cu.reconcile(AST.JLS3, true, null, null);
 	}
 
 	private String getPackageName(String fullClassName) {
-		int lastDotPosition = fullClassName.lastIndexOf(".");
+		int lastDotPosition = fullClassName.lastIndexOf("."); //$NON-NLS-1$
 		return fullClassName.substring(0, lastDotPosition);
 	}
 
 	private String getClassName(String fullClassName) {
-		int lastDotPosition = fullClassName.lastIndexOf(".");
+		int lastDotPosition = fullClassName.lastIndexOf("."); //$NON-NLS-1$
 		return fullClassName.substring(lastDotPosition + 1);
 	}
 
