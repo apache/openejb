@@ -37,9 +37,9 @@
     </properties>
 	
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/sandbox/</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/sandbox/</developerConnection>
-    <url>http://svn.apache.org/viewvc/openejb/trunk/sandbox/</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin/</connection>
+    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin/</developerConnection>
+    <url>http://svn.apache.org/viewvc/openejb/trunk/sandbox/openejb-eclipse-plugin/</url>
   </scm>
                         
     <build>
