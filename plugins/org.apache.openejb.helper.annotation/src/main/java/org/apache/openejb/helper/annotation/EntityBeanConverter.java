@@ -60,7 +60,7 @@ public class EntityBeanConverter implements Converter {
 		this.facade = annotationHelper;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addOneToManyRelationshipAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 
 		List<OneToMany> relationships = entity.getAttributes().getOneToMany();
@@ -69,13 +69,13 @@ public class EntityBeanConverter implements Converter {
 			Map oneToManyProperties = getPropertiesForRelationship(relationship);
 
 			String name = relationship.getName();
-			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1); //$NON-NLS-1$
 
 			facade.addMethodAnnotation(entityBean.getEjbClass(), nameGetter, new String[] {}, javax.persistence.OneToMany.class, oneToManyProperties);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addNamedQueriesAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 
 		List<NamedQuery> namedQueries = entity.getNamedQuery();
@@ -94,21 +94,21 @@ public class EntityBeanConverter implements Converter {
 				String hintValue = hint.getValue();
 
 				Map hintProperty = new HashMap();
-				hintProperty.put("name", hintName);
-				hintProperty.put("value", hintValue);
+				hintProperty.put("name", hintName); //$NON-NLS-1$
+				hintProperty.put("value", hintValue); //$NON-NLS-1$
 				hintProperties.add(hintProperty);
 			}
 
 			Map namedQueryProperties = new HashMap();
-			namedQueryProperties.put("name", name);
-			namedQueryProperties.put("query", query);
-			namedQueryProperties.put("hints", hintProperties.toArray(new Object[0]));
+			namedQueryProperties.put("name", name); //$NON-NLS-1$
+			namedQueryProperties.put("query", query); //$NON-NLS-1$
+			namedQueryProperties.put("hints", hintProperties.toArray(new Object[0])); //$NON-NLS-1$
 
 			namedQueriesValues.add(namedQueryProperties);
 		}
 
 		Map namedQueriesProperties = new HashMap();
-		namedQueriesProperties.put("value", namedQueriesValues.toArray(new Object[0]));
+		namedQueriesProperties.put("value", namedQueriesValues.toArray(new Object[0])); //$NON-NLS-1$
 
 		facade.addClassAnnotation(entityBean.getEjbClass(), NamedQueries.class, namedQueriesProperties);
 	}
@@ -129,9 +129,9 @@ public class EntityBeanConverter implements Converter {
 
 		Map<String, Object> basicProps = new HashMap<String, Object>();
 		if (optional != null)
-			basicProps.put("optional", optional.booleanValue());
+			basicProps.put("optional", optional.booleanValue()); //$NON-NLS-1$
 		if (fetchType != null)
-			basicProps.put("fetch", fetchType.value());
+			basicProps.put("fetch", fetchType.value()); //$NON-NLS-1$
 
 		// annotationHelper.addFieldAnnotation(entityBean.getEjbClass(),
 		// fieldName, javax.persistence.Basic.class, basicProps);
@@ -141,7 +141,7 @@ public class EntityBeanConverter implements Converter {
 	}
 
 	private String convertFieldNameToGetterName(String fieldName) {
-		String methodName = "get" + capitaliseFirstLetter(fieldName);
+		String methodName = "get" + capitaliseFirstLetter(fieldName); //$NON-NLS-1$
 		return methodName;
 	}
 
@@ -155,7 +155,7 @@ public class EntityBeanConverter implements Converter {
 		}
 
 		String firstLetter = fieldName.substring(0, 1).toUpperCase();
-		String restOfWord = "";
+		String restOfWord = ""; //$NON-NLS-1$
 
 		if (fieldName.length() > 1) {
 			restOfWord = fieldName.substring(1);
@@ -167,25 +167,25 @@ public class EntityBeanConverter implements Converter {
 	private void addColumnAnnotation(EntityBean entityBean, String fieldName, Column column) {
 		Map<String, Object> columnProps = new HashMap<String, Object>();
 		if (column.getName() != null)
-			columnProps.put("name", column.getName());
+			columnProps.put("name", column.getName()); //$NON-NLS-1$
 		if (column.isUnique() != null)
-			columnProps.put("unique", column.isUnique().booleanValue());
+			columnProps.put("unique", column.isUnique().booleanValue()); //$NON-NLS-1$
 		if (column.isNullable() != null)
-			columnProps.put("nullable", column.isNullable().booleanValue());
+			columnProps.put("nullable", column.isNullable().booleanValue()); //$NON-NLS-1$
 		if (column.isInsertable() != null)
-			columnProps.put("insertable", column.isInsertable().booleanValue());
+			columnProps.put("insertable", column.isInsertable().booleanValue()); //$NON-NLS-1$
 		if (column.isUpdatable() != null)
-			columnProps.put("updatable", column.isUpdatable().booleanValue());
+			columnProps.put("updatable", column.isUpdatable().booleanValue()); //$NON-NLS-1$
 		if (column.getColumnDefinition() != null)
-			columnProps.put("columnDefinition", column.getColumnDefinition());
+			columnProps.put("columnDefinition", column.getColumnDefinition()); //$NON-NLS-1$
 		if (column.getTable() != null)
-			columnProps.put("table", column.getTable());
+			columnProps.put("table", column.getTable()); //$NON-NLS-1$
 		if (column.getLength() != null)
-			columnProps.put("length", column.getLength().intValue());
+			columnProps.put("length", column.getLength().intValue()); //$NON-NLS-1$
 		if (column.getPrecision() != null)
-			columnProps.put("precision", column.getPrecision().intValue());
+			columnProps.put("precision", column.getPrecision().intValue()); //$NON-NLS-1$
 		if (column.getScale() != null)
-			columnProps.put("scale", column.getScale().intValue());
+			columnProps.put("scale", column.getScale().intValue()); //$NON-NLS-1$
 
 		// annotationHelper.addFieldAnnotation(entityBean.getEjbClass(),
 		// fieldName, javax.persistence.Column.class, columnProps);
@@ -202,15 +202,15 @@ public class EntityBeanConverter implements Converter {
 
 		Map<String, Object> tableProperties = new HashMap<String, Object>();
 		if (tableName != null && tableName.length() > 0) {
-			tableProperties.put("name", tableName);
+			tableProperties.put("name", tableName); //$NON-NLS-1$
 		}
 
 		if (schemaName != null && schemaName.length() > 0) {
-			tableProperties.put("schema", schemaName);
+			tableProperties.put("schema", schemaName); //$NON-NLS-1$
 		}
 
 		if (catalogName != null && catalogName.length() > 0) {
-			tableProperties.put("catalog", catalogName);
+			tableProperties.put("catalog", catalogName); //$NON-NLS-1$
 		}
 
 		facade.addClassAnnotation(entityBean.getEjbClass(), Table.class, tableProperties);
@@ -245,7 +245,7 @@ public class EntityBeanConverter implements Converter {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	public void convert(AppModule appModule) {
 		EntityMappings entityMappings = appModule.getCmpMappings();
 		List<EntityBean> entityBeans = getEntityBeans(appModule);
@@ -274,13 +274,13 @@ public class EntityBeanConverter implements Converter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addOneToOneRelationshipAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 		List<OneToOne> relationships = entity.getAttributes().getOneToOne();
 		for (OneToOne relationship : relationships) {
 
 			String name = relationship.getName();
-			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1); //$NON-NLS-1$
 			
 			Map<String, Object> oneToOneProperties = getPropertiesForRelationship(relationship);
 
@@ -288,19 +288,19 @@ public class EntityBeanConverter implements Converter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addManyToOneRelationshipAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 		List<ManyToOne> relationships = entity.getAttributes().getManyToOne();
 		for (ManyToOne relationship : relationships) {
 
 			String name = relationship.getName();
-			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+			String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1); //$NON-NLS-1$
 
 			Map manyToOneProperties = getPropertiesForRelationship(relationship);
 			
 			Boolean optional = relationship.isOptional();
 			if (optional != null) {
-				manyToOneProperties.put("optional", optional.booleanValue());
+				manyToOneProperties.put("optional", optional.booleanValue()); //$NON-NLS-1$
 			}
 			
 			
@@ -308,7 +308,7 @@ public class EntityBeanConverter implements Converter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private Map<String,Object> getPropertiesForRelationship(RelationField relationship) {
 		String targetEntity = relationship.getTargetEntity();
 		FetchType fetch = relationship.getFetch();
@@ -317,7 +317,7 @@ public class EntityBeanConverter implements Converter {
 		
 		Map<String, Object> manyToOneProperties = new HashMap<String, Object>();
 		if (fetch != null) {
-			manyToOneProperties.put("fetch", fetch.value());
+			manyToOneProperties.put("fetch", fetch.value()); //$NON-NLS-1$
 		}
 
 		if (cascade != null) {
@@ -342,16 +342,16 @@ public class EntityBeanConverter implements Converter {
 				cascadeList.add(javax.persistence.CascadeType.REMOVE);
 			}
 
-			manyToOneProperties.put("cascade", cascadeList.toArray(new Object[0]));
+			manyToOneProperties.put("cascade", cascadeList.toArray(new Object[0])); //$NON-NLS-1$
 		}
 
 		if (targetEntity != null && targetEntity.length() > 0) {
-			manyToOneProperties.put("targetEntity", targetEntity);
+			manyToOneProperties.put("targetEntity", targetEntity); //$NON-NLS-1$
 		}
 		return manyToOneProperties;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addIdClassAnnotation(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 		IdClass idClass = entity.getIdClass();
 		
@@ -362,12 +362,12 @@ public class EntityBeanConverter implements Converter {
 		String cls = idClass.getClazz();
 		
 		Map props = new HashMap();
-		props.put("value", cls);
+		props.put("value", cls); //$NON-NLS-1$
 		
 		facade.addClassAnnotation(entityBean.getEjbClass(), javax.persistence.IdClass.class, props);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addNamedNativeQueriesAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 		List<NamedNativeQuery> namedQueries = entity.getNamedNativeQuery();
 		List namedQueriesValues = new ArrayList();
@@ -385,22 +385,22 @@ public class EntityBeanConverter implements Converter {
 				String hintValue = hint.getValue();
 
 				Map hintProperty = new HashMap();
-				hintProperty.put("name", hintName);
-				hintProperty.put("value", hintValue);
+				hintProperty.put("name", hintName); //$NON-NLS-1$
+				hintProperty.put("value", hintValue); //$NON-NLS-1$
 				hintProperties.add(hintProperty);
 			}
 
 			Map namedQueryProperties = new HashMap();
-			namedQueryProperties.put("name", name);
-			namedQueryProperties.put("query", query);
-			namedQueryProperties.put("hints", hintProperties.toArray(new Object[0]));
+			namedQueryProperties.put("name", name); //$NON-NLS-1$
+			namedQueryProperties.put("query", query); //$NON-NLS-1$
+			namedQueryProperties.put("hints", hintProperties.toArray(new Object[0])); //$NON-NLS-1$
 
 			namedQueriesValues.add(namedQueryProperties);
 		}
 
 		if (namedQueriesValues.size() > 0) {
 			Map namedQueriesProperties = new HashMap();
-			namedQueriesProperties.put("value", namedQueriesValues.toArray(new Object[0]));
+			namedQueriesProperties.put("value", namedQueriesValues.toArray(new Object[0])); //$NON-NLS-1$
 	
 			facade.addClassAnnotation(entityBean.getEjbClass(), NamedNativeQueries.class, namedQueriesProperties);
 		}
@@ -417,7 +417,7 @@ public class EntityBeanConverter implements Converter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addIdAnnotation(EntityBean entityBean, Id id) {
 		String fieldName = id.getName();
 		
@@ -429,21 +429,21 @@ public class EntityBeanConverter implements Converter {
 		GeneratedValue generatedValue = id.getGeneratedValue();
 		if (generatedValue != null) {
 			Map<String, Object> generatedValueProps = new HashMap<String, Object>();
-			generatedValueProps.put("generator", generatedValue.getGenerator());
+			generatedValueProps.put("generator", generatedValue.getGenerator()); //$NON-NLS-1$
 			
 			GenerationType strategy = generatedValue.getStrategy();
 			switch (strategy) {
 				case AUTO:
-					generatedValueProps.put("strategy", javax.persistence.GenerationType.AUTO);
+					generatedValueProps.put("strategy", javax.persistence.GenerationType.AUTO); //$NON-NLS-1$
 					break;
 				case IDENTITY:
-					generatedValueProps.put("strategy", javax.persistence.GenerationType.IDENTITY);
+					generatedValueProps.put("strategy", javax.persistence.GenerationType.IDENTITY); //$NON-NLS-1$
 					break;
 				case SEQUENCE:
-					generatedValueProps.put("strategy", javax.persistence.GenerationType.SEQUENCE);
+					generatedValueProps.put("strategy", javax.persistence.GenerationType.SEQUENCE); //$NON-NLS-1$
 					break;
 				case TABLE:
-					generatedValueProps.put("strategy", javax.persistence.GenerationType.TABLE);
+					generatedValueProps.put("strategy", javax.persistence.GenerationType.TABLE); //$NON-NLS-1$
 					break;
 			}
 			
@@ -453,10 +453,10 @@ public class EntityBeanConverter implements Converter {
 		SequenceGenerator sequenceGenerator = id.getSequenceGenerator();
 		if (sequenceGenerator != null) {
 			Map<String, Object> sequenceGeneratorProps = new HashMap<String, Object>();
-			sequenceGeneratorProps.put("name", sequenceGenerator.getName());
-			sequenceGeneratorProps.put("sequenceName", sequenceGenerator.getSequenceName());
-			sequenceGeneratorProps.put("initialValue", sequenceGenerator.getInitialValue().intValue());
-			sequenceGeneratorProps.put("allocationSize", sequenceGenerator.getAllocationSize().intValue());
+			sequenceGeneratorProps.put("name", sequenceGenerator.getName()); //$NON-NLS-1$
+			sequenceGeneratorProps.put("sequenceName", sequenceGenerator.getSequenceName()); //$NON-NLS-1$
+			sequenceGeneratorProps.put("initialValue", sequenceGenerator.getInitialValue().intValue()); //$NON-NLS-1$
+			sequenceGeneratorProps.put("allocationSize", sequenceGenerator.getAllocationSize().intValue()); //$NON-NLS-1$
 			
 			facade.addMethodAnnotation(entityBean.getEjbClass(), methodName, emptySignature, javax.persistence.SequenceGenerator.class, sequenceGeneratorProps);
 		}
@@ -464,15 +464,15 @@ public class EntityBeanConverter implements Converter {
 		TableGenerator tableGenerator = id.getTableGenerator();
 		if (tableGenerator != null) {
 			Map<String, Object> tableGeneratorProps = new HashMap<String, Object>();
-			tableGeneratorProps.put("name", tableGenerator.getName());
-			tableGeneratorProps.put("table", tableGenerator.getTable());
-			tableGeneratorProps.put("catalog", tableGenerator.getCatalog());
-			tableGeneratorProps.put("schema", tableGenerator.getSchema());
-			tableGeneratorProps.put("pkColumnName", tableGenerator.getPkColumnName());
-			tableGeneratorProps.put("valueColumnName", tableGenerator.getValueColumnName());
-			tableGeneratorProps.put("pkColumnValue", tableGenerator.getPkColumnValue());
-			tableGeneratorProps.put("initialValue", tableGenerator.getInitialValue().intValue());
-			tableGeneratorProps.put("allocationSize", tableGenerator.getAllocationSize().intValue());
+			tableGeneratorProps.put("name", tableGenerator.getName()); //$NON-NLS-1$
+			tableGeneratorProps.put("table", tableGenerator.getTable()); //$NON-NLS-1$
+			tableGeneratorProps.put("catalog", tableGenerator.getCatalog()); //$NON-NLS-1$
+			tableGeneratorProps.put("schema", tableGenerator.getSchema()); //$NON-NLS-1$
+			tableGeneratorProps.put("pkColumnName", tableGenerator.getPkColumnName()); //$NON-NLS-1$
+			tableGeneratorProps.put("valueColumnName", tableGenerator.getValueColumnName()); //$NON-NLS-1$
+			tableGeneratorProps.put("pkColumnValue", tableGenerator.getPkColumnValue()); //$NON-NLS-1$
+			tableGeneratorProps.put("initialValue", tableGenerator.getInitialValue().intValue()); //$NON-NLS-1$
+			tableGeneratorProps.put("allocationSize", tableGenerator.getAllocationSize().intValue()); //$NON-NLS-1$
 
 			List uniqueConstraintPropsList = new ArrayList();
 			
@@ -480,11 +480,11 @@ public class EntityBeanConverter implements Converter {
 			for (UniqueConstraint uniqueConstriant : uniqueConstraints) {
 				Map<String, Object> uniqueConstraintProps = new HashMap<String, Object>();
 				List<String> columns = uniqueConstriant.getColumnName();
-				uniqueConstraintProps.put("columnNames", columns.toArray(new String[0]));
+				uniqueConstraintProps.put("columnNames", columns.toArray(new String[0])); //$NON-NLS-1$
 				uniqueConstraintPropsList.add(uniqueConstraintProps);
 			}
 			
-			tableGeneratorProps.put("uniqueConstraints", uniqueConstraintPropsList.toArray(new Object[0]));
+			tableGeneratorProps.put("uniqueConstraints", uniqueConstraintPropsList.toArray(new Object[0])); //$NON-NLS-1$
 			facade.addMethodAnnotation(entityBean.getEjbClass(), methodName, emptySignature, javax.persistence.TableGenerator.class, tableGeneratorProps);
 		}
 	}
@@ -493,7 +493,7 @@ public class EntityBeanConverter implements Converter {
 		String ejbClass = entityBean.getEjbClass();
 		String ejbSuperClass = facade.getSuperClass(ejbClass);
 		if (ejbSuperClass != null && ejbSuperClass.length() > 0) {
-			if (facade.classImplements(ejbSuperClass, "javax.ejb.EntityBean")) {
+			if (facade.classImplements(ejbSuperClass, "javax.ejb.EntityBean")) { //$NON-NLS-1$
 				entityBean.setEjbClass(ejbSuperClass);
 			}
 		}

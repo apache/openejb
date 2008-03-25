@@ -49,18 +49,18 @@ public class SessionBeanInterfaceModifier implements Converter {
 				SessionBean sessionBean = (SessionBean) enterpriseBean;
 				String ejbClass = sessionBean.getEjbClass();
 
-				facade.removeInterface(ejbClass, "javax.ejb.SessionBean");
+				facade.removeInterface(ejbClass, "javax.ejb.SessionBean"); //$NON-NLS-1$
 
 				String remoteInterface = sessionBean.getRemote();
 				if (remoteInterface != null && remoteInterface.length() > 0) {
 					facade.addInterface(ejbClass, remoteInterface);
-					facade.removeInterface(remoteInterface, "javax.ejb.EJBObject");
+					facade.removeInterface(remoteInterface, "javax.ejb.EJBObject"); //$NON-NLS-1$
 				}
 
 				String localInterface = sessionBean.getLocal();
 				if (localInterface != null && localInterface.length() > 0) {
 					facade.addInterface(ejbClass, localInterface);
-					facade.removeInterface(localInterface, "javax.ejb.EJBLocalObject");
+					facade.removeInterface(localInterface, "javax.ejb.EJBLocalObject"); //$NON-NLS-1$
 				}
 			}
 		}

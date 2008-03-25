@@ -65,11 +65,11 @@ import org.eclipse.core.resources.IProject;
 
 public class SessionBeanConverter implements Converter {
 
-	public static final String CLS_TRANSACTION_ATTRIBUTE = "javax.ejb.TransactionAttribute";
-	public static final String CLS_APPLICATION_EXCEPTION = "javax.ejb.ApplicationException";
-	public static final String CLS_STATEFUL = "javax.ejb.Stateful";
-	public static final String CLS_STATELESS = "javax.ejb.Stateless";
-	public static final String CLS_MESSAGE_DRIVEN = "javax.ejb.MessageDriven";
+	public static final String CLS_TRANSACTION_ATTRIBUTE = "javax.ejb.TransactionAttribute"; //$NON-NLS-1$
+	public static final String CLS_APPLICATION_EXCEPTION = "javax.ejb.ApplicationException"; //$NON-NLS-1$
+	public static final String CLS_STATEFUL = "javax.ejb.Stateful"; //$NON-NLS-1$
+	public static final String CLS_STATELESS = "javax.ejb.Stateless"; //$NON-NLS-1$
+	public static final String CLS_MESSAGE_DRIVEN = "javax.ejb.MessageDriven"; //$NON-NLS-1$
 	public static final String STATELESS_CLASS = CLS_STATELESS;
 	protected IJDTFacade annotationHelper;
 	
@@ -136,25 +136,25 @@ public class SessionBeanConverter implements Converter {
 		
 		if (transactionType != null && (! TransactionType.CONTAINER.equals(transactionType))) {
 			Map<String,Object> props = new HashMap<String, Object>();
-			props.put("value", TransactionManagementType.BEAN);
+			props.put("value", TransactionManagementType.BEAN); //$NON-NLS-1$
 			
 			annotationHelper.addClassAnnotation(bean.getEjbClass(), TransactionManagement.class, props);
 		}
 		
 		Map<String, List<MethodTransaction>> methodTransactions = descriptor.getMethodTransactions(bean.getEjbName());
-		if (methodTransactions.containsKey("*")) {
-			List<MethodTransaction> defaultTransactions = methodTransactions.get("*");
+		if (methodTransactions.containsKey("*")) { //$NON-NLS-1$
+			List<MethodTransaction> defaultTransactions = methodTransactions.get("*"); //$NON-NLS-1$
 			MethodTransaction defaultTransaction = defaultTransactions.get(0);
 			
 			Map<String, Object> props = new HashMap<String, Object>();
-			props.put("value", TransactionAttributeType.valueOf(defaultTransaction.getAttribute().name()));
+			props.put("value", TransactionAttributeType.valueOf(defaultTransaction.getAttribute().name())); //$NON-NLS-1$
 			annotationHelper.addClassAnnotation(bean.getEjbClass(), TransactionAttribute.class, props);
 		}
 		
 		Iterator<String> iterator = methodTransactions.keySet().iterator();
 		while (iterator.hasNext()) {
 			String methodName = (String) iterator.next();
-			if ("*".equals(methodName)) {
+			if ("*".equals(methodName)) { //$NON-NLS-1$
 				continue;
 			}
 			
@@ -162,7 +162,7 @@ public class SessionBeanConverter implements Converter {
 			MethodTransaction methodTransaction = transactions.get(0);
 			
 			Map<String, Object> props = new HashMap<String, Object>();
-			props.put("value", TransactionAttributeType.valueOf(methodTransaction.getAttribute().name()));
+			props.put("value", TransactionAttributeType.valueOf(methodTransaction.getAttribute().name())); //$NON-NLS-1$
 			
 			MethodParams methodParams = methodTransaction.getMethod().getMethodParams();
 			String[] params = methodParams.getMethodParam().toArray(new String[0]);
@@ -181,33 +181,33 @@ public class SessionBeanConverter implements Converter {
 
 			for (ActivationConfigProperty activationConfigProperty : activationConfigProperties) {
 				HashMap<String, Object> configProps = new HashMap<String, Object>();
-				configProps.put("propertyName", activationConfigProperty.getActivationConfigPropertyName());
-				configProps.put("propertyValue", activationConfigProperty.getActivationConfigPropertyValue());
+				configProps.put("propertyName", activationConfigProperty.getActivationConfigPropertyName()); //$NON-NLS-1$
+				configProps.put("propertyValue", activationConfigProperty.getActivationConfigPropertyValue()); //$NON-NLS-1$
 				
 				activationConfigPropertiesList.add(configProps);
 			}
 			
 			if (bean.getMessageDestinationLink() != null && bean.getMessageDestinationLink().length() > 0) {
-				if (! hasConfigProperty(activationConfigPropertiesList, "destination")) {
+				if (! hasConfigProperty(activationConfigPropertiesList, "destination")) { //$NON-NLS-1$
 					HashMap<String, Object> configProps = new HashMap<String, Object>();
-					configProps.put("propertyName", "destination");
-					configProps.put("propertyValue", bean.getMessageDestinationLink());
+					configProps.put("propertyName", "destination"); //$NON-NLS-1$ //$NON-NLS-2$
+					configProps.put("propertyValue", bean.getMessageDestinationLink()); //$NON-NLS-1$
 					
 					activationConfigPropertiesList.add(configProps);
 				}
 			}
 
-			props.put("activationConfig", activationConfigPropertiesList.toArray(new HashMap[0]));
+			props.put("activationConfig", activationConfigPropertiesList.toArray(new HashMap[0])); //$NON-NLS-1$
 		}
 		
-		props.put("name", bean.getEjbName());
+		props.put("name", bean.getEjbName()); //$NON-NLS-1$
 		annotationHelper.addClassAnnotation(bean.getEjbClass(), MessageDriven.class, props);
 	}
 
 
 	private boolean hasConfigProperty(List<Map<String, Object>> activationConfigPropertiesList, String propertyName) {
 		for (Map<String,Object> configProperty : activationConfigPropertiesList) {
-			if (configProperty.get("propertyName") != null && configProperty.get("propertyName").toString().equals(propertyName)) {
+			if (configProperty.get("propertyName") != null && configProperty.get("propertyName").toString().equals(propertyName)) { //$NON-NLS-1$ //$NON-NLS-2$
 				return true;
 			}
 		}
@@ -240,7 +240,7 @@ public class SessionBeanConverter implements Converter {
 			
 			String[] roleList = roles.toArray(new String[0]);
 			Map<String, Object> roleProps = new HashMap<String, Object>();
-			roleProps.put("value", roleList);
+			roleProps.put("value", roleList); //$NON-NLS-1$
 
 			
 			List<Method> methods = methodPermission.getMethod();
@@ -253,19 +253,19 @@ public class SessionBeanConverter implements Converter {
 				MethodParams methodParams = method.getMethodParams();
 				String[] params = methodParams.getMethodParam().toArray(new String[0]);
 				
-				if ((! "*".equals(method.getMethodName())) &&  descriptor.getExcludeList().getMethod().contains(method)) {
+				if ((! "*".equals(method.getMethodName())) &&  descriptor.getExcludeList().getMethod().contains(method)) { //$NON-NLS-1$
 					annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, DenyAll.class, null);
 					continue;
 				}
 				
 				if (methodPermission.getUnchecked()) {
-					if ("*".equals(method.getMethodName())) {
+					if ("*".equals(method.getMethodName())) { //$NON-NLS-1$
 						annotationHelper.addClassAnnotation(enterpriseBean.getEjbClass(), PermitAll.class, null);
 					} else {
 						annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, PermitAll.class, null);
 					}
 				} else {
-					if ("*".equals(method.getMethodName())) {
+					if ("*".equals(method.getMethodName())) { //$NON-NLS-1$
 						annotationHelper.addClassAnnotation(enterpriseBean.getEjbClass(), RolesAllowed.class, roleProps);
 					} else {
 						annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, RolesAllowed.class, roleProps);
@@ -281,7 +281,7 @@ public class SessionBeanConverter implements Converter {
 		}
 		
 		Map<String, Object> runAsProps = new HashMap<String, Object>();
-		runAsProps.put("value", bean.getSecurityIdentity().getRunAs());
+		runAsProps.put("value", bean.getSecurityIdentity().getRunAs()); //$NON-NLS-1$
 		
 		annotationHelper.addClassAnnotation(bean.getEjbClass(), RunAs.class, runAsProps);
 	}
@@ -305,7 +305,7 @@ public class SessionBeanConverter implements Converter {
 			roleList.add(securityRoleRef.getRoleName());
 		}
 		
-		props.put("value", roleList.toArray(new String[0]));
+		props.put("value", roleList.toArray(new String[0])); //$NON-NLS-1$
 		annotationHelper.addClassAnnotation(bean.getEjbClass(), DeclareRoles.class, props);
 	}
 
@@ -320,7 +320,7 @@ public class SessionBeanConverter implements Converter {
 			String[] classes = interceptorClasses.toArray(new String[0]);
 			
 			Map<String, Object> properties = new HashMap<String, Object>();
-			properties.put("value", classes);
+			properties.put("value", classes); //$NON-NLS-1$
 			
 			if (interceptorBinding.getMethod() == null) {
 				if (interceptorBinding.getExcludeDefaultInterceptors()) {

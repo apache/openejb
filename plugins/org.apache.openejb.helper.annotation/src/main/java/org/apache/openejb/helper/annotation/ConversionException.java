@@ -22,6 +22,11 @@ package org.apache.openejb.helper.annotation;
  */
 public class ConversionException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4968483527572451177L;
+
 	public ConversionException() {
 	}
 

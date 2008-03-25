@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description url="http://www.openejb.org/updates/1.0">
+      The Apache OpenEJB Project Updates
+   </description>
+   <feature url="features/org.apache.openejb.feature_1.0.0.jar" id="org.apache.openejb.feature" version="1.0.0">
+      <category name="Apache OpenEJB Annotation Feature"/>
+   </feature>
+   <category-def name="Apache OpenEJB Annotation Feature" label="Apache OpenEJB Annotation Feature"/>
+</site>

@@ -143,8 +143,14 @@
         </pluginManagement>
     </build>
     <modules>
-        <module>org.apache.openejb.helper.annotation</module>
+	<module>org.apache.openejb.branding</module>
+    <module>org.apache.openejb.helper.annotation</module>
 	<module>org.apache.openejb.helper.annotation.test</module>
 	<module>org.eclipse.jst.server.generic.openejb</module>
+	<module>org.apache.openejb.help</module>
+	<module>org.apache.openejb.help.nl1</module>
+	<module>org.apache.openejb.help.nl2</module>
+	<module>org.apache.openejb.help.nl2a</module>
+	<module>org.apache.openejb.help.nlBidi</module>
     </modules>
 </project>

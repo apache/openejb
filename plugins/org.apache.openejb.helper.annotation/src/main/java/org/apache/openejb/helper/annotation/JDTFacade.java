@@ -83,7 +83,7 @@ import org.eclipse.text.edits.TextEdit;
  * Add annotations to source files in an Eclipse Java project
  * 
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("unchecked") //$NON-NLS-1$
 public class JDTFacade implements IJDTFacade {
 
 	private class BasicSearchRequestor extends SearchRequestor {
@@ -163,7 +163,7 @@ public class JDTFacade implements IJDTFacade {
 	}
 
 	private Name createQualifiedName(AST ast, String classToImport) {
-		String[] parts = classToImport.split("\\.");
+		String[] parts = classToImport.split("\\."); //$NON-NLS-1$
 
 		Name name = null;
 
@@ -179,7 +179,7 @@ public class JDTFacade implements IJDTFacade {
 	}
 
 	private Type createQualifiedType(AST ast, String targetClass) {
-		String[] parts = targetClass.split("\\.");
+		String[] parts = targetClass.split("\\."); //$NON-NLS-1$
 
 		Type type = null;
 
@@ -207,7 +207,7 @@ public class JDTFacade implements IJDTFacade {
 	 */
 	private boolean isClassImported(String importedClass, CompilationUnit compilationUnit) {
 		Iterator<ImportDeclaration> iterator = compilationUnit.imports().iterator();
-		String packageName = importedClass.substring(0, importedClass.lastIndexOf("."));
+		String packageName = importedClass.substring(0, importedClass.lastIndexOf(".")); //$NON-NLS-1$
 
 		while (iterator.hasNext()) {
 			ImportDeclaration importDeclaration = iterator.next();
@@ -260,14 +260,14 @@ public class JDTFacade implements IJDTFacade {
 			BodyDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
 
 			if (isAnnotationAlreadyUsedOnDeclaration(annotation, typeDeclaration)) {
-				warnings.add("Annotation " + annotation.getCanonicalName() + " already used on " + targetClass);
+				warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotation.getCanonicalName(), targetClass)); //$NON-NLS-1$
 				return;
 			}
 
 			Annotation modifier = createModifier(cu.getAST(), annotation, properties, cu);
 			typeDeclaration.modifiers().add(0, modifier);
 		} catch (Exception e) {
-			warnings.add("An error occurred adding annotation " + annotation.getCanonicalName() + " to class " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.2"), annotation.getCanonicalName(), targetClass)); //$NON-NLS-1$
 		}
 	}
 
@@ -441,7 +441,7 @@ public class JDTFacade implements IJDTFacade {
 
 			addImportToCompilationUnit(annotationClass.getCanonicalName(), cu);
 		} catch (CoreException e) {
-			warnings.add("An error occurred adding annotation " + annotationClass.getCanonicalName() + " to method " + methodName + " on " + fullyQualifiedClassName);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.3"), annotationClass.getCanonicalName(), methodName, fullyQualifiedClassName)); //$NON-NLS-1$
 		}
 	}
 
@@ -504,12 +504,12 @@ public class JDTFacade implements IJDTFacade {
 			}
 
 		} catch (CoreException e) {
-			warnings.add("An error occurred adding annotation " + annotation.getCanonicalName() + " to field " + targetField + " on " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.4"), annotation.getCanonicalName(), targetField, targetClass)); //$NON-NLS-1$
 		}
 	}
 
 	public Change getChange() {
-		CompositeChange compositeChange = new CompositeChange("Add EJB 3.0 Annotations");
+		CompositeChange compositeChange = new CompositeChange(Messages.getString("org.apache.openejb.helper.annotation.compositChangeString")); //$NON-NLS-1$
 
 		Iterator<CompilationUnit> iterator = cuMap.values().iterator();
 		while (iterator.hasNext()) {
@@ -524,7 +524,7 @@ public class JDTFacade implements IJDTFacade {
 
 				TextEdit edit = cu.rewrite(document, javaProject.getOptions(true));
 				TextFileChange dc = new TextFileChange(path.toString(), (IFile) cu.getJavaElement().getResource());
-				dc.setTextType("java");
+				dc.setTextType("java"); //$NON-NLS-1$
 				dc.setEdit(edit);
 				dc.setSaveMode(TextFileChange.FORCE_SAVE);
 
@@ -540,7 +540,7 @@ public class JDTFacade implements IJDTFacade {
 		return warnings.toArray(new String[0]);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	public void removeInterface(String targetClass, String interfaceToRemove) {
 		try {
 			CompilationUnit cu = getCompilationUnit(targetClass);
@@ -560,7 +560,7 @@ public class JDTFacade implements IJDTFacade {
 
 			}
 		} catch (CoreException e) {
-			warnings.add("An error occurred removing " + interfaceToRemove + " from " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.5"), interfaceToRemove, targetClass)); //$NON-NLS-1$
 		}
 	}
 
@@ -575,7 +575,7 @@ public class JDTFacade implements IJDTFacade {
 			BodyDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
 			removeAbstractModifier(typeDeclaration.modifiers());
 		} catch (Exception e) {
-			warnings.add("An error occurred removing abstract from " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.6"), targetClass)); //$NON-NLS-1$
 		}
 	}
 
@@ -603,7 +603,7 @@ public class JDTFacade implements IJDTFacade {
 			List parameters = methodDeclaration.parameters();
 			for (int i = 0; i < parameters.size(); i++) {
 				SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(i);
-				code = code.replaceAll("\\$\\{" + Integer.toString(i) + "\\}", parameter.resolveBinding().getName());
+				code = code.replaceAll("\\$\\{" + Integer.toString(i) + "\\}", parameter.resolveBinding().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			
 			Block block = parseBlock(code);
@@ -611,7 +611,7 @@ public class JDTFacade implements IJDTFacade {
 
 			methodDeclaration.setBody((Block) block);
 		} catch (CoreException e) {
-			warnings.add("Unable to remove abstract modifier from: " + targetClass + "." + methodName);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.7"), targetClass, methodName)); //$NON-NLS-1$
 		}
 	}
 
@@ -634,7 +634,7 @@ public class JDTFacade implements IJDTFacade {
 
 			}
 		} catch (CoreException e) {
-			warnings.add("An error occurred determining interfaces of " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.8"), targetClass)); //$NON-NLS-1$
 		}
 
 		return false;
@@ -645,10 +645,10 @@ public class JDTFacade implements IJDTFacade {
 			TypeDeclaration type = getTypeDeclaration(getCompilationUnit(targetClass), targetClass);
 			return type.getSuperclassType().resolveBinding().getQualifiedName();
 		} catch (CoreException e) {
-			warnings.add("Error occurred getting superclass of " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.9"), targetClass)); //$NON-NLS-1$
 		}
 
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	public String getMethodReturnType(String targetClass, String methodName, String[] signature) {
@@ -659,7 +659,7 @@ public class JDTFacade implements IJDTFacade {
 
 			return methodDeclaration.resolveBinding().getReturnType().getQualifiedName();
 		} catch (CoreException e) {
-			warnings.add("Error getting return type of " + targetClass + "." + methodName);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.10"), targetClass, methodName)); //$NON-NLS-1$
 		}
 
 		return null;
@@ -680,7 +680,7 @@ public class JDTFacade implements IJDTFacade {
 			fieldDeclaration.modifiers().add(privateModifier);
 			typeDeclaration.bodyDeclarations().add(fieldDeclaration);
 		} catch (CoreException e) {
-			warnings.add("Error adding field " + fieldName + " on " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.11"), fieldName, targetClass)); //$NON-NLS-1$
 		}
 
 	}
@@ -735,7 +735,7 @@ public class JDTFacade implements IJDTFacade {
 			
 			typeDeclaration.superInterfaceTypes().add(interfaceType);
 		} catch (CoreException e) {
-			warnings.add("An error occurred adding " + interfaceClass + " to " + targetClass);
+			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), interfaceClass, targetClass)); //$NON-NLS-1$
 		}
 	}
 

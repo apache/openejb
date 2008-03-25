@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 import org.eclipse.ui.model.WorkbenchContentProvider;
@@ -42,8 +43,8 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 public class EJBJarSelectionPage extends UserInputWizardPage {
 
-	private static final Status SELECTION_NOT_OK_STATUS = new Status(4, "org.apache.openejb.helper.annotation", 4, "", null);
-	private static final Status SELECTION_OK_STATUS = new Status(0, "org.eclipse.core.runtime", 0, "", null);
+	private static final Status SELECTION_NOT_OK_STATUS = new Status(4, "org.apache.openejb.helper.annotation", 4, "", null); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final Status SELECTION_OK_STATUS = new Status(0, "org.eclipse.core.runtime", 0, "", null); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private final EJBMigrationRefactoring refactoring;
 	private Text ejbJarXmlText;
@@ -52,10 +53,16 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 	private Button remoteAndRemoteHomeAnnotations;
 	private Button convertEntityBeansToPojos;
 	
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp(
+				"org.apache.openejb.help.test_id");
+	}
+	
 	public EJBJarSelectionPage(EJBMigrationRefactoring refactoring) {
-		super("wizardPage");
-		setTitle("EJB 3.0 Annotation Wizard");
-		setDescription("This wizard analyzes ejb-jar.xml and openejb-jar.xml and adds EJB 3.0 annotations to your source");
+		super(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.pageName")); //$NON-NLS-1$
+		setTitle(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.pageTitle")); //$NON-NLS-1$
+		setDescription(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.pageDescription")); //$NON-NLS-1$
 		this.refactoring = refactoring;
 	}
 
@@ -69,7 +76,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		container.setLayout(gridLayout);
 		
 		Label ejbJarXmlLabel = new Label(container, SWT.NONE);
-		ejbJarXmlLabel.setText("ejb-jar.xml location");
+		ejbJarXmlLabel.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.label.ejbJarXmlLocation")); //$NON-NLS-1$
 
 		ejbJarXmlText = new Text(container, SWT.BORDER);
 		ejbJarXmlText.setText(refactoring.getEjbJarXmlFile());
@@ -81,10 +88,10 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		});
 		
 		Button browseEjbJarButton = new Button(container, SWT.NONE);
-		browseEjbJarButton.setText("Browse");
+		browseEjbJarButton.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.browseEjbJar")); //$NON-NLS-1$
 		browseEjbJarButton.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
 			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
-				String filename = handleBrowse("Select ejb-jar.xml file");
+				String filename = handleBrowse(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.selectionListener.filename.1")); //$NON-NLS-1$
 				if (filename != null && filename.length() > 0) {
 					ejbJarXmlText.setText(filename);
 					checkPage();
@@ -93,7 +100,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		});
 		
 		Label openEjbJarXmlLabel = new Label(container, SWT.NONE);
-		openEjbJarXmlLabel.setText("openejb-jar.xml location (optional)");
+		openEjbJarXmlLabel.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.label.openEjbJarXml")); //$NON-NLS-1$
 		
 		openEjbJarXmlText = new Text(container, SWT.BORDER);
 		openEjbJarXmlText.setText(refactoring.getOpenEjbJarXmlFile());
@@ -105,10 +112,10 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		});
 
 		Button browseOpenEjbJarXmlButton = new Button(container, SWT.NONE);
-		browseOpenEjbJarXmlButton.setText("Browse");
+		browseOpenEjbJarXmlButton.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.browseEjbJar")); //$NON-NLS-1$
 		browseOpenEjbJarXmlButton.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
 			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
-				String filename = handleBrowse("Select openejb-jar.xml file");
+				String filename = handleBrowse(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.selectionListener.filename.2")); //$NON-NLS-1$
 				if (filename != null && filename.length() > 0) {
 					openEjbJarXmlText.setText(filename);
 					checkPage();
@@ -122,7 +129,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		
 		ejb3Interfaces = new Button(container, SWT.CHECK);
 		ejb3Interfaces.setLayoutData(checkData);
-		ejb3Interfaces.setText("Alter session bean interfaces");
+		ejb3Interfaces.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.alterSessionBeanIface")); //$NON-NLS-1$
 		ejb3Interfaces.setSelection(true);
 		ejb3Interfaces.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -134,7 +141,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		
 		remoteAndRemoteHomeAnnotations = new Button(container, SWT.CHECK);
 		remoteAndRemoteHomeAnnotations.setLayoutData(checkData);
-		remoteAndRemoteHomeAnnotations.setText("Add @Remote and @RemoteHome annotations");
+		remoteAndRemoteHomeAnnotations.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.addRemoteAnnotations")); //$NON-NLS-1$
 		remoteAndRemoteHomeAnnotations.setSelection(false);
 		remoteAndRemoteHomeAnnotations.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -146,7 +153,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		
 		convertEntityBeansToPojos = new Button(container, SWT.CHECK);
 		convertEntityBeansToPojos.setLayoutData(checkData);
-		convertEntityBeansToPojos.setText("Convert entity beans to POJOs");
+		convertEntityBeansToPojos.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.convertEntityBeans")); //$NON-NLS-1$
 		convertEntityBeansToPojos.setSelection(true);
 		convertEntityBeansToPojos.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -175,7 +182,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 				if (element instanceof IFile) {
 					IFile file = ((IFile)element);
 					String extension = file.getFileExtension();
-					return (extension != null && extension.equals("xml"));
+					return (extension != null && extension.equals("xml")); //$NON-NLS-1$
 				}
 				
 				if (element instanceof IProject) {
@@ -222,14 +229,14 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		}
 		
 		if (! new File(refactoring.getProject().getLocation().toPortableString() + File.separator + ejbJarXmlFile).exists()) {
-			setErrorMessage("Please select an ejb-jar.xml file");
+			setErrorMessage(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.pageErrorMsg.1")); //$NON-NLS-1$
 			setPageComplete(false);
 			return;
 		} 
 		
 		if (openEjbJarXmlFile  != null && openEjbJarXmlFile.length() > 0) {
 			if (! new File(refactoring.getProject().getLocation().toPortableString() + File.separator + openEjbJarXmlFile).exists()) {
-				setErrorMessage("Please select a valid openejb-jar.xml file");
+				setErrorMessage(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.pageErrorMsg.2")); //$NON-NLS-1$
 				setPageComplete(false);
 				return;
 			} 

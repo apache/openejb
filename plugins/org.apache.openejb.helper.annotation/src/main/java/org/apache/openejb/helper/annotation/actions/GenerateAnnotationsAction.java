@@ -69,7 +69,7 @@ public class GenerateAnnotationsAction implements IObjectActionDelegate, IWorkbe
 		
 		RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(new EJBMigrationWizard(refactoring, RefactoringWizard.WIZARD_BASED_USER_INTERFACE));
 		try {
-			op.run(Activator.getWorkbenchWindow().getShell(), "Dialog");
+			op.run(Activator.getWorkbenchWindow().getShell(), Messages.getString("org.apache.openejb.helper.annotation.refactoringWizardDialogTitle")); //$NON-NLS-1$
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
