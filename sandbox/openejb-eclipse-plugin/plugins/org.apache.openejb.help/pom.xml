@@ -31,9 +31,15 @@
       <resource>
         <directory>.</directory>
         <includes>
-          <include>plugin.xml</include>
+          <include>*.xml</include>
 		  <include>plugin.properties</include>
 		  <include>about.html</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>html</directory>
+        <includes>
+          <include>**/*</include>
         </includes>
       </resource>
       <resource>
