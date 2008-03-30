@@ -33,6 +33,12 @@
             <includes>
                 <include>org.apache.openejb:org.apache.openejb.helper.annotation</include>
                 <include>org.apache.openejb:org.eclipse.jst.server.generic.openejb</include>
+		        <include>org.apache.openejb:org.apache.openejb.help</include>
+		        <include>org.apache.openejb:org.apache.openejb.help.nl1</include>
+		        <include>org.apache.openejb:org.apache.openejb.help.nl2</include>
+		        <include>org.apache.openejb:org.apache.openejb.help.nl2a</include>
+		        <include>org.apache.openejb:org.apache.openejb.help.nlBidi</include>
+		        <include>org.apache.openejb:org.apache.openejb.branding</include>
             </includes>
         </dependencySet>
 
