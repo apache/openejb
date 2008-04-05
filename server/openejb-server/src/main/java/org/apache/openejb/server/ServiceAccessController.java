@@ -16,41 +16,38 @@
  */
 package org.apache.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+
+import org.apache.openejb.server.auth.IPAddressPermission;
+import org.apache.openejb.server.auth.ExactIPAddressPermission;
+import org.apache.openejb.server.auth.ExactIPv6AddressPermission;
+import org.apache.openejb.server.auth.IPAddressPermissionFactory;
+import org.apache.openejb.server.auth.PermitAllPermission;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
- * @version $Rev$ $Date$
  */
 public class ServiceAccessController implements ServerService {
 
-    ServerService next;
-
-    InetAddress[] allowedHosts;
+    private final ServerService next;
+    private IPAddressPermission[] hostPermissions;
 
     public ServiceAccessController(ServerService next) {
         this.next = next;
     }
 
-    public void init(Properties props) throws Exception {
-
-        parseAdminIPs(props);
-
-        next.init(props);
-    }
-
-    public void start() throws ServiceException {
-
-        next.start();
-    }
-
-    public void stop() throws ServiceException {
-
-        next.stop();
-    }
-
     public void service(Socket socket) throws ServiceException, IOException {
+        // Check authorization
+        checkHostsAuthorization(socket.getInetAddress(), socket.getLocalAddress());
 
         next.service(socket);
     }
@@ -59,6 +56,78 @@ public class ServiceAccessController implements ServerService {
         throw new UnsupportedOperationException("service(in,out)");
     }
 
+    public void checkHostsAuthorization(InetAddress clientAddress, InetAddress serverAddress) throws SecurityException {
+        // Check the client ip against the server ip. Hosts are
+        // allowed to access themselves, so if these ips
+        // match, the following for loop will be skipped.
+        if (clientAddress.equals(serverAddress)) {
+            return;
+        }
+
+        for (IPAddressPermission host : hostPermissions) {
+            if (host.implies(clientAddress)) {
+                return;
+            }
+        }
+
+        throw new SecurityException("Host " + clientAddress.getHostAddress() + " is not authorized to access this service.");
+    }
+
+    private void parseAdminIPs(Properties props) throws ServiceException {
+        LinkedList<IPAddressPermission> permissions = new LinkedList<IPAddressPermission>();
+
+        String ipString = props.getProperty("only_from");
+
+        if (ipString == null) {
+            permissions.add(new PermitAllPermission());
+        } else {
+        	String hostname = "localhost";
+            addIPAddressPermissions(permissions, hostname);
+
+            StringTokenizer st = new StringTokenizer(ipString, " ");
+            while (st.hasMoreTokens()) {
+                String mask = st.nextToken();
+                try {
+                	permissions.add(IPAddressPermissionFactory.getIPAddressMask(mask));
+                } catch (IllegalArgumentException iae) {
+                	// it could be that it is a hostname not ip address
+                	addIPAddressPermissions(permissions, mask);
+                }
+            }
+        }
+
+        hostPermissions = (IPAddressPermission[]) permissions.toArray(new IPAddressPermission[permissions.size()]);
+    }
+
+	private void addIPAddressPermissions(
+			LinkedList<IPAddressPermission> permissions, String hostname)
+			throws ServiceException {
+		try {
+		    InetAddress[] localIps = InetAddress.getAllByName(hostname);
+		    for (int i = 0; i < localIps.length; i++) {
+		        if (localIps[i] instanceof Inet4Address) {
+		            permissions.add(new ExactIPAddressPermission(localIps[i].getAddress()));
+		        } else {
+		            permissions.add(new ExactIPv6AddressPermission(localIps[i].getAddress()));
+		        }
+		    }
+		} catch (UnknownHostException e) {
+		    throw new ServiceException("Could not get " + hostname + " inet address", e);
+		}
+	}
+
+    public void init(Properties props) throws Exception {
+        parseAdminIPs(props);
+        next.init(props);
+    }
+
+    public void start() throws ServiceException {
+        next.start();
+    }
+
+    public void stop() throws ServiceException {
+        next.stop();
+    }
 
     public String getName() {
         return next.getName();
@@ -70,55 +139,6 @@ public class ServiceAccessController implements ServerService {
 
     public int getPort() {
         return next.getPort();
-    }
-
-    public void checkHostsAuthorization(InetAddress client, InetAddress server) throws SecurityException {
-
-        boolean authorized = false;
-
-        authorized = client.equals(server);
-
-        for (int i = 0; i < allowedHosts.length && !authorized; i++) {
-            authorized = allowedHosts[i].equals(client);
-        }
-
-        if (!authorized) {
-            throw new SecurityException("Host " + client.getHostAddress() + " is not authorized to access this service.");
-        }
-    }
-
-    private void parseAdminIPs(Properties props) {
-        try {
-
-            Vector addresses = new Vector();
-
-            InetAddress[] localIps = InetAddress.getAllByName("localhost");
-            for (int i = 0; i < localIps.length; i++) {
-                addresses.add(localIps[i]);
-            }
-
-            String ipString = props.getProperty("only_from");
-            if (ipString != null) {
-                StringTokenizer st = new StringTokenizer(ipString, ",");
-                while (st.hasMoreTokens()) {
-                    String address = null;
-                    InetAddress ip = null;
-                    try {
-                        address = st.nextToken();
-                        ip = InetAddress.getByName(address);
-                        addresses.add(ip);
-                    } catch (Exception e) {
-
-                    }
-                }
-            }
-
-            allowedHosts = new InetAddress[ addresses.size() ];
-            addresses.copyInto(allowedHosts);
-
-        } catch (Exception e) {
-
-        }
     }
 
 }
