@@ -119,11 +119,9 @@ public class SessionBeanConverter implements Converter {
 			processTransactionManagement(bean, ejbJar.getAssemblyDescriptor());
 			processBeanSecurityIdentity(bean);
 			processDeclaredRoles(bean);
-			processMethodPermissions(ejbJar);
 		}
 		
-		
-		
+		processMethodPermissions(ejbJar);		
 	}
 
 	/**

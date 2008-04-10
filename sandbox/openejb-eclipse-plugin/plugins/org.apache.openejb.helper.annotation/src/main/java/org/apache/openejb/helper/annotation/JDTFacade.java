@@ -435,7 +435,9 @@ public class JDTFacade implements IJDTFacade {
 			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, fullyQualifiedClassName);
 
 			MethodDeclaration method = getMethodDeclaration(typeDeclaration, methodName, signature);
-
+			if (method == null) {
+				return;
+			}
 			Annotation modifier = createModifier(cu.getAST(), annotationClass, properties, cu);
 			method.modifiers().add(0, modifier);
 
