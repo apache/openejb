@@ -38,7 +38,8 @@ Bundle-ClassPath: .,
  lib/wsdl4j-1.6.1.jar,
  lib/geronimo-jpa_3.0_spec-1.1.jar,
  lib/log4j-1.2.12.jar,
- lib/swizzle-stream-1.0.1.jar
+ lib/swizzle-stream-1.0.1.jar,
+ target/classes/
 Main-Class: org.apache.openejb.helper.annotation.cli.Main
 Export-Package: org.apache.openejb.helper.annotation
 Bundle-Vendor: %providerName
