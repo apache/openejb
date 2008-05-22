@@ -20,12 +20,12 @@
 
    <extension point="org.eclipse.wst.server.core.runtimeTypes">
 	    <runtimeType
-	       id="org.apache.openejb.server.generic.runtime.openejb3"
-	       name="%openejbRuntimeTypeName"
-	       description="%openejbRuntimeTypeDescription"
-	       vendor="%openejbCategory"
-	       version="3.0.0"
-	       class="org.apache.openejb.eclipse.server.OpenEJBRuntimeDelegate">
+           class="org.apache.openejb.eclipse.server.OpenEJBRuntimeDelegate"
+           description="%openejbRuntimeTypeDescription"
+           id="org.apache.openejb.server.generic.runtime.openejb3"
+           name="%openejbRuntimeTypeName"
+           vendor="%openejbCategory"
+           version="3.0.0">
 	      <moduleType
 	         types="jst.ejb"
 	         versions="2.1, 3.0"/>
@@ -38,8 +38,8 @@
         id="org.apache.openejb.eclipse.server.launchConfigurationType"
         modes="run, debug, profile"
         name="%openejbLaunchConfigurationType"
-        sourceLocatorId="org.eclipse.jst.server.generic.openejb.sourceLocator"
-        sourcePathComputerId="org.eclipse.jst.server.generic.openejb.sourcePathComputer"/>
+        sourceLocatorId="org.apache.openejb.server.sourceLocator"
+        sourcePathComputerId="org.apache.openejb.server.sourcePathComputer"/>
 	</extension>
 
 
@@ -64,27 +64,22 @@
 	</extension>
     <extension point="org.eclipse.wst.server.ui.wizardFragments">
 	     <fragment
-	        id="org.eclipse.jst.server.generic.runtime"
+	        id="org.apache.openejb.server.generic.runtime.fragment"
 	        typeIds="org.apache.openejb.server.generic.runtime.openejb3"
 	        class="org.apache.openejb.eclipse.server.OpenEJBRuntimeFragment"/>           
 	     <fragment
-	        id="org.eclipse.jst.server.generic.server"
+	        id="org.apache.openejb.server.generic.server.fragment"
 	        typeIds="org.apache.openejb.server.generic.openejb3"
 	        class="org.apache.openejb.eclipse.server.OpenEJBServerFragment"/>   
 	</extension>´
 	
    <extension point="org.eclipse.jst.server.core.runtimeClasspathProviders">
      <runtimeClasspathProvider
-        id="org.eclipse.jst.server.generic.runtimeTarget"
+        id="org.apache.openejb.server.generic.runtime.runtimeTarget"
         runtimeTypeIds="org.apache.openejb.server.generic.runtime.openejb3"
         class="org.apache.openejb.eclipse.server.OpenEJBRuntimeClasspathProviderDelegate"/>
 	</extension>
 	
-   <extension point="org.eclipse.jst.server.generic.core.serverdefinition">
-		<serverdefinition id="org.apache.openejb.server.generic.runtime.openejb3" definitionfile="/servers/openejb3.serverdef">
-		</serverdefinition>
-   </extension>
-
   <extension point="org.eclipse.wst.common.project.facet.core.runtimes">
      <runtime-component-type
        id="org.apache.openejb.server.generic.runtime.openejb"/>
@@ -141,14 +136,14 @@
        point="org.eclipse.debug.core.sourcePathComputers">
     <sourcePathComputer
           class="org.eclipse.jdt.launching.sourcelookup.containers.JavaSourcePathComputer"
-          id="org.eclipse.jst.server.generic.openejb.sourcePathComputer">
+          id="org.apache.openejb.server.sourcePathComputer">
     </sourcePathComputer>
  </extension>
  <extension
        point="org.eclipse.debug.core.sourceLocators">
     <sourceLocator
           class="org.eclipse.jdt.internal.launching.JavaSourceLookupDirector"
-          id="org.eclipse.jst.server.generic.openejb.sourceLocator"
+          id="org.apache.openejb.server.sourceLocator"
           name="%openejbSourceLocator">
     </sourceLocator>
  </extension>

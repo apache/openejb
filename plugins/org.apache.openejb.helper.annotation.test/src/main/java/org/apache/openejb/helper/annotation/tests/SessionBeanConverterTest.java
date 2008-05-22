@@ -41,10 +41,6 @@ import javax.interceptor.Interceptors;
 
 import junit.framework.TestCase;
 
-import org.apache.openejb.helper.annotation.Converter;
-import org.apache.openejb.helper.annotation.IJDTFacade;
-import org.apache.openejb.helper.annotation.OpenEjbXmlConverter;
-import org.apache.openejb.helper.annotation.SessionBeanConverter;
 import org.apache.openejb.jee.AssemblyDescriptor;
 import org.apache.openejb.jee.ContainerTransaction;
 import org.apache.openejb.jee.EjbJar;
@@ -63,6 +59,10 @@ import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.StatefulBean;
 import org.apache.openejb.jee.TransAttribute;
 import org.apache.openejb.jee.TransactionType;
+import org.apache.openejb.plugins.common.OpenEjbXmlConverter;
+import org.apache.openejb.plugins.common.SessionBeanConverter;
+import org.apache.openejb.plugins.common.Converter;
+import org.apache.openejb.plugins.common.IJDTFacade;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.xml.sax.InputSource;

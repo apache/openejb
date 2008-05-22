@@ -78,6 +78,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.TextEdit;
+import org.apache.openejb.plugins.common.IJDTFacade;
 
 /**
  * Add annotations to source files in an Eclipse Java project
@@ -564,11 +565,6 @@ public class JDTFacade implements IJDTFacade {
 		} catch (CoreException e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.5"), interfaceToRemove, targetClass)); //$NON-NLS-1$
 		}
-	}
-
-	public void createField(String targetClass, String fieldName, String fieldType) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void removeAbstractModifierFromClass(String targetClass) {
