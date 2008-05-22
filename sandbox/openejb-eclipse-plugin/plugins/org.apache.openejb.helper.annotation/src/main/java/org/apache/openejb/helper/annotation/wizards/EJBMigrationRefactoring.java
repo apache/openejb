@@ -20,16 +20,8 @@ package org.apache.openejb.helper.annotation.wizards;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.openejb.helper.annotation.ConversionException;
-import org.apache.openejb.helper.annotation.Converter;
-import org.apache.openejb.helper.annotation.EjbReferencesConverter;
-import org.apache.openejb.helper.annotation.EntityBeanConverter;
-import org.apache.openejb.helper.annotation.EntityBeanPojoConverter;
 import org.apache.openejb.helper.annotation.JDTFacade;
-import org.apache.openejb.helper.annotation.OpenEjbXmlConverter;
-import org.apache.openejb.helper.annotation.SessionBeanConverter;
-import org.apache.openejb.helper.annotation.SessionBeanInterfaceModifier;
-import org.apache.openejb.helper.annotation.SessionBeanRemoteAnnotationAdder;
+import org.apache.openejb.plugins.common.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;

@@ -211,6 +211,7 @@
     </profiles>
                         
     <modules>
+    	<module>common</module>
         <module>eclipse</module>
         <module>plugins</module>
 	<module>features</module>

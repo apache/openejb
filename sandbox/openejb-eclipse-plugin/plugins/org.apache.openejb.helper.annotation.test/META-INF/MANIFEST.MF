@@ -26,10 +26,11 @@ Bundle-Classpath: .,
  lib/jmock-junit3-2.2.0-RC1.jar,
  lib/jsr173_api-1.0.jar,
  lib/jsr173-1.0.jar,
- lib/openejb-jee-3.0.0-SNAPSHOT.jar,
+ lib/openejb-jee-3.1-SNAPSHOT.jar,
  lib/xbean-finder-3.2-SNAPSHOT.jar,
  lib/geronimo-annotation_1.0_spec-1.1.jar,
  lib/geronimo-interceptor_3.0_spec-1.0.jar,
+ lib/plugins-common-1.0.0.jar,
  lib/openjpa-persistence-1.0.1.jar
 Export-Package: org.apache.openejb.helper.annotation.fixtures,
  org.apache.openejb.helper.annotation.tests

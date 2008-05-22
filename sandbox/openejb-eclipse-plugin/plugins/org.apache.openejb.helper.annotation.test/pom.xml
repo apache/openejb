@@ -160,7 +160,7 @@
 										org.apache.openejb
 									</groupId>
 									<artifactId>openejb-jee</artifactId>
-									<version>3.0.0-SNAPSHOT</version>
+									<version>3.1-SNAPSHOT</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>javax.xml</groupId>
@@ -190,6 +190,11 @@
 								    <groupId>org.apache.openjpa</groupId>
 								    <artifactId>openjpa-persistence</artifactId>
 							        <version>1.0.1</version>
+								</artifactItem>
+								<artifactItem>
+								    <groupId>org.apache.openejb</groupId>
+								    <artifactId>plugins-common</artifactId>
+								    <version>1.0.0</version>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -268,12 +273,17 @@
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>openejb-jee</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
+			<version>3.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml</groupId>
 			<artifactId>jsr173</artifactId>
 			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>plugins-common</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.apache.geronimo.specs</groupId>
@@ -285,7 +295,7 @@
 	        <artifactId>geronimo-interceptor_3.0_spec</artifactId>
 	        <version>1.0</version>
 	    </dependency>
-		<dependency>
+	    <dependency>
 		    <groupId>org.apache.openjpa</groupId>
 		    <artifactId>openjpa-persistence</artifactId>
 	        <version>1.0.1</version>
