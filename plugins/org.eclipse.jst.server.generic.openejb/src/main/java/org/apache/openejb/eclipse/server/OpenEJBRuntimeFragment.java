@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.wst.server.core.IRuntimeWorkingCopy;
 import org.eclipse.wst.server.core.TaskModel;
 import org.eclipse.wst.server.ui.wizard.IWizardHandle;
@@ -93,6 +94,7 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 			}
 		});
 
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, "org.apache.openejb.help.runtime");
 		return composite;
 	}
 

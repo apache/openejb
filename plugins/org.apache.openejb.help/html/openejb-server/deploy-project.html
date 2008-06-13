@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../../../../content/PLUGINS_ROOT/PRODUCT_PLUGIN/book.css"/>
+<title>Configuring the OpenEJB Server</title>
+</head>
+
+<body>
+<h1>Deploying a project</h1>
+<p>In order to deploy your project to an OpenEJB server in Eclipse, your project must be a Java EE project, with the EJB facet enabled. If your project doesn't have the Faceted nature, you can use the OpenEJB plugin to add it. Simply select OpenEJB->Add Faceted Nature from the menu bar.</p>
+<img src="../images/server_step_1.jpg"/>
+<p>To add the EJB facet, right click on the project in the navigator, and select Properties. Select Project Facets on the left hand side. Click on the Modify Project button.</p>
+<img src="../images/server_step_2.jpg"/>
+<p>Select the EJB Module facet, and  the Java Facet. Remember to select your <a href="configure-runtime.html">OpenEJB runtime</a> too. Click Next.</p>
+<img src="../images/server_step_6.jpg"/>
+<p>Enter the source folder for the EJBs in your project and click Finish.</p>
+<img src="../images/server_step_7.jpg"/>
+<p>Now right click on your <a href="configure-server.html">OpenEJB server</a> in the servers view, and select Add and Remove Projects.</p>
+<img src="../images/server_step_11.jpg"/>
+<p>Add your project to the server, and click Finish.</p>
+<img src="../images/server_step_12.jpg"/>
+<p>To start the server, Right click on your OpenEJB server, and select Start.</p>
+<img src="../images/server_step_13.jpg"/>
+</body>
+</html>

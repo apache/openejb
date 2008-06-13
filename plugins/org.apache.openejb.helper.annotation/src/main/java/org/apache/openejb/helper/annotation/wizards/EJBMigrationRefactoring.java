@@ -126,8 +126,9 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 			return jdtFacade.getChange();
 
-		} catch (ConversionException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.apache.openejb.helper.annotation", e.getMessage())); //$NON-NLS-1$
+		} catch (Exception e) {
+			status.addFatalError(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbMigrationWzd.fatalError") + ":" + e.getLocalizedMessage());
+			return null;
 		}
 	}
 

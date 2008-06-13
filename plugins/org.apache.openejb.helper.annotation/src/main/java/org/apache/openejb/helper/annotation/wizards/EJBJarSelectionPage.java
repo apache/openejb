@@ -56,7 +56,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 	@Override
 	public void performHelp() {
 		PlatformUI.getWorkbench().getHelpSystem().displayHelp(
-				"org.apache.openejb.help.test_id");
+				"org.apache.openejb.help.generate-annotations");
 	}
 	
 	public EJBJarSelectionPage(EJBMigrationRefactoring refactoring) {

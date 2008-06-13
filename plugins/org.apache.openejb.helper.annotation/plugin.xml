@@ -48,7 +48,7 @@
             visible="true">
          <menu
                id="org.apache.openejb.helper.annotation.actionSet.menu"
-               label="OpenEJB">
+               label="&amp;OpenEJB">
             <separator name="org.apache.openejb.helper.annotation.menu.group1"/>
          </menu>
          <action
@@ -58,6 +58,19 @@
                label="Generate annotations"
                menubarPath="org.apache.openejb.helper.annotation.actionSet.menu/org.apache.openejb.helper.annotation.menu.group1">
          </action>
+         <action
+             class="org.apache.openejb.helper.annotation.actions.ConvertToFacetedProjectAction"
+             enablesFor="+"
+             icon="icons/sample.gif"
+             id="org.apache.openejb.helper.annotation.actions.ConvertToFacetedProjectAction"
+             label="&amp;Add Faceted Nature"
+             menubarPath="org.apache.openejb.helper.annotation.actionSet.menu/org.apache.openejb.helper.annotation.menu.group1">
+            <enablement>
+               <objectClass
+                     name="org.eclipse.core.resources.IProject">
+               </objectClass>
+            </enablement>
+       </action>
       </actionSet>
    </extension>
 

@@ -86,6 +86,16 @@
               <overWriteSnapshots>true</overWriteSnapshots>
               <artifactItems>
                 <artifactItem>
+                  <groupId>com.envoisolutions.sxc</groupId>
+                  <artifactId>sxc-jaxb</artifactId>
+                  <version>0.7-SNAPSHOT</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.envoisolutions.sxc</groupId>
+                  <artifactId>sxc-runtime</artifactId>
+                  <version>0.7-SNAPSHOT</version>
+                </artifactItem>
+	        <artifactItem>
                   <groupId>org.apache.xbean</groupId>
                   <artifactId>xbean-finder</artifactId>
                   <version>3.2-SNAPSHOT</version>
