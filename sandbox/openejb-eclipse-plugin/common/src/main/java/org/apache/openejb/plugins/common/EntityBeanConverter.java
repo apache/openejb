@@ -17,6 +17,7 @@
 package org.apache.openejb.plugins.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +218,7 @@ public class EntityBeanConverter implements Converter {
 	}
 
 	private org.apache.openejb.jee.jpa.Entity getEntity(EntityMappings entityMappings, String ejbName) {
-		List<org.apache.openejb.jee.jpa.Entity> entities = entityMappings.getEntity();
+		Collection<org.apache.openejb.jee.jpa.Entity> entities = entityMappings.getEntity();
 
 		for (org.apache.openejb.jee.jpa.Entity entity : entities) {
 			if (entity.getName().equals(ejbName)) {

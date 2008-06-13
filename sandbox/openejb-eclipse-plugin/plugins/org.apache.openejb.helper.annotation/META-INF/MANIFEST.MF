@@ -40,6 +40,8 @@ Bundle-ClassPath: .,
  lib/log4j-1.2.12.jar,
  lib/swizzle-stream-1.0.1.jar,
  lib/plugins-common-1.0.0.jar,
+ lib/sxc-runtime-0.7-SNAPSHOT.jar,
+ lib/sxc-jaxb-0.7-SNAPSHOT.jar,
  target/classes/
 Main-Class: org.apache.openejb.helper.annotation.cli.Main
 Export-Package: org.apache.openejb.helper.annotation

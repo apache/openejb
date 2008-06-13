@@ -36,7 +36,7 @@ public class ProjectSelectionPage extends UserInputWizardPage {
 	@Override
 	public void performHelp() {
 		PlatformUI.getWorkbench().getHelpSystem().displayHelp(
-				"org.apache.openejb.help.test_id");
+				"org.apache.openejb.help.select-project");
 	}
 
 	public ProjectSelectionPage(EJBMigrationRefactoring refactoring) {
@@ -87,6 +87,8 @@ public class ProjectSelectionPage extends UserInputWizardPage {
 		if (initialSelection != -1) {
 			list.setSelection(initialSelection);
 		}
+		
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, "org.apache.openejb.help.select-project");
 		
 		setControl(composite);
 		checkPage();

@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.plugins.common;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.openejb.config.AppModule;
@@ -65,7 +66,7 @@ public class EntityBeanPojoConverter implements Converter {
 	}
 
 	private Entity getMapping(EntityMappings entityMappings, String ejbName) {
-			List<Entity> entities = entityMappings.getEntity();
+			Collection<Entity> entities = entityMappings.getEntity();
 
 			for (Entity entity : entities) {
 				if (entity.getName().equals(ejbName)) {

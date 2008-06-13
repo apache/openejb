@@ -16,20 +16,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<toc label="OpenEJB" topic="html/toc.html">
-   <topic label="Getting Started">
-      <anchor id="gettingstarted"/>
-   </topic>
-   <topic label="Concepts">
-      <anchor id="concepts"/>
-   </topic>
-   <topic label="Tasks">
-      <anchor id="tasks"/>
-   </topic>
-   <topic label="Reference">
-      <anchor id="reference"/>
-   </topic>
-   <topic label="Samples">
-      <anchor id="samples"/>
-   </topic>
+<toc label="OpenEJB">
+   <link toc="tocgeneratingannotations.xml"/>
+   <link toc="tocrunningserver.xml"/>
 </toc>
