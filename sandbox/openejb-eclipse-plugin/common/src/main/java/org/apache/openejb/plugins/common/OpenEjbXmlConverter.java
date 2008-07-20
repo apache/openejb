@@ -31,6 +31,7 @@ import org.apache.openejb.config.InitEjbDeployments;
 import org.apache.openejb.config.OpenEjb2Conversion;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.jpa.EntityMappings;
 import org.apache.openejb.jee.oejb2.JaxbOpenejbJar2;
 import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
@@ -53,14 +54,23 @@ public class OpenEjbXmlConverter {
 	public static final String CLS_MESSAGE_DRIVEN = "javax.ejb.MessageDriven"; //$NON-NLS-1$
 	public static final String STATELESS_CLASS = CLS_STATELESS;
 	private Converter[] converters;
+	private ClassLoader classLoader;
 
 
 
 	public OpenEjbXmlConverter(Converter[] converters) {
 		super();
 		this.converters = converters;
+		this.classLoader = getClass().getClassLoader();
 	}
 
+	public OpenEjbXmlConverter(Converter[] converters, ClassLoader classLoader) {
+		super();
+		this.converters = converters;
+		this.classLoader = classLoader;
+	}
+
+	
 	/**
 	 * Parses the XML
 	 * @param source An input source to the content of ejb-jar.xml
@@ -82,6 +92,10 @@ public class OpenEjbXmlConverter {
 	public boolean convert(InputSource ejbJarSrc, InputSource openEjbJarSrc) throws ConversionException {
 		AppModule appModule = getAppModule(ejbJarSrc, openEjbJarSrc);
 
+		if (appModule.getCmpMappings() == null) {
+			appModule.setCmpMappings(new EntityMappings());
+		}
+		
 		for (Converter converter : converters) {
 			converter.convert(appModule);
 		}
@@ -90,11 +104,12 @@ public class OpenEjbXmlConverter {
 	}
 
 	private AppModule getAppModule(InputSource ejbJarSrc, InputSource openEjbJarSrc) throws ConversionException {
-		AppModule appModule = new AppModule(getClass().getClassLoader(), "ModuleToConvert"); //$NON-NLS-1$
-
+		AppModule appModule = new AppModule(classLoader, "ModuleToConvert"); //$NON-NLS-1$
+		
 		try {
 			EjbJar ejbJar = (EjbJar) JaxbJavaee.unmarshal(EjbJar.class, ejbJarSrc.getByteStream());
 	        EjbModule ejbModule = new EjbModule(ejbJar, new OpenejbJar());
+	        ejbModule.setClassLoader(classLoader);
 	        appModule.getEjbModules().add(ejbModule);
 
 			if (openEjbJarSrc != null) {

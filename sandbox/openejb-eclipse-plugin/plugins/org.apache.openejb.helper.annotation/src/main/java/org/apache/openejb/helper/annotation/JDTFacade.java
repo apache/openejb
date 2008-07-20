@@ -641,7 +641,13 @@ public class JDTFacade implements IJDTFacade {
 	public String getSuperClass(String targetClass) {
 		try {
 			TypeDeclaration type = getTypeDeclaration(getCompilationUnit(targetClass), targetClass);
-			return type.getSuperclassType().resolveBinding().getQualifiedName();
+			Type superclassType = type.getSuperclassType();
+			
+			if (superclassType == null) {
+				return targetClass;
+			}
+			
+			return superclassType.resolveBinding().getQualifiedName();
 		} catch (CoreException e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.9"), targetClass)); //$NON-NLS-1$
 		}
@@ -735,6 +741,10 @@ public class JDTFacade implements IJDTFacade {
 		} catch (CoreException e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), interfaceClass, targetClass)); //$NON-NLS-1$
 		}
+	}
+
+	public void addWarning(String warning) {
+		warnings.add(warning);
 	}
 
 }

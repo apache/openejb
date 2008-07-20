@@ -46,16 +46,19 @@ public class EjbReferencesConverter implements Converter {
 					continue;
 				}
 
-				SessionBean sessionBean = (SessionBean) enterpriseBean;
-				String remoteClass = sessionBean.getRemote();
-				String localClass = sessionBean.getLocal();
-
-				if (remoteClass != null && remoteClass.length() > 0) {
-					facade.addAnnotationToFieldsOfType(remoteClass, EJB.class, null);
-				}
-
-				if (localClass != null && localClass.length() > 0) {
-					facade.addAnnotationToFieldsOfType(localClass, EJB.class, null);
+				try {
+					SessionBean sessionBean = (SessionBean) enterpriseBean;
+					String remoteClass = sessionBean.getRemote();
+					String localClass = sessionBean.getLocal();
+					if (remoteClass != null && remoteClass.length() > 0) {
+						facade.addAnnotationToFieldsOfType(remoteClass, EJB.class, null);
+					}
+					if (localClass != null && localClass.length() > 0) {
+						facade.addAnnotationToFieldsOfType(localClass, EJB.class, null);
+					}
+				} catch (Exception e) {
+					String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.ejb.EJB", enterpriseBean.getEjbClass());
+					facade.addWarning(warning);
 				}
 			}
 		}
