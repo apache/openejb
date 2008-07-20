@@ -116,7 +116,7 @@ public class EJBMigrationRefactoring extends Refactoring {
 			
 			Converter[] converters = converterList.toArray(new Converter[0]);
 			
-			OpenEjbXmlConverter converter = new OpenEjbXmlConverter(converters);
+			OpenEjbXmlConverter converter = new OpenEjbXmlConverter(converters, new EclipseProjectClassLoader(getClass().getClassLoader(), project));
 			converter.convert(ejbJarInputSource, openEjbJarInputSource);
 
 			String[] warnings = jdtFacade.getWarnings();

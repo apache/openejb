@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.security.DeclareRoles;
@@ -52,7 +53,6 @@ import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.Method;
 import org.apache.openejb.jee.MethodParams;
 import org.apache.openejb.jee.MethodPermission;
-import org.apache.openejb.jee.MethodTransaction;
 import org.apache.openejb.jee.NamedMethod;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityRoleRef;
@@ -82,7 +82,7 @@ public class SessionBeanConverter implements Converter {
 	}
 
 	private void processApplicationExceptions(EjbJar ejbJar) {
-		List<ApplicationException> exceptionList = ejbJar.getAssemblyDescriptor().getApplicationException();
+		Collection<ApplicationException> exceptionList = ejbJar.getAssemblyDescriptor().getApplicationException();
 		Iterator<ApplicationException> iterator = exceptionList.iterator();
 
 		while (iterator.hasNext()) {
@@ -129,67 +129,71 @@ public class SessionBeanConverter implements Converter {
 			annotationHelper.addClassAnnotation(bean.getEjbClass(), TransactionManagement.class, props);
 		}
 
-		Map<String, List<MethodTransaction>> methodTransactions = descriptor.getMethodTransactions(bean.getEjbName());
-		if (methodTransactions.containsKey("*")) { //$NON-NLS-1$
-			List<MethodTransaction> defaultTransactions = methodTransactions.get("*"); //$NON-NLS-1$
-			MethodTransaction defaultTransaction = defaultTransactions.get(0);
+		
+		//Map<String, List<MethodAttribute>> methodTransactions = descriptor.getMethodTransactionMap(bean.getEjbName());
+		//if (methodTransactions.containsKey("*")) { //$NON-NLS-1$
+		//	List<MethodAttribute> defaultTransactions = methodTransactions.get("*"); //$NON-NLS-1$
+		//	MethodAttribute defaultTransaction = defaultTransactions.get(0);
 
-			Map<String, Object> props = new HashMap<String, Object>();
-			props.put("value", TransactionAttributeType.valueOf(defaultTransaction.getAttribute().name())); //$NON-NLS-1$
-			annotationHelper.addClassAnnotation(bean.getEjbClass(), TransactionAttribute.class, props);
-		}
+		//	Map<String, Object> props = new HashMap<String, Object>();
+		//	props.put("value", TransactionAttributeType.valueOf(defaultTransaction.getAttribute().name())); //$NON-NLS-1$
+		//	annotationHelper.addClassAnnotation(bean.getEjbClass(), TransactionAttribute.class, props);
+		//}
 
-		Iterator<String> iterator = methodTransactions.keySet().iterator();
-		while (iterator.hasNext()) {
-			String methodName = (String) iterator.next();
-			if ("*".equals(methodName)) { //$NON-NLS-1$
-				continue;
-			}
+		///Iterator<String> iterator = methodTransactions.keySet().iterator();
+		//while (iterator.hasNext()) {
+		//	String methodName = (String) iterator.next();
+		//	if ("*".equals(methodName)) { //$NON-NLS-1$
+		//		continue;
+		//	}
 
-			List<MethodTransaction> transactions = methodTransactions.get(methodName);
-			MethodTransaction methodTransaction = transactions.get(0);
+		//	List<MethodTransaction> transactions = methodTransactions.get(methodName);
+		//	MethodTransaction methodTransaction = transactions.get(0);
 
-			Map<String, Object> props = new HashMap<String, Object>();
-			props.put("value", TransactionAttributeType.valueOf(methodTransaction.getAttribute().name())); //$NON-NLS-1$
+		//	Map<String, Object> props = new HashMap<String, Object>();
+		//	props.put("value", TransactionAttributeType.valueOf(methodTransaction.getAttribute().name())); //$NON-NLS-1$
 
-			MethodParams methodParams = methodTransaction.getMethod().getMethodParams();
-			String[] params = methodParams.getMethodParam().toArray(new String[0]);
-			annotationHelper.addMethodAnnotation(bean.getEjbClass(), methodName, params, TransactionAttribute.class, props);
-		}
+		//	MethodParams methodParams = methodTransaction.getMethod().getMethodParams();
+		//	String[] params = methodParams.getMethodParam().toArray(new String[0]);
+		//	annotationHelper.addMethodAnnotation(bean.getEjbClass(), methodName, params, TransactionAttribute.class, props);
+		//}
 	}
 
 	public void processMessageDrivenBean(MessageDrivenBean bean) {
-		Map<String, Object> props = new HashMap<String, Object>();
+		try {
+			Map<String, Object> props = new HashMap<String, Object>();
+			ActivationConfig activationConfig = bean.getActivationConfig();
+			if (activationConfig != null) {
+				List<Map<String, Object>> activationConfigPropertiesList = new ArrayList<Map<String, Object>>();
 
-		ActivationConfig activationConfig = bean.getActivationConfig();
-		if (activationConfig != null) {
-			List<Map<String, Object>> activationConfigPropertiesList = new ArrayList<Map<String,Object>>();
+				List<ActivationConfigProperty> activationConfigProperties = activationConfig.getActivationConfigProperty();
 
-			List<ActivationConfigProperty> activationConfigProperties = activationConfig.getActivationConfigProperty();
-
-			for (ActivationConfigProperty activationConfigProperty : activationConfigProperties) {
-				HashMap<String, Object> configProps = new HashMap<String, Object>();
-				configProps.put("propertyName", activationConfigProperty.getActivationConfigPropertyName()); //$NON-NLS-1$
-				configProps.put("propertyValue", activationConfigProperty.getActivationConfigPropertyValue()); //$NON-NLS-1$
-
-				activationConfigPropertiesList.add(configProps);
-			}
-
-			if (bean.getMessageDestinationLink() != null && bean.getMessageDestinationLink().length() > 0) {
-				if (! hasConfigProperty(activationConfigPropertiesList, "destination")) { //$NON-NLS-1$
+				for (ActivationConfigProperty activationConfigProperty : activationConfigProperties) {
 					HashMap<String, Object> configProps = new HashMap<String, Object>();
-					configProps.put("propertyName", "destination"); //$NON-NLS-1$ //$NON-NLS-2$
-					configProps.put("propertyValue", bean.getMessageDestinationLink()); //$NON-NLS-1$
+					configProps.put("propertyName", activationConfigProperty.getActivationConfigPropertyName()); //$NON-NLS-1$
+					configProps.put("propertyValue", activationConfigProperty.getActivationConfigPropertyValue()); //$NON-NLS-1$
 
 					activationConfigPropertiesList.add(configProps);
 				}
+
+				if (bean.getMessageDestinationLink() != null && bean.getMessageDestinationLink().length() > 0) {
+					if (!hasConfigProperty(activationConfigPropertiesList, "destination")) { //$NON-NLS-1$
+						HashMap<String, Object> configProps = new HashMap<String, Object>();
+						configProps.put("propertyName", "destination"); //$NON-NLS-1$ //$NON-NLS-2$
+						configProps.put("propertyValue", bean.getMessageDestinationLink()); //$NON-NLS-1$
+
+						activationConfigPropertiesList.add(configProps);
+					}
+				}
+
+				props.put("activationConfig", activationConfigPropertiesList.toArray(new HashMap[0])); //$NON-NLS-1$
 			}
-
-			props.put("activationConfig", activationConfigPropertiesList.toArray(new HashMap[0])); //$NON-NLS-1$
+			props.put("name", bean.getEjbName()); //$NON-NLS-1$
+			annotationHelper.addClassAnnotation(bean.getEjbClass(), MessageDriven.class, props);
+		} catch (Exception e) {
+			String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.ejb.MessageDriven", bean.getEjbClass());
+			annotationHelper.addWarning(warning);
 		}
-
-		props.put("name", bean.getEjbName()); //$NON-NLS-1$
-		annotationHelper.addClassAnnotation(bean.getEjbClass(), MessageDriven.class, props);
 	}
 
 
@@ -237,27 +241,29 @@ public class SessionBeanConverter implements Converter {
 			while (methodIter.hasNext()) {
 				Method method = (Method) methodIter.next();
 				EnterpriseBean enterpriseBean = ejbJar.getEnterpriseBean(method.getEjbName());
-
-				MethodParams methodParams = method.getMethodParams();
-				String[] params = methodParams.getMethodParam().toArray(new String[0]);
-
-				if ((! "*".equals(method.getMethodName())) &&  descriptor.getExcludeList().getMethod().contains(method)) { //$NON-NLS-1$
-					annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, DenyAll.class, null);
-					continue;
-				}
-
-				if (methodPermission.getUnchecked()) {
-					if ("*".equals(method.getMethodName())) { //$NON-NLS-1$
-						annotationHelper.addClassAnnotation(enterpriseBean.getEjbClass(), PermitAll.class, null);
-					} else {
-						annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, PermitAll.class, null);
+				try {
+					MethodParams methodParams = method.getMethodParams();
+					String[] params = methodParams.getMethodParam().toArray(new String[0]);
+					if ((!"*".equals(method.getMethodName())) && descriptor.getExcludeList().getMethod().contains(method)) { //$NON-NLS-1$
+						annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, DenyAll.class, null);
+						continue;
 					}
-				} else {
-					if ("*".equals(method.getMethodName())) { //$NON-NLS-1$
-						annotationHelper.addClassAnnotation(enterpriseBean.getEjbClass(), RolesAllowed.class, roleProps);
+					if (methodPermission.getUnchecked()) {
+						if ("*".equals(method.getMethodName())) { //$NON-NLS-1$
+							annotationHelper.addClassAnnotation(enterpriseBean.getEjbClass(), PermitAll.class, null);
+						} else {
+							annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, PermitAll.class, null);
+						}
 					} else {
-						annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, RolesAllowed.class, roleProps);
+						if ("*".equals(method.getMethodName())) { //$NON-NLS-1$
+							annotationHelper.addClassAnnotation(enterpriseBean.getEjbClass(), RolesAllowed.class, roleProps);
+						} else {
+							annotationHelper.addMethodAnnotation(enterpriseBean.getEjbClass(), method.getMethodName(), params, RolesAllowed.class, roleProps);
+						}
 					}
+				} catch (Exception e) {
+					String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.persistence.RolesAllowed", enterpriseBean.getEjbClass());
+					annotationHelper.addWarning(warning);
 				}
 			}
 		}
@@ -303,36 +309,38 @@ public class SessionBeanConverter implements Converter {
 		for (InterceptorBinding interceptorBinding : interceptorBindings) {
 			EnterpriseBean bean = ejbJar.getEnterpriseBean(interceptorBinding.getEjbName());
 
-			List<String> interceptorClasses = interceptorBinding.getInterceptorClass();
+			try {
+				List<String> interceptorClasses = interceptorBinding.getInterceptorClass();
+				String[] classes = interceptorClasses.toArray(new String[0]);
+				Map<String, Object> properties = new HashMap<String, Object>();
+				properties.put("value", classes); //$NON-NLS-1$
+				if (interceptorBinding.getMethod() == null) {
+					if (interceptorBinding.getExcludeDefaultInterceptors()) {
+						annotationHelper.addClassAnnotation(bean.getEjbClass(), ExcludeDefaultInterceptors.class, properties);
+					}
 
-			String[] classes = interceptorClasses.toArray(new String[0]);
+					if (interceptorBinding.getExcludeClassInterceptors()) {
+						annotationHelper.addClassAnnotation(bean.getEjbClass(), ExcludeClassInterceptors.class, properties);
+					}
 
-			Map<String, Object> properties = new HashMap<String, Object>();
-			properties.put("value", classes); //$NON-NLS-1$
+					annotationHelper.addClassAnnotation(bean.getEjbClass(), Interceptors.class, properties);
+				} else {
+					NamedMethod method = interceptorBinding.getMethod();
+					String[] signature = method.getMethodParams().getMethodParam().toArray(new String[0]);
 
-			if (interceptorBinding.getMethod() == null) {
-				if (interceptorBinding.getExcludeDefaultInterceptors()) {
-					annotationHelper.addClassAnnotation(bean.getEjbClass(), ExcludeDefaultInterceptors.class, properties);
+					if (interceptorBinding.getExcludeDefaultInterceptors()) {
+						annotationHelper.addMethodAnnotation(bean.getEjbClass(), method.getMethodName(), signature, ExcludeDefaultInterceptors.class, properties);
+					}
+
+					if (interceptorBinding.getExcludeClassInterceptors()) {
+						annotationHelper.addMethodAnnotation(bean.getEjbClass(), method.getMethodName(), signature, ExcludeClassInterceptors.class, properties);
+					}
+
+					annotationHelper.addMethodAnnotation(bean.getEjbClass(), method.getMethodName(), signature, Interceptors.class, properties);
 				}
-
-				if (interceptorBinding.getExcludeClassInterceptors()) {
-					annotationHelper.addClassAnnotation(bean.getEjbClass(), ExcludeClassInterceptors.class, properties);
-				}
-
-				annotationHelper.addClassAnnotation(bean.getEjbClass(), Interceptors.class, properties);
-			} else {
-				NamedMethod method = interceptorBinding.getMethod();
-				String[] signature = method.getMethodParams().getMethodParam().toArray(new String[0]);
-
-				if (interceptorBinding.getExcludeDefaultInterceptors()) {
-					annotationHelper.addMethodAnnotation(bean.getEjbClass(), method.getMethodName(), signature, ExcludeDefaultInterceptors.class, properties);
-				}
-
-				if (interceptorBinding.getExcludeClassInterceptors()) {
-					annotationHelper.addMethodAnnotation(bean.getEjbClass(), method.getMethodName(), signature, ExcludeClassInterceptors.class, properties);
-				}
-
-				annotationHelper.addMethodAnnotation(bean.getEjbClass(), method.getMethodName(), signature, Interceptors.class, properties);
+			} catch (Exception e) {
+				String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.interceptor.Interceptors", bean.getEjbClass());
+				annotationHelper.addWarning(warning);
 			}
 		}
 	}

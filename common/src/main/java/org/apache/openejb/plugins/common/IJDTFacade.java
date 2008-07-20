@@ -33,4 +33,5 @@ public interface IJDTFacade {
 	void addField(String targetClass, String fieldName, String fieldType);
 	void addAnnotationToFieldsOfType(String targetClass, Class<?> annotation, Map<String, Object> properties);
 	void addInterface(String ejbClass, String interfaceClass);
+	void addWarning(String warning);
 }
