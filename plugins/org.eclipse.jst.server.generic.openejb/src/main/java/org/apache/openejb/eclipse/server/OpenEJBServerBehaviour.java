@@ -248,7 +248,23 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 			IPath relativePath = resource.getModuleRelativePath().append("/" + resource.getName());
 
 			try {
-				Field fileField = resource.getClass().getDeclaredField("file");
+				Field fileField = null;
+				try {
+					fileField = resource.getClass().getDeclaredField("file");
+				} catch (Exception e) {
+				}
+
+				if (fileField == null) {
+					try {
+						fileField = resource.getClass().getSuperclass().getDeclaredField("file");
+					} catch (Exception e) {
+					}
+				}
+				
+				if (fileField == null) {
+					return;
+				}
+				
 				fileField.setAccessible(true);
 				IFile obj = (IFile) fileField.get(resource);
 				InputStream is = obj.getContents();
