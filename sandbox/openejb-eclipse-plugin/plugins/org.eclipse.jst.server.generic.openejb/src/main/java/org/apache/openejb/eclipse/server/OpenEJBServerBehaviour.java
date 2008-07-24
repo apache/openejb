@@ -66,8 +66,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 			while (true) {
 				try {
 					Thread.sleep(ONE_SECOND);
-				} catch (InterruptedException e) {
-					stopServer();
+				} catch (Exception e) {
 				}
 
 				try {
@@ -101,22 +100,6 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 			}
 			// if success, server is running
 		}
-
-		/*
-		 * @see org.apache.openejb.server.admin.AdminDaemon.service(Socket socket)
-		 */
-		private void stopServer() {
-			// connect to admin interface, and send 'Q' to stop the server
-			try {
-				Socket socket = new Socket("localhost", 4200);
-				socket.getOutputStream().write('Q');
-				socket.close();
-				
-				setState(IServer.STATE_STOPPING);
-			} catch (IOException e) {
-				// we're really stuck
-			}
-		}
 		
 		public void terminate() {
 			this.interrupt();
@@ -131,12 +114,25 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	
 	@Override
 	public void stop(boolean force) {
-		if (monitor == null) {
-			return;
-		}
-		
-		monitor.terminate();
+		stopServer();
 	}
+	
+	/*
+	 * @see org.apache.openejb.server.admin.AdminDaemon.service(Socket socket)
+	 */
+	private void stopServer() {
+		// connect to admin interface, and send 'Q' to stop the server
+		try {
+			Socket socket = new Socket("localhost", 4200);
+			socket.getOutputStream().write('Q');
+			socket.close();
+			
+			setState(IServer.STATE_STOPPING);
+		} catch (IOException e) {
+			// we're really stuck
+		}
+	}
+
 
 	@Override
 	public void setupLaunchConfiguration(ILaunchConfigurationWorkingCopy workingCopy, IProgressMonitor monitor) throws CoreException {
