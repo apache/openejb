@@ -8,7 +8,7 @@ public class JDTFacadeStub implements IJDTFacade {
 
 	public void addAnnotationToFieldsOfType(String targetClass, Class<?> annotation, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Target field type: ");
+		buffer.append("[ADD ANNOTATIONS TO FIELDS OF TYPE] Target field type: ");
 		buffer.append(targetClass);
 		buffer.append("\nAnnotation: ");
 		buffer.append(annotation.getCanonicalName());
@@ -40,11 +40,17 @@ public class JDTFacadeStub implements IJDTFacade {
 			buffer.append("=");
 			
 			Object value = properties.get(key);
-			if (value instanceof Map) {
+			if (value == null) {
+			
+			} else if (value instanceof Map) {
 				buffer.append(" {\n");
 				writeMapToBuffer((Map<String, Object>) value, buffer, indent + 1);
 				buffer.append(indentStr);
 				buffer.append("}");
+			} else if (value.getClass().isEnum()) {
+				buffer.append(value.getClass().getCanonicalName());
+				buffer.append(".");
+				buffer.append(value.toString());
 			} else {
 				buffer.append(value.toString());
 			}
@@ -55,7 +61,7 @@ public class JDTFacadeStub implements IJDTFacade {
 
 	public void addClassAnnotation(String targetClass, Class<? extends Annotation> annotation, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Target class: ");
+		buffer.append("[ADD CLASS ANNOTATION] Target class: ");
 		buffer.append(targetClass);
 		buffer.append("\nAnnotation: ");
 		buffer.append(annotation.getCanonicalName());
@@ -67,13 +73,22 @@ public class JDTFacadeStub implements IJDTFacade {
 	}
 
 	public void addField(String targetClass, String fieldName, String fieldType) {
-		// TODO Auto-generated method stub
-
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("[ADD FIELD] Target class: ");
+		buffer.append(targetClass);
+		buffer.append("\n");
+		buffer.append("Field type: ");
+		buffer.append(fieldType);
+		buffer.append("\n");
+		buffer.append("Field name: ");
+		buffer.append(fieldName);
+		buffer.append("\n");
+		System.out.println(buffer.toString());
 	}
 
 	public void addFieldAnnotation(String targetClass, String targetField, Class<?> annotation, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Target field type: ");
+		buffer.append("[ADD FIELD ANNOTATION] Target field type: ");
 		buffer.append(targetClass);
 		buffer.append("\nTarget field: ");
 		buffer.append(targetField);
@@ -93,7 +108,7 @@ public class JDTFacadeStub implements IJDTFacade {
 
 	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<?> annotationClass, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Target field type: ");
+		buffer.append("[ADD METHOD ANNOTATION] Target field type: ");
 		buffer.append(fullyQualifiedClassName);
 		buffer.append("\nTarget field: ");
 		buffer.append(methodName);

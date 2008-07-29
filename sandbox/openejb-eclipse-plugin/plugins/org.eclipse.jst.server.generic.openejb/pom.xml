@@ -54,6 +54,13 @@
 				</includes>
 			</resource>
 			<resource>
+				<directory>lib</directory>
+				<targetPath>lib</targetPath>
+				<includes>
+					<include>*</include>
+				</includes>
+			</resource>
+			<resource>
 				<directory>icons</directory>
 				<targetPath>icons</targetPath>
 				<includes>

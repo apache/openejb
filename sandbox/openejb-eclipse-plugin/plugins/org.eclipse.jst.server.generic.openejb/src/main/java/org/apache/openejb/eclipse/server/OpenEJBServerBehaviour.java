@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.eclipse.server;
 
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,7 +25,10 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -35,7 +39,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
@@ -89,12 +92,16 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 				if (! running) {
 					running = true;
 					setState(IServer.STATE_STARTED);
+					
+					// republish everything
+					doFullPublish();
 				}
 			} catch (IOException e) {
 				if (running) {
 					// looks like server has started successfully, but has died
 					setServerState(IServer.STATE_STOPPED);
 					running = false;
+					cleanup();
 				}
 				// server might not be started yet
 			}
@@ -111,6 +118,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	}
 	
 	private ServerMonitor monitor;
+	private Map<IModule, String> publishedModules = new HashMap<IModule, String>();
 	
 	@Override
 	public void stop(boolean force) {
@@ -176,68 +184,99 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 		monitor.start();
 	}
 
+	private void doFullPublish() {
+		Iterator<IModule> iterator = publishedModules.keySet().iterator();
+		while (iterator.hasNext()) {
+			IModule module = (IModule) iterator.next();
+			doPublish(module, ADDED);
+		}
+	}
+	
+	private void cleanup() {
+		Iterator<IModule> iterator = publishedModules.keySet().iterator();
+		while (iterator.hasNext()) {
+			IModule module = (IModule) iterator.next();
+			String publishedFile = publishedModules.get(module);
+			if (publishedFile != null) {
+				new File(publishedFile).delete();
+			}
+		}
+	}
+	
+	private void doPublish(IModule module, int kind) {
+		ServerDeployer serverDeployer = new ServerDeployer(getRuntimeDelegate().getRuntime().getLocation().toFile().getAbsolutePath());
+		
+		// if module already published, try an undeploy first, and cleanup temp file
+		String jarFile = publishedModules.get(module);
+		if (jarFile != null) {
+			serverDeployer.undeploy(jarFile);
+			new File(jarFile).delete();
+			publishedModules.remove(module);
+		}
+		
+		if (kind == REMOVED) {
+			return;
+		}
+		
+		// now do the export
+		String newJarFile = exportModule(module);
+		
+		// publish the new export
+		if (newJarFile != null) {
+			String path = serverDeployer.deploy(newJarFile);
+			publishedModules.put(module, path);
+		}
+	}
+	
 	@Override
 	protected IStatus publishModule(int kind, IModule[] modules, int deltaKind, IProgressMonitor monitor) {
-		IPath appsDir = getRuntimeDelegate().getRuntime().getLocation().append("/apps");
-		
-		if (deltaKind == REMOVED) {
-			StringBuffer removedMsg = new StringBuffer();
-			
+		if (IServer.STATE_STARTED != getServer().getServerState()) {
 			for (IModule module : modules) {
-				File target = new File(appsDir.toFile(), module.getName() + ".jar");
-				if (target.exists() && target.isFile()) {
-					boolean deleted = target.delete();
-					
-					if (! deleted) {
-						removedMsg.append("Unable to delete module: " + target.getAbsolutePath() + " from server\n");
+				if (kind == REMOVED) {
+					String jarFile = publishedModules.get(module);
+					if (jarFile != null) {
+						new File(jarFile).delete();
 					}
+					
+					publishedModules.remove(module);
+				} else {
+					publishedModules.put(module, null);
 				}
 			}
-			
-			if (removedMsg.length() == 0) {
-				return new Status(IStatus.OK, "org.eclipse.jst.server.generic.openejb", "");
-			} else {
-				return new Status(IStatus.WARNING, "org.eclipse.jst.server.generic.openejb", removedMsg.toString());
+		} else {
+			for (IModule module : modules) {
+				doPublish(module, deltaKind);
 			}
 		}
 		
-		try {
-			for (IModule module : modules) {
-				ProjectModule projectModule = (ProjectModule) module.loadAdapter(ProjectModule.class, null);
-				if (projectModule == null) {
-					continue;
-				}
-				
-				IModuleResource[] members = projectModule.members();
-
-				try {
-					File tempJarFile = File.createTempFile("oejb", ".jar");
-					ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tempJarFile));
-			
-					
-					for (IModuleResource resource : members) {
-						IPath projectLocation = module.getProject().getLocation();
-						
-						writeResourceToZipStream(zos, resource, projectLocation);
-						 
-					}
-					
-					zos.close();
-					
-					File target = new File(appsDir.toFile(), module.getName() + ".jar");
-					
-					tempJarFile.renameTo(target);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-
 		return super.publishModule(kind, modules, deltaKind, monitor);
 	}
 
+	protected String exportModule(IModule module) {
+		try {
+			ProjectModule projectModule = (ProjectModule) module.loadAdapter(ProjectModule.class, null);
+			if (projectModule == null) {
+				return null;
+			}
+			
+			IModuleResource[] members = projectModule.members();
+
+			File tempJarFile = File.createTempFile("oejb", ".jar");
+			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tempJarFile));
+			
+			for (IModuleResource resource : members) {
+				IPath projectLocation = module.getProject().getLocation();
+				writeResourceToZipStream(zos, resource, projectLocation);
+			}
+			
+			zos.close();
+			
+			return tempJarFile.getAbsolutePath();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	private void writeResourceToZipStream(ZipOutputStream zipStream, IModuleResource resource, IPath projectLocation) throws IOException, FileNotFoundException {
 		byte[] buffer = new byte[8192];
 		if (resource instanceof IModuleFile) {
