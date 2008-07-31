@@ -201,6 +201,8 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 				new File(publishedFile).delete();
 			}
 		}
+		
+		publishedModules.clear();
 	}
 	
 	private void doPublish(IModule module, int kind) {
