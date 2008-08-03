@@ -29,7 +29,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.wst.server.core,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
- org.eclipse.jdt.debug.ui
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.wst.common.frameworks,
+ org.eclipse.jst.j2ee.ejb,
+ org.eclipse.jst.j2ee
 Bundle-ClassPath: target/classes/,
  .
 Bundle-Activator: org.apache.openejb.eclipse.server.Activator

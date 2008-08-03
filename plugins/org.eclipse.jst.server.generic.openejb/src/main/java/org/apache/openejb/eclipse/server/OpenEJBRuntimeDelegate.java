@@ -62,7 +62,7 @@ public class OpenEJBRuntimeDelegate extends RuntimeDelegate implements IJavaRunt
 	}
 
 	private File getFileWithPrefix(String prefix, String suffix) {
-		File libFolder = new File(this.getRuntimeWorkingCopy().getLocation().toString() + File.separator + "lib");
+		File libFolder = new File(this.getRuntime().getLocation().toString() + File.separator + "lib");
 		if (! (libFolder.exists() && libFolder.isDirectory())) {
 			return null;
 		}

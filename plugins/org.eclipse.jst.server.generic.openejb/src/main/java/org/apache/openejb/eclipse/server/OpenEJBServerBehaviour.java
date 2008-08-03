@@ -18,21 +18,14 @@ package org.apache.openejb.eclipse.server;
 
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -45,13 +38,13 @@ import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jst.j2ee.ejb.datamodel.properties.IEJBComponentExportDataModelProperties;
+import org.eclipse.jst.j2ee.internal.ejb.project.operations.EJBComponentExportDataModelProvider;
+import org.eclipse.wst.common.frameworks.datamodel.DataModelFactory;
+import org.eclipse.wst.common.frameworks.datamodel.IDataModel;
 import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IServer;
-import org.eclipse.wst.server.core.model.IModuleFile;
-import org.eclipse.wst.server.core.model.IModuleFolder;
-import org.eclipse.wst.server.core.model.IModuleResource;
 import org.eclipse.wst.server.core.model.ServerBehaviourDelegate;
-import org.eclipse.wst.server.core.util.ProjectModule;
 
 public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 
@@ -102,6 +95,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 					setServerState(IServer.STATE_STOPPED);
 					running = false;
 					cleanup();
+					throw new ServerStoppedException();
 				}
 				// server might not be started yet
 			}
@@ -211,7 +205,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 		// if module already published, try an undeploy first, and cleanup temp file
 		String jarFile = publishedModules.get(module);
 		if (jarFile != null) {
-			serverDeployer.undeploy(jarFile);
+			boolean undeployed = serverDeployer.undeploy(jarFile);
 			new File(jarFile).delete();
 			publishedModules.remove(module);
 		}
@@ -256,74 +250,17 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 
 	protected String exportModule(IModule module) {
 		try {
-			ProjectModule projectModule = (ProjectModule) module.loadAdapter(ProjectModule.class, null);
-			if (projectModule == null) {
-				return null;
-			}
-			
-			IModuleResource[] members = projectModule.members();
-
 			File tempJarFile = File.createTempFile("oejb", ".jar");
-			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tempJarFile));
-			
-			for (IModuleResource resource : members) {
-				IPath projectLocation = module.getProject().getLocation();
-				writeResourceToZipStream(zos, resource, projectLocation);
-			}
-			
-			zos.close();
-			
+
+			IDataModel model = DataModelFactory.createDataModel(new EJBComponentExportDataModelProvider());
+
+			model.setProperty(IEJBComponentExportDataModelProperties.PROJECT_NAME, module.getProject().getName());
+			model.setProperty(IEJBComponentExportDataModelProperties.ARCHIVE_DESTINATION, tempJarFile.getAbsolutePath());
+			model.getDefaultOperation().execute(null, null);
+
 			return tempJarFile.getAbsolutePath();
 		} catch (Exception e) {
 			return null;
-		}
-	}
-	
-	private void writeResourceToZipStream(ZipOutputStream zipStream, IModuleResource resource, IPath projectLocation) throws IOException, FileNotFoundException {
-		byte[] buffer = new byte[8192];
-		if (resource instanceof IModuleFile) {
-			IPath relativePath = resource.getModuleRelativePath().append("/" + resource.getName());
-
-			try {
-				Field fileField = null;
-				try {
-					fileField = resource.getClass().getDeclaredField("file");
-				} catch (Exception e) {
-				}
-
-				if (fileField == null) {
-					try {
-						fileField = resource.getClass().getSuperclass().getDeclaredField("file");
-					} catch (Exception e) {
-					}
-				}
-				
-				if (fileField == null) {
-					return;
-				}
-				
-				fileField.setAccessible(true);
-				IFile obj = (IFile) fileField.get(resource);
-				InputStream is = obj.getContents();
-
-				ZipEntry zipEntry = new ZipEntry(relativePath.toString());
-				zipStream.putNextEntry(zipEntry);
-
-				int bytesRead = -1;
-				while ((bytesRead = is.read(buffer)) > 0) {
-					zipStream.write(buffer, 0, bytesRead);
-				}
-
-				is.close();
-				zipStream.closeEntry();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else if (resource instanceof IModuleFolder) {
-			IModuleResource[] resources = ((IModuleFolder) resource).members();
-			for (IModuleResource childResource : resources) {
-				writeResourceToZipStream(zipStream, childResource, projectLocation);
-			}
 		}
 	}
 }
