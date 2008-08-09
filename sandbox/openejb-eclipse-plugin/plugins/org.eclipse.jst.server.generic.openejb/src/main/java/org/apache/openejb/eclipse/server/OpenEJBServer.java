@@ -53,32 +53,14 @@ public class OpenEJBServer extends ServerDelegate {
 	}
 
 	private boolean isSupportedModule(IModule module) {
-		return (module.getModuleType() != null && module.getModuleType().getId().equals("jst.ejb"));
+		return (module.getModuleType() != null 
+				&& ("jst.ejb".equals(module.getModuleType().getId())
+						|| "jst.ear".equals(module.getModuleType().getId())));
 	
 	}
 
 	@Override
 	public IModule[] getChildModules(IModule[] module) {
-		if (module[0] != null && module[0].getModuleType() != null) {
-			if (module.length == 1) {
-				IModuleType moduleType = module[0].getModuleType();
-				if (moduleType != null && "jst.ear".equals(moduleType.getId())) { //$NON-NLS-1$
-					IEnterpriseApplication enterpriseApplication = (IEnterpriseApplication) module[0].loadAdapter(IEnterpriseApplication.class, null);
-					if (enterpriseApplication != null) {
-						IModule[] earModules = enterpriseApplication.getModules();
-						if (earModules != null) {
-							return earModules;
-						}
-					}
-				} else if (moduleType != null && "jst.web".equals(moduleType.getId())) { //$NON-NLS-1$
-					IWebModule webModule = (IWebModule) module[0].loadAdapter(IWebModule.class, null);
-					if (webModule != null) {
-						IModule[] modules = webModule.getModules();
-						return modules;
-					}
-				}
-			}
-		}
 		return new IModule[0];
 	}
 
@@ -97,7 +79,7 @@ public class OpenEJBServer extends ServerDelegate {
 	}
 
 	@SuppressWarnings("unchecked")
-	private IModule[] doGetParentModules(IModule module) {
+	public IModule[] doGetParentModules(IModule module) {
 		IModule[] ears = ServerUtil.getModules("jst.ear"); //$NON-NLS-1$
 		ArrayList list = new ArrayList();
 		for (int i = 0; i < ears.length; i++) {
@@ -113,7 +95,6 @@ public class OpenEJBServer extends ServerDelegate {
 
 	@Override
 	public void modifyModules(IModule[] add, IModule[] remove, IProgressMonitor monitor) throws CoreException {
-		// do owt for the time being
 	}
 
 }
