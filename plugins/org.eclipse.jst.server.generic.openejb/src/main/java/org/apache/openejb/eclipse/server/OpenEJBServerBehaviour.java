@@ -38,6 +38,7 @@ import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jst.j2ee.application.internal.operations.EARComponentExportDataModelProvider;
 import org.eclipse.jst.j2ee.ejb.datamodel.properties.IEJBComponentExportDataModelProperties;
 import org.eclipse.jst.j2ee.internal.ejb.project.operations.EJBComponentExportDataModelProvider;
 import org.eclipse.wst.common.frameworks.datamodel.DataModelFactory;
@@ -228,7 +229,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	protected IStatus publishModule(int kind, IModule[] modules, int deltaKind, IProgressMonitor monitor) {
 		if (IServer.STATE_STARTED != getServer().getServerState()) {
 			for (IModule module : modules) {
-				if (kind == REMOVED) {
+				if (deltaKind == REMOVED) {
 					String jarFile = publishedModules.get(module);
 					if (jarFile != null) {
 						new File(jarFile).delete();
@@ -249,10 +250,17 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	}
 
 	protected String exportModule(IModule module) {
+		IDataModel model;
+		File tempJarFile;
+		
 		try {
-			File tempJarFile = File.createTempFile("oejb", ".jar");
-
-			IDataModel model = DataModelFactory.createDataModel(new EJBComponentExportDataModelProvider());
+			if ("jst.ear".equals(module.getModuleType().getId())) {
+				model = DataModelFactory.createDataModel(new EARComponentExportDataModelProvider());
+				tempJarFile = File.createTempFile("oejb", ".ear");
+			} else {
+				model = DataModelFactory.createDataModel(new EJBComponentExportDataModelProvider());
+				tempJarFile = File.createTempFile("oejb", ".jar");
+			}
 
 			model.setProperty(IEJBComponentExportDataModelProperties.PROJECT_NAME, module.getProject().getName());
 			model.setProperty(IEJBComponentExportDataModelProperties.ARCHIVE_DESTINATION, tempJarFile.getAbsolutePath());
