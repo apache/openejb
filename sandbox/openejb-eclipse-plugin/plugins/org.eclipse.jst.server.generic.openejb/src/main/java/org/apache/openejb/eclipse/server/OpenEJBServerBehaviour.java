@@ -57,6 +57,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 
 		private static final int ONE_SECOND = 1000;
 		private boolean running = false;
+		private int adminPort = getAdminPort();
 
 		@Override
 		public void run() {
@@ -79,7 +80,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 		private void check() throws ServerStoppedException {
 			// connect to admin interface
 			try {
-				Socket socket = new Socket("localhost", 4200);
+				Socket socket = new Socket("localhost", adminPort);
 				socket.close();
 				
 				// update the server status if this is first time we've connected
@@ -114,6 +115,24 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	
 	private ServerMonitor monitor;
 	private Map<IModule, String> publishedModules = new HashMap<IModule, String>();
+
+	private int getAdminPort() {
+		try {
+			OpenEJBServer openEJBServer = (OpenEJBServer) (getServer().getAdapter(OpenEJBServer.class));
+			return Integer.parseInt(openEJBServer.getAdminPort());
+		} catch (NumberFormatException e) {
+			return 4200;
+		}
+	}
+
+	private int getEJBDPort() {
+		try {
+			OpenEJBServer openEJBServer = (OpenEJBServer) (getServer().getAdapter(OpenEJBServer.class));
+			return Integer.parseInt(openEJBServer.getEJBPort());
+		} catch (NumberFormatException e) {
+			return 4201;
+		}
+	}
 	
 	@Override
 	public void stop(boolean force) {
@@ -126,7 +145,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	private void stopServer() {
 		// connect to admin interface, and send 'Q' to stop the server
 		try {
-			Socket socket = new Socket("localhost", 4200);
+			Socket socket = new Socket("localhost", getAdminPort());
 			socket.getOutputStream().write('Q');
 			socket.close();
 			
@@ -142,13 +161,24 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "org.apache.openejb.cli.Bootstrap");
 
 		OpenEJBRuntimeDelegate runtime = getRuntimeDelegate();
-
+		OpenEJBServer openejbServer = (OpenEJBServer) (getServer().getAdapter(OpenEJBServer.class));
+		
 		IVMInstall vmInstall = runtime.getVMInstall();
 		if (vmInstall != null)
 			workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_JRE_CONTAINER_PATH, JavaRuntime.newJREContainerPath(vmInstall).toPortableString());
 
-		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, "start");
-		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "-Dopenejb.home=" +  getServer().getRuntime().getLocation().toString() /*+ " -javaagent:" + runtime.getJavaAgent()*/);
+		String args = " start";
+		if (openejbServer.getConfigFile() != null && openejbServer.getConfigFile().length() > 0) {
+			args += " --conf=\"" + openejbServer.getConfigFile() + "\"";
+		}
+		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, args);
+		workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "-Dejbd.port=" + openejbServer.getEJBPort() + 
+				" -Dhttpejbd.port=" + openejbServer.getHTTPEJBPort() +
+				" -Dhsql.port=" + openejbServer.getHSQLPort() + 
+				" -Dtelnet.port=" + openejbServer.getTelnetPort() + 
+				" -Dadmin.port=" + openejbServer.getAdminPort() + 
+				" -Dopenejb.home=" +  getServer().getRuntime().getLocation().toString() + 
+				" -javaagent:" + runtime.getJavaAgent());
 		
 		List<IRuntimeClasspathEntry> cp = new ArrayList<IRuntimeClasspathEntry>();
 		IPath serverJar = new Path(runtime.getCore());
@@ -201,12 +231,12 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 	}
 	
 	private void doPublish(IModule module, int kind) {
-		ServerDeployer serverDeployer = new ServerDeployer(getRuntimeDelegate().getRuntime().getLocation().toFile().getAbsolutePath());
+		ServerDeployer serverDeployer = new ServerDeployer(getRuntimeDelegate().getRuntime().getLocation().toFile().getAbsolutePath(), getEJBDPort());
 		
 		// if module already published, try an undeploy first, and cleanup temp file
 		String jarFile = publishedModules.get(module);
 		if (jarFile != null) {
-			boolean undeployed = serverDeployer.undeploy(jarFile);
+			serverDeployer.undeploy(jarFile);
 			new File(jarFile).delete();
 			publishedModules.remove(module);
 		}

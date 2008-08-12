@@ -24,12 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jst.server.core.FacetUtil;
 import org.eclipse.jst.server.core.IEnterpriseApplication;
-import org.eclipse.jst.server.core.IWebModule;
-import org.eclipse.jst.server.generic.core.internal.CorePlugin;
-import org.eclipse.jst.server.generic.servertype.definition.ServerRuntime;
 import org.eclipse.wst.server.core.IModule;
-import org.eclipse.wst.server.core.IModuleType;
-import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerUtil;
 import org.eclipse.wst.server.core.model.ServerDelegate;
 
@@ -95,6 +90,54 @@ public class OpenEJBServer extends ServerDelegate {
 
 	@Override
 	public void modifyModules(IModule[] add, IModule[] remove, IProgressMonitor monitor) throws CoreException {
+	}
+
+	public void setEJBPort(String port) {
+		setAttribute("org.apache.openejb.eclipse.server.ejbport", port);
+	}
+	
+	public String getEJBPort() {
+		return getAttribute("org.apache.openejb.eclipse.server.ejbport", "4201");
+	}
+
+	public void setHTTPEJBPort(String port) {
+		setAttribute("org.apache.openejb.eclipse.server.httpejbport", port);
+	}
+	
+	public String getHTTPEJBPort() {
+		return getAttribute("org.apache.openejb.eclipse.server.httpejbport", "4204");
+	}
+
+	public void setHSQLPort(String port) {
+		setAttribute("org.apache.openejb.eclipse.server.hsqlport", port);
+	}
+	
+	public String getHSQLPort() {
+		return getAttribute("org.apache.openejb.eclipse.server.hsqlport", "9001");
+	}
+
+	public void setTelnetPort(String port) {
+		setAttribute("org.apache.openejb.eclipse.server.telnetport", port);
+	}
+	
+	public String getTelnetPort() {
+		return getAttribute("org.apache.openejb.eclipse.server.telnetport", "4202");
+	}
+
+	public void setAdminPort(String port) {
+		setAttribute("org.apache.openejb.eclipse.server.adminport", port);
+	}
+	
+	public String getAdminPort() {
+		return getAttribute("org.apache.openejb.eclipse.server.adminport", "4200");
+	}
+
+	public void setConfigFile(String configFile) {
+		setAttribute("org.apache.openejb.eclipse.server.configfile", configFile);
+	}
+	
+	public String getConfigFile() {
+		return getAttribute("org.apache.openejb.eclipse.server.configfile", "");
 	}
 
 }

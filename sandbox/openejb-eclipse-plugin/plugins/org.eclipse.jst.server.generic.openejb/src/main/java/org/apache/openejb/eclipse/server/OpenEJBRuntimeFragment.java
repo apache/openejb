@@ -123,27 +123,11 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 		handle.setMessage("", IMessageProvider.NONE);
 	}
 
-	
-
 	@Override
 	public boolean isComplete() {
 		IRuntimeWorkingCopy wc = getRuntimeDelegate().getRuntimeWorkingCopy();
         IStatus status = wc.validate(null);
         return status == null || status.getSeverity() != IStatus.ERROR;
 	}
-
-
-	@Override
-	public void enter() {
-//		validate();
-	}
-
-
-	@Override
-	public void exit() {
-//		validate();
-	}
-	
-	
 	
 }

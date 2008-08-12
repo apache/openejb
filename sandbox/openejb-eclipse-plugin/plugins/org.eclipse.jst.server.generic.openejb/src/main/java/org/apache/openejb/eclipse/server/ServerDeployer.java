@@ -33,10 +33,12 @@ import javax.naming.InitialContext;
 
 public class ServerDeployer {
 	private String openejbDir;
+	private final int ejbdPort;
 	
-	public ServerDeployer(String openejbDir) {
+	public ServerDeployer(String openejbDir, int ejbdPort) {
 		super();
 		this.openejbDir = openejbDir;
+		this.ejbdPort = ejbdPort;
 	}
 
 	public String deploy(String filename) {
@@ -57,7 +59,7 @@ public class ServerDeployer {
 		try {
 			Properties properties =	 new Properties();
 			properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.RemoteInitialContextFactory");
-			properties.put(Context.PROVIDER_URL, "ejbd://localhost:4201");
+			properties.put(Context.PROVIDER_URL, "ejbd://localhost:" + ejbdPort);
 			
 			URL[] urls = getUrls(openejbDir);
 			URLClassLoader cl = new URLClassLoader(urls, classLoader);
