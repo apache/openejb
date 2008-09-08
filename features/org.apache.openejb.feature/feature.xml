@@ -95,4 +95,11 @@
          version="1.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.apache.openejb.builder"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
 </feature>

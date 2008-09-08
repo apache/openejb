@@ -145,6 +145,7 @@
     <modules>
 	<module>org.apache.openejb.branding</module>
     <module>org.apache.openejb.helper.annotation</module>
+    <module>org.apache.openejb.builder</module>
 	<module>org.apache.openejb.helper.annotation.test</module>
 	<module>org.eclipse.jst.server.generic.openejb</module>
 	<module>org.apache.openejb.help</module>
