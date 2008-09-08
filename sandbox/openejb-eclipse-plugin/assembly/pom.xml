@@ -153,5 +153,10 @@
 	    <artifactId>org.apache.openejb.help.nlBidi</artifactId>
 	    <version>1.0.0</version>
 	</dependency>
+	<dependency>
+	    <groupId>org.apache.openejb</groupId>
+	    <artifactId>org.apache.openejb.builder</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
     </dependencies>
 </project>
