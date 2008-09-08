@@ -177,8 +177,8 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 				" -Dhsql.port=" + openejbServer.getHSQLPort() + 
 				" -Dtelnet.port=" + openejbServer.getTelnetPort() + 
 				" -Dadmin.port=" + openejbServer.getAdminPort() + 
-				" -Dopenejb.home=" +  getServer().getRuntime().getLocation().toString() + 
-				" -javaagent:" + runtime.getJavaAgent());
+				" -Dopenejb.home=\"" +  getServer().getRuntime().getLocation().toString() + 
+				"\" -javaagent:\"" + runtime.getJavaAgent() + "\"");
 		
 		List<IRuntimeClasspathEntry> cp = new ArrayList<IRuntimeClasspathEntry>();
 		IPath serverJar = new Path(runtime.getCore());
