@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 <feature
-      id="org.apache.openejb.feature"
+      id="org.apache.openejb.feature.devtools"
       label="%featureName"
       version="1.0.0"
       provider-name="%providerName"
@@ -39,20 +39,22 @@
       <update label="%updateSiteName" url="http://www.openejb.org/updates/1.0"/>
    </url>
 
-   <includes
-         id="org.apache.openejb.feature.devtools"
+   <plugin
+         id="org.apache.openejb.helper.annotation"
+         download-size="0"
+         install-size="0"
          version="1.0.0"
-         name="OpenEJB Development Tools"
-         optional="true"/>
-
-   <includes
-         id="org.apache.openejb.feature.server"
-         version="1.0.0"
-         name="OpenEJB WTP Runtime"
-         optional="true"/>
+         unpack="false"/>
 
    <plugin
          id="org.apache.openejb.branding"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.openejb.builder"
          download-size="0"
          install-size="0"
          version="1.0.0"

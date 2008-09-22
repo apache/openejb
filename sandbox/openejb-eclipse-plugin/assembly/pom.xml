@@ -118,6 +118,16 @@
             <artifactId>org.apache.openejb.feature</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>org.apache.openejb.feature.devtools</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>org.apache.openejb.feature.server</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 	<dependency>
 	    <groupId>org.apache.openejb</groupId>
 	    <artifactId>org.apache.openejb.helper.annotation.test</artifactId>
