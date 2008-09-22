@@ -110,7 +110,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.openejb</groupId>
-            <artifactId>org.eclipse.jst.server.generic.openejb</artifactId>
+            <artifactId>org.apache.openejb.server</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>

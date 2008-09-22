@@ -40,13 +40,6 @@
    </url>
 
    <plugin
-         id="org.eclipse.jst.server.generic.openejb"
-         download-size="0"
-         install-size="0"
-         version="1.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.openejb.helper.annotation"
          download-size="0"
          install-size="0"
@@ -97,6 +90,13 @@
 
    <plugin
          id="org.apache.openejb.builder"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.openejb.server"
          download-size="0"
          install-size="0"
          version="1.0.0"
