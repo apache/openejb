@@ -49,6 +49,8 @@
 			<outputDirectory>features/</outputDirectory>
 			<includes>
 				<include>org.apache.openejb:org.apache.openejb.feature</include>
+				<include>org.apache.openejb:org.apache.openejb.feature.devtools</include>
+				<include>org.apache.openejb:org.apache.openejb.feature.server</include>
 			</includes>
 		</dependencySet>
 
