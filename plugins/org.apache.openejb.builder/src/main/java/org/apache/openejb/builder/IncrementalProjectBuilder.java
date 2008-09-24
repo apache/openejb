@@ -28,7 +28,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ISourceRange;
@@ -48,11 +47,6 @@ public class IncrementalProjectBuilder extends org.eclipse.core.resources.Increm
 	@Override
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 		getProject().deleteMarkers("org.apache.openejb.builder.dependsonMarker", true, IResource.DEPTH_INFINITE);
-		
-		String checkDeps = getProject().getPersistentProperty(new QualifiedName("org.apache.openejb.builder", "checkDependencies"));
-		if (! Boolean.parseBoolean(checkDeps)) {
-			return new IProject[] { getProject() };
-		}
 		
 		CompilationUnitCache cache = new CompilationUnitCache();
 		try {
