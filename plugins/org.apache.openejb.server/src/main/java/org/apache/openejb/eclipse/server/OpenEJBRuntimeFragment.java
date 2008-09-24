@@ -17,12 +17,17 @@
 package org.apache.openejb.eclipse.server;
 
 import java.io.File;
+import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -31,6 +36,9 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.wst.common.project.facet.core.IFacetedProject;
+import org.eclipse.wst.common.project.facet.core.ProjectFacetsManager;
+import org.eclipse.wst.common.project.facet.core.runtime.IRuntime;
 import org.eclipse.wst.server.core.IRuntimeWorkingCopy;
 import org.eclipse.wst.server.core.TaskModel;
 import org.eclipse.wst.server.ui.wizard.IWizardHandle;
@@ -39,6 +47,7 @@ import org.eclipse.wst.server.ui.wizard.WizardFragment;
 public class OpenEJBRuntimeFragment extends WizardFragment {
 
 	private IWizardHandle handle;
+	private Button includeEjb31Button;
 
 	@Override
 	public boolean hasComposite() {
@@ -83,8 +92,8 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 		Button browseEjbJarButton = new Button(composite, SWT.NONE);
 		browseEjbJarButton.setText("Browse");
 		
-		browseEjbJarButton.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
-			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
+		browseEjbJarButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dialog = new DirectoryDialog(composite.getShell());
                 dialog.setMessage("Selection installation dir");
                 dialog.setFilterPath(locationText.getText());
@@ -94,6 +103,28 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 			}
 		});
 
+		Label ejb31Label = new Label(composite, SWT.NONE);
+		ejb31Label.setText("Include experimental EJB 3.1 Jars in classpath");
+		
+		includeEjb31Button = new Button(composite, SWT.CHECK);
+		
+		try {
+			includeEjb31Button.setSelection(getRuntimeDelegate().isEjb31JarIncluded());
+		} catch (Exception e) {
+		}
+		
+		includeEjb31Button.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				getRuntimeDelegate().setEjb31JarIncluded(includeEjb31Button.getSelection());
+				validate();
+			}
+		});
+		
+		try {
+			validate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, "org.apache.openejb.help.runtime");
 		return composite;
 	}
@@ -111,6 +142,8 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 		File installationDirectory = getRuntimeDelegate().getRuntimeWorkingCopy().getLocation().toFile();
 		if (! installationDirectory.exists()) {
 			handle.setMessage("Directory does not exist", IMessageProvider.ERROR);
+			includeEjb31Button.setEnabled(false);
+			includeEjb31Button.setSelection(false);
 			return;
 		}
 		
@@ -121,6 +154,23 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 		}
 		
 		handle.setMessage("", IMessageProvider.NONE);
+		includeEjb31Button.setEnabled(installationFolderHasEjb31Jar(installationDirectory));
+	}
+
+	private boolean installationFolderHasEjb31Jar(File installationDirectory) {
+		File libDirectory = new File(installationDirectory.getAbsolutePath() + File.separator + "lib");
+		if (! libDirectory.exists()) {
+			return false;
+		}
+		
+		File[] files = libDirectory.listFiles();
+		for (File file : files) {
+			if (file.getName().startsWith("ejb31-api-experimental") && file.getName().endsWith(".jar")) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	@Override
@@ -129,5 +179,31 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
         IStatus status = wc.validate(null);
         return status == null || status.getSeverity() != IStatus.ERROR;
 	}
-	
+
+	@Override
+	public void performFinish(IProgressMonitor monitor) throws CoreException {
+		super.performFinish(monitor);
+		refreshProjectsUsingThisRuntime();
+	}
+
+	private void refreshProjectsUsingThisRuntime() {
+		try {
+			Set<IFacetedProject> facetedProjects = ProjectFacetsManager.getFacetedProjects();
+			IRuntimeWorkingCopy wc = (IRuntimeWorkingCopy) getTaskModel().getObject(TaskModel.TASK_RUNTIME);
+			
+			for (IFacetedProject facetedProject : facetedProjects) {
+				Set<IRuntime> targetedRuntimes = facetedProject.getTargetedRuntimes();
+				
+				for (IRuntime runtime : targetedRuntimes) {
+					if (runtime.getName().equals(wc.getName())) {
+						facetedProject.removeTargetedRuntime(runtime, new NullProgressMonitor());
+						facetedProject.addTargetedRuntime(runtime, new NullProgressMonitor());
+						
+						break;
+					}
+				}
+			}
+		} catch (CoreException e) {
+		}
+	}
 }

@@ -22,26 +22,49 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jst.server.core.RuntimeClasspathProviderDelegate;
 import org.eclipse.wst.server.core.IRuntime;
+import org.eclipse.wst.server.core.IRuntimeWorkingCopy;
 
 public class OpenEJBRuntimeClasspathProviderDelegate extends RuntimeClasspathProviderDelegate {
 
+	protected OpenEJBRuntimeDelegate getRuntimeDelegate(IRuntime runtime) {
+		IRuntimeWorkingCopy wc = runtime.createWorkingCopy();
+		
+		return (OpenEJBRuntimeDelegate) wc.loadAdapter(OpenEJBRuntimeDelegate.class, new NullProgressMonitor());
+	}
+	
 	@Override
 	public IClasspathEntry[] resolveClasspathContainer(IProject project, IRuntime runtime) {
+		return resolveClasspathContainer(runtime);
+	}
+
+	@Override
+	public IClasspathEntry[] resolveClasspathContainer(IRuntime runtime) {
 		IPath installPath = runtime.getLocation();
-		
+		boolean ejb31JarIncluded = getRuntimeDelegate(runtime).isEjb31JarIncluded();
 		if (installPath == null)
 			return new IClasspathEntry[0];
 		
-		List<IClasspathEntry> list = getClientJars(installPath);
+		List<IClasspathEntry> list = getClientJars(installPath, ejb31JarIncluded);
 		return (IClasspathEntry[])list.toArray(new IClasspathEntry[0]);
 	}
 
-	private List<IClasspathEntry> getClientJars(IPath installPath) {
+	@Override
+	public IClasspathEntry[] resolveClasspathContainerImpl(IProject project, IRuntime runtime) {
+		return resolveClasspathContainer(runtime);
+	}
+
+	@Override
+	public IClasspathEntry[] resolveClasspathContainerImpl(IRuntime runtime) {
+		return resolveClasspathContainer(runtime);
+	}
+
+	private List<IClasspathEntry> getClientJars(IPath installPath, boolean includeEjb31Jar) {
 		File libFolder = new File(installPath.toString() + File.separator + "lib");
 		if (! libFolder.exists()) {
 			return null;
@@ -52,7 +75,8 @@ public class OpenEJBRuntimeClasspathProviderDelegate extends RuntimeClasspathPro
 		
 		for (File file : files) {
 			if ((file.getName().startsWith("javaee-api") && file.getName().endsWith(".jar"))
-					|| (file.getName().startsWith("openejb-client") && file.getName().endsWith(".jar"))) {
+					|| (file.getName().startsWith("openejb-client") && file.getName().endsWith(".jar"))
+					|| (includeEjb31Jar && file.getName().startsWith("ejb31-api-experimental") && file.getName().endsWith(".jar"))) {
 				Path jar = new Path(file.getAbsolutePath());
 				classpathEntries.add(JavaCore.newLibraryEntry(jar, null, null));
 			}
@@ -60,5 +84,4 @@ public class OpenEJBRuntimeClasspathProviderDelegate extends RuntimeClasspathPro
 		
 		return classpathEntries;
 	}
-
 }
