@@ -23,7 +23,7 @@
 
     <target name="init">
         <property name="europa_drop"    value="R-3.3.1.1-200710231652"/>
-        <property name="dtp_drop"       value="1.5"/>
+        <property name="dtp_drop"       value="1.6"/>
         <property name="emf_drop"       value="2.3.2/R200802051830"/>
         <property name="gef_drop"       value="3.3.2/R200802211602"/>
         <property name="wtp_drop"       value="R-2.0.2-20080223205547"/>
@@ -45,7 +45,7 @@
         <property name="europa_jee_linux_gz"    value="${europa_jee_linux}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
-        <property name="dtp_sdk"    value="dtp-sdk_1.5.2_022008.zip"/>
+        <property name="dtp_sdk"    value="dtp-sdk_1.6.1.zip"/>
         <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.3.2.zip"/>
         <property name="gef_sdk"    value="GEF-SDK-3.3.2.zip"/>
         <property name="wtp_sdk"    value="wtp-sdk-${wtp_drop}.zip"/>
