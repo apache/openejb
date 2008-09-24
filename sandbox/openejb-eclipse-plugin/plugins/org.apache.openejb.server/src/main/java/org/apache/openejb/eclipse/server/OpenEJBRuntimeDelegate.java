@@ -27,6 +27,7 @@ import org.eclipse.jst.server.core.IJavaRuntime;
 import org.eclipse.wst.server.core.model.RuntimeDelegate;
 
 public class OpenEJBRuntimeDelegate extends RuntimeDelegate implements IJavaRuntime {
+	private static final String INCLUDE_EJB31_JARS = "INCLUDE_EJB31_JARS";
 	private static final String PROP_VM_INSTALL_TYPE_ID = "vm-install-type-id"; //$NON-NLS-1$
 	private static final String PROP_VM_INSTALL_ID = "vm-install-id"; //$NON-NLS-1$
 
@@ -135,4 +136,16 @@ public class OpenEJBRuntimeDelegate extends RuntimeDelegate implements IJavaRunt
 		return getAttribute(PROP_VM_INSTALL_ID, (String)null);
 	}
 
+	public void setEjb31JarIncluded(boolean selection) {
+		setAttribute(INCLUDE_EJB31_JARS, Boolean.toString(selection));
+	}
+
+	public boolean isEjb31JarIncluded() {
+		try {
+			return Boolean.parseBoolean(getAttribute(INCLUDE_EJB31_JARS, "false"));
+		} catch (Exception e) {
+		}
+		
+		return false;
+	}
 }
