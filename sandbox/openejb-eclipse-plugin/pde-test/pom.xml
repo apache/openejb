@@ -18,7 +18,7 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.openejb</groupId>
-	<artifactId>assembly</artifactId>
+	<artifactId>pde-test</artifactId>
 	<packaging>pom</packaging>
 	<name>${artifactId}</name>
 	<version>1.0.0</version>
@@ -31,19 +31,53 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<finalName>openejb-eclipse-plugin-${version}-SNAPSHOT</finalName>
-					<descriptors>
-						<descriptor>src/main/assembly/deployable.xml</descriptor>
-						<descriptor>src/main/assembly/updatesite.xml</descriptor>
-					</descriptors>
-				</configuration>
+				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<id>copy</id>
+						<phase>integration-test</phase>
 						<goals>
-							<goal>attached</goal>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${settings.localRepository}/eclipse/eclipse/plugins</outputDirectory>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.openejb</groupId>
+									<artifactId>org.apache.openejb.helper.annotation</artifactId>
+									<version>1.0.0</version>
+									<destFileName>org.apache.openejb.helper.annotation_1.0.0.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.openejb</groupId>
+									<artifactId>org.apache.openejb.helper.annotation.test</artifactId>
+									<version>1.0.0</version>
+									<destFileName>org.apache.openejb.helper.annotation.test_1.0.0.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>integration-test</phase>
+						<configuration>
+							<tasks>
+								<echo message="Running tests..."/>
+								<property name="LOCAL_M2_REPO" value="${settings.localRepository}" />
+								<property name="java.home" value="${java.home}" />
+								<ant antfile="${basedir}/test.xml">
+									<target name="${eclipsePlatformFamily}"></target>
+								</ant>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
 						</goals>
 					</execution>
 				</executions>

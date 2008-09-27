@@ -70,7 +70,7 @@
                 <plugin>
                     <groupId>org.apache.geronimo.devtools</groupId>
                     <artifactId>maven-eclipsepde-plugin</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <version>1.0</version>
                     <configuration>
                         <eclipseHome>${settings.localRepository}/eclipse/eclipse/</eclipseHome>
                     </configuration>
@@ -215,6 +215,7 @@
         <module>eclipse</module>
         <module>plugins</module>
 	<module>features</module>
+	<module>pde-test</module>
 	<module>assembly</module>
     </modules>
           
