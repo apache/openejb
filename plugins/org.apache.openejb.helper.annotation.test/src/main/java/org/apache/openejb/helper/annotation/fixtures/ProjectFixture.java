@@ -52,8 +52,8 @@ public class ProjectFixture {
 			
 			addJavaNature();
 			
-			IFile j2eeJar = project.getFile("javaee.jar"); //$NON-NLS-1$
-			j2eeJar.create(getClass().getResourceAsStream("javaee.jar"), true, null); //$NON-NLS-1$
+			IFile j2eeJar = project.getFile("javaee-api-5.0-1.jar"); //$NON-NLS-1$
+			j2eeJar.create(getClass().getResourceAsStream("/lib/javaee-api-5.0-1.jar"), true, null); //$NON-NLS-1$
 			
 			javaProject.setRawClasspath(new IClasspathEntry[]{ JavaRuntime.getDefaultJREContainerEntry(), JavaCore.newLibraryEntry(j2eeJar.getFullPath(), null, null) }, null);
 			

@@ -40,7 +40,7 @@
         <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R2.0/${wtp_drop}/"/>
 
         <property name="europa_jee_win32"       value="eclipse-SDK-3.3.1.1-win32.zip"/>
-        <property name="europa_jee_linux"       value="eclipse-SDK-3.3.1.1-linux-gtk-x86_64.tar"/>
+        <property name="europa_jee_linux"       value="eclipse-SDK-3.3.1.1-linux-gtk.tar"/>
         <property name="europa_jee_macos"       value="eclipse-SDK-3.3.1.1-macosx-carbon.tar"/>
         <property name="europa_jee_linux_gz"    value="${europa_jee_linux}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
  
-package org.apache.openejb.helper.annotation.tests;
+package org.apache.openejb.plugins.common;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -106,8 +106,8 @@ public class SessionBeanConverterTest extends TestCase {
 		// expectations
 		context.checking(new Expectations(){{
 			one(facade).addClassAnnotation("test.TestBean", TransactionManagement.class, createNameValuePair("value", TransactionManagementType.BEAN)); //$NON-NLS-1$ //$NON-NLS-2$
-			one(facade).addClassAnnotation("test.TestBean", TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY)); //$NON-NLS-1$ //$NON-NLS-2$
-			one(facade).addMethodAnnotation("test.TestBean", "test", new String[] { "java.lang.String" }, TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+//			one(facade).addClassAnnotation("test.TestBean", TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY)); //$NON-NLS-1$ //$NON-NLS-2$
+//			one(facade).addMethodAnnotation("test.TestBean", "test", new String[] { "java.lang.String" }, TransactionAttribute.class, createNameValuePair("value", TransactionAttributeType.MANDATORY)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}});
 
 
