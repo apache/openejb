@@ -41,10 +41,10 @@
                         <phase>validate</phase>
                         <configuration>
                             <tasks>
-                                <property name="LOCAL_M2_REPO" value="${settings.localRepository}"/>
+                                <!--<property name="LOCAL_M2_REPO" value="${settings.localRepository}"/>
                                 <ant antfile="${basedir}/build.xml">
                                     <target name="${eclipsePlatformFamily}"></target>
-                                </ant>
+                                </ant>-->
                             </tasks>
                         </configuration>
                         <goals>

@@ -72,132 +72,13 @@
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>lib</outputDirectory>
-							<overWriteSnapshots>
-								true
-							</overWriteSnapshots>
-							<artifactItems>
-								<artifactItem>
-									<groupId>
-										com.envoisolutions.sxc
-									</groupId>
-									<artifactId>sxc-jaxb</artifactId>
-									<version>0.7-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										com.envoisolutions.sxc
-									</groupId>
-									<artifactId>sxc-runtime</artifactId>
-									<version>0.7-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>openejb-jee</artifactId>
-									<version>3.1-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>
-										openejb-core
-									</artifactId>
-									<version>3.1-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>
-										openejb-loader
-									</artifactId>
-									<version>3.1-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>javaee-api</artifactId>
-									<version>5.0-1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>
-										plugins-common
-									</artifactId>
-									<version>1.0.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										log4j
-									</groupId>
-									<artifactId>
-										log4j
-									</artifactId>
-									<version>1.2.12</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.xml.bind</groupId>
-									<artifactId>jaxb-api</artifactId>
-									<version>2.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>com.sun.xml.bind</groupId>
-									<artifactId>jaxb-impl</artifactId>
-									<version>2.0.3</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.codehaus.swizzle</groupId>
-									<artifactId>swizzle-stream</artifactId>
-									<version>1.0.1</version>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
-			<artifactId>openejb-jee</artifactId>
-			<version>3.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>openejb-core</artifactId>
-			<version>3.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>openejb-loader</artifactId>
-			<version>3.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>plugins-common</artifactId>
+			<artifactId>org.apache.openejb.devtools.core</artifactId>
 			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>5.0-1</version>
 		</dependency>
 	</dependencies>
 </project>

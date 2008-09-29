@@ -19,10 +19,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.ui,
  org.eclipse.search,
  org.eclipse.help,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.apache.openejb.devtools.core
 Eclipse-LazyStart: true
 Bundle-ClassPath: .,
- target/classes/
+ target/classes/,
+ lib/ejb31-api-experimental-3.1-SNAPSHOT.jar
 Main-Class: org.apache.openejb.helper.annotation.cli.Main
 Export-Package: org.apache.openejb.helper.annotation
 Bundle-Vendor: %providerName

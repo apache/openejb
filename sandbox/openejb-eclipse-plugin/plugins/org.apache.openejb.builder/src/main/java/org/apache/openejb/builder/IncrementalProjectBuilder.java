@@ -107,8 +107,13 @@ public class IncrementalProjectBuilder extends org.eclipse.core.resources.Increm
 					Map attributes = new HashMap();
 					
 					attributes.put(IMarker.LINE_NUMBER, compilationUnit.getLineNumber(sourceRange.getOffset()));
+					attributes.put(IMarker.CHAR_START, sourceRange.getOffset());
+					attributes.put(IMarker.CHAR_END, sourceRange.getOffset() + sourceRange.getLength());
+					attributes.put(IMarker.LINE_NUMBER, compilationUnit.getLineNumber(sourceRange.getOffset()));
 					attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 					attributes.put(IMarker.MESSAGE, expectedDependencies.size() == 0 ? "This bean should not have the @DependsOn annotation" : "This bean requires the @DependsOn annotation, and depends on: " + getDependencyList(expectedDependencies));
+					attributes.put(ISingletonDependencyMarker.DEPENDENCIES, expectedDependencies.toArray(new String[expectedDependencies.size()]));
+					attributes.put(ISingletonDependencyMarker.BEAN, singleton);
 					marker.setAttributes(attributes);
 				}
 			}

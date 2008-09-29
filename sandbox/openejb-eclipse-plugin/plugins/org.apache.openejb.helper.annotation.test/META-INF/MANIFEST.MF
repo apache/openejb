@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.launching,
  org.eclipse.ui,
  org.apache.openejb.helper.annotation,
- org.eclipse.ltk.core.refactoring
+ org.eclipse.ltk.core.refactoring,
+ org.apache.openejb.devtools.core
 Bundle-Classpath: .,
  lib/javaee-api-5.0-1.jar,
  target/classes/
