@@ -143,6 +143,7 @@
 		</pluginManagement>
 	</build>
 	<modules>
+		<module>org.apache.openejb.devtools.core</module>
 		<module>org.apache.openejb.branding</module>
 		<module>org.apache.openejb.helper.annotation</module>
 		<module>org.apache.openejb.builder</module>

@@ -60,4 +60,10 @@
          version="1.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.apache.openejb.devtools.core"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
 </feature>

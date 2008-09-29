@@ -33,7 +33,7 @@ import javax.persistence.ManyToMany;
 
 import junit.framework.TestCase;
 
-import org.apache.openejb.helper.annotation.JDTFacade;
+import org.apache.openejb.devtools.core.JDTFacade;
 import org.apache.openejb.helper.annotation.fixtures.ProjectFixture;
 import org.apache.openejb.helper.annotation.fixtures.StreamFixture;
 import org.eclipse.core.runtime.CoreException;

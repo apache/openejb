@@ -68,6 +68,13 @@
          </enabledWhen>
       </page>
    </extension>
+   <extension
+         point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+            class="org.apache.openejb.builder.MarkerResolutionGenerator"
+            markerType="org.apache.openejb.builder.dependsonMarker">
+      </markerResolutionGenerator>
+   </extension>
 
 
 </plugin>

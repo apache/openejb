@@ -20,7 +20,7 @@ package org.apache.openejb.helper.annotation.wizards;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.openejb.helper.annotation.JDTFacade;
+import org.apache.openejb.devtools.core.JDTFacade;
 import org.apache.openejb.plugins.common.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;

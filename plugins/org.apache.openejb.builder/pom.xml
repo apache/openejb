@@ -72,6 +72,60 @@
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.geronimo.devtools</groupId>
+				<artifactId>maven-eclipsepde-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>lib</outputDirectory>
+							<overWriteSnapshots>
+								true
+							</overWriteSnapshots>
+							<artifactItems>
+								<artifactItem>
+									<groupId>
+										org.apache.openejb
+									</groupId>
+									<artifactId>
+										ejb31-api-experimental
+									</artifactId>
+									<version>3.1-SNAPSHOT</version>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>ejb31-api-experimental</artifactId>
+			<version>3.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>org.apache.openejb.devtools.core</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
 </project>

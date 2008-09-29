@@ -40,6 +40,7 @@
 				<include>org.apache.openejb:org.apache.openejb.help.nlBidi</include>
 				<include>org.apache.openejb:org.apache.openejb.branding</include>
 				<include>org.apache.openejb:org.apache.openejb.builder</include>
+				<include>org.apache.openejb:org.apache.openejb.devtools.core</include>
 			</includes>
 		</dependencySet>
 

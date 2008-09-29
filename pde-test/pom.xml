@@ -45,6 +45,12 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
+									<artifactId>org.apache.openejb.devtools.core</artifactId>
+									<version>1.0.0</version>
+									<destFileName>org.apache.openejb.devtools.core_1.0.0.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.openejb</groupId>
 									<artifactId>org.apache.openejb.helper.annotation</artifactId>
 									<version>1.0.0</version>
 									<destFileName>org.apache.openejb.helper.annotation_1.0.0.jar</destFileName>
@@ -85,6 +91,11 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>org.apache.openejb.devtools.core</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.helper.annotation</artifactId>
