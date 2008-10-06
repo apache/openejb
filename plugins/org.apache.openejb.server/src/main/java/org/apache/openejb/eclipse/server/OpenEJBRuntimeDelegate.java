@@ -135,17 +135,4 @@ public class OpenEJBRuntimeDelegate extends RuntimeDelegate implements IJavaRunt
 	public String getVMInstallId() {
 		return getAttribute(PROP_VM_INSTALL_ID, (String)null);
 	}
-
-	public void setEjb31JarIncluded(boolean selection) {
-		setAttribute(INCLUDE_EJB31_JARS, Boolean.toString(selection));
-	}
-
-	public boolean isEjb31JarIncluded() {
-		try {
-			return Boolean.parseBoolean(getAttribute(INCLUDE_EJB31_JARS, "false"));
-		} catch (Exception e) {
-		}
-		
-		return false;
-	}
 }

@@ -47,7 +47,6 @@ import org.eclipse.wst.server.ui.wizard.WizardFragment;
 public class OpenEJBRuntimeFragment extends WizardFragment {
 
 	private IWizardHandle handle;
-	private Button includeEjb31Button;
 
 	@Override
 	public boolean hasComposite() {
@@ -103,23 +102,6 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 			}
 		});
 
-		Label ejb31Label = new Label(composite, SWT.NONE);
-		ejb31Label.setText("Include experimental EJB 3.1 Jars in classpath");
-		
-		includeEjb31Button = new Button(composite, SWT.CHECK);
-		
-		try {
-			includeEjb31Button.setSelection(getRuntimeDelegate().isEjb31JarIncluded());
-		} catch (Exception e) {
-		}
-		
-		includeEjb31Button.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				getRuntimeDelegate().setEjb31JarIncluded(includeEjb31Button.getSelection());
-				validate();
-			}
-		});
-		
 		try {
 			validate();
 		} catch (Exception e) {
@@ -142,8 +124,6 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 		File installationDirectory = getRuntimeDelegate().getRuntimeWorkingCopy().getLocation().toFile();
 		if (! installationDirectory.exists()) {
 			handle.setMessage("Directory does not exist", IMessageProvider.ERROR);
-			includeEjb31Button.setEnabled(false);
-			includeEjb31Button.setSelection(false);
 			return;
 		}
 		
@@ -154,23 +134,6 @@ public class OpenEJBRuntimeFragment extends WizardFragment {
 		}
 		
 		handle.setMessage("", IMessageProvider.NONE);
-		includeEjb31Button.setEnabled(installationFolderHasEjb31Jar(installationDirectory));
-	}
-
-	private boolean installationFolderHasEjb31Jar(File installationDirectory) {
-		File libDirectory = new File(installationDirectory.getAbsolutePath() + File.separator + "lib");
-		if (! libDirectory.exists()) {
-			return false;
-		}
-		
-		File[] files = libDirectory.listFiles();
-		for (File file : files) {
-			if (file.getName().startsWith("ejb31-api-experimental") && file.getName().endsWith(".jar")) {
-				return true;
-			}
-		}
-		
-		return false;
 	}
 
 	@Override
