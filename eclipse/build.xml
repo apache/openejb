@@ -22,11 +22,11 @@
 <project name="EuropaArtifacts">
 
     <target name="init">
-        <property name="europa_drop"    value="R-3.3.1.1-200710231652"/>
+        <property name="europa_drop"    value="R-3.4.1-200809111700"/>
         <property name="dtp_drop"       value="1.6"/>
-        <property name="emf_drop"       value="2.3.2/R200802051830"/>
-        <property name="gef_drop"       value="3.3.2/R200802211602"/>
-        <property name="wtp_drop"       value="R-2.0.2-20080223205547"/>
+        <property name="emf_drop"       value="2.4.1/R200808251517"/>
+        <property name="gef_drop"       value="3.4.1/R200809101400"/>
+        <property name="wtp_drop"       value="R-3.0.2-20080921203356"/>
 
         <property name="base_url"           value="http://www.eclipse.org/downloads/download.php?file="/>
         <property name="europa_win32_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
@@ -37,19 +37,19 @@
         <property name="dtp_download_url"   value="${base_url}/datatools/downloads/${dtp_drop}/"/>
         <property name="emf_download_url"   value="${base_url}/modeling/emf/emf/downloads/drops/${emf_drop}/"/>
         <property name="gef_download_url"   value="${base_url}/tools/gef/downloads/drops/${gef_drop}/"/>
-        <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R2.0/${wtp_drop}/"/>
+        <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R3.0/${wtp_drop}/"/>
 
-        <property name="europa_jee_win32"       value="eclipse-SDK-3.3.1.1-win32.zip"/>
-        <property name="europa_jee_linux"       value="eclipse-SDK-3.3.1.1-linux-gtk.tar"/>
-        <property name="europa_jee_macos"       value="eclipse-SDK-3.3.1.1-macosx-carbon.tar"/>
+        <property name="europa_jee_win32"       value="eclipse-SDK-3.4.1-win32.zip"/>
+        <property name="europa_jee_linux"       value="eclipse-SDK-3.4.1-linux-gtk.tar"/>
+        <property name="europa_jee_macos"       value="eclipse-SDK-3.4.1-macosx-carbon.tar"/>
         <property name="europa_jee_linux_gz"    value="${europa_jee_linux}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
         <property name="dtp_sdk"    value="dtp-sdk_1.6.1.zip"/>
-        <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.3.2.zip"/>
-        <property name="gef_sdk"    value="GEF-SDK-3.3.2.zip"/>
+        <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.4.1.zip"/>
+        <property name="gef_sdk"    value="GEF-ALL-3.4.1.zip"/>
         <property name="wtp_sdk"    value="wtp-sdk-${wtp_drop}.zip"/>
-	<property name="testing"    value="eclipse-test-framework-3.3.1.1.zip"/>
+	<property name="testing"    value="eclipse-test-framework-3.4.1.zip"/>
 
         <property name="protocol"   value="&amp;r=1&amp;protocol=http"/>
     </target>
@@ -58,14 +58,14 @@
         <echo>--------------------------------------------------</echo>
         <echo>Downloading ${europa_win32_url}${europa_jee_win32}</echo>
         <echo>--------------------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${europa_win32_url}${europa_jee_win32}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_win32}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_win32}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${europa_jee_win32} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_win32}" 
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_win32}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -73,15 +73,15 @@
         <echo>-----------------------------------------------------</echo>
         <echo>Downloading ${europa_linux_url}${europa_jee_linux_gz}</echo>
         <echo>-----------------------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${europa_linux_url}${europa_jee_linux_gz}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_linux_gz}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux_gz}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${europa_jee_linux_gz} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <gunzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_linux_gz}"/>
-        <untar  src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_linux}" 
+        <gunzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux_gz}"/>
+        <untar  src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -89,15 +89,15 @@
         <echo>-----------------------------------------------------</echo>
         <echo>Downloading ${europa_macos_url}${europa_jee_macos_gz}</echo>
         <echo>-----------------------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${europa_macos_url}${europa_jee_macos_gz}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_macos_gz}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_macos_gz}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${europa_jee_macos_gz} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <gunzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_macos_gz}"/>
-        <untar  src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${europa_jee_macos}" 
+        <gunzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_macos_gz}"/>
+        <untar  src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_macos}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -113,14 +113,14 @@
         <echo>-----------------------------------------</echo>
         <echo>Downloading ${dtp_download_url}${dtp_sdk}</echo>
         <echo>-----------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${dtp_download_url}${dtp_sdk}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${dtp_sdk}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${dtp_sdk}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${dtp_sdk} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${dtp_sdk}" 
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${dtp_sdk}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -128,14 +128,14 @@
         <echo>-----------------------------------------</echo>
         <echo>Downloading ${testing_url}${testing}</echo>
         <echo>-----------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${testing_url}${testing}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${testing}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${testing}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${testing} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${testing}" 
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${testing}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -144,14 +144,14 @@
         <echo>-----------------------------------------</echo>
         <echo>Downloading ${emf_download_url}${emf_sdo}</echo>
         <echo>-----------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${emf_download_url}${emf_sdo}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${emf_sdo}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${emf_sdo}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${emf_sdo} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${emf_sdo}" 
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${emf_sdo}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -159,14 +159,14 @@
         <echo>-----------------------------------------</echo>
         <echo>Downloading ${gef_download_url}${gef_sdk}</echo>
         <echo>-----------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${gef_download_url}${gef_sdk}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${gef_sdk}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${gef_sdk}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${gef_sdk} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${gef_sdk}" 
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${gef_sdk}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
@@ -174,14 +174,14 @@
         <echo>-----------------------------------------</echo>
         <echo>Downloading ${wtp_download_url}${wtp_sdk}</echo>
         <echo>-----------------------------------------</echo>
-        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3"/>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
         <get src="${wtp_download_url}${wtp_sdk}${protocol}"
-             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${wtp_sdk}" 
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${wtp_sdk}" 
              verbose="true"
              usetimestamp="true"/>
         <echo>Unzipping ${wtp_sdk} to the expected location in ${LOCAL_M2_REPO}</echo>
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
-        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.3/${wtp_sdk}" 
+        <unzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${wtp_sdk}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
