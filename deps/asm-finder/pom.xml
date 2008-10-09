@@ -58,29 +58,21 @@
         </executions>
       </plugin>
       <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-dependency-plugin</artifactId>
-	<executions>
-	  <execution>
-	    <id>unpack</id>
-	    <phase>package</phase>
-	    <goals>
-	      <goal>unpack</goal>
-	    </goals>
-	    <configuration>
-	      <artifactItems>
-		<artifactItem>
-		  <groupId>org.apache.openejb</groupId>
-		  <artifactId>asm-finder</artifactId>
-		  <version>${pom.version}</version>
-		  <type>jar</type>
-		  <overWrite>false</overWrite>
-		  <outputDirectory>${project.build.directory}/classes</outputDirectory>
-		</artifactItem>
-	      </artifactItems>
-	    </configuration>
-	  </execution>
-	</executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <unzip src="${project.build.directory}/asm-finder-${pom.version}.jar" dest="${project.build.directory}/classes" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
