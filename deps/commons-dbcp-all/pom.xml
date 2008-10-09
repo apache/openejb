@@ -29,7 +29,7 @@
   <artifactId>commons-dbcp-all</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: Dependencies :: Commons DBCP and Pool</name>
-  <version>1.3-r699049-SNAPSHOT</version>
+  <version>1.3-r699049</version>
 
   <repositories>
     <repository>
@@ -69,7 +69,7 @@
             </goals>
             <configuration>
               <tasks>
-                <unzip src="${project.build.directory}/commons-dbcp-all-${pom.version}.jar" dest="${project.build.directory}/classes"/>
+                <unzip src="${project.build.directory}/commons-dbcp-all-${pom.version}.jar" dest="${project.build.directory}/classes" />
               </tasks>
             </configuration>
           </execution>
