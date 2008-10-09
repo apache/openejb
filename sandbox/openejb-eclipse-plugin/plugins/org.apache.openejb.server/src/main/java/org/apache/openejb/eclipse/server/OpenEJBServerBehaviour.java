@@ -215,6 +215,10 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 			IModule module = (IModule) iterator.next();
 			doPublish(module, ADDED);
 		}
+		
+		if (IServer.STATE_STARTED == getServer().getServerState()) {
+			setServerPublishState(IServer.PUBLISH_STATE_NONE);
+		}
 	}
 	
 	private void cleanup() {
@@ -228,6 +232,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 		}
 		
 		publishedModules.clear();
+		setServerPublishState(IServer.PUBLISH_STATE_FULL);
 	}
 	
 	private void doPublish(IModule module, int kind) {
@@ -252,6 +257,7 @@ public class OpenEJBServerBehaviour extends ServerBehaviourDelegate {
 		if (newJarFile != null) {
 			String path = serverDeployer.deploy(newJarFile);
 			publishedModules.put(module, path);
+//			setModulePublishState(new IModule[] { module }, IServer.PUBLISH_STATE_NONE);
 		}
 	}
 	

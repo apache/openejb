@@ -18,7 +18,7 @@
 <feature
       id="org.apache.openejb.feature.server"
       label="%featureName"
-      version="1.0.0"
+      version="1.0.1"
       provider-name="%providerName"
       plugin="org.apache.openejb.branding"
       image="bigG.gif">
@@ -43,14 +43,14 @@
          id="org.apache.openejb.server"
          download-size="0"
          install-size="0"
-         version="1.0.0"
+         version="1.0.1"
          unpack="false"/>
 
    <plugin
          id="org.apache.openejb.branding"
          download-size="0"
          install-size="0"
-         version="1.0.0"
+         version="1.0.1"
          unpack="false"/>
 
 </feature>
