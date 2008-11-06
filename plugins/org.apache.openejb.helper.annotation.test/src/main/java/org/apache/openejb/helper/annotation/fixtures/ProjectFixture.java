@@ -17,6 +17,10 @@
 
 package org.apache.openejb.helper.annotation.fixtures;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -137,5 +141,11 @@ public class ProjectFixture {
 		
 		project.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+	}
+
+	public String getStreamContent(InputStream is) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		new StreamFixture().streamCopy(is, os);
+		return new String(os.toByteArray());
 	}
 }

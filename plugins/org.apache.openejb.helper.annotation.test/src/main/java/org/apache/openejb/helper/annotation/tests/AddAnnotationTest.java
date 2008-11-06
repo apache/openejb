@@ -17,9 +17,6 @@
  
 package org.apache.openejb.helper.annotation.tests;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +32,6 @@ import junit.framework.TestCase;
 
 import org.apache.openejb.devtools.core.JDTFacade;
 import org.apache.openejb.helper.annotation.fixtures.ProjectFixture;
-import org.apache.openejb.helper.annotation.fixtures.StreamFixture;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -95,7 +91,7 @@ public class AddAnnotationTest extends TestCase {
 	}
 
 	public void testShouldAddAnAnnotationToAJavaSourceFile() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean1", getStreamContents(getClass().getResourceAsStream("Test1.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean1", fixture.getStreamContent(getClass().getResourceAsStream("Test1.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean1", Stateless.class, null); //$NON-NLS-1$
 		
@@ -103,11 +99,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult1.txt")), getClassContents("org.apache.openejb.test.TestBean1")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult1.txt")), getClassContents("org.apache.openejb.test.TestBean1")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public void testShouldAddAnAnnotationToAJavaSourceFileAndNotAddAnImportIfTheImportAlreadyExists() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean2", getStreamContents(getClass().getResourceAsStream("Test2.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean2", fixture.getStreamContent(getClass().getResourceAsStream("Test2.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean2", Stateless.class, null); //$NON-NLS-1$
@@ -116,11 +112,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult2.txt")), getClassContents("org.apache.openejb.test.TestBean2")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult2.txt")), getClassContents("org.apache.openejb.test.TestBean2")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testShouldAddAnAnnotationToAJavaSourceFileAndNotAddAnImportIfThePackageIsAlreadyImported() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean3", getStreamContents(getClass().getResourceAsStream("Test3.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean3", fixture.getStreamContent(getClass().getResourceAsStream("Test3.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addClassAnnotation("org.apache.openejb.test.TestBean3", Stateless.class, null); //$NON-NLS-1$
 		
@@ -128,11 +124,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult3.txt")), getClassContents("org.apache.openejb.test.TestBean3")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult3.txt")), getClassContents("org.apache.openejb.test.TestBean3")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testShouldAddAnnotationWithProperties() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean4", getStreamContents(getClass().getResourceAsStream("Test4.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean4", fixture.getStreamContent(getClass().getResourceAsStream("Test4.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		Map<String,Object> properties = new HashMap<String,Object>();
 		properties.put("name", "Test"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -143,11 +139,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult4.txt")), getClassContents("org.apache.openejb.test.TestBean4")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult4.txt")), getClassContents("org.apache.openejb.test.TestBean4")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testShouldAddAnnotationWithEnumProperty() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean5", getStreamContents(getClass().getResourceAsStream("Test5.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean5", fixture.getStreamContent(getClass().getResourceAsStream("Test5.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		Map<String,Object> properties = new HashMap<String,Object>();
 		properties.put("value", TransactionManagementType.BEAN); //$NON-NLS-1$
 
@@ -158,11 +154,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult5.txt")), getClassContents("org.apache.openejb.test.TestBean5")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult5.txt")), getClassContents("org.apache.openejb.test.TestBean5")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testShouldAddMethodAnnotationWithEnumProperty() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean6", getStreamContents(getClass().getResourceAsStream("Test6.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean6", fixture.getStreamContent(getClass().getResourceAsStream("Test6.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		facade.addMethodAnnotation("org.apache.openejb.test.TestBean6", "echoHelloWorld", new String[] {"java.lang.String"}, ManyToMany.class, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -171,11 +167,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult6.txt")), getClassContents("org.apache.openejb.test.TestBean6")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult6.txt")), getClassContents("org.apache.openejb.test.TestBean6")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public void testShouldAddAnnotationWithClassAttributeWithStringPassedIn() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean7", getStreamContents(getClass().getResourceAsStream("Test7.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean7", fixture.getStreamContent(getClass().getResourceAsStream("Test7.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		Map<String, Object> properties = new HashMap<String,Object>();
@@ -186,11 +182,11 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult7.txt")), getClassContents("org.apache.openejb.test.TestBean7")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult7.txt")), getClassContents("org.apache.openejb.test.TestBean7")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testShouldAddAnnotationWithNestedAttributes() throws Exception {
-		addNewClassToProject("org.apache.openejb.test.TestBean8", getStreamContents(getClass().getResourceAsStream("Test8.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		addNewClassToProject("org.apache.openejb.test.TestBean8", fixture.getStreamContent(getClass().getResourceAsStream("Test8.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		Map<String, Object> properties = new HashMap<String, Object>();
@@ -207,7 +203,7 @@ public class AddAnnotationTest extends TestCase {
 		FakeProgressMonitor progressMonitor = new FakeProgressMonitor();
 		change.perform(progressMonitor);
 		
-		assertEquals(getStreamContents(getClass().getResourceAsStream("ExpectedResult8.txt")), getClassContents("org.apache.openejb.test.TestBean8")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedResult8.txt")), getClassContents("org.apache.openejb.test.TestBean8")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/* (non-Javadoc)
@@ -226,11 +222,5 @@ public class AddAnnotationTest extends TestCase {
 	private void addNewClassToProject(String className, String content) throws CoreException {
 		fixture.addClassToProject(className, content);
 		fixture.reset();
-	}
-
-	private String getStreamContents(InputStream is) throws IOException {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		new StreamFixture().streamCopy(is, os);
-		return new String(os.toByteArray());
 	}
 }

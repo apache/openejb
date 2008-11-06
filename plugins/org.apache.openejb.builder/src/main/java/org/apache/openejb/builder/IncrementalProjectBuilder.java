@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.openejb.devtools.core.CompilationUnitCache;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -48,7 +49,7 @@ public class IncrementalProjectBuilder extends org.eclipse.core.resources.Increm
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 		getProject().deleteMarkers("org.apache.openejb.builder.dependsonMarker", true, IResource.DEPTH_INFINITE);
 		
-		CompilationUnitCache cache = new CompilationUnitCache();
+		CompilationUnitCache cache = new CompilationUnitCache(JavaCore.create(getProject()));
 		try {
 			SingletonDependencyFinder finder = new SingletonDependencyFinder(getProject());
 			finder.findDependencies();

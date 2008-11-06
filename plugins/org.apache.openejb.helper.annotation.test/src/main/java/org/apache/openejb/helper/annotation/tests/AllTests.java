@@ -8,6 +8,8 @@ public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
 		suite.addTestSuite(AddAnnotationTest.class);
+		suite.addTestSuite(ConvertEjbCreateMethodToConstructorTest.class);
+		suite.addTestSuite(ConvertFinderMethodToCodeTest.class);
 		
 		return suite;
 	}

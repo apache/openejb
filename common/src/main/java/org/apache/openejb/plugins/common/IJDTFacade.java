@@ -18,6 +18,7 @@
 package org.apache.openejb.plugins.common;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Map;
 
 public interface IJDTFacade {
@@ -34,4 +35,11 @@ public interface IJDTFacade {
 	void addAnnotationToFieldsOfType(String targetClass, Class<?> annotation, Map<String, Object> properties);
 	void addInterface(String ejbClass, String interfaceClass);
 	void addWarning(String warning);
+	public void convertMethodToConstructor(String className, String methodName, String[] signature);
+	public void changeInvocationsToConstructor(String fromClass, final String fromMethodName, String[] fromSignature, final String toClass);
+	public void changeInvocationsTo(String fromClass, final String fromMethodName, String[] fromSignature, final String code);
+	public List<String[]> getSignatures(String type, String methodName);
+	public void addCodeToStartOfMethod(String className, String methodName, String[] signature, String code);
+	public void addCodeToEndOfMethod(String className, String methodName, String[] signature, String code);
+	boolean isTypeCollection(String returnType);
 }

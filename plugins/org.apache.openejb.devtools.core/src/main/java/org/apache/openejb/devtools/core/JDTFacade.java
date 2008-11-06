@@ -26,23 +26,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.openejb.plugins.common.IJDTFacade;
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Block;
@@ -51,7 +45,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -69,25 +62,22 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.MethodReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.text.edits.TextEdit;
 
 /**
  * Add annotations to source files in an Eclipse Java project
  * 
  */
-@SuppressWarnings("unchecked") //$NON-NLS-1$
+@SuppressWarnings("unchecked")//$NON-NLS-1$
 public class JDTFacade implements IJDTFacade {
 
-	private class BasicSearchRequestor extends SearchRequestor {
+	public class BasicSearchRequestor extends SearchRequestor {
 		private List<SearchMatch> matches = new ArrayList<SearchMatch>();
 
 		@Override
@@ -103,51 +93,24 @@ public class JDTFacade implements IJDTFacade {
 	protected IJavaProject javaProject;
 	protected Map<String, CompilationUnit> cuMap = new HashMap<String, CompilationUnit>();
 	protected List<String> warnings = new ArrayList<String>();
+	public CompilationUnitCache compilationUnitCache;
 
 	/**
 	 * Creates a new annotation facade
 	 * 
-	 * @param project
-	 *            Eclipse project to work on
+	 * @param project Eclipse project to work on
 	 */
 	public JDTFacade(IProject project) {
 		this.javaProject = JavaCore.create(project);
-	}
-
-	/**
-	 * Gets the compilation unit for the specified class If this compilation
-	 * unit hasn't already been requested, it will be parsed, and the resulting
-	 * compilation unit will be cached.
-	 * 
-	 * @param cls
-	 *            Class to search for
-	 * @return Compilation unit containing specified class
-	 * @throws JavaModelException
-	 */
-	protected CompilationUnit getCompilationUnit(String cls) throws JavaModelException {
-		IType type = javaProject.findType(cls);
-		ICompilationUnit compilationUnit = type.getCompilationUnit();
-
-		String path = compilationUnit.getPath().toString();
-
-		if (cuMap.keySet().contains(path)) {
-			return cuMap.get(path);
-		}
-
-		CompilationUnit cu = parse(compilationUnit);
-		cuMap.put(path, cu);
-
-		return cu;
+		compilationUnitCache = new CompilationUnitCache(javaProject);
 	}
 
 	/**
 	 * Adds a class to the list of imports for a compilation unit. This method
 	 * will check to see if the class has already been imported
 	 * 
-	 * @param classToImport
-	 *            The fully qualified name of the class to import
-	 * @param compilationUnit
-	 *            The compilation unit to add the import to
+	 * @param classToImport The fully qualified name of the class to import
+	 * @param compilationUnit The compilation unit to add the import to
 	 */
 	void addImportToCompilationUnit(String classToImport, CompilationUnit compilationUnit) {
 		if (!isClassImported(classToImport, compilationUnit)) {
@@ -179,31 +142,12 @@ public class JDTFacade implements IJDTFacade {
 		return name;
 	}
 
-	private Type createQualifiedType(AST ast, String targetClass) {
-		String[] parts = targetClass.split("\\."); //$NON-NLS-1$
-
-		Type type = null;
-
-		for (int i = 0; i < parts.length; i++) {
-			SimpleName name = ast.newSimpleName(parts[i]);
-			if (i == 0) {
-				type = ast.newSimpleType(name);
-			} else {
-				type = ast.newQualifiedType(type, name);
-			}
-		}
-
-		return type;
-	}
-
 	/**
 	 * Determines whether the specified class has been imported in the
 	 * compilation unit
 	 * 
-	 * @param importedClass
-	 *            The imported (or not) class
-	 * @param compilationUnit
-	 *            The compilation unit to check
+	 * @param importedClass The imported (or not) class
+	 * @param compilationUnit The compilation unit to check
 	 * @return Whether of not the class has been imported
 	 */
 	private boolean isClassImported(String importedClass, CompilationUnit compilationUnit) {
@@ -221,34 +165,6 @@ public class JDTFacade implements IJDTFacade {
 		return false;
 	}
 
-	/**
-	 * Parses the specified compilation unit to obtain an AST
-	 * 
-	 * @param compilationUnit
-	 *            The compilation unit to parse
-	 * @return The parsed compilation unit AST object
-	 */
-	CompilationUnit parse(ICompilationUnit compilationUnit) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setSource(compilationUnit);
-		parser.setResolveBindings(true);
-		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-
-		cu.recordModifications();
-		return cu;
-	}
-
-	private Block parseBlock(String block) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setKind(ASTParser.K_STATEMENTS);
-		parser.setSource(block.toCharArray());
-		parser.setResolveBindings(true);
-
-		Block val = (Block) parser.createAST(null);
-		return val;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -257,8 +173,8 @@ public class JDTFacade implements IJDTFacade {
 	 */
 	public void addClassAnnotation(String targetClass, Class<? extends java.lang.annotation.Annotation> annotation, Map<String, Object> properties) {
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
-			BodyDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
+			CompilationUnit cu = compilationUnitCache.getCompilationUnit(targetClass);
+			BodyDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 
 			if (isAnnotationAlreadyUsedOnDeclaration(annotation, typeDeclaration)) {
 				warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotation.getCanonicalName(), targetClass)); //$NON-NLS-1$
@@ -289,40 +205,13 @@ public class JDTFacade implements IJDTFacade {
 	}
 
 	/**
-	 * Finds the type declaration for the specified class in a compilation unit
-	 * 
-	 * @param compilationUnit
-	 *            Compilation unit to search
-	 * @param targetClass
-	 *            Type to find
-	 * @return
-	 * @throws CoreException
-	 */
-	protected TypeDeclaration getTypeDeclaration(CompilationUnit compilationUnit, String targetClass) throws CoreException {
-		IType type = javaProject.findType(targetClass);
-
-		TypeDeclaration[] typeDeclarations = (TypeDeclaration[]) compilationUnit.types().toArray(new TypeDeclaration[0]);
-		for (TypeDeclaration typeDeclaration : typeDeclarations) {
-			if (typeDeclaration.getName().toString().equals(type.getElementName())) {
-				return typeDeclaration;
-			}
-		}
-
-		return null;
-	}
-
-	/**
 	 * Creates a new annotation object to be added to the AST, with the
 	 * specified properties
 	 * 
-	 * @param ast
-	 *            The AST to create the annotation for
-	 * @param annotation
-	 *            The type of annotation to create
-	 * @param properties
-	 *            The properties for the annotation to add
-	 * @param cu
-	 *            Compilation Unit
+	 * @param ast The AST to create the annotation for
+	 * @param annotation The type of annotation to create
+	 * @param properties The properties for the annotation to add
+	 * @param cu Compilation Unit
 	 * @return The created annotation AST object
 	 * @throws JavaModelException
 	 */
@@ -432,10 +321,8 @@ public class JDTFacade implements IJDTFacade {
 
 	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<?> annotationClass, Map<String, Object> properties) {
 		try {
-			CompilationUnit cu = getCompilationUnit(fullyQualifiedClassName);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, fullyQualifiedClassName);
-
-			MethodDeclaration method = getMethodDeclaration(typeDeclaration, methodName, signature);
+			CompilationUnit cu = compilationUnitCache.getCompilationUnit(fullyQualifiedClassName);
+			MethodDeclaration method = compilationUnitCache.getMethodDeclaration(fullyQualifiedClassName, methodName, signature);
 			if (method == null) {
 				return;
 			}
@@ -449,45 +336,24 @@ public class JDTFacade implements IJDTFacade {
 	}
 
 	private MethodDeclaration getMethodDeclaration(TypeDeclaration typeDeclaration, String methodName, String[] signature) {
-		MethodDeclaration m = null;
+		try {
+			IType type = javaProject.findType(typeDeclaration.resolveBinding().getQualifiedName());
+			IMethod method = type.getMethod(methodName, signature);
 
-		MethodDeclaration[] methods = typeDeclaration.getMethods();
-		Iterator<MethodDeclaration> iterator = Arrays.asList(methods).iterator();
-		while (iterator.hasNext()) {
-			MethodDeclaration method = iterator.next();
-
-			if (method.getName().toString().equals(methodName) && (signature == null || signatureMatches(method, signature))) {
-				m = method;
-			}
+			return compilationUnitCache.getMethodDeclaration(method);
+		} catch (JavaModelException e) {
 		}
-		return m;
+		
+		return null;
 	}
 
-	private boolean signatureMatches(MethodDeclaration method, String[] signature) {
-
-		if (signature.length != method.parameters().size()) {
-			return false;
-		}
-
-		for (int i = 0; i < signature.length; i++) {
-			SingleVariableDeclaration var = (SingleVariableDeclaration) method.parameters().get(i);
-			Type type = var.getType();
-
-			ITypeBinding typeBinding = type.resolveBinding();
-
-			if (!(typeBinding.getQualifiedName().toString().equals(signature[i]))) {
-				return false;
-			}
-		}
-
-		return true;
-	}
+	
 
 	public void addFieldAnnotation(String targetClass, String targetField, Class<?> annotation, Map<String, Object> properties) {
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
+			CompilationUnit cu = compilationUnitCache.getCompilationUnit(targetClass);
 
-			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 			FieldDeclaration[] fields = typeDeclaration.getFields();
 
 			Iterator<FieldDeclaration> iterator = Arrays.asList(fields).iterator();
@@ -512,42 +378,17 @@ public class JDTFacade implements IJDTFacade {
 	}
 
 	public Change getChange() {
-		CompositeChange compositeChange = new CompositeChange(Messages.getString("org.apache.openejb.helper.annotation.compositChangeString")); //$NON-NLS-1$
-
-		Iterator<CompilationUnit> iterator = cuMap.values().iterator();
-		while (iterator.hasNext()) {
-			try {
-				CompilationUnit cu = iterator.next();
-				ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-				IPath path = cu.getJavaElement().getPath();
-				bufferManager.connect(path, null);
-
-				ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path);
-				IDocument document = textFileBuffer.getDocument();
-
-				TextEdit edit = cu.rewrite(document, javaProject.getOptions(true));
-				TextFileChange dc = new TextFileChange(path.toString(), (IFile) cu.getJavaElement().getResource());
-				dc.setTextType("java"); //$NON-NLS-1$
-				dc.setEdit(edit);
-				dc.setSaveMode(TextFileChange.FORCE_SAVE);
-
-				compositeChange.add(dc);
-			} catch (CoreException e) {
-			}
-		}
-
-		return compositeChange;
+		return compilationUnitCache.getChange();
 	}
 
 	public String[] getWarnings() {
 		return warnings.toArray(new String[0]);
 	}
 
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	@SuppressWarnings("unchecked")//$NON-NLS-1$
 	public void removeInterface(String targetClass, String interfaceToRemove) {
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 
 			Iterator iter = typeDeclaration.superInterfaceTypes().iterator();
 			while (iter.hasNext()) {
@@ -562,15 +403,14 @@ public class JDTFacade implements IJDTFacade {
 				}
 
 			}
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.5"), interfaceToRemove, targetClass)); //$NON-NLS-1$
 		}
 	}
 
 	public void removeAbstractModifierFromClass(String targetClass) {
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
-			BodyDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
+			BodyDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 			removeAbstractModifier(typeDeclaration.modifiers());
 		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.6"), targetClass)); //$NON-NLS-1$
@@ -592,31 +432,29 @@ public class JDTFacade implements IJDTFacade {
 	public void removeAbstractModifierFromMethod(String targetClass, String methodName, String[] signature, String methodBody) {
 		try {
 			String code = methodBody;
-			
-			CompilationUnit compilationUnit = getCompilationUnit(targetClass);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(compilationUnit, targetClass);
+
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 			MethodDeclaration methodDeclaration = getMethodDeclaration(typeDeclaration, methodName, signature);
 			removeAbstractModifier(methodDeclaration.modifiers());
-			
+
 			List parameters = methodDeclaration.parameters();
 			for (int i = 0; i < parameters.size(); i++) {
 				SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(i);
 				code = code.replaceAll("\\$\\{" + Integer.toString(i) + "\\}", parameter.resolveBinding().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			
-			Block block = parseBlock(code);
+
+			Block block = JDTUtils.parseBlock(code);
 			block = (Block) ASTNode.copySubtree(methodDeclaration.getAST(), block);
 
 			methodDeclaration.setBody((Block) block);
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.7"), targetClass, methodName)); //$NON-NLS-1$
 		}
 	}
 
 	public boolean classImplements(String targetClass, String targetInterface) {
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 
 			Iterator iter = typeDeclaration.superInterfaceTypes().iterator();
 			while (iter.hasNext()) {
@@ -631,7 +469,7 @@ public class JDTFacade implements IJDTFacade {
 				}
 
 			}
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.8"), targetClass)); //$NON-NLS-1$
 		}
 
@@ -640,15 +478,15 @@ public class JDTFacade implements IJDTFacade {
 
 	public String getSuperClass(String targetClass) {
 		try {
-			TypeDeclaration type = getTypeDeclaration(getCompilationUnit(targetClass), targetClass);
+			TypeDeclaration type = compilationUnitCache.getTypeDeclaration(targetClass);
 			Type superclassType = type.getSuperclassType();
-			
+
 			if (superclassType == null) {
 				return targetClass;
 			}
-			
+
 			return superclassType.resolveBinding().getQualifiedName();
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.9"), targetClass)); //$NON-NLS-1$
 		}
 
@@ -657,12 +495,10 @@ public class JDTFacade implements IJDTFacade {
 
 	public String getMethodReturnType(String targetClass, String methodName, String[] signature) {
 		try {
-			CompilationUnit compilationUnit = getCompilationUnit(targetClass);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(compilationUnit, targetClass);
-			MethodDeclaration methodDeclaration = getMethodDeclaration(typeDeclaration, methodName, signature);
+			MethodDeclaration methodDeclaration = compilationUnitCache.getMethodDeclaration(targetClass, methodName, signature);
 
 			return methodDeclaration.resolveBinding().getReturnType().getQualifiedName();
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.10"), targetClass, methodName)); //$NON-NLS-1$
 		}
 
@@ -671,19 +507,19 @@ public class JDTFacade implements IJDTFacade {
 
 	public void addField(String targetClass, String fieldName, String fieldType) {
 		try {
-			CompilationUnit compilationUnit = getCompilationUnit(targetClass);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(compilationUnit, targetClass);
+			CompilationUnit compilationUnit = compilationUnitCache.getCompilationUnit(targetClass);
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 
 			VariableDeclarationFragment variableDeclaration = typeDeclaration.getAST().newVariableDeclarationFragment();
 			variableDeclaration.setName(typeDeclaration.getAST().newSimpleName(fieldName));
 
 			FieldDeclaration fieldDeclaration = typeDeclaration.getAST().newFieldDeclaration(variableDeclaration);
-			Type type = createQualifiedType(compilationUnit.getAST(), fieldType);
+			Type type = JDTUtils.createQualifiedType(compilationUnit.getAST(), fieldType);
 			fieldDeclaration.setType(type);
 			Modifier privateModifier = fieldDeclaration.getAST().newModifier(ModifierKeyword.PRIVATE_KEYWORD);
 			fieldDeclaration.modifiers().add(privateModifier);
 			typeDeclaration.bodyDeclarations().add(fieldDeclaration);
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.11"), fieldName, targetClass)); //$NON-NLS-1$
 		}
 
@@ -730,15 +566,15 @@ public class JDTFacade implements IJDTFacade {
 
 	public void addInterface(String targetClass, String interfaceClass) {
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
+			CompilationUnit cu = compilationUnitCache.getCompilationUnit(targetClass);
 			addImportToCompilationUnit(interfaceClass, cu);
 
-			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
 			AST ast = cu.getAST();
 			SimpleType interfaceType = ast.newSimpleType(createQualifiedName(ast, interfaceClass));
-			
+
 			typeDeclaration.superInterfaceTypes().add(interfaceType);
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), interfaceClass, targetClass)); //$NON-NLS-1$
 		}
 	}
@@ -748,14 +584,12 @@ public class JDTFacade implements IJDTFacade {
 	}
 
 	public void removeClassAnnotation(String targetClass, Class<?> cls) {
-		// TODO Auto-generated method stub
 		try {
-			CompilationUnit cu = getCompilationUnit(targetClass);
-			TypeDeclaration typeDeclaration = getTypeDeclaration(cu, targetClass);
-			
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(targetClass);
+
 			List modifiers = typeDeclaration.modifiers();
 			Iterator iterator = modifiers.iterator();
-			
+
 			while (iterator.hasNext()) {
 				IExtendedModifier modifier = (IExtendedModifier) iterator.next();
 				if (modifier.isAnnotation()) {
@@ -765,16 +599,108 @@ public class JDTFacade implements IJDTFacade {
 					}
 				}
 			}
-			
-		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
 
+	public void convertMethodToConstructor(String className, String methodName, String[] signature) {
+		try {
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(className);
+			MethodDeclaration methodDeclaration = compilationUnitCache.getMethodDeclaration(className, methodName, signature);
+			methodDeclaration.setConstructor(true);
+			SimpleName newMethodName = methodDeclaration.getAST().newSimpleName(typeDeclaration.getName().toString());
+			methodDeclaration.setName(newMethodName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void changeInvocationsToConstructor(String fromClass, final String fromMethodName, String[] fromSignature, final String toClass) {
+		MethodDeclaration fromMethodDeclaration = compilationUnitCache.getMethodDeclaration(fromClass, fromMethodName, fromSignature);
+		final IMethod fromMethod = (IMethod) fromMethodDeclaration.resolveBinding().getJavaElement();
+
+		BlockModifier blockModifier = new ConvertMethodInvocationToConstructor(fromMethod, toClass);
+		modifyBlocks(fromMethod, blockModifier);
+	}
+
+	private void modifyBlocks(final IMethod fromMethod, BlockModifier blockModifier) {
+		try {
+			SearchEngine searchEngine = new SearchEngine();
+			SearchPattern pattern = SearchPattern.createPattern(fromMethod, IJavaSearchConstants.ALL_OCCURRENCES | IJavaSearchConstants.IGNORE_RETURN_TYPE);
+			SearchParticipant[] participants = new SearchParticipant[] { SearchEngine.getDefaultSearchParticipant() };
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+
+			BasicSearchRequestor requestor = new BasicSearchRequestor();
+			searchEngine.search(pattern, participants, scope, requestor, null);
+
+			SearchMatch[] matches = requestor.getMatches();
+			for (SearchMatch match : matches) {
+				try {
+					if (!(match instanceof MethodReferenceMatch)) {
+						continue;
+					}
+
+					IMethod javaElement = (IMethod) ((PlatformObject) (match.getElement())).getAdapter(IJavaElement.class);
+					Block block = compilationUnitCache.getMethodDeclaration(javaElement).getBody();
+					blockModifier.modify(block);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public List<String[]> getSignatures(String type, String methodName) {
+		return compilationUnitCache.getSignatures(type, methodName);
+	}
+
+	public void changeInvocationsTo(String fromClass, String fromMethodName, String[] fromSignature, String code) {
+		MethodDeclaration fromMethodDeclaration = compilationUnitCache.getMethodDeclaration(fromClass, fromMethodName, fromSignature);
+		final IMethod fromMethod = (IMethod) fromMethodDeclaration.resolveBinding().getJavaElement();
+
+		BlockModifier blockModifier = new ConvertMethodInvocationToCode(fromMethod, code);
+		modifyBlocks(fromMethod, blockModifier);
+	}
+
+	public void addCodeToEndOfMethod(String className, String methodName, String[] signature, String code) {
+		// TODO Auto-generated method stub
 		
 	}
 
+	public void addCodeToStartOfMethod(String className, String methodName, String[] signature, String code) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean isTypeCollection(String typeName) {
+		if ("java.util.Collection".equals(typeName)) {
+			return true;
+		}
+		
+		try {
+			IType type = javaProject.findType(typeName);
+			if (type == null) {
+				return false;
+			}
+			
+			String[] superInterfaceNames = type.getSuperInterfaceNames();
+			for (String superInterface : superInterfaceNames) {
+				if ("java.util.Collection".equals(superInterface)) {
+					return true;
+				}
+				
+				if (isTypeCollection(superInterface)) {
+					return true;
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+		
+		return false;
+	}
 }
+

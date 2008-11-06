@@ -24,6 +24,7 @@ import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.SessionBean;
 
 public class EjbReferencesConverter implements Converter {
@@ -38,31 +39,32 @@ public class EjbReferencesConverter implements Converter {
 	public void convert(AppModule module) {
 		List<EjbModule> ejbModules = module.getEjbModules();
 		for (EjbModule ejbModule : ejbModules) {
-			EjbJar ejbJar = ejbModule.getEjbJar();
-
-			EnterpriseBean[] enterpriseBeans = ejbJar.getEnterpriseBeans();
-			for (EnterpriseBean enterpriseBean : enterpriseBeans) {
-				if (! (enterpriseBean instanceof SessionBean)) {
-					continue;
-				}
-
-				try {
-					SessionBean sessionBean = (SessionBean) enterpriseBean;
-					String remoteClass = sessionBean.getRemote();
-					String localClass = sessionBean.getLocal();
-					if (remoteClass != null && remoteClass.length() > 0) {
-						facade.addAnnotationToFieldsOfType(remoteClass, EJB.class, null);
-					}
-					if (localClass != null && localClass.length() > 0) {
-						facade.addAnnotationToFieldsOfType(localClass, EJB.class, null);
-					}
-				} catch (Exception e) {
-					String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.ejb.EJB", enterpriseBean.getEjbClass());
-					facade.addWarning(warning);
-				}
-			}
+			convert(ejbModule);
 		}
 	}
 
-
+	private void convert(EjbModule ejbModule) {
+		EjbJar ejbJar = ejbModule.getEjbJar();
+		EnterpriseBean[] enterpriseBeans = ejbJar.getEnterpriseBeans();
+		for (EnterpriseBean enterpriseBean : enterpriseBeans) {
+			if (enterpriseBean instanceof EntityBean) {
+				continue;
+			}
+			
+			try {
+				SessionBean sessionBean = (SessionBean) enterpriseBean;
+				String remoteClass = sessionBean.getRemote();
+				String localClass = sessionBean.getLocal();
+				if (remoteClass != null && remoteClass.length() > 0) {
+					facade.addAnnotationToFieldsOfType(remoteClass, EJB.class, null);
+				}
+				if (localClass != null && localClass.length() > 0) {
+					facade.addAnnotationToFieldsOfType(localClass, EJB.class, null);
+				}
+			} catch (Exception e) {
+				String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.ejb.EJB", enterpriseBean.getEjbClass());
+				facade.addWarning(warning);
+			}
+		}
+	}
 }
