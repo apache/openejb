@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.openejb.devtools.core.CompilationUnitCache;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.PlatformObject;
@@ -74,7 +75,7 @@ public class SingletonDependencyFinder {
 	protected Map<String, String[]> singletons = new HashMap<String, String[]>();
 	protected Map<String, Dependency[]> dependencies = new HashMap<String, Dependency[]>();
 	private IJavaProject javaProject;
-	private CompilationUnitCache compilationUnitCache = new CompilationUnitCache();
+	private CompilationUnitCache compilationUnitCache = new CompilationUnitCache(javaProject);
 
 	public void findDependencies() throws SingletonDependencyFinderException {
 		findSingletonsAndInterfaces();

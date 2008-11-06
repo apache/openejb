@@ -21,15 +21,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.openejb.devtools.core.JDTFacade;
-import org.apache.openejb.plugins.common.*;
+import org.apache.openejb.plugins.common.Converter;
+import org.apache.openejb.plugins.common.EjbReferencesConverter;
+import org.apache.openejb.plugins.common.EntityBeanConverter;
+import org.apache.openejb.plugins.common.EntityBeanPojoConverter;
+import org.apache.openejb.plugins.common.EntityBeanUsageConverter;
+import org.apache.openejb.plugins.common.OpenEjbXmlConverter;
+import org.apache.openejb.plugins.common.SessionBeanConverter;
+import org.apache.openejb.plugins.common.SessionBeanInterfaceModifier;
+import org.apache.openejb.plugins.common.SessionBeanRemoteAnnotationAdder;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -112,6 +118,7 @@ public class EJBMigrationRefactoring extends Refactoring {
 			
 			if (convertEntityBeansToPojos) {
 				converterList.add(new EntityBeanPojoConverter(jdtFacade));
+				converterList.add(new EntityBeanUsageConverter(jdtFacade));
 			}
 			
 			Converter[] converters = converterList.toArray(new Converter[0]);

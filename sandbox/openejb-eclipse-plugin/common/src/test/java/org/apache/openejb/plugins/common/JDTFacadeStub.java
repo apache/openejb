@@ -2,6 +2,7 @@ package org.apache.openejb.plugins.common;
 
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class JDTFacadeStub implements IJDTFacade {
@@ -154,6 +155,35 @@ public class JDTFacadeStub implements IJDTFacade {
 	public void removeInterface(String targetClass, String interfaceToRemove) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void convertMethodToConstructor(String className, String methodName, String[] signature) {
+	}
+
+	public void changeInvocationsToConstructor(String fromClass, final String fromMethodName, String[] fromSignature, final String toClass) {
+	}
+
+	public List<String[]> getSignatures(String type, String methodName) {
+		return null;
+	}
+
+	public void changeInvocationsTo(String fromClass, String fromMethodName, String[] fromSignature, String code) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void addCodeToEndOfMethod(String className, String methodName, String[] signature, String code) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addCodeToStartOfMethod(String className, String methodName, String[] signature, String code) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean isTypeCollection(String returnType) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
