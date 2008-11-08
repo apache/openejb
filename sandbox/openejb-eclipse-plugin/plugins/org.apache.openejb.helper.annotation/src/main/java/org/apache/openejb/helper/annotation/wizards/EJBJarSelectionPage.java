@@ -52,6 +52,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 	private Button ejb3Interfaces;
 	private Button remoteAndRemoteHomeAnnotations;
 	private Button convertEntityBeansToPojos;
+	private Button generateEntityManagerCode;
 	
 	@Override
 	public void performHelp() {
@@ -142,7 +143,7 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		remoteAndRemoteHomeAnnotations = new Button(container, SWT.CHECK);
 		remoteAndRemoteHomeAnnotations.setLayoutData(checkData);
 		remoteAndRemoteHomeAnnotations.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.addRemoteAnnotations")); //$NON-NLS-1$
-		remoteAndRemoteHomeAnnotations.setSelection(false);
+		remoteAndRemoteHomeAnnotations.setSelection(true);
 		remoteAndRemoteHomeAnnotations.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -156,6 +157,18 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		convertEntityBeansToPojos.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.convertEntityBeans")); //$NON-NLS-1$
 		convertEntityBeansToPojos.setSelection(true);
 		convertEntityBeansToPojos.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				checkPage();
+			}
+		});
+		
+		generateEntityManagerCode = new Button(container, SWT.CHECK);
+		generateEntityManagerCode.setLayoutData(checkData);
+		generateEntityManagerCode.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.generateEntityFactoryCode")); //$NON-NLS-1$
+		generateEntityManagerCode.setSelection(true);
+		generateEntityManagerCode.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
@@ -216,11 +229,19 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 		String ejbJarXmlFile = ejbJarXmlText.getText();
 		String openEjbJarXmlFile = openEjbJarXmlText.getText();
 		
+		if (convertEntityBeansToPojos.getSelection() == false) {
+			generateEntityManagerCode.setSelection(false);
+			generateEntityManagerCode.setEnabled(false);
+		} else {
+			generateEntityManagerCode.setEnabled(true);
+		}
+		
 		refactoring.setEjbJarXmlFile(ejbJarXmlFile);
 		refactoring.setOpenEjbJarXmlFile(openEjbJarXmlFile);
 		refactoring.setConvertEntityBeansToPojos(convertEntityBeansToPojos.getSelection());
 		refactoring.setEjb3Interfaces(ejb3Interfaces.getSelection());
 		refactoring.setRemoteAndRemoteHomeAnnotations(remoteAndRemoteHomeAnnotations.getSelection());
+		refactoring.setGenerateEntityManagerCode(generateEntityManagerCode.getSelection());
 		
 		if (refactoring.getProject() == null) {
 			setErrorMessage(null);
