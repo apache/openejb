@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.NullChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.xml.sax.InputSource;
@@ -51,6 +52,7 @@ public class EJBMigrationRefactoring extends Refactoring {
 	protected boolean ejb3Interfaces;
 	protected boolean remoteAndRemoteHomeAnnotations;
 	protected boolean convertEntityBeansToPojos;
+	protected boolean generateEntityManagerCode;
 	
 	public EJBMigrationRefactoring(IWorkspaceRoot workspaceRoot) {
 		this.workspaceRoot = workspaceRoot;
@@ -81,10 +83,10 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+		InputSource ejbJarInputSource = null;
+		InputSource openEjbJarInputSource = null;
+		
 		try {
-			InputSource ejbJarInputSource = null;
-			InputSource openEjbJarInputSource = null;
-			
 			if (ejbJarXmlFile != null && ejbJarXmlFile.length() > 0) {
 				IFile ejbJarFile = project.getFile(ejbJarXmlFile);
 				if (!(ejbJarFile.exists())) {
@@ -100,7 +102,12 @@ public class EJBMigrationRefactoring extends Refactoring {
 					openEjbJarInputSource = new InputSource(openEjbJarFile.getContents());
 				}
 			}
-			
+		} catch (Exception e) {
+			status.addFatalError(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbMigrationWzd.fatalError.parse"));
+			return new NullChange();
+		}
+		
+		try {
 			JDTFacade jdtFacade = new JDTFacade(project);
 			
 			List<Converter> converterList = new ArrayList<Converter>();
@@ -118,6 +125,9 @@ public class EJBMigrationRefactoring extends Refactoring {
 			
 			if (convertEntityBeansToPojos) {
 				converterList.add(new EntityBeanPojoConverter(jdtFacade));
+			}
+			
+			if (generateEntityManagerCode) {
 				converterList.add(new EntityBeanUsageConverter(jdtFacade));
 			}
 			
@@ -135,7 +145,7 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 		} catch (Exception e) {
 			status.addFatalError(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbMigrationWzd.fatalError") + ":" + e.getLocalizedMessage());
-			return null;
+			return new NullChange();
 		}
 	}
 
@@ -200,5 +210,13 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 	public void setConvertEntityBeansToPojos(boolean convertEntityBeansToPojos) {
 		this.convertEntityBeansToPojos = convertEntityBeansToPojos;
+	}
+
+	public boolean isGenerateEntityManagerCode() {
+		return generateEntityManagerCode;
+	}
+
+	public void setGenerateEntityManagerCode(boolean generateEntityManagerCode) {
+		this.generateEntityManagerCode = generateEntityManagerCode;
 	}
 }
