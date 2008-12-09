@@ -41,29 +41,29 @@ public class ConvertEjbCreateMethodToConstructorTest extends TestCase {
 	}
 
 	public void testShouldConvertEjbCreateMethodToAConstructor() throws Exception {
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.ProductBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.ProductBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		JDTFacade facade = new JDTFacade(fixture.getProject());
-		facade.convertMethodToConstructor("uk.me.jrg.jee.store.ejb.ProductBean", "ejbCreate", new String[] { "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.String"}); //$NON-NLS-1$
+		facade.convertMethodToConstructor("org.superbiz.ProductBean", "ejbCreate", new String[] { "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.String"}); //$NON-NLS-1$
 		
 		Change change = facade.getChange();
 		change.perform(new NullProgressMonitor());
 
-		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("Expected30ProductBean.txt")), fixture.getClassContents("uk.me.jrg.jee.store.ejb.ProductBean")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("Expected30ProductBean.txt")), fixture.getClassContents("org.superbiz.ProductBean")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public void testShouldChangeUsesOfEjbCreateToUseConstructor() throws Exception {
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.ProductBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.ProductHome", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductHome.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.SessionBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21SessionBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.Product", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21Product.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.ProductBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.ProductHome", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductHome.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.SessionBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21SessionBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.Product", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21Product.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		JDTFacade facade = new JDTFacade(fixture.getProject());
 		String[] signature = new String[] { "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.String" };
-		facade.changeInvocationsToConstructor("uk.me.jrg.jee.store.ejb.ProductHome", "create", signature, "uk.me.jrg.jee.store.ejb.ProductBean");
+		facade.changeInvocationsToConstructor("org.superbiz.ProductHome", "create", signature, "org.superbiz.ProductBean");
 
 		Change change = facade.getChange();
 		change.perform(new NullProgressMonitor());
 
-		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedSessionBean.txt")), fixture.getClassContents("uk.me.jrg.jee.store.ejb.SessionBean")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(fixture.getStreamContent(getClass().getResourceAsStream("ExpectedSessionBean.txt")), fixture.getClassContents("org.superbiz.SessionBean")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

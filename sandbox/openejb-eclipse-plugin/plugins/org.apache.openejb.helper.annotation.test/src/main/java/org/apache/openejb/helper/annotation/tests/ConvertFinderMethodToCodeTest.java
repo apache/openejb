@@ -47,22 +47,22 @@ public class ConvertFinderMethodToCodeTest extends TestCase {
 	}
 
 	public void testShouldConvertEjbFinderMethodToCodeCase1() throws Exception {
-		doTest("ProductManagerBean21-1.txt", "ProductManagerBean30-1.txt", "uk.me.jrg.ejb.ProductManagerBean1");
+		doTest("ProductManagerBean21-1.txt", "ProductManagerBean30-1.txt", "org.superbiz.ProductManagerBean1");
 	}
 
 	public void testShouldConvertEjbFinderMethodToCodeCase2() throws Exception {
-		doTest("ProductManagerBean21-2.txt", "ProductManagerBean30-2.txt", "uk.me.jrg.ejb.ProductManagerBean2");
+		doTest("ProductManagerBean21-2.txt", "ProductManagerBean30-2.txt", "org.superbiz.ProductManagerBean2");
 	}
 	
 	public void testShouldConvertEjbFinderMethodToCodeCase3() throws Exception {
-		doTest("ProductManagerBean21-3.txt", "ProductManagerBean30-3.txt", "uk.me.jrg.ejb.ProductManagerBean3");
+		doTest("ProductManagerBean21-3.txt", "ProductManagerBean30-3.txt", "org.superbiz.ProductManagerBean3");
 	}
 
 
 	
 	private void doTest(String startFilename, String expectedFilename, String bean) throws CoreException, IOException {
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.ProductBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
-		fixture.addClassToProject("uk.me.jrg.jee.store.ejb.ProductHome", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductHome.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.ProductBean", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductBean.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fixture.addClassToProject("org.superbiz.ProductHome", fixture.getStreamContent(getClass().getResourceAsStream("Ejb21ProductHome.txt"))); //$NON-NLS-1$ //$NON-NLS-2$
 		fixture.addClassToProject(bean, fixture.getStreamContent(getClass().getResourceAsStream(startFilename))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		JDTFacade facade = new JDTFacade(fixture.getProject());
@@ -77,7 +77,7 @@ public class ConvertFinderMethodToCodeTest extends TestCase {
 				"javax.persistence.Query query = entityManager.createQuery(\"SELECT p from Product p where p.name = ?1\");\r\n" +
 				"query.getResultList();";
 		
-		facade.changeInvocationsTo("uk.me.jrg.jee.store.ejb.ProductHome", "findBy", new String[] { "java.lang.String"}, code); //$NON-NLS-1$
+		facade.changeInvocationsTo("org.superbiz.ProductHome", "findBy", new String[] { "java.lang.String"}, code); //$NON-NLS-1$
 		
 		Change change = facade.getChange();
 		change.perform(new NullProgressMonitor());

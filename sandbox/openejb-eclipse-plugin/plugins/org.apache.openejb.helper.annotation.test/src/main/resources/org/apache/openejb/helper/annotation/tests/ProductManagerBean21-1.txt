@@ -16,7 +16,7 @@
  */
 package uk.me.jrg.ejb;
 
-import uk.me.jrg.jee.store.ejb.ProductHome;
+import org.superbiz.ProductHome;
 
 import javax.ejb.*;
 import javax.naming.InitialContext;

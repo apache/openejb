@@ -9,45 +9,45 @@
             <description>Business logic for the store</description>
             <display-name>Store</display-name>
             <ejb-name>StoreEJB</ejb-name>
-            <home>uk.me.jrg.jee.store.ejb.StoreHome</home>
-            <remote>uk.me.jrg.jee.store.ejb.Store</remote>
-            <ejb-class>uk.me.jrg.jee.store.ejb.StoreBean</ejb-class>
+            <home>org.superbiz.StoreHome</home>
+            <remote>org.superbiz.Store</remote>
+            <ejb-class>org.superbiz.StoreBean</ejb-class>
             <session-type>Stateful</session-type>
             <transaction-type>Container</transaction-type>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/Product</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>uk.me.jrg.jee.store.ejb.ProductHome</local-home>
-                <local>uk.me.jrg.jee.store.ejb.Product</local>
+                <local-home>org.superbiz.ProductHome</local-home>
+                <local>org.superbiz.Product</local>
                 <ejb-link>ProductEJB</ejb-link>
             </ejb-local-ref>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/Order</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>uk.me.jrg.jee.store.ejb.OrderHome</local-home>
-                <local>uk.me.jrg.jee.store.ejb.Order</local>
+                <local-home>org.superbiz.OrderHome</local-home>
+                <local>org.superbiz.Order</local>
                 <ejb-link>OrderEJB</ejb-link>
             </ejb-local-ref>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/OrderLine</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>uk.me.jrg.jee.store.ejb.OrderLineHome</local-home>
-                <local>uk.me.jrg.jee.store.ejb.OrderLine</local>
+                <local-home>org.superbiz.OrderLineHome</local-home>
+                <local>org.superbiz.OrderLine</local>
                 <ejb-link>OrderLineEJB</ejb-link>
             </ejb-local-ref>
             <ejb-local-ref>
                 <ejb-ref-name>ejb/User</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>
-                <local-home>uk.me.jrg.jee.store.ejb.UserHome</local-home>
-                <local>uk.me.jrg.jee.store.ejb.User</local>
+                <local-home>org.superbiz.UserHome</local-home>
+                <local>org.superbiz.User</local>
                 <ejb-link>UserEJB</ejb-link>
             </ejb-local-ref>
         </session>
         <entity>
             <ejb-name>ProductEJB</ejb-name>
-            <local-home>uk.me.jrg.jee.store.ejb.ProductHome</local-home>
-            <local>uk.me.jrg.jee.store.ejb.Product</local>
-            <ejb-class>uk.me.jrg.jee.store.ejb.ProductBean</ejb-class>
+            <local-home>org.superbiz.ProductHome</local-home>
+            <local>org.superbiz.Product</local>
+            <ejb-class>org.superbiz.ProductBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>true</reentrant>
@@ -80,9 +80,9 @@
         </entity>
         <entity>
             <ejb-name>OrderEJB</ejb-name>
-            <local-home>uk.me.jrg.jee.store.ejb.OrderHome</local-home>
-            <local>uk.me.jrg.jee.store.ejb.Order</local>
-            <ejb-class>uk.me.jrg.jee.store.ejb.OrderBean</ejb-class>
+            <local-home>org.superbiz.OrderHome</local-home>
+            <local>org.superbiz.Order</local>
+            <ejb-class>org.superbiz.OrderBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>true</reentrant>
@@ -104,9 +104,9 @@
         </entity>
         <entity>
             <ejb-name>OrderLineEJB</ejb-name>
-            <local-home>uk.me.jrg.jee.store.ejb.OrderLineHome</local-home>
-            <local>uk.me.jrg.jee.store.ejb.OrderLine</local>
-            <ejb-class>uk.me.jrg.jee.store.ejb.OrderLineBean</ejb-class>
+            <local-home>org.superbiz.OrderLineHome</local-home>
+            <local>org.superbiz.OrderLine</local>
+            <ejb-class>org.superbiz.OrderLineBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>true</reentrant>
@@ -122,9 +122,9 @@
         </entity>
         <entity>
             <ejb-name>UserEJB</ejb-name>
-            <local-home>uk.me.jrg.jee.store.ejb.UserHome</local-home>
-            <local>uk.me.jrg.jee.store.ejb.User</local>
-            <ejb-class>uk.me.jrg.jee.store.ejb.UserBean</ejb-class>
+            <local-home>org.superbiz.UserHome</local-home>
+            <local>org.superbiz.User</local>
+            <ejb-class>org.superbiz.UserBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>true</reentrant>
