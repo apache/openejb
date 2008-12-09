@@ -38,7 +38,6 @@ import org.apache.openejb.jee.Multiplicity;
 import org.apache.openejb.jee.Relationships;
 import org.apache.openejb.jee.jpa.Attributes;
 import org.apache.openejb.jee.jpa.Basic;
-import org.apache.openejb.jee.jpa.CascadeType;
 import org.apache.openejb.jee.jpa.Column;
 import org.apache.openejb.jee.jpa.EntityMappings;
 import org.apache.openejb.jee.jpa.FetchType;
@@ -46,13 +45,9 @@ import org.apache.openejb.jee.jpa.GeneratedValue;
 import org.apache.openejb.jee.jpa.GenerationType;
 import org.apache.openejb.jee.jpa.Id;
 import org.apache.openejb.jee.jpa.IdClass;
-import org.apache.openejb.jee.jpa.ManyToOne;
 import org.apache.openejb.jee.jpa.NamedNativeQuery;
 import org.apache.openejb.jee.jpa.NamedQuery;
-import org.apache.openejb.jee.jpa.OneToMany;
-import org.apache.openejb.jee.jpa.OneToOne;
 import org.apache.openejb.jee.jpa.QueryHint;
-import org.apache.openejb.jee.jpa.RelationField;
 import org.apache.openejb.jee.jpa.SequenceGenerator;
 import org.apache.openejb.jee.jpa.TableGenerator;
 import org.apache.openejb.jee.jpa.UniqueConstraint;
@@ -64,26 +59,6 @@ public class EntityBeanConverter implements Converter {
 	public EntityBeanConverter(IJDTFacade annotationHelper) {
 		super();
 		this.facade = annotationHelper;
-	}
-
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private void addOneToManyRelationshipAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
-
-		try {
-			List<OneToMany> relationships = entity.getAttributes().getOneToMany();
-			for (OneToMany relationship : relationships) {
-
-				Map oneToManyProperties = getPropertiesForRelationship(relationship);
-
-				String name = relationship.getName();
-				String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1); //$NON-NLS-1$
-
-				facade.addMethodAnnotation(entityBean.getEjbClass(), nameGetter, new String[] {}, javax.persistence.OneToMany.class, oneToManyProperties);
-			}
-		} catch (Exception e) {
-			String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.persistence.OneToMany", entityBean.getEjbClass());
-			facade.addWarning(warning);
-		}
 	}
 
 	@SuppressWarnings("unchecked") //$NON-NLS-1$
@@ -212,11 +187,13 @@ public class EntityBeanConverter implements Converter {
 		}
 	}
 
-	private void addTableAnnotation(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
+	void addTableAnnotation(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 		try {
 			String tableName = entity.getTable().getName();
 			String schemaName = entity.getTable().getSchema();
 			String catalogName = entity.getTable().getCatalog();
+			
+			if (tableName == null && schemaName == null && catalogName == null) return;
 
 			Map<String, Object> tableProperties = new HashMap<String, Object>();
 			if (tableName != null && tableName.length() > 0) {
@@ -291,18 +268,19 @@ public class EntityBeanConverter implements Converter {
 				addBasicAnnotations(entityBean, attributes.getBasic());
 				addNamedQueriesAnnotations(entityBean, entity);
 				addNamedNativeQueriesAnnotations(entityBean, entity);
-//				addOneToManyRelationshipAnnotations(entityBean, entity);
-//				addManyToOneRelationshipAnnotations(entityBean, entity);
-//				addOneToOneRelationshipAnnotations(entityBean, entity);
 			}
 		}
 	}
 
-	private void addRelationshipAnnotations(AppModule appModule) {
+	void addRelationshipAnnotations(AppModule appModule) {
 		List<EjbModule> ejbModules = appModule.getEjbModules();
 		for (EjbModule ejbModule : ejbModules) {
 			EjbJar ejbJar = ejbModule.getEjbJar();
 			Relationships relationships = ejbJar.getRelationships();
+			
+			if (relationships == null)
+				return;
+			
 			List<EjbRelation> relations = relationships.getEjbRelation();
 			
 			for (EjbRelation relation : relations) {
@@ -383,89 +361,6 @@ public class EntityBeanConverter implements Converter {
 	}
 
 	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private void addOneToOneRelationshipAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
-		try {
-			List<OneToOne> relationships = entity.getAttributes().getOneToOne();
-			for (OneToOne relationship : relationships) {
-
-				String name = relationship.getName();
-				String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1); //$NON-NLS-1$
-
-				Map<String, Object> oneToOneProperties = getPropertiesForRelationship(relationship);
-
-				facade.addMethodAnnotation(entityBean.getEjbClass(), nameGetter, new String[] {}, javax.persistence.OneToOne.class, oneToOneProperties);
-			}
-		} catch (Exception e) {
-			String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.persistence.OneToOne", entityBean.getEjbClass());
-			facade.addWarning(warning);
-		}
-	}
-
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private void addManyToOneRelationshipAnnotations(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
-		List<ManyToOne> relationships = entity.getAttributes().getManyToOne();
-		for (ManyToOne relationship : relationships) {
-
-			try {
-				String name = relationship.getName();
-				String nameGetter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1); //$NON-NLS-1$
-				Map manyToOneProperties = getPropertiesForRelationship(relationship);
-				Boolean optional = relationship.isOptional();
-				if (optional != null) {
-					manyToOneProperties.put("optional", optional.booleanValue()); //$NON-NLS-1$
-				}
-				facade.addMethodAnnotation(entityBean.getEjbClass(), nameGetter, new String[] {}, javax.persistence.OneToOne.class, manyToOneProperties);
-			} catch (Exception e) {
-				String warning = String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.12"), "@javax.persistence.OneToOone", entityBean.getEjbClass());
-				facade.addWarning(warning);
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private Map<String,Object> getPropertiesForRelationship(RelationField relationship) {
-		String targetEntity = relationship.getTargetEntity();
-		FetchType fetch = relationship.getFetch();
-		CascadeType cascade = relationship.getCascade();
-
-
-		Map<String, Object> manyToOneProperties = new HashMap<String, Object>();
-		if (fetch != null) {
-			manyToOneProperties.put("fetch", fetch.value()); //$NON-NLS-1$
-		}
-
-		if (cascade != null) {
-			List cascadeList = new ArrayList();
-			if (cascade.isCascadeAll()) {
-				cascadeList.add(javax.persistence.CascadeType.ALL);
-			}
-
-			if (cascade.isCascadeMerge()) {
-				cascadeList.add(javax.persistence.CascadeType.MERGE);
-			}
-
-			if (cascade.isCascadePersist()) {
-				cascadeList.add(javax.persistence.CascadeType.PERSIST);
-			}
-
-			if (cascade.isCascadeRefresh()) {
-				cascadeList.add(javax.persistence.CascadeType.REFRESH);
-			}
-
-			if (cascade.isCascadeRemove()) {
-				cascadeList.add(javax.persistence.CascadeType.REMOVE);
-			}
-
-			manyToOneProperties.put("cascade", cascadeList.toArray(new Object[0])); //$NON-NLS-1$
-		}
-
-		if (targetEntity != null && targetEntity.length() > 0) {
-			manyToOneProperties.put("targetEntity", targetEntity); //$NON-NLS-1$
-		}
-		return manyToOneProperties;
-	}
-
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	private void addIdClassAnnotation(EntityBean entityBean, org.apache.openejb.jee.jpa.Entity entity) {
 		try {
 			IdClass idClass = entity.getIdClass();
@@ -537,7 +432,7 @@ public class EntityBeanConverter implements Converter {
 	}
 
 	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private void addIdAnnotation(EntityBean entityBean, Id id) {
+	void addIdAnnotation(EntityBean entityBean, Id id) {
 		try {
 			String fieldName = id.getName();
 			String methodName = convertFieldNameToGetterName(fieldName);
@@ -546,7 +441,9 @@ public class EntityBeanConverter implements Converter {
 			GeneratedValue generatedValue = id.getGeneratedValue();
 			if (generatedValue != null) {
 				Map<String, Object> generatedValueProps = new HashMap<String, Object>();
-				generatedValueProps.put("generator", generatedValue.getGenerator()); //$NON-NLS-1$
+				if (generatedValue.getGenerator() != null) {
+					generatedValueProps.put("generator", generatedValue.getGenerator()); //$NON-NLS-1$
+				}
 
 				GenerationType strategy = generatedValue.getStrategy();
 				switch (strategy) {

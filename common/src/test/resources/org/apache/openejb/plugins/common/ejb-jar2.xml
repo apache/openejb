@@ -14,26 +14,26 @@
 
          <ejb-name>AddressBook</ejb-name>
 
-         <home>uk.me.jrg.jee.sample.interfaces.AddressBookHome</home>
-         <remote>uk.me.jrg.jee.sample.interfaces.AddressBook</remote>
-         <local-home>uk.me.jrg.jee.sample.interfaces.AddressBookLocalHome</local-home>
-         <local>uk.me.jrg.jee.sample.interfaces.AddressBookLocal</local>
-         <ejb-class>uk.me.jrg.jee.sample.ejb.AddressBookBean</ejb-class>
+         <home>org.superbiz.AddressBookHome</home>
+         <remote>org.superbiz.AddressBook</remote>
+         <local-home>org.superbiz.AddressBookLocalHome</local-home>
+         <local>org.superbiz.AddressBookLocal</local>
+         <ejb-class>org.superbiz.AddressBookBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
          <ejb-local-ref >
             <ejb-ref-name>ejb/Person</ejb-ref-name>
             <ejb-ref-type>Entity</ejb-ref-type>
-            <local-home>uk.me.jrg.jee.sample.interfaces.PersonLocalHome</local-home>
-            <local>uk.me.jrg.jee.sample.interfaces.PersonLocal</local>
+            <local-home>org.superbiz.PersonLocalHome</local-home>
+            <local>org.superbiz.PersonLocal</local>
             <ejb-link>Person</ejb-link>
          </ejb-local-ref>
          <ejb-local-ref >
             <ejb-ref-name>ejb/Contact</ejb-ref-name>
             <ejb-ref-type>Entity</ejb-ref-type>
-            <local-home>uk.me.jrg.jee.sample.interfaces.ContactLocalHome</local-home>
-            <local>uk.me.jrg.jee.sample.interfaces.ContactLocal</local>
+            <local-home>org.superbiz.ContactLocalHome</local-home>
+            <local>org.superbiz.ContactLocal</local>
             <ejb-link>Contact</ejb-link>
          </ejb-local-ref>
 
@@ -51,10 +51,10 @@
 
          <ejb-name>Person</ejb-name>
 
-         <local-home>uk.me.jrg.jee.sample.interfaces.PersonLocalHome</local-home>
-         <local>uk.me.jrg.jee.sample.interfaces.PersonLocal</local>
+         <local-home>org.superbiz.PersonLocalHome</local-home>
+         <local>org.superbiz.PersonLocal</local>
 
-         <ejb-class>uk.me.jrg.jee.sample.ejb.PersonCMP</ejb-class>
+         <ejb-class>org.superbiz.PersonCMP</ejb-class>
          <persistence-type>Container</persistence-type>
          <prim-key-class>java.lang.Long</prim-key-class>
          <reentrant>false</reentrant>
@@ -111,10 +111,10 @@
 
          <ejb-name>Contact</ejb-name>
 
-         <local-home>uk.me.jrg.jee.sample.interfaces.ContactLocalHome</local-home>
-         <local>uk.me.jrg.jee.sample.interfaces.ContactLocal</local>
+         <local-home>org.superbiz.ContactLocalHome</local-home>
+         <local>org.superbiz.ContactLocal</local>
 
-         <ejb-class>uk.me.jrg.jee.sample.ejb.ContactCMP</ejb-class>
+         <ejb-class>org.superbiz.ContactCMP</ejb-class>
          <persistence-type>Container</persistence-type>
          <prim-key-class>java.lang.Long</prim-key-class>
          <reentrant>false</reentrant>

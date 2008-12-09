@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.me.jrg.jee.store.ejb;
+package org.superbiz.ejb;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
@@ -47,7 +47,7 @@ public class SessionBean implements javax.ejb.SessionBean {
         try {
             Object obj = new InitialContext().lookup("java:comp/env/ejb/Product");
             ProductHome productHome = (ProductHome) PortableRemoteObject.narrow(obj, ProductHome.class);
-            uk.me.jrg.jee.store.ejb.ProductBean product = new uk.me.jrg.jee.store.ejb.ProductBean(null, productName,
+            org.superbiz.ProductBean product = new org.superbiz.ProductBean(null, productName,
 					description, productCode);
         } catch (NamingException e) {
             e.printStackTrace();

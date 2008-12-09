@@ -2,7 +2,7 @@
 <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 	<dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
 		<dep:moduleId>
-			<dep:groupId>uk.me.jrg.jee.sample.project</dep:groupId>
+			<dep:groupId>org.superbiz.project</dep:groupId>
 			<dep:artifactId>ejb</dep:artifactId>
 			<dep:version>1.0</dep:version>
 			<dep:type>jar</dep:type>

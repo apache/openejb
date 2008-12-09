@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+		  http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+         version="2.1">
+    <enterprise-beans>
+        <entity>
+            <ejb-name>ProductEJB</ejb-name>
+            <local-home>org.superbiz.ProductHome</local-home>
+            <local>org.superbiz.Product</local>
+            <ejb-class>org.superbiz.ProductBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>true</reentrant>
+            <cmp-version>2.x</cmp-version>
+            <abstract-schema-name>Product</abstract-schema-name>
+            <cmp-field>
+                <description>Identity</description>
+                <field-name>id</field-name>
+            </cmp-field>
+            <cmp-field>
+                <description>product name</description>
+                <field-name>name</field-name>
+            </cmp-field>
+            <cmp-field>
+                <description>product stock code</description>
+                <field-name>code</field-name>
+            </cmp-field>
+            <cmp-field>
+                <description>product description</description>
+                <field-name>description</field-name>
+            </cmp-field>
+            <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findAll</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>SELECT p from Product p</ejb-ql>
+            </query>
+        </entity>
+    </enterprise-beans>
+</ejb-jar>

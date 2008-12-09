@@ -1,0 +1,12 @@
+<ejb-jar>
+	<enterprise-beans>
+		<session>
+            <description>Business logic for the store</description>
+            <display-name>Store</display-name>
+            <ejb-name>StoreEJB</ejb-name>
+            <ejb-class>org.superbiz.StoreBean</ejb-class>
+            <session-type>Stateful</session-type>
+            <transaction-type>Container</transaction-type>
+		</session>
+	</enterprise-beans>
+</ejb-jar>
