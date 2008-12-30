@@ -101,7 +101,7 @@ public class EntityBeanConverter implements Converter {
 		}
 	}
 
-	private void addBasicAnnotations(EntityBean entityBean, List<Basic> basicAttributes) {
+	void addBasicAnnotations(EntityBean entityBean, List<Basic> basicAttributes) {
 		for (Basic basic : basicAttributes) {
 			String fieldName = basic.getName();
 			Column column = basic.getColumn();
@@ -156,7 +156,7 @@ public class EntityBeanConverter implements Converter {
 		return firstLetter + restOfWord;
 	}
 
-	private void addColumnAnnotation(EntityBean entityBean, String fieldName, Column column) {
+	void addColumnAnnotation(EntityBean entityBean, String fieldName, Column column) {
 		try {
 			Map<String, Object> columnProps = new HashMap<String, Object>();
 			if (column.getName() != null)

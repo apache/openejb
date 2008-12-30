@@ -22,12 +22,7 @@ import java.util.List;
 
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.EjbModule;
-import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.EjbRelation;
-import org.apache.openejb.jee.EjbRelationshipRole;
-import org.apache.openejb.jee.EnterpriseBean;
-import org.apache.openejb.jee.EntityBean;
-import org.apache.openejb.jee.Relationships;
+import org.apache.openejb.jee.*;
 import org.apache.openejb.jee.jpa.Basic;
 import org.apache.openejb.jee.jpa.Entity;
 import org.apache.openejb.jee.jpa.EntityMappings;
@@ -59,29 +54,30 @@ public class EntityBeanPojoConverter implements Converter {
 				EntityBean entityBean = (EntityBean) enterpriseBean;
 				Entity entity = getMapping(cmpMappings, entityBean.getEjbName());
 
-				if (entity != null) {
-					convertBeanToPojo(entityBean, entity);
-				}
+                convertBeanToPojo(entityBean, entity);
 			}
-			
-			List<EjbRelation> ejbRelations = relationships.getEjbRelation();
-			for (Iterator<EjbRelation> relationIterator = ejbRelations.iterator(); relationIterator.hasNext();) {
-				EjbRelation ejbRelation = relationIterator.next();
-				List<EjbRelationshipRole> ejbRelationshipRoles = ejbRelation.getEjbRelationshipRole();
-				for (Iterator<EjbRelationshipRole> roleIteratore = ejbRelationshipRoles.iterator(); roleIteratore.hasNext();) {
-					EjbRelationshipRole ejbRelationshipRole = roleIteratore.next();
-					
-					String ejbName = ejbRelationshipRole.getRelationshipRoleSource().getEjbName();
-					EntityBean bean = getEntityBean(enterpriseBeans, ejbName);
-					if (bean == null) {
-						continue;
-					}
-					
-					if (ejbRelationshipRole.getCmrField() != null)
-						convertGetterAndSetterToNonAbstract(bean.getEjbClass(), ejbRelationshipRole.getCmrField().getCmrFieldName());
-				}
-			}
-		}
+
+            if (relationships != null) {
+
+                List<EjbRelation> ejbRelations = relationships.getEjbRelation();
+                for (Iterator<EjbRelation> relationIterator = ejbRelations.iterator(); relationIterator.hasNext();) {
+                    EjbRelation ejbRelation = relationIterator.next();
+                    List<EjbRelationshipRole> ejbRelationshipRoles = ejbRelation.getEjbRelationshipRole();
+                    for (Iterator<EjbRelationshipRole> roleIteratore = ejbRelationshipRoles.iterator(); roleIteratore.hasNext();) {
+                        EjbRelationshipRole ejbRelationshipRole = roleIteratore.next();
+
+                        String ejbName = ejbRelationshipRole.getRelationshipRoleSource().getEjbName();
+                        EntityBean bean = getEntityBean(enterpriseBeans, ejbName);
+                        if (bean == null) {
+                            continue;
+                        }
+
+                        if (ejbRelationshipRole.getCmrField() != null)
+                            convertGetterAndSetterToNonAbstract(bean.getEjbClass(), ejbRelationshipRole.getCmrField().getCmrFieldName());
+                    }
+                }
+            }
+        }
 	}
 
 	private EntityBean getEntityBean(EnterpriseBean[] enterpriseBeans, String ejbName) {
@@ -94,34 +90,42 @@ public class EntityBeanPojoConverter implements Converter {
 		return null;
 	}
 
-	private Entity getMapping(EntityMappings entityMappings, String ejbName) {
-			Collection<Entity> entities = entityMappings.getEntity();
+    private Entity getMapping(EntityMappings entityMappings, String ejbName) {
+        if (entityMappings == null) return null;
+        Collection<Entity> entities = entityMappings.getEntity();
 
-			for (Entity entity : entities) {
-				if (entity.getEjbName().equals(ejbName)) {
-					return entity;
-				}
-			}
+        for (Entity entity : entities) {
+            if (entity.getEjbName().equals(ejbName)) {
+                return entity;
+            }
+        }
 
-			return null;
-	}
+        return null;
+    }
 
-	private void convertBeanToPojo(EntityBean entityBean, Entity entity) {
-		facade.removeAbstractModifierFromClass(entityBean.getEjbClass());
+    private void convertBeanToPojo(EntityBean entityBean, Entity entity) {
+        facade.removeAbstractModifierFromClass(entityBean.getEjbClass());
         facade.removeInterface(entityBean.getEjbClass(), "javax.ejb.EntityBean");
 
-        List<Basic> basicList = entity.getAttributes().getBasic();
-		for (Basic basic : basicList) {
-			convertGetterAndSetterToNonAbstract(entityBean.getEjbClass(), basic.getName());
-		}
+        if (entity != null) {
+            List<Basic> basicList = entity.getAttributes().getBasic();
+            for (Basic basic : basicList) {
+                convertGetterAndSetterToNonAbstract(entityBean.getEjbClass(), basic.getName());
+            }
 
-		List<Id> ids = entity.getAttributes().getId();
-		for (Id id : ids) {
-			convertGetterAndSetterToNonAbstract(entityBean.getEjbClass(), id.getName());
-		}
-	}
+            List<Id> ids = entity.getAttributes().getId();
+            for (Id id : ids) {
+                convertGetterAndSetterToNonAbstract(entityBean.getEjbClass(), id.getName());
+            }
+        } else {
+            List<CmpField> fields = entityBean.getCmpField();
+            for (CmpField field : fields) {
+                convertGetterAndSetterToNonAbstract(entityBean.getEjbClass(), field.getFieldName());
+            }
+        }
+    }
 
-	private void convertGetterAndSetterToNonAbstract(String cls, String fieldName) {
+    private void convertGetterAndSetterToNonAbstract(String cls, String fieldName) {
 		try {
 			String[] emptySignature = new String[0];
 			String getterMethodName = convertFieldNameToGetterName(fieldName);
@@ -142,8 +146,7 @@ public class EntityBeanPojoConverter implements Converter {
 	}
 
 	private String convertFieldNameToGetterName(String fieldName) {
-		String methodName = "get" + capitaliseFirstLetter(fieldName); //$NON-NLS-1$
-		return methodName;
+        return "get" + capitaliseFirstLetter(fieldName);
 	}
 
 	private String capitaliseFirstLetter(String fieldName) {
@@ -166,7 +169,6 @@ public class EntityBeanPojoConverter implements Converter {
 	}
 
 	private String convertFieldNameToSetterName(String fieldName) {
-		String methodName = "set" + capitaliseFirstLetter(fieldName); //$NON-NLS-1$
-		return methodName;
+        return "set" + capitaliseFirstLetter(fieldName);
 	}
 }
