@@ -23,6 +23,23 @@
 		  http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
          version="2.1">
     <enterprise-beans>
+        <session>
+            <description>Business logic for the store</description>
+            <display-name>Store</display-name>
+            <ejb-name>StoreEJB</ejb-name>
+            <home>org.superbiz.StoreHome</home>
+            <remote>org.superbiz.Store</remote>
+            <ejb-class>org.superbiz.StoreBean</ejb-class>
+            <session-type>Stateful</session-type>
+            <transaction-type>Container</transaction-type>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb/Product</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.superbiz.ProductHome</local-home>
+                <local>org.superbiz.Product</local>
+                <ejb-link>ProductEJB</ejb-link>
+            </ejb-local-ref>
+        </session>
         <entity>
             <ejb-name>ProductEJB</ejb-name>
             <local-home>org.superbiz.ProductHome</local-home>
