@@ -18,7 +18,7 @@
 <feature
       id="org.apache.openejb.feature.devtools"
       label="%featureName"
-      version="1.0.1"
+      version="1.0.2"
       provider-name="%providerName"
       plugin="org.apache.openejb.branding"
       image="bigG.gif">
@@ -43,27 +43,27 @@
          id="org.apache.openejb.helper.annotation"
          download-size="0"
          install-size="0"
-         version="1.0.1"
+         version="1.0.2"
          unpack="false"/>
 
    <plugin
          id="org.apache.openejb.branding"
          download-size="0"
          install-size="0"
-         version="1.0.1"
+         version="1.0.2"
          unpack="false"/>
 
    <plugin
          id="org.apache.openejb.builder"
          download-size="0"
          install-size="0"
-         version="1.0.1"
+         version="1.0.2"
          unpack="false"/>
 
    <plugin
          id="org.apache.openejb.devtools.core"
          download-size="0"
          install-size="0"
-         version="1.0.1"
+         version="1.0.2"
          unpack="false"/>
 </feature>
