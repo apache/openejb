@@ -22,11 +22,11 @@
     <artifactId>eclipse-features-parent</artifactId>
     <packaging>pom</packaging>
     <name>${artifactId}</name>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <parent>
         <groupId>org.apache.openejb</groupId>
         <artifactId>eclipse-plugins</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modules>

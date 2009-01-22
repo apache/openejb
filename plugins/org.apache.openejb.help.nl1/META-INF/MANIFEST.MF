@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %fragmentName
 Bundle-SymbolicName: org.apache.openejb.help.nl1; singleton:=true
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Vendor: %fragmentProvider
 Bundle-Localization: fragment
-Fragment-Host: org.apache.openejb.help;bundle-version="1.0.1"
+Fragment-Host: org.apache.openejb.help;bundle-version="1.0.2"

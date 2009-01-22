@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.apache.openejb.devtools.core;singleton:=true
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Eclipse-AutoStart: true
@@ -23,7 +23,7 @@ Provide-Package: org.apache.openejb.devtools.core,
  org.apache.openejb.plugins.common
 Bundle-ClassPath: .,
  lib/javaee-api-5.0-1.jar,
- lib/plugins-common-1.0.1.jar,
+ lib/plugins-common-1.0.2.jar,
  lib/jaxb-api-2.0.jar, 
  lib/jaxb-impl-2.0.3.jar, 
  lib/log4j-1.2.12.jar, 

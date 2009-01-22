@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 <site>
-   <feature url="features/org.apache.openejb.feature_1.0.1.jar" id="org.apache.openejb.feature" version="1.0.1">
+   <feature url="features/org.apache.openejb.feature_1.0.2.jar" id="org.apache.openejb.feature" version="1.0.2">
       <category name="OpenEJB"/>
    </feature>
    <category-def name="OpenEJB" label="OpenEJB"/>
