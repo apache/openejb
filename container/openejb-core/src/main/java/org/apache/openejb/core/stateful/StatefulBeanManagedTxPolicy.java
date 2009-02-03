@@ -48,11 +48,19 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
             // Resume previous Bean transaction if there was one
             Transaction beanTransaction = instanceManager.getBeanTransaction(context.callContext);
             if (beanTransaction != null) {
-                context.currentTx = beanTransaction;
-                resumeTransaction(context, context.currentTx);
+                int status = beanTransaction.getStatus();
+                if (status != Status.STATUS_NO_TRANSACTION) {
+                    instanceManager.setBeanTransaction(context.callContext, null);
+                    context.currentTx = beanTransaction;
+                    resumeTransaction(context, context.currentTx);
+                } else {
+                    beanTransaction = null;
+                }
             }
         } catch (OpenEJBException e) {
             handleSystemException(e.getRootCause(), instance, context);
+        } catch (javax.transaction.SystemException e) {
+            handleSystemException(e, instance, context);
         }
     }
 
@@ -60,18 +68,11 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
         try {
             // Get the transaction after the method invocation
             context.currentTx = context.getTransactionManager().getTransaction();
-
-            // If it is not complete, suspend the transaction
-            if (context.currentTx != null) {
-                int status = context.currentTx.getStatus();
-                if (status != Status.STATUS_COMMITTED && status != Status.STATUS_ROLLEDBACK) {
-                    suspendTransaction(context);
-                } else {
-                    // transaction is complete, so there is no need to maintain a referecne to it
-                    context.clientTx = null;
-                }
+            
+            // If it is active, suspend the transaction
+            if (context.currentTx != null) {          
+                suspendTransaction(context);
             }
-
             // Update the user transaction reference in the bean instance data
             StatefulInstanceManager instanceManager = ((StatefulContainer)container).getInstanceManager();
             instanceManager.setBeanTransaction(context.callContext, context.currentTx);
@@ -81,8 +82,6 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
             handleSystemException(e, instance, context);
         } catch (Throwable e) {
             handleSystemException(e, instance, context);
-        } finally {
-            resumeTransaction(context, context.clientTx);
         }
     }
 

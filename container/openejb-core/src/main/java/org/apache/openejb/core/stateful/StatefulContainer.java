@@ -48,6 +48,7 @@ import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.ExceptionType;
 import org.apache.openejb.core.interceptor.InterceptorData;
 import org.apache.openejb.core.interceptor.InterceptorStack;
+import org.apache.openejb.core.transaction.EjbTransactionUtil;
 import org.apache.openejb.core.transaction.TransactionContainer;
 import org.apache.openejb.core.transaction.TransactionContext;
 import org.apache.openejb.core.transaction.TransactionPolicy;
@@ -326,6 +327,7 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
     protected Object removeEJBObject(CoreDeploymentInfo deploymentInfo, Object primKey, Class callInterface, Method callMethod, Object[] args) throws OpenEJBException {
         ThreadContext callContext = new ThreadContext(deploymentInfo, primKey);
         ThreadContext oldCallContext = ThreadContext.enter(callContext);
+        TransactionContext txContext = new TransactionContext(callContext, transactionManager);
         try {
             checkAuthorization(deploymentInfo, callMethod, callInterface);
 
@@ -352,7 +354,7 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
                 
                 List<InterceptorData> interceptors = deploymentInfo.getMethodInterceptors(runMethod);
                 InterceptorStack interceptorStack = new InterceptorStack(instance.bean, runMethod, Operation.REMOVE, interceptors, instance.interceptors);
-                return _invoke(callMethod, interceptorStack, args, instance, callContext);
+                return _invoke(callMethod, interceptorStack, args, instance, callContext, txContext);
 
             } catch(InvalidateReferenceException e){
                 throw e;
@@ -383,6 +385,10 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
                         callContext.setCurrentOperation(Operation.REMOVE);
                     }
 
+                    TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy(callMethod);
+                    if (txPolicy instanceof StatefulBeanManagedTxPolicy) {
+                        EjbTransactionUtil.afterInvoke(txPolicy, txContext);
+                    }
                     // todo destroy extended persistence contexts
                     instanceManager.freeInstance(callContext);
                 }
@@ -395,6 +401,7 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
     protected Object businessMethod(CoreDeploymentInfo deploymentInfo, Object primKey, Class callInterface, Method callMethod, Object[] args) throws OpenEJBException {
         ThreadContext callContext = new ThreadContext(deploymentInfo, primKey);
         ThreadContext oldCallContext = ThreadContext.enter(callContext);
+        TransactionContext txContext = new TransactionContext(callContext, transactionManager);
         try {
             checkAuthorization(deploymentInfo, callMethod, callInterface);
 
@@ -410,12 +417,16 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
 
             List<InterceptorData> interceptors = deploymentInfo.getMethodInterceptors(runMethod);
             InterceptorStack interceptorStack = new InterceptorStack(instance.bean, runMethod, Operation.BUSINESS, interceptors, instance.interceptors);
-            Object returnValue = _invoke(callMethod, interceptorStack, args, bean, callContext);
+            Object returnValue = _invoke(callMethod, interceptorStack, args, bean, callContext, txContext);
 
             instanceManager.poolInstance(callContext, bean);
 
             return returnValue;
         } finally {
+            TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy(callMethod);
+            if (txPolicy instanceof StatefulBeanManagedTxPolicy) {
+                EjbTransactionUtil.afterInvoke(txPolicy, txContext);
+            }
             ThreadContext.exit(oldCallContext);
         }
     }
@@ -428,9 +439,19 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
     }
 
     protected Object _invoke(Method callMethod, InterceptorStack interceptorStack, Object [] args, Object bean, ThreadContext callContext) throws OpenEJBException {
-
-        TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy(callMethod);
         TransactionContext txContext = new TransactionContext(callContext, transactionManager);
+        TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy(callMethod);
+        try {
+            return _invoke(callMethod, interceptorStack, args, bean, callContext, txContext);
+        } finally {
+            if (txPolicy instanceof StatefulBeanManagedTxPolicy) {
+                EjbTransactionUtil.afterInvoke(txPolicy, txContext);
+            }
+        }
+    }
+
+    protected Object _invoke(Method callMethod, InterceptorStack interceptorStack, Object [] args, Object bean, ThreadContext callContext, TransactionContext txContext) throws OpenEJBException {
+        TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy(callMethod);
         try {
             txPolicy.beforeInvoke(bean, txContext);
         } catch (ApplicationException e) {
@@ -469,7 +490,6 @@ public class StatefulContainer implements RpcContainer, TransactionContainer {
 
         return returnValue;
     }
-
     private Index<EntityManagerFactory, EntityManager> createEntityManagers(CoreDeploymentInfo deploymentInfo) {
         // create the extended entity managers
         Index<EntityManagerFactory, Map> factories = deploymentInfo.getExtendedEntityManagerFactories();
