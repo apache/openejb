@@ -99,4 +99,8 @@ public class Activator extends AbstractUIPlugin {
 		} catch (CoreException e) {
 		}
 	}
+
+	public Model getModel() {
+		return new Model();
+	}
 }

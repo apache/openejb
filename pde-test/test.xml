@@ -38,7 +38,7 @@
 	<target name="linux">
 		<property name="os" value="linux"/>
 		<property name="ws" value="gtk"/>
-		<property name="arch" value="x86"/>
+		<property name="arch" value="x86_64"/>
 		
 		<ant target="run" antfile="test.xml"/>
 	</target>

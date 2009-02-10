@@ -17,10 +17,12 @@
 
 package org.apache.openejb.builder;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class Dependency {
+public class Dependency implements Serializable {
 	private String dependsOn;
 	private List<MethodCall> path = new ArrayList<MethodCall>();
 	
@@ -38,5 +40,21 @@ public class Dependency {
 	
 	public void addMethodCall(MethodCall methodCall) {
 		path.add(0, methodCall);
+	}
+
+	public boolean touches(String fullyQualifiedName) {
+		Iterator<MethodCall> iterator = path.iterator();
+		while (iterator.hasNext()) {
+			MethodCall methodCall = (MethodCall) iterator.next();
+			if (methodCall.getClassName().equals(fullyQualifiedName)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	public Iterator<MethodCall> getMethodCalls() {
+		return path.iterator();
 	}
 }
