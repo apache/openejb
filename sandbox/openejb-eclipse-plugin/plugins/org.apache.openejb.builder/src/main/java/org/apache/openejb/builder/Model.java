@@ -14,46 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.openejb.builder;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MethodCall implements Serializable {
-	private String className;
-	private String methodName;
-	private String[] signature;
-	private String compilationUnit;
+import org.eclipse.core.resources.IProject;
+
+public class Model implements Serializable {
+	private static final long serialVersionUID = 4870818160182347194L;
+
+	private Map<String, ProjectModel> models = new HashMap<String, ProjectModel>();
 	
-	public String getClassName() {
-		return className;
-	}
-	
-	public void setClassName(String className) {
-		this.className = className;
-	}
-	
-	public String getMethodName() {
-		return methodName;
-	}
-	
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-	
-	public String[] getSignature() {
-		return signature;
-	}
-	
-	public void setSignature(String[] signature) {
-		this.signature = signature;
+	public ProjectModel getModel(IProject project) {
+		return getModel(project.getName());
 	}
 
-	public void setCompilationUnit(String compilationUnit) {
-		this.compilationUnit = compilationUnit;
-	}
-
-	public String getCompilationUnit() {
-		return compilationUnit;
+	public ProjectModel getModel(String projectName) {
+		ProjectModel projectModel = models.get(projectName);
+		if (projectModel == null) {
+			projectModel = new ProjectModel(projectName);
+			models.put(projectName, projectModel);
+		}
+		
+		return projectModel;
 	}
 }

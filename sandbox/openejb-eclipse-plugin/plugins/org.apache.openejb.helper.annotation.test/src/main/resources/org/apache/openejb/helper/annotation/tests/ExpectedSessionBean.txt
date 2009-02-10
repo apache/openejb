@@ -47,8 +47,8 @@ public class SessionBean implements javax.ejb.SessionBean {
         try {
             Object obj = new InitialContext().lookup("java:comp/env/ejb/Product");
             ProductHome productHome = (ProductHome) PortableRemoteObject.narrow(obj, ProductHome.class);
-            org.superbiz.ProductBean product = new org.superbiz.ProductBean(null, productName,
-					description, productCode);
+            org.superbiz.ProductBean product = new org.superbiz.ProductBean(null, productName, description,
+					productCode);
         } catch (NamingException e) {
             e.printStackTrace();
         } catch (CreateException e) {

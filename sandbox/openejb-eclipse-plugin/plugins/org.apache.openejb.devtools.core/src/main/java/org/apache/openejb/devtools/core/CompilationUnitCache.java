@@ -223,4 +223,8 @@ public class CompilationUnitCache {
 		
 		return params.toArray(new String[params.size()]);
 	}
+
+	public void clear() {
+		cache.clear();
+	}
 }
