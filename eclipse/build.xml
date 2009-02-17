@@ -26,7 +26,7 @@
         <property name="dtp_drop"       value="1.6"/>
         <property name="emf_drop"       value="2.4.1/R200808251517"/>
         <property name="gef_drop"       value="3.4.1/R200809101400"/>
-        <property name="wtp_drop"       value="R-3.0.2-20080921203356"/>
+        <property name="wtp_drop"       value="R-3.0.3-20081113203138"/>
 
         <property name="base_url"           value="http://www.eclipse.org/downloads/download.php?file="/>
         <property name="europa_win32_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
