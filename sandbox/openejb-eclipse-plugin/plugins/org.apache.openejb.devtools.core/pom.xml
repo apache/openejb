@@ -82,89 +82,71 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
+						
+						<!--
+ lib/activeio-core-3.0.0-incubator.jar,
+ lib/activemq-core-4.1.1.jar,
+ lib/activemq-ra-4.1.1.jar,
+ lib/asm-finder-3.1.jar,
+ lib/backport-util-concurrent-2.1.jar,
+ lib/commons-cli-1.1.jar,
+ lib/commons-collections-3.2.jar,
+ lib/commons-dbcp-all-1.3-r699049.jar,
+ lib/commons-lang-2.1.jar,
+ lib/commons-logging-1.1.jar,
+ lib/commons-logging-api-1.1.jar,
+ lib/commons-pool-1.3.jar,
+ lib/cxf-bundle-2.0.4-incubator.jar,
+ lib/ejb31-api-experimental-3.1.jar,
+ lib/geronimo-connector-2.1.jar,
+ lib/geronimo-javamail_1.4_mail-1.2.jar,
+ lib/geronimo-transaction-2.1.jar,
+ lib/howl-1.0.1-1.jar,
+ lib/hsqldb-1.8.0.7.jar,
+ lib/javaee-api-5.0-1.jar,
+ lib/jaxb-impl-2.0.5.jar,
+ lib/log4j-1.2.12.jar,
+ lib/neethi-2.0.2.jar,
+ lib/openejb-client-3.1.jar,
+ lib/openejb-core-3.1.jar,
+ lib/openejb-cxf-3.1.jar,
+ lib/openejb-ejbd-3.1.jar,
+ lib/openejb-hsql-3.1.jar,
+ lib/openejb-http-3.1.jar,
+ lib/openejb-javaagent-3.1.jar,
+ lib/openejb-jee-3.1.jar,
+ lib/openejb-loader-3.1.jar,
+ lib/openejb-multicast-3.1.jar,
+ lib/openejb-server-3.1.jar,
+ lib/openejb-telnet-3.1.jar,
+ lib/openejb-webservices-3.1.jar,
+ lib/openjpa-1.1.0.jar,
+ lib/saaj-impl-1.3.jar,
+ lib/serp-1.13.1.jar,
+ lib/slf4j-api-1.3.1.jar,
+ lib/slf4j-jdk14-1.3.1.jar,
+ lib/stax-api-1.0.1.jar,
+ lib/swizzle-stream-1.0.1.jar,
+ lib/wsdl4j-1.6.1.jar,
+ lib/wstx-asl-3.2.0.jar,
+ lib/xbean-naming-3.4.1.jar,
+ lib/xbean-reflect-3.4.1.jar,
+ lib/xml-resolver-1.2.jar,
+ lib/XmlSchema-1.3.2.jar
+
+						-->
+						
+						
+						
 							<outputDirectory>lib</outputDirectory>
 							<overWriteSnapshots>
 								true
 							</overWriteSnapshots>
 							<artifactItems>
 								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>
-										plugins-common
-									</artifactId>
-									<version>1.0.2</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										com.envoisolutions.sxc
-									</groupId>
-									<artifactId>sxc-jaxb</artifactId>
-									<version>0.7-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										com.envoisolutions.sxc
-									</groupId>
-									<artifactId>sxc-runtime</artifactId>
-									<version>0.7-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>openejb-jee</artifactId>
-									<version>3.1-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>
-										openejb-core
-									</artifactId>
-									<version>3.1-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>
-										openejb-loader
-									</artifactId>
-									<version>3.1-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										org.apache.openejb
-									</groupId>
-									<artifactId>javaee-api</artifactId>
-									<version>5.0-1</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										log4j
-									</groupId>
-									<artifactId>
-										log4j
-									</artifactId>
-									<version>1.2.12</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.xml.bind</groupId>
-									<artifactId>jaxb-api</artifactId>
-									<version>2.0</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>com.sun.xml.bind</groupId>
-									<artifactId>jaxb-impl</artifactId>
-									<version>2.0.3</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.codehaus.swizzle</groupId>
-									<artifactId>swizzle-stream</artifactId>
-									<version>1.0.1</version>
+									<groupId></groupId>
+									<artifactId></artifactId>
+									<version></version>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
