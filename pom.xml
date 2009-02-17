@@ -243,7 +243,6 @@
   </build>
 
   <modules>
-    <module>deps</module>
     <module>itests</module>
     <module>container</module>
     <module>server</module>
