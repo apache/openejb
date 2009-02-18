@@ -32,7 +32,7 @@ public class Cmp1Generator implements Opcodes {
         beanClassName = Type.getInternalName(beanClass);
         implClassName = cmpImplClass.replace('.', '/');
 
-        cw = new ClassWriter(true);
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
     public byte[] generate() {

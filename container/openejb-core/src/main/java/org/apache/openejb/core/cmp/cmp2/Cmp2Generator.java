@@ -88,7 +88,7 @@ public class Cmp2Generator implements Opcodes {
             }
         }
 
-        cw = new ClassWriter(true);
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
     public void addCmrField(CmrField cmrField) {

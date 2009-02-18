@@ -93,7 +93,7 @@
 
   <properties>
     <!-- This is used by a manifest classpath entry -->
-    <xbeanVersion>3.4.1</xbeanVersion>
+    <xbeanVersion>3.5</xbeanVersion>
 
 
     <!-- OSGi bundles properties -->
@@ -472,12 +472,12 @@
       <dependency>
         <groupId>asm</groupId>
         <artifactId>asm-commons</artifactId>
-        <version>2.2.3</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>asm</groupId>
         <artifactId>asm</artifactId>
-        <version>2.2.3</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>commons-cli</groupId>

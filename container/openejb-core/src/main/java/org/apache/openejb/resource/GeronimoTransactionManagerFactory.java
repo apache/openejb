@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 import org.apache.openejb.loader.SystemInstance;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GeronimoTransactionManagerFactory {
 

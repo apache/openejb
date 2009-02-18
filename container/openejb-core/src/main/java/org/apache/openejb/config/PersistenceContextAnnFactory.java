@@ -58,7 +58,7 @@ public class PersistenceContextAnnFactory {
         try {
             URL u = c.getResource("/" + c.getName().replace('.', '/') + ".class");
             ClassReader r = new ClassReader(u.openStream());
-            r.accept(new PersistenceContextReader(), true);
+            r.accept(new PersistenceContextReader(), ClassReader.SKIP_DEBUG);
         } catch (IOException e) {
             throw new OpenEJBException("Unable to read class " + c.getName());
         }

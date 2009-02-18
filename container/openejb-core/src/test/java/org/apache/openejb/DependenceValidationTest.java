@@ -110,7 +110,7 @@ public class DependenceValidationTest extends TestCase {
             FileInputStream in = new FileInputStream(file);
             try {
                 ClassReader classReader = new ClassReader(in);
-                classReader.accept(dependencyVisitor, true);
+                classReader.accept(dependencyVisitor, ClassReader.SKIP_DEBUG);
             } finally {
                 in.close();
             }
