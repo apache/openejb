@@ -29,10 +29,10 @@
             primary="true">
       </toc>
       <toc
-            file="tocgeneratingannotations.xml">
+            file="tocannotations.xml">
       </toc>
       <toc
-            file="tocrunningserver.xml">
+            file="tocserver.xml">
       </toc>
    </extension>
    <!--

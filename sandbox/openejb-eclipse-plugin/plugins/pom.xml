@@ -148,12 +148,11 @@
 		<module>org.apache.openejb.helper.annotation</module>
 		<module>org.apache.openejb.builder</module>
 		<module>org.apache.openejb.helper.annotation.test</module>
-		<module>org.apache.openejb.server</module>
 		<module>org.apache.openejb.help</module>
 		<module>org.apache.openejb.help.nl1</module>
 		<module>org.apache.openejb.help.nl2</module>
 		<module>org.apache.openejb.help.nl2a</module>
 		<module>org.apache.openejb.help.nlBidi</module>
-		<module>openejb.server</module>
+		<module>org.apache.openejb.wtp.server</module>
 	</modules>
 </project>
