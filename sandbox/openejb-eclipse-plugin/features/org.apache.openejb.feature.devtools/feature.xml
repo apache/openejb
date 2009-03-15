@@ -66,4 +66,11 @@
          install-size="0"
          version="1.0.2"
          unpack="false"/>
+	 
+ <plugin
+         id="org.apache.openejb.server"
+         download-size="0"
+         install-size="0"
+         version="1.0.2"
+         unpack="false"/>
 </feature>

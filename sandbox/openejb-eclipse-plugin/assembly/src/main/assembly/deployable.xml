@@ -33,6 +33,7 @@
 			<includes>
 				<include>org.apache.openejb:org.apache.openejb.helper.annotation</include>
 				<include>org.apache.openejb:org.apache.openejb.wtp.server</include>
+				<include>org.apache.openejb:org.apache.openejb.server</include>
 				<include>org.apache.openejb:org.apache.openejb.help</include>
 				<include>org.apache.openejb:org.apache.openejb.help.nl1</include>
 				<include>org.apache.openejb:org.apache.openejb.help.nl2</include>
