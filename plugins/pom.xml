@@ -154,5 +154,6 @@
 		<module>org.apache.openejb.help.nl2a</module>
 		<module>org.apache.openejb.help.nlBidi</module>
 		<module>org.apache.openejb.wtp.server</module>
+		<module>org.apache.openejb.server</module>
 	</modules>
 </project>
