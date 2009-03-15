@@ -40,7 +40,7 @@
    </url>
 
    <plugin
-         id="org.apache.openejb.server"
+         id="org.apache.openejb.wtp.server"
          download-size="0"
          install-size="0"
          version="1.0.2"

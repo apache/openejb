@@ -17,6 +17,6 @@
   ~ limitations under the License.
   -->
 <toc label="OpenEJB">
-   <link toc="tocgeneratingannotations.xml"/>
-   <link toc="tocrunningserver.xml"/>
+  <link toc="tocserver.xml"/>
+  <link toc="tocannotations.xml"/>
 </toc>
