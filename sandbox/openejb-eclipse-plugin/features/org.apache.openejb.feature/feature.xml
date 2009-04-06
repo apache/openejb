@@ -36,7 +36,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://www.openejb.org/updates/1.0"/>
+      <update label="%updateSiteName" url="http://people.apache.org/~jgallimore/update-site"/>
    </url>
 
    <includes
