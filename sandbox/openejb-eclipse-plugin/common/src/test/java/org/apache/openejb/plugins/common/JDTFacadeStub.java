@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class JDTFacadeStub implements IJDTFacade {
 
-	public void addAnnotationToFieldsOfType(String targetClass, Class<?> annotation, Map<String, Object> properties) {
+	public void addAnnotationToFieldsOfType(String targetClass, Class<? extends Annotation> annotation, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("[ADD ANNOTATIONS TO FIELDS OF TYPE] Target field type: ");
 		buffer.append(targetClass);
@@ -104,7 +104,7 @@ public class JDTFacadeStub implements IJDTFacade {
 		System.out.println(buffer.toString());
 	}
 
-	public void addFieldAnnotation(String targetClass, String targetField, Class<?> annotation, Map<String, Object> properties) {
+	public void addFieldAnnotation(String targetClass, String targetField, Class<? extends Annotation> annotation, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("[ADD FIELD ANNOTATION] Target field type: ");
 		buffer.append(targetClass);
@@ -124,7 +124,7 @@ public class JDTFacadeStub implements IJDTFacade {
 
 	}
 
-	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<?> annotationClass, Map<String, Object> properties) {
+	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<? extends Annotation> annotationClass, Map<String, Object> properties) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("[ADD METHOD ANNOTATION] Target field type: ");
 		buffer.append(fullyQualifiedClassName);

@@ -319,13 +319,19 @@ public class JDTFacade implements IJDTFacade {
 		return expression;
 	}
 
-	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<?> annotationClass, Map<String, Object> properties) {
+	public void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<? extends java.lang.annotation.Annotation> annotationClass, Map<String, Object> properties) {
 		try {
 			CompilationUnit cu = compilationUnitCache.getCompilationUnit(fullyQualifiedClassName);
 			MethodDeclaration method = compilationUnitCache.getMethodDeclaration(fullyQualifiedClassName, methodName, signature);
 			if (method == null) {
 				return;
 			}
+			
+			if (isAnnotationAlreadyUsedOnDeclaration(annotationClass, method)) {
+				warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotationClass.getCanonicalName(), fullyQualifiedClassName + "." + methodName)); //$NON-NLS-1$
+				return;
+			}
+			
 			Annotation modifier = createModifier(cu.getAST(), annotationClass, properties, cu);
 			method.modifiers().add(0, modifier);
 
@@ -349,7 +355,7 @@ public class JDTFacade implements IJDTFacade {
 
 	
 
-	public void addFieldAnnotation(String targetClass, String targetField, Class<?> annotation, Map<String, Object> properties) {
+	public void addFieldAnnotation(String targetClass, String targetField, Class<? extends java.lang.annotation.Annotation> annotation, Map<String, Object> properties) {
 		try {
 			CompilationUnit cu = compilationUnitCache.getCompilationUnit(targetClass);
 
@@ -363,6 +369,12 @@ public class JDTFacade implements IJDTFacade {
 					continue;
 				}
 
+				if (isAnnotationAlreadyUsedOnDeclaration(annotation, field)) {
+					warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotation.getCanonicalName(), targetClass + "." + targetField)); //$NON-NLS-1$
+					return;
+				}
+
+				
 				VariableDeclarationFragment varibleDeclaration = (VariableDeclarationFragment) field.fragments().get(0);
 				if (varibleDeclaration.getName().toString().equals(targetField)) {
 					Annotation modifier = createModifier(cu.getAST(), annotation, properties, cu);
@@ -525,7 +537,7 @@ public class JDTFacade implements IJDTFacade {
 
 	}
 
-	public void addAnnotationToFieldsOfType(String targetClass, Class<?> annotation, Map<String, Object> properties) {
+	public void addAnnotationToFieldsOfType(String targetClass, Class<? extends java.lang.annotation.Annotation> annotation, Map<String, Object> properties) {
 		try {
 			IType element = javaProject.findType(targetClass);
 
