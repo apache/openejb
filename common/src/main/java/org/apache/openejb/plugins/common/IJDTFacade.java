@@ -23,8 +23,8 @@ import java.util.Map;
 
 public interface IJDTFacade {
 	void addClassAnnotation(String targetClass, Class<? extends Annotation> annotation, Map<String,Object> properties);
-	void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<?> annotationClass, Map<String, Object> properties);
-	void addFieldAnnotation(String targetClass, String targetField, Class<?> annotation, Map<String, Object> properties);
+	void addMethodAnnotation(String fullyQualifiedClassName, String methodName, String[] signature, Class<? extends Annotation> annotationClass, Map<String, Object> properties);
+	void addFieldAnnotation(String targetClass, String targetField, Class<? extends Annotation> annotation, Map<String, Object> properties);
 	void removeInterface(String targetClass, String interfaceToRemove);
 	void removeAbstractModifierFromClass(String targetClass);
 	void removeAbstractModifierFromMethod(String targetClass, String methodName, String[] signature, String methodBody);
@@ -32,7 +32,7 @@ public interface IJDTFacade {
 	boolean classImplements(String targetClass, String targetInterface);
 	String getMethodReturnType(String targetClass, String methodName, String[] signature);
 	void addField(String targetClass, String fieldName, String fieldType);
-	void addAnnotationToFieldsOfType(String targetClass, Class<?> annotation, Map<String, Object> properties);
+	void addAnnotationToFieldsOfType(String targetClass, Class<? extends Annotation> annotation, Map<String, Object> properties);
 	void addInterface(String ejbClass, String interfaceClass);
 	void addWarning(String warning);
 	public void convertMethodToConstructor(String className, String methodName, String[] signature);
