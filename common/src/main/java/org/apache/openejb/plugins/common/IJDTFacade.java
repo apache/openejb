@@ -33,6 +33,7 @@ public interface IJDTFacade {
 	String getMethodReturnType(String targetClass, String methodName, String[] signature);
 	void addField(String targetClass, String fieldName, String fieldType);
 	void addAnnotationToFieldsOfType(String targetClass, Class<? extends Annotation> annotation, Map<String, Object> properties);
+	void addAnnotationToFieldsOfType(String destinationClass, String targetClass, Class<? extends Annotation> annotation, Map<String, Object> properties);
 	void addInterface(String ejbClass, String interfaceClass);
 	void addWarning(String warning);
 	public void convertMethodToConstructor(String className, String methodName, String[] signature);

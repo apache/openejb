@@ -203,4 +203,19 @@ public class JDTFacadeStub implements IJDTFacade {
 		return false;
 	}
 
+	public void addAnnotationToFieldsOfType(String destinationClass, String targetClass, Class<? extends Annotation> annotation, Map<String, Object> properties) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("[ADD ANNOTATIONS TO FIELDS OF TYPE] Destination Class:");
+		buffer.append(destinationClass);
+		buffer.append("\nTarget field type: ");
+		buffer.append(targetClass);
+		buffer.append("\nAnnotation: ");
+		buffer.append(annotation.getCanonicalName());
+		buffer.append("\nProperies: {\n");
+		writeMapToBuffer(properties, buffer, 1);
+		buffer.append("}\n");
+		
+		System.out.println(buffer.toString());		
+	}
+
 }

@@ -34,9 +34,18 @@ import org.apache.openejb.jee.SessionBean;
 public class SessionBeanRemoteAnnotationAdder implements Converter {
 
 	private IJDTFacade facade;
+	private boolean useHome = false;
 
 	public SessionBeanRemoteAnnotationAdder(IJDTFacade facade) {
 		this.facade = facade;
+	}
+	
+	public boolean isUseHome() {
+		return useHome;
+	}
+
+	public void setUseHome(boolean useHome) {
+		this.useHome = useHome;
 	}
 
 	public void convert(AppModule module) {
@@ -61,11 +70,11 @@ public class SessionBeanRemoteAnnotationAdder implements Converter {
 		String ejbClass = sessionBean.getEjbClass();
 
 		if (sessionBean instanceof RemoteBean) {
-			if (sessionBean.getRemote() != null && sessionBean.getRemote().length() > 0) {
+			if (isUseHome() == false && sessionBean.getRemote() != null && sessionBean.getRemote().length() > 0) {
 				facade.addClassAnnotation(sessionBean.getRemote(), Remote.class, null);
 			}
 
-			if (sessionBean.getHome() != null && sessionBean.getHome().length() > 0) {
+			if (isUseHome() && sessionBean.getHome() != null && sessionBean.getHome().length() > 0) {
 				Map<String, Object> props = new HashMap<String, Object>();
 				props.put("value", sessionBean.getHome()); //$NON-NLS-1$
 
@@ -73,4 +82,6 @@ public class SessionBeanRemoteAnnotationAdder implements Converter {
 			}
 		}
 	}
+	
+	
 }
