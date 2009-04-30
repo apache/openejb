@@ -50,7 +50,8 @@ public class EJBMigrationRefactoring extends Refactoring {
 	protected RefactoringStatus status;
 	private final IWorkspaceRoot workspaceRoot;
 	protected boolean ejb3Interfaces;
-	protected boolean remoteAndRemoteHomeAnnotations;
+	protected boolean remoteAnnotations;
+	protected boolean useHomeInterface;
 	protected boolean convertEntityBeansToPojos;
 	protected boolean generateEntityManagerCode;
 	
@@ -116,11 +117,15 @@ public class EJBMigrationRefactoring extends Refactoring {
 			converterList.add(new EjbReferencesConverter(jdtFacade));
 			
 			if (ejb3Interfaces) {
-				converterList.add(new SessionBeanInterfaceModifier(jdtFacade));
+				SessionBeanInterfaceModifier converter = new SessionBeanInterfaceModifier(jdtFacade);
+				converter.setUseHome(useHomeInterface);
+				converterList.add(converter);
 			}
 			
-			if (remoteAndRemoteHomeAnnotations) {
-				converterList.add(new SessionBeanRemoteAnnotationAdder(jdtFacade));
+			if (remoteAnnotations) {
+				SessionBeanRemoteAnnotationAdder converter = new SessionBeanRemoteAnnotationAdder(jdtFacade);
+				converter.setUseHome(useHomeInterface);
+				converterList.add(converter);
 			}
 			
 			if (convertEntityBeansToPojos) {
@@ -196,12 +201,12 @@ public class EJBMigrationRefactoring extends Refactoring {
 		this.ejb3Interfaces = ejb3Interfaces;
 	}
 
-	public boolean isRemoteAndRemoteHomeAnnotations() {
-		return remoteAndRemoteHomeAnnotations;
+	public boolean isRemoteAnnotations() {
+		return remoteAnnotations;
 	}
 
-	public void setRemoteAndRemoteHomeAnnotations(boolean remoteAndRemoteHomeAnnotations) {
-		this.remoteAndRemoteHomeAnnotations = remoteAndRemoteHomeAnnotations;
+	public void setRemoteAnnotations(boolean remoteAndRemoteHomeAnnotations) {
+		this.remoteAnnotations = remoteAndRemoteHomeAnnotations;
 	}
 
 	public boolean isConvertEntityBeansToPojos() {
@@ -218,5 +223,13 @@ public class EJBMigrationRefactoring extends Refactoring {
 
 	public void setGenerateEntityManagerCode(boolean generateEntityManagerCode) {
 		this.generateEntityManagerCode = generateEntityManagerCode;
+	}
+
+	public boolean isUseHomeInterface() {
+		return useHomeInterface;
+	}
+
+	public void setUseHomeInterface(boolean useHomeInterface) {
+		this.useHomeInterface = useHomeInterface;
 	}
 }

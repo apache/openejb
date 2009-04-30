@@ -50,7 +50,8 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 	private Text ejbJarXmlText;
 	private Text openEjbJarXmlText;
 	private Button ejb3Interfaces;
-	private Button remoteAndRemoteHomeAnnotations;
+	private Button remoteAnnotations;
+	private Button useHomeInterfaces;
 	private Button convertEntityBeansToPojos;
 	private Button generateEntityManagerCode;
 	
@@ -140,11 +141,23 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 			}
 		});
 		
-		remoteAndRemoteHomeAnnotations = new Button(container, SWT.CHECK);
-		remoteAndRemoteHomeAnnotations.setLayoutData(checkData);
-		remoteAndRemoteHomeAnnotations.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.addRemoteAnnotations")); //$NON-NLS-1$
-		remoteAndRemoteHomeAnnotations.setSelection(true);
-		remoteAndRemoteHomeAnnotations.addSelectionListener(new SelectionAdapter() {
+		remoteAnnotations = new Button(container, SWT.CHECK);
+		remoteAnnotations.setLayoutData(checkData);
+		remoteAnnotations.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.addRemoteAnnotations")); //$NON-NLS-1$
+		remoteAnnotations.setSelection(true);
+		remoteAnnotations.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				checkPage();
+			}
+		});
+		
+		useHomeInterfaces = new Button(container, SWT.CHECK);
+		useHomeInterfaces.setLayoutData(checkData);
+		useHomeInterfaces.setText(Messages.getString("org.apache.openejb.helper.annotation.wizards.ejbJarSelectionWzd.button.useHomeInterface")); //$NON-NLS-1$
+		useHomeInterfaces.setSelection(true);
+		useHomeInterfaces.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
@@ -236,11 +249,13 @@ public class EJBJarSelectionPage extends UserInputWizardPage {
 			generateEntityManagerCode.setEnabled(true);
 		}
 		
+		useHomeInterfaces.setEnabled(ejb3Interfaces.getSelection() || remoteAnnotations.getSelection());
+		
 		refactoring.setEjbJarXmlFile(ejbJarXmlFile);
 		refactoring.setOpenEjbJarXmlFile(openEjbJarXmlFile);
 		refactoring.setConvertEntityBeansToPojos(convertEntityBeansToPojos.getSelection());
 		refactoring.setEjb3Interfaces(ejb3Interfaces.getSelection());
-		refactoring.setRemoteAndRemoteHomeAnnotations(remoteAndRemoteHomeAnnotations.getSelection());
+		refactoring.setRemoteAnnotations(remoteAnnotations.getSelection());
 		refactoring.setGenerateEntityManagerCode(generateEntityManagerCode.getSelection());
 		
 		if (refactoring.getProject() == null) {

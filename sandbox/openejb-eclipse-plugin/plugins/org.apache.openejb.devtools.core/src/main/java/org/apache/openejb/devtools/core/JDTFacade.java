@@ -29,6 +29,7 @@ import org.apache.openejb.plugins.common.IJDTFacade;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -181,6 +182,7 @@ public class JDTFacade implements IJDTFacade {
 				return;
 			}
 
+			addImportToCompilationUnit(annotation.getCanonicalName(), cu);
 			Annotation modifier = createModifier(cu.getAST(), annotation, properties, cu);
 			typeDeclaration.modifiers().add(0, modifier);
 		} catch (Exception e) {
@@ -196,7 +198,8 @@ public class JDTFacade implements IJDTFacade {
 			}
 
 			Annotation annotationModifer = (Annotation) modifier;
-			if (annotationModifer.getTypeName().toString().equals(annotation.getCanonicalName())) {
+			if (annotationModifer.getTypeName().toString().equals(annotation.getCanonicalName())
+					|| annotationModifer.getTypeName().toString().equals(annotation.getSimpleName())) {
 				return true;
 			}
 		}
@@ -225,7 +228,7 @@ public class JDTFacade implements IJDTFacade {
 		addImportToCompilationUnit(annotation.getCanonicalName(), cu);
 
 		Annotation result = null;
-		Name annotationTypeName = ast.newSimpleName(annotationType.getElementName());
+		Name annotationTypeName = isClassImported(annotation.getCanonicalName(), cu) ? ast.newSimpleName(annotationType.getElementName()) : createQualifiedName(ast, annotationType.getFullyQualifiedName()); 
 
 		if (properties != null) {
 			result = ast.newNormalAnnotation();
@@ -332,10 +335,10 @@ public class JDTFacade implements IJDTFacade {
 				return;
 			}
 			
+			addImportToCompilationUnit(annotationClass.getCanonicalName(), cu);
+			
 			Annotation modifier = createModifier(cu.getAST(), annotationClass, properties, cu);
 			method.modifiers().add(0, modifier);
-
-			addImportToCompilationUnit(annotationClass.getCanonicalName(), cu);
 		} catch (CoreException e) {
 			warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.3"), annotationClass.getCanonicalName(), methodName, fullyQualifiedClassName)); //$NON-NLS-1$
 		}
@@ -369,18 +372,17 @@ public class JDTFacade implements IJDTFacade {
 					continue;
 				}
 
-				if (isAnnotationAlreadyUsedOnDeclaration(annotation, field)) {
-					warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotation.getCanonicalName(), targetClass + "." + targetField)); //$NON-NLS-1$
-					return;
-				}
-
-				
 				VariableDeclarationFragment varibleDeclaration = (VariableDeclarationFragment) field.fragments().get(0);
 				if (varibleDeclaration.getName().toString().equals(targetField)) {
-					Annotation modifier = createModifier(cu.getAST(), annotation, properties, cu);
-					field.modifiers().add(0, modifier);
+					if (isAnnotationAlreadyUsedOnDeclaration(annotation, field)) {
+						warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotation.getCanonicalName(), targetClass + "." + targetField)); //$NON-NLS-1$
+						return;
+					}
 
 					addImportToCompilationUnit(annotation.getCanonicalName(), cu);
+					
+					Annotation modifier = createModifier(cu.getAST(), annotation, properties, cu);
+					field.modifiers().add(0, modifier);
 				}
 			}
 
@@ -713,6 +715,37 @@ public class JDTFacade implements IJDTFacade {
 		}
 		
 		return false;
+	}
+
+	public void addAnnotationToFieldsOfType(String destinationClass, String targetClass, Class<? extends java.lang.annotation.Annotation> annotation, Map<String, Object> properties) {
+		try {
+			CompilationUnit cu = compilationUnitCache.getCompilationUnit(destinationClass);
+			TypeDeclaration typeDeclaration = compilationUnitCache.getTypeDeclaration(destinationClass);
+			FieldDeclaration[] fields = typeDeclaration.getFields();
+
+			Iterator<FieldDeclaration> iterator = Arrays.asList(fields).iterator();
+			while (iterator.hasNext()) {
+				FieldDeclaration field = iterator.next();
+				if (field.fragments().size() == 0) {
+					continue;
+				}
+
+				VariableDeclarationFragment varibleDeclaration = (VariableDeclarationFragment) field.fragments().get(0);
+				if (field.getType().resolveBinding().getQualifiedName().toString().equals(targetClass)) {
+					if (isAnnotationAlreadyUsedOnDeclaration(annotation, field)) {
+						warnings.add(String.format(Messages.getString("org.apache.openejb.helper.annotation.warnings.1"), annotation.getCanonicalName(), targetClass + "." + varibleDeclaration.getName().toString())); //$NON-NLS-1$
+						return;
+					}
+					
+					Annotation modifier = createModifier(cu.getAST(), annotation, properties, cu);
+					field.modifiers().add(0, modifier);
+
+					addImportToCompilationUnit(annotation.getCanonicalName(), cu);
+				}
+			}
+		} catch (JavaModelException e) {
+			// TODO: some warning here
+		}
 	}
 }
 

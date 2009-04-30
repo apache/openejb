@@ -18,10 +18,10 @@ package org.apache.openejb.plugins.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.security.DeclareRoles;
@@ -29,11 +29,10 @@ import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
+import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.ExcludeClassInterceptors;
@@ -47,6 +46,8 @@ import org.apache.openejb.jee.ActivationConfigProperty;
 import org.apache.openejb.jee.ApplicationException;
 import org.apache.openejb.jee.AssemblyDescriptor;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EjbLocalRef;
+import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.InterceptorBinding;
 import org.apache.openejb.jee.MessageDrivenBean;
@@ -109,9 +110,34 @@ public class SessionBeanConverter implements Converter {
 			processTransactionManagement(bean, ejbJar.getAssemblyDescriptor());
 			processBeanSecurityIdentity(bean);
 			processDeclaredRoles(bean);
+			processEjbRefs(bean);
 		}
 
 		processMethodPermissions(ejbJar);
+	}
+
+	private void processEjbRefs(EnterpriseBean bean) {
+		Collection<EjbRef> ejbRefs = bean.getEjbRef();
+		for (EjbRef ejbRef : ejbRefs) {
+			String iface = ejbRef.getRemote();
+			String name = ejbRef.getName();
+
+			Map<String, Object> properties = new HashMap<String, Object>();
+			properties.put("name", name);
+			
+			annotationHelper.addAnnotationToFieldsOfType(bean.getEjbClass(), iface, EJB.class, properties);
+		}
+		
+		Collection<EjbLocalRef> localEjbRefs = bean.getEjbLocalRef();
+		for (EjbLocalRef ejbRef : localEjbRefs) {
+			String iface = ejbRef.getLocal();
+			String name = ejbRef.getName();
+
+			Map<String, Object> properties = new HashMap<String, Object>();
+			properties.put("name", name);
+			
+			annotationHelper.addAnnotationToFieldsOfType(bean.getEjbClass(), iface, EJB.class, properties);
+		}
 	}
 
 	/**

@@ -28,10 +28,19 @@ import org.apache.openejb.jee.SessionBean;
 public class SessionBeanInterfaceModifier implements Converter {
 
 	private IJDTFacade facade;
+	private boolean useHome;
 
 	public SessionBeanInterfaceModifier(IJDTFacade facade) {
 		super();
 		this.facade = facade;
+	}
+	
+	public boolean isUseHome() {
+		return useHome;
+	}
+
+	public void setUseHome(boolean useHome) {
+		this.useHome = useHome;
 	}
 
 	public void convert(AppModule module) {
@@ -52,16 +61,18 @@ public class SessionBeanInterfaceModifier implements Converter {
 
                 facade.removeInterface(ejbClass, "javax.ejb.SessionBean"); //$NON-NLS-1$
 
-				String remoteInterface = sessionBean.getRemote();
-				if (remoteInterface != null && remoteInterface.length() > 0) {
-					facade.addInterface(ejbClass, remoteInterface);
-					facade.removeInterface(remoteInterface, "javax.ejb.EJBObject"); //$NON-NLS-1$
-				}
+                if (! useHome) {
+					String remoteInterface = sessionBean.getRemote();
+					if (remoteInterface != null && remoteInterface.length() > 0) {
+						facade.addInterface(ejbClass, remoteInterface);
+						facade.removeInterface(remoteInterface, "javax.ejb.EJBObject"); //$NON-NLS-1$
+					}
 
-				String localInterface = sessionBean.getLocal();
-				if (localInterface != null && localInterface.length() > 0) {
-					facade.addInterface(ejbClass, localInterface);
-					facade.removeInterface(localInterface, "javax.ejb.EJBLocalObject"); //$NON-NLS-1$
+					String localInterface = sessionBean.getLocal();
+					if (localInterface != null && localInterface.length() > 0) {
+						facade.addInterface(ejbClass, localInterface);
+						facade.removeInterface(localInterface, "javax.ejb.EJBLocalObject"); //$NON-NLS-1$
+					}
 				}
 			}
 		}

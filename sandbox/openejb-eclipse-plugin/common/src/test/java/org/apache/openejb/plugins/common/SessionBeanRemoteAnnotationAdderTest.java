@@ -38,8 +38,6 @@ public class SessionBeanRemoteAnnotationAdderTest extends TestCase {
 
                 Map<String, Object> remoteHomeProps = new HashMap<String, Object>();
                 remoteHomeProps.put("value", "org.superbiz.StoreHome");
-
-                one(facade).addClassAnnotation("org.superbiz.StoreBean", RemoteHome.class, remoteHomeProps);
             }
         });
 
