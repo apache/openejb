@@ -34,6 +34,7 @@
                         
     <properties>
         <eclipseInstall>${settings.localRepository}/eclipse</eclipseInstall>
+	<openejb.version>3.1</openejb.version>
     </properties>
 	
   <scm>
