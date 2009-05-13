@@ -80,12 +80,12 @@
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-loader</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-core</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>log4j</groupId>
@@ -95,17 +95,17 @@
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>ejb31-api-experimental</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-javaagent</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-jee</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.codehaus.woodstox</groupId>
@@ -250,47 +250,47 @@
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-client</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-server</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-ejbd</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-multicast</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-hsql</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-http</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-telnet</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-cxf</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-webservices</artifactId>
-									<version>3.1.1-SNAPSHOT</version>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.cxf</groupId>
@@ -338,7 +338,7 @@
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>openejb-core</artifactId>
-			<version>3.1-SNAPSHOT</version>
+			<version>${openejb.version}</version>
 		</dependency>
 	</dependencies>
 </project>
