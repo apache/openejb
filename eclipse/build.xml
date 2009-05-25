@@ -44,7 +44,7 @@
 	<property name="europa_jee_linux_x86_64"       value="eclipse-SDK-3.4.1-linux-gtk-x86_64.tar"/>
         <property name="europa_jee_macos"       value="eclipse-SDK-3.4.1-macosx-carbon.tar"/>
         <property name="europa_jee_linux_gz"    value="${europa_jee_linux}.gz"/>
-	<property name="europa_jee_linux_x86_64_gz"    value="${europa_jee_linux}.gz"/>
+	<property name="europa_jee_linux_x86_64_gz"    value="${europa_jee_linux_x86_64}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
         <property name="dtp_sdk"    value="dtp-sdk_1.6.1.zip"/>
