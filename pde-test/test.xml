@@ -35,10 +35,18 @@
 		<ant target="run" antfile="test.xml"/>
 	</target>
 	
-	<target name="linux">
+	<target name="linux_x86_64">
 		<property name="os" value="linux"/>
 		<property name="ws" value="gtk"/>
 		<property name="arch" value="x86_64"/>
+		
+		<ant target="run" antfile="test.xml"/>
+	</target>
+	
+	<target name="linux">
+		<property name="os" value="linux"/>
+		<property name="ws" value="gtk"/>
+		<property name="arch" value="x86"/>
 		
 		<ant target="run" antfile="test.xml"/>
 	</target>

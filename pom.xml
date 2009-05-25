@@ -188,14 +188,27 @@
             </properties>
         </profile>
         <profile>
-            <id>unix</id>
+            <id>linux-x86</id>
             <activation>
                 <os>
-                    <family>unix</family>
+                    <name>Linux</name>
+		    <arch>i386</arch>
                 </os>
             </activation>
             <properties>
                 <eclipsePlatformFamily>linux</eclipsePlatformFamily>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux-x86_64</id>
+            <activation>
+                <os>
+                    <name>Linux</name>
+		    <arch>amd64</arch>
+                </os>
+            </activation>
+            <properties>
+                <eclipsePlatformFamily>linux_x86_64</eclipsePlatformFamily>
             </properties>
         </profile>
         <profile>
