@@ -40,9 +40,11 @@
         <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R3.0/${wtp_drop}/"/>
 
         <property name="europa_jee_win32"       value="eclipse-SDK-3.4.1-win32.zip"/>
-        <property name="europa_jee_linux"       value="eclipse-SDK-3.4.1-linux-gtk-x86_64.tar"/>
+        <property name="europa_jee_linux"       value="eclipse-SDK-3.4.1-linux-gtk.tar"/>
+	<property name="europa_jee_linux_x86_64"       value="eclipse-SDK-3.4.1-linux-gtk-x86_64.tar"/>
         <property name="europa_jee_macos"       value="eclipse-SDK-3.4.1-macosx-carbon.tar"/>
         <property name="europa_jee_linux_gz"    value="${europa_jee_linux}.gz"/>
+	<property name="europa_jee_linux_x86_64_gz"    value="${europa_jee_linux}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
         <property name="dtp_sdk"    value="dtp-sdk_1.6.1.zip"/>
@@ -82,6 +84,22 @@
         <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
         <gunzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux_gz}"/>
         <untar  src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux}" 
+               dest="${LOCAL_M2_REPO}/eclipse"/>
+    </target>
+    
+    <target name="linux_x86_64" depends="init,common" description="Download x86_64 Linux-specific artifact(s)">
+        <echo>-----------------------------------------------------</echo>
+        <echo>Downloading ${europa_linux_url}${europa_jee_linux_x86_64_gz}</echo>
+        <echo>-----------------------------------------------------</echo>
+        <mkdir dir="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4"/>
+        <get src="${europa_linux_url}${europa_jee_linux_x86_64_gz}${protocol}"
+             dest="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux_x86_64_gz}" 
+             verbose="true"
+             usetimestamp="true"/>
+        <echo>Unzipping ${europa_jee_linux_x86_64_gz} to the expected location in ${LOCAL_M2_REPO}</echo>
+        <mkdir dir="${LOCAL_M2_REPO}/eclipse"/>
+        <gunzip src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux_x86_64_gz}"/>
+        <untar  src="${LOCAL_M2_REPO}/org/eclipse/eclipse/3.4/${europa_jee_linux_x86_64}" 
                dest="${LOCAL_M2_REPO}/eclipse"/>
     </target>
 
