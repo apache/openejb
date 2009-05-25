@@ -34,15 +34,15 @@ public class OpenEJBRuntimeDelegate extends RuntimeDelegate implements IJavaRunt
 	@Override
 	public IStatus validate() {
 
-		if (this.getRuntimeWorkingCopy() == null) {
+		if (this.getRuntime() == null) {
 			return new Status(IStatus.ERROR, "org.eclipse.jst.generic.openejb", "");
 		}
 		
-		if (this.getRuntimeWorkingCopy().getLocation() == null) {
+		if (this.getRuntime().getLocation() == null) {
 			return new Status(IStatus.ERROR, "org.eclipse.jst.generic.openejb", "");
 		}
 		
-		File libFolder = new File(this.getRuntimeWorkingCopy().getLocation().toString() + File.separator + "lib");
+		File libFolder = new File(this.getRuntime().getLocation().toString() + File.separator + "lib");
 		if (! (libFolder.exists() && libFolder.isDirectory())) {
 			return new Status(IStatus.ERROR, "org.eclipse.jst.generic.openejb", "Invalid lib folder");
 		}
