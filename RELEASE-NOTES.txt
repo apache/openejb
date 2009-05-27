@@ -1,0 +1,50 @@
+Apache OpenEJB 3.1.1
+
+2009-05-26
+
+New Features:
+
+  * [OPENEJB-1024] TestCase Dependency Injection via @LocalClient
+  * [OPENEJB-1018] Support for exposing a single interface as @WebService, @Remote, and @Local
+  * [OPENEJB-1009] Global "openejb:" jndi namespace
+  * [OPENEJB-987] Support for alternate deployment descriptors for testing and other environments
+
+Improvements:
+
+  * [OPENEJB-973] OpenJPA 1.2.0 upgrade
+  * [OPENEJB-872] Example: WebService with MTOM
+  * [OPENEJB-992] Validation: @EJB mistakenly applied to a javax.ejb.EJBLocalObject interface
+  * [OPENEJB-991] Validation: @EJB mistakenly applied to a javax.ejb.EJBObject interface
+  * [OPENEJB-993] Validation: @EJB mistakenly applied to a non-interface
+  * [OPENEJB-847] Validation: @Resource UserTransaction injection mistakenly used on bean with Container-Managed Transactions
+  * [OPENEJB-906] Validation: Referring to a bean via its bean class (pre 3.1)
+  * [OPENEJB-858] Ability to use mappedName as a JNDI Name format
+  * [OPENEJB-963] Enhance the javaee-api with OSGi Bundle Information
+  * [OPENEJB-1029] @EjbDeployment annotation as alternative to <ejb-deployment> in openejb-jar.xml
+  * [OPENEJB-1006] Added 'openejb.vendor.config' property settable to any of: geronimo, glassfish, jboss, weblogic
+  * [OPENEJB-990] Trim whitespace from openejb.xml property values
+  * [OPENEJB-1007] Automatically declare interceptors used in xml bindings
+
+Bugs:
+
+  * [OPENEJB-1015] javax.ejb.EJBContext.getCallerPrincipal() not predictable
+  * [OPENEJB-982] SessionSynchronization regression
+  * [OPENEJB-994] Multiple JavaMail sessions ignored
+  * [OPENEJB-1012] Multi-threaded Singleton Lazy Instantiation Issue
+  * [OPENEJB-995] Whitespace in openejb.xml property values can cause issues
+  * [OPENEJB-950] Turning on debug transaction logging results in the IllegalArgumentException: can't parse argument number
+  * [OPENEJB-976] Semaphore in StatelessInstanceManager not released if EjbTransactionUtil.afterInvoke throws RuntimeException
+  * [OPENEJB-975] ROOT application not well deployed in Tomcat
+  * [OPENEJB-972] MTOM not working
+  * [OPENEJB-1005] org.apache.openejb.config.WebModule constructor throws StringIndexOutOfBoundsException on windows
+  * [OPENEJB-953] OpenEJB embedded does not release stateless EJB instances in case of RuntimeException on tx commit
+  * [OPENEJB-951] There are problems to deploy ejb with custom annotation where values are enums
+  * [OPENEJB-1003] SecurityService does not call JAAS logout
+  * [OPENEJB-989] Don't log "Property not supported" warning  for javax.mail.Session objects
+  * [OPENEJB-1002] Bad usage of apache commons cli
+  * [OPENEJB-1001] Can not use SOAP headers
+  * [OPENEJB-986] Stateful Remove exception handling regression
+  * [OPENEJB-956] Installation of Java Agent fails when used with Tomcat and CATALINA_HOME != CATALINA_BASE
+
+
+
