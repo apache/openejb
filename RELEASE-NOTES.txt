@@ -26,6 +26,7 @@ Improvements:
   * [OPENEJB-993] Validation: @EJB mistakenly applied to a non-interface
   * [OPENEJB-847] Validation: @Resource UserTransaction injection mistakenly used on bean with Container-Managed Transactions
   * [OPENEJB-906] Validation: Referring to a bean via its bean class (pre 3.1)
+  * [OPENEJB-1004] Web Service Endpoints Securable
   * [OPENEJB-858] Ability to use mappedName as a JNDI Name format
   * [OPENEJB-963] Enhance the javaee-api with OSGi Bundle Information
   * [OPENEJB-1029] @EjbDeployment annotation as alternative to <ejb-deployment> in openejb-jar.xml
