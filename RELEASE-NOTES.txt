@@ -12,6 +12,14 @@ New Features:
 Improvements:
 
   * [OPENEJB-973] OpenJPA 1.2.0 upgrade
+  * [OPENEJB-1036] Example: EJB in Webapp with Applet Client
+  * [OPENEJB-1034] Example: JSF Managed Bean with Dependency Injection
+  * [OPENEJB-1037] Example: JUnit TestCase using Dependency Injection 
+  * [OPENEJB-1035] Example: Struts webapp with JPA and EJB
+  * [OPENEJB-1032] Example: WebService with Attachments
+  * [OPENEJB-1031] Example: WebService with Security
+  * [OPENEJB-1033] Example: WebService with WS Security
+  * [OPENEJB-1030] Example: Webapp EJB WebService and Perl SOAP::Lite client
   * [OPENEJB-872] Example: WebService with MTOM
   * [OPENEJB-992] Validation: @EJB mistakenly applied to a javax.ejb.EJBLocalObject interface
   * [OPENEJB-991] Validation: @EJB mistakenly applied to a javax.ejb.EJBObject interface
@@ -45,6 +53,4 @@ Bugs:
   * [OPENEJB-1001] Can not use SOAP headers
   * [OPENEJB-986] Stateful Remove exception handling regression
   * [OPENEJB-956] Installation of Java Agent fails when used with Tomcat and CATALINA_HOME != CATALINA_BASE
-
-
 
