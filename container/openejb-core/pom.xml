@@ -316,16 +316,19 @@
     </dependency>
     <!-- End: JavaMail -->
     <dependency>
-      <groupId>org.apache.xbean</groupId>
+      <groupId>org.apache.openejb</groupId>
       <artifactId>xbean-asm-shaded</artifactId>
+      <version>${xbeanVersion}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.xbean</groupId>
+      <groupId>org.apache.openejb</groupId>
       <artifactId>xbean-finder-shaded</artifactId>
+      <version>${xbeanVersion}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.xbean</groupId>
+      <groupId>org.apache.openejb</groupId>
       <artifactId>xbean-reflect</artifactId>
+      <version>${xbeanVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.xbean</groupId>
@@ -377,12 +380,13 @@
       <version>2.5.5</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
       <version>3.4.3</version>
       <scope>test</scope>
     </dependency>
+-->
   </dependencies>
   <profiles>
     <profile>

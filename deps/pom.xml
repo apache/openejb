@@ -29,5 +29,8 @@
 
   <modules>
     <module>javaee-api</module>
+    <module>xbean-asm-shaded</module>
+    <module>xbean-finder-shaded</module>
+    <module>xbean-reflect</module>
   </modules>
 </project>

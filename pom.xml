@@ -93,7 +93,7 @@
 
   <properties>
     <!-- This is used by a manifest classpath entry -->
-    <xbeanVersion>3.6-SNAPSHOT</xbeanVersion>
+    <xbeanVersion>3.6-r779512</xbeanVersion>
 
     <!-- OSGi bundles properties -->
     <openejb.osgi.import.pkg>*</openejb.osgi.import.pkg>
@@ -257,6 +257,7 @@
   </build>
 
   <modules>
+
     <module>api</module>
     <module>itests</module>
     <module>container</module>
@@ -850,29 +851,8 @@
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-finder-shaded</artifactId>
-        <version>${xbeanVersion}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-asm-shaded</artifactId>
-        <version>${xbeanVersion}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-naming</artifactId>
-        <version>${xbeanVersion}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-reflect</artifactId>
-        <version>${xbeanVersion}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>3.5</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.swizzle</groupId>

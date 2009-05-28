@@ -61,7 +61,7 @@
       <version>5.0-1</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.xbean</groupId>
+      <groupId>org.apache.openejb</groupId>
       <artifactId>xbean-asm-shaded</artifactId>
       <version>${xbeanVersion}</version>
     </dependency>

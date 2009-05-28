@@ -20,13 +20,13 @@
   <parent>
     <artifactId>deps</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.0</version>
+    <version>3.1.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>xbean-finder</artifactId>
+  <artifactId>xbean-finder-shaded</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: Dependencies :: XBean Finder</name>
-  <version>3.4-r636442</version>
+  <version>3.6-r779512</version>
 
   <build>
     <plugins>
@@ -48,8 +48,8 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-finder</artifactId>
-      <version>3.4-r636442</version>
+      <artifactId>xbean-finder-shaded</artifactId>
+      <version>3.6-r779512</version>
     </dependency>
   </dependencies>
 </project>

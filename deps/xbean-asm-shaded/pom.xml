@@ -23,9 +23,9 @@
     <version>3.1.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>xbean-reflect</artifactId>
+  <artifactId>xbean-asm-shaded</artifactId>
   <packaging>jar</packaging>
-  <name>OpenEJB :: Dependencies :: XBean Reflect</name>
+  <name>OpenEJB :: Dependencies :: XBean ASM (shaded)</name>
   <version>3.6-r779512</version>
 
   <build>
@@ -48,7 +48,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-reflect</artifactId>
+      <artifactId>xbean-asm-shaded</artifactId>
       <version>3.6-r779512</version>
     </dependency>
   </dependencies>
