@@ -134,6 +134,20 @@ API for Java (SAAJ). The software is available from the GlassFish project
 (https://saaj.dev.java.net/)
 License: COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0  (http://www.sun.com/cddl/cddl.html)
 
+This product includes/uses sofwtare, OpenSAML (http://www.opensaml.org)
+License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+=========================================================================
+==  Bouncy Castle Notice                                               ==
+=========================================================================
+
+This product includes software (the ASN1 codec implementation in
+geronimo-crypto) developed by the Bouncy Castle project.
+(http://www.bouncycastle.org/)
+
+Copyright (c) 2000-2005
+The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
+
 =========================================================================
 ==  Woodstox Notice                                                    ==
 =========================================================================

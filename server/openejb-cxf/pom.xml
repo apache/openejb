@@ -88,6 +88,11 @@
           <groupId>bouncycastle</groupId>
           <artifactId>bcprov-jdk14</artifactId>
         </exclusion>
+<!--        <exclusion>
+          <groupId>bouncycastle</groupId>
+          <artifactId>bcprov-jdk15</artifactId>
+        </exclusion>
+-->
         <exclusion>
           <groupId>com.sun.xml.bind</groupId>
           <artifactId>jaxb-impl</artifactId>
@@ -189,6 +194,18 @@
           <artifactId>spring-web</artifactId>
         </exclusion>
         <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-dao</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-jms</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-support</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>rhino</groupId>
           <artifactId>js</artifactId>
         </exclusion>
@@ -220,13 +237,18 @@
           <groupId>xml-apis</groupId>
           <artifactId>xml-apis</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>xml-security</groupId>
+<!--        <exclusion>
+          <groupId>org.apache.santuario</groupId>
           <artifactId>xmlsec</artifactId>
         </exclusion>
+-->
         <exclusion>
-          <groupId>xmlbeans</groupId>
-          <artifactId>xbean</artifactId>
+          <groupId>org.apache.xmlbeans</groupId>
+          <artifactId>xmlbeans</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xalan</groupId>
+          <artifactId>serializer</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
