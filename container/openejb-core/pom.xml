@@ -380,13 +380,12 @@
       <version>2.5.5</version>
       <scope>test</scope>
     </dependency>
-<!--    <dependency>
+    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
       <version>3.4.3</version>
       <scope>test</scope>
     </dependency>
--->
   </dependencies>
   <profiles>
     <profile>
