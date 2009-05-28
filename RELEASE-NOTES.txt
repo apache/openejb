@@ -1,6 +1,6 @@
 Apache OpenEJB 3.1.1
 
-2009-05-26
+2009-05-28
 
 New Features:
 
@@ -33,6 +33,7 @@ Improvements:
   * [OPENEJB-1006] Added 'openejb.vendor.config' property settable to any of: geronimo, glassfish, jboss, weblogic
   * [OPENEJB-990] Trim whitespace from openejb.xml property values
   * [OPENEJB-1007] Automatically declare interceptors used in xml bindings
+  * [OPENEJB-1038] All openejb.* options and values logged on debug
 
 Bugs:
 
