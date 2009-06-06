@@ -24,9 +24,9 @@
     <target name="init">
         <property name="europa_drop"    value="R-3.4.1-200809111700"/>
         <property name="dtp_drop"       value="1.6"/>
-        <property name="emf_drop"       value="2.4.1/R200808251517"/>
+        <property name="emf_drop"       value="2.4.2/R200902171115"/>
         <property name="gef_drop"       value="3.4.1/R200809101400"/>
-        <property name="wtp_drop"       value="R-3.0.3-20081113203138"/>
+        <property name="wtp_drop"       value="R-3.0.5-20090521045405"/>
 
         <property name="base_url"           value="http://www.eclipse.org/downloads/download.php?file="/>
         <property name="europa_win32_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
@@ -48,7 +48,7 @@
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
         <property name="dtp_sdk"    value="dtp-sdk_1.6.1.zip"/>
-        <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.4.1.zip"/>
+        <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.4.2.zip"/>
         <property name="gef_sdk"    value="GEF-ALL-3.4.1.zip"/>
         <property name="wtp_sdk"    value="wtp-sdk-${wtp_drop}.zip"/>
 	<property name="testing"    value="eclipse-test-framework-3.4.1.zip"/>

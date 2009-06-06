@@ -20,12 +20,12 @@
     <groupId>org.apache.openejb</groupId>
     <artifactId>org.apache.openejb.feature.server</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2</version>
+    <version>1.0.0</version>
     <name>${artifactId}</name>
     <parent>
         <groupId>org.apache.openejb</groupId>
         <artifactId>eclipse-features-parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <build>
