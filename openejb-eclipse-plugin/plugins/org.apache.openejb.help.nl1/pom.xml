@@ -19,13 +19,13 @@
   <parent>
     <artifactId>eclipse-plugins-parent</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>1.0.2</version>
+    <version>1.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.openejb</groupId>
   <artifactId>org.apache.openejb.help.nl1</artifactId>
   <name>${artifactId}</name>
-  <version>1.0.2</version>
+  <version>1.0.0</version>
   <build>
     <resources>
       <resource>

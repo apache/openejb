@@ -23,7 +23,7 @@
     <artifactId>eclipse-plugins</artifactId>
     <packaging>pom</packaging>
     <name>${artifactId}</name>
-    <version>1.0.2</version>
+    <version>1.0.0</version>
                         
     <description>Eclipse Plugins for OpenEJB</description>
                         
@@ -162,7 +162,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <pluginRepository>
+       <!-- <pluginRepository>
             <id>tlc</id>
             <name>TLC Repository</name>
             <url>http://commons.ucalgary.ca/pub/m2</url>
@@ -172,7 +172,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </pluginRepository>
+        </pluginRepository>-->
     </pluginRepositories>
                         
     <profiles>
