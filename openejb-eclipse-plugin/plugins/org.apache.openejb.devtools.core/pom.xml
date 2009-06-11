@@ -98,23 +98,16 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>
-										com.envoisolutions.sxc
+										org.apache.openejb
 									</groupId>
-									<artifactId>sxc-jaxb</artifactId>
-									<version>0.7-SNAPSHOT</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>
-										com.envoisolutions.sxc
-									</groupId>
-									<artifactId>sxc-runtime</artifactId>
-									<version>0.7-SNAPSHOT</version>
+									<artifactId>openejb-jee</artifactId>
+									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>
 										org.apache.openejb
 									</groupId>
-									<artifactId>openejb-jee</artifactId>
+									<artifactId>openejb-api</artifactId>
 									<version>${openejb.version}</version>
 								</artifactItem>
 								<artifactItem>
@@ -140,7 +133,7 @@
 										org.apache.openejb
 									</groupId>
 									<artifactId>javaee-api</artifactId>
-									<version>5.0-1</version>
+									<version>5.0-2</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>
@@ -152,14 +145,9 @@
 									<version>1.2.12</version>
 								</artifactItem>
 								<artifactItem>
-									<groupId>javax.xml.bind</groupId>
-									<artifactId>jaxb-api</artifactId>
-									<version>2.0</version>
-								</artifactItem>
-								<artifactItem>
 									<groupId>com.sun.xml.bind</groupId>
 									<artifactId>jaxb-impl</artifactId>
-									<version>2.0.3</version>
+									<version>2.0.5</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.codehaus.swizzle</groupId>
@@ -197,7 +185,7 @@
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>javaee-api</artifactId>
-			<version>5.0-1</version>
+			<version>5.0-2</version>
 		</dependency>
 	</dependencies>
 </project>

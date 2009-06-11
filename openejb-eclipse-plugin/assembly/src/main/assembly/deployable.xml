@@ -56,4 +56,14 @@
 			</includes>
 		</dependencySet>
 	</dependencySets>
+	<files>
+		<file>
+			<source>${basedir}/src/main/assembly/LICENSE.txt</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/src/main/assembly/NOTICE.txt</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+	</files>
 </assembly>

@@ -17,151 +17,164 @@
   -->
 <!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
 <project>
-                        
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apache.openejb</groupId>
-    <artifactId>eclipse-plugins</artifactId>
-    <packaging>pom</packaging>
-    <name>${artifactId}</name>
-    <version>1.0.0</version>
-                        
-    <description>Eclipse Plugins for OpenEJB</description>
-                        
-    <organization>
-        <name>OpenEJB</name>
-        <url>http://openejb.apache.org/</url>
-    </organization>
-                        
-    <properties>
-        <eclipseInstall>${settings.localRepository}/eclipse</eclipseInstall>
-	<openejb.version>3.1</openejb.version>
-    </properties>
-	
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin/</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin/</developerConnection>
-    <url>http://svn.apache.org/viewvc/openejb/trunk/sandbox/openejb-eclipse-plugin/</url>
-  </scm>
-                        
-    <build>
-        <defaultGoal>install</defaultGoal>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>oro</groupId>
-                            <artifactId>oro</artifactId>
-                            <version>2.0.8</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>ant</groupId>
-                            <artifactId>ant-apache-oro</artifactId>
-                            <version>1.6.4</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>ant</groupId>
-                            <artifactId>ant-optional</artifactId>
-                            <version>1.5.3-1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.geronimo.devtools</groupId>
-                    <artifactId>maven-eclipsepde-plugin</artifactId>
-                    <version>1.0</version>
-                    <configuration>
-                        <eclipseHome>${settings.localRepository}/eclipse/eclipse/</eclipseHome>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-		    <debug>true</debug>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-                        
-    <repositories>
-        <repository>
-            <id>apache-snapshots</id>
-            <name>Apache Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>apache.incubator</id>
-            <name>Apache Incubator Repository</name>
-            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>ow.repo</id>
-            <name>OW Repo</name>
-            <url>http://jass.objectweb.org/repository/m2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-		
-        <repository>
-            <id>codehaus-snapshots</id>
-            <name>Codehaus Snapshots Repository</name>
-            <url>http://snapshots.repository.codehaus.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
-                        
-    <pluginRepositories>
-        <pluginRepository>
-            <id>apache.org</id>
-            <name>Maven Plugin Snapshots</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.apache.openejb</groupId>
+	<artifactId>eclipse-plugins</artifactId>
+	<packaging>pom</packaging>
+	<name>${artifactId}</name>
+	<version>1.0.0</version>
+
+	<description>Eclipse Plugins for OpenEJB</description>
+
+	<organization>
+		<name>OpenEJB</name>
+		<url>http://openejb.apache.org/</url>
+	</organization>
+
+	<properties>
+		<eclipseInstall>${settings.localRepository}/eclipse</eclipseInstall>
+		<openejb.version>3.1.1</openejb.version>
+	</properties>
+
+	<scm>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin/</connection>
+		<developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin/</developerConnection>
+		<url>http://svn.apache.org/viewvc/openejb/trunk/sandbox/openejb-eclipse-plugin/</url>
+	</scm>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<dependencies>
+						<dependency>
+							<groupId>oro</groupId>
+							<artifactId>oro</artifactId>
+							<version>2.0.8</version>
+						</dependency>
+						<dependency>
+							<groupId>ant</groupId>
+							<artifactId>ant-apache-oro</artifactId>
+							<version>1.6.4</version>
+						</dependency>
+						<dependency>
+							<groupId>ant</groupId>
+							<artifactId>ant-optional</artifactId>
+							<version>1.5.3-1</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.geronimo.devtools</groupId>
+					<artifactId>maven-eclipsepde-plugin</artifactId>
+					<version>1.0</version>
+					<configuration>
+						<eclipseHome>${settings.localRepository}/eclipse/eclipse/</eclipseHome>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>apache-snapshots</id>
+			<name>Apache Snapshots Repository</name>
+			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>apache.incubator</id>
+			<name>Apache Incubator Repository</name>
+			<url>http://people.apache.org/repo/m2-incubating-repository/</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>ow.repo</id>
+			<name>OW Repo</name>
+			<url>http://jass.objectweb.org/repository/m2</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+
+		<repository>
+			<id>codehaus-snapshots</id>
+			<name>Codehaus Snapshots Repository</name>
+			<url>http://snapshots.repository.codehaus.org</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>openejb-3rdparty-builds</id>
+			<name>3rd Party Build Repository</name>
+			<url>http://svn.apache.org/repos/asf/openejb/repo/</url>
+      <!--<url>file:///Users/dblevins/work/openejb-root/repo/</url>-->
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apache.org</id>
+			<name>Maven Plugin Snapshots</name>
+			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
        <!-- <pluginRepository>
             <id>tlc</id>
             <name>TLC Repository</name>
@@ -173,74 +186,74 @@
                 <enabled>false</enabled>
             </snapshots>
         </pluginRepository>-->
-    </pluginRepositories>
-                        
-    <profiles>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <eclipsePlatformFamily>win32</eclipsePlatformFamily>
-            </properties>
-        </profile>
-        <profile>
-            <id>linux-x86</id>
-            <activation>
-                <os>
-                    <name>Linux</name>
-		    <arch>i386</arch>
-                </os>
-            </activation>
-            <properties>
-                <eclipsePlatformFamily>linux</eclipsePlatformFamily>
-            </properties>
-        </profile>
-        <profile>
-            <id>linux-x86_64</id>
-            <activation>
-                <os>
-                    <name>Linux</name>
-		    <arch>amd64</arch>
-                </os>
-            </activation>
-            <properties>
-                <eclipsePlatformFamily>linux_x86_64</eclipsePlatformFamily>
-            </properties>
-        </profile>
-        <profile>
-            <id>mac</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-            <properties>
-                <eclipsePlatformFamily>macos</eclipsePlatformFamily>
-            </properties>
-        </profile>
-    </profiles>
-                        
-    <modules>
-    	<module>common</module>
-        <module>eclipse</module>
-        <module>plugins</module>
-	<module>features</module>
-	<module>pde-test</module>
-	<module>assembly</module>
-    </modules>
-          
-     <reporting>
-     <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
+	</pluginRepositories>
+
+	<profiles>
+		<profile>
+			<id>windows</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<properties>
+				<eclipsePlatformFamily>win32</eclipsePlatformFamily>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-x86</id>
+			<activation>
+				<os>
+					<name>Linux</name>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<properties>
+				<eclipsePlatformFamily>linux</eclipsePlatformFamily>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-x86_64</id>
+			<activation>
+				<os>
+					<name>Linux</name>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<eclipsePlatformFamily>linux_x86_64</eclipsePlatformFamily>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<eclipsePlatformFamily>macos</eclipsePlatformFamily>
+			</properties>
+		</profile>
+	</profiles>
+
+	<modules>
+		<module>common</module>
+		<module>eclipse</module>
+		<module>plugins</module>
+		<module>features</module>
+		<module>pde-test</module>
+		<module>assembly</module>
+	</modules>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
 
 
 </project>
