@@ -18,6 +18,7 @@
 package org.apache.openejb.plugins.common;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -114,7 +115,7 @@ public class OpenEjbXmlConverter {
 
 			if (openEjbJarSrc != null) {
 		        InitEjbDeployments initEjbDeployments = new InitEjbDeployments();
-		        initEjbDeployments.deploy(ejbModule, new HashMap<String,String>());
+		        initEjbDeployments.deploy(ejbModule);
 
 		        JAXBElement<?> element = (JAXBElement<?>) JaxbOpenejbJar2.unmarshal(OpenejbJarType.class, openEjbJarSrc.getByteStream());
 		        OpenejbJarType openejbJarType = (OpenejbJarType) element.getValue();

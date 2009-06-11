@@ -27,6 +27,7 @@ import org.xml.sax.InputSource;
 import javax.xml.bind.JAXBElement;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class TestFixture {
 
@@ -67,7 +68,7 @@ public class TestFixture {
 
 		if (openEjbJarSrc != null) {
 			InitEjbDeployments initEjbDeployments = new InitEjbDeployments();
-			initEjbDeployments.deploy(ejbModule, new HashMap<String, String>());
+			initEjbDeployments.deploy(ejbModule);
 
 			JAXBElement<?> element = (JAXBElement<?>) JaxbOpenejbJar2.unmarshal(OpenejbJarType.class, openEjbJarSrc.getByteStream());
 			OpenejbJarType openejbJarType = (OpenejbJarType) element.getValue();
