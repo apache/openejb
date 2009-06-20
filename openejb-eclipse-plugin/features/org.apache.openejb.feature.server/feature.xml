@@ -18,7 +18,7 @@
 <feature
       id="org.apache.openejb.feature.server"
       label="%featureName"
-      version="1.0.2"
+      version="1.0.0.alpha"
       provider-name="%providerName"
       plugin="org.apache.openejb.branding"
       image="bigG.gif">
@@ -36,21 +36,21 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://www.openejb.org/updates/1.0"/>
+      <update label="%updateSiteName" url="http://people.apache.org/~jgallimore/update-site"/>
    </url>
 
    <plugin
          id="org.apache.openejb.wtp.server"
          download-size="0"
          install-size="0"
-         version="1.0.2"
+         version="1.0.0.alpha"
          unpack="false"/>
 
    <plugin
          id="org.apache.openejb.branding"
          download-size="0"
          install-size="0"
-         version="1.0.2"
+         version="1.0.0.alpha"
          unpack="false"/>
 
 </feature>

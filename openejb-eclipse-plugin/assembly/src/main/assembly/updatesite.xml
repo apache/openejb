@@ -27,7 +27,7 @@
 
         <!-- Plug-ins -->
 		<dependencySet>
-			<outputFileNameMapping>${artifact.artifactId}_${artifact.version}.${artifact.extension}</outputFileNameMapping>
+			<outputFileNameMapping>${artifact.artifactId}_1.0.0.alpha.${artifact.extension}</outputFileNameMapping>
 			<outputDirectory>plugins/</outputDirectory>
 			<unpack>false</unpack>
 			<includes>
@@ -47,7 +47,7 @@
 
         <!-- Features -->
 		<dependencySet>
-			<outputFileNameMapping>${artifact.artifactId}_${artifact.version}.${artifact.extension}</outputFileNameMapping>
+			<outputFileNameMapping>${artifact.artifactId}_1.0.0.alpha.${artifact.extension}</outputFileNameMapping>
 			<outputDirectory>features/</outputDirectory>
 			<includes>
 				<include>org.apache.openejb:org.apache.openejb.feature</include>

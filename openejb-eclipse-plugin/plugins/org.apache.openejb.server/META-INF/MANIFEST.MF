@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenEJB Server Bundle
 Bundle-SymbolicName: org.apache.openejb.server;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.alpha
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered

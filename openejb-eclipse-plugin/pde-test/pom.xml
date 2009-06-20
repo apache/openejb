@@ -21,11 +21,10 @@
 	<artifactId>pde-test</artifactId>
 	<packaging>pom</packaging>
 	<name>${artifactId}</name>
-	<version>1.0.0</version>
 	<parent>
 		<groupId>org.apache.openejb</groupId>
 		<artifactId>eclipse-plugins</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.0.alpha-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<build>
@@ -46,20 +45,20 @@
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>org.apache.openejb.devtools.core</artifactId>
-									<version>1.0.0</version>
-									<destFileName>org.apache.openejb.devtools.core_1.0.2.jar</destFileName>
+									<version>${openejb.eclipse.plugin.pom.version}</version>
+									<destFileName>org.apache.openejb.devtools.core_${openejb.eclipse.plugin.version}.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>org.apache.openejb.helper.annotation</artifactId>
-									<version>1.0.0</version>
-									<destFileName>org.apache.openejb.helper.annotation_1.0.2.jar</destFileName>
+									<version>${openejb.eclipse.plugin.pom.version}</version>
+									<destFileName>org.apache.openejb.helper.annotation_${openejb.eclipse.plugin.version}.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
 									<artifactId>org.apache.openejb.helper.annotation.test</artifactId>
-									<version>1.0.0</version>
-									<destFileName>org.apache.openejb.helper.annotation.test_1.0.2.jar</destFileName>
+									<version>${openejb.eclipse.plugin.pom.version}</version>
+									<destFileName>org.apache.openejb.helper.annotation.test_${openejb.eclipse.plugin.version}.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -94,72 +93,72 @@
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.devtools.core</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.helper.annotation</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.server</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.feature</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.feature.devtools</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.feature.server</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.helper.annotation.test</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.branding</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nl1</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nl2</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nl2a</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nlBidi</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.builder</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 	</dependencies>
 </project>
