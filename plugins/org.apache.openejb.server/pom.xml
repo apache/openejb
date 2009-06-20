@@ -35,6 +35,7 @@
 				<directory>META-INF</directory>
 				<includes>
 					<include>MANIFEST.MF</include>
+					<include>openejb.xml</include>
 				</includes>
 			</resource>
 			<resource>
