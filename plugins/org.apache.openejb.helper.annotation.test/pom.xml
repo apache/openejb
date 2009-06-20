@@ -19,13 +19,12 @@
 	<parent>
 		<artifactId>eclipse-plugins-parent</artifactId>
 		<groupId>org.apache.openejb</groupId>
-		<version>1.0.0</version>
+		<version>1.0.0.alpha-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.openejb</groupId>
 	<artifactId>org.apache.openejb.helper.annotation.test</artifactId>
 	<name>${artifactId}</name>
-	<version>1.0.0</version>
 	<build>
 		<resources>
 			<resource>
@@ -107,12 +106,12 @@
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.helper.annotation</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.devtools.core</artifactId>
-			<version>1.0.0</version>
+			<version>${openejb.eclipse.plugin.pom.version}</version>
 		</dependency>
 	</dependencies>
 </project>
