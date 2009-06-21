@@ -23,7 +23,7 @@
 	<artifactId>eclipse-plugins</artifactId>
 	<packaging>pom</packaging>
 	<name>${artifactId}</name>
-	<version>1.0.0.alpha</version>
+	<version>1.0.0.beta-SNAPSHOT</version>
 	
 	<description>Eclipse Plugins for OpenEJB</description>
 	
@@ -39,9 +39,9 @@
 	</properties>
 	
 	<scm>
-		<connection>scm:svn:https://null@svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/eclipse-plugins-1.0.0.alpha</connection>
-		<developerConnection>scm:svn:https://null@svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/eclipse-plugins-1.0.0.alpha</developerConnection>
-		<url>scm:svn:https://null@svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/eclipse-plugins-1.0.0.alpha</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/openejb-eclipse-plugin/</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/openejb-eclipse-plugin/</developerConnection>
+		<url>http://svn.apache.org/viewvc/openejb/trunk/openejb-eclipse-plugin/</url>
 	</scm>
 	
 	<build>
@@ -99,7 +99,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
-					<tagBase>https://${maven.username}@svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/</tagBase>
+					<tagBase>https://svn.apache.org/repos/asf/openejb/tags/</tagBase>
 				</configuration>
 			</plugin>
 			<plugin>
