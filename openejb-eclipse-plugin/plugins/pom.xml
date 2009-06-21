@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 <!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.openejb</groupId>
 	<artifactId>eclipse-plugins-parent</artifactId>
@@ -25,7 +25,7 @@
 	<parent>
 		<groupId>org.apache.openejb</groupId>
 		<artifactId>eclipse-plugins</artifactId>
-		<version>1.0.0.alpha</version>
+		<version>1.0.0.alpha-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<build>
@@ -101,8 +101,8 @@
 							<phase>process-sources</phase>
 							<configuration>
 								<tasks>
-									<copy file="${basedir}/.classpath" todir="${project.build.directory}" overwrite="false" failonerror="false" />
-									<copy file="${basedir}/.project" todir="${project.build.directory}" overwrite="false" failonerror="false" />
+									<copy file="${basedir}/.classpath" todir="${project.build.directory}" overwrite="false" failonerror="false"/>
+									<copy file="${basedir}/.project" todir="${project.build.directory}" overwrite="false" failonerror="false"/>
 								</tasks>
 							</configuration>
 							<goals>
@@ -114,8 +114,8 @@
 							<phase>compile</phase>
 							<configuration>
 								<tasks>
-									<copy file="${project.build.directory}/.classpath" todir="${basedir}" overwrite="true" failonerror="false" />
-									<copy file="${project.build.directory}/.project" todir="${basedir}" overwrite="true" failonerror="false" />
+									<copy file="${project.build.directory}/.classpath" todir="${basedir}" overwrite="true" failonerror="false"/>
+									<copy file="${project.build.directory}/.project" todir="${basedir}" overwrite="true" failonerror="false"/>
 								</tasks>
 							</configuration>
 							<goals>
