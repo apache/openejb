@@ -53,77 +53,77 @@
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.helper.annotation</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.wtp.server</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.feature</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.feature.devtools</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.devtools.core</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.feature.server</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.helper.annotation.test</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.branding</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nl1</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nl2</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nl2a</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.help.nlBidi</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.builder</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>org.apache.openejb.server</artifactId>
-			<version>1.0.0.alpha-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 	</dependencies>
 </project>
