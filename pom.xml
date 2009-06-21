@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 <!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	
 	<modelVersion>4.0.0</modelVersion>
 	
@@ -30,7 +30,7 @@
 	<artifactId>eclipse-plugins</artifactId>
 	<packaging>pom</packaging>
 	<name>${artifactId}</name>
-	<version>1.0.0.alpha-SNAPSHOT</version>
+	<version>1.0.0.alpha</version>
 	
 	<description>Eclipse Plugins for OpenEJB</description>
 	
@@ -46,9 +46,9 @@
 	</properties>
 	
 	<scm>
-		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/openejb-eclipse-plugin/</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/openejb-eclipse-plugin/</developerConnection>
-		<url>http://svn.apache.org/viewvc/openejb/trunk/openejb-eclipse-plugin/</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/eclipse-plugins-1.0.0.alpha</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/eclipse-plugins-1.0.0.alpha</developerConnection>
+		<url>http://svn.apache.org/viewvc/openejb/tags/openejb-eclipse-plugin/eclipse-plugins-1.0.0.alpha</url>
 	</scm>
 	
 	<build>
