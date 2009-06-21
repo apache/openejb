@@ -16,14 +16,21 @@
   ~ limitations under the License.
   -->
 <!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
 	
 	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+	    <groupId>org.apache</groupId>
+	    <artifactId>apache</artifactId>
+	    <version>5</version>
+	</parent>
+	
 	<groupId>org.apache.openejb</groupId>
 	<artifactId>eclipse-plugins</artifactId>
 	<packaging>pom</packaging>
 	<name>${artifactId}</name>
-	<version>1.0.0.beta-SNAPSHOT</version>
+	<version>1.0.0.alpha-SNAPSHOT</version>
 	
 	<description>Eclipse Plugins for OpenEJB</description>
 	
@@ -99,7 +106,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
-					<tagBase>https://svn.apache.org/repos/asf/openejb/tags/</tagBase>
+					<tagBase>https://svn.apache.org/repos/asf/openejb/tags/openejb-eclipse-plugin/</tagBase>
 				</configuration>
 			</plugin>
 			<plugin>
