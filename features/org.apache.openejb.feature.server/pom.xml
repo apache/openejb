@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.openejb</groupId>
     <artifactId>org.apache.openejb.feature.server</artifactId>
@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.openejb</groupId>
         <artifactId>eclipse-features-parent</artifactId>
-        <version>1.0.0.beta-SNAPSHOT</version>
+        <version>1.0.0.alpha-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <build>

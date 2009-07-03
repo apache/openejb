@@ -26,7 +26,7 @@
         <property name="dtp_drop"       value="1.6"/>
         <property name="emf_drop"       value="2.4.2/R200902171115"/>
         <property name="gef_drop"       value="3.4.1/R200809101400"/>
-        <property name="wtp_drop"       value="R-3.0.5-20090521045405"/>
+        <property name="wtp_drop"       value="R-3.1-20090616035105"/>
 
         <property name="base_url"           value="http://www.eclipse.org/downloads/download.php?file="/>
         <property name="europa_win32_url"   value="${base_url}/eclipse/downloads/drops/${europa_drop}/"/>
@@ -37,7 +37,7 @@
         <property name="dtp_download_url"   value="${base_url}/datatools/downloads/${dtp_drop}/"/>
         <property name="emf_download_url"   value="${base_url}/modeling/emf/emf/downloads/drops/${emf_drop}/"/>
         <property name="gef_download_url"   value="${base_url}/tools/gef/downloads/drops/${gef_drop}/"/>
-        <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R3.0/${wtp_drop}/"/>
+        <property name="wtp_download_url"   value="${base_url}/webtools/downloads/drops/R3.1/${wtp_drop}/"/>
 
         <property name="europa_jee_win32"       value="eclipse-SDK-3.4.1-win32.zip"/>
         <property name="europa_jee_linux"       value="eclipse-SDK-3.4.1-linux-gtk.tar"/>
