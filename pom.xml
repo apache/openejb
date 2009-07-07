@@ -21,9 +21,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-	    <groupId>org.apache</groupId>
-	    <artifactId>apache</artifactId>
-	    <version>5</version>
+		<groupId>org.apache</groupId>
+		<artifactId>apache</artifactId>
+		<version>5</version>
 	</parent>
 	
 	<groupId>org.apache.openejb</groupId>
@@ -119,6 +119,28 @@
 					<arguments>-Prelease</arguments>
 				</configuration>
 			</plugin>
+			<!-- Add NOTICE and LICENSE to generated JAR -->
+			<!--<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-remote-resources-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<resourceBundles>
+								<resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
+							</resourceBundles>
+							<appendedResourcesDirectory>${basedir}/../../src/main/appended-resources</appendedResourcesDirectory>
+							<properties>
+								<projectName>Apache OpenEJB Eclipse Plugin</projectName>
+							</properties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>-->
 		</plugins>
 	</build>
 	
