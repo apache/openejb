@@ -15,7 +15,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.openejb</groupId>
 	<artifactId>pde-test</artifactId>
@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>org.apache.openejb</groupId>
 		<artifactId>eclipse-plugins</artifactId>
-		<version>1.0.0.beta-SNAPSHOT</version>
+		<version>1.0.0.alpha-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<build>
@@ -73,11 +73,11 @@
 						<phase>integration-test</phase>
 						<configuration>
 							<tasks>
-								<echo message="Running tests..." />
+								<echo message="Running tests..."/>
 								<property name="LOCAL_M2_REPO" value="${settings.localRepository}" />
 								<property name="java.home" value="${java.home}" />
 								<ant antfile="${basedir}/test.xml">
-									<target name="${eclipsePlatformFamily}" />
+									<target name="${eclipsePlatformFamily}"></target>
 								</ant>
 							</tasks>
 						</configuration>
