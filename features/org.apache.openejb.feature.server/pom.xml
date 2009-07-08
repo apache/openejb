@@ -16,38 +16,44 @@
   -->
 <!-- $Rev: 577554 $ $Date: 2007-09-20 06:35:12 +0100 (Thu, 20 Sep 2007) $ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apache.openejb</groupId>
-    <artifactId>org.apache.openejb.feature.server</artifactId>
-    <packaging>jar</packaging>
-    <name>${artifactId}</name>
-    <parent>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>eclipse-features-parent</artifactId>
-        <version>1.0.0.alpha</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-    <build>
-        <resources>
-            <resource>
-                <directory>.</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>feature.xml</include>
-                    <include>feature.properties</include>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.apache.openejb</groupId>
+	<artifactId>org.apache.openejb.feature.server</artifactId>
+	<packaging>jar</packaging>
+	<name>${artifactId}</name>
+	<parent>
+		<groupId>org.apache.openejb</groupId>
+		<artifactId>eclipse-features-parent</artifactId>
+		<version>1.0.0.alpha</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<build>
+		<resources>
+			<resource>
+				<directory>.</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>feature.xml</include>
+					<include>feature.properties</include>
 					<include>feature_*.properties</include>
 					<include>license.html</include>
 					<include>bigG.gif</include>
-                </includes>
-            </resource>
-            <resource>
-                <targetPath>META-INF</targetPath>
-                <directory>..</directory>
-                <includes>
-                    <include>LICENSE</include>
-                    <include>NOTICE</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+				</includes>
+			</resource>
+			<resource>
+				<targetPath>META-INF</targetPath>
+				<directory>..</directory>
+				<includes>
+					<include>LICENSE</include>
+					<include>NOTICE</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 </project>
