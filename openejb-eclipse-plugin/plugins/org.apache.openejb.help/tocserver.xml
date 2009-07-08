@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toc label="WTP Server">
+   <topic label="WTP Server">
+      <topic href="html/openejb-server/configure-runtime.html" label="Configure Runtime">
+      </topic>
+      <topic href="html/openejb-server/configure-server.html" label="Configure Server">
+      </topic>
+      <topic href="html/openejb-server/deploy-project.html" label="Deploy Project">
+      </topic>
+   </topic>
+</toc>

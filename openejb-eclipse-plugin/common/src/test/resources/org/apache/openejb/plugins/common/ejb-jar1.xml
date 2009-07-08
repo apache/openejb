@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+-->
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+		  http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+         version="2.1">
+    <enterprise-beans>
+        <session>
+            <description>Business logic for the store</description>
+            <display-name>Store</display-name>
+            <ejb-name>StoreEJB</ejb-name>
+            <home>org.superbiz.StoreHome</home>
+            <remote>org.superbiz.Store</remote>
+            <ejb-class>org.superbiz.StoreBean</ejb-class>
+            <session-type>Stateful</session-type>
+            <transaction-type>Container</transaction-type>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb/Product</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.superbiz.ProductHome</local-home>
+                <local>org.superbiz.Product</local>
+                <ejb-link>ProductEJB</ejb-link>
+            </ejb-local-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb/Order</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.superbiz.OrderHome</local-home>
+                <local>org.superbiz.Order</local>
+                <ejb-link>OrderEJB</ejb-link>
+            </ejb-local-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb/OrderLine</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.superbiz.OrderLineHome</local-home>
+                <local>org.superbiz.OrderLine</local>
+                <ejb-link>OrderLineEJB</ejb-link>
+            </ejb-local-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb/User</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.superbiz.UserHome</local-home>
+                <local>org.superbiz.User</local>
+                <ejb-link>UserEJB</ejb-link>
+            </ejb-local-ref>
+        </session>
+        <entity>
+            <ejb-name>ProductEJB</ejb-name>
+            <local-home>org.superbiz.ProductHome</local-home>
+            <local>org.superbiz.Product</local>
+            <ejb-class>org.superbiz.ProductBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>true</reentrant>
+            <cmp-version>2.x</cmp-version>
+            <abstract-schema-name>Product</abstract-schema-name>
+            <cmp-field>
+                <description>Identity</description>
+                <field-name>id</field-name>
+            </cmp-field>
+            <cmp-field>
+                <description>product name</description>
+                <field-name>name</field-name>
+            </cmp-field>
+            <cmp-field>
+                <description>product stock code</description>
+                <field-name>code</field-name>
+            </cmp-field>
+            <cmp-field>
+                <description>product description</description>
+                <field-name>description</field-name>
+            </cmp-field>
+            <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findAll</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>SELECT p from Product p</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <ejb-name>OrderEJB</ejb-name>
+            <local-home>org.superbiz.OrderHome</local-home>
+            <local>org.superbiz.Order</local>
+            <ejb-class>org.superbiz.OrderBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>true</reentrant>
+            <cmp-version>2.x</cmp-version>
+            <abstract-schema-name>OrderHeader</abstract-schema-name>
+            <cmp-field>
+                <field-name>id</field-name>
+            </cmp-field>
+            <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findOrdersByUsername</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT OBJECT(o) FROM OrderHeader o</ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <ejb-name>OrderLineEJB</ejb-name>
+            <local-home>org.superbiz.OrderLineHome</local-home>
+            <local>org.superbiz.OrderLine</local>
+            <ejb-class>org.superbiz.OrderLineBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>true</reentrant>
+            <cmp-version>2.x</cmp-version>
+            <abstract-schema-name>OrderLine</abstract-schema-name>
+            <cmp-field>
+                <field-name>id</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>qty</field-name>
+            </cmp-field>
+            <primkey-field>id</primkey-field>
+        </entity>
+        <entity>
+            <ejb-name>UserEJB</ejb-name>
+            <local-home>org.superbiz.UserHome</local-home>
+            <local>org.superbiz.User</local>
+            <ejb-class>org.superbiz.UserBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>true</reentrant>
+            <cmp-version>2.x</cmp-version>
+            <abstract-schema-name>User</abstract-schema-name>
+            <cmp-field>
+                <field-name>id</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>username</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>password</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>email</field-name>
+            </cmp-field>
+            <primkey-field>id</primkey-field>
+            <query>
+                <query-method>
+                    <method-name>findAll</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>SELECT u FROM User u</ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findByUsername</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>SELECT DISTINCT OBJECT(u) FROM User u WHERE u.username = ?1</ejb-ql>
+            </query>
+        </entity>
+    </enterprise-beans>
+    <relationships>
+        <ejb-relation>
+            <ejb-relation-name>OrderEJB - OrderLineEJB</ejb-relation-name>
+            <ejb-relationship-role>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>OrderEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>orderLine</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
+                <relationship-role-source>
+                    <ejb-name>OrderLineEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>order</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relation-name>UserEJB - OrderEJB</ejb-relation-name>
+            <ejb-relationship-role>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>UserEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>order</cmr-field-name>
+                    <cmr-field-type>java.util.Collection</cmr-field-type>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <multiplicity>Many</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>OrderEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>user</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+        </ejb-relation>
+        <ejb-relation>
+            <ejb-relation-name>OrderLineEJB - ProductEJB</ejb-relation-name>
+            <ejb-relationship-role>
+                <multiplicity>Many</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>OrderLineEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>product</cmr-field-name>
+                </cmr-field>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>ProductEJB</ejb-name>
+                </relationship-role-source>
+            </ejb-relationship-role>
+        </ejb-relation>
+    </relationships>
+</ejb-jar>

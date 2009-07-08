@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bean Plug-in
+Bundle-SymbolicName: echo.stateless.bean;singleton:=true
+Bundle-Version: 1.0.0.alpha
+Bundle-Activator: echo.stateless.bean.EchoStatelessPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ openejb.server;bundle-version="1.0.0.alpha"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: openejb.server
+Export-Package: echo.stateless.bean
+Bundle-ActivationPolicy: lazy

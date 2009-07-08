@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toc label="Generating EJB 3 Annotations">
+   <topic label="Generating EJB 3 Annotations">
+      <topic href="html/generate-annotations/running-wizard.html" label="Running the wizard">
+      </topic>
+      <topic href="html/generate-annotations/preview-changes.html" label="Preview the changes">
+      </topic>
+   </topic>
+</toc>

@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../../../../content/PLUGINS_ROOT/PRODUCT_PLUGIN/book.css"/>
+<title>Getting started</title>
+</head>
+
+<body>
+<h1>Generating annotations</h1>
+<p>The OpenEJB Eclipse plugin is able to provide some assistance in
+helping you migrate EJB 2.x projects to EJB 3.0, by analyzing your
+ejb-jar.xml file, and adding EJB annotations to your source code. This
+page will show you how to use this functionality.</p>
+<p>First of all you will need to add the EJB 3.0 API jars to the
+classpath of your project. If you are using Maven, you can add the
+following to your POM (you will need to update your Eclipse project
+using mvn eclipse:eclipse afterwards)</p>
+<div class="source"><pre>  &lt;dependencies&gt;
+    ...
+    &lt;dependency&gt;
+
+      &lt;groupId&gt;org.apache.geronimo.specs&lt;/groupId&gt;
+      &lt;artifactId&gt;geronimo-ejb_3.0_spec&lt;/artifactId&gt;
+      &lt;version&gt;1.0&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.apache.geronimo.specs&lt;/groupId&gt;
+      &lt;artifactId&gt;geronimo-jpa_3.0_spec&lt;/artifactId&gt;
+      &lt;version&gt;1.1&lt;/version&gt;
+
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;</pre></div>
+<p>Alternatively, import the API jars into your project, and add
+them to your build path.</p>
+<p>Next, click the 'OpenEJB' menu on the menubar, and select
+'Generate Annotations'.</p>
+<img src="../images/annotations_step_1.jpg" />
+<p>Select the project you would like to work with, if it isn't
+already selected. Click 'Next'.</p>
+
+<img src="../images/annotations_step_2.jpg" />
+<p>Select your ejb-jar.xml and (optionally) your openejb-jar.xml
+files. Select or deselect the other options as appropriate, and select
+'Next'.</p>
+<p>Options:</p>
+<ul>
+	<li>Alter SessionBean interfaces - This option makes your session
+	beans implement your remote / local interfaces as opposed to
+	javax.ejb.SessionBean, and stops your remote / local interfaces
+	extending javax.ejb.EJBObject.</li>
+	<li>Add @Remote and @RemoteHome annotations - This adds @Remote
+	and @RemoteHome annotations appropriately</li>
+	<li>Convert entity beans to POJOs - This options converts abstract
+	CMP classes to POJOs generating simple getters and setters.</li>
+</ul>
+</body>
+</html>

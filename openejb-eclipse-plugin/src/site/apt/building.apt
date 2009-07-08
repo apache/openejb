@@ -1,0 +1,55 @@
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~
+~~     http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+Building from source
+
+  * Checking out the source
+  
+  []
+  
+  The source is currently checked into the sandbox area of the OpenEJB project's subversion repository. To checkout the source,
+  run this command with your subversion client.
+  
+-----------------------------------------------------------------------------------------------------------------
+  svn checkout https://svn.apache.org/repos/asf/openejb/trunk/sandbox/openejb-eclipse-plugin openejb-eclipse-plugin
+-----------------------------------------------------------------------------------------------------------------
+  
+  * Building the source
+  
+  []
+  
+  To build the plugin you will need Maven (the build has been tested with Maven 2.0.7). To run the build, issue this command
+  
+--------------------------------------------------------------------------------
+  mvn -Dassemble clean install
+--------------------------------------------------------------------------------
+
+  You should be aware that this will download any dependencies, including a copy of Eclipse. This will take a while for your first build.
+  
+  * Importing the plugin code into an Eclipse workspace
+  
+  []
+  
+  You can generate the Eclipse projects for the plugins by running the following command
+  
+--------------------------------------------------------------------------------
+  mvn eclipse:clean eclipse:eclipse
+--------------------------------------------------------------------------------
+  
+  You can add the M2_REPO classpath variable to your Eclipse workspace by running the following command
+  
+--------------------------------------------------------------------------------
+  mvn -Declipse.workspace=<path-to-eclipse-workspace> eclipse:add-maven-repo
+--------------------------------------------------------------------------------

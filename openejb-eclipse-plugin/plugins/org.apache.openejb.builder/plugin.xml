@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<plugin>
+   <extension
+         id="org.apache.openejb.builder"
+         name="org.apache.openejb.builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="true"
+            hasNature="true"
+            isConfigurable="true">
+         <run
+               class="org.apache.openejb.builder.IncrementalProjectBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="org.apache.openejb.builder.nature"
+         name="org.apache.openejb.builder.nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.apache.openejb.builder.ProjectNature">
+         </run>
+         <requires-nature id="org.eclipse.jdt.core.javanature"/>
+      </runtime>
+      <builder
+            id="org.apache.openejb.builder">
+      </builder>
+   </extension>
+   <extension
+         id="dependsonMarker"
+         name="DependsOn Error"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.jdt.core.problem">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="org.apache.openejb.builder.OpenEJBBuilderProperties"
+            id="org.apache.openejb.builder.propertyPage"
+            name="OpenEJB settings">
+         <enabledWhen>
+            <instanceof
+                  value="org.eclipse.core.resources.IProject">
+            </instanceof>
+         </enabledWhen>
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+            class="org.apache.openejb.builder.MarkerResolutionGenerator"
+            markerType="org.apache.openejb.builder.dependsonMarker">
+      </markerResolutionGenerator>
+   </extension>
+
+
+</plugin>

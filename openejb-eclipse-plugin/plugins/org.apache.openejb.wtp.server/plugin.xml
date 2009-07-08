@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<plugin>
+
+   <extension point="org.eclipse.wst.server.core.runtimeTypes">
+	    <runtimeType
+           class="org.apache.openejb.eclipse.server.OpenEJBRuntimeDelegate"
+           description="%openejbRuntimeTypeDescription"
+           id="org.apache.openejb.server.generic.runtime.openejb3"
+           name="%openejbRuntimeTypeName"
+           vendor="%openejbCategory"
+           version="3.0.0">
+	      <moduleType
+	         types="jst.ejb"
+	         versions="1.1,2.0,2.1,3.0,3.1"/>
+       <moduleType
+             types="jst.ear"
+             versions="1.4,5.0,6.0">
+       </moduleType>
+	    </runtimeType>
+ 	</extension>
+
+	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
+		<launchConfigurationType
+        delegate="org.apache.openejb.eclipse.server.OpenEJBLaunchConfigurationDelegate"
+        id="org.apache.openejb.eclipse.server.launchConfigurationType"
+        modes="run, debug, profile"
+        name="%openejbLaunchConfigurationType"
+        sourceLocatorId="org.apache.openejb.server.sourceLocator"
+        sourcePathComputerId="org.apache.openejb.server.sourcePathComputer"/>
+	</extension>
+
+
+	<extension point="org.eclipse.wst.server.core.serverTypes">
+	     <serverType
+	           runtime="true"
+	           class="org.apache.openejb.eclipse.server.OpenEJBServer"
+	           id="org.apache.openejb.server.generic.openejb3"
+	           initialState="stopped"
+	           supportsRemoteHosts="false"
+	           runtimeTypeId="org.apache.openejb.server.generic.runtime.openejb3"
+	           description="%openejbRuntimeTypeDescription"
+	           launchConfigId="org.apache.openejb.eclipse.server.launchConfigurationType"
+	           behaviourClass="org.apache.openejb.eclipse.server.OpenEJBServerBehaviour"
+	           name="%openejbServerTypeName"
+	           startTimeout="20000"
+		       stopTimeout="20000"
+	           hasConfiguration="false"
+	           launchModes="run">
+	          
+	     </serverType>
+	</extension>
+    <extension point="org.eclipse.wst.server.ui.wizardFragments">
+	     <fragment
+	        id="org.apache.openejb.server.generic.runtime.fragment"
+	        typeIds="org.apache.openejb.server.generic.runtime.openejb3"
+	        class="org.apache.openejb.eclipse.server.OpenEJBRuntimeFragment"/>           
+	     <fragment
+	        id="org.apache.openejb.server.generic.server.fragment"
+	        typeIds="org.apache.openejb.server.generic.openejb3"
+	        class="org.apache.openejb.eclipse.server.OpenEJBServerFragment"/>   
+	</extension>´
+	
+   <extension point="org.eclipse.jst.server.core.runtimeClasspathProviders">
+     <runtimeClasspathProvider
+        id="org.apache.openejb.server.generic.runtime.runtimeTarget"
+        runtimeTypeIds="org.apache.openejb.server.generic.runtime.openejb3"
+        class="org.apache.openejb.eclipse.server.OpenEJBRuntimeClasspathProviderDelegate"/>
+	</extension>
+	
+  <extension point="org.eclipse.wst.common.project.facet.core.runtimes">
+     <runtime-component-type
+       id="org.apache.openejb.server.generic.runtime.openejb"/>
+
+    <runtime-component-version
+       type="org.apache.openejb.server.generic.runtime.openejb"
+       version="3.0.0"/>
+    <adapter>
+      <runtime-component
+         id="org.apache.openejb.server.generic.runtime.openejb"/>
+      <factory
+         class="org.eclipse.jst.server.core.internal.RuntimeClasspathProvider$Factory"/>
+      <type
+         class="org.eclipse.jst.common.project.facet.core.IClasspathProvider"/>
+    </adapter>
+
+    <adapter>
+      <runtime-component id="org.apache.openejb.server.generic.runtime.openejb"/>
+      <factory class="org.eclipse.jst.server.ui.internal.RuntimeLabelProvider$Factory"/>
+      <type class="org.eclipse.wst.common.project.facet.ui.IRuntimeComponentLabelProvider"/>
+    </adapter>
+    <supported>
+      <runtime-component
+         id="org.apache.openejb.server.generic.runtime.openejb"
+         version="3.0.0"/>
+       <facet
+         id="jst.ejb"
+         version="1.1,2.0,2.1,3.0,3.1"/>
+       <facet
+             id="jst.java"
+             version="1.4,5.0,6.0">
+       </facet>
+
+    </supported>
+    <supported>
+       <runtime-component
+             id="org.apache.openejb.server.generic.runtime.openejb"
+             version="3.0.0"></runtime-component>
+       <facet
+             id="jst.ear"
+             version="1.4,5.0,6.0">
+       </facet>
+    </supported>
+
+  </extension>
+
+
+  <extension point="org.eclipse.jst.server.core.runtimeFacetMappings">
+    <runtimeFacetMapping
+      runtimeTypeId="org.apache.openejb.server.generic.runtime.openejb3"
+      runtime-component="org.apache.openejb.server.generic.runtime.openejb"
+      version="3.0.0"/>
+  </extension>
+  
+	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+		<launchConfigurationTabGroup
+      		id="org.apache.openejb.eclipse.server.launchConfigurationTabGroup"
+      		type="org.apache.openejb.eclipse.server.launchConfigurationType"
+      		class="org.apache.openejb.eclipse.server.OpenEJBLaunchConfigurationTabGroup">
+    	</launchConfigurationTabGroup>
+  	</extension>
+ <extension
+       point="org.eclipse.debug.core.sourcePathComputers">
+    <sourcePathComputer
+          class="org.eclipse.jdt.launching.sourcelookup.containers.JavaSourcePathComputer"
+          id="org.apache.openejb.server.sourcePathComputer">
+    </sourcePathComputer>
+ </extension>
+ <extension
+       point="org.eclipse.debug.core.sourceLocators">
+    <sourceLocator
+          class="org.eclipse.jdt.internal.launching.JavaSourceLookupDirector"
+          id="org.apache.openejb.server.sourceLocator"
+          name="%openejbSourceLocator">
+    </sourceLocator>
+ </extension>
+ 
+ <extension point="org.eclipse.wst.server.ui.serverImages">
+    <image id="org.apache.openejb"
+           icon="icons/obj16/openejb.gif"
+           typeIds="org.apache.openejb.server.generic.runtime.openejb3, org.apache.openejb.server.generic.openejb3"/>
+</extension>
+
+<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+    <launchConfigurationTypeImage
+        id="org.apache.openejb"
+        configTypeID="org.apache.openejb.eclipse.server.launchConfigurationType"
+        icon="icons/obj16/openejb.gif">
+    </launchConfigurationTypeImage>
+</extension>  
+</plugin>

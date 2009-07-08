@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?NLS type="org.eclipse.help.contexts"?>
+<!--
+	~ Licensed to the Apache Software Foundation (ASF) under one or more
+	~ contributor license agreements.  See the NOTICE file distributed with
+	~ this work for additional information regarding copyright ownership.
+	~ The ASF licenses this file to You under the Apache License, Version 2.0
+	~ (the "License"); you may not use this file except in compliance with
+	~ the License.  You may obtain a copy of the License at
+	~
+	~    http://www.apache.org/licenses/LICENSE-2.0
+	~
+	~ Unless required by applicable law or agreed to in writing, software
+	~ distributed under the License is distributed on an "AS IS" BASIS,
+	~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	~ See the License for the specific language governing permissions and
+	~ limitations under the License.
+-->
+<contexts>
+	<context id="runtime" title="Configure Runtime">
+		<description>This panel allows you configure the OpenEJB runtime. Select the OpenEJB home directory.</description>
+		<topic href="html/openejb-server/configure-runtime.html"
+			label="Configure Runtime" />
+	</context>
+	<context id="server" title="Configure Server">
+		<description>This panel allows you configure the OpenEJB server. Select the port to use for the ejbd protocol.</description>
+		<topic href="html/openejb-server/configure-runtime.html"
+			label="Configure Server" />
+	</context>
+	<context id="generate-annotations" title="Generate Annotations">
+		<description>Select your project's ejb-jar.xml (and optionally openejb-jar.xml) and select the annotation generation options you'd like to use.</description>
+		<topic href="html/generate-annotations/running-wizard.html"
+			label="Generate annotations" />
+	</context>
+	<context id="select-project" title="Select Project">
+		<description>Select the project you'd like to generate annotations for.</description>
+		<topic href="html/generate-annotations/running-wizard.html"
+			label="Generate annotations" />
+	</context>
+	
+</contexts>

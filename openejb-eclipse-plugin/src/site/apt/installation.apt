@@ -1,0 +1,42 @@
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~
+~~     http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+Installation
+
+  Installation is easiest from an update site. In Eclipse, select Help, Software Updates, Find and install...
+  
+  
+[images/install_step_1.jpg] 
+  
+  Select 'Search for new features to install'
+  
+[images/install_step_2.jpg]
+
+  Select 'New Remote site'. Enter 'OpenEJB' for the name and {http://www.jrg.me.uk/update-site} for the URL. Click 'Ok' and make sure your new update site is selected.
+  Then select 'Finish'
+  
+[images/install_step_3.jpg]
+
+  Check the box to install the OpenEJB feature. Click 'Next'
+  
+[images/install_step_4.jpg]
+
+  Read and make sure you're happy with the license agreement.
+  
+[images/install_step5.jpg]
+
+  Check the installation location, and change it if you wish to. Select 'Finish'.
+  
+  Restarting the workbench when the installation is finished is recommended. 
