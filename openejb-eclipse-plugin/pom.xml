@@ -30,7 +30,7 @@
 	<artifactId>eclipse-plugins</artifactId>
 	<packaging>pom</packaging>
 	<name>${artifactId}</name>
-	<version>1.0.0.alpha</version>
+	<version>1.0.0.beta-SNAPSHOT</version>
 	
 	<description>Eclipse Plugins for OpenEJB</description>
 	
@@ -46,9 +46,9 @@
 	</properties>
 	
 	<scm>
-		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/eclipse-plugins-1.0.0.alpha</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/tags/eclipse-plugins-1.0.0.alpha</developerConnection>
-		<url>http://svn.apache.org/viewvc/openejb/tags/eclipse-plugins-1.0.0.alpha</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/openejb-eclipse-plugin/</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/openejb-eclipse-plugin/</developerConnection>
+		<url>http://svn.apache.org/viewvc/openejb/trunk/openejb-eclipse-plugin/</url>
 	</scm>
 	
 	<build>
