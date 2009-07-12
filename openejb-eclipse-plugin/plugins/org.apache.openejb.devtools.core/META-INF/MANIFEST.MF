@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.apache.openejb.devtools.core;singleton:=true
-Bundle-Version: 1.0.0.alpha
+Bundle-Version: 1.0.0.beta
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Eclipse-AutoStart: true
@@ -30,5 +30,5 @@ Bundle-ClassPath: .,
  lib/swizzle-stream-1.0.1.jar,
  lib/openejb-core-3.1.1.jar,
  lib/javaee-api-5.0-2.jar,
- lib/plugins-common_1.0.0.alpha.jar,
+ lib/plugins-common_1.0.0.beta.jar,
  target/classes/

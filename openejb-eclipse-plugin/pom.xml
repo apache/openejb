@@ -42,7 +42,7 @@
 	<properties>
 		<eclipseInstall>${settings.localRepository}/eclipse</eclipseInstall>
 		<openejb.version>3.1.1</openejb.version>
-		<openejb.eclipse.plugin.version>1.0.0.alpha</openejb.eclipse.plugin.version>
+		<openejb.eclipse.plugin.version>1.0.0.beta</openejb.eclipse.plugin.version>
 	</properties>
 	
 	<scm>
