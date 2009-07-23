@@ -47,7 +47,7 @@
 	<property name="europa_jee_linux_x86_64_gz"    value="${europa_jee_linux_x86_64}.gz"/>
         <property name="europa_jee_macos_gz"    value="${europa_jee_macos}.gz"/>
 
-        <property name="dtp_sdk"    value="dtp-sdk_1.6.1.zip"/>
+        <property name="dtp_sdk"    value="dtp-sdk_1.6.2.zip"/>
         <property name="emf_sdo"    value="emf-sdo-xsd-SDK-2.4.2.zip"/>
         <property name="gef_sdk"    value="GEF-ALL-3.4.1.zip"/>
         <property name="wtp_sdk"    value="wtp-sdk-${wtp_drop}.zip"/>
