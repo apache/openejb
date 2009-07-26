@@ -18,13 +18,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.openejb</groupId>
-	<artifactId>org.apache.openejb.server</artifactId>
+	<artifactId>echo.stateless.simple.client</artifactId>
 	<packaging>jar</packaging>
 	<name>${artifactId}</name>
 	<parent>
 		<groupId>org.apache.openejb</groupId>
-		<artifactId>eclipse-plugins-parent</artifactId>
-		<version>1.0.0.alpha-SNAPSHOT</version>
+		<artifactId>eclipse-plugins-examples</artifactId>
+		<version>1.0.0.beta-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<build>
@@ -93,4 +93,22 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>org.apache.openejb.server</artifactId>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>echo.stateless.bean</artifactId>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi_R4_core</artifactId>
+			<version>1.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 </project>

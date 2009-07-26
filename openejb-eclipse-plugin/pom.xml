@@ -338,6 +338,7 @@
 		<module>plugins</module>
 		<module>features</module>
 		<module>pde-test</module>
+		<module>examples</module>
 		<module>assembly</module>
 	</modules>
 	

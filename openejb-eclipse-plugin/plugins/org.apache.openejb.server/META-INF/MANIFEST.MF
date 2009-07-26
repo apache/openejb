@@ -490,6 +490,7 @@ Export-Package: com.ctc.wstx.api,
  org.apache.neethi.builders.xml,
  org.apache.neethi.util,
  org.apache.openejb,
+ org.apache.openejb.api,
  org.apache.openejb.asm,
  org.apache.openejb.asm.commons,
  org.apache.openejb.asm.signature,
@@ -704,7 +705,8 @@ Bundle-ClassPath: .,
    lib/openejb-multicast-3.1.1.jar,
    lib/xmlsec-1.4.0.jar,
    lib/wss4j-1.5.4.jar,
-   lib/opensaml-1.1.jar
+   lib/opensaml-1.1.jar,
+   lib/openejb-api-3.1.1.jar
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.variables
 Bundle-Activator: org.apache.openejb.eclipse.OpenEjbPlugin

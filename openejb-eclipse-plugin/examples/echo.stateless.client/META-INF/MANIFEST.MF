@@ -7,6 +7,6 @@ Bundle-Activator: echo.stateless.client.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  echo.stateless.bean;bundle-version="1.0.0.beta",
- openejb.server;bundle-version="1.0.0.beta"
+ org.apache.openejb.server;bundle-version="1.0.0.beta"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

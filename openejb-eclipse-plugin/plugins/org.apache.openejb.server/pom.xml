@@ -234,6 +234,11 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.openejb</groupId>
+									<artifactId>openejb-api</artifactId>
+									<version>${openejb.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.openejb</groupId>
 									<artifactId>openejb-server</artifactId>
 									<version>${openejb.version}</version>
 								</artifactItem>

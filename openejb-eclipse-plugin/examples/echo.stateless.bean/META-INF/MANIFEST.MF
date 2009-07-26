@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ejb Plug-in
+Bundle-SymbolicName: echo.stateless.bean;singleton:=true
+Bundle-Version: 1.0.0.beta
+Bundle-Activator: org.superbiz.echo.ejb.EchoStatelessPlugin
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.3.0"
+Require-Bundle: org.apache.openejb.server;bundle-version="1.0.0.beta"
+Eclipse-RegisterBuddy: org.apache.openejb.server
+Bundle-ClassPath: lib/javaee-api-5.0-2.jar,
+ .
+Export-Package: org.superbiz.echo.ejb

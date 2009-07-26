@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package echo.stateless.bean;
+package org.superbiz.echo.ejb;
 
-import javax.ejb.Remote;
+import javax.ejb.Stateless;
 
-@Remote
-public interface EchoServer {
+@Stateless
+public class EchoServerBean implements EchoServer {
 
-	public abstract String echo(String message);
-
+	public String echo(String message) {
+		System.out.println("Client sent: " + message);
+		return "Server: " + message;
+	}
 }

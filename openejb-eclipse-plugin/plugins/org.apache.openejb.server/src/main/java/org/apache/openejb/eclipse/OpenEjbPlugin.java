@@ -41,7 +41,8 @@ public class OpenEjbPlugin extends Plugin {
 	public OpenEjbPlugin() {
 		super();
 		manager = VariablesPlugin.getDefault().getStringVariableManager();
-		addPropertyVariables(System.getProperties());
+		Properties properties = new Properties(System.getProperties());
+		addPropertyVariables(properties);
 		plugin = this;
 	}
 

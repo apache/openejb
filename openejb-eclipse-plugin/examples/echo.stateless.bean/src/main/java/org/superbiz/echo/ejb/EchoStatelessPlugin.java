@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package echo.stateless.bean;
+package org.superbiz.echo.ejb;
 
 import org.apache.openejb.eclipse.OpenEjbApplication;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class EchoStatelessPlugin extends AbstractUIPlugin {
+public class EchoStatelessPlugin implements BundleActivator {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "echo.stateless.bean";
@@ -46,7 +46,6 @@ public class EchoStatelessPlugin extends AbstractUIPlugin {
 	 * )
 	 */
 	public void start(BundleContext context) throws Exception {
-		super.start(context);
 		plugin = this;
 		Bundle bundle = context.getBundle();
 		OpenEjbApplication application = new OpenEjbApplication(bundle);
@@ -62,7 +61,6 @@ public class EchoStatelessPlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		super.stop(context);
 	}
 
 	/**
