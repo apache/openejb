@@ -23,7 +23,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="echo.stateless.client.Application">
+               class="org.superbiz.echo.client.Application">
          </run>
       </application>
    </extension>
@@ -31,7 +31,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="RCP Perspective"
-            class="echo.stateless.client.Perspective"
+            class="org.superbiz.echo.client.Perspective"
             id="echo.stateless.client.perspective">
       </perspective>
    </extension>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
  
-package echo.stateless.client;
+package org.superbiz.echo.client;
 
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;

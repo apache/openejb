@@ -15,7 +15,7 @@
  * limitations under the License.
  */
  
-package echo.stateless.client;
+package org.superbiz.echo.client;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.application.ActionBarAdvisor;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
  
-package echo.stateless.client;
+package org.superbiz.echo.client;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;

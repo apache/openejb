@@ -15,7 +15,7 @@
  * limitations under the License.
  */
  
-package echo.stateless.client;
+package org.superbiz.echo.client;
 
 import java.util.Properties;
 
@@ -23,7 +23,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import echo.stateless.bean.EchoServer;
+import org.superbiz.echo.ejb.EchoServer;
 
 public class EchoClient {
 
