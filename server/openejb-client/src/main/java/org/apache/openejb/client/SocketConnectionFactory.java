@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StreamCorruptedException;
+import java.io.BufferedInputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.net.ConnectException;
@@ -85,6 +86,7 @@ public class SocketConnectionFactory implements ConnectionFactory {
             /*----------------------------------*/
             try {
                 socketIn = socket.getInputStream();
+                socketIn = new BufferedInputStream(socketIn);
             } catch (StreamCorruptedException e) {
                 throw new IOException("Cannot open input stream to server, the stream has been corrupted: " + e.getClass().getName() + " : " + e.getMessage());
 
