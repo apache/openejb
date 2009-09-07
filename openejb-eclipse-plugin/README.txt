@@ -32,8 +32,8 @@ limitations under the License.
 
 To build the plugins from source you will require the following:
 
-	- Java SDK 5.0+ (not yet tested on Java 6)
-	- Apache Maven 2 (tested with Maven 2.0.7)
+	- Java SE SDK 5.0.x and Java SE SDK 6.0.x
+	- Apache Maven 2 (tested with Maven 2.0.x and Maven 2.2.x)
 
 Steps to build:
 
@@ -65,7 +65,7 @@ Steps to create an Eclipse project for the source:
    checked out the source. Eclipse should find the projects created.
 
 --------------------------------------------------------------------------------
-  2. Installation
+  2a. Installation on non p2-based Eclipse SDKs 
 --------------------------------------------------------------------------------
 
 1. Click on Help -> Software Updates -> Find and install
@@ -77,6 +77,20 @@ Steps to create an Eclipse project for the source:
 7. Accept license agreement
 8. Check the installation directory
 9. Click Finish
+
+--------------------------------------------------------------------------------
+  2b. Installation on p2-based Eclipse SDKs (Eclipse SDK 3.4/3.5)
+--------------------------------------------------------------------------------
+
+1. Click on Help -> Install New Software...
+2. On the subsequent wizard page you need to hit the Add... button to be able
+        to add an archived update site.
+3. Use the Archive... to browse to update-site zip under assembly/target
+4. Click Ok
+5. Select the OpenEJB feature from the list of available features
+6. Click Next until you reach the license acceptance pane
+7. Accept license agreement
+8. Click Finish
 
 --------------------------------------------------------------------------------
   3. Adding a server and deploying EJBs
