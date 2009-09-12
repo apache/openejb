@@ -46,9 +46,9 @@
 	</properties>
 	
 	<scm>
-		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/eclipse-plugins-1.0.0.alpha</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/tags/eclipse-plugins-1.0.0.alpha</developerConnection>
-		<url>http://svn.apache.org/viewvc/openejb/tags/eclipse-plugins-1.0.0.alpha</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/openejb/branches/eclipse-plugins-1.0.0.alpha</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/branches/eclipse-plugins-1.0.0.alpha</developerConnection>
+		<url>http://svn.apache.org/viewvc/openejb/branches/eclipse-plugins-1.0.0.alpha</url>
 	</scm>
 	
 	<build>

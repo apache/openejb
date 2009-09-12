@@ -36,7 +36,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://people.apache.org/~jgallimore/update-site"/>
+      <update label="%updateSiteName" url="http://people.apache.org/~jgallimore/test3/update-site"/>
    </url>
 
    <includes
