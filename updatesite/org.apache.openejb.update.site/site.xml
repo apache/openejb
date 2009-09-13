@@ -19,7 +19,7 @@
 
 -->
 
-<description url="http://people.apache.org/~jgallimore/update-site">
+<description url="http://people.apache.org/~jgallimore/test3/update-site">
       The Apache OpenEJB Project Updates
    </description>
    <feature url="features/org.apache.openejb.feature_1.0.0.alpha.jar" id="org.apache.openejb.feature" version="1.0.0.alpha">
