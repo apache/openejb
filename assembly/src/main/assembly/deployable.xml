@@ -58,11 +58,11 @@
 	</dependencySets>
 	<files>
 		<file>
-			<source>${basedir}/src/main/assembly/LICENSE.txt</source>
+			<source>${basedir}/src/main/assembly/LICENSE</source>
 			<outputDirectory>/</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/assembly/NOTICE.txt</source>
+			<source>${basedir}/src/main/assembly/NOTICE</source>
 			<outputDirectory>/</outputDirectory>
 		</file>
 	</files>
