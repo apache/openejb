@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: %fragmentName
-Bundle-SymbolicName: org.apache.openejb.help.nlBidi; singleton:=true
-Bundle-Version: 1.0.0.beta
-Bundle-Vendor: %fragmentProvider
-Bundle-Localization: fragment
-Fragment-Host: org.apache.openejb.help;bundle-version="1.0.0.beta"
