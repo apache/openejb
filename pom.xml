@@ -34,7 +34,7 @@
   <name>OpenEJB</name>
   <packaging>pom</packaging>
 
-  <version>3.1.2-SNAPSHOT</version>
+  <version>3.1.2</version>
 
   <description>
     Apache OpenEJB is an open source, modular, configurable and extendable EJB Container System and EJB Server.
@@ -93,7 +93,7 @@
 
   <properties>
     <!-- This is used by a manifest classpath entry -->
-    <xbeanVersion>3.6-SNAPSHOT</xbeanVersion>
+    <xbeanVersion>3.6</xbeanVersion>
 
     <!-- OSGi bundles properties -->
     <openejb.osgi.import.pkg>*</openejb.osgi.import.pkg>
