@@ -162,6 +162,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Iterator;
 
 /**
  * @version $Rev$ $Date$
@@ -353,36 +354,45 @@ public class AnnotationDeployer implements DynamicDeployer {
 
             ClassFinder finder;
             try {
+                File file = new File(webModule.getJarLocation());
+                URL[] urls = DeploymentLoader.getWebappUrls(file);
                 final ClassLoader webClassLoader = webModule.getClassLoader();
-                ClassLoader parent = webClassLoader.getParent();
+                finder = new ClassFinder(webClassLoader, asList(urls));
 
-                if (webClassLoader instanceof TempClassLoader) parent = parent.getParent();
-
-                UrlSet urlSet = new UrlSet(webClassLoader);
-                urlSet = urlSet.exclude(parent);
-                
-                finder = new ClassFinder(webClassLoader, urlSet.getUrls());
+                ClassFinder finder2 = new ClassFinder(webClassLoader);
                 webModule.setFinder(finder);
             } catch (Exception e) {
                 startupLogger.warning("Unable to scrape for @WebService or @WebServiceProvider annotations. ClassFinder failed.", e);
                 return webModule;
             }
 
-            // TODO: Possible this class is also annotated @Stateless or @Singleton, in which case we maybe should skip it
+            if (webApp == null) {
+                webApp = new WebApp();
+                webModule.setWebApp(webApp);
+            }
+
+            List<String> existingServlets = new ArrayList<String>();
+            for (Servlet servlet : webApp.getServlet()) {
+                existingServlets.add(servlet.getServletClass());
+            }
+            
             List<Class> classes = new ArrayList<Class>();
             classes.addAll(finder.findAnnotatedClasses(WebService.class));
             classes.addAll(finder.findAnnotatedClasses(WebServiceProvider.class));
+
             for (Class<?> webServiceClass : classes) {
+                // If this class is also annotated @Stateless or @Singleton, we should skip it
+                if (webServiceClass.isAnnotationPresent(Singleton.class)) continue;
+                if (webServiceClass.isAnnotationPresent(Stateless.class)) continue;
+
                 int modifiers = webServiceClass.getModifiers();
                 if (!Modifier.isPublic(modifiers) || Modifier.isFinal(modifiers) || isAbstract(modifiers)) {
                     continue;
                 }
 
+                if (existingServlets.contains(webServiceClass.getName())) continue;
+
                 // create webApp and webservices objects if they don't exist already
-                if (webApp == null) {
-                    webApp = new WebApp();
-                    webModule.setWebApp(webApp);
-                }
 
                 // add new <servlet/> element
                 Servlet servlet = new Servlet();
