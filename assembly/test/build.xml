@@ -25,7 +25,7 @@
 
     <property name="openejb.version" value="3.1.2"/>
     <property name="repo" location="${basedir}/repo"/>
-    <property name="maven.repo" value="file:${user.home}/.m2/repository"/>
+    <property name="maven.repo" value="https://repository.apache.org/content/repositories/openejb-014"/>
     <property name="target.dir" location="${basedir}/target"/>
     <property name="windows.sleep" value="5"/>
     <property name="unix.sleep" value="1"/>
