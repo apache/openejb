@@ -43,7 +43,7 @@ public class Activator implements BundleActivator {
         Properties env = new Properties();
         //env.setProperty("openejb.embedded", "true");
         // default, but to remember that the setting exists
-        env.setProperty("openejb.loader", "osgi");
+        env.setProperty("openejb.loader", "context");
         // NPE
         env.setProperty("openejb.deployments.classpath", "false");
         // Else it doesn't work - ClassNotFoundException: org.apache.log4j.Layout
