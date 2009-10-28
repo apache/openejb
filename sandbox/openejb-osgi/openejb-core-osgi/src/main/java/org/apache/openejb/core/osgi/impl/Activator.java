@@ -1,5 +1,4 @@
 /**
- *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -31,34 +30,37 @@ import org.osgi.framework.BundleContext;
 public class Activator implements BundleActivator {
 
     private OpenEJBInstance openejb;
-    
-    public void start(BundleContext ctx) throws Exception {
 
-        System.out.println("Activator started");
-        
+    public void start(BundleContext context) throws Exception {
+
+        System.out.println("Starting OpenEJB...");
+
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
         openejb = new OpenEJBInstance();
-        
+
         Properties env = new Properties();
-        //env.setProperty("openejb.embedded", "true");
+        // env.setProperty("openejb.embedded", "true");
         // default, but to remember that the setting exists
         env.setProperty("openejb.loader", "context");
         // NPE
         env.setProperty("openejb.deployments.classpath", "false");
         // Else it doesn't work - ClassNotFoundException: org.apache.log4j.Layout
         env.setProperty("openejb.log.factory", "org.apache.openejb.util.JuliLogStreamFactory");
-        
+
         SystemInstance.init(env);
         // OptionsLog.install();
 
         // OpenEJB.init(env);
         openejb.init(env);
+
+        System.out.println("Registering OSGified OpenEJB Deployer...");
+        context.addBundleListener(new Deployer());
     }
 
-    public void stop(BundleContext ctx) throws Exception {
+    public void stop(BundleContext context) throws Exception {
+        System.out.println("Stopping OpenEJB; openejb.isInitialized(): " + openejb.isInitialized());
         openejb = null;
         OpenEJB.destroy();
     }
-
 }
