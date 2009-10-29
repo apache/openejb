@@ -40,54 +40,72 @@ import org.osgi.framework.BundleListener;
 public class Deployer implements BundleListener {
 
     public void bundleChanged(BundleEvent event) {
-        int type = event.getType();
-        if (type == BundleEvent.STARTED) {
-            Bundle bundle = event.getBundle();
-            System.out.println(String.format("[Deployer] Bundle %s has been started", bundle.getSymbolicName()));
-            
-            System.out.println(String.format("[Deployer] Checking whether it's an EJB module"));
-            Enumeration<?> e = bundle.findEntries("META-INF", "ejb-jar.xml", false);
-            if (e.hasMoreElements()) {
-                URL ejbJarUrl = (URL) e.nextElement();
-
-                System.out.println("[Deployer] It's an EJB module: " + ejbJarUrl);
-
-                System.out.println("[Deployer] Deploying onto OpenEJB");
-                
-                String location = bundle.getLocation();
-                System.out.println("[Deployer] bundle location: " + location);
-                try {
-                    File file = new File(new URL(location).getFile());
-                    try {
-                        DeploymentLoader deploymentLoader = new DeploymentLoader();
-                        AppModule appModule = deploymentLoader.load(file);
-
-                        ConfigurationFactory configurationFactory = new ConfigurationFactory();
-                        AppInfo appInfo = configurationFactory.configureApplication(appModule);
-
-                        Assembler assembler = (Assembler) SystemInstance.get().getComponent(Assembler.class);
-                        System.out.println(assembler);
-                        System.out.println(appInfo);
-                        assembler.createApplication(appInfo);
-
-                        System.out.println("[Deployer] Application deployed: " + appInfo.jarPath);
-
-                        registerService(event.getBundle(), appInfo);
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                } catch (Exception ex1) {
-                    ex1.printStackTrace();
-                }
-
-            }
+        switch (event.getType()) {
+        case BundleEvent.STARTED:
+            deploy(event.getBundle());
+            break;
+        case BundleEvent.STOPPED:
+            undeploy(event.getBundle());
+            break;
         }
+    }
+
+    private void deploy(Bundle bundle) {
+        System.out.println(String.format("[Deployer] Bundle %s has been started", bundle.getSymbolicName()));
+
+        System.out.println(String.format("[Deployer] Checking whether it's an EJB module"));
+        Enumeration<?> e = bundle.findEntries("META-INF", "ejb-jar.xml", false);
+        if (e.hasMoreElements()) {
+            URL ejbJarUrl = (URL) e.nextElement();
+
+            System.out.println("[Deployer] It's an EJB module: " + ejbJarUrl);
+
+            System.out.println("[Deployer] Deploying onto OpenEJB");
+
+            String location = bundle.getLocation();
+            System.out.println("[Deployer] bundle location: " + location);
+            try {
+                File file = new File(new URL(location).getFile());
+                try {
+                    DeploymentLoader deploymentLoader = new DeploymentLoader();
+                    AppModule appModule = deploymentLoader.load(file);
+
+                    ConfigurationFactory configurationFactory = new ConfigurationFactory();
+                    AppInfo appInfo = configurationFactory.configureApplication(appModule);
+
+                    Assembler assembler = (Assembler) SystemInstance.get().getComponent(Assembler.class);
+                    System.out.println(assembler);
+                    System.out.println(appInfo);
+                    assembler.createApplication(appInfo);
+
+                    System.out.println("[Deployer] Application deployed: " + appInfo.jarPath);
+
+                    registerService(bundle, appInfo);
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } catch (Exception ex1) {
+                ex1.printStackTrace();
+            }
+
+        }
+    }
+
+    private void undeploy(Bundle bundle) {
+        System.out.println(String.format("[Deployer] Bundle %s has been stopped", bundle.getSymbolicName()));
+
+        // Let's others finish what needs to be here
+        // It should leave openejb in the state as if the ejb had not been deployed at all
+
+        // Step 1. Check whether it's an ejb (cf. deploy method above)
+
+        // Step 2. Unregister a service (cf. deploy method above)
     }
 
     /**
      * Register OSGi Service for EJB so calling the service will actually call the EJB
-     *  
+     * 
      * @param bundle
      * @param appInfo
      */
@@ -97,8 +115,11 @@ public class Deployer implements BundleListener {
         for (EjbJarInfo ejbJarInfo : appInfo.ejbJars) {
             for (EnterpriseBeanInfo ejbInfo : ejbJarInfo.enterpriseBeans) {
                 try {
-                    context.registerService(ejbInfo.businessRemote.toArray(new String[0]), bundle.loadClass(ejbInfo.ejbClass).newInstance(), new Properties());
-                    System.out.println(String.format("[Deployer] Service object %s registered under the class names: %s", ejbInfo.ejbClass, ejbInfo.businessRemote));
+                    context.registerService(ejbInfo.businessRemote.toArray(new String[0]), bundle.loadClass(
+                            ejbInfo.ejbClass).newInstance(), new Properties());
+                    System.out.println(String.format(
+                            "[Deployer] Service object %s registered under the class names: %s", ejbInfo.ejbClass,
+                            ejbInfo.businessRemote));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
