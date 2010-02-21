@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" version="1.0">
+  <entity name="ABean" class="org.superbiz.nullrelation.ABean">
+    <table name="ABEAN"/>
+    <attributes>
+      <id name="id">
+        <column name="ID"/>
+      </id>
+      <basic name="value">
+        <column name="VALUE"/>
+      </basic>
+      <basic name="name">
+        <column name="NAME"/>
+      </basic>
+      <one-to-one name="b" mapped-by="a"/>
+      <one-to-one name="Z" mapped-by="a"/>
+    </attributes>
+  </entity>
+  <entity name="BBean" class="org.superbiz.nullrelation.BBean">
+    <table name="BBEAN"/>
+    <attributes>
+      <id name="id">
+        <column name="ID"/>
+      </id>
+      <basic name="value">
+        <column name="VALUE"/>
+      </basic>
+      <basic name="name">
+        <column name="NAME"/>
+      </basic>
+      <one-to-one name="C" mapped-by="b"/>
+      <one-to-one name="a">
+        <join-column referenced-column-name="ID" name="FK_FOR_ABEAN"/>
+      </one-to-one>
+    </attributes>
+  </entity>
+  <entity name="CBean" class="org.superbiz.nullrelation.CBean">
+    <table name="CBEAN"/>
+    <attributes>
+      <id name="id">
+        <column name="ID"/>
+      </id>
+      <basic name="value">
+        <column name="VALUE"/>
+      </basic>
+      <basic name="name">
+        <column name="NAME"/>
+      </basic>
+      <one-to-one name="b">
+        <join-column referenced-column-name="ID" name="FK_FOR_BBEAN"/>
+      </one-to-one>
+      <one-to-one name="a">
+        <join-column referenced-column-name="ID" name="FK_FOR_ABEAN"/>
+      </one-to-one>
+    </attributes>
+  </entity>
+</entity-mappings>

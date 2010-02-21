@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" version="1.0">
+    <entity name="Invoice" class="org.superbiz.nullrelation.Invoice">
+        <table name="INVOICE"/>
+        <id-class class="org.superbiz.nullrelation.InvoiceKey"/>
+        <attributes>
+            <id name="id">
+                <column name="ID"/>
+            </id>
+            <id name="brandName">
+                <column name="BRANDNAME"/>
+            </id>
+            <basic name="price">
+                <column name="PRICE"/>
+            </basic>
+            <one-to-many name="lineItems" mapped-by="invoice">
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+        </attributes>
+    </entity>
+    <entity name="LineItemBean" class="org.superbiz.nullrelation.LineItem">
+        <table name="ITEM"/>
+        <attributes>
+            <id name="id">
+                <column name="ID"/>
+            </id>
+            <basic name="quantity">
+                <column name="QUANTITY"/>
+            </basic>
+            <many-to-one name="invoice">
+                <join-column referenced-column-name="ID" name="FK_FOR_ID"/>
+                <join-column referenced-column-name="BRANDNAME" name="FK_FOR_BRANDNAME"/>
+            </many-to-one>
+        </attributes>
+    </entity>
+</entity-mappings>
