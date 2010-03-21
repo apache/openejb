@@ -1,9 +1,9 @@
 body {
-	background: #fff;
+  background: #fff;
   font-family: arial, helvetica, sans-serif;
   font-size: 12px;
-	margin: 0px;
-	padding: 0px;
+  margin: 0px;
+  padding: 0px;
   line-height: 16px;
   color: #222222;
 }
@@ -64,12 +64,12 @@ img {
 }
 
 .Col4 {
-  width: 20px;
+  width: 10px;
 }
 
 .Col5 {
   /*min-width: 20px;*/
-  max-width: 280px;
+  max-width: 300px;
   /*width: 280px;*/
 }
 
@@ -188,7 +188,7 @@ img {
 
 #RightContent {
   /*padding: 12px;*/
-  width: 280px;
+  width: 300px;
 }
 
 #RightContent .panel {
