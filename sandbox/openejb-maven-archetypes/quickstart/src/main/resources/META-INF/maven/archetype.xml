@@ -1,0 +1,13 @@
+<archetype>
+  <id>maven-openejb-quickstart</id>
+  <sources>
+    <source>src/main/java/CalculatorBean.java</source>
+    <source>src/main/java/CalculatorRemote.java</source>
+  </sources>
+  <resources>
+    <resource>src/main/resources/META-INF/ejb-jar.xml</resource>
+  </resources>
+  <testSources>
+    <source>src/test/java/CalculatorTest.java</source>
+  </testSources>
+</archetype>

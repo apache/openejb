@@ -1,0 +1,55 @@
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>${groupId}</groupId>
+   <version>${version}</version>
+   <artifactId>${artifactId}-project</artifactId>
+   <packaging>pom</packaging>
+   <name>${artifactId}-project</name>
+   <modules>
+      <module>primary-source</module>
+      <module>servlets</module>
+      <module>ejbs</module>
+      <module>ear</module>
+   </modules>
+   <build>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-site-plugin</artifactId>
+               <configuration>
+                  <unzipCommand>/usr/bin/unzip -o > err.txt</unzipCommand>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+   </build>
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>${artifactId}-primary-source</artifactId>
+            <version>${version}</version>
+         </dependency>
+         <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>${artifactId}-servlet</artifactId>
+            <version>${version}</version>
+            <type>war</type>
+         </dependency>
+         <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>${artifactId}-ejb</artifactId>
+            <version>${version}</version>
+            <type>ejb</type>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+   <distributionManagement>
+      <site>
+         <id>site</id>
+         <name>project website</name>
+         <url>scp://local.company.com/websites/project.company.com/</url>
+      </site>
+   </distributionManagement>
+</project>
