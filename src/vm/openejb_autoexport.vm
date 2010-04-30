@@ -2,6 +2,8 @@
 ##
 #set ($images = "http://openejb.apache.org/images")
 #set ($siteroot = "http://cwiki.apache.org/OPENEJB")
+#set ($globalHelper = $action.getHelper())
+#set ($renderer = $globalHelper.getWikiStyleRenderer())
 ##
 #if ( $page.title.equals("Index") )
     #set ($title = "Home")
@@ -108,7 +110,11 @@ $content
         <TD class="Col2">&nbsp;</TD>
         <TD class="Col3" id="breadcrumbs">
           <!-- $TOP_NAV_BAR -->
-          #renderPage('QuickLinks')
+          #set($child = $pageManager.getPage($page.space.key,"QuickLinks"))
+          #set($content = $renderer.convertWikiToXHtml($child.toPageContext(), $child.content).trim())
+          #set ($content = $content.replaceAll("^<[pP]>|</[pP]>$", "") )
+          $content
+
         </TD>
         <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
         <TD class="Col5">&nbsp;</TD>
@@ -124,7 +130,10 @@ $content
         <TD class="Col1">
           <SPAN id="Navigation">
 
-            #renderPage("Navigation")
+            #set($child = $pageManager.getPage($page.space.key,"Navigation"))
+            #set($content = $renderer.convertWikiToXHtml($child.toPageContext(), $child.content).trim())
+            #set ($content = $content.replaceAll("^<[pP]>|</[pP]>$", "") )
+            $content
 
             <H3>
               <A name="Navigation-Feeds"></A>
@@ -191,7 +200,14 @@ $content
         </TD>
         <TD class="Col4"><IMG src="http://openejb.apache.org/images/dotTrans.gif"></TD>
         <TD class="Col5">
-          #renderRightSidePage("${title}Links")
+          #if ($pageManager.getPage($page.space.key,"${title}Links"))
+
+            #set($child = $pageManager.getPage($page.space.key,"${title}Links"))
+            #set($content = $renderer.convertWikiToXHtml($child.toPageContext(), $child.content).trim())
+            #set ($content = $content.replaceAll("^<[pP]>|</[pP]>$", "") )
+            <div id="RightContent">$content</div>
+          #end
+          
         </TD>
       </TR>
       <TR  class="Row5">
