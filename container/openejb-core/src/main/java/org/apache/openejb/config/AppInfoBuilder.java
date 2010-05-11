@@ -489,10 +489,6 @@ class AppInfoBuilder {
                 info.jarFiles.addAll(persistenceUnit.getJarFile());
                 info.classes.addAll(persistenceUnit.getClazz());
                 info.mappingFiles.addAll(persistenceUnit.getMappingFile());
-                
-                info.persistenceXMLSchemaVersion = persistence.getVersion();
-                info.sharedCacheMode = persistenceUnit.getSharedCacheMode().toString();
-                info.validationMode = persistenceUnit.getValidationMode().toString();
 
                 // Handle Properties
                 org.apache.openejb.jee.jpa.unit.Properties puiProperties = persistenceUnit.getProperties();
