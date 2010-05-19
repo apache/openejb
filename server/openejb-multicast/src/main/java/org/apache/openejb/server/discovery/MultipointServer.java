@@ -527,7 +527,7 @@ public class MultipointServer {
                         // seen - needs to get maintained as "connected"
                         // TODO remove from seen
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        log.warning("Error connecting to " + host + ":" + port, e);
                     }
                 }
             }
