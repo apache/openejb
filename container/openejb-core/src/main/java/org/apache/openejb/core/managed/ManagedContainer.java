@@ -579,11 +579,11 @@ public class ManagedContainer implements RpcContainer {
             SessionContext sessionContext;
             synchronized (this) {
                 try {
-                    sessionContext = (SessionContext) ctx.lookup("comp/EJBContext");
+                    sessionContext = (SessionContext) ctx.lookup("java:comp/EJBContext");
                 } catch (NamingException e1) {
                     ManagedUserTransaction userTransaction = new ManagedUserTransaction(new EjbUserTransaction(), entityManagerRegistry);
                     sessionContext = new ManagedContext(securityService, userTransaction);
-                    ctx.bind("comp/EJBContext", sessionContext);
+                    ctx.bind("java:comp/EJBContext", sessionContext);
                 }
             }
 
