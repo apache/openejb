@@ -75,8 +75,30 @@
           <exclude>org.apache.tomcat:annotations-api</exclude>
           <exclude>org.apache.tomcat:juli</exclude>
           <exclude>org.apache.tomcat:servlet-api</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-impl</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-ejb</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-ejb-common</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-ee</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-ee-common</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-web</exclude>
+          <exclude>org.apache.openwebbeans:openwebbeans-jsf</exclude>
       </excludes>
     </dependencySet>
+    
+    <dependencySet>
+      <outputDirectory>openwebbeans</outputDirectory>
+      <scope>runtime</scope>
+      <includes>
+          <include>org.apache.openwebbeans:openwebbeans-impl</include>
+          <include>org.apache.openwebbeans:openwebbeans-ejb</include>
+          <include>org.apache.openwebbeans:openwebbeans-ejb-common</include>
+          <include>org.apache.openwebbeans:openwebbeans-web</include>          
+          <include>org.apache.openwebbeans:openwebbeans-ee-common</include>
+          <include>org.apache.openwebbeans:openwebbeans-ee</include>
+          <include>org.apache.openwebbeans:openwebbeans-jsf</include>
+      </includes>
+    </dependencySet>    
+    
     <dependencySet>
       <outputDirectory>WEB-INF/lib</outputDirectory>
       <scope>runtime</scope>

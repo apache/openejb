@@ -27,6 +27,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.core.StandardServer;
+import org.apache.openejb.tomcat.catalina.owb.OWBLifecycleListener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -171,6 +172,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         // add this class (as first)
         context.addLifecycleListener(this);
 
+        //Adding OWB Related Listeners
+        OWBLifecycleListener owbListener = new OWBLifecycleListener();
+        context.addLifecycleListener(owbListener);
+        context.addContainerListener(owbListener);
+        
         // add back all listeners
         for (LifecycleListener listener : listeners) {
             if (listener != this) {

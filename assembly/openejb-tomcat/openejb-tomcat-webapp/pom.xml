@@ -218,6 +218,89 @@
       <groupId>org.apache.tomcat</groupId>
       <artifactId>catalina</artifactId>
     </dependency>
+    
+    <!-- OPENWEBBEAN RELATED DEPENDENCIES -->
+    
+    <!-- OWB IMPL -->
+    <dependency>
+    	<groupId>org.apache.openwebbeans</groupId>
+    	<artifactId>openwebbeans-impl</artifactId>
+    	<version>1.0.0-SNAPSHOT</version>
+    	<scope>runtime</scope>
+    </dependency>
+
+    <!-- OWB WEB PLUGIN-->
+    <dependency>
+    	<groupId>org.apache.openwebbeans</groupId>
+    	<artifactId>openwebbeans-web</artifactId>
+    	<version>1.0.0-SNAPSHOT</version>
+    	<scope>runtime</scope>
+    </dependency>
+
+    <!-- OWB OPENEJB PLUGIN -->
+    <dependency>
+    	<groupId>org.apache.openwebbeans</groupId>
+    	<artifactId>openwebbeans-ejb</artifactId>
+    	<version>1.0.0-SNAPSHOT</version>
+    	<scope>runtime</scope>
+    </dependency>
+    
+    <!-- OWB EE COMMON PLUGIN -->
+    <dependency>
+    	<groupId>org.apache.openwebbeans</groupId>
+    	<artifactId>openwebbeans-ee-common</artifactId>
+    	<version>1.0.0-SNAPSHOT</version>
+    	<scope>runtime</scope>
+    </dependency>    
+    
+    <!-- JSR-299 -->
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+        <version>1.0-beta</version>
+        <scope>runtime</scope>
+    </dependency>
+
+	<!-- JSR-330 API -->
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-atinject_1.0_spec</artifactId>
+        <version>1.0-beta</version>
+        <scope>runtime</scope>
+    </dependency>
+    
+    <!-- OWB SPI -->
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <scope>runtime</scope>
+    </dependency>
+    
+    <!-- Interceptor 1.1 -->
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+        <version>1.0.0-beta</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <!-- JSF Plugin -->
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-jsf</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <scope>runtime</scope>
+    </dependency>
+	
+	<!-- Validator API -->
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-validation_1.0_spec</artifactId>
+        <version>1.0</version>
+        <scope>runtime</scope>
+    </dependency>
+    
   </dependencies>
 </project>
 

@@ -20,11 +20,13 @@ package org.apache.openejb.tomcat.catalina;
 import static org.apache.openejb.tomcat.catalina.BackportUtil.getServlet;
 import static org.apache.openejb.tomcat.catalina.BackportUtil.*;
 
+import org.apache.openejb.tomcat.catalina.owb.OWBLifecycleListener;
 import org.apache.openejb.tomcat.common.LegacyAnnotationProcessor;
 import org.apache.openejb.tomcat.common.TomcatVersion;
 import org.apache.catalina.Container;
 import org.apache.catalina.Engine;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.Loader;
 import org.apache.catalina.ServerFactory;
 import org.apache.catalina.Service;
 import org.apache.catalina.Wrapper;
@@ -49,6 +51,7 @@ import org.apache.openejb.server.webservices.WsService;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.util.LinkResolver;
+import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 import org.apache.openejb.assembler.classic.WebAppBuilder;
 import org.apache.openejb.assembler.classic.WebAppInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
@@ -63,8 +66,10 @@ import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.UnknownModuleTypeException;
 import org.apache.openejb.config.WebModule;
 import org.apache.openejb.config.ClientModule;
+import org.apache.openejb.core.interceptor.InterceptorData;
 import org.apache.openejb.core.ivm.naming.SystemComponentReference;
 import org.apache.openejb.core.webservices.JaxWsUtils;
+import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.CoreWebDeploymentInfo;
 import org.apache.openejb.core.CoreContainerSystem;
 import org.apache.openejb.jee.EnvEntry;
@@ -80,6 +85,7 @@ import org.apache.xbean.finder.UrlSet;
 import org.omg.CORBA.ORB;
 
 import javax.ejb.spi.HandleDelegate;
+import javax.interceptor.InvocationContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
@@ -88,7 +94,9 @@ import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -230,7 +238,41 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
     // context class loader is now defined, but no classes should have been loaded
     public void start(StandardContext standardContext) {
         if (standardContext.getServletContext().getAttribute(IGNORE_CONTEXT) != null) return;
-
+        
+        boolean isOwb = standardContext.getServletContext().getAttribute(OWBLifecycleListener.IGNORE_OWB_LIBRARY) != null ? true : false; 
+        
+        if (isOwb)
+        {            
+            //Adding OpenwebBeans Implementation JAR
+            Loader loader = standardContext.getLoader();     
+            List<File> files = findOpenWebBeansJar("openwebbeans");
+            for(File file : files)
+            {
+                loader.addRepository(file.toURI().toString());   
+            }
+            
+            ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+            try
+            {
+                Thread.currentThread().setContextClassLoader(standardContext.getLoader().getClassLoader());
+                
+                Class<?> owbConfig = standardContext.getLoader().getClassLoader().loadClass("org.apache.webbeans.config.OpenWebBeansConfiguration");
+                Method setProperty = owbConfig.getMethod("setProperty", new Class[]{String.class,Object.class});
+                Method getInstance = owbConfig.getMethod("getInstance", new Class[]{});
+                Object ocjConfig = getInstance.invoke(null, new Object[]{});
+                setProperty.invoke(ocjConfig, new Object[]{"org.apache.webbeans.spi.deployer.useEjbMetaDataDiscoveryService","true"});
+                setProperty.invoke(ocjConfig, new Object[]{"org.apache.webbeans.spi.ResourceInjectionService","org.apache.webbeans.ejb.resource.OpenEjbResourceInjectionService"});
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                Thread.currentThread().setContextClassLoader(oldCl);
+            }
+        }
+        
         Assembler assembler = getAssembler();
         if (assembler == null) {
             logger.warning("OpenEJB has not been initialized so war will not be scanned for nested modules " + standardContext.getPath());
@@ -247,6 +289,65 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
                     contextInfo.appInfo = appInfo;
 
                     assembler.createApplication(contextInfo.appInfo, standardContext.getLoader().getClassLoader());
+                    
+                    if(isOwb)
+                    {
+                        ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
+                        List<EjbJarInfo> ejbJarInfos = appInfo.ejbJars;
+                        for(EjbJarInfo jarInfo : ejbJarInfos)
+                        {
+                            List<EnterpriseBeanInfo> ebInfos = jarInfo.enterpriseBeans;
+                            for(EnterpriseBeanInfo ebInfo : ebInfos)
+                            { 
+                                CoreDeploymentInfo info = (CoreDeploymentInfo)containerSystem.getDeploymentInfo(ebInfo.ejbDeploymentId);                                
+                                
+                                Class<?> interceptorClazz = standardContext.getLoader().getClassLoader().loadClass("org.apache.webbeans.ejb.common.interceptor.OpenWebBeansEjbInterceptor");
+                                InterceptorData interceptorData = new InterceptorData(interceptorClazz);
+                                interceptorData.getAroundInvoke().add(interceptorClazz.getMethod("callToOwbInterceptors", new Class[]{InvocationContext.class}));
+                                interceptorData.getPostConstruct().add(interceptorClazz.getMethod("afterConstruct", new Class[]{InvocationContext.class}));
+                                interceptorData.getPreDestroy().add(interceptorClazz.getMethod("preDestroy", new Class[]{InvocationContext.class}));
+                                
+                                info.getCallbackInterceptors().add(interceptorData);
+                                                                
+                                List<InterceptorData> datas = new ArrayList<InterceptorData>();
+                                for(InterceptorData data : info.getCallbackInterceptors())
+                                {
+                                    datas.add(data);
+                                }
+                                
+                                info.setCallbackInterceptors(datas);
+                                
+                                //Adding AroundInvokes
+                                InterceptorData interceptorData2 = new InterceptorData(interceptorClazz);
+                                interceptorData2.getAroundInvoke().add(interceptorClazz.getMethod("callToOwbInterceptors", new Class[]{InvocationContext.class}));
+                                
+                                List<Class> interfaces = info.getBusinessLocalInterfaces();
+                                for(Class cls : interfaces)
+                                {
+                                    Method[] methods = cls.getMethods();
+                                    for(Method method : methods)
+                                    {                      
+                                        Method beanMethod = info.getBeanClass().getMethod(method.getName(), method.getParameterTypes());
+                                        List<InterceptorData> aroundInvokes = new ArrayList<InterceptorData>();
+                                        List<InterceptorData> oldAroundInvokes = info.getMethodInterceptors(beanMethod);
+                                        if(oldAroundInvokes != null && !oldAroundInvokes.isEmpty())
+                                        {
+                                            for(InterceptorData aroundInvoked : oldAroundInvokes)
+                                            {
+                                                aroundInvokes.add(aroundInvoked);
+                                            }
+                                        }
+                                        
+                                        aroundInvokes.add(interceptorData2);
+                                        
+                                        //Adding to last interceptor
+                                        info.setMethodInterceptors(beanMethod, aroundInvokes);
+                                    }
+                                }
+                                
+                            }
+                        }                        
+                    }                                        
                     // todo add watched resources to context
                 } catch (Exception e) {
                     logger.error("Unable to deploy collapsed ear in war " + standardContext.getPath() + ": Exception: " + e.getMessage(), e);
@@ -519,7 +620,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
 
         return file.isFile() && standardHost.findChild(name) != null;
     }
-    
+
     private boolean isRootApplication(StandardContext standardContext) {
 	return "".equals(standardContext.getPath());
     }
@@ -900,5 +1001,28 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
             }
             return false;
         }
+    }
+    
+    /**
+     * Gets path to jar file that has namePrefix
+     * and in the openejb.war/lib location.
+     * @param namePrefix prefix of the jar file
+     * @return path to file
+     */
+    private static List<File> findOpenWebBeansJar(String namePrefix) {
+        String openejbWarLocation = SystemInstance.get().getProperty("openejb.war");
+        File openejbWar = new File(openejbWarLocation);
+        File openEJBLibDir = new File(openejbWar, "openwebbeans");
+        
+        List<File> files = new ArrayList<File>();
+        if (openEJBLibDir == null) return null;
+
+        for (File file : openEJBLibDir.listFiles()) {
+            if (file.getName().startsWith(namePrefix + "-") && file.getName().endsWith(".jar")) {
+                files.add(file);
+            }
+        }
+
+        return files;
     }
 }
