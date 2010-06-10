@@ -28,11 +28,6 @@ import org.apache.catalina.Service;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardServer;
 import org.apache.openejb.OpenEJB;
-import org.apache.openejb.util.Logger;
-import org.apache.openejb.util.LogCategory;
-import org.apache.openejb.util.OptionsLog;
-import org.apache.openejb.tomcat.installer.Installer;
-import org.apache.openejb.tomcat.installer.Paths;
 import org.apache.openejb.assembler.classic.WebAppBuilder;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.core.ThreadContext;
@@ -43,6 +38,11 @@ import org.apache.openejb.server.ServiceException;
 import org.apache.openejb.server.ServiceManager;
 import org.apache.openejb.server.ejbd.EjbServer;
 import org.apache.openejb.server.webservices.WsRegistry;
+import org.apache.openejb.tomcat.installer.Installer;
+import org.apache.openejb.tomcat.installer.Paths;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
+import org.apache.openejb.util.OptionsLog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -62,9 +62,9 @@ import java.util.Properties;
  * <li/>tomcat.version if not set
  * <li/>tomcat.built if not set
  * </ul>
- *
+ * <p/>
  * <h1>Integration Actions</h1>
- *
+ * <p/>
  * <ul>
  * <li/>Setup ServiceJar: set openejb.provider.default -> org.apache.openejb.tomcat
  * We therefore will load this file: META-INF/org.apache.openejb.tomcat/service-jar.xml
@@ -72,33 +72,54 @@ import java.util.Properties;
  * <li/>
  * <li/>
  * </ul>
- *
+ * <p/>
  * See {@link org.apache.openejb.config.ServiceUtils#defaultProviderURL}
- *
- *
  *
  * @version $Revision: 617255 $ $Date: 2008-01-31 13:58:36 -0800 (Thu, 31 Jan 2008) $
  */
 public class TomcatLoader implements Loader {
+
+    /**
+     * OpenEJB Server Daemon
+     */
     private EjbServer ejbServer;
+
+    /**
+     * OpenEJB Service Manager that manage services
+     */
     private ServiceManager manager;
+
+    /**
+     * Platform OpenEJB works
+     */
     private final String platform;
 
+    /**
+     * Creates a new instance.
+     */
     public TomcatLoader() {
         platform = "tomcat";
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     public void init(Properties properties) throws Exception {
+
         // Enable System EJBs like the MEJB and DeployerEJB
         properties.setProperty("openejb.deployments.classpath", "true");
         properties.setProperty("openejb.deployments.classpath.filter.systemapps", "false");
+
+        //Sets default service provider
         System.setProperty("openejb.provider.default", "org.apache.openejb." + platform);
 
         // Loader maybe the first thing executed in a new classloader
         // so we must attempt to initialize the system instance.
         SystemInstance.init(properties);
+
+        //Install Log
         OptionsLog.install();
-        
+
         // install conf/openejb.xml and conf/logging.properties files
         String openejbWarDir = properties.getProperty("openejb.war");
         if (openejbWarDir != null) {
@@ -116,13 +137,16 @@ public class TomcatLoader implements Loader {
             return;
         }
 
+        FileInputStream fin = null;
         // Read in and apply the conf/system.properties
         try {
             File conf = SystemInstance.get().getBase().getDirectory("conf");
+
+            //Look for custom system properties
             File file = new File(conf, "system.properties");
-            if (file.exists()){
+            if (file.exists()) {
                 Properties systemProperties = new Properties();
-                FileInputStream fin = new FileInputStream(file);
+                fin = new FileInputStream(file);
                 InputStream in = new BufferedInputStream(fin);
                 systemProperties.load(in);
                 System.getProperties().putAll(systemProperties);
@@ -131,9 +155,14 @@ public class TomcatLoader implements Loader {
                 SystemInstance.get().getProperties().putAll(systemProperties);
             }
         } catch (IOException e) {
-            System.out.println("Processing conf/system.properties failed: "+e.getMessage());
+            System.out.println("Processing conf/system.properties failed: " + e.getMessage());
+        } finally {
+            if (fin != null) {
+                fin.close();
+            }
         }
 
+        //Those are set by TomcatHook, why re-set here???
         System.setProperty("openejb.home", SystemInstance.get().getHome().getDirectory().getAbsolutePath());
         System.setProperty("openejb.base", SystemInstance.get().getBase().getDirectory().getAbsolutePath());
 
@@ -159,7 +188,7 @@ public class TomcatLoader implements Loader {
         ejbServer = new EjbServer();
         SystemInstance.get().setComponent(EjbServer.class, ejbServer);
         OpenEJB.init(properties, new ServerFederation());
-        
+
         Properties ejbServerProps = new Properties();
         ejbServerProps.putAll(properties);
         ejbServerProps.setProperty("openejb.ejbd.uri", "http://127.0.0.1:8080/openejb/ejb");
@@ -203,7 +232,11 @@ public class TomcatLoader implements Loader {
         });
     }
 
+    /**
+     * Destroy system.
+     */
     public void destroy() {
+        //Stop ServiceManager
         if (manager != null) {
             try {
                 manager.stop();
@@ -211,6 +244,8 @@ public class TomcatLoader implements Loader {
             }
             manager = null;
         }
+
+        //Stop Ejb server
         if (ejbServer != null) {
             try {
                 ejbServer.stop();
@@ -218,9 +253,17 @@ public class TomcatLoader implements Loader {
             }
             ejbServer = null;
         }
+
+        //Destroy OpenEJB system
         OpenEJB.destroy();
     }
 
+    /**
+     * Process running web applications for ejb deployments.
+     *
+     * @param tomcatWebAppBuilder tomcat web app builder instance
+     * @param standardServer      tomcat server instance
+     */
     private void processRunningApplications(TomcatWebAppBuilder tomcatWebAppBuilder, StandardServer standardServer) {
         for (Service service : standardServer.findServices()) {
             if (service.getContainer() instanceof Engine) {

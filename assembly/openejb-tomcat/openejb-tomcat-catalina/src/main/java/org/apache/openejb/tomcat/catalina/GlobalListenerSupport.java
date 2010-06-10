@@ -18,10 +18,10 @@
 package org.apache.openejb.tomcat.catalina;
 
 import org.apache.catalina.Container;
+import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.core.ContainerBase;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardEngine;
@@ -35,10 +35,30 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Observers events from Tomcat to configure
+ * web applications etc.
+ *
+ * @version $Rev$ $Date$
+ */
 public class GlobalListenerSupport implements PropertyChangeListener, LifecycleListener {
+
+    /**
+     * Tomcat server instance
+     */
     private final StandardServer standardServer;
+
+    /**
+     * Listener for context, host, server operations
+     */
     private final ContextListener contextListener;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param standardServer  tomcat server instance
+     * @param contextListener context listener instance
+     */
     public GlobalListenerSupport(StandardServer standardServer, ContextListener contextListener) {
         if (standardServer == null) throw new NullPointerException("standardServer is null");
         if (contextListener == null) throw new NullPointerException("contextListener is null");
@@ -46,6 +66,9 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         this.contextListener = contextListener; // this.contextListener is now an instance of TomcatWebAppBuilder
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void lifecycleEvent(LifecycleEvent event) {
         Object source = event.getSource();
         if (source instanceof StandardContext) {
@@ -83,6 +106,9 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Starts operation.
+     */
     public void start() {
         // hook the hosts so we get notified before contexts are started
         standardServer.addPropertyChangeListener(this);
@@ -92,10 +118,19 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Stops operation.
+     */
     public void stop() {
         standardServer.removePropertyChangeListener(this);
     }
 
+
+    /**
+     * Service is added.
+     *
+     * @param service tomcat service
+     */
     private void serviceAdded(Service service) {
         Container container = service.getContainer();
         if (container instanceof StandardEngine) {
@@ -104,6 +139,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Service removed.
+     *
+     * @param service tomcat service
+     */
     private void serviceRemoved(Service service) {
         Container container = service.getContainer();
         if (container instanceof StandardEngine) {
@@ -112,6 +152,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Engine is added.
+     *
+     * @param engine tomcat engine
+     */
     private void engineAdded(StandardEngine engine) {
         addContextListener(engine);
         for (Container child : engine.findChildren()) {
@@ -122,6 +167,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Engine is removed.
+     *
+     * @param engine tomcat engine
+     */
     private void engineRemoved(StandardEngine engine) {
         for (Container child : engine.findChildren()) {
             if (child instanceof StandardHost) {
@@ -131,6 +181,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Host is added.
+     *
+     * @param host tomcat host.
+     */
     private void hostAdded(StandardHost host) {
         addContextListener(host);
         host.addLifecycleListener(this);
@@ -142,6 +197,12 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+
+    /**
+     * Host is removed.
+     *
+     * @param host tomcat host
+     */
     private void hostRemoved(StandardHost host) {
         for (Container child : host.findChildren()) {
             if (child instanceof StandardContext) {
@@ -151,11 +212,21 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * New context is added.
+     *
+     * @param context tomcat context
+     */
     private void contextAdded(StandardContext context) {
         // put this class as the first listener so we can process the application before any classes are loaded
         forceFirstLifecycleListener(context);
     }
 
+    /**
+     * Update context lifecycle listeners.
+     *
+     * @param context tomcat context.
+     */
     private void forceFirstLifecycleListener(StandardContext context) {
         LifecycleListener[] listeners = context.findLifecycleListeners();
 
@@ -176,7 +247,7 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         OWBLifecycleListener owbListener = new OWBLifecycleListener();
         context.addLifecycleListener(owbListener);
         context.addContainerListener(owbListener);
-        
+
         // add back all listeners
         for (LifecycleListener listener : listeners) {
             if (listener != this) {
@@ -185,10 +256,18 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Context is removed.
+     *
+     * @param context tomcat context
+     */
     @SuppressWarnings({"UnusedDeclaration"})
     private void contextRemoved(StandardContext context) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void propertyChange(PropertyChangeEvent event) {
         if ("service".equals(event.getPropertyName())) {
             Object oldValue = event.getOldValue();
@@ -223,11 +302,20 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         }
     }
 
+    /**
+     * Setting monitoreable child field.
+     *
+     * @param containerBase host or engine
+     */
+    @SuppressWarnings("unchecked")
     private void addContextListener(ContainerBase containerBase) {
+        boolean accessible = false;
+        Field field = null;
         try {
-            Field field = ContainerBase.class.getDeclaredField("children");
+            field = ContainerBase.class.getDeclaredField("children");
+            accessible = field.isAccessible();
             field.setAccessible(true);
-            Map children = (Map) field.get(containerBase);
+            Map<Object, Object> children = (Map<Object, Object>) field.get(containerBase);
             if (children instanceof GlobalListenerSupport.MoniterableHashMap) {
                 return;
             }
@@ -235,17 +323,24 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
             field.set(containerBase, children);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (field != null) {
+                if (!accessible) {
+                    field.setAccessible(false);
+                }
+            }
         }
 
     }
 
-    @SuppressWarnings({"unchecked"})
-    public static class MoniterableHashMap extends HashMap {
+    //Hashmap for monitoring children of engine and host
+    public static class MoniterableHashMap extends HashMap<Object, Object> {
+        private static final long serialVersionUID = 1L;
         private final Object source;
         private final String propertyName;
         private final PropertyChangeListener listener;
 
-        public MoniterableHashMap(Map m, Object source, String propertyName, PropertyChangeListener listener) {
+        public MoniterableHashMap(Map<Object, Object> m, Object source, String propertyName, PropertyChangeListener listener) {
             super(m);
             this.source = source;
             this.propertyName = propertyName;
