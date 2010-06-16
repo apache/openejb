@@ -28,31 +28,31 @@ public class CountingLatchTest extends TestCase {
     public void testDown() throws Exception {
         CountingLatch latch = new CountingLatch();
 
-        assertTrue(latch.await(0, TimeUnit.MINUTES));
+        assertTrue(latch.await(0, TimeUnit.SECONDS));
 
         latch.countUp();
 
-        assertFalse(latch.await(0, TimeUnit.MINUTES));
+        assertFalse(latch.await(0, TimeUnit.SECONDS));
 
         latch.countUp();
 
-        assertFalse(latch.await(0, TimeUnit.MINUTES));
+        assertFalse(latch.await(0, TimeUnit.SECONDS));
 
         latch.countDown();
 
-        assertFalse(latch.await(0, TimeUnit.MINUTES));
+        assertFalse(latch.await(0, TimeUnit.SECONDS));
 
         latch.countDown();
 
-        assertTrue(latch.await(0, TimeUnit.MINUTES));
+        assertTrue(latch.await(0, TimeUnit.SECONDS));
 
         latch.countUp();
 
-        assertFalse(latch.await(0, TimeUnit.MINUTES));
+        assertFalse(latch.await(0, TimeUnit.SECONDS));
 
         latch.countDown();
 
-        assertTrue(latch.await(0, TimeUnit.MINUTES));
+        assertTrue(latch.await(0, TimeUnit.SECONDS));
     }
 
 }
