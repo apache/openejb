@@ -26,7 +26,7 @@ public class ConnectionPoolTimeoutException extends IOException {
     }
 
     public ConnectionPoolTimeoutException(String s, Exception e) {
-        super(s, e);
+        super(s); // super(s, e) not available in Java 5
     }
 
     public ConnectionPoolTimeoutException(String s) {
