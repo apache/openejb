@@ -17,15 +17,18 @@
  */
 package org.apache.openejb.core.interceptor;
 
-import org.apache.openejb.core.Operation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.interceptor.InvocationContext;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.List;
-import java.util.TreeMap;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
+
+import org.apache.openejb.core.Operation;
+import org.apache.openjpa.lib.log.Log;
 
 /**
  * @version $Rev$ $Date$
@@ -155,24 +158,11 @@ public class ReflectionInvocationContext implements InvocationContext {
             this.args = args;
         }
         public Object invoke() throws Exception {
-            Method targetMethod = getMethod(target.getClass(), method.getName(), method.getParameterTypes());
-            targetMethod.setAccessible(true);
-            Object value = targetMethod.invoke(target, args);
+            
+            Object value = method.invoke(target, args);
             return value;
         }
 
-        private Method getMethod(Class<?> cls, String methodName, Class<?>[] parameterTypes) throws NoSuchMethodException {
-            try {
-                Method method = cls.getDeclaredMethod(methodName, parameterTypes);
-                return method;
-            } catch (NoSuchMethodException e) {
-                if (! (Object.class.equals(cls))) {
-                    return getMethod(cls.getSuperclass(), methodName, parameterTypes);
-                }
-
-                throw e;
-            }
-        }
 
         public String toString() {
             return method.getDeclaringClass().getName() + "." + method.getName();
