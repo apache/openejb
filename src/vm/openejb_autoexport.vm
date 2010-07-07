@@ -72,7 +72,6 @@ $content
     <!--[if IE]><link rel="stylesheet" type="text/css" media="screen, projection" href="openejb.apache.org/ie.css"><![endif]-->
 
     <LINK rel="SHORTCUT ICON" href="http://openejb.apache.org/images/favicon.ico">
-    <SCRIPT language="JavaScript" src="http://cwiki.apache.org/confluence/pages/viewpage.action?spaceKey=OPENEJB&title=functions.js" type="text/javascript"></SCRIPT>
     <META http-equiv="Content-Type" content="text/html;charset=UTF-8">
   </HEAD>
   <BODY>
