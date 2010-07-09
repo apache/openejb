@@ -65,6 +65,10 @@ public class DependsOnTest extends TestCase {
         // containers
         assembler.createContainer(config.configureService(SingletonSessionContainerInfo.class));
 
+        StatelessSessionContainerInfo statelessContainer = config.configureService(StatelessSessionContainerInfo.class);
+        statelessContainer.properties.setProperty("MinSize", "1");
+        assembler.createContainer(statelessContainer);
+        
         actual.clear();
 
         EjbJar ejbJar = new EjbJar();
