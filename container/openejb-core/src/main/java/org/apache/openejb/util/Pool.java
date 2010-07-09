@@ -931,7 +931,12 @@ public class Pool<T> {
         }
 
         @Managed
-        private int getAvailablePermits() {
+        private boolean getStrictPooling() {
+            return !(available instanceof Overdraft);
+        }
+
+        @Managed
+        private long getAvailable() {
             return available.availablePermits();
         }
 
