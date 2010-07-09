@@ -936,7 +936,7 @@ public class Pool<T> {
         }
 
         @Managed
-        private long getAvailable() {
+        private int getAvailablePermits() {
             return available.availablePermits();
         }
 
