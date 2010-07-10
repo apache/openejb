@@ -23,7 +23,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -37,14 +36,14 @@ import javax.ejb.SessionContext;
 import javax.ejb.ConcurrentAccessTimeoutException;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.xml.ws.WebServiceContext;
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 
-import org.apache.openejb.Injection;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.SystemException;
 import org.apache.openejb.ApplicationException;
+import org.apache.openejb.InjectionProcessor;
+import static org.apache.openejb.InjectionProcessor.unwrap;
 import org.apache.openejb.monitoring.StatsInterceptor;
 import org.apache.openejb.monitoring.ObjectNameBuilder;
 import org.apache.openejb.monitoring.ManagedMBean;
@@ -159,57 +158,29 @@ public class StatelessInstanceManager {
     }
 
     private Instance ceateInstance(ThreadContext callContext) throws org.apache.openejb.ApplicationException {
+
         CoreDeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
         Class beanClass = deploymentInfo.getBeanClass();
-        ObjectRecipe objectRecipe = new ObjectRecipe(beanClass);
-        objectRecipe.allow(Option.FIELD_INJECTION);
-        objectRecipe.allow(Option.PRIVATE_PROPERTIES);
-        objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
-        objectRecipe.allow(Option.NAMED_PARAMETERS);
 
         Operation originalOperation = callContext.getCurrentOperation();
         BaseContext.State[] originalAllowedStates = callContext.getCurrentAllowedStates();
 
+        final Data data = (Data) deploymentInfo.getContainerData();
         try {
             Context ctx = deploymentInfo.getJndiEnc();
-            SessionContext sessionContext;
-            // This needs to be synchronized as this code is multi-threaded.
-            // In between the lookup and the bind a bind may take place in another Thread.
-            // This is a fix for GERONIMO-3444
-            synchronized(this){
-                try {
-                    sessionContext = (SessionContext) ctx.lookup("java:comp/EJBContext");
-                } catch (NamingException e1) {
-                    sessionContext = createSessionContext(deploymentInfo);
-                    // TODO: This should work
-                    ctx.bind("java:comp/EJBContext", sessionContext);
+
+            // Create bean instance
+            InjectionProcessor injectionProcessor = new InjectionProcessor(beanClass, deploymentInfo.getInjections(), null, null, unwrap(ctx));
+            try {
+                if (SessionBean.class.isAssignableFrom(beanClass) || beanClass.getMethod("setSessionContext", SessionContext.class) != null) {
+                    callContext.setCurrentOperation(Operation.INJECTION);
+                    injectionProcessor.setProperty("sessionContext", data.sessionContext);
                 }
-            }
-            if (SessionBean.class.isAssignableFrom(beanClass) || hasSetSessionContext(beanClass)) {
-                callContext.setCurrentOperation(Operation.INJECTION);
-                callContext.setCurrentAllowedStates(StatelessContext.getStates());
-                objectRecipe.setProperty("sessionContext", sessionContext);
+            } catch (NoSuchMethodException ignored) {
+                // bean doesn't have a setSessionContext method, so we don't need to inject one
             }
 
-            // This is a fix for GERONIMO-3444
-            synchronized(this){
-                try {
-                    ctx.lookup("java:comp/WebServiceContext");
-                } catch (NamingException e) {
-                    WebServiceContext wsContext = new EjbWsContext(sessionContext);
-                    ctx.bind("java:comp/WebServiceContext", wsContext);
-                }
-            }
-
-            fillInjectionProperties(objectRecipe, beanClass, deploymentInfo, ctx);
-
-            Object bean = objectRecipe.create(beanClass.getClassLoader());
-            Map unsetProperties = objectRecipe.getUnsetProperties();
-            if (unsetProperties.size() > 0) {
-                for (Object property : unsetProperties.keySet()) {
-                    logger.warning("Injection: No such property '" + property + "' in class " + beanClass.getName());
-                }
-            }
+            Object bean = injectionProcessor.createInstance();
 
             HashMap<String, Object> interceptorInstances = new HashMap<String, Object>();
 
@@ -220,19 +191,14 @@ public class StatelessInstanceManager {
             }
 
             for (InterceptorData interceptorData : deploymentInfo.getInstanceScopedInterceptors()) {
-                if (interceptorData.getInterceptorClass().equals(beanClass)) continue;
+                if (interceptorData.getInterceptorClass().equals(beanClass)) {
+                    continue;
+                }
 
                 Class clazz = interceptorData.getInterceptorClass();
-                ObjectRecipe interceptorRecipe = new ObjectRecipe(clazz);
-                interceptorRecipe.allow(Option.FIELD_INJECTION);
-                interceptorRecipe.allow(Option.PRIVATE_PROPERTIES);
-                interceptorRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
-                interceptorRecipe.allow(Option.NAMED_PARAMETERS);
-
-                fillInjectionProperties(interceptorRecipe, clazz, deploymentInfo, ctx);
-
+                InjectionProcessor interceptorInjector = new InjectionProcessor(clazz, deploymentInfo.getInjections(), unwrap(ctx));
                 try {
-                    Object interceptorInstance = interceptorRecipe.create(clazz.getClassLoader());
+                    Object interceptorInstance = interceptorInjector.createInstance();
                     interceptorInstances.put(clazz.getName(), interceptorInstance);
                 } catch (ConstructionException e) {
                     throw new Exception("Failed to create interceptor: " + clazz.getName(), e);
@@ -267,62 +233,6 @@ public class StatelessInstanceManager {
             callContext.setCurrentOperation(originalOperation);
             callContext.setCurrentAllowedStates(originalAllowedStates);
         }
-    }
-
-    private static void fillInjectionProperties(ObjectRecipe objectRecipe, Class clazz, CoreDeploymentInfo deploymentInfo, Context context) {
-        boolean usePrefix = true;
-
-        try {
-            clazz.getConstructor();
-        } catch (NoSuchMethodException e) {
-            // Using constructor injection
-            // xbean can't handle the prefix yet
-            usePrefix = false;
-        }
-
-        for (Injection injection : deploymentInfo.getInjections()) {
-            if (!injection.getTarget().isAssignableFrom(clazz)) continue;
-            try {
-                String jndiName = injection.getJndiName();
-                Object object = context.lookup("java:comp/env/" + jndiName);
-                String prefix;
-                if (usePrefix) {
-                    prefix = injection.getTarget().getName() + "/";
-                } else {
-                    prefix = "";
-                }
-
-                if (object instanceof String) {
-                    String string = (String) object;
-                    // Pass it in raw so it could be potentially converted to
-                    // another data type by an xbean-reflect property editor
-                    objectRecipe.setProperty(prefix + injection.getName(), string);
-                } else {
-                    objectRecipe.setProperty(prefix + injection.getName(), object);
-                }
-            } catch (NamingException e) {
-                logger.warning("Injection data not found in enc: jndiName='" + injection.getJndiName() + "', target=" + injection.getTarget() + "/" + injection.getName());
-            }
-        }
-    }
-
-    private boolean hasSetSessionContext(Class beanClass) {
-        try {
-            beanClass.getMethod("setSessionContext", SessionContext.class);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
-
-    private SessionContext createSessionContext(CoreDeploymentInfo deploymentInfo) {
-        final Data data = (Data) deploymentInfo.getContainerData();
-        
-        return new StatelessContext(securityService, new Flushable(){
-            public void flush() throws IOException {
-                data.getPool().flush();
-            }
-        });
     }
 
     /**
@@ -392,12 +302,12 @@ public class StatelessInstanceManager {
 
     }
 
-    public void deploy(CoreDeploymentInfo deploymentInfo) {
+    public void deploy(CoreDeploymentInfo deploymentInfo) throws OpenEJBException {
         Options options = new Options(deploymentInfo.getProperties());
 
-        Duration accessTimeout = getDuration(options, "Timeout", this.accessTimeout, Duration.Unit.milliseconds);
-        accessTimeout = getDuration(options, "AccessTimeout", accessTimeout, Duration.Unit.milliseconds);
-        Duration closeTimeout = getDuration(options, "CloseTimeout", this.closeTimeout, Duration.Unit.minutes);
+        Duration accessTimeout = getDuration(options, "Timeout", this.accessTimeout, TimeUnit.MILLISECONDS);
+        accessTimeout = getDuration(options, "AccessTimeout", accessTimeout, TimeUnit.MILLISECONDS);
+        Duration closeTimeout = getDuration(options, "CloseTimeout", this.closeTimeout, TimeUnit.MINUTES);
 
         final ObjectRecipe recipe = PassthroughFactory.recipe(new Pool.Builder(poolBuilder));
         recipe.allow(Option.CASE_INSENSITIVE_FACTORY);
@@ -406,15 +316,24 @@ public class StatelessInstanceManager {
         recipe.setAllProperties(deploymentInfo.getProperties());
         final Pool.Builder builder = (Pool.Builder) recipe.create();
 
-        setDefault(builder.getMaxAge(), Duration.Unit.hours);
-        setDefault(builder.getIdleTimeout(), Duration.Unit.minutes);
-        setDefault(builder.getInterval(), Duration.Unit.minutes);
+        setDefault(builder.getMaxAge(), TimeUnit.HOURS);
+        setDefault(builder.getIdleTimeout(), TimeUnit.MINUTES);
+        setDefault(builder.getInterval(), TimeUnit.MINUTES);
 
         builder.setSupplier(new StatelessSupplier(deploymentInfo));
         builder.setExecutor(executor);
-        
+
+
         Data data = new Data(builder.build(), accessTimeout, closeTimeout);
         deploymentInfo.setContainerData(data);
+
+        try {
+            final Context context = deploymentInfo.getJndiEnc();
+            context.bind("comp/EJBContext", data.sessionContext);
+            context.bind("comp/WebServiceContext", new EjbWsContext(data.sessionContext));
+        } catch (NamingException e) {
+            throw new OpenEJBException("Failed to bind EJBContext", e);
+        }
 
         final int min = builder.getMin();
         long maxAge = builder.getMaxAge().getTime(TimeUnit.MILLISECONDS);
@@ -466,25 +385,15 @@ public class StatelessInstanceManager {
         data.getPool().start();
     }
 
-    private void setDefault(Duration duration, Duration.Unit unit) {
-        if (duration.getUnit() == null) convert(duration, unit);
+    private void setDefault(Duration duration, TimeUnit unit) {
+        if (duration.getUnit() == null) duration.setUnit(unit);
     }
 
-    private Duration getDuration(Options options, String property, Duration defaultValue, Duration.Unit defaultUnit) {
+    private Duration getDuration(Options options, String property, Duration defaultValue, TimeUnit defaultUnit) {
         String s = options.get(property, defaultValue.toString());
         Duration duration = new Duration(s);
-        if (duration.getUnit() == null) convert(duration, defaultUnit);
+        if (duration.getUnit() == null) duration.setUnit(defaultUnit);
         return duration;
-    }
-
-    /**
-     * Always assumes the duration.getUnit() is null implying that
-     * the duration.getTime() should be treated as the specified unit.
-     */
-    private void convert(Duration duration, Duration.Unit unit) {
-        Duration converted = new Duration(duration.getTime() + " " + unit);
-        duration.setTime(converted.getTime());
-        duration.setUnit(converted.getUnit());
     }
 
     private Instance createInstance(CoreDeploymentInfo deploymentInfo) {
@@ -525,16 +434,22 @@ public class StatelessInstanceManager {
         deploymentInfo.setContainerData(null);
     }
 
-    private static final class Data {
+    private final class Data {
         private final Pool<Instance> pool;
         private final Duration accessTimeout;
         private final Duration closeTimeout;
         private final List<ObjectName> jmxNames = new ArrayList<ObjectName>();
+        private final SessionContext sessionContext;
 
         private Data(Pool<Instance> pool, Duration accessTimeout, Duration closeTimeout) {
             this.pool = pool;
             this.accessTimeout = accessTimeout;
             this.closeTimeout = closeTimeout;
+            this.sessionContext = new StatelessContext(securityService, new Flushable() {
+                public void flush() throws IOException {
+                    getPool().flush();
+                }
+            });
         }
 
         public Duration getAccessTimeout() {
