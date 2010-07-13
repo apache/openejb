@@ -305,9 +305,9 @@ public class StatelessInstanceManager {
     public void deploy(CoreDeploymentInfo deploymentInfo) throws OpenEJBException {
         Options options = new Options(deploymentInfo.getProperties());
 
-        Duration accessTimeout = getDuration(options, "Timeout", this.accessTimeout, TimeUnit.MILLISECONDS);
-        accessTimeout = getDuration(options, "AccessTimeout", accessTimeout, TimeUnit.MILLISECONDS);
-        Duration closeTimeout = getDuration(options, "CloseTimeout", this.closeTimeout, TimeUnit.MINUTES);
+        Duration accessTimeout = getDuration(options, "Timeout", this.accessTimeout, Duration.Unit.milliseconds);
+        accessTimeout = getDuration(options, "AccessTimeout", accessTimeout, Duration.Unit.milliseconds);
+        Duration closeTimeout = getDuration(options, "CloseTimeout", this.closeTimeout, Duration.Unit.minutes);
 
         final ObjectRecipe recipe = PassthroughFactory.recipe(new Pool.Builder(poolBuilder));
         recipe.allow(Option.CASE_INSENSITIVE_FACTORY);
@@ -316,9 +316,9 @@ public class StatelessInstanceManager {
         recipe.setAllProperties(deploymentInfo.getProperties());
         final Pool.Builder builder = (Pool.Builder) recipe.create();
 
-        setDefault(builder.getMaxAge(), TimeUnit.HOURS);
-        setDefault(builder.getIdleTimeout(), TimeUnit.MINUTES);
-        setDefault(builder.getInterval(), TimeUnit.MINUTES);
+        setDefault(builder.getMaxAge(), Duration.Unit.hours);
+        setDefault(builder.getIdleTimeout(), Duration.Unit.minutes);
+        setDefault(builder.getInterval(), Duration.Unit.minutes);
 
         builder.setSupplier(new StatelessSupplier(deploymentInfo));
         builder.setExecutor(executor);
@@ -385,15 +385,25 @@ public class StatelessInstanceManager {
         data.getPool().start();
     }
 
-    private void setDefault(Duration duration, TimeUnit unit) {
-        if (duration.getUnit() == null) duration.setUnit(unit);
+    private void setDefault(Duration duration, Duration.Unit unit) {
+        if (duration.getUnit() == null) convert(duration, unit);
     }
 
-    private Duration getDuration(Options options, String property, Duration defaultValue, TimeUnit defaultUnit) {
+    private Duration getDuration(Options options, String property, Duration defaultValue, Duration.Unit defaultUnit) {
         String s = options.get(property, defaultValue.toString());
         Duration duration = new Duration(s);
-        if (duration.getUnit() == null) duration.setUnit(defaultUnit);
+        if (duration.getUnit() == null) convert(duration, defaultUnit);
         return duration;
+    }
+
+    /**
+     * Always assumes the duration.getUnit() is null implying that
+     * the duration.getTime() should be treated as the specified unit.
+     */
+    private void convert(Duration duration, Duration.Unit unit) {
+        Duration converted = new Duration(duration.getTime() + " " + unit);
+        duration.setTime(converted.getTime());
+        duration.setUnit(converted.getUnit());
     }
 
     private Instance createInstance(CoreDeploymentInfo deploymentInfo) {
