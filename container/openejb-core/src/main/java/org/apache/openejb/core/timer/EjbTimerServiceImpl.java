@@ -19,6 +19,7 @@ package org.apache.openejb.core.timer;
 import org.apache.openejb.core.BaseContext;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.transaction.TransactionType;
+import org.apache.openejb.InterfaceType;
 import org.apache.openejb.RpcContainer;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.DeploymentInfo;
@@ -26,6 +27,7 @@ import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 import org.apache.openejb.loader.SystemInstance;
 
+import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.ejb.Timer;
 import javax.transaction.Status;
@@ -38,14 +40,13 @@ import java.util.Iterator;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.lang.reflect.Method;
 
 public class EjbTimerServiceImpl implements EjbTimerService {
     private static final Logger log = Logger.getInstance(LogCategory.TIMER, "org.apache.openejb.util.resources");
 
     private final TransactionManager transactionManager;
-    private final DeploymentInfo deployment;
+    final DeploymentInfo deployment;
     private final boolean transacted;
     private final int retryAttempts;
 
@@ -81,7 +82,6 @@ public class EjbTimerServiceImpl implements EjbTimerService {
         TransactionType transactionType = deployment.getTransactionType(deployment.getEjbTimeout());
         this.transacted = transactionType == TransactionType.Required || transactionType == TransactionType.RequiresNew;
         this.retryAttempts = retryAttempts;
-
     }
 
     public void start() throws TimerStoreException {
@@ -248,7 +248,8 @@ public class EjbTimerServiceImpl implements EjbTimerService {
      * Insure that timer methods can be invoked for the current operation on this Context.
      */
     private void checkState() throws IllegalStateException {
-        if (!BaseContext.isTimerMethodAllowed()) {
+        final BaseContext context = (BaseContext) deployment.get(EJBContext.class);
+        if (!context.isTimerMethodAllowed()) {
             throw new IllegalStateException("TimerService method not permitted for current operation " + ThreadContext.getThreadContext().getCurrentOperation().name());
         }
     }
@@ -282,7 +283,7 @@ public class EjbTimerServiceImpl implements EjbTimerService {
                 try {
                     RpcContainer container = (RpcContainer) deployment.getContainer();
                     Method ejbTimeout = deployment.getEjbTimeout();
-                    container.invoke(deployment.getDeploymentID(), ejbTimeout.getDeclaringClass(), ejbTimeout, new Object[] {timer}, timerData.getPrimaryKey());
+                    container.invoke(deployment.getDeploymentID(), InterfaceType.TIMEOUT, ejbTimeout.getDeclaringClass(), ejbTimeout, new Object[] { timer }, timerData.getPrimaryKey());
                 } catch (RuntimeException e) {
                     // exception from a timer does not necessairly mean failure
                     log.warning("RuntimeException from ejbTimeout on " + deployment.getDeploymentID(), e);

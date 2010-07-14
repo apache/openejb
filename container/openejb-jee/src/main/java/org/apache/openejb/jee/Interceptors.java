@@ -28,22 +28,37 @@ import java.util.LinkedHashMap;
 
 
 /**
- * The interceptorsType element declares one or more interceptor
- * classes used by components within this ejb-jar.  The declaration
- * consists of :
- * <p/>
- * - An optional description.
- * - One or more interceptor elements.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for interceptorsType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="interceptorsType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="interceptor" type="{http://java.sun.com/xml/ns/javaee}interceptorType" maxOccurs="unbounded"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "interceptorsType", propOrder = {
-        "description",
+        "descriptions",
         "interceptor"
         })
 public class Interceptors {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
 
     @XmlTransient
     protected Map<String,Interceptor> interceptors = new LinkedHashMap<String,Interceptor>();
@@ -53,11 +68,17 @@ public class Interceptors {
     @XmlID
     protected String id;
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getId() {

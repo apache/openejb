@@ -32,9 +32,48 @@ import java.util.Collections;
 import java.util.Collection;
 import java.util.Map;
 
+
+/**
+ * application-client_6.xsd
+ *
+ * <p>Java class for application-clientType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="application-clientType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="module-name" type="{http://java.sun.com/xml/ns/javaee}string" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
+ *         &lt;element name="env-entry" type="{http://java.sun.com/xml/ns/javaee}env-entryType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="ejb-ref" type="{http://java.sun.com/xml/ns/javaee}ejb-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}service-refGroup"/>
+ *         &lt;element name="resource-ref" type="{http://java.sun.com/xml/ns/javaee}resource-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="resource-env-ref" type="{http://java.sun.com/xml/ns/javaee}resource-env-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="message-destination-ref" type="{http://java.sun.com/xml/ns/javaee}message-destination-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="persistence-unit-ref" type="{http://java.sun.com/xml/ns/javaee}persistence-unit-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="post-construct" type="{http://java.sun.com/xml/ns/javaee}lifecycle-callbackType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="pre-destroy" type="{http://java.sun.com/xml/ns/javaee}lifecycle-callbackType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="callback-handler" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType" minOccurs="0"/>
+ *         &lt;element name="message-destination" type="{http://java.sun.com/xml/ns/javaee}message-destinationType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="data-source" type="{http://java.sun.com/xml/ns/javaee}data-sourceType" maxOccurs="unbounded" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="version" use="required" type="{http://java.sun.com/xml/ns/javaee}dewey-versionType" fixed="6" />
+ *       &lt;attribute name="metadata-complete" type="{http://www.w3.org/2001/XMLSchema}boolean" />
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
+ */
 @XmlRootElement(name = "application-client")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "application-clientType", propOrder = {
+        "moduleName",
         "descriptions",
         "displayNames",
         "icon",
@@ -50,10 +89,14 @@ import java.util.Map;
         "postConstruct",
         "preDestroy",
         "callbackHandler",
-        "messageDestination"
+        "messageDestination",
+        "dataSource"
+
 })
 public class ApplicationClient implements JndiConsumer {
 
+    @XmlElement(name = "module-name", required = true)
+    protected String moduleName;
     @XmlTransient
     protected TextMap description = new TextMap();
     @XmlTransient
@@ -87,7 +130,9 @@ public class ApplicationClient implements JndiConsumer {
     protected String callbackHandler;
     @XmlElement(name = "message-destination", required = true)
     protected KeyedCollection<String,MessageDestination> messageDestination;
-
+    @XmlElement(name = "data-source")
+    protected KeyedCollection<String,DataSource> dataSource;
+ 
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -111,6 +156,14 @@ public class ApplicationClient implements JndiConsumer {
             return null;
         }
         return mainClass.replaceAll(".*\\.","");
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     @XmlElement(name = "description", required = true)
@@ -281,6 +334,20 @@ public class ApplicationClient implements JndiConsumer {
             persistenceUnitRef = new KeyedCollection<String,PersistenceUnitRef>();
         }
         return this.persistenceUnitRef.toMap();
+    }
+
+    public Collection<DataSource> getDataSource() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String,DataSource>();
+        }
+        return this.dataSource;
+    }
+
+    public Map<String,DataSource> getDataSourceMap() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String,DataSource>();
+        }
+        return this.dataSource.toMap();
     }
 
     public List<LifecycleCallback> getPostConstruct() {

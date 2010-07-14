@@ -19,13 +19,13 @@ package org.apache.openejb.config;
 import org.apache.openejb.jee.Connector;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.net.URL;
 
 /**
  * @version $Rev$ $Date$

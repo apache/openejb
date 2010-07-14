@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 
 import javax.naming.InitialContext;
 import javax.ejb.SessionContext;
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Stack;
@@ -34,7 +35,7 @@ import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
 import org.apache.openejb.jee.SingletonBean;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.EmptyType;
+import org.apache.openejb.jee.Empty;
 
 /**
  * @version $Revision$ $Date$
@@ -120,7 +121,7 @@ public class SingletonContainerTest extends TestCase {
         bean.addBusinessRemote(RemoteWidget.class.getName());
         bean.addPostConstruct("init");
         bean.addPreDestroy("destroy");
-        bean.setLocalBean(new EmptyType());
+        bean.setLocalBean(new Empty());
 
         EjbJar ejbJar = new EjbJar();
         ejbJar.addEnterpriseBean(bean);
@@ -157,6 +158,7 @@ public class SingletonContainerTest extends TestCase {
             WidgetBean.lifecycle.push(Lifecycle.CONSTRUCTOR);
         }
 
+        @Resource
         public void setSessionContext(SessionContext sessionContext) {
             WidgetBean.lifecycle.push(Lifecycle.INJECTION);
         }

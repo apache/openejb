@@ -25,28 +25,24 @@
 package org.apache.openejb.jee;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
- * 
- *                 
- *                 The "navigation-case" element describes a particular 
- *                 combination of conditions that must match for this case to 
- *                 be executed, and the view id of the component tree that 
- *                 should be selected next.
- *                 
- *             
- * 
+ * web-facesconfig_2_0.xsd
+ *
  * <p>Java class for faces-config-navigation-caseType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
@@ -58,8 +54,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *       &lt;sequence>
  *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
  *         &lt;element name="from-action" type="{http://java.sun.com/xml/ns/javaee}faces-config-from-actionType" minOccurs="0"/>
- *         &lt;element name="from-outcome" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="to-view-id" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="from-outcome" type="{http://java.sun.com/xml/ns/javaee}string" minOccurs="0"/>
+ *         &lt;element name="if" type="{http://java.sun.com/xml/ns/javaee}faces-config-ifType" minOccurs="0"/>
+ *         &lt;element name="to-view-id" type="{http://java.sun.com/xml/ns/javaee}faces-config-valueType"/>
  *         &lt;element name="redirect" type="{http://java.sun.com/xml/ns/javaee}faces-config-redirectType" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
@@ -67,29 +64,35 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
+ 48 *
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "faces-config-navigation-caseType", propOrder = {
-    "description",
-    "displayName",
+    "descriptions",
+    "displayNames",
     "icon",
     "fromAction",
     "fromOutcome",
+        "_if",
     "toViewId",
     "redirect"
 })
 public class FacesNavigationCase {
 
-    protected List<DescriptionType> description;
-    @XmlElement(name = "display-name")
-    protected List<java.lang.String> displayName;
-    protected List<Icon> icon;
+    @XmlTransient
+    protected TextMap description = new TextMap();
+    @XmlTransient
+    protected TextMap displayName = new TextMap();
+    @XmlElement(name = "icon", required = true)
+    protected LocalCollection<Icon> icon = new LocalCollection<Icon>();
     @XmlElement(name = "from-action")
     protected FacesFromAction fromAction;
     @XmlElement(name = "from-outcome")
     protected java.lang.String fromOutcome;
+    //this is a faces EL expression
+    @XmlElement(name = "if")
+    protected String _if;
     @XmlElement(name = "to-view-id", required = true)
     protected java.lang.String toViewId;
     protected FacesRedirect redirect;
@@ -99,91 +102,48 @@ public class FacesNavigationCase {
     @XmlSchemaType(name = "ID")
     protected java.lang.String id;
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the description property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getDescription().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link DescriptionType }
-     * 
-     * 
-     */
-    public List<DescriptionType> getDescription() {
-        if (description == null) {
-            description = new ArrayList<DescriptionType>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
     }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the displayName property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getDisplayName().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link java.lang.String }
-     * 
-     * 
-     */
-    public List<java.lang.String> getDisplayName() {
-        if (displayName == null) {
-            displayName = new ArrayList<java.lang.String>();
-        }
-        return this.displayName;
+    public void setDescriptions(Text[] text) {
+        description.set(text);
     }
 
-    /**
-     * Gets the value of the icon property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the icon property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getIcon().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Icon }
-     * 
-     * 
-     */
-    public List<Icon> getIcon() {
+    public String getDescription() {
+        return description.get();
+    }
+
+    @XmlElement(name = "display-name", required = true)
+    public Text[] getDisplayNames() {
+        return displayName.toArray();
+    }
+
+    public void setDisplayNames(Text[] text) {
+        displayName.set(text);
+    }
+
+    public String getDisplayName() {
+        return displayName.get();
+    }
+
+    public Collection<Icon> getIcons() {
         if (icon == null) {
-            icon = new ArrayList<Icon>();
+            icon = new LocalCollection<Icon>();
         }
-        return this.icon;
+        return icon;
+    }
+
+    public Map<String,Icon> getIconMap() {
+        if (icon == null) {
+            icon = new LocalCollection<Icon>();
+        }
+        return icon.toMap();
+    }
+
+    public Icon getIcon() {
+        return icon.getLocal();
     }
 
     /**
@@ -232,6 +192,30 @@ public class FacesNavigationCase {
      */
     public void setFromOutcome(java.lang.String value) {
         this.fromOutcome = value;
+    }
+
+    /**
+     * Gets the value of the if property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getIf() {
+        return _if;
+    }
+
+    /**
+     * Sets the value of the if property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setIf(String value) {
+        this._if = value;
     }
 
     /**

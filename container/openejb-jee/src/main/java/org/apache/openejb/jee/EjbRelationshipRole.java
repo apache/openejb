@@ -23,54 +23,44 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * The ejb-relationship-roleType describes a role within a
- * relationship. There are two roles in each relationship.
- * <p/>
- * The ejb-relationship-roleType contains an optional
- * description; an optional name for the relationship role; a
- * specification of the multiplicity of the role; an optional
- * specification of cascade-delete functionality for the role;
- * the role source; and a declaration of the cmr-field, if any,
- * by means of which the other side of the relationship is
- * accessed from the perspective of the role source.
- * <p/>
- * The multiplicity and role-source element are mandatory.
- * <p/>
- * The relationship-role-source element designates an entity
- * bean by means of an ejb-name element. For bidirectional
- * relationships, both roles of a relationship must declare a
- * relationship-role-source element that specifies a cmr-field
- * in terms of which the relationship is accessed. The lack of
- * a cmr-field element in an ejb-relationship-role specifies
- * that the relationship is unidirectional in navigability and
- * the entity bean that participates in the relationship is
- * "not aware" of the relationship.
- * <p/>
- * Example:
- * <p/>
- * <ejb-relation>
- * <ejb-relation-name>Product-LineItem</ejb-relation-name>
- * <ejb-relationship-role>
- * <ejb-relationship-role-name>product-has-lineitems
- * </ejb-relationship-role-name>
- * <multiplicity>One</multiplicity>
- * <relationship-role-source>
- * <ejb-name>ProductEJB</ejb-name>
- * </relationship-role-source>
- * </ejb-relationship-role>
- * </ejb-relation>
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for ejb-relationship-roleType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="ejb-relationship-roleType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="ejb-relationship-role-name" type="{http://java.sun.com/xml/ns/javaee}string" minOccurs="0"/>
+ *         &lt;element name="multiplicity" type="{http://java.sun.com/xml/ns/javaee}multiplicityType"/>
+ *         &lt;element name="cascade-delete" type="{http://java.sun.com/xml/ns/javaee}emptyType" minOccurs="0"/>
+ *         &lt;element name="relationship-role-source" type="{http://java.sun.com/xml/ns/javaee}relationship-role-sourceType"/>
+ *         &lt;element name="cmr-field" type="{http://java.sun.com/xml/ns/javaee}cmr-fieldType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ejb-relationship-roleType", propOrder = {
-        "description",
+        "descriptions",
         "ejbRelationshipRoleName",
         "multiplicity",
         "cascadeDelete",
@@ -79,14 +69,14 @@ import java.util.List;
         })
 public class EjbRelationshipRole {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "ejb-relationship-role-name")
     protected String ejbRelationshipRoleName;
     @XmlElement(required = true)
     protected Multiplicity multiplicity;
     @XmlElement(name = "cascade-delete")
-    protected EmptyType cascadeDelete;
+    protected Empty cascadeDelete;
     @XmlElement(name = "relationship-role-source", required = true)
     protected RelationshipRoleSource relationshipRoleSource;
     @XmlElement(name = "cmr-field")
@@ -96,11 +86,17 @@ public class EjbRelationshipRole {
     @XmlID
     protected String id;
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getEjbRelationshipRoleName() {
@@ -124,7 +120,7 @@ public class EjbRelationshipRole {
     }
 
     public void setCascadeDelete(boolean value) {
-        this.cascadeDelete = value ? new EmptyType() : null;
+        this.cascadeDelete = value ? new Empty() : null;
     }
 
     public RelationshipRoleSource getRelationshipRoleSource() {

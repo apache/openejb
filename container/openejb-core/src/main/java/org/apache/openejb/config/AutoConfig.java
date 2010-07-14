@@ -17,65 +17,64 @@
  */
 package org.apache.openejb.config;
 
-import static org.apache.openejb.config.ServiceUtils.NONE;
-import static org.apache.openejb.config.ServiceUtils.ANY;
-
-import static java.util.Arrays.asList;
-
-import static org.apache.openejb.config.ServiceUtils.hasServiceProvider;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.config.sys.Resource;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.ResourceInfo;
-import org.apache.openejb.util.LinkResolver;
-import org.apache.openejb.util.UniqueDefaultLinkResolver;
-import org.apache.openejb.jee.MessageDrivenBean;
+import org.apache.openejb.config.sys.Resource;
 import org.apache.openejb.jee.ActivationConfig;
-import org.apache.openejb.jee.EnterpriseBean;
-import org.apache.openejb.jee.MessageDestination;
-import org.apache.openejb.jee.AssemblyDescriptor;
-import org.apache.openejb.jee.PersistenceType;
-import org.apache.openejb.jee.SessionType;
-import org.apache.openejb.jee.MessageDestinationRef;
-import org.apache.openejb.jee.JndiReference;
-import org.apache.openejb.jee.ResourceRef;
-import org.apache.openejb.jee.JndiConsumer;
-import org.apache.openejb.jee.Connector;
-import org.apache.openejb.jee.ResourceAdapter;
-import org.apache.openejb.jee.OutboundResourceAdapter;
-import org.apache.openejb.jee.ConnectionDefinition;
-import org.apache.openejb.jee.InboundResource;
-import org.apache.openejb.jee.MessageListener;
+import org.apache.openejb.jee.ActivationConfigProperty;
 import org.apache.openejb.jee.AdminObject;
+import org.apache.openejb.jee.AssemblyDescriptor;
+import org.apache.openejb.jee.ConnectionDefinition;
+import org.apache.openejb.jee.Connector;
+import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.InboundResourceadapter;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.JndiReference;
+import org.apache.openejb.jee.MessageDestination;
+import org.apache.openejb.jee.MessageDestinationRef;
+import org.apache.openejb.jee.MessageDrivenBean;
+import org.apache.openejb.jee.MessageListener;
+import org.apache.openejb.jee.OutboundResourceAdapter;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceRef;
-import org.apache.openejb.jee.ActivationConfigProperty;
+import org.apache.openejb.jee.PersistenceType;
+import org.apache.openejb.jee.ResourceAdapter;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.jpa.unit.Persistence;
 import org.apache.openejb.jee.jpa.unit.PersistenceUnit;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.jee.oejb3.ResourceLink;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.util.LinkResolver;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
-import org.apache.openejb.util.URISupport;
 import org.apache.openejb.util.SuperProperties;
-import static org.apache.openejb.util.Join.join;
+import org.apache.openejb.util.URISupport;
+import org.apache.openejb.util.UniqueDefaultLinkResolver;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.Iterator;
-import java.net.URI;
+import java.util.TreeSet;
+
+import static java.util.Arrays.asList;
+import static org.apache.openejb.config.ServiceUtils.ANY;
+import static org.apache.openejb.config.ServiceUtils.NONE;
+import static org.apache.openejb.config.ServiceUtils.hasServiceProvider;
+import static org.apache.openejb.util.Join.join;
 
 public class AutoConfig implements DynamicDeployer {
 
@@ -1628,7 +1627,7 @@ public class AutoConfig implements DynamicDeployer {
                     }
                 }
 
-                InboundResource inbound = resourceAdapter.getInboundResourceAdapter();
+                InboundResourceadapter inbound = resourceAdapter.getInboundResourceAdapter();
                 if (inbound != null) {
                     for (MessageListener messageListener : inbound.getMessageAdapter().getMessageListener()) {
                         String type = messageListener.getMessageListenerType();

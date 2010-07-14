@@ -23,7 +23,7 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.DeploymentContext;
+import org.apache.openejb.core.ModuleContext;
 import org.apache.openejb.core.cmp.CmpUtil;
 import org.apache.openejb.util.Index;
 import org.apache.openejb.util.Messages;
@@ -47,15 +47,14 @@ import java.util.concurrent.TimeUnit;
 class EnterpriseBeanBuilder {
     protected static final Messages messages = new Messages("org.apache.openejb.util.resources");
     private final EnterpriseBeanInfo bean;
-    private final String moduleId;
     private final List<String> defaultInterceptors;
     private final BeanType ejbType;
-    private final ClassLoader cl;
     private List<Exception> warnings = new ArrayList<Exception>();
+    private ModuleContext moduleContext;
 
-    public EnterpriseBeanBuilder(ClassLoader cl, EnterpriseBeanInfo bean, String moduleId, List<String> defaultInterceptors) {
+    public EnterpriseBeanBuilder(EnterpriseBeanInfo bean, List<String> defaultInterceptors, ModuleContext moduleContext) {
+        this.moduleContext = moduleContext;
         this.bean = bean;
-        this.moduleId = moduleId;
         this.defaultInterceptors = defaultInterceptors;
 
         if (bean.type == EnterpriseBeanInfo.STATEFUL) {
@@ -74,7 +73,6 @@ class EnterpriseBeanBuilder {
         } else {
             throw new UnsupportedOperationException("No building support for bean type: " + bean);
         }
-        this.cl = cl;
     }
 
     public Object build() throws OpenEJBException {
@@ -120,47 +118,30 @@ class EnterpriseBeanBuilder {
         final String transactionType = bean.transactionType;
 
         // determind the injections
-        InjectionBuilder injectionBuilder = new InjectionBuilder(cl);
+        InjectionBuilder injectionBuilder = new InjectionBuilder(moduleContext.getClassLoader());
         List<Injection> injections = injectionBuilder.buildInjections(bean.jndiEnc);
 
         // build the enc
-        JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, injections, transactionType, moduleId, cl);
+        JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, injections, transactionType, moduleContext.getId(), moduleContext.getClassLoader());
         Context root = jndiEncBuilder.build();
 
-        DeploymentContext deploymentContext = new DeploymentContext(bean.ejbDeploymentId, cl, root);
         CoreDeploymentInfo deployment;
         if (BeanType.MESSAGE_DRIVEN != ejbType) {
-            deployment = new CoreDeploymentInfo(deploymentContext, ejbClass, home, remote, localhome, local, serviceEndpoint, businessLocals, businessRemotes, primaryKey, ejbType);
+            deployment = new CoreDeploymentInfo(bean.ejbDeploymentId, root, moduleContext, ejbClass, home, remote, localhome, local, serviceEndpoint, businessLocals, businessRemotes, primaryKey, ejbType);
         } else {
             MessageDrivenBeanInfo messageDrivenBeanInfo = (MessageDrivenBeanInfo) bean;
             Class mdbInterface = loadClass(messageDrivenBeanInfo.mdbInterface, "classNotFound.mdbInterface");
-            deployment = new CoreDeploymentInfo(deploymentContext, ejbClass, mdbInterface, messageDrivenBeanInfo.activationProperties);
+            deployment = new CoreDeploymentInfo(bean.ejbDeploymentId, root, moduleContext, ejbClass, mdbInterface, messageDrivenBeanInfo.activationProperties);
             deployment.setDestinationId(messageDrivenBeanInfo.destinationId);
         }
 
-        deployment.setEjbName(bean.ejbName);
+        deployment.getProperties().putAll(bean.properties);
 
-        deployment.setModuleId(moduleId);
+        deployment.setEjbName(bean.ejbName);
 
         deployment.setRunAs(bean.runAs);
 
-        for (SecurityRoleReferenceInfo roleReferenceInfo : bean.securityRoleReferences) {
-            String alias = roleReferenceInfo.roleName;
-            String actualName = roleReferenceInfo.roleLink;
-
-            // EJB 3.0 - 17.2.5.3
-            // In the absence of this linking step, any security role name as used in the code will be assumed to
-            // correspond to a security role of the same name.
-            if (actualName == null){
-                actualName = alias;
-            }
-
-            deployment.addSecurityRoleReference(alias, actualName);
-        }
-
         deployment.getInjections().addAll(injections);
-
-        deployment.getProperties().putAll(bean.properties);
 
         // ejbTimeout
         deployment.setEjbTimeout(getTimeout(ejbClass, bean.timeoutMethod));
@@ -250,18 +231,6 @@ class EnterpriseBeanBuilder {
                 deployment.setAbstractSchemaName(entity.abstractSchemaName);
 
                 for (QueryInfo query : entity.queries) {
-                    List<Method> finderMethods = new ArrayList<Method>();
-
-                    if (home != null) {
-                        finderMethods.addAll(matchingMethods(query.method, home));
-                    }
-                    if (localhome != null) {
-                        finderMethods.addAll(matchingMethods(query.method, localhome));
-                    }
-
-                    for (Method method : finderMethods) {
-                        deployment.addQuery(method, query.queryStatement);
-                    }
 
                     if (query.remoteResultType) {
                         StringBuilder methodSignature = new StringBuilder();
@@ -280,7 +249,6 @@ class EnterpriseBeanBuilder {
                     }
 
                 }
-                deployment.setCmrFields(entity.cmpFieldNames.toArray(new String[]{}));
 
                 if (entity.primKeyField != null) {
                     deployment.setPrimaryKeyField(entity.primKeyField);
@@ -389,8 +357,8 @@ class EnterpriseBeanBuilder {
 //            clazz.getInterfaces();
             return clazz;
         } catch (NoClassDefFoundError e) {
-            if (clazz.getClassLoader() != cl) {
-                String message = SafeToolkit.messages.format("cl0008", className, clazz.getClassLoader(), cl, e.getMessage());
+            if (clazz.getClassLoader() != moduleContext.getClassLoader()) {
+                String message = SafeToolkit.messages.format("cl0008", className, clazz.getClassLoader(), moduleContext.getClassLoader(), e.getMessage());
                 throw new OpenEJBException(AssemblerTool.messages.format(messageCode, className, bean.ejbDeploymentId, message), e);
             } else {
                 String message = SafeToolkit.messages.format("cl0009", className, clazz.getClassLoader(), e.getMessage());
@@ -401,7 +369,7 @@ class EnterpriseBeanBuilder {
 
     private Class load(String className, String messageCode) throws OpenEJBException {
         try {
-            return Class.forName(className, true, cl);
+            return Class.forName(className, true, moduleContext.getClassLoader());
         } catch (ClassNotFoundException e) {
             String message = SafeToolkit.messages.format("cl0007", className, bean.codebase);
             throw new OpenEJBException(AssemblerTool.messages.format(messageCode, className, bean.ejbDeploymentId, message));

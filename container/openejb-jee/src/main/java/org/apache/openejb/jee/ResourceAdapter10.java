@@ -17,37 +17,48 @@
 package org.apache.openejb.jee;
 
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The resourceadapterType specifies information about the
- * resource adapter. The information includes fully qualified
- * resource adapter Java class name, configuration properties,
- * information specific to the implementation of the resource
- * adapter library as specified through the
- * outbound-resourceadapter and inbound-resourceadapter
- * elements, and an optional set of administered objects.
+ * connector_1_6.xsd
+ * Well, actually connector 1.0 dtd
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "resourceadapterType", propOrder = {
-//        "managedConnectionFactoryClass",
-//        "connectionFactoryInterface",
-//        "connectionFactoryImplClass",
-//        "connectionInterface",
-//        "connectionImplClass",
-//        "transactionSupport",
-//        "configProperty",
-//        "authenticationMechanism",
-//        "reauthenticationSupport",
-//        "securityPermission"
-//})
-public class ResourceAdapter10 extends ResourceAdapterBase {
+@XmlType(name = "resourceadapterType", propOrder = {
+        "managedConnectionFactoryClass",
+        "connectionFactoryInterface",
+        "connectionFactoryImplClass",
+        "connectionInterface",
+        "connectionImplClass",
+        "transactionSupport",
+        "configProperty",
+        "authenticationMechanism",
+        "reauthenticationSupport",
+        "securityPermission"
+})
+public class ResourceAdapter10 {
 
-    private ConnectionDefinition connectionDefinition = new ConnectionDefinition();
+
+    @XmlElement(name = "transaction-support")
+    private TransactionSupportType transactionSupport;
+    @XmlElement(name = "authentication-mechanism")
+    private List<AuthenticationMechanism> authenticationMechanism;
+    @XmlElement(name = "reauthentication-support")
+    private Boolean reauthenticationSupport;
+    @XmlElement(name = "security-permission")
+    protected List<SecurityPermission> securityPermission;
+    @XmlAttribute
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlID
+    protected String id;
+
+    @XmlTransient
+    private final ConnectionDefinition connectionDefinition = new ConnectionDefinition();
 
     public ResourceAdapter10() {
-        setOutboundResourceAdapter(new OutboundResourceAdapter());
-        getOutboundResourceAdapter().getConnectionDefinition().add(connectionDefinition);
     }
 
     @XmlElement(name = "config-property")
@@ -100,43 +111,50 @@ public class ResourceAdapter10 extends ResourceAdapterBase {
         connectionDefinition.setConnectionImplClass(value);
     }
 
-    @XmlElement(name = "transaction-support")
+//    @XmlElement(name = "transaction-support")
      public TransactionSupportType getTransactionSupport() {
-         return getOutboundResourceAdapter().getTransactionSupport();
+         return transactionSupport;
      }
 
      public void setTransactionSupport(TransactionSupportType value) {
-         getOutboundResourceAdapter().setTransactionSupport(value);
+         transactionSupport = value;
      }
 
-     @XmlElement(name = "authentication-mechanism")
+//     @XmlElement(name = "authentication-mechanism")
      public List<AuthenticationMechanism> getAuthenticationMechanism() {
-         return getOutboundResourceAdapter().getAuthenticationMechanism();
+         if (authenticationMechanism == null) {
+             authenticationMechanism = new ArrayList<AuthenticationMechanism>();
+         }
+         return this.authenticationMechanism;
      }
 
-     @XmlElement(name = "reauthentication-support")
+//     @XmlElement(name = "reauthentication-support")
      public Boolean isReauthenticationSupport() {
-         return getOutboundResourceAdapter().isReauthenticationSupport();
+         return reauthenticationSupport;
      }
 
      public void setReauthenticationSupport(Boolean value) {
-         getOutboundResourceAdapter().setReauthenticationSupport(value);
+         reauthenticationSupport = value;
      }
 
 
-//    public List<SecurityPermission> getSecurityPermission() {
-//        if (securityPermission == null) {
-//            securityPermission = new ArrayList<SecurityPermission>();
-//        }
-//        return this.securityPermission;
-//    }
+//    @XmlElement(name = "security-permission")
+    public List<SecurityPermission> getSecurityPermission() {
+        if (securityPermission == null) {
+            securityPermission = new ArrayList<SecurityPermission>();
+        }
+        return this.securityPermission;
+    }
 
-//    public String getId() {
-//        return id;
-//    }
-//
-//    public void setId(String value) {
-//        this.id = value;
-//    }
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String value) {
+        this.id = value;
+    }
+
+    ConnectionDefinition getConnectionDefinition() {
+        return connectionDefinition;
+    }
 }

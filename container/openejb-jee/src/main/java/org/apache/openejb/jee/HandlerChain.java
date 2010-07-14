@@ -25,20 +25,36 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The handler-chain element defines the handlerchain.
- * Handlerchain can be defined such that the handlers in the
- * handlerchain operate,all ports of a service, on a specific
- * port or on a list of protocol-bindings. The choice of elements
- * service-name-pattern, port-name-pattern and protocol-bindings
- * are used to specify whether the handlers in handler-chain are
- * for a service, port or protocol binding. If none of these
- * choices are specified with the handler-chain element then the
- * handlers specified in the handler-chain will be applied on
- * everything.
+ * javaee_web_services_client_1_3.xsd
+ *
+ * <p>Java class for handler-chainType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="handler-chainType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;choice minOccurs="0">
+ *           &lt;element name="service-name-pattern" type="{http://java.sun.com/xml/ns/javaee}qname-pattern"/>
+ *           &lt;element name="port-name-pattern" type="{http://java.sun.com/xml/ns/javaee}qname-pattern"/>
+ *           &lt;element name="protocol-bindings" type="{http://java.sun.com/xml/ns/javaee}protocol-bindingListType"/>
+ *         &lt;/choice>
+ *         &lt;element name="handler" type="{http://java.sun.com/xml/ns/javaee}handlerType" maxOccurs="unbounded"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "handler-chainType", propOrder = {
@@ -49,9 +65,9 @@ import java.util.List;
 })
 public class HandlerChain {
     @XmlElement(name = "service-name-pattern")
-    protected String serviceNamePattern;
+    protected QName serviceNamePattern;
     @XmlElement(name = "port-name-pattern")
-    protected String portNamePattern;
+    protected QName portNamePattern;
     @XmlList
     @XmlElement(name = "protocol-bindings")
     protected List<String> protocolBindings;
@@ -62,19 +78,19 @@ public class HandlerChain {
     @XmlID
     protected String id;
 
-    public String getServiceNamePattern() {
+    public QName getServiceNamePattern() {
         return serviceNamePattern;
     }
 
-    public void setServiceNamePattern(String value) {
+    public void setServiceNamePattern(QName value) {
         this.serviceNamePattern = value;
     }
 
-    public String getPortNamePattern() {
+    public QName getPortNamePattern() {
         return portNamePattern;
     }
 
-    public void setPortNamePattern(String value) {
+    public void setPortNamePattern(QName value) {
         this.portNamePattern = value;
     }
 

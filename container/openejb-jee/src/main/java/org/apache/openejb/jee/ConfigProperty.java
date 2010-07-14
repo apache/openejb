@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -28,22 +29,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The config-propertyType contains a declaration of a single
- * configuration property that may be used for providing
- * configuration information.
- * <p/>
- * The declaration consists of an optional description, name,
- * type and an optional value of the configuration property. If
- * the resource adapter provider does not specify a value than
- * the deployer is responsible for providing a valid value for
- * a configuration property.
- * <p/>
- * Any bounds or well-defined values of properties should be
- * described in the description element.
+ * connector_1_6.xsd
+ *
+ * <p>Java class for config-propertyType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="config-propertyType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="config-property-name" type="{http://java.sun.com/xml/ns/javaee}config-property-nameType"/>
+ *         &lt;element name="config-property-type" type="{http://java.sun.com/xml/ns/javaee}config-property-typeType"/>
+ *         &lt;element name="config-property-value" type="{http://java.sun.com/xml/ns/javaee}xsdStringType" minOccurs="0"/>
+ *         &lt;element name="config-property-ignore" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="config-property-supports-dynamic-updates" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="config-property-confidential" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "config-propertyType", propOrder = {
-        "description",
+        "descriptions",
         "configPropertyName",
         "configPropertyType",
         "configPropertyValue",
@@ -53,10 +69,12 @@ import java.util.List;
 })
 public class ConfigProperty {
 
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "config-property-name", required = true)
     protected String configPropertyName;
     @XmlElement(name = "config-property-type", required = true)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     protected String configPropertyType;
     @XmlElement(name = "config-property-value")
     protected String configPropertyValue;
@@ -71,11 +89,17 @@ public class ConfigProperty {
     @XmlID
     protected String id;
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getConfigPropertyName() {

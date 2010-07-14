@@ -29,29 +29,42 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
- * The application-exceptionType declares an application
- * exception. The declaration consists of:
- * <p/>
- * - the exception class. When the container receives
- * an exception of this type, it is required to
- * forward this exception as an applcation exception
- * to the client regardless of whether it is a checked
- * or unchecked exception.
- * - an optional rollback element. If this element is
- * set to true, the container must rollback the current
- * transaction before forwarding the exception to the
- * client.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for application-exceptionType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="application-exceptionType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="exception-class" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *         &lt;element name="rollback" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="inherited" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "application-exceptionType", propOrder = {
         "exceptionClass",
-        "rollback"
+        "rollback",
+        "inherited"
         })
 public class ApplicationException implements Keyable<String> {
 
     @XmlElement(name = "exception-class", required = true)
     protected String exceptionClass;
     protected boolean rollback;
+    protected boolean inherited;
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -83,6 +96,14 @@ public class ApplicationException implements Keyable<String> {
 
     public void setRollback(boolean value) {
         this.rollback = value;
+    }
+
+    public boolean isInherited() {
+        return inherited;
+    }
+
+    public void setInherited(boolean inherited) {
+        this.inherited = inherited;
     }
 
     public String getId() {

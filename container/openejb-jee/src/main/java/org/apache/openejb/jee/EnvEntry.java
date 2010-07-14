@@ -30,31 +30,36 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * The env-entryType is used to declare an application's
- * environment entry. The declaration consists of an optional
- * description, the name of the environment entry, a type
- * (optional if the value is injected, otherwise required), and
- * an optional value.
- * <p/>
- * It also includes optional elements to define injection of
- * the named resource into fields or JavaBeans properties.
- * <p/>
- * If a value is not specified and injection is requested,
- * no injection will occur and no entry of the specified name
- * will be created.  This allows an initial value to be
- * specified in the source code without being incorrectly
- * changed when no override has been specified.
- * <p/>
- * If a value is not specified and no injection is requested,
- * a value must be supplied during deployment.
- * <p/>
- * This type is used by env-entry elements.
+ * javaee6.xsd
+ *
+ * <p>Java class for env-entryType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="env-entryType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="env-entry-name" type="{http://java.sun.com/xml/ns/javaee}jndi-nameType"/>
+ *         &lt;element name="env-entry-type" type="{http://java.sun.com/xml/ns/javaee}env-entry-type-valuesType" minOccurs="0"/>
+ *         &lt;element name="env-entry-value" type="{http://java.sun.com/xml/ns/javaee}xsdStringType" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}resourceGroup"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "env-entryType", propOrder = {
-        "description",
+        "descriptions",
         "envEntryName",
         "envEntryType",
         "envEntryValue",
@@ -64,8 +69,8 @@ import java.util.List;
         })
 public class EnvEntry implements JndiReference {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "env-entry-name", required = true)
     protected String envEntryName;
     @XmlElement(name = "env-entry-type")
@@ -121,11 +126,17 @@ public class EnvEntry implements JndiReference {
         setEnvEntryType(type);
     }
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getEnvEntryName() {

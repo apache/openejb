@@ -32,30 +32,37 @@ import java.util.List;
 
 
 /**
- * The ejb-refType is used by ejb-ref elements for the
- * declaration of a reference to an enterprise bean's home or
- * to the remote business interface of a 3.0 bean.
- * The declaration consists of:
- * <p/>
- * - an optional description
- * - the EJB reference name used in the code of
- * the Deployment Component that's referencing the enterprise
- * bean.
- * - the optional expected type of the referenced enterprise bean
- * - the optional remote interface of the referenced enterprise bean
- * or the remote business interface of the referenced enterprise
- * bean
- * - the optional expected home interface of the referenced
- * enterprise bean.  Not applicable if this ejb-ref
- * refers to the remote business interface of a 3.0 bean.
- * - optional ejb-link information, used to specify the
- * referenced enterprise bean
- * - optional elements to define injection of the named enterprise
- * bean into a component field or property
+ * javaee6.xsd
+ *
+ * <p>Java class for ejb-refType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="ejb-refType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="ejb-ref-name" type="{http://java.sun.com/xml/ns/javaee}ejb-ref-nameType"/>
+ *         &lt;element name="ejb-ref-type" type="{http://java.sun.com/xml/ns/javaee}ejb-ref-typeType" minOccurs="0"/>
+ *         &lt;element name="home" type="{http://java.sun.com/xml/ns/javaee}homeType" minOccurs="0"/>
+ *         &lt;element name="remote" type="{http://java.sun.com/xml/ns/javaee}remoteType" minOccurs="0"/>
+ *         &lt;element name="ejb-link" type="{http://java.sun.com/xml/ns/javaee}ejb-linkType" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}resourceGroup"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ejb-refType", propOrder = {
-        "description",
+        "descriptions",
         "ejbRefName",
         "ejbRefType",
         "home",
@@ -67,8 +74,8 @@ import java.util.List;
         })
 public class EjbRef implements EjbReference {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "ejb-ref-name", required = true)
     protected String ejbRefName;
     @XmlElement(name = "ejb-ref-type")
@@ -99,11 +106,17 @@ public class EjbRef implements EjbReference {
         this.refType = refType;
     }
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getEjbRefName() {
@@ -129,19 +142,6 @@ public class EjbRef implements EjbReference {
     public void setType(String type) {
     }
 
-    /**
-     * The ejb-ref-name element contains the name of an EJB
-     * reference. The EJB reference is an entry in the
-     * Deployment Component's environment and is relative to the
-     * java:comp/env context.  The name must be unique within the
-     * Deployment Component.
-     * <p/>
-     * It is recommended that name is prefixed with "ejb/".
-     * <p/>
-     * Example:
-     * <p/>
-     * <ejb-ref-name>ejb/Payroll</ejb-ref-name>
-     */
     public void setEjbRefName(String value) {
         this.ejbRefName = value;
     }
@@ -174,26 +174,6 @@ public class EjbRef implements EjbReference {
         this.remote = value;
     }
 
-    /**
-     * The value of the ejb-link element must be the ejb-name of an
-     * enterprise bean in the same ejb-jar file or in another ejb-jar
-     * file in the same Java EE application unit.
-     * <p/>
-     * Alternatively, the name in the ejb-link element may be
-     * composed of a path name specifying the ejb-jar containing the
-     * referenced enterprise bean with the ejb-name of the target
-     * bean appended and separated from the path name by "#".  The
-     * path name is relative to the Deployment File containing
-     * Deployment Component that is referencing the enterprise
-     * bean.  This allows multiple enterprise beans with the same
-     * ejb-name to be uniquely identified.
-     * <p/>
-     * Examples:
-     * <p/>
-     * <ejb-link>EmployeeRecord</ejb-link>
-     * <p/>
-     * <ejb-link>../products/product.jar#ProductEJB</ejb-link>
-     */
     public String getEjbLink() {
         return ejbLink;
     }

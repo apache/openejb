@@ -23,37 +23,45 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * The ejb-local-refType is used by ejb-local-ref elements for
- * the declaration of a reference to an enterprise bean's local
- * home or to the local business interface of a 3.0 bean.
- * The declaration consists of:
- * <p/>
- * - an optional description
- * - the EJB reference name used in the code of the Deployment
- * Component that's referencing the enterprise bean.
- * - the optional expected type of the referenced enterprise bean
- * - the optional expected local interface of the referenced
- * enterprise bean or the local business interface of the
- * referenced enterprise bean.
- * - the optional expected local home interface of the referenced
- * enterprise bean. Not applicable if this ejb-local-ref refers
- * to the local business interface of a 3.0 bean.
- * - optional ejb-link information, used to specify the
- * referenced enterprise bean
- * - optional elements to define injection of the named enterprise
- * bean into a component field or property.
+ * javaee6.xsd
+ *
+ * <p>Java class for ejb-local-refType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="ejb-local-refType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="ejb-ref-name" type="{http://java.sun.com/xml/ns/javaee}ejb-ref-nameType"/>
+ *         &lt;element name="ejb-ref-type" type="{http://java.sun.com/xml/ns/javaee}ejb-ref-typeType" minOccurs="0"/>
+ *         &lt;element name="local-home" type="{http://java.sun.com/xml/ns/javaee}local-homeType" minOccurs="0"/>
+ *         &lt;element name="local" type="{http://java.sun.com/xml/ns/javaee}localType" minOccurs="0"/>
+ *         &lt;element name="ejb-link" type="{http://java.sun.com/xml/ns/javaee}ejb-linkType" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}resourceGroup"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ejb-local-refType", propOrder = {
-        "description",
+        "descriptions",
         "ejbRefName",
         "ejbRefType",
         "localHome",
@@ -65,8 +73,8 @@ import java.util.List;
         })
 public class EjbLocalRef implements EjbReference {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "ejb-ref-name", required = true)
     protected String ejbRefName;
     @XmlElement(name = "ejb-ref-type")
@@ -100,7 +108,7 @@ public class EjbLocalRef implements EjbReference {
         this.ejbRefType = ref.getEjbRefType();
         this.ejbLink = ref.getEjbLink();
         this.mappedName = ref.getMappedName();
-        this.description = ref.getDescription();
+        setDescriptions(ref.getDescriptions());
         this.injectionTarget = ref.getInjectionTarget();
         this.local = ref.getInterface();
         this.localHome = ref.getHome();
@@ -126,11 +134,17 @@ public class EjbLocalRef implements EjbReference {
     }
 
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getEjbRefName() {

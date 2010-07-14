@@ -23,11 +23,12 @@ import org.apache.openejb.assembler.classic.cmd.Info2Properties;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.core.ivm.naming.InitContextFactory;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.EmptyType;
+import org.apache.openejb.jee.Empty;
 import org.apache.openejb.jee.StatelessBean;
 
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -116,7 +117,7 @@ public class StatelessContainerTest extends TestCase {
         // containers
         StatelessSessionContainerInfo statelessContainerInfo = config.configureService(StatelessSessionContainerInfo.class);
         statelessContainerInfo.properties.setProperty("TimeOut", "10");
-        statelessContainerInfo.properties.setProperty("PoolSize", "0");
+        statelessContainerInfo.properties.setProperty("MaxSize", "0");
         statelessContainerInfo.properties.setProperty("StrictPooling", "false");
         assembler.createContainer(statelessContainerInfo);
 
@@ -127,7 +128,7 @@ public class StatelessContainerTest extends TestCase {
         bean.addBusinessRemote(RemoteWidget.class.getName());
         bean.addPostConstruct("init");
         bean.addPreDestroy("destroy");
-        bean.setLocalBean(new EmptyType());
+        bean.setLocalBean(new Empty());
 
         EjbJar ejbJar = new EjbJar();
         ejbJar.addEnterpriseBean(bean);
@@ -164,6 +165,7 @@ public class StatelessContainerTest extends TestCase {
             lifecycle.push(Lifecycle.CONSTRUCTOR);
         }
 
+        @Resource
         public void setSessionContext(SessionContext sessionContext) {
             lifecycle.push(Lifecycle.INJECTION);
         }

@@ -20,13 +20,13 @@ import org.apache.openejb.BeanType;
 import org.apache.openejb.SystemException;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.DeploymentContext;
 import org.apache.openejb.core.ThreadContext;
+import org.apache.openejb.core.AppContext;
+import org.apache.openejb.core.ModuleContext;
 import org.apache.openejb.core.transaction.JtaTransactionPolicyFactory;
 import org.apache.openejb.core.transaction.TransactionType;
 import org.apache.openejb.core.transaction.TransactionPolicy;
 import org.apache.openejb.core.ivm.naming.IvmContext;
-import org.apache.xbean.finder.ClassFinder;
 import org.junit.internal.runners.model.ReflectiveCallable;
 import org.junit.internal.runners.statements.Fail;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -107,8 +107,7 @@ public class LocalClientRunner extends BlockJUnit4ClassRunner {
 
     private CoreDeploymentInfo createDeployment(Class<?> testClass) {
         try {
-            DeploymentContext deployment = new DeploymentContext(null, testClass.getClassLoader(), new IvmContext());
-            return new CoreDeploymentInfo(deployment, testClass, null, null, null, null, null, null, null, null, BeanType.MANAGED);
+            return new CoreDeploymentInfo(null, new IvmContext(), new ModuleContext("", new AppContext("", SystemInstance.get(), testClass.getClassLoader())), testClass, null, null, null, null, null, null, null, null, BeanType.MANAGED);
         } catch (SystemException e) {
             throw new IllegalStateException(e);
         }

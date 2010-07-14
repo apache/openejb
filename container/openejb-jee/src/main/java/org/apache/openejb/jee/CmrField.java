@@ -23,33 +23,48 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * The cmr-fieldType describes the bean provider's view of
- * a relationship. It consists of an optional description, and
- * the name and the class type of a field in the source of a
- * role of a relationship. The cmr-field-name element
- * corresponds to the name used for the get and set accessor
- * methods for the relationship. The cmr-field-type element is
- * used only for collection-valued cmr-fields. It specifies the
- * type of the collection that is used.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for cmr-fieldType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="cmr-fieldType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="cmr-field-name" type="{http://java.sun.com/xml/ns/javaee}string"/>
+ *         &lt;element name="cmr-field-type" type="{http://java.sun.com/xml/ns/javaee}cmr-field-typeType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "cmr-fieldType", propOrder = {
-        "description",
+        "descriptions",
         "cmrFieldName",
         "cmrFieldType"
         })
 public class CmrField {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "cmr-field-name", required = true)
     protected String cmrFieldName;
     @XmlElement(name = "cmr-field-type")
@@ -67,11 +82,17 @@ public class CmrField {
         this.cmrFieldType = cmrFieldType;
     }
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getCmrFieldName() {

@@ -87,6 +87,7 @@ public class InterceptorBindingBuilder {
             toMethods(clazz, info.afterBegin, interceptor.getAfterBegin());
             toMethods(clazz, info.beforeCompletion, interceptor.getBeforeCompletion());
             toMethods(clazz, info.afterCompletion, interceptor.getAfterCompletion());
+            toMethods(clazz, info.aroundTimeout, interceptor.getAroundTimeout());
             interceptors.put(info.clazz, interceptor);
         }
     }
@@ -108,6 +109,8 @@ public class InterceptorBindingBuilder {
             toCallback(clazz, stateful.afterBegin, beanAsInterceptor.getAfterBegin());
             toCallback(clazz, stateful.beforeCompletion, beanAsInterceptor.getBeforeCompletion());
             toCallback(clazz, stateful.afterCompletion, beanAsInterceptor.getAfterCompletion(), boolean.class);
+        } else {
+            toMethods(clazz, beanInfo.aroundTimeout, beanAsInterceptor.getAroundTimeout());
         }
 
         for (Method method : deploymentInfo.getBeanClass().getMethods()) {
@@ -254,6 +257,7 @@ public class InterceptorBindingBuilder {
      *  - @PrePassivate <any-scope> void <method-name>(InvocationContext)
      *  - @PostActivate <any-scope> void <method-name>(InvocationContext)
      *  - @AroundInvoke <any-scope> Object <method-name>(InvocationContext) throws Exception
+     *  - @AroundTimeout <any-scope> Object <method-name>(InvocationContext) throws Exception
      *
      * @param clazz
      * @param callbackInfos the raw CallbackInfo objects
@@ -268,6 +272,25 @@ public class InterceptorBindingBuilder {
                 }
                 if (method.getDeclaringClass().getName().equals(callbackInfo.className)){
                     methods.add(method);
+                }  else {
+                    // check for a private method on the declared class
+
+                    // find declared class
+                    Class c = clazz;
+                    while (c != null && !c.getName().equals(callbackInfo.className)) c = c.getSuperclass();
+
+                    // get callback method
+                    if (c != null) {
+                        try {
+                            method = getMethod(c, callbackInfo.method, InvocationContext.class);
+                            // make sure it is private
+                            if (Modifier.isPrivate(method.getModifiers())) {
+                                SetAccessible.on(method);
+                                methods.add(method);
+                            }
+                        } catch (NoSuchMethodException e) {
+                        }
+                    }
                 }
             } catch (NoSuchMethodException e) {
                 logger.warning("Interceptor method not found (skipping): public Object " + callbackInfo.method + "(InvocationContext); in class " + clazz.getName());

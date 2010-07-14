@@ -54,6 +54,7 @@ import org.apache.openejb.assembler.classic.SingletonBeanInfo;
 import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.assembler.classic.StatelessBeanInfo;
 import org.apache.openejb.assembler.classic.TimeoutInfo;
+import org.apache.openejb.jee.ConcurrencyManagementType;
 import org.apache.openejb.jee.Timeout;
 import org.apache.openejb.jee.ActivationConfig;
 import org.apache.openejb.jee.ActivationConfigProperty;
@@ -61,7 +62,6 @@ import org.apache.openejb.jee.ApplicationException;
 import org.apache.openejb.jee.CallbackMethod;
 import org.apache.openejb.jee.CmpField;
 import org.apache.openejb.jee.CmpVersion;
-import org.apache.openejb.jee.ConcurrencyType;
 import org.apache.openejb.jee.ContainerConcurrency;
 import org.apache.openejb.jee.ContainerTransaction;
 import org.apache.openejb.jee.EjbRelation;
@@ -87,7 +87,7 @@ import org.apache.openejb.jee.QueryMethod;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.RemoveMethod;
 import org.apache.openejb.jee.ResultTypeMapping;
-import org.apache.openejb.jee.Schedule;
+import org.apache.openejb.jee.TimerSchedule;
 import org.apache.openejb.jee.SecurityRole;
 import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.SessionBean;
@@ -264,7 +264,7 @@ public class EjbJarInfoBuilder {
             cmrFieldInfo.fieldName = relatedEntity.abstractSchemaName + "_" + relatedRole.getCmrField().getCmrFieldName();
             if (relatedRole.getMultiplicity() == Multiplicity.MANY) {
                 cmrFieldInfo.fieldType = Collection.class.getName();
-            }            
+            }
         }
 
         // CascadeDelete
@@ -299,6 +299,8 @@ public class EjbJarInfoBuilder {
             copyCallbacks(s.getAfterBegin(), info.afterBegin);
             copyCallbacks(s.getBeforeCompletion(), info.beforeCompletion);
             copyCallbacks(s.getAfterCompletion(), info.afterCompletion);
+
+            copyCallbacks(s.getAroundTimeout(), info.aroundTimeout);
 
             ejbJar.interceptors.add(info);
         }
@@ -338,7 +340,7 @@ public class EjbJarInfoBuilder {
             MethodConcurrencyInfo info = new MethodConcurrencyInfo();
 
             info.description = att.getDescription();
-            info.concurrencyAttribute = att.getConcurrencyAttribute().toString();
+            info.concurrencyAttribute = att.getLock().toString();
             info.methods.addAll(getMethodInfos(att.getMethod(), ejbds));
             ejbJarInfo.methodConcurrency.add(info);
         }
@@ -353,7 +355,7 @@ public class EjbJarInfoBuilder {
             info.description = att.getDescription();
             info.method = toInfo(att.getMethod());
 
-            for (Schedule schedule : att.getSchedule()) {
+            for (TimerSchedule schedule : att.getSchedule()) {
                 ScheduleInfo scheduleInfo = new ScheduleInfo();
                 scheduleInfo.second = schedule.getSecond();
                 scheduleInfo.minute = schedule.getMinute();
@@ -527,15 +529,19 @@ public class EjbJarInfoBuilder {
 
         } else if (s.getSessionType() == SessionType.SINGLETON) {
             bean = new SingletonBeanInfo();
-            ConcurrencyType type = s.getConcurrencyType();
-            bean.concurrencyType = (type != null) ? type.toString() : ConcurrencyType.CONTAINER.toString();
-            bean.loadOnStartup = s.getLoadOnStartup();
+            ConcurrencyManagementType type = s.getConcurrencyManagementType();
+            bean.concurrencyType = (type != null) ? type.toString() : ConcurrencyManagementType.CONTAINER.toString();
+            bean.loadOnStartup = s.getInitOnStartup();
             // See JndiEncInfoBuilder.buildDependsOnRefs for processing of DependsOn
             // bean.dependsOn.addAll(s.getDependsOn());
         } else {
             bean = new StatelessBeanInfo();
         }
 
+        if (s.getSessionType() != SessionType.STATEFUL) {
+            copyCallbacks(s.getAroundTimeout(),bean.aroundTimeout);
+        }
+        
         bean.localbean = s.getLocalBean() != null;
 
 
@@ -576,14 +582,14 @@ public class EjbJarInfoBuilder {
         if(statefulTimeout != null) {
         	bean.statefulTimeout = new TimeoutInfo();
             bean.statefulTimeout.time = statefulTimeout.getTimeout();
-            bean.statefulTimeout.unit = statefulTimeout.getUnit();
+            bean.statefulTimeout.unit = statefulTimeout.getUnit().toTimeUnit().toString();
         }
 
         final Timeout accessTimeout = s.getAccessTimeout();
         if(accessTimeout != null) {
             bean.accessTimeout = new TimeoutInfo();
             bean.accessTimeout.time = accessTimeout.getTimeout();
-            bean.accessTimeout.unit = accessTimeout.getUnit();
+            bean.accessTimeout.unit = accessTimeout.getUnit().toTimeUnit().toString();
         }
 
         return bean;

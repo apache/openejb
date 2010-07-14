@@ -29,6 +29,7 @@ import org.apache.openejb.monitoring.ObjectNameBuilder;
 import org.apache.openejb.monitoring.ManagedMBean;
 import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.loader.Options;
 import org.apache.openejb.core.BaseContext;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.Operation;
@@ -131,6 +132,8 @@ public class MdbContainer implements RpcContainer {
         // create the activation spec
         ActivationSpec activationSpec = createActivationSpec(deploymentInfo);
 
+        Options options = new Options(deploymentInfo.getProperties());
+        int instanceLimit = options.get("InstanceLimit", this.instanceLimit);
         // create the message endpoint
         MdbInstanceFactory instanceFactory = new MdbInstanceFactory(deploymentInfo, securityService, instanceLimit);
         EndpointFactory endpointFactory = new EndpointFactory(activationSpec, this, deploymentInfo, instanceFactory, xaResourceWrapper);
@@ -213,7 +216,7 @@ public class MdbContainer implements RpcContainer {
             } catch (UnsupportedOperationException uoe) {
                 logger.info("ActivationSpec does not support validate. Implementation of validate is optional");
             }
-            
+
 
             // set the resource adapter into the activation spec
             activationSpec.setResourceAdapter(resourceAdapter);
@@ -276,7 +279,7 @@ public class MdbContainer implements RpcContainer {
 
         try {
             beforeDelivery(deploymentInfo, instance, method, null);
-            Object value = invoke(instance, method, args);
+            Object value = invoke(instance, method, type, args);
             afterDelivery(instance);
             return value;
         } finally {
@@ -315,7 +318,7 @@ public class MdbContainer implements RpcContainer {
         }
     }
 
-    public Object invoke(Object instance, Method method, Object... args) throws SystemException, ApplicationException {
+    public Object invoke(Object instance, Method method, InterfaceType type, Object... args) throws SystemException, ApplicationException {
         if (args == null) {
             args = NO_ARGS;
         }
@@ -339,8 +342,7 @@ public class MdbContainer implements RpcContainer {
         Object returnValue = null;
         OpenEJBException openEjbException = null;
         Operation oldOperation = callContext.getCurrentOperation();
-        callContext.setCurrentOperation(Operation.BUSINESS);
-        BaseContext.State[] originalStates = callContext.setCurrentAllowedStates(MdbContext.getStates());
+        callContext.setCurrentOperation(type == InterfaceType.TIMEOUT ? Operation.TIMEOUT : Operation.BUSINESS);
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("invoking method " + method.getName() + " on " + deployInfo.getDeploymentID());
@@ -353,7 +355,7 @@ public class MdbContainer implements RpcContainer {
             callContext.set(Method.class, targetMethod);
 
             // invoke the target method
-            returnValue = _invoke(instance, targetMethod, args, deployInfo, mdbCallContext);
+            returnValue = _invoke(instance, targetMethod, args, deployInfo, type, mdbCallContext);
             return returnValue;
         } catch (ApplicationException e) {
             openEjbException = e;
@@ -363,7 +365,6 @@ public class MdbContainer implements RpcContainer {
             throw e;
         } finally {
             callContext.setCurrentOperation(oldOperation);
-            callContext.setCurrentAllowedStates(originalStates);
             // Log the invocation results
             if (logger.isDebugEnabled()) {
                 if (openEjbException == null) {
@@ -376,12 +377,14 @@ public class MdbContainer implements RpcContainer {
         }
     }
 
-    private Object _invoke(Object instance, Method runMethod, Object [] args, DeploymentInfo deploymentInfo, MdbCallContext mdbCallContext) throws SystemException, ApplicationException {
+    private Object _invoke(Object instance, Method runMethod, Object[] args, DeploymentInfo deploymentInfo, InterfaceType interfaceType, MdbCallContext mdbCallContext) throws SystemException,
+            ApplicationException {
         Object returnValue;
         try {
             List<InterceptorData> interceptors = deploymentInfo.getMethodInterceptors(runMethod);
-            InterceptorStack interceptorStack = new InterceptorStack(((Instance)instance).bean, runMethod, Operation.BUSINESS, interceptors, ((Instance)instance).interceptors);
-            returnValue = interceptorStack.invoke(args);            
+            InterceptorStack interceptorStack = new InterceptorStack(((Instance) instance).bean, runMethod, interfaceType == InterfaceType.TIMEOUT ? Operation.TIMEOUT : Operation.BUSINESS,
+                    interceptors, ((Instance) instance).interceptors);
+            returnValue = interceptorStack.invoke(args);
             return returnValue;
         } catch (Throwable e) {
             // unwrap invocation target exception

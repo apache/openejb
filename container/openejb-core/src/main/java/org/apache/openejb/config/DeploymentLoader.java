@@ -46,10 +46,10 @@ import org.apache.openejb.OpenEJB;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.api.LocalClient;
 import org.apache.openejb.api.RemoteClient;
+import org.apache.openejb.jee.Connector;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.jee.Application;
 import org.apache.openejb.jee.ApplicationClient;
-import org.apache.openejb.jee.Connector;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.FacesConfig;
 import org.apache.openejb.jee.JavaWsdlMapping;
@@ -1118,7 +1118,7 @@ public class DeploymentLoader {
     @SuppressWarnings({"unchecked"})
     public static <T>T unmarshal(Class<T> type, String descriptor, URL url) throws OpenEJBException {
         try {
-            return (T) JaxbJavaee.unmarshal(type, url.openStream());
+            return (T) JaxbJavaee.unmarshalJavaee(type, url.openStream());
         } catch (SAXException e) {
             throw new OpenEJBException("Cannot parse the " + descriptor + " file: "+ url.toExternalForm(), e);
         } catch (JAXBException e) {

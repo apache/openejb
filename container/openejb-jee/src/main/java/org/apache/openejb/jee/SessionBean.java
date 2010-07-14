@@ -38,63 +38,59 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
- * The session-beanType declares an session bean. The
- * declaration consists of:
- * <p/>
- * - an optional description
- * - an optional display name
- * - an optional icon element that contains a small and a large
- * icon file name
- * - a name assigned to the enterprise bean
- * in the deployment description
- * - an optional mapped-name element that can be used to provide
- * vendor-specific deployment information such as the physical
- * jndi-name of the session bean's remote home/business interface.
- * This element is not required to be supported by all
- * implementations. Any use of this element is non-portable.
- * - the names of all the remote or local business interfaces,
- * if any
- * - the names of the session bean's remote home and
- * remote interfaces, if any
- * - the names of the session bean's local home and
- * local interfaces, if any
- * - the name of the session bean's web service endpoint
- * interface, if any
- * - the session bean's implementation class
- * - the session bean's state management type
- * - an optional declaration of the session bean's timeout method.
- * - the optional session bean's transaction management type.
- * If it is not present, it is defaulted to Container.
- * - an optional list of the session bean class and/or
- * superclass around-invoke methods.
- * - an optional declaration of the bean's
- * environment entries
- * - an optional declaration of the bean's EJB references
- * - an optional declaration of the bean's local
- * EJB references
- * - an optional declaration of the bean's web
- * service references
- * - an optional declaration of the security role
- * references
- * - an optional declaration of the security identity
- * to be used for the execution of the bean's methods
- * - an optional declaration of the bean's resource
- * manager connection factory references
- * - an optional declaration of the bean's resource
- * environment references.
- * - an optional declaration of the bean's message
- * destination references
- * <p/>
- * The elements that are optional are "optional" in the sense
- * that they are omitted when if lists represented by them are
- * empty.
- * <p/>
- * Either both the local-home and the local elements or both
- * the home and the remote elements must be specified for the
- * session bean.
- * <p/>
- * The service-endpoint element may only be specified if the
- * bean is a stateless session bean.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for session-beanType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="session-beanType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
+ *         &lt;element name="ejb-name" type="{http://java.sun.com/xml/ns/javaee}ejb-nameType"/>
+ *         &lt;element name="mapped-name" type="{http://java.sun.com/xml/ns/javaee}xsdStringType" minOccurs="0"/>
+ *         &lt;element name="home" type="{http://java.sun.com/xml/ns/javaee}homeType" minOccurs="0"/>
+ *         &lt;element name="remote" type="{http://java.sun.com/xml/ns/javaee}remoteType" minOccurs="0"/>
+ *         &lt;element name="local-home" type="{http://java.sun.com/xml/ns/javaee}local-homeType" minOccurs="0"/>
+ *         &lt;element name="local" type="{http://java.sun.com/xml/ns/javaee}localType" minOccurs="0"/>
+ *         &lt;element name="business-local" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="business-remote" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="local-bean" type="{http://java.sun.com/xml/ns/javaee}emptyType" minOccurs="0"/>
+ *         &lt;element name="service-endpoint" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType" minOccurs="0"/>
+ *         &lt;element name="ejb-class" type="{http://java.sun.com/xml/ns/javaee}ejb-classType" minOccurs="0"/>
+ *         &lt;element name="session-type" type="{http://java.sun.com/xml/ns/javaee}session-typeType" minOccurs="0"/>
+ *         &lt;element name="stateful-timeout" type="{http://java.sun.com/xml/ns/javaee}stateful-timeoutType" minOccurs="0"/>
+ *         &lt;element name="timeout-method" type="{http://java.sun.com/xml/ns/javaee}named-methodType" minOccurs="0"/>
+ *         &lt;element name="timer" type="{http://java.sun.com/xml/ns/javaee}timerType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="init-on-startup" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="concurrency-management-type" type="{http://java.sun.com/xml/ns/javaee}concurrency-management-typeType" minOccurs="0"/>
+ *         &lt;element name="concurrent-method" type="{http://java.sun.com/xml/ns/javaee}concurrent-methodType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="depends-on" type="{http://java.sun.com/xml/ns/javaee}depends-onType" minOccurs="0"/>
+ *         &lt;element name="init-method" type="{http://java.sun.com/xml/ns/javaee}init-methodType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="remove-method" type="{http://java.sun.com/xml/ns/javaee}remove-methodType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="async-method" type="{http://java.sun.com/xml/ns/javaee}async-methodType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="transaction-type" type="{http://java.sun.com/xml/ns/javaee}transaction-typeType" minOccurs="0"/>
+ *         &lt;element name="after-begin-method" type="{http://java.sun.com/xml/ns/javaee}named-methodType" minOccurs="0"/>
+ *         &lt;element name="before-completion-method" type="{http://java.sun.com/xml/ns/javaee}named-methodType" minOccurs="0"/>
+ *         &lt;element name="after-completion-method" type="{http://java.sun.com/xml/ns/javaee}named-methodType" minOccurs="0"/>
+ *         &lt;element name="around-invoke" type="{http://java.sun.com/xml/ns/javaee}around-invokeType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="around-timeout" type="{http://java.sun.com/xml/ns/javaee}around-timeoutType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}jndiEnvironmentRefsGroup"/>
+ *         &lt;element name="post-activate" type="{http://java.sun.com/xml/ns/javaee}lifecycle-callbackType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="pre-passivate" type="{http://java.sun.com/xml/ns/javaee}lifecycle-callbackType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="security-role-ref" type="{http://java.sun.com/xml/ns/javaee}security-role-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="security-identity" type="{http://java.sun.com/xml/ns/javaee}security-identityType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "session-beanType", propOrder = {
@@ -113,16 +109,22 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
         "serviceEndpoint",
         "ejbClass",
         "sessionType",
-        "loadOnStartup",
+        "statefulTimeout",
         "timeoutMethod",
+        "timer",
+        "initOnStartup",
+        "concurrencyManagementType",
+        "concurrentMethod",
+        "dependsOn",
         "initMethod",
         "removeMethod",
+        "asyncMethod",
         "transactionType",
         "afterBeginMethod",
         "beforeCompletionMethod",
         "afterCompletionMethod",
-        "concurrencyType",
         "aroundInvoke",
+        "aroundTimeout",
         "envEntry",
         "ejbRef",
         "ejbLocalRef",
@@ -134,14 +136,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
         "persistenceUnitRef",
         "postConstruct",
         "preDestroy",
+        "dataSource",
         "postActivate",
         "prePassivate",
         "securityRoleRef",
         "securityIdentity",
-        "dependsOn",
-        "statefulTimeout",
+        //TODO not actually specified in schema
         "accessTimeout"
-        })
+})
 public class SessionBean implements RemoteBean, Session, TimerConsumer {
     @XmlTransient
     protected TextMap description = new TextMap();
@@ -164,53 +166,70 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
     @XmlElement(name = "business-remote")
     protected LinkedHashSet<String> businessRemote;
     @XmlElement(name = "local-bean")
-    protected EmptyType localBean;
+    protected Empty localBean;
     @XmlElement(name = "service-endpoint")
     protected String serviceEndpoint;
     @XmlElement(name = "ejb-class")
     protected String ejbClass;
     @XmlElement(name = "session-type")
     protected SessionType sessionType = SessionType.STATELESS;
+    @XmlElement(name = "stateful-timeout")
+    protected Timeout statefulTimeout;
     @XmlElement(name = "timeout-method")
     protected NamedMethod timeoutMethod;
-    @XmlElement(name = "init-method", required = true)
+    @XmlElement(name = "timer")
+    protected List<Timer> timer;
+    @XmlElement(name = "init-on-startup")
+    protected Boolean initOnStartup;
+    @XmlElement(name = "concurrency-management-type")
+    protected ConcurrencyManagementType concurrencyManagementType;
+    @XmlElement(name = "concurrent-method")
+    protected List<ConcurrentMethod> concurrentMethod;
+    @XmlElementWrapper(name = "depends-on")
+    @XmlElement(name = "ejb-name")
+    protected List<String> dependsOn;
+    @XmlElement(name = "init-method")
     protected List<InitMethod> initMethod;
-    @XmlElement(name = "remove-method", required = true)
+    @XmlElement(name = "remove-method")
     protected List<RemoveMethod> removeMethod;
+    @XmlElement(name = "async-method")
+    protected List<AsyncMethod> asyncMethod;
     @XmlElement(name = "transaction-type")
     protected TransactionType transactionType;
-    @XmlElement(name = "after-begin-method")
+    @XmlTransient
     protected NamedMethod afterBeginMethod;
-    @XmlElement(name = "before-completion-method")
+    @XmlTransient
     protected NamedMethod beforeCompletionMethod;
-    @XmlElement(name = "after-completion-method")
+    @XmlTransient
     protected NamedMethod afterCompletionMethod;
-    @XmlElement(name = "concurrency-type")
-    protected ConcurrencyType concurrencyType;
     @XmlElement(name = "around-invoke", required = true)
     protected List<AroundInvoke> aroundInvoke;
+    @XmlElement(name = "around-timeout")
+    protected List<AroundTimeout> aroundTimeout;
     @XmlElement(name = "env-entry", required = true)
-    protected KeyedCollection<String,EnvEntry> envEntry;
+    protected KeyedCollection<String, EnvEntry> envEntry;
     @XmlElement(name = "ejb-ref", required = true)
-    protected KeyedCollection<String,EjbRef> ejbRef;
+    protected KeyedCollection<String, EjbRef> ejbRef;
     @XmlElement(name = "ejb-local-ref", required = true)
-    protected KeyedCollection<String,EjbLocalRef> ejbLocalRef;
+    protected KeyedCollection<String, EjbLocalRef> ejbLocalRef;
     @XmlElement(name = "service-ref", required = true)
-    protected KeyedCollection<String,ServiceRef> serviceRef;
+    protected KeyedCollection<String, ServiceRef> serviceRef;
     @XmlElement(name = "resource-ref", required = true)
-    protected KeyedCollection<String,ResourceRef> resourceRef;
+    protected KeyedCollection<String, ResourceRef> resourceRef;
     @XmlElement(name = "resource-env-ref", required = true)
-    protected KeyedCollection<String,ResourceEnvRef> resourceEnvRef;
+    protected KeyedCollection<String, ResourceEnvRef> resourceEnvRef;
     @XmlElement(name = "message-destination-ref", required = true)
-    protected KeyedCollection<String,MessageDestinationRef> messageDestinationRef;
+    protected KeyedCollection<String, MessageDestinationRef> messageDestinationRef;
     @XmlElement(name = "persistence-context-ref", required = true)
-    protected KeyedCollection<String,PersistenceContextRef> persistenceContextRef;
+    protected KeyedCollection<String, PersistenceContextRef> persistenceContextRef;
     @XmlElement(name = "persistence-unit-ref", required = true)
-    protected KeyedCollection<String,PersistenceUnitRef> persistenceUnitRef;
+    protected KeyedCollection<String, PersistenceUnitRef> persistenceUnitRef;
     @XmlElement(name = "post-construct", required = true)
     protected List<LifecycleCallback> postConstruct;
     @XmlElement(name = "pre-destroy", required = true)
     protected List<LifecycleCallback> preDestroy;
+    @XmlElement(name = "data-source")
+    protected KeyedCollection<String, DataSource> dataSource;
     @XmlElement(name = "post-activate", required = true)
     protected List<LifecycleCallback> postActivate;
     @XmlElement(name = "pre-passivate", required = true)
@@ -219,19 +238,6 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
     protected List<SecurityRoleRef> securityRoleRef;
     @XmlElement(name = "security-identity")
     protected SecurityIdentity securityIdentity;
-
-    @XmlElement(name = "load-on-startup")
-    protected Boolean loadOnStartup;
-
-    @XmlElementWrapper(name = "depends-on")
-    @XmlElement(name = "ejb-name")
-    protected List<String> dependsOn;
-
-    @XmlElement(name = "stateful-timeout", required = true)
-    protected Timeout statefulTimeout;
-
-    @XmlElement(name = "access-timeout", required = true)
-    protected Timeout accessTimeout;
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -244,6 +250,11 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
     private List<LifecycleCallback> beforeCompletion;
     @XmlTransient
     private List<LifecycleCallback> afterCompletion;
+
+    //Not in schema, but can be specified with annotation
+//    @XmlTransient
+    @XmlElement(name = "access-timeout")
+    protected Timeout accessTimeout;
 
     public SessionBean() {
     }
@@ -291,7 +302,7 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return icon;
     }
 
-    public Map<String,Icon> getIconMap() {
+    public Map<String, Icon> getIconMap() {
         if (icon == null) {
             icon = new LocalCollection<Icon>();
         }
@@ -390,7 +401,7 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
     }
 
     public Collection<String> getBusinessLocal() {
-        if (businessLocal == null){
+        if (businessLocal == null) {
             businessLocal = new LinkedHashSet<String>();
         }
         return businessLocal;
@@ -406,7 +417,7 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
     }
 
     public Collection<String> getBusinessRemote() {
-        if (businessRemote == null){
+        if (businessRemote == null) {
             businessRemote = new LinkedHashSet<String>();
         }
         return businessRemote;
@@ -421,11 +432,11 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         addBusinessRemote(businessRemote.getName());
     }
 
-    public EmptyType getLocalBean() {
+    public Empty getLocalBean() {
         return localBean;
     }
 
-    public void setLocalBean(EmptyType localBean) {
+    public void setLocalBean(Empty localBean) {
         this.localBean = localBean;
     }
 
@@ -483,40 +494,49 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return transactionType;
     }
 
-    public ConcurrencyType getConcurrencyType() {
-        return concurrencyType;
-    }
+//    public ConcurrencyType getConcurrencyType() {
+//        return concurrencyType;
+//    }
 
     public void setTransactionType(TransactionType value) {
         this.transactionType = value;
     }
 
-    public void setConcurrencyType(ConcurrencyType value) {
-        this.concurrencyType = value;
-    }
+//    public void setConcurrencyType(ConcurrencyType value) {
+//        this.concurrencyType = value;
+//    }
 
     public NamedMethod getAfterBeginMethod() {
         return afterBeginMethod;
     }
 
+    @XmlElement(name = "after-begin-method")
     public void setAfterBeginMethod(NamedMethod afterBeginMethod) {
         this.afterBeginMethod = afterBeginMethod;
+        getAfterBegin().clear();
+        getAfterBegin().add(new LifecycleCallback(afterBeginMethod));
     }
 
     public NamedMethod getBeforeCompletionMethod() {
         return beforeCompletionMethod;
     }
 
+    @XmlElement(name = "before-completion-method")
     public void setBeforeCompletionMethod(NamedMethod beforeCompletionMethod) {
         this.beforeCompletionMethod = beforeCompletionMethod;
+        getBeforeCompletion().clear();
+        getBeforeCompletion().add(new LifecycleCallback(beforeCompletionMethod));
     }
 
     public NamedMethod getAfterCompletionMethod() {
         return afterCompletionMethod;
     }
 
+    @XmlElement(name = "after-completion-method")
     public void setAfterCompletionMethod(NamedMethod afterCompletionMethod) {
         this.afterCompletionMethod = afterCompletionMethod;
+        getAfterCompletion().clear();
+        getAfterCompletion().add(new LifecycleCallback(afterCompletionMethod));
     }
 
     public List<AroundInvoke> getAroundInvoke() {
@@ -526,133 +546,133 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return this.aroundInvoke;
     }
 
-    public void addAroundInvoke(String method){
-        assert ejbClass != null: "Set the ejbClass before calling this method";
+    public void addAroundInvoke(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getAroundInvoke().add(new AroundInvoke(ejbClass, method));
     }
 
     public Collection<EnvEntry> getEnvEntry() {
         if (envEntry == null) {
-            envEntry = new KeyedCollection<String,EnvEntry>();
+            envEntry = new KeyedCollection<String, EnvEntry>();
         }
         return this.envEntry;
     }
 
-    public Map<String,EnvEntry> getEnvEntryMap() {
+    public Map<String, EnvEntry> getEnvEntryMap() {
         if (envEntry == null) {
-            envEntry = new KeyedCollection<String,EnvEntry>();
+            envEntry = new KeyedCollection<String, EnvEntry>();
         }
         return this.envEntry.toMap();
     }
 
     public Collection<EjbRef> getEjbRef() {
         if (ejbRef == null) {
-            ejbRef = new KeyedCollection<String,EjbRef>();
+            ejbRef = new KeyedCollection<String, EjbRef>();
         }
         return this.ejbRef;
     }
 
-    public Map<String,EjbRef> getEjbRefMap() {
+    public Map<String, EjbRef> getEjbRefMap() {
         if (ejbRef == null) {
-            ejbRef = new KeyedCollection<String,EjbRef>();
+            ejbRef = new KeyedCollection<String, EjbRef>();
         }
         return this.ejbRef.toMap();
     }
 
     public Collection<EjbLocalRef> getEjbLocalRef() {
         if (ejbLocalRef == null) {
-            ejbLocalRef = new KeyedCollection<String,EjbLocalRef>();
+            ejbLocalRef = new KeyedCollection<String, EjbLocalRef>();
         }
         return this.ejbLocalRef;
     }
 
-    public Map<String,EjbLocalRef> getEjbLocalRefMap() {
+    public Map<String, EjbLocalRef> getEjbLocalRefMap() {
         if (ejbLocalRef == null) {
-            ejbLocalRef = new KeyedCollection<String,EjbLocalRef>();
+            ejbLocalRef = new KeyedCollection<String, EjbLocalRef>();
         }
         return this.ejbLocalRef.toMap();
     }
 
     public Collection<ServiceRef> getServiceRef() {
         if (serviceRef == null) {
-            serviceRef = new KeyedCollection<String,ServiceRef>();
+            serviceRef = new KeyedCollection<String, ServiceRef>();
         }
         return this.serviceRef;
     }
 
-    public Map<String,ServiceRef> getServiceRefMap() {
+    public Map<String, ServiceRef> getServiceRefMap() {
         if (serviceRef == null) {
-            serviceRef = new KeyedCollection<String,ServiceRef>();
+            serviceRef = new KeyedCollection<String, ServiceRef>();
         }
         return this.serviceRef.toMap();
     }
 
     public Collection<ResourceRef> getResourceRef() {
         if (resourceRef == null) {
-            resourceRef = new KeyedCollection<String,ResourceRef>();
+            resourceRef = new KeyedCollection<String, ResourceRef>();
         }
         return this.resourceRef;
     }
 
-    public Map<String,ResourceRef> getResourceRefMap() {
+    public Map<String, ResourceRef> getResourceRefMap() {
         if (resourceRef == null) {
-            resourceRef = new KeyedCollection<String,ResourceRef>();
+            resourceRef = new KeyedCollection<String, ResourceRef>();
         }
         return this.resourceRef.toMap();
     }
 
     public Collection<ResourceEnvRef> getResourceEnvRef() {
         if (resourceEnvRef == null) {
-            resourceEnvRef = new KeyedCollection<String,ResourceEnvRef>();
+            resourceEnvRef = new KeyedCollection<String, ResourceEnvRef>();
         }
         return this.resourceEnvRef;
     }
 
-    public Map<String,ResourceEnvRef> getResourceEnvRefMap() {
+    public Map<String, ResourceEnvRef> getResourceEnvRefMap() {
         if (resourceEnvRef == null) {
-            resourceEnvRef = new KeyedCollection<String,ResourceEnvRef>();
+            resourceEnvRef = new KeyedCollection<String, ResourceEnvRef>();
         }
         return this.resourceEnvRef.toMap();
     }
 
     public Collection<MessageDestinationRef> getMessageDestinationRef() {
         if (messageDestinationRef == null) {
-            messageDestinationRef = new KeyedCollection<String,MessageDestinationRef>();
+            messageDestinationRef = new KeyedCollection<String, MessageDestinationRef>();
         }
         return this.messageDestinationRef;
     }
 
-    public Map<String,MessageDestinationRef> getMessageDestinationRefMap() {
+    public Map<String, MessageDestinationRef> getMessageDestinationRefMap() {
         if (messageDestinationRef == null) {
-            messageDestinationRef = new KeyedCollection<String,MessageDestinationRef>();
+            messageDestinationRef = new KeyedCollection<String, MessageDestinationRef>();
         }
         return this.messageDestinationRef.toMap();
     }
 
     public Collection<PersistenceContextRef> getPersistenceContextRef() {
         if (persistenceContextRef == null) {
-            persistenceContextRef = new KeyedCollection<String,PersistenceContextRef>();
+            persistenceContextRef = new KeyedCollection<String, PersistenceContextRef>();
         }
         return this.persistenceContextRef;
     }
 
-    public Map<String,PersistenceContextRef> getPersistenceContextRefMap() {
+    public Map<String, PersistenceContextRef> getPersistenceContextRefMap() {
         if (persistenceContextRef == null) {
-            persistenceContextRef = new KeyedCollection<String,PersistenceContextRef>();
+            persistenceContextRef = new KeyedCollection<String, PersistenceContextRef>();
         }
         return this.persistenceContextRef.toMap();
     }
 
     public Collection<PersistenceUnitRef> getPersistenceUnitRef() {
         if (persistenceUnitRef == null) {
-            persistenceUnitRef = new KeyedCollection<String,PersistenceUnitRef>();
+            persistenceUnitRef = new KeyedCollection<String, PersistenceUnitRef>();
         }
         return this.persistenceUnitRef;
     }
 
-    public Map<String,PersistenceUnitRef> getPersistenceUnitRefMap() {
+    public Map<String, PersistenceUnitRef> getPersistenceUnitRefMap() {
         if (persistenceUnitRef == null) {
-            persistenceUnitRef = new KeyedCollection<String,PersistenceUnitRef>();
+            persistenceUnitRef = new KeyedCollection<String, PersistenceUnitRef>();
         }
         return this.persistenceUnitRef.toMap();
     }
@@ -664,8 +684,8 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return this.postConstruct;
     }
 
-    public void addPostConstruct(String method){
-        assert ejbClass != null: "Set the ejbClass before calling this method";
+    public void addPostConstruct(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getPostConstruct().add(new LifecycleCallback(ejbClass, method));
     }
 
@@ -676,8 +696,8 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return this.preDestroy;
     }
 
-    public void addPreDestroy(String method){
-        assert ejbClass != null: "Set the ejbClass before calling this method";
+    public void addPreDestroy(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getPreDestroy().add(new LifecycleCallback(ejbClass, method));
     }
 
@@ -688,8 +708,8 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return this.postActivate;
     }
 
-    public void addPostActivate(String method){
-        assert ejbClass != null: "Set the ejbClass before calling this method";
+    public void addPostActivate(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getPostActivate().add(new LifecycleCallback(ejbClass, method));
     }
 
@@ -700,8 +720,8 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         return this.prePassivate;
     }
 
-    public void addPrePassivate(String method){
-        assert ejbClass != null: "Set the ejbClass before calling this method";
+    public void addPrePassivate(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getPrePassivate().add(new LifecycleCallback(ejbClass, method));
     }
 
@@ -733,16 +753,16 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         this.dependsOn = new ArrayList(ejbNames);
     }
 
-    public boolean hasLoadOnStartup() {
-        return loadOnStartup != null;
+    public boolean hasInitOnStartup() {
+        return initOnStartup != null;
     }
 
-    public boolean getLoadOnStartup() {
-        return loadOnStartup != null && loadOnStartup;
+    public boolean getInitOnStartup() {
+        return initOnStartup != null && initOnStartup;
     }
 
-    public void setLoadOnStartup(boolean loadOnStartup) {
-        this.loadOnStartup = loadOnStartup;
+    public void setInitOnStartup(boolean initOnStartup) {
+        this.initOnStartup = initOnStartup;
     }
 
     public String getId() {
@@ -753,34 +773,55 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
         this.id = value;
     }
 
-	public Timeout getStatefulTimeout() {
-		return statefulTimeout;
-	}
+    public Timeout getStatefulTimeout() {
+        return statefulTimeout;
+    }
 
-	public void setStatefulTimeout(Timeout statefulTimeout) {
-		this.statefulTimeout = statefulTimeout;
-	}
+    public void setStatefulTimeout(Timeout statefulTimeout) {
+        this.statefulTimeout = statefulTimeout;
+    }
 
-	public Timeout getAccessTimeout() {
-		return accessTimeout;
-	}
+    public List<AroundTimeout> getAroundTimeout() {
+        if (aroundTimeout == null) {
+            aroundTimeout = new ArrayList<AroundTimeout>();
+        }
+        return this.aroundTimeout;
+    }
 
-	public void setAccessTimeout(Timeout accessTimeout) {
-		this.accessTimeout = accessTimeout;
-	}
+    public List<AsyncMethod> getAsyncMethod() {
+        if (asyncMethod == null) {
+            asyncMethod = new ArrayList<AsyncMethod>();
+        }
+        return this.asyncMethod;
+    }
 
-	public void addAfterBegin(String method) {
-        assert ejbClass != null : "Set the interceptorClass before calling this method";
+    public ConcurrencyManagementType getConcurrencyManagementType() {
+        return concurrencyManagementType;
+    }
+
+    public void setConcurrencyManagementType(ConcurrencyManagementType concurrencyManagementType) {
+        this.concurrencyManagementType = concurrencyManagementType;
+    }
+
+    public List<ConcurrentMethod> getConcurrentMethod() {
+        if (concurrentMethod == null) {
+            concurrentMethod = new ArrayList<ConcurrentMethod>();
+        }
+        return this.concurrentMethod;
+    }
+
+    public void addAfterBegin(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getAfterBegin().add(new LifecycleCallback(ejbClass, method));
     }
 
     public void addAfterCompletion(String method) {
-        assert ejbClass != null : "Set the interceptorClass before calling this method";
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getAfterCompletion().add(new LifecycleCallback(ejbClass, method));
     }
 
     public void addBeforeCompletion(String method) {
-        assert ejbClass != null : "Set the interceptorClass before calling this method";
+        assert ejbClass != null : "Set the ejbClass before calling this method";
         getBeforeCompletion().add(new LifecycleCallback(ejbClass, method));
     }
 
@@ -803,5 +844,40 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
             beforeCompletion = new ArrayList<LifecycleCallback>();
         }
         return this.beforeCompletion;
+    }
+
+    public Collection<DataSource> getDataSource() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String, DataSource>();
+        }
+        return this.dataSource;
+    }
+
+    public Map<String, DataSource> getDataSourceMap() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String, DataSource>();
+        }
+        return this.dataSource.toMap();
+    }
+
+
+    public List<Timer> getTimer() {
+        if (timer == null) {
+            timer = new ArrayList<Timer>();
+        }
+        return this.timer;
+    }
+
+    public Timeout getAccessTimeout() {
+        return accessTimeout;
+    }
+
+    public void setAccessTimeout(Timeout accessTimeout) {
+        this.accessTimeout = accessTimeout;
+    }
+
+    public void addAroundTimeout(String method) {
+        assert ejbClass != null : "Set the ejbClass before calling this method";
+        getAroundTimeout().add(new AroundTimeout(ejbClass, method));
     }
 }

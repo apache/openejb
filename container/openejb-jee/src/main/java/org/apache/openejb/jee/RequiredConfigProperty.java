@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -28,23 +29,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The required-config-propertyType contains a declaration
- * of a single configuration property used for specifying a
- * required configuration property name. It is used
- * by required-config-property elements.
- * <p/>
- * Example:
- * <p/>
- * <required-config-property>Destination</required-config-property>
+ * connector_1_6.xsd
+ * 
+ * <p>Java class for required-config-propertyType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="required-config-propertyType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="config-property-name" type="{http://java.sun.com/xml/ns/javaee}config-property-nameType"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "required-config-propertyType", propOrder = {
-        "description",
+        "descriptions",
         "configPropertyName"
 })
 public class RequiredConfigProperty {
 
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "config-property-name", required = true)
     protected String configPropertyName;
     @XmlAttribute
@@ -59,11 +74,17 @@ public class RequiredConfigProperty {
         this.configPropertyName = configPropertyName;
     }
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getConfigPropertyName() {

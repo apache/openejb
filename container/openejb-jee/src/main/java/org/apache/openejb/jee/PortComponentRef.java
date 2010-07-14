@@ -32,16 +32,39 @@ import java.util.Properties;
 
 
 /**
- * The port-component-ref element declares a client dependency
- * on the container for resolving a Service Endpoint Interface
- * to a WSDL port. It optionally associates the Service Endpoint
- * Interface with a particular port-component. This is only used
- * by the container for a Service.getPort(Class) method call.
+ * javaee_web_services_client_1_3.xsd
+ *
+ * <p>Java class for port-component-refType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="port-component-refType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="service-endpoint-interface" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *         &lt;element name="enable-mtom" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="mtom-threshold" type="{http://java.sun.com/xml/ns/javaee}xsdNonNegativeIntegerType" minOccurs="0"/>
+ *         &lt;element name="addressing" type="{http://java.sun.com/xml/ns/javaee}addressingType" minOccurs="0"/>
+ *         &lt;element name="respect-binding" type="{http://java.sun.com/xml/ns/javaee}respect-bindingType" minOccurs="0"/>
+ *         &lt;element name="port-component-link" type="{http://java.sun.com/xml/ns/javaee}string" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "port-component-refType", propOrder = {
         "serviceEndpointInterface",
         "enableMtom",
+        "mtomThreshold",
+        "addressing",
+        "respectBinding",
         "portComponentLink"
         })
 public class PortComponentRef {
@@ -50,6 +73,11 @@ public class PortComponentRef {
     protected String serviceEndpointInterface;
     @XmlElement(name = "enable-mtom")
     protected Boolean enableMtom;
+    @XmlElement(name = "mtom-threshold")
+    protected Integer mtomThreshold;
+    protected Addressing addressing;
+    @XmlElement(name = "respect-binding")
+    protected Boolean respectBinding;
     @XmlElement(name = "port-component-link")
     protected String portComponentLink;
     @XmlTransient
@@ -75,6 +103,30 @@ public class PortComponentRef {
 
     public void setEnableMtom(boolean value) {
         this.enableMtom = value;
+    }
+
+    public Integer getMtomThreshold() {
+        return mtomThreshold;
+    }
+
+    public void setMtomThreshold(Integer value) {
+        this.mtomThreshold = value;
+    }
+
+    public Addressing getAddressing() {
+        return addressing;
+    }
+
+    public void setAddressing(Addressing value) {
+        this.addressing = value;
+    }
+
+    public Boolean getRespectBinding() {
+        return respectBinding;
+    }
+
+    public void setRespectBinding(Boolean value) {
+        this.respectBinding = value;
     }
 
     public String getPortComponentLink() {

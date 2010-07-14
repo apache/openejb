@@ -22,11 +22,24 @@ import javax.xml.bind.annotation.XmlEnumValue;
 
 
 /**
- * The cmr-field-type element specifies the class of a
- * collection-valued logical relationship field in the entity
- * bean class. The value of an element using cmr-field-typeType
- * must be either: java.util.Collection or java.util.Set.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for cmr-field-typeType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="cmr-field-typeType">
+ *   &lt;simpleContent>
+ *     &lt;restriction base="&lt;http://java.sun.com/xml/ns/javaee>string">
+ *     &lt;/restriction>
+ *   &lt;/simpleContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 public enum CmrFieldType {
     @XmlEnumValue("java.util.Collection") COLLECTION("java.util.Collection"),
     @XmlEnumValue("java.util.Set") SET("java.util.Set");

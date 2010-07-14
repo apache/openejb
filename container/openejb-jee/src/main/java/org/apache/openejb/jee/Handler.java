@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -31,15 +32,38 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Declares the handler for a port-component. Handlers can access the
- * init-param name/value pairs using the HandlerInfo interface.
- * <p/>
- * Used in: port-component
+ * javaee_web_services_client_1_3.xsd
+ *
+ * <p>Java class for handlerType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="handlerType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
+ *         &lt;element name="handler-name" type="{http://java.sun.com/xml/ns/javaee}string"/>
+ *         &lt;element name="handler-class" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *         &lt;element name="init-param" type="{http://java.sun.com/xml/ns/javaee}param-valueType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="soap-header" type="{http://java.sun.com/xml/ns/javaee}xsdQNameType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="soap-role" type="{http://java.sun.com/xml/ns/javaee}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="port-name" type="{http://java.sun.com/xml/ns/javaee}string" maxOccurs="unbounded" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "port-component_handlerType", propOrder = {
-    "description",
-    "displayName",
+//@XmlType(name = "port-component_handlerType", propOrder = {
+@XmlType(name = "handlerType", propOrder = {
+    "descriptions",
+    "displayNames",
     "icon",
     "handlerName",
     "handlerClass",
@@ -49,9 +73,10 @@ import java.util.Map;
     "portName"
 })
 public class Handler {
-    protected List<String> description;
-    @XmlElement(name = "display-name")
-    protected List<String> displayName;
+    @XmlTransient
+    protected TextMap description = new TextMap();
+    @XmlTransient
+    protected TextMap displayName = new TextMap();
     @XmlElement(name = "icon")
     protected LocalCollection<Icon> icon = new LocalCollection<Icon>();
     @XmlElement(name = "handler-name", required = true)
@@ -72,18 +97,30 @@ public class Handler {
     @XmlID
     protected String id;
 
-    public List<String> getDescription() {
-        if (description == null) {
-            description = new ArrayList<String>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
     }
 
-    public List<String> getDisplayName() {
-        if (displayName == null) {
-            displayName = new ArrayList<String>();
-        }
-        return this.displayName;
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
+    }
+
+    @XmlElement(name = "display-name", required = true)
+    public Text[] getDisplayNames() {
+        return displayName.toArray();
+    }
+
+    public void setDisplayNames(Text[] text) {
+        displayName.set(text);
+    }
+
+    public String getDisplayName() {
+        return displayName.get();
     }
 
     public Collection<Icon> getIcons() {

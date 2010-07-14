@@ -32,37 +32,35 @@ import java.util.List;
 
 
 /**
- * The resource-refType contains a declaration of a
- * Deployment Component's reference to an external resource. It
- * consists of an optional description, the resource manager
- * connection factory reference name, an optional indication of
- * the resource manager connection factory type expected by the
- * Deployment Component code, an optional type of authentication
- * (Application or Container), and an optional specification of
- * the shareability of connections obtained from the resource
- * (Shareable or Unshareable).
- * <p/>
- * It also includes optional elements to define injection of
- * the named resource into fields or JavaBeans properties.
- * <p/>
- * The connection factory type must be supplied unless an
- * injection target is specified, in which case the type
- * of the target is used.  If both are specified, the type
- * must be assignment compatible with the type of the injection
- * target.
- * <p/>
- * Example:
- * <p/>
- * <resource-ref>
- * <res-ref-name>jdbc/EmployeeAppDB</res-ref-name>
- * <res-type>javax.sql.DataSource</res-type>
- * <res-auth>Container</res-auth>
- * <res-sharing-scope>Shareable</res-sharing-scope>
- * </resource-ref>
+ * javaee6.xsd
+ *
+ * <p>Java class for resource-refType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="resource-refType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="res-ref-name" type="{http://java.sun.com/xml/ns/javaee}jndi-nameType"/>
+ *         &lt;element name="res-type" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType" minOccurs="0"/>
+ *         &lt;element name="res-auth" type="{http://java.sun.com/xml/ns/javaee}res-authType" minOccurs="0"/>
+ *         &lt;element name="res-sharing-scope" type="{http://java.sun.com/xml/ns/javaee}res-sharing-scopeType" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}resourceGroup"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "resource-refType", propOrder = {
-        "description",
+        "descriptions",
         "resRefName",
         "resType",
         "resAuth",
@@ -73,8 +71,8 @@ import java.util.List;
         })
 public class ResourceRef implements JndiReference {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "res-ref-name", required = true)
     protected String resRefName;
     @XmlElement(name = "res-type")
@@ -132,11 +130,17 @@ public class ResourceRef implements JndiReference {
     }
 
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getResRefName() {

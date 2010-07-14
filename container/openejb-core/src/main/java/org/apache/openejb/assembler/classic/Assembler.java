@@ -75,6 +75,7 @@ import org.apache.openejb.core.CoreUserTransaction;
 import org.apache.openejb.core.JndiFactory;
 import org.apache.openejb.core.SimpleTransactionSynchronizationRegistry;
 import org.apache.openejb.core.TransactionSynchronizationRegistryWrapper;
+import org.apache.openejb.core.AppContext;
 import org.apache.openejb.core.ivm.naming.IvmContext;
 import org.apache.openejb.core.ivm.naming.IvmJndiFactory;
 import org.apache.openejb.core.timer.EjbTimerServiceImpl;
@@ -480,6 +481,8 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                 classLoader = ClassLoaderUtil.createClassLoader(appInfo.jarPath, new URL []{generatedJar.toURI().toURL()}, classLoader);
             }
 
+            AppContext appContext = new AppContext(appInfo.jarPath, SystemInstance.get(), classLoader);
+            
             // JPA - Persistence Units MUST be processed first since they will add ClassFileTransformers
             // to the class loader which must be added before any classes are loaded
             PersistenceBuilder persistenceBuilder = new PersistenceBuilder(persistenceClassLoaderHandler);
@@ -520,7 +523,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
             List<DeploymentInfo> allDeployments = new ArrayList<DeploymentInfo>();
 
             // EJB
-            EjbJarBuilder ejbJarBuilder = new EjbJarBuilder(props, classLoader);
+            EjbJarBuilder ejbJarBuilder = new EjbJarBuilder(props, appContext);
             for (EjbJarInfo ejbJar : appInfo.ejbJars) {
                 HashMap<String, DeploymentInfo> deployments = ejbJarBuilder.build(ejbJar);
 
@@ -528,7 +531,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                 PolicyContext policyContext = jaccPermissionsBuilder.build(ejbJar, deployments);
                 jaccPermissionsBuilder.install(policyContext);
 
-                MethodScheduleBuilder methodScheduleBuilder = new MethodScheduleBuilder(classLoader, ejbJar);
+                MethodScheduleBuilder methodScheduleBuilder = new MethodScheduleBuilder(ejbJar);
                 TransactionPolicyFactory transactionPolicyFactory = createTransactionPolicyFactory(ejbJar, classLoader);
                 for (DeploymentInfo deploymentInfo : deployments.values()) {
                     CoreDeploymentInfo coreDeploymentInfo = (CoreDeploymentInfo) deploymentInfo;
@@ -558,7 +561,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                         if (ejbTimeout != null) {
                             // If user set the tx attribute to RequiresNew change it to Required so a new transaction is not started
                             if (coreDeploymentInfo.getTransactionType(ejbTimeout) == TransactionType.RequiresNew) {
-                                coreDeploymentInfo.setMethodTransactionAttribute(ejbTimeout, "Required");
+                                coreDeploymentInfo.setMethodTransactionAttribute(ejbTimeout, TransactionType.Required);
                             }
 
                             // Create the timer
@@ -703,6 +706,17 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
     }
 
     private static List<DeploymentInfo> sort(List<DeploymentInfo> deployments) {
+        // Sort all the singletons to the back of the list.  We want to make sure
+        // all non-singletons are created first so that if a singleton refers to them
+        // they are available.
+        Collections.sort(deployments, new Comparator<DeploymentInfo>(){
+            public int compare(DeploymentInfo a, DeploymentInfo b) {
+                int aa = (a.getComponentType() == BeanType.SINGLETON) ? 1 : 0;
+                int bb = (b.getComponentType() == BeanType.SINGLETON) ? 1 : 0;
+                return aa - bb;
+            }
+        });
+
         // Sort all the beans with references to the back of the list.  Beans
         // without references to ther beans will be deployed first.
         deployments = References.sort(deployments, new References.Visitor<DeploymentInfo>(){

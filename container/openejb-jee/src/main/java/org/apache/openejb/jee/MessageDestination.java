@@ -23,79 +23,111 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 /**
- * The message-destinationType specifies a message
- * destination. The logical destination described by this
- * element is mapped to a physical destination by the Deployer.
- * <p/>
- * The message destination element contains:
- * <p/>
- * - an optional description
- * - an optional display-name
- * - an optional icon
- * - a message destination name which must be unique
- * among message destination names within the same
- * Deployment File.
- * - an optional mapped name
- * <p/>
- * Example:
- * <p/>
- * <message-destination>
- * <message-destination-name>CorporateStocks
- * </message-destination-name>
- * </message-destination>
+ * javaee6.xsd
+ * 
+ * <p>Java class for message-destinationType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="message-destinationType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
+ *         &lt;element name="message-destination-name" type="{http://java.sun.com/xml/ns/javaee}string"/>
+ *         &lt;element name="mapped-name" type="{http://java.sun.com/xml/ns/javaee}xsdStringType" minOccurs="0"/>
+ *         &lt;element name="lookup-name" type="{http://java.sun.com/xml/ns/javaee}xsdStringType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "message-destinationType", propOrder = {
-        "description",
-        "displayName",
+        "descriptions",
+        "displayNames",
         "icon",
         "messageDestinationName",
-        "mappedName"
+        "mappedName",
+        "lookupName"
         })
 public class MessageDestination implements Keyable<String> {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
-    @XmlElement(name = "display-name", required = true)
-    protected List<Text> displayName;
-    @XmlElement(required = true)
-    protected List<Icon> icon;
+    @XmlTransient
+    protected TextMap description = new TextMap();
+    @XmlTransient
+    protected TextMap displayName = new TextMap();
+    @XmlElement(name = "icon", required = true)
+    protected LocalCollection<Icon> icon = new LocalCollection<Icon>();
     @XmlElement(name = "message-destination-name", required = true)
     protected String messageDestinationName;
     @XmlElement(name = "mapped-name")
     protected String mappedName;
+    @XmlElement(name = "lookup-name")
+    protected String lookupName;
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
     }
 
-    public List<Text> getDisplayName() {
-        if (displayName == null) {
-            displayName = new ArrayList<Text>();
-        }
-        return this.displayName;
+    public void setDescriptions(Text[] text) {
+        description.set(text);
     }
 
-    public List<Icon> getIcon() {
+    public String getDescription() {
+        return description.get();
+    }
+
+    @XmlElement(name = "display-name", required = true)
+    public Text[] getDisplayNames() {
+        return displayName.toArray();
+    }
+
+    public void setDisplayNames(Text[] text) {
+        displayName.set(text);
+    }
+
+    public String getDisplayName() {
+        return displayName.get();
+    }
+
+    public Collection<Icon> getIcons() {
         if (icon == null) {
-            icon = new ArrayList<Icon>();
+            icon = new LocalCollection<Icon>();
         }
-        return this.icon;
+        return icon;
+    }
+
+    public Map<String,Icon> getIconMap() {
+        if (icon == null) {
+            icon = new LocalCollection<Icon>();
+        }
+        return icon.toMap();
+    }
+
+    public Icon getIcon() {
+        return icon.getLocal();
     }
 
     public String getMessageDestinationName() {
@@ -116,6 +148,14 @@ public class MessageDestination implements Keyable<String> {
 
     public void setMappedName(String value) {
         this.mappedName = value;
+    }
+
+    public String getLookupName() {
+        return lookupName;
+    }
+
+    public void setLookupName(String lookupName) {
+        this.lookupName = lookupName;
     }
 
     public String getId() {

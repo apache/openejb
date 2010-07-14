@@ -34,36 +34,47 @@ import java.util.Collection;
 
 
 /**
- * The assembly-descriptorType defines
- * application-assembly information.
+ * ejb-jar_3_1.xsd
+ *
  * <p/>
- * The application-assembly information consists of the
- * following parts: the definition of security roles, the
- * definition of method permissions, the definition of
- * transaction attributes for enterprise beans with
- * container-managed transaction demarcation, the definition
- * of interceptor bindings, a list of
- * methods to be excluded from being invoked, and a list of
- * exception types that should be treated as application exceptions.
+ * <p>Java class for assembly-descriptorType complex type.
  * <p/>
- * All the parts are optional in the sense that they are
- * omitted if the lists represented by them are empty.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * <p/>
- * Providing an assembly-descriptor in the deployment
- * descriptor is optional for the ejb-jar file producer.
+ * <pre>
+ * &lt;complexType name="assembly-descriptorType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="security-role" type="{http://java.sun.com/xml/ns/javaee}security-roleType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="method-permission" type="{http://java.sun.com/xml/ns/javaee}method-permissionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="container-transaction" type="{http://java.sun.com/xml/ns/javaee}container-transactionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="interceptor-binding" type="{http://java.sun.com/xml/ns/javaee}interceptor-bindingType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="message-destination" type="{http://java.sun.com/xml/ns/javaee}message-destinationType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="exclude-list" type="{http://java.sun.com/xml/ns/javaee}exclude-listType" minOccurs="0"/>
+ *         &lt;element name="application-exception" type="{http://java.sun.com/xml/ns/javaee}application-exceptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "assembly-descriptorType", propOrder = {
         "securityRole",
         "methodPermission",
         "containerTransaction",
+        //TODO moved out of assembly descriptor in schema
         "containerConcurrency",
+        //TODO moved out of assembly descriptor in schema
         "methodSchedule",
         "interceptorBinding",
         "messageDestination",
         "excludeList",
         "applicationException"
-        })
+})
 public class AssemblyDescriptor {
 
     @XmlElement(name = "security-role", required = true)
@@ -72,8 +83,10 @@ public class AssemblyDescriptor {
     protected List<MethodPermission> methodPermission;
     @XmlElement(name = "container-transaction", required = true)
     protected List<ContainerTransaction> containerTransaction;
+    //TODO moved out of assembly descriptor in schema
     @XmlElement(name = "container-concurrency", required = true)
     protected List<ContainerConcurrency> containerConcurrency;
+    //TODO moved out of assembly descriptor in schema
     @XmlElement(name = "method-schedule", required = true)
     protected List<MethodSchedule> methodSchedule;
     @XmlElement(name = "interceptor-binding", required = true)
@@ -110,12 +123,20 @@ public class AssemblyDescriptor {
         return this.containerTransaction;
     }
 
+    public Map<String, List<MethodAttribute>> getMethodTransactionMap(String ejbName) {
+        return getMethodAttributes(ejbName, getContainerTransaction());
+    }
+
+    //TODO moved out of assembly descriptor in schema
+
     public List<ContainerConcurrency> getContainerConcurrency() {
         if (containerConcurrency == null) {
             containerConcurrency = new ArrayList<ContainerConcurrency>();
         }
         return this.containerConcurrency;
     }
+
+    //TODO moved out of assembly descriptor in schema
 
     public List<MethodSchedule> getMethodSchedule() {
         if (methodSchedule == null) {
@@ -124,16 +145,16 @@ public class AssemblyDescriptor {
         return this.methodSchedule;
     }
 
-    public Map<String,List<MethodAttribute>> getMethodTransactionMap(String ejbName) {
-        return getMethodAttributes(ejbName, getContainerTransaction());
-    }
+    //TODO moved out of assembly descriptor in schema
 
-    public Map<String,List<MethodAttribute>> getMethodConcurrencyMap(String ejbName) {
+    public Map<String, List<MethodAttribute>> getMethodConcurrencyMap(String ejbName) {
         return getMethodAttributes(ejbName, getContainerConcurrency());
     }
 
-    public Map<String,List<MethodAttribute>> getMethodScheduleMap(String ejbName) {
-        Map<String,List<MethodAttribute>> methods = new LinkedHashMap<String,List<MethodAttribute>>();
+    //TODO moved out of assembly descriptor in schema
+
+    public Map<String, List<MethodAttribute>> getMethodScheduleMap(String ejbName) {
+        Map<String, List<MethodAttribute>> methods = new LinkedHashMap<String, List<MethodAttribute>>();
 
         for (MethodSchedule methodSchedule : getMethodSchedule()) {
             if (!methodSchedule.getEjbName().equals(ejbName)) continue;
@@ -141,7 +162,7 @@ public class AssemblyDescriptor {
             NamedMethod method = methodSchedule.getMethod();
             String methodName = method.getMethodName();
             List<MethodAttribute> list = methods.get(methodName);
-            if (list == null){
+            if (list == null) {
                 list = new ArrayList<MethodAttribute>();
                 methods.put(methodName, list);
             }
@@ -152,15 +173,15 @@ public class AssemblyDescriptor {
 
     private Map<String, List<MethodAttribute>> getMethodAttributes(String ejbName, List<? extends AttributeBinding> bindings) {
 
-        Map<String,List<MethodAttribute>> methods = new LinkedHashMap<String,List<MethodAttribute>>();
+        Map<String, List<MethodAttribute>> methods = new LinkedHashMap<String, List<MethodAttribute>>();
 
         for (AttributeBinding<?> binding : bindings) {
 
             for (Method method : binding.getMethod()) {
-                if (method.getEjbName().equals(ejbName)){
+                if (method.getEjbName().equals(ejbName)) {
                     String methodName = method.getMethodName();
                     List<MethodAttribute> list = methods.get(methodName);
-                    if (list == null){
+                    if (list == null) {
                         list = new ArrayList<MethodAttribute>();
                         methods.put(methodName, list);
                     }
@@ -178,7 +199,7 @@ public class AssemblyDescriptor {
         return this.interceptorBinding;
     }
 
-    public InterceptorBinding addInterceptorBinding(InterceptorBinding binding){
+    public InterceptorBinding addInterceptorBinding(InterceptorBinding binding) {
         getInterceptorBinding().add(binding);
         return binding;
     }
@@ -191,7 +212,7 @@ public class AssemblyDescriptor {
     }
 
     public ExcludeList getExcludeList() {
-        if (excludeList == null){
+        if (excludeList == null) {
             excludeList = new ExcludeList();
         }
         return excludeList;

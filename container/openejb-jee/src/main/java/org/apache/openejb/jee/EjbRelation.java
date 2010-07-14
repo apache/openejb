@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
@@ -29,26 +30,41 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * The ejb-relationType describes a relationship between two
- * entity beans with container-managed persistence.  It is used
- * by ejb-relation elements. It contains a description; an
- * optional ejb-relation-name element; and exactly two
- * relationship role declarations, defined by the
- * ejb-relationship-role elements. The name of the
- * relationship, if specified, is unique within the ejb-jar
- * file.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for ejb-relationType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="ejb-relationType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="ejb-relation-name" type="{http://java.sun.com/xml/ns/javaee}string" minOccurs="0"/>
+ *         &lt;element name="ejb-relationship-role" type="{http://java.sun.com/xml/ns/javaee}ejb-relationship-roleType"/>
+ *         &lt;element name="ejb-relationship-role" type="{http://java.sun.com/xml/ns/javaee}ejb-relationship-roleType"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ejb-relationType", propOrder = {
-        "description",
+        "descriptions",
         "ejbRelationName",
         "ejbRelationshipRole"
         })
 public class EjbRelation {
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "ejb-relation-name")
     protected String ejbRelationName;
 
@@ -60,11 +76,17 @@ public class EjbRelation {
     @XmlID
     protected String id;
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getEjbRelationName() {

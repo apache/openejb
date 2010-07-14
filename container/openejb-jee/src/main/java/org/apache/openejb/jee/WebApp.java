@@ -32,6 +32,31 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * web-common_3_0.xsd
+ * 
+ * <p>Java class for web-appType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="web-appType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;choice maxOccurs="unbounded" minOccurs="0">
+ *         &lt;element name="module-name" type="{http://java.sun.com/xml/ns/javaee}string" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}web-commonType"/>
+ *         &lt;element name="absolute-ordering" type="{http://java.sun.com/xml/ns/javaee}absoluteOrderingType"/>
+ *       &lt;/choice>
+ *       &lt;attGroup ref="{http://java.sun.com/xml/ns/javaee}web-common-attributes"/>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
+ */
+
 @XmlRootElement(name = "web-app")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "web-appType", propOrder = {
@@ -49,6 +74,7 @@ import java.util.Map;
         "mimeMapping",
         "welcomeFileList",
         "errorPage",
+        //In web-app-2.3.dtd
         "taglib",
         "jspConfig",
         "securityConstraint",
@@ -66,9 +92,13 @@ import java.util.Map;
         "persistenceUnitRef",
         "postConstruct",
         "preDestroy",
-        "messageDestination"
+        "messageDestination",
+        "absoluteOrdering",
+        "dataSource",
+        "moduleName"
+
 })
-public class WebApp implements JndiConsumer {
+public class WebApp implements WebCommon {
     @XmlTransient
     private String contextRoot;
 
@@ -79,7 +109,7 @@ public class WebApp implements JndiConsumer {
     @XmlElement(name = "icon", required = true)
     protected LocalCollection<Icon> icon = new LocalCollection<Icon>();
 
-    protected List<EmptyType> distributable;
+    protected List<Empty> distributable;
     @XmlElement(name = "context-param")
     protected List<ParamValue> contextParam;
     protected List<Filter> filter;
@@ -95,8 +125,9 @@ public class WebApp implements JndiConsumer {
     protected List<MimeMapping> mimeMapping;
     @XmlElement(name = "welcome-file-list")
     protected List<WelcomeFileList> welcomeFileList;
-    @XmlElement(name = "taglib")
-    protected List<Taglib> taglib;
+    //in web-app-2.3.dtd, not in any schema
+//    @XmlElement(name = "taglib")
+//    protected List<Taglib> taglib;
     @XmlElement(name = "error-page")
     protected List<ErrorPage> errorPage;
     @XmlElement(name = "jsp-config")
@@ -104,7 +135,7 @@ public class WebApp implements JndiConsumer {
     @XmlElement(name = "security-constraint")
     protected List<SecurityConstraint> securityConstraint;
     @XmlElement(name = "login-config")
-    protected List<LoginConfigType> loginConfig;
+    protected List<LoginConfig> loginConfig;
     @XmlElement(name = "security-role")
     protected List<SecurityRole> securityRole;
     @XmlElement(name = "locale-encoding-mapping-list")
@@ -128,6 +159,8 @@ public class WebApp implements JndiConsumer {
     protected KeyedCollection<String,PersistenceContextRef> persistenceContextRef;
     @XmlElement(name = "persistence-unit-ref", required = true)
     protected KeyedCollection<String,PersistenceUnitRef> persistenceUnitRef;
+    @XmlElement(name = "data-source", required = true)
+    protected KeyedCollection<String,DataSource> dataSource;
     @XmlElement(name = "post-construct", required = true)
     protected List<LifecycleCallback> postConstruct;
     @XmlElement(name = "pre-destroy", required = true)
@@ -135,6 +168,11 @@ public class WebApp implements JndiConsumer {
 
     @XmlElement(name = "message-destination", required = true)
     protected List<MessageDestination> messageDestination;
+
+    @XmlElement(name = "module-name")
+    protected String moduleName;
+    @XmlElement(name = "absolute-ordering")
+    protected AbsoluteOrdering absoluteOrdering;
 
 
     @XmlAttribute
@@ -150,44 +188,54 @@ public class WebApp implements JndiConsumer {
 
 
 
+    @Override
     public String getJndiConsumerName() {
         return contextRoot;
     }
 
+    @Override
     public String getContextRoot() {
         return contextRoot;
     }
 
+    @Override
     public void setContextRoot(String contextRoot) {
         this.contextRoot = contextRoot;
     }
 
+    @Override
     @XmlElement(name = "description", required = true)
     public Text[] getDescriptions() {
         return description.toArray();
     }
 
+    @Override
     public void setDescriptions(Text[] text) {
         description.set(text);
     }
 
+    @Override
     public String getDescription() {
         return description.get();
     }
 
+    @Override
     @XmlElement(name = "display-name", required = true)
     public Text[] getDisplayNames() {
         return displayName.toArray();
     }
 
+    @Override
     public void setDisplayNames(Text[] text) {
         displayName.set(text);
     }
 
+    @Override
     public String getDisplayName() {
         return displayName.get();
     }
 
+    @Override
     public Collection<Icon> getIcons() {
         if (icon == null) {
             icon = new LocalCollection<Icon>();
@@ -195,6 +243,7 @@ public class WebApp implements JndiConsumer {
         return icon;
     }
 
+    @Override
     public Map<String,Icon> getIconMap() {
         if (icon == null) {
             icon = new LocalCollection<Icon>();
@@ -202,17 +251,20 @@ public class WebApp implements JndiConsumer {
         return icon.toMap();
     }
 
+    @Override
     public Icon getIcon() {
         return icon.getLocal();
     }
 
-    public List<EmptyType> getDistributable() {
+    @Override
+    public List<Empty> getDistributable() {
         if (distributable == null) {
-            distributable = new ArrayList<EmptyType>();
+            distributable = new ArrayList<Empty>();
         }
         return this.distributable;
     }
 
+    @Override
     public List<ParamValue> getContextParam() {
         if (contextParam == null) {
             contextParam = new ArrayList<ParamValue>();
@@ -220,6 +272,7 @@ public class WebApp implements JndiConsumer {
         return this.contextParam;
     }
 
+    @Override
     public List<Filter> getFilter() {
         if (filter == null) {
             filter = new ArrayList<Filter>();
@@ -227,6 +280,7 @@ public class WebApp implements JndiConsumer {
         return this.filter;
     }
 
+    @Override
     public List<FilterMapping> getFilterMapping() {
         if (filterMapping == null) {
             filterMapping = new ArrayList<FilterMapping>();
@@ -234,6 +288,7 @@ public class WebApp implements JndiConsumer {
         return this.filterMapping;
     }
 
+    @Override
     public List<Listener> getListener() {
         if (listener == null) {
             listener = new ArrayList<Listener>();
@@ -241,6 +296,7 @@ public class WebApp implements JndiConsumer {
         return this.listener;
     }
 
+    @Override
     public List<Servlet> getServlet() {
         if (servlet == null) {
             servlet = new ArrayList<Servlet>();
@@ -248,6 +304,7 @@ public class WebApp implements JndiConsumer {
         return this.servlet;
     }
 
+    @Override
     public List<ServletMapping> getServletMapping() {
         if (servletMapping == null) {
             servletMapping = new ArrayList<ServletMapping>();
@@ -255,6 +312,7 @@ public class WebApp implements JndiConsumer {
         return this.servletMapping;
     }
 
+    @Override
     public List<SessionConfig> getSessionConfig() {
         if (sessionConfig == null) {
             sessionConfig = new ArrayList<SessionConfig>();
@@ -262,6 +320,7 @@ public class WebApp implements JndiConsumer {
         return this.sessionConfig;
     }
 
+    @Override
     public List<MimeMapping> getMimeMapping() {
         if (mimeMapping == null) {
             mimeMapping = new ArrayList<MimeMapping>();
@@ -269,6 +328,7 @@ public class WebApp implements JndiConsumer {
         return this.mimeMapping;
     }
 
+    @Override
     public List<WelcomeFileList> getWelcomeFileList() {
         if (welcomeFileList == null) {
             welcomeFileList = new ArrayList<WelcomeFileList>();
@@ -276,6 +336,7 @@ public class WebApp implements JndiConsumer {
         return this.welcomeFileList;
     }
 
+    @Override
     public List<ErrorPage> getErrorPage() {
         if (errorPage == null) {
             errorPage = new ArrayList<ErrorPage>();
@@ -283,6 +344,7 @@ public class WebApp implements JndiConsumer {
         return this.errorPage;
     }
 
+    @Override
     public List<JspConfig> getJspConfig() {
         if (jspConfig == null) {
             jspConfig = new ArrayList<JspConfig>();
@@ -290,6 +352,7 @@ public class WebApp implements JndiConsumer {
         return this.jspConfig;
     }
 
+    @Override
     public List<SecurityConstraint> getSecurityConstraint() {
         if (securityConstraint == null) {
             securityConstraint = new ArrayList<SecurityConstraint>();
@@ -297,13 +360,15 @@ public class WebApp implements JndiConsumer {
         return this.securityConstraint;
     }
 
-    public List<LoginConfigType> getLoginConfig() {
+    @Override
+    public List<LoginConfig> getLoginConfig() {
         if (loginConfig == null) {
-            loginConfig = new ArrayList<LoginConfigType>();
+            loginConfig = new ArrayList<LoginConfig>();
         }
         return this.loginConfig;
     }
 
+    @Override
     public List<SecurityRole> getSecurityRole() {
         if (securityRole == null) {
             securityRole = new ArrayList<SecurityRole>();
@@ -311,6 +376,7 @@ public class WebApp implements JndiConsumer {
         return this.securityRole;
     }
 
+    @Override
     public List<LocaleEncodingMappingList> getLocaleEncodingMappingList() {
         if (localeEncodingMappingList == null) {
             localeEncodingMappingList = new ArrayList<LocaleEncodingMappingList>();
@@ -444,6 +510,7 @@ public class WebApp implements JndiConsumer {
         return this.persistenceUnitRef.toMap();
     }
 
+    @Override
     public List<LifecycleCallback> getPostConstruct() {
         if (postConstruct == null) {
             postConstruct = new ArrayList<LifecycleCallback>();
@@ -451,6 +518,7 @@ public class WebApp implements JndiConsumer {
         return this.postConstruct;
     }
 
+    @Override
     public List<LifecycleCallback> getPreDestroy() {
         if (preDestroy == null) {
             preDestroy = new ArrayList<LifecycleCallback>();
@@ -458,6 +526,7 @@ public class WebApp implements JndiConsumer {
         return this.preDestroy;
     }
 
+    @Override
     public List<MessageDestination> getMessageDestination() {
         if (messageDestination == null) {
             messageDestination = new ArrayList<MessageDestination>();
@@ -465,28 +534,78 @@ public class WebApp implements JndiConsumer {
         return this.messageDestination;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public void setId(String value) {
         this.id = value;
     }
 
+    @Override
     public Boolean isMetadataComplete() {
         return metadataComplete != null && metadataComplete;
     }
 
+    @Override
     public void setMetadataComplete(Boolean value) {
         this.metadataComplete = value;
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
 
+    @Override
     public void setVersion(String value) {
         this.version = value;
+    }
+
+    public Collection<DataSource> getDataSource() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String,DataSource>();
+        }
+        return this.dataSource;
+    }
+
+    public Map<String,DataSource> getDataSourceMap() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String,DataSource>();
+        }
+        return this.dataSource.toMap();
+    }
+
+    public AbsoluteOrdering getAbsoluteOrdering() {
+        return absoluteOrdering;
+    }
+
+    public void setAbsoluteOrdering(AbsoluteOrdering absoluteOrdering) {
+        this.absoluteOrdering = absoluteOrdering;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    //compatibility with web-app-2.3.dtd
+    @XmlElement(name = "taglib")
+    public Taglib getTaglib() {
+        return null;
+    }
+
+    public void setTaglib(Taglib taglib) {
+        List<JspConfig> jspConfigs = getJspConfig();
+        if (jspConfigs.isEmpty()) {
+            jspConfigs.add(new JspConfig());
+        }
+        jspConfigs.get(0).getTaglib().add(taglib);
     }
 
 }

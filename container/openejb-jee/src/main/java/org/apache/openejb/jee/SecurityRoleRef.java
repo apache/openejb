@@ -30,13 +30,28 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
- * The security-role-refType contains the declaration of a
- * security role reference in a component's or a
- * Deployment Component's code. The declaration consists of an
- * optional description, the security role name used in the
- * code, and an optional link to a security role. If the
- * security role is not specified, the Deployer must choose an
- * appropriate security role.
+ * javaee6.xsd
+ *
+ * <p>Java class for security-role-refType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="security-role-refType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="role-name" type="{http://java.sun.com/xml/ns/javaee}role-nameType"/>
+ *         &lt;element name="role-link" type="{http://java.sun.com/xml/ns/javaee}role-nameType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "security-role-refType", propOrder = {
@@ -47,6 +62,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class SecurityRoleRef {
 
 
+    @XmlTransient
+    protected TextMap description = new TextMap();
+
     @XmlElement(name = "role-name", required = true)
     protected String roleName;
     @XmlElement(name = "role-link")
@@ -55,10 +73,6 @@ public class SecurityRoleRef {
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
-
-    @XmlTransient
-    protected TextMap description = new TextMap();
-
 
     public SecurityRoleRef() {
     }

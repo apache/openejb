@@ -16,28 +16,106 @@
  */
 package org.apache.openejb.config;
 
-import org.apache.openejb.*;
+
+import static java.lang.reflect.Modifier.isAbstract;
+import static java.util.Arrays.asList;
+import static org.apache.openejb.util.Join.join;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.annotation.ManagedBean;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.annotation.Resources;
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.RunAs;
+import javax.ejb.AccessTimeout;
+import javax.ejb.AfterBegin;
+import javax.ejb.AfterCompletion;
+import javax.ejb.ApplicationException;
+import javax.ejb.BeforeCompletion;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.DependsOn;
+import javax.ejb.EJB;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.EJBs;
+import javax.ejb.Init;
+import javax.ejb.Local;
+import javax.ejb.LocalBean;
+import javax.ejb.LocalHome;
+import javax.ejb.MessageDriven;
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
+import javax.ejb.Remote;
+import javax.ejb.RemoteHome;
+import javax.ejb.Remove;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.Stateful;
+import javax.ejb.StatefulTimeout;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.ExcludeClassInterceptors;
+import javax.interceptor.ExcludeDefaultInterceptors;
+import javax.interceptor.Interceptors;
+import javax.jws.HandlerChain;
+import javax.jws.WebService;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContexts;
+import javax.persistence.PersistenceUnit;
+import javax.persistence.PersistenceUnits;
+import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceProvider;
+import javax.xml.ws.WebServiceRef;
+import javax.xml.ws.WebServiceRefs;
+
+import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.api.LocalClient;
 import org.apache.openejb.api.RemoteClient;
-import org.apache.openejb.jee.EmptyType;
-import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.core.webservices.JaxWsUtils;
-import org.apache.openejb.core.TempClassLoader;
-import org.apache.xbean.finder.ClassFinder;
-import org.apache.xbean.finder.UrlSet;
-import org.apache.xbean.finder.AbstractFinder;
 import org.apache.openejb.jee.ActivationConfig;
 import org.apache.openejb.jee.ApplicationClient;
 import org.apache.openejb.jee.AroundInvoke;
+import org.apache.openejb.jee.AroundTimeout;
 import org.apache.openejb.jee.AssemblyDescriptor;
-import org.apache.openejb.jee.ConcurrencyAttribute;
-import org.apache.openejb.jee.ConcurrencyType;
+import org.apache.openejb.jee.ConcurrencyManagementType;
+import org.apache.openejb.jee.ConcurrentLockType;
 import org.apache.openejb.jee.ContainerConcurrency;
 import org.apache.openejb.jee.ContainerTransaction;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EjbReference;
+import org.apache.openejb.jee.Empty;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.ExcludeList;
 import org.apache.openejb.jee.FacesConfig;
@@ -71,7 +149,6 @@ import org.apache.openejb.jee.ResAuth;
 import org.apache.openejb.jee.ResSharingScope;
 import org.apache.openejb.jee.ResourceEnvRef;
 import org.apache.openejb.jee.ResourceRef;
-import org.apache.openejb.jee.Schedule;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.ServiceRef;
@@ -82,98 +159,21 @@ import org.apache.openejb.jee.SingletonBean;
 import org.apache.openejb.jee.StatefulBean;
 import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.Tag;
+import org.apache.openejb.jee.TimeUnitType;
+import org.apache.openejb.jee.Timeout;
 import org.apache.openejb.jee.TimerConsumer;
+import org.apache.openejb.jee.TimerSchedule;
 import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.TransAttribute;
 import org.apache.openejb.jee.TransactionType;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.jee.WebserviceDescription;
-import org.apache.openejb.jee.Timeout;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
-import org.apache.openejb.jee.oejb3.EjbDeployment;
-import static org.apache.openejb.util.Join.join;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.annotation.Resources;
-import javax.annotation.ManagedBean;
-import javax.annotation.security.DeclareRoles;
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.annotation.security.RunAs;
-import javax.ejb.ApplicationException;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.DependsOn;
-import javax.ejb.EJB;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
-import javax.ejb.EJBs;
-import javax.ejb.Init;
-import javax.ejb.Local;
-import javax.ejb.LocalBean;
-import javax.ejb.LocalHome;
-import javax.ejb.MessageDriven;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
-import javax.ejb.Remove;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.Stateful;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.ejb.StatefulTimeout;
-import javax.ejb.AccessTimeout;
-import javax.ejb.AfterBegin;
-import javax.ejb.BeforeCompletion;
-import javax.ejb.AfterCompletion;
-import javax.interceptor.ExcludeClassInterceptors;
-import javax.interceptor.ExcludeDefaultInterceptors;
-import javax.interceptor.Interceptors;
-import javax.jws.HandlerChain;
-import javax.jws.WebService;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContexts;
-import javax.persistence.PersistenceUnit;
-import javax.persistence.PersistenceUnits;
-import javax.xml.ws.Service;
-import javax.xml.ws.WebServiceProvider;
-import javax.xml.ws.WebServiceRef;
-import javax.xml.ws.WebServiceRefs;
-import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import static java.lang.reflect.Modifier.isAbstract;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import static java.util.Arrays.asList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Iterator;
+import org.apache.xbean.finder.AbstractFinder;
+import org.apache.xbean.finder.ClassFinder;
 
 /**
  * @version $Rev$ $Date$
@@ -234,8 +234,6 @@ public class AnnotationDeployer implements DynamicDeployer {
     }
 
     public static class DiscoverAnnotatedBeans implements DynamicDeployer {
-
-        private final AppModulePreProcessor.SessionSynchronizationProcessor sessionSynchronizationProcessor = new AppModulePreProcessor.SessionSynchronizationProcessor();
 
         public static final Set<String> knownResourceEnvTypes = new TreeSet<String>(asList(
                 "javax.ejb.SessionContext",
@@ -433,9 +431,11 @@ public class AnnotationDeployer implements DynamicDeployer {
                 if (enterpriseBean == null) {
                     enterpriseBean = new SingletonBean(ejbName, beanClass.getName());
                     ejbJar.addEnterpriseBean(enterpriseBean);
+                    LegacyProcessor.process(beanClass, enterpriseBean);
                 }
                 if (enterpriseBean.getEjbClass() == null) {
                     enterpriseBean.setEjbClass(beanClass.getName());
+                    LegacyProcessor.process(beanClass, enterpriseBean);
                 }
                 if (enterpriseBean instanceof SessionBean) {
                     SessionBean sessionBean = (SessionBean) enterpriseBean;
@@ -457,9 +457,11 @@ public class AnnotationDeployer implements DynamicDeployer {
                 if (enterpriseBean == null) {
                     enterpriseBean = new StatelessBean(ejbName, beanClass.getName());
                     ejbJar.addEnterpriseBean(enterpriseBean);
+                    LegacyProcessor.process(beanClass, enterpriseBean);
                 }
                 if (enterpriseBean.getEjbClass() == null) {
                     enterpriseBean.setEjbClass(beanClass.getName());
+                    LegacyProcessor.process(beanClass, enterpriseBean);
                 }
                 if (enterpriseBean instanceof SessionBean) {
                     SessionBean sessionBean = (SessionBean) enterpriseBean;
@@ -481,10 +483,11 @@ public class AnnotationDeployer implements DynamicDeployer {
                 if (enterpriseBean == null) {
                     enterpriseBean = new StatefulBean(ejbName, beanClass.getName());
                     ejbJar.addEnterpriseBean(enterpriseBean);
+                    LegacyProcessor.process(beanClass, enterpriseBean);
                 }
                 if (enterpriseBean.getEjbClass() == null) {
                     enterpriseBean.setEjbClass(beanClass.getName());
-                    sessionSynchronizationProcessor.process(beanClass, enterpriseBean);
+                    LegacyProcessor.process(beanClass, enterpriseBean);
                 }
                 if (enterpriseBean instanceof SessionBean) {
                     SessionBean sessionBean = (SessionBean) enterpriseBean;
@@ -530,9 +533,11 @@ public class AnnotationDeployer implements DynamicDeployer {
                 if (messageBean == null) {
                     messageBean = new MessageDrivenBean(ejbName);
                     ejbJar.addEnterpriseBean(messageBean);
+                    LegacyProcessor.process(beanClass, messageBean);
                 }
                 if (messageBean.getEjbClass() == null) {
                     messageBean.setEjbClass(beanClass.getName());
+                    LegacyProcessor.process(beanClass, messageBean);
                 }
             }
 
@@ -1002,7 +1007,7 @@ public class AnnotationDeployer implements DynamicDeployer {
                     if (logger.isDebugEnabled()) for (Class clazz : list) {
                         logger.debug("Found " + clazz.getName());
                     }
-                    
+
                     classes.addAll(list);
                 }
             }
@@ -1107,7 +1112,7 @@ public class AnnotationDeployer implements DynamicDeployer {
                         if(annotation != null) {
                             final Timeout timeout = new Timeout();
                             timeout.setTimeout(annotation.value());
-                            timeout.setUnit(annotation.unit().toString());
+                            timeout.setUnit(TimeUnitType.valueOf(annotation.unit().toString()));
                             sessionBean.setAccessTimeout(timeout);
                         }
                     }
@@ -1118,7 +1123,7 @@ public class AnnotationDeployer implements DynamicDeployer {
                         if(annotation != null) {
                             final Timeout timeout = new Timeout();
                             timeout.setTimeout(annotation.value());
-                            timeout.setUnit(annotation.unit().toString());
+                            timeout.setUnit(TimeUnitType.valueOf(annotation.unit().toString()));
                             sessionBean.setStatefulTimeout(timeout);
                         }
                     }
@@ -1157,7 +1162,7 @@ public class AnnotationDeployer implements DynamicDeployer {
 
                     MethodSchedule methodSchedule = new MethodSchedule(ejbName, method);
                     for (javax.ejb.Schedule schedule : list) {
-                        Schedule s = new Schedule();
+                        TimerSchedule s = new TimerSchedule();
                         s.setSecond(schedule.second());
                         s.setMinute(schedule.minute());
                         s.setHour(schedule.hour());
@@ -1354,18 +1359,18 @@ public class AnnotationDeployer implements DynamicDeployer {
                             /*
                              * @ConcurrencyManagement
                              */
-                            if (sessionBean.getConcurrencyType() == null) {
+                            if (sessionBean.getConcurrencyManagementType() == null) {
                                 ConcurrencyManagement tx = getInheritableAnnotation(clazz, ConcurrencyManagement.class);
-                                ConcurrencyManagementType concurrencyType = ConcurrencyManagementType.CONTAINER;
+                                javax.ejb.ConcurrencyManagementType concurrencyType = javax.ejb.ConcurrencyManagementType.CONTAINER;
                                 if (tx != null) {
                                     concurrencyType = tx.value();
                                 }
                                 switch (concurrencyType) {
                                     case BEAN:
-                                        sessionBean.setConcurrencyType(ConcurrencyType.BEAN);
+                                        sessionBean.setConcurrencyManagementType(ConcurrencyManagementType.BEAN);
                                         break;
                                     case CONTAINER:
-                                        sessionBean.setConcurrencyType(ConcurrencyType.CONTAINER);
+                                        sessionBean.setConcurrencyManagementType(ConcurrencyManagementType.CONTAINER);
                                         break;
                                 }
                             }
@@ -1373,7 +1378,7 @@ public class AnnotationDeployer implements DynamicDeployer {
                             /*
                              * @Lock
                              */
-                            if (sessionBean.getConcurrencyType() == ConcurrencyType.CONTAINER) {
+                            if (sessionBean.getConcurrencyManagementType() == ConcurrencyManagementType.CONTAINER) {
                                 processAttributes(new ConcurrencyAttributeHandler(assemblyDescriptor, ejbName), clazz, inheritedClassFinder);
                             } else {
                                 checkAttributes(new ConcurrencyAttributeHandler(assemblyDescriptor, ejbName), ejbName, ejbModule, classFinder, "invalidConcurrencyAttribute");
@@ -1382,9 +1387,9 @@ public class AnnotationDeployer implements DynamicDeployer {
                             /*
                              * @Startup
                              */
-                            if (!sessionBean.hasLoadOnStartup()) {
+                            if (!sessionBean.hasInitOnStartup()) {
                                 Startup startup = getInheritableAnnotation(clazz, Startup.class);
-                                sessionBean.setLoadOnStartup(startup != null);
+                                sessionBean.setInitOnStartup(startup != null);
                             }
 
                         }
@@ -1859,7 +1864,7 @@ public class AnnotationDeployer implements DynamicDeployer {
             for (Class interfce : all.unspecified) sessionBean.addBusinessLocal(interfce);
 
             if (beanClass.getAnnotation(LocalBean.class) != null || beanClass.getInterfaces().length == 0) {
-                sessionBean.setLocalBean(new EmptyType());
+                sessionBean.setLocalBean(new Empty());
             }
 
         }
@@ -2071,6 +2076,16 @@ public class AnnotationDeployer implements DynamicDeployer {
             }
 
             /*
+             *  @AroundTimeout
+             */
+            AroundTimeout aroundTimeout = getFirst(bean.getAroundTimeout());
+            if (aroundTimeout == null) {
+                for (Method method : classFinder.findAnnotatedMethods(javax.interceptor.AroundTimeout.class)) {
+                    bean.getAroundTimeout().add(new AroundTimeout(method));
+                }
+            }
+
+            /*
              * @Timeout
              */
             if (bean instanceof TimerConsumer) {
@@ -2174,7 +2189,7 @@ public class AnnotationDeployer implements DynamicDeployer {
             }
         }
 
-        private void buildAnnotatedRefs(JndiConsumer consumer, ClassFinder classFinder, ClassLoader classLoader) throws OpenEJBException {
+        public void buildAnnotatedRefs(JndiConsumer consumer, ClassFinder classFinder, ClassLoader classLoader) throws OpenEJBException {
             //
             // @EJB
             //
@@ -3094,11 +3109,13 @@ public class AnnotationDeployer implements DynamicDeployer {
                 return assemblyDescriptor.getMethodConcurrencyMap(ejbName);
             }
 
+            //TODO uses non-existent ContainerConcurrency
             public void addClassLevelDeclaration(javax.ejb.Lock attribute, Class type) {
                 ContainerConcurrency ctx = new ContainerConcurrency(cast(attribute.value()), type.getName(), ejbName, "*");
                 assemblyDescriptor.getContainerConcurrency().add(ctx);
             }
 
+            //TODO uses non-existent ContainerConcurrency
             public void addMethodLevelDeclaration(javax.ejb.Lock attribute, Method method) {
                 ContainerConcurrency ctx = new ContainerConcurrency(cast(attribute.value()), ejbName, method);
                 assemblyDescriptor.getContainerConcurrency().add(ctx);
@@ -3108,8 +3125,8 @@ public class AnnotationDeployer implements DynamicDeployer {
                 return javax.ejb.Lock.class;
             }
 
-            private ConcurrencyAttribute cast(javax.ejb.LockType lockType) {
-                return ConcurrencyAttribute.valueOf(lockType.toString());
+            private ConcurrentLockType cast(javax.ejb.LockType lockType) {
+                return ConcurrentLockType.valueOf(lockType.toString());
             }
         }
 

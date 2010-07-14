@@ -68,7 +68,7 @@ public class TimerContainerTest extends TestCase {
         // containers
         StatelessSessionContainerInfo statelessContainerInfo = config.configureService(StatelessSessionContainerInfo.class);
         statelessContainerInfo.properties.setProperty("TimeOut", "10");
-        statelessContainerInfo.properties.setProperty("PoolSize", "0");
+        statelessContainerInfo.properties.setProperty("MaxSize", "0");
         statelessContainerInfo.properties.setProperty("StrictPooling", "false");
         assembler.createContainer(statelessContainerInfo);
 
@@ -100,6 +100,7 @@ public class TimerContainerTest extends TestCase {
         public WidgetBean() {           
         }
 
+        @Resource
         public void setSessionContext(SessionContext sessionContext) {
         }
 

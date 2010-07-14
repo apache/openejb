@@ -18,13 +18,11 @@ package org.apache.openejb;
 
 import org.apache.openejb.core.interceptor.InterceptorData;
 import org.apache.openejb.core.timer.EjbTimerService;
-import org.apache.openejb.core.timer.MethodSchedule;
 import org.apache.openejb.core.ExceptionType;
 import org.apache.openejb.core.transaction.TransactionType;
 import org.apache.openejb.core.transaction.TransactionPolicyFactory;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Map;
 import java.util.List;
 import java.util.Set;
@@ -35,21 +33,11 @@ import javax.ejb.EJBLocalHome;
 
 public interface DeploymentInfo {
 
-    final public static byte READ_LOCK = (byte) 6;
-
-    final public static byte WRITE_LOCK = (byte) 7;
-
-    final public static String AC_CREATE_EJBHOME = "create.ejbhome";
-
     public BeanType getComponentType();
 
     public InterfaceType getInterfaceType(Class clazz);
 
     public TransactionType getTransactionType(Method method);
-
-    public Collection<String> getAuthorizedRoles(Method method);
-
-    public String [] getAuthorizedRoles(String action);
 
     public Container getContainer();
 
@@ -60,8 +48,6 @@ public interface DeploymentInfo {
     public String getModuleID();
 
     public String getRunAs();
-
-    public String getSecurityRole(String securityRoleReference);
 
     public boolean isBeanManagedTransaction();
 
@@ -105,23 +91,11 @@ public interface DeploymentInfo {
 
     public ClassLoader getClassLoader();
 
-    public List<Method> getAroundInvoke();
-
-    public List<Method> getPostConstruct();
-
-    public List<Method> getPreDestroy();
-
-    public List<Method> getPostActivate();
-
-    public List<Method> getPrePassivate();
-
     public List<Method> getRemoveMethods();
 
     public List<Injection> getInjections();
 
     public List<InterceptorData> getMethodInterceptors(Method method);
-
-    public List<MethodSchedule> getMethodSchedules();
 
     public void setContainer(Container container);
 
@@ -168,6 +142,9 @@ public interface DeploymentInfo {
     }
 
     public interface ServiceEndpoint {
+    }
+
+    public interface Timeout {
     }
 
     public <T> T get(Class<T> type);

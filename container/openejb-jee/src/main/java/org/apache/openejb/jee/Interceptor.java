@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -31,27 +32,40 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Map;
 
-
 /**
- * The interceptorType element declares information about a single
- * interceptor class.  It consists of :
- * <p/>
- * - An optional description.
- * - The fully-qualified name of the interceptor class.
- * - An optional list of around invoke methods declared on the
- * interceptor class and/or its super-classes.
- * - An optional list environment dependencies for the interceptor
- * class and/or its super-classes.
- * - An optional list of post-activate methods declared on the
- * interceptor class and/or its super-classes.
- * - An optional list of pre-passivate methods declared on the
- * interceptor class and/or its super-classes.
+ * ejb-jar_3_1.xsd
+ *
+ * <p>Java class for interceptorType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="interceptorType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="description" type="{http://java.sun.com/xml/ns/javaee}descriptionType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="interceptor-class" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *         &lt;element name="around-invoke" type="{http://java.sun.com/xml/ns/javaee}around-invokeType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="around-timeout" type="{http://java.sun.com/xml/ns/javaee}around-timeoutType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}jndiEnvironmentRefsGroup"/>
+ *         &lt;element name="post-activate" type="{http://java.sun.com/xml/ns/javaee}lifecycle-callbackType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="pre-passivate" type="{http://java.sun.com/xml/ns/javaee}lifecycle-callbackType" maxOccurs="unbounded" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "interceptorType", propOrder = {
-        "description",
+        "descriptions",
         "interceptorClass",
         "aroundInvoke",
+        "aroundTimeout",
         "envEntry",
         "ejbRef",
         "ejbLocalRef",
@@ -63,6 +77,7 @@ import java.util.Map;
         "persistenceUnitRef",
         "postConstruct",
         "preDestroy",
+        "dataSource",
         "postActivate",
         "prePassivate",
         "afterBegin",
@@ -71,12 +86,14 @@ import java.util.Map;
         })
 public class Interceptor implements JndiConsumer, Session {
 
-    @XmlElement(required = true)
-    protected List<Text> description;
+    @XmlTransient
+    protected TextMap description = new TextMap();
     @XmlElement(name = "interceptor-class", required = true)
     protected String interceptorClass;
     @XmlElement(name = "around-invoke", required = true)
     protected List<AroundInvoke> aroundInvoke;
+    @XmlElement(name = "around-timeout")
+    protected List<AroundTimeout> aroundTimeout;
     @XmlElement(name = "env-entry", required = true)
     protected KeyedCollection<String,EnvEntry> envEntry;
     @XmlElement(name = "ejb-ref", required = true)
@@ -95,6 +112,8 @@ public class Interceptor implements JndiConsumer, Session {
     protected KeyedCollection<String,PersistenceContextRef> persistenceContextRef;
     @XmlElement(name = "persistence-unit-ref", required = true)
     protected KeyedCollection<String,PersistenceUnitRef> persistenceUnitRef;
+    @XmlElement(name = "data-source", required = true)
+    protected KeyedCollection<String,DataSource> dataSource;
     @XmlElement(name = "post-construct", required = true)
     protected List<LifecycleCallback> postConstruct;
     @XmlElement(name = "pre-destroy", required = true)
@@ -132,11 +151,17 @@ public class Interceptor implements JndiConsumer, Session {
         return interceptorClass.replaceAll(".*\\.","");
     }
 
-    public List<Text> getDescription() {
-        if (description == null) {
-            description = new ArrayList<Text>();
-        }
-        return this.description;
+    @XmlElement(name = "description", required = true)
+    public Text[] getDescriptions() {
+        return description.toArray();
+    }
+
+    public void setDescriptions(Text[] text) {
+        description.set(text);
+    }
+
+    public String getDescription() {
+        return description.get();
     }
 
     public String getInterceptorClass() {
@@ -157,6 +182,13 @@ public class Interceptor implements JndiConsumer, Session {
     public void addAroundInvoke(String method){
         assert interceptorClass != null: "Set the interceptorClass before calling this method";
         getAroundInvoke().add(new AroundInvoke(interceptorClass, method));
+    }
+
+    public List<AroundTimeout> getAroundTimeout() {
+        if (aroundTimeout == null) {
+            aroundTimeout = new ArrayList<AroundTimeout>();
+        }
+        return this.aroundTimeout;
     }
 
     public Collection<EnvEntry> getEnvEntry() {
@@ -285,6 +317,22 @@ public class Interceptor implements JndiConsumer, Session {
         return this.persistenceUnitRef.toMap();
     }
 
+    @Override
+    public Collection<DataSource> getDataSource() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String,DataSource>();
+        }
+        return this.dataSource;
+    }
+
+    @Override
+    public Map<String,DataSource> getDataSourceMap() {
+        if (dataSource == null) {
+            dataSource = new KeyedCollection<String,DataSource>();
+        }
+        return this.dataSource.toMap();
+    }
+
     public List<LifecycleCallback> getPostConstruct() {
         if (postConstruct == null) {
             postConstruct = new ArrayList<LifecycleCallback>();
@@ -385,4 +433,8 @@ public class Interceptor implements JndiConsumer, Session {
         this.id = value;
     }
 
+    public void addAroundTimeout(String method) {
+        assert interceptorClass != null : "Set the interceptorClass before calling this method";
+        getAroundTimeout().add(new AroundTimeout(interceptorClass, method));
+    }
 }

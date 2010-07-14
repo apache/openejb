@@ -31,6 +31,33 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * web-common_3_0.xsd
+ *
+ * <p>Java class for filterType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="filterType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
+ *         &lt;element name="filter-name" type="{http://java.sun.com/xml/ns/javaee}filter-nameType"/>
+ *         &lt;element name="filter-class" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType" minOccurs="0"/>
+ *         &lt;element name="async-supported" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="init-param" type="{http://java.sun.com/xml/ns/javaee}param-valueType" maxOccurs="unbounded" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
+ */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "filterType", propOrder = {
         "descriptions",
@@ -38,6 +65,7 @@ import java.util.Map;
         "icon",
         "filterName",
         "filterClass",
+        "asyncSupported",
         "initParam"
 })
 public class Filter {
@@ -53,6 +81,8 @@ public class Filter {
     protected String filterName;
     @XmlElement(name = "filter-class", required = true)
     protected String filterClass;
+    @XmlElement(name = "async-supported")
+    protected boolean asyncSupported;
     @XmlElement(name = "init-param")
     protected List<ParamValue> initParam;
     @XmlAttribute
@@ -73,6 +103,10 @@ public class Filter {
         return description.get();
     }
 
+    public void addDescription(Text text) {
+        description.add(text);
+    }
+
     @XmlElement(name = "display-name", required = true)
     public Text[] getDisplayNames() {
         return displayName.toArray();
@@ -84,6 +118,10 @@ public class Filter {
 
     public String getDisplayName() {
         return displayName.get();
+    }
+
+    public void addDisplayName(Text text) {
+        displayName.add(text);
     }
 
     public Collection<Icon> getIcons() {
@@ -118,6 +156,14 @@ public class Filter {
 
     public void setFilterClass(String value) {
         this.filterClass = value;
+    }
+
+    public boolean isAsyncSupported() {
+        return asyncSupported;
+    }
+
+    public void setAsyncSupported(boolean asyncSupported) {
+        this.asyncSupported = asyncSupported;
     }
 
     public List<ParamValue> getInitParam() {

@@ -28,13 +28,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The adminobjectType specifies information about an
- * administered object.  Administered objects are specific to a
- * messaging style or message provider.  This contains
- * information on the Java type of the interface implemented by
- * an administered object, its Java class name and its
- * configuration properties.
+ * connector_1_6.xsd
+ *
+ * <p>Java class for adminobjectType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="adminobjectType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="adminobject-interface" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *         &lt;element name="adminobject-class" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *         &lt;element name="config-property" type="{http://java.sun.com/xml/ns/javaee}config-propertyType" maxOccurs="unbounded" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
  */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "adminobjectType", propOrder = {
         "adminObjectInterface",

@@ -31,6 +31,41 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * web-common_3_0.xsd
+ * 
+ * <p>Java class for servletType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
+ * <pre>
+ * &lt;complexType name="servletType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;group ref="{http://java.sun.com/xml/ns/javaee}descriptionGroup"/>
+ *         &lt;element name="servlet-name" type="{http://java.sun.com/xml/ns/javaee}servlet-nameType"/>
+ *         &lt;choice minOccurs="0">
+ *           &lt;element name="servlet-class" type="{http://java.sun.com/xml/ns/javaee}fully-qualified-classType"/>
+ *           &lt;element name="jsp-file" type="{http://java.sun.com/xml/ns/javaee}jsp-fileType"/>
+ *         &lt;/choice>
+ *         &lt;element name="init-param" type="{http://java.sun.com/xml/ns/javaee}param-valueType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="load-on-startup" type="{http://java.sun.com/xml/ns/javaee}load-on-startupType" minOccurs="0"/>
+ *         &lt;element name="enabled" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="async-supported" type="{http://java.sun.com/xml/ns/javaee}true-falseType" minOccurs="0"/>
+ *         &lt;element name="run-as" type="{http://java.sun.com/xml/ns/javaee}run-asType" minOccurs="0"/>
+ *         &lt;element name="security-role-ref" type="{http://java.sun.com/xml/ns/javaee}security-role-refType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="multipart-config" type="{http://java.sun.com/xml/ns/javaee}multipart-configType" minOccurs="0"/>
+ *       &lt;/sequence>
+ *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ *
+ *
+ */
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "servletType", propOrder = {
         "descriptions",
@@ -41,8 +76,11 @@ import java.util.Map;
         "jspFile",
         "initParam",
         "loadOnStartup",
+        "enabled",
+        "asyncSupported",
         "runAs",
-        "securityRoleRef"
+        "securityRoleRef",
+        "multipartConfig"
 })
 public class Servlet {
 
@@ -61,12 +99,18 @@ public class Servlet {
     protected String jspFile;
     @XmlElement(name = "init-param")
     protected List<ParamValue> initParam;
+    @XmlJavaTypeAdapter(type = Integer.class, value = LoadOnStartupAdapter.class)
     @XmlElement(name = "load-on-startup")
-    protected Boolean loadOnStartup;
+    protected Integer loadOnStartup;
+    protected Boolean enabled;
+    @XmlElement(name = "async-supported")
+    protected Boolean asyncSupported;
     @XmlElement(name = "run-as")
     protected RunAs runAs;
     @XmlElement(name = "security-role-ref")
     protected List<SecurityRoleRef> securityRoleRef;
+    @XmlElement(name = "multipart-config")
+    protected MultipartConfig multipartConfig;
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -85,6 +129,10 @@ public class Servlet {
         return description.get();
     }
 
+    public void addDescription(Text text) {
+        description.add(text);
+    }
+
     @XmlElement(name = "display-name", required = true)
     public Text[] getDisplayNames() {
         return displayName.toArray();
@@ -96,6 +144,10 @@ public class Servlet {
 
     public String getDisplayName() {
         return displayName.get();
+    }
+
+    public void addDisplayName(Text text) {
+        displayName.add(text);
     }
 
     public Collection<Icon> getIcons() {
@@ -147,12 +199,28 @@ public class Servlet {
         return this.initParam;
     }
 
-    public Boolean getLoadOnStartup() {
+    public Integer getLoadOnStartup() {
         return loadOnStartup;
     }
 
-    public void setLoadOnStartup(Boolean value) {
+    public void setLoadOnStartup(Integer value) {
         this.loadOnStartup = value;
+    }
+
+    public Boolean getAsyncSupported() {
+        return asyncSupported;
+    }
+
+    public void setAsyncSupported(Boolean asyncSupported) {
+        this.asyncSupported = asyncSupported;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     public RunAs getRunAs() {
@@ -168,6 +236,14 @@ public class Servlet {
             securityRoleRef = new ArrayList<SecurityRoleRef>();
         }
         return this.securityRoleRef;
+    }
+
+    public MultipartConfig getMultipartConfig() {
+        return multipartConfig;
+    }
+
+    public void setMultipartConfig(MultipartConfig multipartConfig) {
+        this.multipartConfig = multipartConfig;
     }
 
     public String getId() {
