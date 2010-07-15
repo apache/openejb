@@ -51,6 +51,7 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.jee.Application;
 import org.apache.openejb.jee.ApplicationClient;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.FacesConfig;
 import org.apache.openejb.jee.JavaWsdlMapping;
 import org.apache.openejb.jee.JaxbJavaee;
@@ -62,6 +63,7 @@ import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.jee.WebserviceDescription;
 import org.apache.openejb.jee.Webservices;
+import org.apache.openejb.util.Classes;
 import org.apache.openejb.util.JarExtractor;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
@@ -481,7 +483,7 @@ public class DeploymentLoader {
         }
 
         ejbModule.setClientModule(createClientModule(baseUrl, jarPath, classLoader, null, false));
-
+        
         // load webservices descriptor
         addWebservices(ejbModule);
         return ejbModule;
@@ -554,15 +556,19 @@ public class DeploymentLoader {
         if (webXmlUrl != null){
             webApp = ReadDescriptors.readWebApp(webXmlUrl);
         }
+        
+        // determine war class path
+        URL[] webUrls = getWebappUrls(warFile);
+        ClassLoader warClassLoader = ClassLoaderUtil.createTempClassLoader(appId, webUrls, parentClassLoader);
+        
+        //Look for beans.xml
+        URL beansXmlUrl = descriptors.get("beans.xml");
 
         // if this is a standalone module (no-context root), and webApp.getId is set then that is the module name
         if (contextRoot == null && webApp != null && webApp.getId() != null) {
             moduleName = webApp.getId();
         }
-
-        // determine war class path
-        URL[] webUrls = getWebappUrls(warFile);
-        ClassLoader warClassLoader = ClassLoaderUtil.createTempClassLoader(appId, webUrls, parentClassLoader);
+        
 
         // create web module
         WebModule webModule = new WebModule(webApp, contextRoot, warClassLoader, warFile.getAbsolutePath(), moduleName);
@@ -573,6 +579,26 @@ public class DeploymentLoader {
             webModule.getWatchedResources().add(URLs.toFilePath(webXmlUrl));
         }
 
+        //This module is CDI enabled
+        if(beansXmlUrl != null)
+        {
+            try{
+                for(URL webAppUrl : webUrls){
+                    if(scanJarForBeansXml(webAppUrl) != null){
+                        webModule.getBeansXmls().add(webAppUrl);
+                        webModule.getCdiCandidateClasses().addAll(Classes.getClassesFromUrl(webAppUrl));
+                    }
+                }
+                
+                webModule.getBeansXmls().add(beansXmlUrl);
+                webModule.getCdiCandidateClasses().addAll(Classes.getClassesFromUrl(beansXmlUrl));
+            }
+            catch (IOException e){
+                //Ignore
+            }
+        }
+
+        
         // find all tag libs
         addTagLibraries(webModule);
 
@@ -910,6 +936,40 @@ public class DeploymentLoader {
 
         return urls;
     }
+    
+    private static URL scanJarForBeansXml(URL url) {
+
+        JarFile jarFile = null;
+        try {
+            File file = new File(url.toURI());
+            if(file.isDirectory()){
+                return null;
+            }
+                        
+            jarFile = new JarFile(file);
+
+            for (JarEntry entry : Collections.list(jarFile.entries())) {
+                String name = entry.getName();
+                if (!name.startsWith("META-INF/") || !name.contains("beans.xml")) {
+                    continue;
+                }
+                return url;
+            }
+        } catch (Exception e) {
+            logger.warning("Error scanning jar for beans.xml: " + url.getFile(), e);
+        } finally {
+            if (jarFile != null) {
+                try {
+                    jarFile.close();
+                } catch (IOException e) {
+                    // exception ignored
+                }
+            }
+        }
+        
+        return null;
+    }
+    
 
     protected  ConnectorModule createConnectorModule(String appId, String rarPath, ClassLoader parentClassLoader, String moduleId) throws OpenEJBException {
         URL baseUrl;// unpack the rar file

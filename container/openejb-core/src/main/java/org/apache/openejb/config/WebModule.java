@@ -17,8 +17,10 @@
 package org.apache.openejb.config;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +53,12 @@ public class WebModule implements WsModule {
     // List of all faces configuration files found in this web module
     private final List<FacesConfig> facesConfigs = new ArrayList<FacesConfig>();
     private AbstractFinder finder;
+    
+    //beans.xml files
+    private final Set<URL> beansXmls = new HashSet<URL>();
+    
+    //CDI beans candiate classes
+    private final Set<String> cdiCandidateClasses = new HashSet<String>();
 
 
     public WebModule(WebApp webApp, String contextRoot, ClassLoader classLoader, String jarLocation, String moduleId) {
@@ -170,4 +178,14 @@ public class WebModule implements WsModule {
     public List<FacesConfig> getFacesConfigs() {
 		return facesConfigs;
 	}
+
+    public Set<URL> getBeansXmls(){
+        return beansXmls;
+    }
+
+    public Set<String> getCdiCandidateClasses(){
+        return cdiCandidateClasses;
+    }
+    
+    
 }

@@ -23,6 +23,7 @@ import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.SetAccessible;
 import org.apache.openejb.util.Classes;
 import org.apache.openejb.OpenEJBException;
+import org.apache.webbeans.ejb.common.interceptor.OpenWebBeansEjbInterceptor;
 
 import javax.interceptor.InvocationContext;
 import java.util.Comparator;
@@ -100,6 +101,9 @@ public class InterceptorBindingBuilder {
         toMethods(clazz, beanInfo.aroundInvoke, beanAsInterceptor.getAroundInvoke());
         toCallback(clazz, beanInfo.postConstruct, beanAsInterceptor.getPostConstruct());
         toCallback(clazz, beanInfo.preDestroy, beanAsInterceptor.getPreDestroy());
+        
+        //Cdi interceptor add the end of the chain
+        InterceptorData cdiInterceptor = InterceptorData.scan(OpenWebBeansEjbInterceptor.class);
 
         if (beanInfo instanceof StatefulBeanInfo) {
             StatefulBeanInfo stateful = (StatefulBeanInfo) beanInfo;
@@ -116,14 +120,20 @@ public class InterceptorBindingBuilder {
         for (Method method : deploymentInfo.getBeanClass().getMethods()) {
             List<InterceptorData> methodInterceptors = createInterceptorDatas(method, beanInfo.ejbName, this.bindings);
 
+            //Cdi Interceptor
+            methodInterceptors.add(cdiInterceptor);
+
             // The bean itself gets to intercept too and is always last.
             methodInterceptors.add(beanAsInterceptor);
-
+            
             deploymentInfo.setMethodInterceptors(method, methodInterceptors);
         }
 
         List<InterceptorData> callbackInterceptorDatas = createInterceptorDatas(null, beanInfo.ejbName, this.packageAndClassBindings);
 
+        //Cdi interceptor
+        callbackInterceptorDatas.add(cdiInterceptor);
+        
         // The bean itself gets to intercept too and is always last.
         callbackInterceptorDatas.add(beanAsInterceptor);
 

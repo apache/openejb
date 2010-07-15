@@ -68,6 +68,7 @@ import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.OpenEJB;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.UndeployException;
+import org.apache.openejb.cdi.CdiAppContainer;
 import org.apache.openejb.core.ConnectorReference;
 import org.apache.openejb.core.CoreContainerSystem;
 import org.apache.openejb.core.CoreDeploymentInfo;
@@ -103,6 +104,7 @@ import org.apache.openejb.util.References;
 import org.apache.openejb.util.SafeToolkit;
 import org.apache.openejb.util.proxy.ProxyFactory;
 import org.apache.openejb.util.proxy.ProxyManager;
+import org.apache.webbeans.inject.OWBInjector;
 import org.apache.xbean.finder.ResourceFinder;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
@@ -452,6 +454,11 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
     public List<DeploymentInfo> createApplication(AppInfo appInfo, ClassLoader classLoader, boolean start) throws OpenEJBException, IOException, NamingException {
 
         logger.info("createApplication.start", appInfo.jarPath);
+        
+        //Configure CDI Container
+        CdiAppContainer appContainer = new CdiAppContainer(classLoader,appInfo);
+        addDeploymentListener(appContainer);
+        
 
         // To start out, ensure we don't already have any beans deployed with duplicate IDs.  This
         // is a conflict we can't handle.
@@ -847,6 +854,13 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
             try {
                 Container container = deployment.getContainer();
                 container.undeploy(deployment);
+                
+                //Destroy Cdi instances
+                CoreDeploymentInfo coreDeploymentInfo = (CoreDeploymentInfo)deployment;
+                for(OWBInjector injector : coreDeploymentInfo.getInjectorInstances()){
+                    injector.destroy();
+                }
+                
                 deployment.setContainer(null);
             } catch (Throwable t) {
                 undeployException.getCauses().add(new Exception("bean: " + deploymentID + ": " + t.getMessage(), t));

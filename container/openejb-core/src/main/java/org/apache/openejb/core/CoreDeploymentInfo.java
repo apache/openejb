@@ -58,6 +58,7 @@ import org.apache.openejb.util.Duration;
 import org.apache.openejb.util.Index;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
+import org.apache.webbeans.inject.OWBInjector;
 import org.apache.xbean.recipe.ConstructionException;
 
 public class CoreDeploymentInfo extends DeploymentContext implements org.apache.openejb.DeploymentInfo {
@@ -121,6 +122,9 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
     private boolean localbean;
     private Duration accessTimeout;
     private Duration statefulTimeout;
+    
+    //Cdi injector instance
+    private List<OWBInjector> cdiInjectors = new ArrayList<OWBInjector>();
 
     public Class getInterface(InterfaceType interfaceType) {
         switch(interfaceType){
@@ -1013,6 +1017,24 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
 	public void setStatefulTimeout(Duration statefulTimeout) {
 		this.statefulTimeout = statefulTimeout;
 	}
+	
+	/**
+	 * Returns true if given interceptor class is a system interceptor class
+	 * false otherwise.
+	 * @param interceptorClass interceptor class
+	 * @return true if given interceptor class is a system interceptor class
+	 */
+	public boolean isSystemInterceptor(Class<?> interceptorClass){
+	    if(this.systemInterceptors == null || this.systemInterceptors.isEmpty()){
+	        return false;
+	    }
+	    for(InterceptorInstance instance : this.systemInterceptors){
+	        if(instance.getData().getInterceptorClass() == interceptorClass){
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 
     public InstanceContext newInstance() throws Exception {
         ThreadContext callContext = new ThreadContext(this, null, Operation.INJECTION);
@@ -1036,6 +1058,12 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
                 interceptorInstances.put(clazz.getName(), interceptorInstance.getInterceptor());
             }
 
+            //Inject Cdi dependencies to bean instance
+            OWBInjector beanInjector = new OWBInjector();
+            beanInjector.inject(bean);
+            
+            this.cdiInjectors.add(beanInjector);
+
             for (InterceptorData interceptorData : this.getInstanceScopedInterceptors()) {
                 if (interceptorData.getInterceptorClass().equals(beanClass)) {
                     continue;
@@ -1045,13 +1073,20 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
                 final InjectionProcessor interceptorInjector = new InjectionProcessor(clazz, this.getInjections(), org.apache.openejb.InjectionProcessor.unwrap(ctx));
                 try {
                     final Object interceptorInstance = interceptorInjector.createInstance();
+                    
+                    //Inject dependencies of the interceptor
+                    beanInjector = new OWBInjector();                    
+                    beanInjector.inject(interceptorInstance);
+                    
+                    this.cdiInjectors.add(beanInjector);
+                    
                     interceptorInstances.put(clazz.getName(), interceptorInstance);
                 } catch (ConstructionException e) {
                     throw new Exception("Failed to create interceptor: " + clazz.getName(), e);
                 }
             }
 
-            interceptorInstances.put(beanClass.getName(), bean);
+            interceptorInstances.put(beanClass.getName(), bean);                        
 
             // Invoke post construct method
             callContext.setCurrentOperation(Operation.POST_CONSTRUCT);
@@ -1063,5 +1098,9 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
         } finally {
             ThreadContext.exit(oldContext);
         }
+    }
+    
+    public List<OWBInjector> getInjectorInstances(){
+	return this.cdiInjectors;
     }
 }

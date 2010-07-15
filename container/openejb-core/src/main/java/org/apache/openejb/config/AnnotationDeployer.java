@@ -81,6 +81,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.inject.Named;
 import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.Interceptors;
@@ -101,6 +102,7 @@ import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.api.LocalClient;
 import org.apache.openejb.api.RemoteClient;
+import org.apache.openejb.cdi.CdiBeanInfo;
 import org.apache.openejb.core.webservices.JaxWsUtils;
 import org.apache.openejb.jee.ActivationConfig;
 import org.apache.openejb.jee.ApplicationClient;
@@ -172,8 +174,11 @@ import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
+import org.apache.xbean.asm.ClassReader;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 
 /**
  * @version $Rev$ $Date$
@@ -203,6 +208,10 @@ public class AnnotationDeployer implements DynamicDeployer {
         } finally {
             removeModule();
         }
+    }
+    
+    public void deploy(CdiBeanInfo beanInfo) throws OpenEJBException{
+	this.processAnnotatedBeans.deploy(beanInfo);
     }
 
     public WebModule deploy(WebModule webModule) throws OpenEJBException {
@@ -663,7 +672,23 @@ public class AnnotationDeployer implements DynamicDeployer {
                 "java.lang.String"
         ));
         private static final String STRICT_INTERFACE_DECLARATION = "openejb.strict.interface.declaration";
+        
+        public void deploy(CdiBeanInfo beanInfo) throws OpenEJBException{
 
+            ClassFinder inheritedClassFinder = createInheritedClassFinder(beanInfo.getBeanClass());
+            /*
+             * @EJB
+             * @Resource
+             * @WebServiceRef
+             * @PersistenceUnit
+             * @PersistenceContext
+             */
+            buildAnnotatedRefs(beanInfo, inheritedClassFinder, beanInfo.getClassLoader());
+
+            processWebServiceClientHandlers(beanInfo, beanInfo.getClassLoader());
+            
+        }
+        
         public AppModule deploy(AppModule appModule) throws OpenEJBException {
             for (EjbModule ejbModule : appModule.getEjbModules()) {
                 setModule(ejbModule);
@@ -1011,7 +1036,32 @@ public class AnnotationDeployer implements DynamicDeployer {
                     classes.addAll(list);
                 }
             }
+            
+            //Look for all CDI Beans classes
+            Set<String> candidateClasses = webModule.getCdiCandidateClasses();
+            Set<Class<?>> candidateFinalClasses = new HashSet<Class<?>>();
+            
+            for(String candidateClass : candidateClasses){
+                boolean found = false;
+                for(Class<?> alreadyManaged : classes){
+                    if(alreadyManaged.getName().equals(candidateClass)){
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if(!found){
+                    try{
+                        candidateFinalClasses.add(classLoader.loadClass(candidateClass));
+                    }
+                    catch (ClassNotFoundException e){
+                        throw new OpenEJBException("Unable to load CDI managed bean class: " + candidateClass, e);
+                    }
+                }
+            }
 
+            
+            classes.addAll(candidateFinalClasses);
             ClassFinder inheritedClassFinder = createInheritedClassFinder(classes.toArray(new Class<?>[classes.size()]));
 
             /*
@@ -1563,7 +1613,7 @@ public class AnnotationDeployer implements DynamicDeployer {
                     bean.getServiceRef().addAll(interceptor.getServiceRef());
                 }
             }
-
+            
             return ejbModule;
         }
 

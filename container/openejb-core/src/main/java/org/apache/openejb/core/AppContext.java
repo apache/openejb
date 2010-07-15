@@ -16,8 +16,13 @@
  */
 package org.apache.openejb.core;
 
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.List;
+
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.loader.Options;
+import org.apache.xbean.finder.UrlSet;
 
 /**
  * @version $Rev$ $Date$
@@ -30,6 +35,7 @@ public class AppContext extends DeploymentContext {
         super(id, systemInstance.getOptions());
         this.classLoader = classLoader;
         this.systemInstance = systemInstance;
+        
     }
 
     public ClassLoader getClassLoader() {
@@ -38,5 +44,13 @@ public class AppContext extends DeploymentContext {
 
     public SystemInstance getSystemInstance() {
         return systemInstance;
+    }
+    
+    public static void main(String[] args) throws Exception{
+        Enumeration<URL> en = AppContext.class.getClassLoader().getResources("META-INF/openwebbeans/openwebbeans-default.properties");
+        while(en.hasMoreElements()){
+            URL u = en.nextElement();
+            System.out.println(u.toExternalForm());
+        }
     }
 }

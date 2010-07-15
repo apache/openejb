@@ -64,6 +64,8 @@ import org.apache.openejb.assembler.classic.WebAppInfo;
 import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
 import org.apache.openejb.assembler.classic.ManagedContainerInfo;
 import static org.apache.openejb.config.ServiceUtils.implies;
+
+import org.apache.openejb.cdi.CdiAppContainer;
 import org.apache.openejb.config.sys.AbstractService;
 import org.apache.openejb.config.sys.ConnectionManager;
 import org.apache.openejb.config.sys.Container;
@@ -611,9 +613,14 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory {
 
         logger.info("config.configApp", appModule.getJarLocation());
         deployer.deploy(appModule);
+                
+        //Add for starting/stopping
+        Assembler assember = (Assembler)SystemInstance.get().getComponent(org.apache.openejb.spi.Assembler.class);        
         AppInfoBuilder appInfoBuilder = new AppInfoBuilder(this);
+        
+        AppInfo appInfo = appInfoBuilder.build(appModule);
 
-        return appInfoBuilder.build(appModule);
+        return appInfo;
     }
 
     private static class DefaultService {
