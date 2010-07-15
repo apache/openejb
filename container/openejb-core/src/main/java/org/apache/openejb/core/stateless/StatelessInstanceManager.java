@@ -329,8 +329,8 @@ public class StatelessInstanceManager {
 
         try {
             final Context context = deploymentInfo.getJndiEnc();
-            context.bind("comp/EJBContext", data.sessionContext);
-            context.bind("comp/WebServiceContext", new EjbWsContext(data.sessionContext));
+            context.bind("java:comp/EJBContext", data.sessionContext);
+            context.bind("java:comp/WebServiceContext", new EjbWsContext(data.sessionContext));
         } catch (NamingException e) {
             throw new OpenEJBException("Failed to bind EJBContext", e);
         }
