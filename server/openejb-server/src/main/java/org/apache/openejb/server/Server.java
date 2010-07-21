@@ -51,7 +51,6 @@ public class Server implements Service {
     }
 
     // TODO: Remove it once init() suits our (initialisation) needs 
-    @Override
     public void init(Properties props) throws Exception {
         this.props = props;
 
