@@ -30,11 +30,9 @@ import org.apache.openejb.util.Logger;
 
 public class AdminDaemon implements ServerService {
 
-    @Override
     public void init(Properties props) throws Exception {
     }
 
-    @Override
     public void service(Socket socket) throws ServiceException, IOException {
         InputStream in = null;
 
@@ -80,30 +78,24 @@ public class AdminDaemon implements ServerService {
         }
     }
 
-    @Override
     public void service(InputStream in, OutputStream out) throws ServiceException, IOException {
         throw new UnsupportedOperationException("Method not implemented: service(InputStream in, OutputStream out)");
     }
 
-    @Override
     public void start() throws ServiceException {
     }
 
-    @Override
     public void stop() throws ServiceException {
     }
 
-    @Override
     public int getPort() {
         return 0;
     }
 
-    @Override
     public String getIP() {
         return "";
     }
 
-    @Override
     public String getName() {
         return "admin thread";
     }
