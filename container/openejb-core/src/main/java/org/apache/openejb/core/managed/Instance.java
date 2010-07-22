@@ -156,6 +156,8 @@ public class Instance implements Serializable {
                     interceptors.put(e.getKey(), bean);
                 } else if (!(e.getValue() instanceof Serializable)) {
                     interceptors.put(e.getKey(), new PojoSerialization(e.getValue()));
+                } else {
+                    interceptors.put(e.getKey(), e.getValue());
                 }
             }
 

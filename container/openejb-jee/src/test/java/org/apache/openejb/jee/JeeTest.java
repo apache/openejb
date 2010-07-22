@@ -225,6 +225,10 @@ public class JeeTest extends TestCase {
         marshalAndUnmarshal(Connector.class, "connector-1.6-example.xml", null);
     }
 
+    public void testBeans10() throws Exception {
+        marshalAndUnmarshal(Beans.class, "beans-1.0-example.xml", null);
+    }
+
     public static <T> T marshalAndUnmarshal(Class<T> type, String sourceXmlFile, String expectedXmlFile) throws Exception {
         InputStream in = JeeTest.class.getClassLoader().getResourceAsStream(sourceXmlFile);
         T object = (T)JaxbJavaee.unmarshalJavaee(type, in);

@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.ApplicationExceptionInfo;
+import org.apache.openejb.assembler.classic.BeansInfo;
 import org.apache.openejb.assembler.classic.CallbackInfo;
 import org.apache.openejb.assembler.classic.CmrFieldInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
@@ -193,6 +194,67 @@ public class EjbJarInfoBuilder {
 
         if (jar.getEjbJar().getRelationships() != null) {
             initRelationships(jar, infos);
+        }
+
+//        Set<String> classes = new HashSet<String>();
+//        for (EnterpriseBean bean : jar.getEjbJar().getEnterpriseBeans()) {
+//            classes.add(bean.getEjbClass());
+//        }
+//
+//        for (Interceptor interceptor : jar.getEjbJar().getInterceptors()) {
+//            classes.add(interceptor.getInterceptorClass());
+//        }
+//        
+//        final AbstractFinder finder = jar.getFinder();
+//
+//        Class<? extends Annotation>[] annots = new Class[]{
+//                ApplicationScoped.class,
+//                ConversationScoped.class,
+//                Dependent.class,
+//                NormalScope.class,
+//                RequestScoped.class,
+//                SessionScoped.class,
+//                javax.inject.Scope.class,
+//                javax.inject.Inject.class,
+//                Observes.class,
+//                Alternative.class,
+//                Any.class,
+//                Default.class,
+//                Disposes.class,
+//                Model.class,
+//                New.class,
+//                Produces.class,
+//                Specializes.class,
+//                Stereotype.class,
+//                Typed.class,
+//                Decorator.class,
+//                javax.decorator.Delegate.class,
+//                javax.interceptor.Interceptor.class,
+//                Resource.class,
+//                Resources.class,
+//                EJB.class,
+//                EJBs.class,
+//                PersistenceContext.class,
+//                PersistenceContexts.class,
+//                PersistenceUnit.class,
+//                PersistenceUnits.class,
+//
+//        };
+//
+//        final List<Class> list = new ArrayList<Class>();
+//        for (Class<? extends Annotation> annotation : annots) {
+//            list.addAll(finder.findAnnotatedClasses(annotation));
+//
+//            finder.findAnnotatedFields()
+//        }
+
+        if (jar.getBeans() != null) {
+            ejbJar.beans = new BeansInfo();
+            ejbJar.beans.interceptors.addAll(jar.getBeans().getInterceptors());
+            ejbJar.beans.decorators.addAll(jar.getBeans().getDecorators());
+            ejbJar.beans.alternativeClasses.addAll(jar.getBeans().getAlternativeClasses());
+            ejbJar.beans.alternativeStereotypes.addAll(jar.getBeans().getAlternativeStereotypes());
+            ejbJar.beans.managedClasses.addAll(jar.getBeans().getManagedClasses());
         }
 
         return ejbJar;

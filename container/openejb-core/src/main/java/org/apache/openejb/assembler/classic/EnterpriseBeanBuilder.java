@@ -122,7 +122,7 @@ class EnterpriseBeanBuilder {
         List<Injection> injections = injectionBuilder.buildInjections(bean.jndiEnc);
 
         // build the enc
-        JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, injections, transactionType, moduleContext.getId(), moduleContext.getClassLoader());
+        JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, injections, transactionType, moduleContext.getId(), moduleContext.getClassLoader(), moduleContext.getAppContext());
         Context root = jndiEncBuilder.build();
 
         CoreDeploymentInfo deployment;

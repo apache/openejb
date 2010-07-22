@@ -89,7 +89,7 @@ public class CdiAppScannerService implements ScannerService {
     @Override
     public void scan(){
 
-        List<String> candidateClasses = null;
+        List<String> candidateClasses;
         try {
             // Look for META-INF/beans.xml
             Enumeration<URL> urls = loader.getResources(BEANS_XML_LOCATION);

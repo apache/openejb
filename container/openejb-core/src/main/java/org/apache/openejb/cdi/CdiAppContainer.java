@@ -76,65 +76,6 @@ public class CdiAppContainer implements ContainerLifecycle, DeploymentListener{
 
     @Override
     public void startApplication(Object startupObject) throws Exception {
-	long startTime = System.currentTimeMillis();
-	ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-	try{
-	    if(logger.isInfoEnabled()){
-		logger.info("Starting the CDI-OpenWebBeans container for the application location," + ((AppInfo)startupObject).jarPath);
-	    }
-	    
-	    //Set classloader
-	    Thread.currentThread().setContextClassLoader(this.classLoader);
-	    
-	    //Configure our scanner service
-	    this.scannerService = (CdiAppScannerService)WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiAppScannerService", this.classLoader);	    
-	    this.scannerService.setLoader(this.classLoader);
-	    this.scannerService.setAppInfo(this.appInfo);
-
-	    //Scan the module
-	    this.scannerService.scan();
-	    
-	    //Get deployment BeanManager instance
-	    this.beanManager = BeanManagerImpl.getManager();
-	    
-	    //Start our plugins
-	    PluginLoader.getInstance().startUp();
-	    
-	    //Initialize our contexts
-	    this.contexsServices = (CdiAppContextsService)WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiAppContextsService", this.classLoader);
-	    this.contexsServices.init(startupObject);  
-	    
-	    //Get Plugin
-	    CdiPlugin cdiPlugin = (CdiPlugin)PluginLoader.getInstance().getEjbPlugin();
-	    cdiPlugin.setAppModule(this.appInfo);
-	    cdiPlugin.setClassLoader(this.classLoader);
-	    
-	    //Configure EJB Deployments
-	    cdiPlugin.configureDeployments();
-	    
-	    //Resournce Injection Service
-	    CdiResourceInjectionService injectionService = (CdiResourceInjectionService)WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiResourceInjectionService", this.classLoader);
-	    injectionService.setAppModule(this.appInfo);
-	    injectionService.setClassLoader(this.classLoader);
-	    
-	    //Build injections for managed beans
-	    injectionService.buildInjections(this.scannerService.getManagedBeansClasses());
-	    
-	    //Deploy the beans
-	    BeansDeployer deployer = new BeansDeployer(new WebBeansXMLConfigurator());
-	    deployer.deploy(this.scannerService);	    
-	    
-	    if(logger.isInfoEnabled()){
-		logger.info("CDI-OpenWebBeans container has started in " + (System.currentTimeMillis() - startTime) + " in ms");
-	    }
-	    
-	}catch(Exception e){
-	    String errorMessage = "Error is occured while starting the CDI container, looks error log for further investigation";
-	    logger.error(errorMessage, e);
-	    throw new OpenEJBException(errorMessage, e);
-	}finally{
-	    Thread.currentThread().setContextClassLoader(oldCl);
-	}
     }
 
     @Override
@@ -200,8 +141,66 @@ public class CdiAppContainer implements ContainerLifecycle, DeploymentListener{
     public void afterApplicationCreated(AppInfo appInfo) {
 	if(this.appInfo.jarPath.equals(appInfo.jarPath)){
 	    try {
-		startApplication(appInfo);
-	    } catch (Exception e) {
+            long startTime = System.currentTimeMillis();
+            ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+            try{
+                if(logger.isInfoEnabled()){
+                logger.info("Starting the CDI-OpenWebBeans container for the application location," + ((AppInfo) appInfo).jarPath);
+                }
+
+                //Set classloader
+                Thread.currentThread().setContextClassLoader(this.classLoader);
+
+                //Configure our scanner service
+                this.scannerService = new CdiAppScannerService();
+                this.scannerService.setLoader(this.classLoader);
+                this.scannerService.setAppInfo(this.appInfo);
+
+                //Scan the module
+                this.scannerService.scan();
+
+                //Get deployment BeanManager instance
+                this.beanManager = BeanManagerImpl.getManager();
+
+                //Start our plugins
+                PluginLoader.getInstance().startUp();
+
+                //Initialize our contexts
+                this.contexsServices = (CdiAppContextsService)WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiAppContextsService", this.classLoader);
+                this.contexsServices.init(appInfo);
+
+                //Get Plugin
+                CdiPlugin cdiPlugin = (CdiPlugin)PluginLoader.getInstance().getEjbPlugin();
+                cdiPlugin.setAppModule(this.appInfo);
+                cdiPlugin.setClassLoader(this.classLoader);
+
+                //Configure EJB Deployments
+                cdiPlugin.configureDeployments();
+
+                //Resournce Injection Service
+                CdiResourceInjectionService injectionService = (CdiResourceInjectionService)WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiResourceInjectionService", this.classLoader);
+                injectionService.setAppModule(this.appInfo);
+                injectionService.setClassLoader(this.classLoader);
+
+                //Build injections for managed beans
+                injectionService.buildInjections(this.scannerService.getManagedBeansClasses());
+
+                //Deploy the beans
+                BeansDeployer deployer = new BeansDeployer(new WebBeansXMLConfigurator());
+                deployer.deploy(this.scannerService);
+
+                if(logger.isInfoEnabled()){
+                logger.info("CDI-OpenWebBeans container has started in " + (System.currentTimeMillis() - startTime) + " in ms");
+                }
+
+            }catch(Exception e){
+                String errorMessage = "Error is occured while starting the CDI container, looks error log for further investigation";
+                logger.error(errorMessage, e);
+                throw new OpenEJBException(errorMessage, e);
+            }finally{
+                Thread.currentThread().setContextClassLoader(oldCl);
+            }
+        } catch (Exception e) {
 		//We can do nothing
 	    }
 	}

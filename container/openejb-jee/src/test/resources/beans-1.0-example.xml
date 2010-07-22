@@ -1,0 +1,20 @@
+<beans>
+  <interceptors>
+    <class>org.foo.One</class>
+    <class>org.foo.Two</class>
+    <class>org.foo.Three</class>
+  </interceptors>
+  <decorators>
+    <class>org.foo.Four</class>
+    <class>org.foo.Five</class>
+    <class>org.foo.Six</class>
+  </decorators>
+  <alternatives>
+    <class>org.foo.Seven</class>
+    <class>org.foo.Eight</class>
+    <class>org.foo.Nine</class>
+    <stereotype>org.foo.Ten</stereotype>
+    <stereotype>org.foo.Eleven</stereotype>
+    <stereotype>org.foo.Twelve</stereotype>
+  </alternatives>
+</beans>

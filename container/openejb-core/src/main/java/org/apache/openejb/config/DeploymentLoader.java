@@ -1227,7 +1227,7 @@ public class DeploymentLoader {
             return AppModule.class;
         }
 
-        if (descriptors.containsKey("ejb-jar.xml")) {
+        if (descriptors.containsKey("ejb-jar.xml") || descriptors.containsKey("beans.xml") ) {
             return EjbModule.class;
         }
 

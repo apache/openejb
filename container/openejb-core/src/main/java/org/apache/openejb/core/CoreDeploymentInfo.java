@@ -1057,11 +1057,16 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
                 final Class clazz = interceptorInstance.getData().getInterceptorClass();
                 interceptorInstances.put(clazz.getName(), interceptorInstance.getInterceptor());
             }
+            OWBInjector beanInjector = null;
 
-            //Inject Cdi dependencies to bean instance
-            OWBInjector beanInjector = new OWBInjector();
-            beanInjector.inject(bean);
-            
+            try {
+                //Inject Cdi dependencies to bean instance
+                beanInjector = new OWBInjector();
+                beanInjector.inject(bean);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             this.cdiInjectors.add(beanInjector);
 
             for (InterceptorData interceptorData : this.getInstanceScopedInterceptors()) {

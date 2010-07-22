@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.loader.Options;
+import javax.enterprise.inject.spi.BeanManager;
+
 import org.apache.xbean.finder.UrlSet;
 
 /**
@@ -30,6 +32,7 @@ import org.apache.xbean.finder.UrlSet;
 public class AppContext extends DeploymentContext {
     private final SystemInstance systemInstance;
     private final ClassLoader classLoader;
+    private BeanManager beanManager;
 
     public AppContext(String id, SystemInstance systemInstance, ClassLoader classLoader) {
         super(id, systemInstance.getOptions());
@@ -52,5 +55,13 @@ public class AppContext extends DeploymentContext {
             URL u = en.nextElement();
             System.out.println(u.toExternalForm());
         }
+    }
+
+    public BeanManager getBeanManager() {
+        return beanManager;
+    }
+
+    public void setBeanManager(BeanManager beanManager) {
+        this.beanManager = beanManager;
     }
 }
