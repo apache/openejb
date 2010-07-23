@@ -399,8 +399,6 @@ public class JndiEncInfoBuilder {
 
         SessionBean sessionBean = (SessionBean) enterpriseBean;
 
-        if (sessionBean.getSessionType() != SessionType.SINGLETON) return;
-
         URI moduleUri = null;
         if (moduleId != null) {
             try {
