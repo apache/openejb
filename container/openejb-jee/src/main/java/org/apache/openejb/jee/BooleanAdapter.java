@@ -25,9 +25,9 @@ public class BooleanAdapter extends XmlAdapter<String, Boolean> {
 
     public Boolean unmarshal(String value) throws Exception {
         value = value.trim();
-        if (value.equals("1") || value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes")) {
+        if (value.equals("1") || value.equalsIgnoreCase("true")) {
             return Boolean.TRUE;
-        } else if (value.equals("0") || value.equalsIgnoreCase("false") || value.equalsIgnoreCase("no")) {
+        } else if (value.equals("0") || value.equalsIgnoreCase("false")) {
             return Boolean.FALSE;
         } else {
             throw new IllegalArgumentException("String \"" + value + "\" is not a valid boolean value");

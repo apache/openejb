@@ -55,7 +55,7 @@ import org.apache.openejb.jee.ResourceAdapter;
 import org.apache.openejb.jee.ConfigProperty;
 import org.apache.openejb.jee.OutboundResourceAdapter;
 import org.apache.openejb.jee.ConnectionDefinition;
-import org.apache.openejb.jee.InboundResourceAdapter;
+import org.apache.openejb.jee.InboundResource;
 import org.apache.openejb.jee.MessageListener;
 import org.apache.openejb.jee.AdminObject;
 import org.apache.openejb.jee.WebApp;
@@ -78,6 +78,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * @version $Rev$ $Date$
  */
 class AppInfoBuilder {
 
@@ -377,7 +378,7 @@ class AppInfoBuilder {
                 }
             }
 
-            InboundResourceAdapter inbound = resourceAdapter.getInboundResourceAdapter();
+            InboundResource inbound = resourceAdapter.getInboundResourceAdapter();
             if (inbound != null) {
                 for (MessageListener messageListener : inbound.getMessageAdapter().getMessageListener()) {
                     String id = getId(messageListener, inbound, connectorModule);
@@ -434,7 +435,7 @@ class AppInfoBuilder {
         return id;
     }
 
-    private String getId(MessageListener messageListener, InboundResourceAdapter inbound, ConnectorModule connectorModule) {
+    private String getId(MessageListener messageListener, InboundResource inbound, ConnectorModule connectorModule) {
         String id;
         if (messageListener.getId() != null) {
             id = messageListener.getId();

@@ -16,38 +16,54 @@
  */
 package org.apache.openejb.core.mdb;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
-import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.Assembler;
-import org.apache.openejb.assembler.classic.SecurityServiceInfo;
-import org.apache.openejb.assembler.classic.TransactionServiceInfo;
-import org.apache.openejb.config.AppModule;
-import org.apache.openejb.config.ConfigurationFactory;
-import org.apache.openejb.config.ConnectorModule;
-import org.apache.openejb.config.EjbModule;
+import junit.framework.Assert;
 import org.apache.openejb.core.ivm.naming.InitContextFactory;
-import org.apache.openejb.jee.Connector;
+import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.config.AppModule;
+import org.apache.openejb.config.EjbModule;
+import org.apache.openejb.config.ConnectorModule;
+import org.apache.openejb.assembler.classic.Assembler;
+import org.apache.openejb.assembler.classic.TransactionServiceInfo;
+import org.apache.openejb.assembler.classic.SecurityServiceInfo;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.InboundResourceadapter;
-import org.apache.openejb.jee.MessageAdapter;
 import org.apache.openejb.jee.MessageDrivenBean;
-import org.apache.openejb.jee.MessageListener;
+import org.apache.openejb.jee.Connector;
 import org.apache.openejb.jee.ResourceAdapter;
-import org.apache.openejb.resource.quartz.JobSpec;
+import org.apache.openejb.jee.InboundResource;
+import org.apache.openejb.jee.MessageAdapter;
+import org.apache.openejb.jee.MessageListener;
+import org.apache.openejb.util.Join;
 import org.apache.openejb.resource.quartz.QuartzResourceAdapter;
+import org.apache.openejb.resource.quartz.JobSpec;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import javax.annotation.PostConstruct;
+import javax.naming.InitialContext;
 import javax.annotation.Resource;
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
+import javax.annotation.PostConstruct;
 import javax.ejb.MessageDrivenContext;
-import java.util.Arrays;
-import java.util.List;
+import javax.ejb.MessageDriven;
+import javax.ejb.ActivationConfigProperty;
+import javax.resource.spi.BootstrapContext;
+import javax.resource.spi.ResourceAdapterInternalException;
+import javax.resource.spi.ActivationSpec;
+import javax.resource.spi.InvalidPropertyException;
+import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.resource.spi.endpoint.MessageEndpoint;
+import javax.resource.ResourceException;
+import javax.transaction.xa.XAResource;
 import java.util.Stack;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -71,10 +87,9 @@ public class QuartzMdbContainerTest extends TestCase {
 
         AppModule app = new AppModule(this.getClass().getClassLoader(), "testapp");
 
-        Connector connector = new Connector("email-ra");
-        ResourceAdapter adapter = new ResourceAdapter(QuartzResourceAdapter.class);
-        connector.setResourceAdapter(adapter);
-        InboundResourceadapter inbound = adapter.setInboundResourceAdapter(new InboundResourceadapter());
+        Connector connector = new Connector("quartz");
+        ResourceAdapter adapter = connector.setResourceAdapter(new ResourceAdapter(QuartzResourceAdapter.class));
+        InboundResource inbound = adapter.setInboundResourceAdapter(new InboundResource());
         MessageAdapter messageAdapter = inbound.setMessageAdapter(new MessageAdapter());
         MessageListener listener = messageAdapter.addMessageListener(new MessageListener(Job.class, JobSpec.class));
         listener.getActivationSpec().addRequiredConfigProperty("cronExpression");
