@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Arrays;
@@ -214,7 +213,7 @@ public class SessionBean implements RemoteBean, Session, TimerConsumer {
 
     @XmlElementWrapper(name = "depends-on")
     @XmlElement(name = "ejb-name")
-    protected List<String> dependsOn = Collections.emptyList();
+    protected List<String> dependsOn;
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)

@@ -156,6 +156,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import static java.util.Arrays.asList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1327,10 +1328,12 @@ public class AnnotationDeployer implements DynamicDeployer {
                          * Allow for all session bean types
                          * @DependsOn
                          */
-                        if (sessionBean.getDependsOn().isEmpty()) {
+                        if (sessionBean.getDependsOn() == null) {
                             DependsOn dependsOn = getInheritableAnnotation(clazz, DependsOn.class);
                             if (dependsOn != null) {
                                 sessionBean.setDependsOn(dependsOn.value());
+                            } else {
+                                sessionBean.setDependsOn(Collections.EMPTY_LIST);
                             }
                         }
 
