@@ -16,14 +16,17 @@
  */
 package org.apache.openejb.util.proxy;
 
-import org.apache.xbean.asm.*;
-
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
-import java.net.URLClassLoader;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import org.apache.xbean.asm.ClassWriter;
+import org.apache.xbean.asm.FieldVisitor;
+import org.apache.xbean.asm.Label;
+import org.apache.xbean.asm.MethodVisitor;
+import org.apache.xbean.asm.Opcodes;
+import org.apache.xbean.asm.Type;
 
 public class LocalBeanProxyGeneratorImpl implements LocalBeanProxyGenerator, Opcodes {
 
@@ -62,7 +65,7 @@ public class LocalBeanProxyGeneratorImpl implements LocalBeanProxyGenerator, Opc
 
         try {
             byte[] proxyBytes = generateProxy(clsToProxy, clsName);
-            return (Class<?>) unsafe.defineClass(proxyName, proxyBytes, 0, proxyBytes.length, cl, this.getClass().getProtectionDomain());
+            return (Class<?>) unsafe.defineClass(proxyName, proxyBytes, 0, proxyBytes.length, clsToProxy.getClassLoader(), clsToProxy.getProtectionDomain());
         } catch (ProxyGenerationException e) {
             throw new InternalError(e.toString());
         }
@@ -523,10 +526,16 @@ public class LocalBeanProxyGeneratorImpl implements LocalBeanProxyGenerator, Opc
 			}
 		} else {
 			if (! parameterType.isPrimitive()) {
-				if (wrap) {
-					return "L" + parameterType.getCanonicalName().replaceAll("\\.", "/") + ";";
+                String clsName = parameterType.getCanonicalName();
+
+                if (parameterType.isMemberClass()) {
+                    int lastDot = clsName.lastIndexOf(".");
+                    clsName = clsName.substring(0, lastDot) + "$" + clsName.substring(lastDot + 1);
+                }
+                if (wrap) {
+					return "L" + clsName.replaceAll("\\.", "/") + ";";
 				} else {
-					return parameterType.getCanonicalName().replaceAll("\\.", "/");
+					return clsName.replaceAll("\\.", "/");
 				}
 			} else {
 				return getPrimitiveLetter(parameterType);
