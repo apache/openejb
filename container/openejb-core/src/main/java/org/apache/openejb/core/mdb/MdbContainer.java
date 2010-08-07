@@ -33,10 +33,12 @@ import org.apache.openejb.core.interceptor.InterceptorStack;
 import org.apache.openejb.core.transaction.TransactionContainer;
 import org.apache.openejb.core.transaction.TransactionContext;
 import org.apache.openejb.core.transaction.TransactionPolicy;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.SecurityService;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 
+import org.apache.openejb.util.Options;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 
@@ -70,6 +72,7 @@ public class MdbContainer implements RpcContainer, TransactionContainer {
     private final boolean txRecovery;
 
     private final ConcurrentMap<Object, CoreDeploymentInfo> deployments = new ConcurrentHashMap<Object, CoreDeploymentInfo>();
+    private final InboundRecovery inboundRecovery;
 
     public MdbContainer(Object containerID, TransactionManager transactionManager, SecurityService securityService, ResourceAdapter resourceAdapter, Class messageListenerInterface, Class activationSpecClass, int instanceLimit, boolean txRecovery) {
         this.containerID = containerID;
@@ -80,6 +83,7 @@ public class MdbContainer implements RpcContainer, TransactionContainer {
         this.activationSpecClass = activationSpecClass;
         this.instanceLimit = instanceLimit;
         this.txRecovery = txRecovery;
+        inboundRecovery = SystemInstance.get().getComponent(InboundRecovery.class);
     }
 
     public DeploymentInfo [] deployments() {
@@ -122,6 +126,10 @@ public class MdbContainer implements RpcContainer, TransactionContainer {
         // create the activation spec
         ActivationSpec activationSpec = createActivationSpec(deploymentInfo);
 
+        if (inboundRecovery != null) {
+            inboundRecovery.recover(resourceAdapter, activationSpec, containerID.toString());
+        }
+        
         // create the message endpoint
         MdbInstanceFactory instanceFactory = new MdbInstanceFactory(deploymentInfo, transactionManager, securityService, instanceLimit);
         EndpointFactory endpointFactory = new EndpointFactory(activationSpec, this, deploymentInfo, instanceFactory, txRecovery);
