@@ -450,7 +450,7 @@ public class StatelessPoolStatsTest extends TestCase {
      *
      * @throws Exception
      */
-    public void testSweeps() throws Exception {
+    public void _testSweeps() throws Exception {
     	Properties properties = new Properties();
     	properties.setProperty("SweepInterval", "1");
 

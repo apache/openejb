@@ -22,7 +22,6 @@ import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
-import org.apache.openejb.cdi.CdiAppScannerService;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.core.ivm.naming.InitContextFactory;
@@ -31,6 +30,7 @@ import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.StatelessBean;
 import org.junit.Before;
 
+import javax.annotation.PostConstruct;
 import javax.decorator.Decorator;
 import javax.decorator.Delegate;
 import javax.ejb.LocalBean;
@@ -40,6 +40,7 @@ import javax.inject.Qualifier;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InterceptorBinding;
+import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -48,6 +49,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 @SuppressWarnings("deprecation")
@@ -58,8 +61,6 @@ public class CdiDecoratorTest extends TestCase {
     @Before
     public void setUp() throws Exception {
 
-        CdiAppScannerService.BEANS_XML_LOCATION = "org/apache/openejb/cdi/decorator/META-INF/beans.xml";
-        CdiAppScannerService.APPEND_PACKAGE_NAME = "org.apache.openejb.cdi.decorator";
         ConfigurationFactory config = new ConfigurationFactory();
         Assembler assembler = new Assembler();
 
@@ -70,13 +71,15 @@ public class CdiDecoratorTest extends TestCase {
         assembler.createContainer(config.configureService(StatelessSessionContainerInfo.class));
 
         EjbJar ejbJar = new EjbJar();
-        ejbJar.addEnterpriseBean(new StatelessBean(HelloStateless.class));
-        ejbJar.addEnterpriseBean(new StatelessBean(LocalHello.class));
+        ejbJar.addEnterpriseBean(new StatelessBean("HelloOne", RedBean.class));
+        ejbJar.addEnterpriseBean(new StatelessBean("HelloTwo", RedBean.class));
+        ejbJar.addEnterpriseBean(new StatelessBean(OrangeBean.class));
 
         Beans beans = new Beans();
-        beans.addInterceptor(HelloLocalInterceptor.class);
-        beans.addDecorator(HelloDecorator.class);
-        beans.addManagedClass(HelloCdiBean.class);
+        beans.addInterceptor(OrangeCdiInterceptor.class);
+        beans.addDecorator(OrangeOneDecorator.class);
+        beans.addDecorator(OrangeTwoDecorator.class);
+        beans.addManagedClass(YellowBean.class);
 
         EjbModule module = new EjbModule(ejbJar);
         module.setBeans(beans);
@@ -90,113 +93,204 @@ public class CdiDecoratorTest extends TestCase {
 
     public void testSimple() {
         try {
-            Hello hello = (Hello) ctx.lookup("HelloStatelessLocal");
-            hello.hello();
 
-            assertTrue(HelloCdiBean.RUN);
-            assertTrue(LocalHello.RUN);
-            assertTrue(HelloStateless.RUN);
-            assertTrue(HelloLocalInterceptor.RUN);
-            assertTrue(HelloDecorator.RUN);
+            Color color = (Color) ctx.lookup("HelloOneLocal");
+            color.hello();
+
+            for (String call : callback) {
+                System.out.println("callback = " + call);
+            }
+            
+            for (String call : businessMethod) {
+                System.out.println("call = " + call);
+            }
+
+
+            assertTrue(YellowBean.RUN);
+            assertTrue(OrangeBean.RUN);
+            assertTrue(RedBean.RUN);
+            assertTrue(OrangeCdiInterceptor.RUN);
+            assertTrue(OrangeOneDecorator.RUN);
 
         } catch (NamingException e) {
             e.printStackTrace();
         }
     }
 
+    private static final List<String> businessMethod = new ArrayList<String>();
+    private static final List<String> callback = new ArrayList<String>();
 
-    public static interface Hello {
+    public static interface Color {
         public void hello();
     }
 
     @InterceptorBinding
     @Target(value = {ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    public static @interface LocalEjbInterceptorBinding {
+    public static @interface OrangeInterceptorBinding {
 
     }
 
     @Qualifier
     @Retention(RetentionPolicy.RUNTIME)
     @Target(value = {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
-    public static @interface LocalEjbQualifier {
+    public static @interface OrangeQualifier {
 
     }
 
     @Stateless
-    public static class HelloStateless implements Hello {
+    @Interceptors(RedInterceptor.class)
+    public static class RedBean implements Color {
 
         @Inject
-        private HelloCdiBean cdiBean;
+        private YellowBean cdiBean;
         
         public static boolean RUN = false;
 
+        @PostConstruct
+        public void postConstruct() {
+            callback.add(this.getClass().getSimpleName());
+        }
+
         @Override
         public void hello() {
+            businessMethod.add(this.getClass().getSimpleName());
             RUN = true;
-            System.out.println("In EJB : " + HelloStateless.class.getName());
+            System.out.println("In EJB : " + RedBean.class.getName());
             cdiBean.sayHelloWorld();
         }
     }
 
-    public static class HelloCdiBean {
+    public static class RedInterceptor {
+        @PostConstruct
+        public void postConstruct(InvocationContext ctx) throws Exception {
+            callback.add(this.getClass().getSimpleName());
+            ctx.proceed();
+        }
+
+        @AroundInvoke
+        public Object aroundInvoke(InvocationContext ctx) throws Exception {
+            businessMethod.add(this.getClass().getSimpleName());
+            return ctx.proceed();
+        }
+
+    }
+
+    public static class YellowBean {
 
         @Inject
-        @LocalEjbQualifier
-        private Hello helloEjb;
+        @OrangeQualifier
+        private Color colorEjb;
         
         public static boolean RUN = false;
 
+        @PostConstruct
+        public void postConstruct() {
+            callback.add(this.getClass().getSimpleName());
+        }
+
         public void sayHelloWorld() {
+            businessMethod.add(this.getClass().getSimpleName());
             RUN = true;
-            System.out.println("In Managed Bean : " + HelloCdiBean.class.getName());
-            this.helloEjb.hello();
+            System.out.println("In Managed Bean : " + YellowBean.class.getName());
+            this.colorEjb.hello();
         }
     }
 
     @Decorator
-    public static class HelloDecorator implements Hello {
+    public static class OrangeOneDecorator implements Color {
 
         public static boolean RUN = false;
 
         @Inject
         @Delegate
-        @LocalEjbQualifier
-        private Hello hello;
+        @OrangeQualifier
+        private Color color;
 
         @Override
         public void hello() {
-            System.out.println("In CDI Style Decorator  : " + HelloDecorator.class.getName());
+            businessMethod.add(this.getClass().getSimpleName());
+            System.out.println("In CDI Style Decorator  : " + OrangeOneDecorator.class.getName());
             RUN = true;
-            this.hello.hello();
+            this.color.hello();
+        }
+    }
+
+    @Decorator
+    public static class OrangeTwoDecorator implements Color {
+
+        public static boolean RUN = false;
+
+        @Inject
+        @Delegate
+        @OrangeQualifier
+        private Color color;
+
+        @Override
+        public void hello() {
+            businessMethod.add(this.getClass().getSimpleName());
+            System.out.println("In CDI Style Decorator  : " + OrangeOneDecorator.class.getName());
+            RUN = true;
+            this.color.hello();
         }
     }
 
     @Interceptor
-    @LocalEjbInterceptorBinding
-    public static class HelloLocalInterceptor {
+    @OrangeInterceptorBinding
+    public static class OrangeCdiInterceptor {
 
         public static boolean RUN = false;
 
+        @PostConstruct
+        public void postConstruct(InvocationContext ctx) throws Exception {
+            callback.add(this.getClass().getSimpleName());
+            ctx.proceed();
+
+        }
+
         @AroundInvoke
         public Object aroundInvoke(InvocationContext ctx) throws Exception {
-            System.out.println("In CDI Style Interceptor  : " + HelloLocalInterceptor.class.getName());
+            businessMethod.add(this.getClass().getSimpleName());
+            System.out.println("In CDI Style Interceptor  : " + OrangeCdiInterceptor.class.getName());
             RUN = true;
             return ctx.proceed();
         }
     }
 
     @LocalBean
-    @LocalEjbQualifier
-    @LocalEjbInterceptorBinding
-    public static class LocalHello implements Hello {
+    @OrangeQualifier
+    @OrangeInterceptorBinding
+    @Interceptors(OrangeEjbInterceptor.class)
+    public static class OrangeBean implements Color {
 
         public static boolean RUN = false;
 
+        @PostConstruct
+        public void postConstruct() {
+            callback.add(this.getClass().getSimpleName());
+        }
+
         @Override
         public void hello() {
-            System.out.println("In EJB : " + LocalHello.class.getName());
+            businessMethod.add(this.getClass().getSimpleName());
+            System.out.println("In EJB : " + OrangeBean.class.getName());
             RUN = true;
         }
+    }
+
+    public static class OrangeEjbInterceptor {
+
+        @PostConstruct
+        public void postConstruct(InvocationContext ctx) throws Exception {
+            callback.add(this.getClass().getSimpleName());
+            ctx.proceed();
+        }
+
+        @AroundInvoke
+        public Object aroundInvoke(InvocationContext ctx) throws Exception {
+            businessMethod.add(this.getClass().getSimpleName());
+            return ctx.proceed();
+        }
+
     }
 }

@@ -16,198 +16,265 @@
  */
 package org.apache.openejb.cdi;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
-import javax.enterprise.inject.spi.SessionBeanType;
-
+import javassist.util.proxy.ProxyFactory;
+import javassist.util.proxy.ProxyObject;
 import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.assembler.classic.ProxyInterfaceResolver;
+import org.apache.openejb.core.AppContext;
+import org.apache.openejb.core.CoreUserTransaction;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
-import org.apache.webbeans.ejb.common.util.EjbDefinitionUtility;
-import org.apache.webbeans.ejb.common.util.EjbUtility;
-import org.apache.webbeans.exception.WebBeansConfigurationException;
+import org.apache.webbeans.config.WebBeansFinder;
+import org.apache.webbeans.container.InjectionResolver;
+import org.apache.webbeans.context.ContextFactory;
+import org.apache.webbeans.ee.event.TransactionalEventNotifier;
+import org.apache.webbeans.ejb.common.component.BaseEjbBean;
+import org.apache.webbeans.exception.WebBeansException;
+import org.apache.webbeans.jms.JMSManager;
+import org.apache.webbeans.plugins.PluginLoader;
+import org.apache.webbeans.portable.AnnotatedElementFactory;
+import org.apache.webbeans.portable.events.ExtensionLoader;
+import org.apache.webbeans.portable.events.discovery.BeforeShutdownImpl;
+import org.apache.webbeans.proxy.JavassistProxyFactory;
 import org.apache.webbeans.spi.SecurityService;
 import org.apache.webbeans.spi.TransactionService;
 import org.apache.webbeans.spi.plugins.AbstractOwbPlugin;
 import org.apache.webbeans.spi.plugins.OpenWebBeansEjbPlugin;
 import org.apache.webbeans.spi.plugins.OpenWebBeansJavaEEPlugin;
+import org.apache.webbeans.util.ClassUtil;
+import org.apache.webbeans.util.WebBeansUtil;
 
-public class CdiPlugin extends AbstractOwbPlugin implements OpenWebBeansJavaEEPlugin,OpenWebBeansEjbPlugin {
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.event.TransactionPhase;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.ObserverMethod;
+import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.naming.NamingException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
+import java.lang.annotation.Annotation;
+import java.security.Principal;
+import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
-    private Logger logger = Logger.getInstance(LogCategory.OPENEJB.createChild("cdi"),CdiPlugin.class);
-    
-    private AppInfo appModule;
-    private ClassLoader classLoader;
-    private final Map<Integer, Set<Class<?>>> beans = new HashMap<Integer, Set<Class<?>>>();
-    private final Map<Class<?>, String> beanIds = new HashMap<Class<?>, String>();
-    private final SecurityService SECURITY_SERVICE = new CdiSecurityService();
-    public final TransactionService TRANSACTION_SERVICE = new CdiTransactionService();
+public class CdiPlugin extends AbstractOwbPlugin implements OpenWebBeansJavaEEPlugin, OpenWebBeansEjbPlugin, TransactionService, SecurityService {
+
+    private static final Logger logger = Logger.getInstance(LogCategory.OPENEJB.createChild("cdi"), CdiPlugin.class);
+    private AppContext appContext;
+    private Set<Class<?>> beans;
+
+    private CdiAppContextsService contexsServices;
 
     @Override
     public void shutDown() throws Exception {
         super.shutDown();
-        this.beanIds.clear();
         this.beans.clear();
     }
 
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+    public void setAppContext(AppContext appContext) {
+        this.appContext = appContext;
     }
 
-    public void setAppModule(AppInfo appModule) {
-        this.appModule = appModule;
-    }
-
-    public void configureDeployments() {
-        List<EjbJarInfo> ejbModules = appModule.ejbJars;
-        for (EjbJarInfo ejbModule : ejbModules) {
-            List<EnterpriseBeanInfo> enterpriseBeans = ejbModule.enterpriseBeans;
-            for (EnterpriseBeanInfo eb : enterpriseBeans) {
-                try {
-                    Class<?> clazz = this.classLoader.loadClass(eb.ejbClass);
-                    beanIds.put(clazz, eb.ejbDeploymentId);
-                    putClass(eb.type, clazz);
-                } catch (Exception e) {
-                    String error = "Error is occured while getting information from ejb modules";
-                    logger.error(error, e);
-                    throw new RuntimeException(error, e);
-                }
+    public void configureDeployments(List<DeploymentInfo> ejbDeployments) {
+        WeakHashMap<Class<?>, Object> beans = new WeakHashMap<Class<?>, Object>();
+        for (DeploymentInfo deployment : ejbDeployments) {
+            if (deployment.getComponentType().isSession()) {
+                beans.put(deployment.getBeanClass(), null);
             }
         }
+        this.beans = beans.keySet();
     }
 
-    private void putClass(Integer type, Class<?> clazz) {
-        Set<Class<?>> classes = beans.get(type);
-        if (classes == null) {
-            classes = new HashSet<Class<?>>();
-            beans.put(type, classes);
-        }
+    public CdiAppContextsService getContexsServices() {
+        return contexsServices;
+    }
 
-        classes.add(clazz);
+    public void startup() {
+        this.contexsServices = (CdiAppContextsService) WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiAppContextsService", appContext.getClassLoader());
+        this.contexsServices.init(null);
+    }
+
+    public void stop() throws OpenEJBException {
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        try {
+            //Setting context class loader for cleaning
+            Thread.currentThread().setContextClassLoader(appContext.getClassLoader());
+
+            //Fire shut down
+            appContext.getBeanManager().fireEvent(new BeforeShutdownImpl(), new Annotation[0]);
+
+            //Destroys context
+            this.contexsServices.destroy(null);
+
+            //Free all plugin resources
+            PluginLoader.getInstance().shutDown();
+
+            //Clear extensions
+            ExtensionLoader.getInstance().clear();
+
+            //Delete Resolutions Cache
+            InjectionResolver.getInstance().clearCaches();
+
+            //Delte proxies
+            JavassistProxyFactory.getInstance().clear();
+
+            //Delete AnnotateTypeCache
+            AnnotatedElementFactory.getInstance().clear();
+
+            //JMs Manager clear
+            JMSManager.getInstance().clear();
+
+            //Clear the resource injection service
+            CdiResourceInjectionService injectionServices = (CdiResourceInjectionService) WebBeansFinder.getSingletonInstance("org.apache.openejb.cdi.CdiResourceInjectionService", appContext.getClassLoader());
+            injectionServices.clear();
+
+            //ContextFactory cleanup
+            ContextFactory.cleanUpContextFactory();
+
+            //Clear singleton list
+            WebBeansFinder.clearInstances(WebBeansUtil.getCurrentClassLoader());
+
+
+        } catch (Exception e) {
+            throw new OpenEJBException(e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
+        }
     }
 
     @Override
     public <T> T getSupportedService(Class<T> serviceClass) {
-        if (serviceClass == TransactionService.class) {
-            return serviceClass.cast(TRANSACTION_SERVICE);
-        } else if (serviceClass == SecurityService.class) {
-            return serviceClass.cast(SECURITY_SERVICE);
+        return supportService(serviceClass) ? serviceClass.cast(this) : null;
+    }
+
+    @Override
+    public void isManagedBean(Class<?> clazz) throws Exception {
+    }
+
+    @Override
+    public boolean supportService(Class<?> serviceClass) {
+        return serviceClass == TransactionService.class || serviceClass == SecurityService.class;
+    }
+
+    @Override
+    public Object getSessionBeanProxy(Bean<?> bean, Class<?> interfce, CreationalContext<?> creationalContext) {
+        final CdiEjbBean ejbBean = (CdiEjbBean) bean;
+        final DeploymentInfo deployment = ejbBean.getDeploymentInfo();
+
+        final Class beanClass = deployment.getBeanClass();
+        final List<Class> localInterfaces = deployment.getBusinessLocalInterfaces();
+
+        List<Class> interfaces = ProxyInterfaceResolver.getInterfaces(beanClass, interfce, localInterfaces);
+        DeploymentInfo.BusinessLocalHome home = deployment.getBusinessLocalHome(interfaces);
+        return home.create();
+
+//        try {
+//
+//            ((CdiEjbBean<Object>) bean).setIface(iface);
+//
+//            Class<?> clazz = JavassistProxyFactory.getInstance().getEjbBeanProxyClass((BaseEjbBean<Object>) (CdiEjbBean<Object>) bean);
+//
+//            if (clazz == null) {
+//                ProxyFactory factory = new ProxyFactory();
+//                factory.setInterfaces(new Class[]{(Class<?>) iface});
+//                clazz = JavassistProxyFactory.getInstance().defineEjbBeanProxyClass((BaseEjbBean<Object>) (CdiEjbBean<Object>) bean, factory);
+//            }
+//
+//            Object proxyInstance = (Object) ClassUtil.newInstance(clazz);
+//
+//            EjbBeanProxyHandler handler = new EjbBeanProxyHandler((CdiEjbBean<Object>) bean, creationalContext);
+//
+//            ((ProxyObject) proxyInstance).setHandler(handler);
+//
+//            return proxyInstance;
+//
+//        } catch (Exception e) {
+//            throw new WebBeansException(e);
+//        }
+    }
+
+    @Override
+    public boolean isSessionBean(Class<?> clazz) {
+        return beans.contains(clazz);
+    }
+
+    @Override
+    public <T> Bean<T> defineSessionBean(Class<T> clazz, ProcessAnnotatedType<T> processAnnotateTypeEvent) {
+        throw new IllegalStateException("Statement should never be reached");
+    }
+
+    @Override
+    public boolean isSingletonBean(Class<?> clazz) {
+        throw new IllegalStateException("Statement should never be reached");
+    }
+
+    @Override
+    public boolean isStatefulBean(Class<?> clazz) {
+        throw new IllegalStateException("Statement should never be reached");
+    }
+
+    @Override
+    public boolean isStatelessBean(Class<?> clazz) {
+        throw new IllegalStateException("Statement should never be reached");
+    }
+
+    @Override
+    public Transaction getTransaction() {
+        TransactionManager manager = getTransactionManager();
+        if (manager != null) {
+            try {
+                return manager.getTransaction();
+            } catch (SystemException e) {
+                logger.error("Error is occured while getting transaction instance from system", e);
+            }
         }
 
         return null;
     }
 
     @Override
-    public void isManagedBean(Class<?> clazz) throws Exception {
-        if (isSessionBean(clazz)) {
-            throw new WebBeansConfigurationException("Managed Bean implementation class : "
-                    + clazz.getName() + " can not be sesion bean class");
-        }
-
+    public TransactionManager getTransactionManager() {
+        // TODO Convert to final field
+        return SystemInstance.get().getComponent(TransactionManager.class);
     }
 
     @Override
-    public boolean supportService(Class<?> serviceClass) {
-        if ((serviceClass == TransactionService.class) || serviceClass == SecurityService.class) {
-            return true;
-        }
+    public UserTransaction getUserTransaction() {
+        UserTransaction ut = null;
 
-        return false;
+        // TODO Convert to final field
+        ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
+        
+        try {
+            ut = (UserTransaction) containerSystem.getJNDIContext().lookup("comp/UserTransaction");
+        } catch (NamingException e) {
+            logger.debug("User transaction is not bound to context, lets create it");
+            ut = new CoreUserTransaction(getTransactionManager());
+
+        }
+        return ut;
     }
 
     @Override
-    public <T> Bean<T> defineSessionBean(Class<T> clazz,
-            ProcessAnnotatedType<T> processAnnotateTypeEvent) {
-        if (!isSessionBean(clazz)) {
-            throw new IllegalArgumentException("Given class is not an session bean class");
-        }
-
-        ContainerSystem cs = SystemInstance.get().getComponent(ContainerSystem.class);
-        DeploymentInfo info = null;
-        SessionBeanType type = SessionBeanType.STATELESS;
-
-        info = cs.getDeploymentInfo(this.beanIds.get(clazz));
-
-        CdiEjbBean<T> bean = new CdiEjbBean<T>(clazz);
-        bean.setDeploymentInfo(info);
-        bean.setEjbType(type);
-
-        EjbUtility.fireEvents(clazz, bean, processAnnotateTypeEvent);
-
-        return bean;
-
+    public void registerTransactionSynchronization(TransactionPhase phase, ObserverMethod<? super Object> observer, Object event) throws Exception {
+        TransactionalEventNotifier.registerTransactionSynchronization(phase, observer, event);
     }
 
     @Override
-    public Object getSessionBeanProxy(Bean<?> bean, Class<?> iface,
-            CreationalContext<?> creationalContext) {
-        return EjbDefinitionUtility.defineEjbBeanProxy((CdiEjbBean<?>) bean, iface,
-                creationalContext);
-    }
+    public Principal getCurrentPrincipal() {
 
-    @Override
-    public boolean isSessionBean(Class<?> clazz) {
-
-        for (Entry<Integer, Set<Class<?>>> entries : this.beans.entrySet()) {
-            Set<Class<?>> classes = entries.getValue();
-            if (classes.contains(clazz)) {
-                return true;
-            }
+        // TODO Convert to final field
+        org.apache.openejb.spi.SecurityService<?> service = SystemInstance.get().getComponent(org.apache.openejb.spi.SecurityService.class);
+        if (service != null) {
+            return service.getCallerPrincipal();
         }
 
-        return false;
-    }
-
-    @Override
-    public boolean isSingletonBean(Class<?> clazz) {
-        for (Entry<Integer, Set<Class<?>>> entries : this.beans.entrySet()) {
-            Set<Class<?>> classes = entries.getValue();
-            for (Class<?> clazzFound : classes) {
-                if (clazzFound == clazz && entries.getKey().equals(EnterpriseBeanInfo.SINGLETON)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean isStatefulBean(Class<?> clazz) {
-        for (Entry<Integer, Set<Class<?>>> entries : this.beans.entrySet()) {
-            Set<Class<?>> classes = entries.getValue();
-            for (Class<?> clazzFound : classes) {
-                if (clazzFound == clazz && entries.getKey().equals(EnterpriseBeanInfo.STATEFUL)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isStatelessBean(Class<?> clazz) {
-        for (Entry<Integer, Set<Class<?>>> entries : this.beans.entrySet()) {
-            Set<Class<?>> classes = entries.getValue();
-            for (Class<?> clazzFound : classes) {
-                if (clazzFound == clazz && entries.getKey().equals(EnterpriseBeanInfo.STATELESS)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return null;
     }
 }

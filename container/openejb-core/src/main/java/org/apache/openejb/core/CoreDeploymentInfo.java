@@ -111,6 +111,7 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
     private TransactionPolicyFactory transactionPolicyFactory;
 
     private final List<InterceptorData> callbackInterceptors = new ArrayList<InterceptorData>();
+    private final Set<InterceptorData> cdiInterceptors = new LinkedHashSet<InterceptorData>();
     private final Set<InterceptorData> instanceScopedInterceptors = new HashSet<InterceptorData>();
     private final List<InterceptorInstance> systemInterceptors = new ArrayList<InterceptorInstance>();
     private final Map<String, String> activationProperties = new HashMap<String, String>();
@@ -667,6 +668,7 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
     public List<InterceptorData> getCallbackInterceptors() {
         List<InterceptorData> datas = getInterceptorData();
         datas.addAll(callbackInterceptors);
+        datas.addAll(cdiInterceptors);
         return datas;
     }
 
@@ -674,6 +676,16 @@ public class CoreDeploymentInfo extends DeploymentContext implements org.apache.
         this.callbackInterceptors.clear();
         this.callbackInterceptors.addAll(callbackInterceptors);
         this.instanceScopedInterceptors.addAll(callbackInterceptors);
+    }
+
+    public List<InterceptorData> getCdiInterceptors() {
+        return new ArrayList<InterceptorData>(cdiInterceptors);
+    }
+
+    public void setCdiInterceptors(List<InterceptorData> cdiInterceptors) {
+        this.cdiInterceptors.clear();
+        this.cdiInterceptors.addAll(cdiInterceptors);
+        this.instanceScopedInterceptors.addAll(cdiInterceptors);
     }
 
     public List<InterceptorData> getMethodInterceptors(Method method) {

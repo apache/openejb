@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.assembler.classic;
+package org.apache.openejb.cdi;
 
 import org.apache.webbeans.component.AbstractInjectionTargetBean;
 import org.apache.webbeans.component.AbstractProducerBean;
@@ -29,7 +29,6 @@ import org.apache.webbeans.component.WebBeansType;
 import org.apache.webbeans.component.creation.BeanCreator;
 import org.apache.webbeans.component.creation.ManagedBeanCreatorImpl;
 import org.apache.webbeans.config.DefinitionUtil;
-import org.apache.webbeans.config.EJBWebBeansConfigurator;
 import org.apache.webbeans.config.ManagedBeanConfigurator;
 import org.apache.webbeans.config.OWBLogConst;
 import org.apache.webbeans.container.BeanManagerImpl;
@@ -46,7 +45,6 @@ import org.apache.webbeans.intercept.InterceptorsManager;
 import org.apache.webbeans.intercept.webbeans.WebBeansInterceptor;
 import org.apache.webbeans.logger.WebBeansLogger;
 import org.apache.webbeans.plugins.PluginLoader;
-import org.apache.webbeans.portable.AnnotatedElementFactory;
 import org.apache.webbeans.portable.events.ProcessAnnotatedTypeImpl;
 import org.apache.webbeans.portable.events.ProcessInjectionTargetImpl;
 import org.apache.webbeans.portable.events.discovery.AfterBeanDiscoveryImpl;
@@ -70,12 +68,8 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Decorator;
 import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.interceptor.Interceptor;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,31 +89,6 @@ import java.util.Stack;
 public class BeansDeployer {
     //Logger instance
     private static final WebBeansLogger logger = WebBeansLogger.getLogger(BeansDeployer.class);
-
-    /**
-     * Deployment is started or not
-     */
-    protected boolean deployed = false;
-
-    /**
-     * XML Configurator
-     */
-    protected WebBeansXMLConfigurator xmlConfigurator = null;
-
-    /**
-     * Discover ejb or not
-     */
-    protected boolean discoverEjb = false;
-
-    /**
-     * Creates a new deployer with given xml configurator.
-     *
-     * @param xmlConfigurator xml configurator
-     */
-    public BeansDeployer(WebBeansXMLConfigurator xmlConfigurator) {
-        this.xmlConfigurator = xmlConfigurator;
-        this.discoverEjb = true;
-    }
 
     /**
      * Configure Default Beans.
@@ -338,94 +307,6 @@ public class BeansDeployer {
             }
         }
     }
-
-
-    /**
-     * Discovers and deploys classes from class path.
-     *
-     * @param scanner discovery scanner
-     * @throws ClassNotFoundException if class not found
-     */
-    protected static void deployFromClassPath(ScannerService scanner) throws ClassNotFoundException {
-        logger.debug("Deploying configurations from class files has started.");
-
-        // Start from the class
-        Set<Class<?>> classIndex = scanner.getBeanClasses();
-
-        //Iterating over each class
-        if (classIndex != null) {
-            for (Class<?> implClass : classIndex) {
-                //Define annotation type
-                AnnotatedType<?> annotatedType = AnnotatedElementFactory.getInstance().newAnnotatedType(implClass);
-
-                //Fires ProcessAnnotatedType
-                ProcessAnnotatedTypeImpl<?> processAnnotatedEvent = WebBeansUtil.fireProcessAnnotatedTypeEvent(annotatedType);
-
-                //if veto() is called
-                if (processAnnotatedEvent.isVeto()) {
-                    continue;
-                }
-
-                //Try class is Managed Bean
-                boolean isDefined = defineManagedBean((Class<Object>) implClass, (ProcessAnnotatedTypeImpl<Object>) processAnnotatedEvent);
-
-                //Try class is EJB bean
-                if (!isDefined) {
-                    if (EJBWebBeansConfigurator.isSessionBean(implClass)) {
-                        logger.debug("Found Enterprise Bean with class name : [{0}]", implClass.getName());
-                        defineEnterpriseWebBean((Class<Object>) implClass, (ProcessAnnotatedTypeImpl<Object>) processAnnotatedEvent);
-                    }
-                }
-            }
-        }
-
-        logger.debug("Deploying configurations from class files has ended.");
-
-    }
-
-    /**
-     * Discovers and deploys classes from XML.
-     * <p/>
-     * NOTE : Currently XML file is just used for configuring.
-     *
-     * @param scanner discovery scanner
-     * @param xmlConfigurator
-     * @throws org.apache.webbeans.exception.WebBeansDeploymentException
-     *          if exception
-     */
-    protected static void deployFromXML(ScannerService scanner, WebBeansXMLConfigurator xmlConfigurator) throws WebBeansDeploymentException {
-        logger.debug("Deploying configurations from XML files has started.");
-
-        Set<URL> xmlLocations = scanner.getBeanXmls();
-        Iterator<URL> it = xmlLocations.iterator();
-
-        while (it.hasNext()) {
-            URL fileURL = it.next();
-            String fileName = fileURL.getFile();
-            InputStream fis = null;
-            try {
-                fis = fileURL.openStream();
-
-                xmlConfigurator.configure(fis, fileName);
-            }
-            catch (IOException e) {
-                throw new WebBeansDeploymentException(e);
-            }
-            finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    }
-                    catch (IOException e) {
-                        // all ok, ignore this!
-                    }
-                }
-            }
-        }
-
-        logger.debug("Deploying configurations from XML has ended successfully.");
-    }
-
 
     /**
      * Checks specialization.
@@ -671,17 +552,5 @@ public class BeansDeployer {
         else {
             return false;
         }
-
-    }
-
-    /**
-     * Defines enterprise bean via plugin.
-     *
-     * @param <T>   bean class type
-     * @param clazz bean class
-     */
-    protected static <T> void defineEnterpriseWebBean(Class<T> clazz, ProcessAnnotatedType<T> processAnnotatedTypeEvent) {
-        InjectionTargetBean<T> bean = (InjectionTargetBean<T>) EJBWebBeansConfigurator.defineEjbBean(clazz, processAnnotatedTypeEvent);
-        WebBeansUtil.setInjectionTargetBeanEnableFlag(bean);
     }
 }

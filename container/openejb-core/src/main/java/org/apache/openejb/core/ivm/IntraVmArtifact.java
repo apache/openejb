@@ -60,10 +60,12 @@ public class IntraVmArtifact implements Externalizable {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.write(instanceHandle);
+        out.writeBoolean(staticArtifact);
     }
 
     public void readExternal(ObjectInput in) throws IOException {
         instanceHandle = in.read();
+        staticArtifact = in.readBoolean();
     }
 
     protected Object readResolve() throws ObjectStreamException {

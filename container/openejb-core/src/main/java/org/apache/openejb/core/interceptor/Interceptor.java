@@ -41,4 +41,11 @@ public class Interceptor {
     public Method getMethod() {
         return method;
     }
+
+    @Override
+    public String toString() {
+        return "Interceptor{class=" + method.getDeclaringClass().getSimpleName() + ", " +
+                "method=" + method +
+                '}';
+    }
 }

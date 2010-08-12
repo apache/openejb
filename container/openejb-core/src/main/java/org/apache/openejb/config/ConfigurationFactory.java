@@ -65,7 +65,6 @@ import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
 import org.apache.openejb.assembler.classic.ManagedContainerInfo;
 import static org.apache.openejb.config.ServiceUtils.implies;
 
-import org.apache.openejb.cdi.CdiAppContainer;
 import org.apache.openejb.config.sys.AbstractService;
 import org.apache.openejb.config.sys.ConnectionManager;
 import org.apache.openejb.config.sys.Container;

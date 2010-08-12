@@ -16,30 +16,22 @@
  */
 package org.apache.openejb.cdi;
 
+import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.assembler.classic.ProxyInterfaceResolver;
+import org.apache.webbeans.ejb.common.component.BaseEjbBean;
+
+import javax.ejb.Remove;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.SessionBeanType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.Remove;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.InterfaceType;
-import org.apache.openejb.assembler.classic.JndiBuilder;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.spi.ContainerSystem;
-import org.apache.webbeans.ejb.common.component.BaseEjbBean;
-
 public class CdiEjbBean<T> extends BaseEjbBean<T> {
-    private DeploymentInfo deploymentInfo;
+    private final DeploymentInfo deploymentInfo;
 
-    public CdiEjbBean(Class<T> ejbClassType) {
-        super(ejbClassType);
-    }
-
-    public void setDeploymentInfo(DeploymentInfo deploymentInfo) {
+    public CdiEjbBean(DeploymentInfo deploymentInfo) {
+        super(deploymentInfo.getBeanClass());
         this.deploymentInfo = deploymentInfo;
     }
 
@@ -48,34 +40,38 @@ public class CdiEjbBean<T> extends BaseEjbBean<T> {
     }
 
     @Override
+    public void setEjbType(SessionBeanType type) {
+        throw new IllegalStateException("The SessionBeanType cannot be changed");
+    }
+
+    @Override
+    public SessionBeanType getEjbType() {
+        switch (deploymentInfo.getComponentType()) {
+            case SINGLETON:
+                return SessionBeanType.SINGLETON;
+            case STATELESS:
+                return SessionBeanType.STATELESS;
+            case STATEFUL:
+            case MANAGED:
+                return SessionBeanType.STATEFUL;
+            default:
+                throw new IllegalStateException("Unknown Session BeanType " + deploymentInfo.getComponentType());
+        }
+    }
+
+    @Override
+    public String getId() {
+        return (String) deploymentInfo.getDeploymentID();
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     protected T getInstance(CreationalContext<T> creationalContext) {
-        T instance = null;
 
-        ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
-        Context jndiContext = containerSystem.getJNDIContext();
-        DeploymentInfo deploymentInfo = this.getDeploymentInfo();
-        try {
-            if (iface != null) {
-                InterfaceType type = deploymentInfo.getInterfaceType(iface);
-                if (!type.equals(InterfaceType.BUSINESS_LOCAL)) {
-                    throw new IllegalArgumentException(
-                            "Interface type is not legal business local interface for session bean class : "
-                                    + getReturnType().getName());
-                }
-            } else {
-                iface = this.deploymentInfo.getBusinessLocalInterface();
-            }
+        List<Class> interfaces = ProxyInterfaceResolver.getInterfaces(deploymentInfo.getBeanClass(), iface, deploymentInfo.getBusinessLocalInterfaces());
+        DeploymentInfo.BusinessLocalHome home = deploymentInfo.getBusinessLocalHome(interfaces);
 
-            String jndiName = "java:openejb/Deployment/"
-                    + JndiBuilder.format(deploymentInfo.getDeploymentID(), this.iface.getName());
-            instance = (T) this.iface.cast(jndiContext.lookup(jndiName));
-
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-
-        return instance;
+        return (T) home.create();
     }
 
     public String getEjbName() {
@@ -133,4 +129,8 @@ public class CdiEjbBean<T> extends BaseEjbBean<T> {
         return toReturn;
     }
 
+    @Override
+    public String getName() {
+        return deploymentInfo.getEjbName();
+    }
 }

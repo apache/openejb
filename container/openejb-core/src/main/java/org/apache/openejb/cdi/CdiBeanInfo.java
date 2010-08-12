@@ -16,11 +16,6 @@
  */
 package org.apache.openejb.cdi;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.openejb.Injection;
 import org.apache.openejb.jee.DataSource;
 import org.apache.openejb.jee.EjbLocalRef;
@@ -38,7 +33,12 @@ import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.ServiceRef;
 
-public class CdiBeanInfo implements JndiConsumer{
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+public class CdiBeanInfo implements JndiConsumer {
 
     protected KeyedCollection<String, EnvEntry> envEntry;
     protected KeyedCollection<String, EjbRef> ejbRef;
@@ -63,19 +63,15 @@ public class CdiBeanInfo implements JndiConsumer{
     public String getBeanName() {
         return beanName;
     }
-    
-     
 
     public List<Injection> getInjections() {
         return injections;
     }
 
 
-
     public void setInjections(List<Injection> injections) {
         this.injections = injections;
     }
-
 
 
     public void setBeanName(String beanName) {
@@ -98,7 +94,6 @@ public class CdiBeanInfo implements JndiConsumer{
     public void setBeanClass(Class<?> beanClass) {
         this.beanClass = beanClass;
     }
-
 
 
     public Collection<EnvEntry> getEnvEntry() {
@@ -234,7 +229,6 @@ public class CdiBeanInfo implements JndiConsumer{
         return this.postConstruct;
     }
 
- 
 
     public List<SecurityRoleRef> getSecurityRoleRef() {
         if (securityRoleRef == null) {
@@ -250,7 +244,6 @@ public class CdiBeanInfo implements JndiConsumer{
     public void setSecurityIdentity(SecurityIdentity value) {
         this.securityIdentity = value;
     }
-
 
 
     public List<LifecycleCallback> getAfterBegin() {
@@ -292,7 +285,7 @@ public class CdiBeanInfo implements JndiConsumer{
         return beanName;
     }
 
-    public Class<?> getBeanClass(){
-	return this.beanClass;
+    public Class<?> getBeanClass() {
+        return this.beanClass;
     }
 }
