@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
@@ -85,7 +84,6 @@ import org.apache.openejb.spi.SecurityService;
 import org.apache.openejb.util.Index;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
-import org.apache.openejb.util.Duration;
 import org.apache.xbean.recipe.ConstructionException;
 
 public class StatefulContainer implements RpcContainer {
@@ -93,7 +91,6 @@ public class StatefulContainer implements RpcContainer {
 
     private final Object containerID;
     private final SecurityService securityService;
-    private final Duration accessTimeout;
 
     // todo this should be part of the constructor
     protected final JtaEntityManagerRegistry entityManagerRegistry = SystemInstance.get().getComponent(JtaEntityManagerRegistry.class);
@@ -107,15 +104,10 @@ public class StatefulContainer implements RpcContainer {
     private final ConcurrentHashMap<Object, Instance> checkedOutInstances = new ConcurrentHashMap<Object, Instance>();
 
     public StatefulContainer(Object id, SecurityService securityService, Cache<Object, Instance> cache) {
-        this(id, securityService, cache, new Duration(0, TimeUnit.MILLISECONDS));
-    }
-
-    public StatefulContainer(Object id, SecurityService securityService, Cache<Object, Instance> cache, Duration accessTimeout) {
         this.containerID = id;
         this.securityService = securityService;
         this.cache = cache;
         cache.setListener(new StatefulCacheListener());
-        this.accessTimeout = accessTimeout;
     }
 
     private Map<Method, MethodType> getLifecycleMethodsOfInterface(CoreDeploymentInfo deploymentInfo) {
