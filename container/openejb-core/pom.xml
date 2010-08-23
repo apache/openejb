@@ -398,6 +398,12 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.jsr299.tck</groupId>
+      <artifactId>jsr299-tck-api</artifactId>
+      <version>1.0.2.CR1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <profiles>
     <profile>
