@@ -16,9 +16,14 @@
  */
 package org.apache.openejb.cdi.tck;
 
+import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.core.AppContext;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.spi.ContainerSystem;
+import org.apache.webbeans.container.BeanManagerImpl;
 import org.jboss.testharness.api.DeploymentException;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.config.ConfigurationFactory;
@@ -47,6 +52,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
@@ -58,38 +64,45 @@ import java.lang.annotation.Annotation;
  */
 public class ServiceProviders {
 
+
+    private static AppContext appContext;
+
     public static class ManagersProvider implements org.jboss.jsr299.tck.spi.Managers {
         public BeanManager getManager() {
-            // TODO This doesn't really work.  We need some better way to get the AppContext
-            final ThreadContext threadContext = ThreadContext.getThreadContext();
-            final CoreDeploymentInfo deployment = threadContext.getDeploymentInfo();
-            return deployment.getModuleContext().getAppContext().getBeanManager();
+            System.out.println("ServiceProviders$ManagersProvider.getManager");
+            return appContext.getBeanManager();
         }
 
     }
 
     public static class BeansProvider implements org.jboss.jsr299.tck.spi.Beans {
         public boolean isProxy(Object instance) {
+            System.out.println("ServiceProviders$BeansProvider.isProxy");
             return false;
         }
     }
 
     public static class ContextsProvider implements org.jboss.jsr299.tck.spi.Contexts {
         public void setActive(Context context) {
+            System.out.println("ServiceProviders$ContextsProvider.setActive");
         }
 
         public void setInactive(Context context) {
+            System.out.println("ServiceProviders$ContextsProvider.setInactive");
         }
 
         public Context getRequestContext() {
+            System.out.println("ServiceProviders$ContextsProvider.getRequestContext");
             return null;
         }
 
         public Context getDependentContext() {
+            System.out.println("ServiceProviders$ContextsProvider.getDependentContext");
             return null;
         }
 
         public void destroyContext(Context context) {
+            System.out.println("ServiceProviders$ContextsProvider.destroyContext");
         }
     }
 
@@ -98,6 +111,7 @@ public class ServiceProviders {
         private DeploymentException deploymentException;
 
         public void deploy(Collection<Class<?>> classes) throws DeploymentException {
+            System.out.println("ServiceProviders$StandaloneContainersProvider.deploy");
             System.out.println("StandaloneContainersImpl.deploy(classes)");
             for (Class<?> clazz : classes) {
                 System.out.println("clazz = " + clazz);
@@ -105,6 +119,19 @@ public class ServiceProviders {
         }
 
         public boolean deploy(Collection<Class<?>> classes, Collection<URL> urls) {
+            System.out.println("ServiceProviders$StandaloneContainersProvider.deploy");
+            List<String> classNames = new ArrayList<String>();
+
+            for (Class<?> clazz : classes) classNames.add(clazz.getName());
+            Collections.sort(classNames);
+
+            for (String clazz : classNames) {
+                System.out.println("clazz = " + clazz);
+            }
+
+            for (URL url : urls) {
+                System.out.println("url = " + url);
+            }
             try {
                 EjbModule ejbModule = new EjbModule(new EjbJar("beans"));
                 ejbModule.setFinder(new ClassFinder(new ArrayList(classes)));
@@ -120,8 +147,21 @@ public class ServiceProviders {
                 ConfigurationFactory config = new ConfigurationFactory();
                 assembler.createSecurityService(config.configureService(SecurityServiceInfo.class));
                 assembler.createTransactionManager(config.configureService(TransactionServiceInfo.class));
-                
-                assembler.createApplication(config.configureApplication(ejbModule));
+
+                final EjbJarInfo ejbJar = config.configureApplication(ejbModule);
+                ejbJar.beans.managedClasses.addAll(classNames);
+
+
+                assembler.createApplication(ejbJar);
+
+                final ContainerSystem component = SystemInstance.get().getComponent(ContainerSystem.class);
+
+                final CoreDeploymentInfo deploymentInfo = (CoreDeploymentInfo) component.deployments()[0];
+                appContext = deploymentInfo.getModuleContext().getAppContext();
+
+                // This must be set or the OWB static lookup code won't work and everything will fall apart
+                Thread.currentThread().setContextClassLoader(appContext.getClassLoader());
+
             } catch (Exception e) {
                 e.printStackTrace();
                 deploymentException = new DeploymentException("Deploy failed", e);
@@ -138,30 +178,36 @@ public class ServiceProviders {
         }
 
         public DeploymentException getDeploymentException() {
+            System.out.println("ServiceProviders$StandaloneContainersProvider.getDeploymentException");
             return deploymentException;
         }
 
         public void undeploy() {
+            System.out.println("ServiceProviders$StandaloneContainersProvider.undeploy");
         }
 
         public void setup() {
-
+            System.out.println("ServiceProviders$StandaloneContainersProvider.setup");
         }
 
         public void cleanup() {
+            System.out.println("ServiceProviders$StandaloneContainersProvider.cleanup");
         }
     }
 
     public static class ELProvider implements org.jboss.jsr299.tck.spi.EL {
         public <T> T evaluateValueExpression(String expression, Class<T> expectedType) {
+            System.out.println("ServiceProviders$ELProvider.evaluateValueExpression");
             return null;
         }
 
         public <T> T evaluateMethodExpression(String expression, Class<T> expectedType, Class<?>[] expectedParamTypes, Object[] expectedParams) {
+            System.out.println("ServiceProviders$ELProvider.evaluateMethodExpression");
             return null;
         }
 
         public ELContext createELContext() {
+            System.out.println("ServiceProviders$ELProvider.createELContext");
             return null;
         }
     }

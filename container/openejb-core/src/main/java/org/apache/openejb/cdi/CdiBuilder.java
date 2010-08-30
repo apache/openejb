@@ -22,6 +22,7 @@ import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.BeansInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 import org.apache.openejb.core.AppContext;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
@@ -237,7 +238,15 @@ public class CdiBuilder {
         final AlternativesManager alternativesManager = AlternativesManager.getInstance();
         final DecoratorsManager decoratorsManager = DecoratorsManager.getInstance();
         final InterceptorsManager interceptorsManager = InterceptorsManager.getInstance();
-        
+
+        final HashSet<String> ejbClasses = new HashSet<String>();
+
+        for (EjbJarInfo ejbJar : appInfo.ejbJars) {
+            for (EnterpriseBeanInfo bean : ejbJar.enterpriseBeans) {
+                ejbClasses.add(bean.ejbClass);
+            }
+        }
+
         for (EjbJarInfo ejbJar : appInfo.ejbJars) {
             final BeansInfo beans = ejbJar.beans;
 
@@ -284,6 +293,7 @@ public class CdiBuilder {
             }
 
             for (String className : beans.managedClasses) {
+                if (ejbClasses.contains(className)) continue;
                 final Class clazz = load(className, "managed");
                 classes.add(clazz);
             }

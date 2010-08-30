@@ -400,8 +400,14 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.jsr299.tck</groupId>
-      <artifactId>jsr299-tck-api</artifactId>
+      <artifactId>jsr299-tck-impl</artifactId>
       <version>1.0.2.CR1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.test-harness</groupId>
+      <artifactId>jboss-test-harness</artifactId>
+      <version>1.1.0-CR5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
