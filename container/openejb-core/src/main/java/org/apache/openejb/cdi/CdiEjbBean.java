@@ -16,47 +16,30 @@
  */
 package org.apache.openejb.cdi;
 
-import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.assembler.classic.ProxyInterfaceResolver;
-import org.apache.webbeans.ejb.common.component.BaseEjbBean;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ejb.Remove;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.SessionBeanType;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.openejb.BeanType;
+import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.assembler.classic.ProxyInterfaceResolver;
+import org.apache.openejb.jee.SessionType;
+import org.apache.webbeans.ejb.common.component.BaseEjbBean;
 
 public class CdiEjbBean<T> extends BaseEjbBean<T> {
     private final DeploymentInfo deploymentInfo;
 
     public CdiEjbBean(DeploymentInfo deploymentInfo) {
-        super(deploymentInfo.getBeanClass());
+        super(deploymentInfo.getBeanClass(), toSessionType(deploymentInfo.getComponentType()));
         this.deploymentInfo = deploymentInfo;
     }
 
     public DeploymentInfo getDeploymentInfo() {
         return this.deploymentInfo;
-    }
-
-    @Override
-    public void setEjbType(SessionBeanType type) {
-        throw new IllegalStateException("The SessionBeanType cannot be changed");
-    }
-
-    @Override
-    public SessionBeanType getEjbType() {
-        switch (deploymentInfo.getComponentType()) {
-            case SINGLETON:
-                return SessionBeanType.SINGLETON;
-            case STATELESS:
-                return SessionBeanType.STATELESS;
-            case STATEFUL:
-            case MANAGED:
-                return SessionBeanType.STATEFUL;
-            default:
-                throw new IllegalStateException("Unknown Session BeanType " + deploymentInfo.getComponentType());
-        }
     }
 
     @Override
@@ -68,7 +51,7 @@ public class CdiEjbBean<T> extends BaseEjbBean<T> {
     @SuppressWarnings("unchecked")
     protected T getInstance(CreationalContext<T> creationalContext) {
 
-        List<Class> interfaces = ProxyInterfaceResolver.getInterfaces(deploymentInfo.getBeanClass(), iface, deploymentInfo.getBusinessLocalInterfaces());
+        List<Class> interfaces = ProxyInterfaceResolver.getInterfaces(deploymentInfo.getBeanClass(), deploymentInfo.getMdbInterface(), deploymentInfo.getBusinessLocalInterfaces());
         DeploymentInfo.BusinessLocalHome home = deploymentInfo.getBusinessLocalHome(interfaces);
 
         return (T) home.create();
@@ -132,5 +115,19 @@ public class CdiEjbBean<T> extends BaseEjbBean<T> {
     @Override
     public String getName() {
         return deploymentInfo.getEjbName();
+    }
+
+    private static SessionBeanType toSessionType(BeanType beanType) {
+        switch (beanType) {
+        case SINGLETON:
+            return SessionBeanType.SINGLETON;
+        case STATELESS:
+            return SessionBeanType.STATELESS;
+        case STATEFUL:
+        case MANAGED:
+            return SessionBeanType.STATEFUL;
+        default:
+            throw new IllegalStateException("Unknown Session BeanType " + beanType);
+        }
     }
 }
