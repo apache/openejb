@@ -22,6 +22,7 @@ import org.apache.catalina.Service;
 import org.apache.catalina.Engine;
 import org.apache.catalina.ServerFactory;
 import org.apache.catalina.Server;
+import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.core.security.AbstractSecurityService;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.spi.CallerPrincipal;
@@ -128,7 +129,7 @@ public class TomcatSecurityService  extends AbstractSecurityService {
         }
     }
 
-    protected Subject getRunAsSubject(CoreDeploymentInfo callingDeploymentInfo) {
+    protected Subject getRunAsSubject(DeploymentInfo callingDeploymentInfo) {
         Subject runAsSubject = super.getRunAsSubject(callingDeploymentInfo);
         if (runAsSubject != null) return runAsSubject;
 
