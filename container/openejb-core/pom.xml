@@ -275,6 +275,24 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.osgi</groupId>
+          <artifactId>spring-osgi-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.osgi</groupId>
+          <artifactId>spring-osgi-io</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>osgi-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- End ActiveMQ -->
     <dependency>
