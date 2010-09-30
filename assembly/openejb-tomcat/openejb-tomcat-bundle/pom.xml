@@ -27,23 +27,25 @@
         <version>3.1.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>openejb-tomcat-bundle</artifactId>
+    <artifactId>tomtom</artifactId>
     <packaging>jar</packaging>
+    <version>313-SNAPSHOT</version>
     <name>OpenEJB :: Assembly :: Tomcat :: Bundle</name>
     <properties>
         <tomcat.version>6.0.26</tomcat.version>
         <examples.version>1.1-SNAPSHOT</examples.version>
+        <openejb.version>3.1.3-SNAPSHOT</openejb.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-loader</artifactId>
-            <version>${version}</version>
+            <version>${openejb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-tomcat-common</artifactId>
-            <version>${version}</version>
+            <version>${openejb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -73,7 +75,7 @@
                                 <property name="OUTPUT_DIR" value="${basedir}/target"/>
                                 <property name="LOCAL_M2_REPO" value="${settings.localRepository}"/>
                                 <property name="tomcat.version" value="${tomcat.version}"/>
-                                <property name="openejb.version" value="${version}"/>
+                                <property name="openejb.version" value="${openejb.version}"/>
                                 <property name="examples.version" value="${examples.version}"/>
 
                                 <ant antfile="${basedir}/build.xml">
@@ -130,7 +132,7 @@
                         <id>war</id>
                         <phase>package</phase>
                         <configuration>
-                            <finalName>${artifactId}-${tomcat.version}-${version}</finalName>
+                            <finalName>${artifactId}-${tomcat.version}.${version}</finalName>
                         </configuration>
                         <goals>
                             <goal>attached</goal>
