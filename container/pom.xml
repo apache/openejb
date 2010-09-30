@@ -34,6 +34,5 @@
         <module>openejb-spring</module>
         <module>openejb-osgi</module>
         <module>openejb-activemq4</module>
-        <module>openejb-junit</module>
     </modules>
 </project>
