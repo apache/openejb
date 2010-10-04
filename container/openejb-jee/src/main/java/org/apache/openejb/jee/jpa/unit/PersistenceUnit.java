@@ -198,7 +198,7 @@ public class PersistenceUnit {
     }
 
     public boolean addClass(String s) {
-        return clazz.add(s);
+        return getClazz().add(s);
     }
 
     public boolean addClass(Class clazz) {
