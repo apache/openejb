@@ -17,6 +17,7 @@
 package org.apache.openejb.config.rules;
 
 import junit.framework.TestCase;
+import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ContainerSystemInfo;
 import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
 import org.apache.openejb.config.ConfigurationFactory;
@@ -40,8 +41,6 @@ import java.util.List;
  */
 public class InvalidEjbRefTest extends TestCase {
 
-    private ConfigurationFactory config;
-
     public void test() throws Exception {
 
         EjbJar ejbJar = new EjbJar();
@@ -63,10 +62,12 @@ public class InvalidEjbRefTest extends TestCase {
         List<String> expectedKeys = new ArrayList<String>();
         expectedKeys.add("ann.ejb.ejbObject");
         expectedKeys.add("ann.ejb.ejbLocalObject");
-        expectedKeys.add("ann.ejb.beanClass");
-        expectedKeys.add("ann.ejb.notInterface");
+//        expectedKeys.add("ann.ejb.beanClass");
+//        expectedKeys.add("ann.ejb.notInterface");
 
         try {
+            Assembler assembler = new Assembler();
+            ConfigurationFactory config = new ConfigurationFactory();
             config.configureApplication(ejbJar);
             fail("A ValidationFailedException should have been thrown");
         } catch (ValidationFailedException e) {
@@ -74,12 +75,12 @@ public class InvalidEjbRefTest extends TestCase {
         }
     }
 
-    public void setUp() throws Exception {
-        config = new ConfigurationFactory(true);
-        ContainerSystemInfo containerSystem = config.getOpenEjbConfiguration().containerSystem;
-        containerSystem.containers.add(config.configureService(StatelessSessionContainerInfo.class));
-    }
-
+//    public void setUp() throws Exception {
+//        config = new ConfigurationFactory(true);
+//        ContainerSystemInfo containerSystem = config.getOpenEjbConfiguration().containerSystem;
+//        containerSystem.containers.add(config.configureService(StatelessSessionContainerInfo.class));
+//    }
+//
 
     public static class EjbRefBean implements EjbRefBeanLocal {
         // valid because fooBean will be a LocalBean (because it has no interfaces)

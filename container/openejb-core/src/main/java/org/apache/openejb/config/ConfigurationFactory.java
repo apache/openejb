@@ -406,7 +406,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory {
         }
 
 
-        return sys;
+        final OpenEjbConfiguration finished = sys;
+        sys = null;
+        openejb = null;
+        return finished;
+//        return sys;
     }
 
     public ContainerInfo createContainerInfo(Container container) throws OpenEJBException {

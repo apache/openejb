@@ -18,6 +18,7 @@ package org.apache.openejb.config.rules;
 
 import static org.apache.openejb.util.Join.join;
 import junit.framework.TestCase;
+import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ContainerSystemInfo;
 import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
 import org.apache.openejb.config.ConfigurationFactory;
@@ -54,6 +55,8 @@ public class InvalidInterfacesTest extends TestCase {
         bean.addBusinessRemote(FooRemote.class.getName());
 
         try {
+            Assembler assembler = new Assembler();
+            ConfigurationFactory config = new ConfigurationFactory();
             config.configureApplication(ejbJar);
         } catch (ValidationFailedException e) {
             for (ValidationFailure failure : e.getFailures()) {
@@ -189,9 +192,8 @@ public class InvalidInterfacesTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        config = new ConfigurationFactory(true);
-        ContainerSystemInfo containerSystem = config.getOpenEjbConfiguration().containerSystem;
-        containerSystem.containers.add(config.configureService(StatelessSessionContainerInfo.class));
+        Assembler assembler = new Assembler();
+        config = new ConfigurationFactory();
     }
 
     public static class FooBean {

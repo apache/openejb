@@ -429,7 +429,7 @@ public class JndiEncInfoBuilder {
     private EnterpriseBeanInfo getInterfaceBeanInfo(String moduleId, String interfaceClassName) {
         List<EjbJarInfo> ejbJars = appInfo.ejbJars;
         for (EjbJarInfo ejbJar : ejbJars) {
-            if (!ejbJar.moduleId.equals(moduleId)) continue;
+//            if (!ejbJar.moduleId.equals(moduleId)) continue;
 
             List<EnterpriseBeanInfo> enterpriseBeans = ejbJar.enterpriseBeans;
             for (EnterpriseBeanInfo enterpriseBean : enterpriseBeans) {
