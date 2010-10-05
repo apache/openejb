@@ -18,6 +18,7 @@ package org.apache.openejb.junit;
 
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.InjectionProcessor;
+import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.config.AppModule;
@@ -42,6 +43,9 @@ import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.util.Join;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
+import org.apache.openejb.util.OptionsLog;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -223,7 +227,9 @@ public class ApplicationComposer extends BlockJUnit4ClassRunner {
             if (SystemInstance.isInitialized()) SystemInstance.reset();
 
             SystemInstance.init(configuration);
-
+            SystemInstance.get().setProperty("openejb.embedded", "true");
+            Logger.configure();
+            OptionsLog.install();
             try {
                 ConfigurationFactory config = new ConfigurationFactory();
                 config.init(SystemInstance.get().getProperties());
@@ -255,7 +261,7 @@ public class ApplicationComposer extends BlockJUnit4ClassRunner {
                     }
 
                 } finally {
-                    assembler.destroyApplication(appInfo.jarPath);
+//                    assembler.destroyApplication(appInfo.jarPath);
                 }
             } finally {
                 SystemInstance.reset();
