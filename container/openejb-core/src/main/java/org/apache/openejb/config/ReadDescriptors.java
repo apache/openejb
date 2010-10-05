@@ -53,6 +53,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -310,6 +311,7 @@ public class ReadDescriptors implements DynamicDeployer {
     public static ApplicationClient readApplicationClient(URL url) throws OpenEJBException {
         ApplicationClient applicationClient;
         try {
+            if (isEmpty(url, "application-client")) return new ApplicationClient();
             applicationClient = (ApplicationClient) JaxbJavaee.unmarshal(ApplicationClient.class, url.openStream());
         } catch (SAXException e) {
             throw new OpenEJBException("Cannot parse the application-client.xml file: "+ url.toExternalForm(), e);
@@ -325,7 +327,7 @@ public class ReadDescriptors implements DynamicDeployer {
 
     public static EjbJar readEjbJar(URL url) throws OpenEJBException {
         try {
-            if (isEmptyEjbJar(url)) return new EjbJar();
+            if (isEmpty(url, "ejb-jar")) return new EjbJar();
             return (EjbJar) JaxbJavaee.unmarshal(EjbJar.class, url.openStream());
         } catch (SAXException e) {
             throw new OpenEJBException("Cannot parse the ejb-jar.xml file: " + url.toExternalForm(), e);
@@ -338,8 +340,9 @@ public class ReadDescriptors implements DynamicDeployer {
         }
     }
 
-    private static boolean isEmptyEjbJar(URL url) throws IOException, ParserConfigurationException, SAXException {
-        InputSource inputSource = new InputSource(url.openStream());
+    private static boolean isEmpty(URL url, final String rootElement) throws IOException, ParserConfigurationException, SAXException {
+        final LengthInputStream in = new LengthInputStream(url.openStream());
+        InputSource inputSource = new InputSource(in);
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -349,7 +352,7 @@ public class ReadDescriptors implements DynamicDeployer {
         try {
             parser.parse(inputSource, new DefaultHandler(){
                 public void startElement(String uri, String localName, String qName, Attributes att) throws SAXException {
-                    if (!localName.equals("ejb-jar")) throw new SAXException(localName);
+                    if (!localName.equals(rootElement)) throw new SAXException(localName);
                 }
 
                 public InputSource resolveEntity(String publicId, String systemId) throws IOException, SAXException {
@@ -358,7 +361,7 @@ public class ReadDescriptors implements DynamicDeployer {
             });
             return true;
         } catch (SAXException e) {
-            return false;
+            return in.getLength() == 0;
         }
     }
 
@@ -532,4 +535,36 @@ public class ReadDescriptors implements DynamicDeployer {
         }
     }
 
+    private static class LengthInputStream extends FilterInputStream {
+        private long length;
+
+        public LengthInputStream(InputStream in) throws IOException {
+            super(in);
+        }
+
+        @Override
+        public int read() throws IOException {
+            final int i = super.read();
+            if (i > 0) length++;
+            return i;
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            final int i = super.read(b);
+            if (i > 0) length += i;
+            return i;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            final int i = super.read(b, off, len);
+            if (i > 0) length += i;
+            return i;
+        }
+
+        public long getLength() {
+            return length;
+        }
+    }
 }
