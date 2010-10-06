@@ -18,6 +18,7 @@ package org.apache.openejb.assembler.classic;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitTransactionType;
@@ -175,13 +176,19 @@ public class PersistenceBuilder {
         }
         unitInfo.setPersistenceProviderClassName(persistenceProviderClassName);
 
-        Class clazz = classLoader.loadClass(persistenceProviderClassName);
-        PersistenceProvider persistenceProvider = (PersistenceProvider) clazz.newInstance();
+        final long start = System.nanoTime();
+        try {
+            Class clazz = classLoader.loadClass(persistenceProviderClassName);
+            PersistenceProvider persistenceProvider = (PersistenceProvider) clazz.newInstance();
 
-        logger.info("assembler.buildingPersistenceUnit", unitInfo.getPersistenceUnitName(), unitInfo.getPersistenceProviderClassName(), unitInfo.getPersistenceUnitRootUrl(), unitInfo.getTransactionType());
+            // Create entity manager factory
+            EntityManagerFactory emf = persistenceProvider.createContainerEntityManagerFactory(unitInfo, new HashMap());
+            return emf;
+        } finally {
+            final long time = TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            logger.info("assembler.buildingPersistenceUnit", unitInfo.getPersistenceUnitName(), unitInfo.getPersistenceProviderClassName(), time+"");
 
-        // Create entity manager factory
-        EntityManagerFactory emf = persistenceProvider.createContainerEntityManagerFactory(unitInfo, new HashMap());
-        return emf;
+
+        }
     }
 }

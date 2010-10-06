@@ -17,7 +17,12 @@
  */
 package org.apache.openejb.persistence;
 
+import org.apache.log4j.spi.LoggerFactory;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
+
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
@@ -39,22 +44,28 @@ import javax.persistence.TransactionRequiredException;
  * be thrown when entity manger is accessed.
  */
 public class JtaEntityManager implements EntityManager {
+    private static final Logger baseLogger = Logger.getInstance(LogCategory.OPENEJB.createChild("persistence"), JtaEntityManager.class);
+
     private final JtaEntityManagerRegistry registry;
     private final EntityManagerFactory entityManagerFactory;
     private final Map properties;
     private final boolean extended;
+    private final String unitName;
+    private final Logger logger;
 
     public JtaEntityManager(JtaEntityManagerRegistry registry, EntityManagerFactory entityManagerFactory, Map properties) {
-        this(registry, entityManagerFactory, properties, false);
-
+        this(null, registry, entityManagerFactory, properties, false);
     }
-    public JtaEntityManager(JtaEntityManagerRegistry registry, EntityManagerFactory entityManagerFactory, Map properties, boolean extended) {
+
+    public JtaEntityManager(String unitName, JtaEntityManagerRegistry registry, EntityManagerFactory entityManagerFactory, Map properties, boolean extended) {
         if (registry == null) throw new NullPointerException("registry is null");
         if (entityManagerFactory == null) throw new NullPointerException("entityManagerFactory is null");
         this.registry = registry;
         this.entityManagerFactory = entityManagerFactory;
         this.properties = properties;
         this.extended = extended;
+        this.unitName = unitName;
+        logger = (unitName == null) ? baseLogger : baseLogger.getChildLogger(unitName);
     }
 
     private EntityManager getEntityManager() {
@@ -94,23 +105,43 @@ public class JtaEntityManager implements EntityManager {
 
     public void persist(Object entity) {
         assertTransactionActive();
-        getEntityManager().persist(entity);
+        final Timer timer = Op.persist.start(this);
+        try {
+            getEntityManager().persist(entity);
+        } finally {
+            timer.stop();
+        }
     }
 
     public <T>T merge(T entity) {
         assertTransactionActive();
-        return getEntityManager().merge(entity);
+        final Timer timer = Op.merge.start(this);
+        try {
+            return getEntityManager().merge(entity);
+        } finally {
+            timer.stop();
+        }
     }
 
     public void remove(Object entity) {
         assertTransactionActive();
-        getEntityManager().remove(entity);
+        final Timer timer = Op.remove.start(this);
+        try {
+            getEntityManager().remove(entity);
+        } finally {
+            timer.stop();
+        }
     }
 
     public <T>T find(Class<T> entityClass, Object primaryKey) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.find(entityClass, primaryKey);
+            final Timer timer = Op.find.start(this);
+            try {
+                return entityManager.find(entityClass, primaryKey);
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -119,7 +150,12 @@ public class JtaEntityManager implements EntityManager {
     public <T>T getReference(Class<T> entityClass, Object primaryKey) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.getReference(entityClass, primaryKey);
+            final Timer timer = Op.getReference.start(this);
+            try {
+                return entityManager.getReference(entityClass, primaryKey);
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -127,13 +163,23 @@ public class JtaEntityManager implements EntityManager {
 
     public void flush() {
         assertTransactionActive();
-        getEntityManager().flush();
+        final Timer timer = Op.flush.start(this);
+        try {
+            getEntityManager().flush();
+        } finally {
+            timer.stop();
+        }
     }
 
     public void setFlushMode(FlushModeType flushMode) {
         EntityManager entityManager = getEntityManager();
         try {
-            entityManager.setFlushMode(flushMode);
+            final Timer timer = Op.setFlushMode.start(this);
+            try {
+                entityManager.setFlushMode(flushMode);
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -142,7 +188,12 @@ public class JtaEntityManager implements EntityManager {
     public FlushModeType getFlushMode() {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.getFlushMode();
+            final Timer timer = Op.getFlushMode.start(this);
+            try {
+                return entityManager.getFlushMode();
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -150,53 +201,98 @@ public class JtaEntityManager implements EntityManager {
 
     public void lock(Object entity, LockModeType lockMode) {
         assertTransactionActive();
-        getEntityManager().lock(entity, lockMode);
+        final Timer timer = Op.lock.start(this);
+        try {
+            getEntityManager().lock(entity, lockMode);
+        } finally {
+            timer.stop();
+        }
     }
 
     public void refresh(Object entity) {
         assertTransactionActive();
-        getEntityManager().refresh(entity);
+        final Timer timer = Op.refresh.start(this);
+        try {
+            getEntityManager().refresh(entity);
+        } finally {
+            timer.stop();
+        }
     }
 
     public void clear() {
         if (!extended && !isTransactionActive()) {
             return;
         }
-        getEntityManager().clear();
+        final Timer timer = Op.clear.start(this);
+        try {
+            getEntityManager().clear();
+        } finally {
+            timer.stop();
+        }
     }
 
     public boolean contains(Object entity) {
-        return isTransactionActive() && getEntityManager().contains(entity);
+        final Timer timer = Op.contains.start(this);
+        try {
+            return isTransactionActive() && getEntityManager().contains(entity);
+        } finally {
+            timer.stop();
+        }
     }
 
     public Query createQuery(String qlString) {
-        EntityManager entityManager = getEntityManager();
-        Query query = entityManager.createQuery(qlString);
-        return proxyIfNoTx(entityManager, query);
+        final Timer timer = Op.createQuery.start(this);
+        try {
+            EntityManager entityManager = getEntityManager();
+            Query query = entityManager.createQuery(qlString);
+            return proxyIfNoTx(entityManager, query);
+        } finally {
+            timer.stop();
+        }
     }
 
     public Query createNamedQuery(String name) {
-        EntityManager entityManager = getEntityManager();
-        Query query = entityManager.createNamedQuery(name);
-        return proxyIfNoTx(entityManager, query);
+        final Timer timer = Op.createNamedQuery.start(this);
+        try {
+            EntityManager entityManager = getEntityManager();
+            Query query = entityManager.createNamedQuery(name);
+            return proxyIfNoTx(entityManager, query);
+        } finally {
+            timer.stop();
+        }
     }
 
     public Query createNativeQuery(String sqlString) {
-        EntityManager entityManager = getEntityManager();
-        Query query = entityManager.createNativeQuery(sqlString);
-        return proxyIfNoTx(entityManager, query);
+        final Timer timer = Op.createNativeQuery.start(this);
+        try {
+            EntityManager entityManager = getEntityManager();
+            Query query = entityManager.createNativeQuery(sqlString);
+            return proxyIfNoTx(entityManager, query);
+        } finally {
+            timer.stop();
+        }
     }
 
     public Query createNativeQuery(String sqlString, Class resultClass) {
-        EntityManager entityManager = getEntityManager();
-        Query query = entityManager.createNativeQuery(sqlString, resultClass);
-        return proxyIfNoTx(entityManager, query);
+        final Timer timer = Op.createNativeQuery.start(this);
+        try {
+            EntityManager entityManager = getEntityManager();
+            Query query = entityManager.createNativeQuery(sqlString, resultClass);
+            return proxyIfNoTx(entityManager, query);
+        } finally {
+            timer.stop();
+        }
     }
 
     public Query createNativeQuery(String sqlString, String resultSetMapping) {
-        EntityManager entityManager = getEntityManager();
-        Query query = entityManager.createNativeQuery(sqlString, resultSetMapping);
-        return proxyIfNoTx(entityManager, query);
+        final Timer timer = Op.createNativeQuery.start(this);
+        try {
+            EntityManager entityManager = getEntityManager();
+            Query query = entityManager.createNativeQuery(sqlString, resultSetMapping);
+            return proxyIfNoTx(entityManager, query);
+        } finally {
+            timer.stop();
+        }
     }
 
     private Query proxyIfNoTx(EntityManager entityManager, Query query) {
@@ -207,9 +303,15 @@ public class JtaEntityManager implements EntityManager {
     }
 
     public void joinTransaction() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("PersistenceUnit(name=" + unitName + ") - entityManager.joinTransaction() call ignored - not applicable to a JTA Managed EntityManager",  new Exception().fillInStackTrace());
+        }
     }
 
     public void close() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("PersistenceUnit(name=" + unitName + ") - entityManager.close() call ignored - not applicable to a JTA Managed EntityManager",  new Exception().fillInStackTrace());
+        }
     }
 
     public boolean isOpen() {
@@ -218,5 +320,32 @@ public class JtaEntityManager implements EntityManager {
 
     public EntityTransaction getTransaction() {
         throw new IllegalStateException("A JTA EntityManager can not use the EntityTransaction API.  See JPA 1.0 section 5.5");
+    }
+
+    public static class Timer {
+        private final long start = System.nanoTime();
+        private final Op operation;
+        private final JtaEntityManager em;
+
+        public Timer(Op operation, JtaEntityManager em) {
+            this.operation = operation;
+            this.em = em;
+        }
+
+        public void stop() {
+            if (!em.logger.isDebugEnabled()) return;
+
+            final long time = TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+
+            em.logger.debug("PersistenceUnit(name=" + em.unitName + ") - entityManager." + operation + " - " + time + "ms");
+        }
+    }
+
+    private static enum Op {
+        clear, close, contains, createNamedQuery, createNativeQuery, createQuery, find, flush, getFlushMode, getReference, getTransaction, lock, merge, refresh, remove, setFlushMode, persist;
+
+        public Timer start(JtaEntityManager em) {
+            return new Timer(this, em);
+        }
     }
 }
