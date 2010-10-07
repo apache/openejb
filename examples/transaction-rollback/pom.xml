@@ -19,13 +19,12 @@
 
 <!-- $Rev: 636494 $ $Date: 2008-03-12 21:24:02 +0100 (Wed, 12 Mar 2008) $ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.superbiz</groupId>
   <artifactId>transaction-rollback</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <name>OpenEJB :: Examples :: Transaction Rollback</name>
   <properties>
     <!--
@@ -56,7 +55,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
-      <version>5.0-3-SNAPSHOT</version>
+      <version>5.0-3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -70,7 +69,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
-      <version>3.1.3-SNAPSHOT</version>
+      <version>3.1.3</version>
       <scope>test</scope>
     </dependency>
 

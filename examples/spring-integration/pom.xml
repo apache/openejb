@@ -24,7 +24,7 @@
   <groupId>org.superbiz</groupId>
   <artifactId>spring-integration</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <name>OpenEJB :: Examples :: Spring Integration</name>
   <properties>
     <!--
@@ -55,7 +55,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
-      <version>5.0-3-SNAPSHOT</version>
+      <version>5.0-3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -69,12 +69,12 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
-      <version>3.1.3-SNAPSHOT</version>
+      <version>3.1.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-spring</artifactId>
-      <version>3.1.3-SNAPSHOT</version>
+      <version>3.1.3</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

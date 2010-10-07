@@ -20,13 +20,13 @@
   <parent>
     <artifactId>deps</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.1.3-SNAPSHOT</version>
+    <version>3.1.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>javaee-api</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: Dependencies :: JavaEE API</name>
-  <version>5.0-3-SNAPSHOT</version>
+  <version>5.0-3</version>
 
   <build>
     <plugins>  
@@ -91,8 +91,7 @@
             </goals>
             <configuration>
               <tasks>
-                <unzip src="${project.build.directory}/javaee-api-${pom.version}.jar"
-                       dest="${project.build.directory}/classes"/>
+                <unzip src="${project.build.directory}/javaee-api-${pom.version}.jar" dest="${project.build.directory}/classes" />
               </tasks>
             </configuration>
           </execution>

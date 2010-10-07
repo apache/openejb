@@ -20,12 +20,11 @@
 
 <!-- $Rev: 895326 $ $Date: 2010-01-03 03:39:14 +0100 (So, 03 Jan 2010) $ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<artifactId>container</artifactId>
 		<groupId>org.apache.openejb</groupId>
-		<version>3.1.3-SNAPSHOT</version>
+		<version>3.1.3</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>openejb-activemq4</artifactId>
@@ -35,7 +34,7 @@
 		<openejb.osgi.import.pkg>
 			org.apache.activemq.ra;resolution:=optional
 		</openejb.osgi.import.pkg>
-		<openejb.osgi.export/>
+		<openejb.osgi.export />
 	</properties>
 	<build>
 		<resources>
@@ -108,15 +107,15 @@
 						<configuration>
 							<tasks>
 								<tstamp>
-									<format property="TSTAMP" pattern="hh:mm"/>
+									<format property="TSTAMP" pattern="hh:mm" />
 								</tstamp>
-								<replace file="target/classes/openejb-version.properties" token="@DATE-REPLACED-BY-MAVEN@" value="${DSTAMP}"/>
-								<replace file="target/classes/openejb-version.properties" token="@TIME-REPLACED-BY-MAVEN@" value="${TSTAMP}"/>
-								<property name="compile_classpath" refid="maven.compile.classpath"/>
+								<replace file="target/classes/openejb-version.properties" token="@DATE-REPLACED-BY-MAVEN@" value="${DSTAMP}" />
+								<replace file="target/classes/openejb-version.properties" token="@TIME-REPLACED-BY-MAVEN@" value="${TSTAMP}" />
+								<property name="compile_classpath" refid="maven.compile.classpath" />
 								<java classname="org.apache.openejb.util.MakeTxLookup">
-									<arg value="${project.build.directory}"/>
+									<arg value="${project.build.directory}" />
 									<classpath>
-										<pathelement path="${compile_classpath}"/>
+										<pathelement path="${compile_classpath}" />
 									</classpath>
 								</java>
 							</tasks>
@@ -130,10 +129,10 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass/>
+							<mainClass />
 							<!--<addClasspath>true</addClasspath>-->
 						</manifest>
-						<manifestEntries/>
+						<manifestEntries />
 					</archive>
 				</configuration>
 			</plugin>
@@ -141,7 +140,7 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>rat-maven-plugin</artifactId>
 				<configuration>
-					<excludes/>
+					<excludes />
 				</configuration>
 			</plugin>
 		</plugins>
