@@ -292,9 +292,15 @@
         </exclusion>
         <exclusion>
           <groupId>org.osgi</groupId>
-          <artifactId>osgi-core</artifactId>
+          <artifactId>org.osgi.core</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <scope>test</scope>
     </dependency>
     <!-- End ActiveMQ -->
     <dependency>
