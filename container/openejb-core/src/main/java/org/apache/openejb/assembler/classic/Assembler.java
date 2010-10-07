@@ -791,7 +791,9 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
         destroyApplication(appInfo);
     }
 
-    private void destroyApplication(AppInfo appInfo) throws UndeployException {
+    public void destroyApplication(AppInfo appInfo) throws UndeployException {
+        deployedApplications.remove(appInfo.jarPath);
+
         logger.info("destroyApplication.start", appInfo.jarPath);
 
         fireBeforeApplicationDestroyed(appInfo);
