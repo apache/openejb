@@ -67,7 +67,6 @@
     <module>webservice-inheritance</module>
     <module>transaction-rollback</module>
     <module>troubleshooting</module>
-    <module>application-composer</module>
   </modules>
 
   <profiles>
