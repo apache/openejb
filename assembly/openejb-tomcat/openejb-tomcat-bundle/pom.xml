@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tomtom</artifactId>
     <packaging>jar</packaging>
-    <version>313</version>
+    <version>6.0.26.313</version>
     <name>OpenEJB :: Assembly :: Tomcat :: Bundle</name>
     <properties>
         <tomcat.version>6.0.26</tomcat.version>
@@ -131,7 +131,7 @@
                         <id>war</id>
                         <phase>package</phase>
                         <configuration>
-                            <finalName>${artifactId}-${tomcat.version}.${version}</finalName>
+                            <finalName>${artifactId}-${version}</finalName>
                         </configuration>
                         <goals>
                             <goal>attached</goal>
