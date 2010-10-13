@@ -380,7 +380,7 @@ class JndiRequestHandler {
                         deploymentID,
                         -1, convert(proxyInfo.getInterfaceType()), null);
                 metaData.loadProperties(deployment.getProperties());
-
+                log(metaData);
                 res.setResult(metaData);
                 break;
             }
@@ -401,6 +401,7 @@ class JndiRequestHandler {
                 metaData.setPrimaryKey(proxyInfo.getPrimaryKey());
                 metaData.loadProperties(deployment.getProperties());
 
+                log(metaData);
                 res.setResult(metaData);
                 break;
             }
@@ -423,6 +424,26 @@ class JndiRequestHandler {
             }
         }
 
+    }
+
+    private void log(EJBMetaDataImpl metaData) {
+        if (logger.isDebugEnabled()) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Sending Ejb(");
+
+            sb.append("deployment-id").append("=");
+            sb.append(metaData.getDeploymentID());
+            sb.append(", properties=[");
+            final String delimiter = "|";
+            for (Map.Entry<Object, Object> entry : metaData.getProperties().entrySet()) {
+                sb.append(entry.getKey()).append("=").append(entry.getValue()).append(delimiter);
+            }
+            if (metaData.getProperties().size() > 1) {
+                sb.delete(sb.length() - delimiter.length(), sb.length());
+            }
+            sb.append("])");
+            logger.debug(sb.toString());
+        }
     }
 
     protected void updateServer(JNDIRequest req, JNDIResponse res, ProxyInfo proxyInfo) {
