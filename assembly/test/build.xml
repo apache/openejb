@@ -50,43 +50,43 @@
 
     <target name="test:tomcat6">
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="6.0.14"/>
+            <param name="tomcat.version" value="6.0.29"/>
         </antcall>
     </target>
 
     <target name="test:tomcat6:all">
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="6.0.14"/>
+            <param name="tomcat.version" value="6.0.29"/>
         </antcall>
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="6.0.13"/>
+            <param name="tomcat.version" value="6.0.28"/>
         </antcall>
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="6.0.10"/>
+            <param name="tomcat.version" value="6.0.26"/>
         </antcall>
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="6.0.9"/>
+            <param name="tomcat.version" value="6.0.24"/>
         </antcall>
     </target>
 
     <target name="test:tomcat55">
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="5.5.26"/>
+            <param name="tomcat.version" value="5.5.31"/>
         </antcall>
     </target>
 
     <target name="test:tomcat55:all">
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="5.5.26"/>
+            <param name="tomcat.version" value="5.5.31"/>
         </antcall>
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="5.5.25"/>
+            <param name="tomcat.version" value="5.5.30"/>
         </antcall>
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="5.5.23"/>
+            <param name="tomcat.version" value="5.5.29"/>
         </antcall>
         <antcall target="tomcat.test">
-            <param name="tomcat.version" value="5.5.20"/>
+            <param name="tomcat.version" value="5.5.28"/>
         </antcall>
     </target>
 
