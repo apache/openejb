@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.loader;
+package org.apache.openejb.client;
 
 import java.util.Arrays;
 import java.util.Collection;
