@@ -99,9 +99,9 @@ public class OpenEjb2ConversionTest extends TestCase {
 
     private  void assertJaxb(String expectedFile, Object object, Class<?> type) throws IOException, JAXBException, SAXException {
         assertSame(type, object.getClass());
-        String expected = read(expectedFile);
+        String expected = read(expectedFile).replaceAll("\r\n", "\n");
 
-        String actual = toString(object, type);
+        String actual = toString(object, type).replaceAll("\r\n", "\n");
 
 //        System.out.println("expected = " + expected);
 //        System.out.println("actual = " + actual);
