@@ -22,6 +22,7 @@ import javax.ejb.Stateless;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceContext;
 
 /**
  * This is an EJB 3 style pojo stateless session bean

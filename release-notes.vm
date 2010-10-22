@@ -1,5 +1,5 @@
-#set( $rpc = $xmlrpc.connect("dblevins:xxxx","http://issues.apache.org/jira/rpc/xmlrpc") )
-#set( $version = $rpc.getVersion("OPENEJB", "3.1.1") )
+#set( $rpc = $xmlrpc.connect("dblevins:es4is5","https://issues.apache.org/jira/rpc/xmlrpc") )
+#set( $version = $rpc.getVersion("OPENEJB", "3.1.3") )
 #set ( $versionId = $version.id )
 
 $version.id
