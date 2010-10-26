@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>openejb-itests-interceptor-beans</artifactId>
-  <packaging>jar</packaging>
+  <packaging>ejb</packaging>
   <name>OpenEJB :: iTests Interceptor Beans</name>
 
   <dependencies>
