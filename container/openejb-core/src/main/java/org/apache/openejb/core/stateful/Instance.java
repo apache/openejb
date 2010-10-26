@@ -143,19 +143,15 @@ public class Instance implements Serializable {
         public Serialization(Instance i) {
             deploymentId = i.deploymentInfo.getDeploymentID();
             primaryKey = i.primaryKey;
-            if (i.bean instanceof Serializable) {
-                bean = i.bean;
-            } else {
-                bean = new PojoSerialization(i.bean);
-            }
+            bean = toSerializable(i.bean);
 
-            interceptors = new HashMap(i.interceptors.size());
+            interceptors = new HashMap<String, Object>(i.interceptors.size());
             for (Map.Entry<String, Object> e : i.interceptors.entrySet()) {
                 if (e.getValue() == i.bean) {
                     // need to use the same wrapped reference or well get two copies.
                     interceptors.put(e.getKey(), bean);
-                } else if (!(e.getValue() instanceof Serializable)) {
-                    interceptors.put(e.getKey(), new PojoSerialization(e.getValue()));
+                } else {
+                    interceptors.put(e.getKey(), toSerializable(e.getValue()));
                 }
             }
 
@@ -165,6 +161,14 @@ public class Instance implements Serializable {
                 entityManagerArray = i.entityManagers.values().toArray(new EntityManager[i.entityManagers.values().size()]);
             } else {
                 entityManagerArray = null;
+            }
+        }
+
+        private static Object toSerializable(Object obj) {
+            if (obj instanceof Serializable) {
+                return obj;
+            } else {
+                return new PojoSerialization(obj);
             }
         }
 
