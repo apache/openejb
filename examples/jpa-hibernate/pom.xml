@@ -17,14 +17,14 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 636494 $ $Date: 2008-03-12 21:24:02 +0100 (Wed, 12 Mar 2008) $ -->
+<!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.superbiz</groupId>
   <artifactId>jpa-hibernate</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <name>OpenEJB :: Examples :: JPA with Hibernate</name>
   <build>
     <defaultGoal>install</defaultGoal>

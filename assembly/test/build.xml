@@ -16,14 +16,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- $Revision: 579817 $ $Date: 2007-09-26 14:56:30 -0700 (Wed, 26 Sep 2007) $ -->
+<!-- $Revision$ $Date$ -->
 
 <project name="Test OpenEJB" default="test" basedir=".">
     <description>
         Tests OpenEJB distribution using the OpenEJB iTest suite.
     </description>
 
-    <property name="openejb.version" value="3.0.1-SNAPSHOT"/>
+    <property name="openejb.version" value="3.0.3"/>
     <property name="repo" location="${basedir}/repo"/>
     <property name="maven.repo" value="file:${user.home}/.m2/repository"/>
     <property name="target.dir" location="${basedir}/target"/>
