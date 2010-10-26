@@ -75,6 +75,7 @@
                   <groupId>org.apache.openejb</groupId>
                   <artifactId>openejb-itests-beans</artifactId>
                   <version>${version}</version>
+                  <type>ejb</type>
                   <outputDirectory>${project.build.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
@@ -209,6 +210,7 @@
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-itests-beans</artifactId>
       <version>${version}</version>
+      <type>ejb</type>
       <scope>test</scope>
     </dependency>
     <dependency>
