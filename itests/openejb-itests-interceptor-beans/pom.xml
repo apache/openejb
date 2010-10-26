@@ -41,6 +41,7 @@
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-itests-beans</artifactId>
       <version>${version}</version>
+      <type>ejb</type>
     </dependency>
   </dependencies>
 </project>
