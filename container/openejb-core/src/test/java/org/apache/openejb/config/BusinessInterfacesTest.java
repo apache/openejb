@@ -139,7 +139,12 @@ public class BusinessInterfacesTest extends TestCase {
 
             beanInfo = beans.get("YellowThreeBean");
 
-            assertEquals(list(YellowThreeUnspecified.class), sort(beanInfo.businessLocal));
+            if (strict) {
+                assertEquals(list(), sort(beanInfo.businessLocal));
+            } else {
+                assertEquals(list(YellowThreeUnspecified.class), sort(beanInfo.businessLocal));
+            }
+
             assertEquals(list(), sort(beanInfo.businessRemote));
 
             beanInfo = beans.get("YellowFourBean");
@@ -414,12 +419,12 @@ public class BusinessInterfacesTest extends TestCase {
 
         EnterpriseBeanInfo beanInfo = beans.get("RedOneBean");
 
-        assertEquals(list(RedOneLocal.class, RedOneUnspecified.class), sort(beanInfo.businessLocal));
+        assertEquals(list(RedOneLocal.class), sort(beanInfo.businessLocal));
         assertEquals(list(RedOneRemote.class, RedOneOverridden.class), sort(beanInfo.businessRemote));
 
         beanInfo = beans.get("RedTwoBean");
 
-        assertEquals(list(RedTwoLocal.class, RedTwoOverridden.class, RedTwoUnspecified.class), sort(beanInfo.businessLocal));
+        assertEquals(list(RedTwoLocal.class, RedTwoOverridden.class), sort(beanInfo.businessLocal));
         assertEquals(list(RedTwoRemote.class), sort(beanInfo.businessRemote));
     }
 

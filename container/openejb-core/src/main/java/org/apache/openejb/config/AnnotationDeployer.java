@@ -1856,7 +1856,7 @@ public class AnnotationDeployer implements DynamicDeployer {
             //
             // It goes a little beyond that, but no one has ever complained about having
             // more local interfaces.
-            for (Class interfce : all.unspecified) sessionBean.addBusinessLocal(interfce);
+            if (!strict) for (Class interfce : all.unspecified) sessionBean.addBusinessLocal(interfce);
 
             if (beanClass.getAnnotation(LocalBean.class) != null || beanClass.getInterfaces().length == 0) {
                 sessionBean.setLocalBean(new EmptyType());
