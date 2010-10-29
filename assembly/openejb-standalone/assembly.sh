@@ -15,4 +15,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-mvn clean assembly:assembly && tar tzvf target/openejb-3.0.3-bin.tar.gz
+mvn clean assembly:assembly && tar tzvf target/openejb-3.0.4-SNAPSHOT-bin.tar.gz
