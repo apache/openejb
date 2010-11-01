@@ -19,6 +19,7 @@ package org.apache.openejb.assembler.classic;
 import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitTransactionType;
@@ -187,8 +188,11 @@ public class PersistenceBuilder {
         } finally {
             final long time = TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
             logger.info("assembler.buildingPersistenceUnit", unitInfo.getPersistenceUnitName(), unitInfo.getPersistenceProviderClassName(), time+"");
-
-
+            if (logger.isDebugEnabled()) {
+                for (Map.Entry<Object, Object> entry : unitInfo.getProperties().entrySet()) {
+                    logger.debug(entry.getKey() + "=" + entry.getValue());
+                }
+            }
         }
     }
 }

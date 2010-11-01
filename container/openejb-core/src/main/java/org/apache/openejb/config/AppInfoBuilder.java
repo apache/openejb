@@ -66,6 +66,13 @@ import org.apache.openejb.jee.PortComponent;
 import org.apache.openejb.jee.ServiceImplBean;
 
 import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.List;
@@ -560,6 +567,14 @@ class AppInfoBuilder {
                 if (className == null || className.startsWith("org.eclipse.persistence.transaction")){
                     info.properties.setProperty(lookupProperty, openejbLookupClass);
                     logger.debug("Adjusting PersistenceUnit(name="+info.name+") property to "+lookupProperty+"="+openejbLookupClass);
+                }
+
+                final Set<String> keys = new HashSet<String>(info.properties.stringPropertyNames());
+                for (String key : keys) {
+                    if (key.matches("openjpa.Connection(DriverName|URL|UserName|Password)")) {
+                        final Object o = info.properties.remove(key);
+                        logger.warning("Removing PersistenceUnit(name=" + info.name + ") property " + key + "=" + o + "  [not valid in a container environment]");
+                    }
                 }
             }
         }
