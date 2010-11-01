@@ -29,11 +29,11 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tomtom</artifactId>
     <packaging>jar</packaging>
-    <version>6.0.29.313-SNAPSHOT</version>
+    <version>6.0.29.314</version>
     <name>OpenEJB :: Assembly :: Tomcat :: Bundle</name>
     <properties>
         <tomcat.version>6.0.29</tomcat.version>
-        <examples.version>1.1-SNAPSHOT</examples.version>
+        <examples.version>1.0</examples.version>
         <openejb.version>3.1.4</openejb.version>
     </properties>
     <dependencies>
