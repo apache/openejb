@@ -101,20 +101,20 @@
                             <mainClass>org.apache.openejb.tomcat.TomcatBundleInstaller</mainClass>
                             <arguments>
                                 <argument>
-                                    ${basedir}/target/bundle/extracted/apache-tomcat-6.0.26/webapps/openejb
+                                    ${basedir}/target/bundle/extracted/apache-tomcat-${tomcat.version}/webapps/openejb
                                 </argument>
                             </arguments>
                             <systemProperties>
                                 <systemProperty>
                                     <key>catalina.home</key>
                                     <value>
-                                        ${basedir}/target/bundle/extracted/apache-tomcat-6.0.26
+                                        ${basedir}/target/bundle/extracted/apache-tomcat-${tomcat.version}
                                     </value>
                                 </systemProperty>
                                 <systemProperty>
                                     <key>catalina.base</key>
                                     <value>
-                                        ${basedir}/target/bundle/extracted/apache-tomcat-6.0.26
+                                        ${basedir}/target/bundle/extracted/apache-tomcat-${tomcat.version}
                                     </value>
                                 </systemProperty>
                             </systemProperties>
