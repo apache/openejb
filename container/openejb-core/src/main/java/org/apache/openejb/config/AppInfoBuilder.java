@@ -569,9 +569,12 @@ class AppInfoBuilder {
                     logger.debug("Adjusting PersistenceUnit(name="+info.name+") property to "+lookupProperty+"="+openejbLookupClass);
                 }
 
-                final Set<String> keys = new HashSet<String>(info.properties.stringPropertyNames());
-                for (String key : keys) {
-                    if (key.matches("openjpa.Connection(DriverName|URL|UserName|Password)")) {
+                final Set<Object> keys = new HashSet<Object>(info.properties.keySet());
+                for (Object key : keys) {
+                    if (!(key instanceof String)) continue;
+
+                    String s = (String) key;
+                    if (s.matches("openjpa.Connection(DriverName|URL|UserName|Password)")) {
                         final Object o = info.properties.remove(key);
                         logger.warning("Removing PersistenceUnit(name=" + info.name + ") property " + key + "=" + o + "  [not valid in a container environment]");
                     }
