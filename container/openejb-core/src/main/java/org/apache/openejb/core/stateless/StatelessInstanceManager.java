@@ -161,7 +161,19 @@ public class StatelessInstanceManager {
 
         if (instance == null) {
 
-            instance = ceateInstance(callContext);
+            try {
+                instance = ceateInstance(callContext);
+            } catch (Throwable t) {
+                // push null back on the pool to prevent leaks
+                data.pool.push((Pool.Entry) null);
+
+                if (t instanceof OpenEJBException) {
+                    throw (OpenEJBException) t;
+                } else {
+                    // assuming the exception handing in createInstance doesn't change, this line should never be reached
+                    throw new org.apache.openejb.ApplicationException(new RemoteException("Cannot obtain a free instance.", t));
+                }
+            }
         }
         return instance;
     }

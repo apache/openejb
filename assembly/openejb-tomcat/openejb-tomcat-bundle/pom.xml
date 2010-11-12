@@ -24,17 +24,17 @@
     <parent>
         <artifactId>openejb-tomcat</artifactId>
         <groupId>org.apache.openejb</groupId>
-        <version>3.1.4</version>
+        <version>3.1.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>tomtom</artifactId>
+    <artifactId>tomee</artifactId>
     <packaging>jar</packaging>
-    <version>6.0.29.314</version>
-    <name>OpenEJB :: Assembly :: Tomcat :: Bundle</name>
+    <version>6.0.29.314-SNAPSHOT</version>
+    <name>OpenEJB :: Assembly :: TomEE</name>
     <properties>
         <tomcat.version>6.0.29</tomcat.version>
-        <examples.version>1.0</examples.version>
-        <openejb.version>3.1.4</openejb.version>
+        <examples.version>1.1-SNAPSHOT</examples.version>
+        <openejb.version>3.1.4-SNAPSHOT</openejb.version>
     </properties>
     <dependencies>
         <dependency>
@@ -101,20 +101,20 @@
                             <mainClass>org.apache.openejb.tomcat.TomcatBundleInstaller</mainClass>
                             <arguments>
                                 <argument>
-                                    ${basedir}/target/bundle/extracted/apache-tomcat-6.0.26/webapps/openejb
+                                    ${basedir}/target/bundle/extracted/apache-tomcat-${tomcat.version}/webapps/openejb
                                 </argument>
                             </arguments>
                             <systemProperties>
                                 <systemProperty>
                                     <key>catalina.home</key>
                                     <value>
-                                        ${basedir}/target/bundle/extracted/apache-tomcat-6.0.26
+                                        ${basedir}/target/bundle/extracted/apache-tomcat-${tomcat.version}
                                     </value>
                                 </systemProperty>
                                 <systemProperty>
                                     <key>catalina.base</key>
                                     <value>
-                                        ${basedir}/target/bundle/extracted/apache-tomcat-6.0.26
+                                        ${basedir}/target/bundle/extracted/apache-tomcat-${tomcat.version}
                                     </value>
                                 </systemProperty>
                             </systemProperties>

@@ -35,7 +35,7 @@
   <name>OpenEJB</name>
   <packaging>pom</packaging>
 
-  <version>3.1.4</version>
+  <version>3.1.4-SNAPSHOT</version>
 
   <description>
     Apache OpenEJB is an open source, modular, configurable and extendable EJB Container System and EJB Server.
@@ -106,7 +106,7 @@
     <openejb.osgi.symbolic.name>${project.groupId}.${project.artifactId}</openejb.osgi.symbolic.name>
 
     <!-- Used in assembly/openejb-tomcat* projects  -->
-    <tomcatVersion>6.0.16</tomcatVersion>
+    <tomcatVersion>6.0.29</tomcatVersion>
 
     <!--
        - http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding

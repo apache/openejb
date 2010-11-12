@@ -392,9 +392,6 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
     }
 
     public void stop(StandardContext standardContext) {
-    }
-
-    public void afterStop(StandardContext standardContext) {
         if (standardContext.getServletContext().getAttribute(IGNORE_CONTEXT) != null) return;
 
         ContextInfo contextInfo = getContextInfo(standardContext);
@@ -406,6 +403,9 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
             }
         }
         removeContextInfo(standardContext);
+    }
+
+    public void afterStop(StandardContext standardContext) {
     }
 
     public void destroy(StandardContext standardContext) {
