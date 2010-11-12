@@ -451,7 +451,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
     }
 
     public List<DeploymentInfo> createApplication(AppInfo appInfo, ClassLoader classLoader, boolean start) throws OpenEJBException, IOException, NamingException {
-
+        appInfo.path = appInfo.jarPath;
         logger.info("createApplication.start", appInfo.jarPath);
 
         // To start out, ensure we don't already have any beans deployed with duplicate IDs.  This

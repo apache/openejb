@@ -26,6 +26,7 @@ import java.util.TreeSet;
  */
 public class AppInfo extends InfoObject {
     public String jarPath;
+    public String path;
     public final List<ClientInfo> clients = new ArrayList<ClientInfo>();
     public final List<EjbJarInfo> ejbJars = new ArrayList<EjbJarInfo>();
     public final List<ConnectorInfo> connectors = new ArrayList<ConnectorInfo>();
