@@ -395,6 +395,7 @@ table.bodyTable td {
   font-family: Courier;
   margin: 10px;
   line-height: 13px;
+  overflow: auto;
 }
 
 .codeHeader {
