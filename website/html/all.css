@@ -18,7 +18,7 @@ a:active, a:hover {
 }
 
 img {
-  border : 0px;
+  border: 0px;
 }
 
 .frameTable {
@@ -45,7 +45,7 @@ img {
 }
 
 .Row2 .Col3, .Row2 .Col4 {
-  /*border-top: 1px solid #cbcbeb;*/
+/*border-top: 1px solid #cbcbeb;*/
   padding-left: 12px;
   padding-right: 12px;
   font-size: x-small;
@@ -68,9 +68,8 @@ img {
 }
 
 .Col5 {
-  /*min-width: 20px;*/
-  max-width: 300px;
-  /*width: 280px;*/
+/*min-width: 20px;*/
+  max-width: 300px; /*width: 280px;*/
 }
 
 .Row4 .Col5 {
@@ -123,9 +122,10 @@ img {
 }
 
 .bodyGrey {
-	font-size: 11px;
-	font-family: "Tahoma", "Helvetica", "Arial", "sans-serif";
-	line-height: 14px; color: #666666;
+  font-size: 11px;
+  font-family: "Tahoma", "Helvetica", "Arial", "sans-serif";
+  line-height: 14px;
+  color: #666666;
 }
 
 /* examples table --------------------------*/
@@ -166,7 +166,7 @@ img {
   padding-left: 0px;
 }
 
-#Navigation .feedsText  {
+#Navigation .feedsText {
   vertical-align: top;
 }
 
@@ -187,7 +187,7 @@ img {
 /* Right Content --------------------------*/
 
 #RightContent {
-  /*padding: 12px;*/
+/*padding: 12px;*/
   width: 300px;
 }
 
@@ -198,17 +198,18 @@ img {
   margin-bottom: .5em;
 }
 
-#RightContent .panelHeader{
-  /*color: #efefff;*/
-  /*background: #7270c2;*/
+#RightContent .panelHeader {
+/*color: #efefff;*/
+/*background: #7270c2;*/
   background: #eef url(http://openejb.apache.org/images/openejb_buttonl.gif) no-repeat right;
   font-size: 14px;
   padding: 3px;
   padding-left: 5px;
   margin-bottom: .5em;
 }
-#RightContent .panelHeader b{
-  /*padding-left: 9px;*/
+
+#RightContent .panelHeader b {
+/*padding-left: 9px;*/
 }
 
 #RightContent .panelContent {
@@ -229,11 +230,49 @@ img {
 
 /* Confluence related-css */
 
-.noteMacro { border-style: solid; border-width: 1px; border-color: #F0C000; background-color: #FFFFCE; text-align:left; margin-top: 5px; margin-bottom: 5px}
-.warningMacro { border-style: solid; border-width: 1px; border-color: #c00; background-color: #fcc; text-align:left; margin-top: 5px; margin-bottom: 5px}
-.infoMacro { border-style: solid; border-width: 1px; border-color: #3c78b5; background-color: #D8E4F1; text-align:left; margin-top: 5px; margin-bottom: 5px}
-.tipMacro { border-style: solid; border-width: 1px; border-color: #090; background-color: #dfd; text-align:left; margin-top: 5px; margin-bottom: 5px}
-.informationMacroPadding { padding: 5px 0 0 5px; }
+.noteMacro {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #F0C000;
+  background-color: #FFFFCE;
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px
+}
+
+.warningMacro {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #c00;
+  background-color: #fcc;
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px
+}
+
+.infoMacro {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #3c78b5;
+  background-color: #D8E4F1;
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px
+}
+
+.tipMacro {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #090;
+  background-color: #dfd;
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px
+}
+
+.informationMacroPadding {
+  padding: 5px 0 0 5px;
+}
 
 /* section headers */
 
@@ -266,7 +305,6 @@ h4 {
   font-style: italic;
 }
 
-
 /* News / Blog */
 
 .blogSurtitle {
@@ -280,26 +318,22 @@ h4 {
   margin: 10px 0px 0px 0px;
 }
 
-
 /* Random Confluence stuff */
-table.confluenceTable
-{
-    margin: 5px;
-    border-collapse: collapse;
+table.confluenceTable {
+  margin: 5px;
+  border-collapse: collapse;
 }
 
-td.confluenceTd
-{
-    border: 1px solid #ccc;
-    padding: 3px 4px 3px 4px;
+td.confluenceTd {
+  border: 1px solid #ccc;
+  padding: 3px 4px 3px 4px;
 }
 
-th.confluenceTh
-{
-    border: 1px solid #ccc;
-    padding: 3px 4px 3px 4px;
-    background: #f0f0f0;
-    text-align: center;
+th.confluenceTh {
+  border: 1px solid #ccc;
+  padding: 3px 4px 3px 4px;
+  background: #f0f0f0;
+  text-align: center;
 }
 
 table.bodyTable, table.wikitable {
@@ -340,7 +374,6 @@ table.bodyTable th, table.bodyTable td, table.wikitable th, table.wikitable td {
   padding: 4px;
 }
 
-
 table.bodyTable th, table.wikitable th {
   text-align: left;
   background-color: #dddddd;
@@ -357,24 +390,24 @@ table.bodyTable td {
 }
 
 .code {
- 	border: 1px dashed #3c78b5;
-    font-size: 11px;
-	font-family: Courier;
-    margin: 10px;
-	line-height: 13px;
+  border: 1px dashed #3c78b5;
+  font-size: 11px;
+  font-family: Courier;
+  margin: 10px;
+  line-height: 13px;
 }
 
 .codeHeader {
-    background-color: #f0f0f0;
- 	border-bottom: 1px dashed #3c78b5;
-    padding: 3px;
-	text-align: center;
+  background-color: #f0f0f0;
+  border-bottom: 1px dashed #3c78b5;
+  padding: 3px;
+  text-align: center;
 }
 
 .codeContent {
-    text-align: left;
-    background-color: #f0f0f0;
-    padding: 3px;
+  text-align: left;
+  background-color: #f0f0f0;
+  padding: 3px;
 }
 
 .code-keyword {
@@ -397,7 +430,6 @@ table.bodyTable td {
   background-color: inherit;
 }
 
-
 .code-xml .code-keyword {
   color: inherit;
   font-weight: bold;
@@ -409,32 +441,32 @@ table.bodyTable td {
 }
 
 .preformatted {
-        border: 1px dashed #3c78b5;
-    font-size: 11px;
-        font-family: Courier;
-    margin: 10px;
-        line-height: 13px;
+  border: 1px dashed #3c78b5;
+  font-size: 11px;
+  font-family: Courier;
+  margin: 10px;
+  line-height: 13px;
 }
 
 .preformattedHeader {
-    background-color: #f0f0f0;
-        border-bottom: 1px dashed #3c78b5;
-    padding: 3px;
-        text-align: center;
+  background-color: #f0f0f0;
+  border-bottom: 1px dashed #3c78b5;
+  padding: 3px;
+  text-align: center;
 }
 
 .preformattedContent {
-    background-color: #f0f0f0;
-    padding: 3px;
+  background-color: #f0f0f0;
+  padding: 3px;
 }
 
 pre {
-    padding: 0px;
-    margin-top: 5px;
-    margin-left: 15px;
-    margin-bottom: 5px;
-    margin-right: 5px;
-    text-align: left;
+  padding: 0px;
+  margin-top: 5px;
+  margin-left: 15px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  text-align: left;
 }
 
 .source {
@@ -445,7 +477,6 @@ pre {
   border-right: 2px solid #7270c2;
   color: #555555;
 }
-
 
 .java-keyword {
   color: #7270c2;
@@ -465,7 +496,6 @@ pre {
   color: #888888;
   font-size: x-small;
 }
-
 
 blockquote {
   padding-left: 10px;
@@ -515,15 +545,36 @@ label.required {
   color: #7270c2;
 }
 
+.linecomment {
+  color: #bbbbbb;
+}
 
-.linecomment { color: #bbbbbb; }
-.blockcomment { color: #bbbbbb; }
-.prepro { color: #0000BB; }
-.select {}
-.quote { color: #770000; }
-.category1 { color: #7270c2; }
-.category2 { color: #0000BB; }
-.category3 { color: #0000BB; }
+.blockcomment {
+  color: #bbbbbb;
+}
+
+.prepro {
+  color: #0000BB;
+}
+
+.select {
+}
+
+.quote {
+  color: #770000;
+}
+
+.category1 {
+  color: #7270c2;
+}
+
+.category2 {
+  color: #0000BB;
+}
+
+.category3 {
+  color: #0000BB;
+}
 
 .monospaced {
   margin: 1em;
@@ -565,106 +616,105 @@ tr td.noformatting {
   margin: 1px 1px 1px 1px;
 }
 
-
 .header_name {
-	font-size: smaller;
-	padding: 2px;
-	padding-right: 1ex;
-	border-right: 1px solid #555;
-	background-color: #ccc;
+  font-size: smaller;
+  padding: 2px;
+  padding-right: 1ex;
+  border-right: 1px solid #555;
+  background-color: #ccc;
 }
 
 .header_value {
-	font-size: smaller;
-	background-color: #ddd;
-	padding: 2px;
+  font-size: smaller;
+  background-color: #ddd;
+  padding: 2px;
 }
 
 .header_fields {
-	width: 100%;
-	border: 1px solid #999;
-	background-color: #fff;
+  width: 100%;
+  border: 1px solid #999;
+  background-color: #fff;
 }
 
 .email_body {
-	margin: 2ex;
-	padding: 1ex;
-	padding-left: 2ex;
-	padding-right: 2ex;
-	border: 1px solid #999;
-	font-size: smaller;
+  margin: 2ex;
+  padding: 1ex;
+  padding-left: 2ex;
+  padding-right: 2ex;
+  border: 1px solid #999;
+  font-size: smaller;
 }
 
 .email_body pre {
-	padding: 0px;
-	margin: 0px;
+  padding: 0px;
+  margin: 0px;
 }
 
 .email_body blockquote {
-	padding: 0px;
-	margin: 0px;
-	border: 1px solid #ccc;
+  padding: 0px;
+  margin: 0px;
+  border: 1px solid #ccc;
 }
 
 .msg_navblock {
-	margin-bottom: 2ex;
-	border: 1px solid #999;
-	background-color: #fff;
+  margin-bottom: 2ex;
+  border: 1px solid #999;
+  background-color: #fff;
 }
 
 .msg_navblock th {
-	border: 1px solid #ccc;
-	font-size: smaller;
+  border: 1px solid #ccc;
+  font-size: smaller;
 }
 
 .msg_navblock td {
-	border: 1px solid #ccc;
-	font-size: smaller;
+  border: 1px solid #ccc;
+  font-size: smaller;
 }
 
 .single_entry {
-	border: 1px solid #aaa;
-	padding: .5ex;
-	padding-left: 1ex;
-	border-left: 1px solid #090;
-	margin: 2px;
-	background-color: #eee;
+  border: 1px solid #aaa;
+  padding: .5ex;
+  padding-left: 1ex;
+  border-left: 1px solid #090;
+  margin: 2px;
+  background-color: #eee;
 }
 
 .root_entry {
-	border: 1px solid #aaa;
-	padding: .5ex;
-	padding-left: 1ex;
-	border-left: 1px solid #090;
-	margin-top: 8px;
-	margin-bottom: 8px;
-	background-color: #eee;
+  border: 1px solid #aaa;
+  padding: .5ex;
+  padding-left: 1ex;
+  border-left: 1px solid #090;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  background-color: #eee;
 }
 
 .root_entry .sub_entry {
-	padding: .5ex;
-	padding-left: 1ex;
-	margin: 2px;
-	margin-left: 1ex;
-	border-left: 1px solid #999;
+  padding: .5ex;
+  padding-left: 1ex;
+  margin: 2px;
+  margin-left: 1ex;
+  border-left: 1px solid #999;
 }
 
 .list_entry {
-	border: 1px solid #aaa;
-	padding: 1ex;
-	margin-top: 1ex;
-	margin-bottom: 1ex;
+  border: 1px solid #aaa;
+  padding: 1ex;
+  margin-top: 1ex;
+  margin-bottom: 1ex;
 }
 
 .list_entry td {
-	border: 1px solid #999;
+  border: 1px solid #999;
 }
 
 .project_entry {
-	border: 1px solid #aaa;
-	padding: 1ex;
-	margin-top: 1ex;
-	margin-bottom: 1ex;
+  border: 1px solid #aaa;
+  padding: 1ex;
+  margin-top: 1ex;
+  margin-bottom: 1ex;
 }
 
 .update-tabletitle {
@@ -695,16 +745,15 @@ tr td.noformatting {
   color: #777777;
 }
 
-
 div.Updated {
   margin-left: 13px;
   margin-right: 5px;
 }
 
 div.Updated td {
-	border-bottom: 1px solid #bbb;
-	padding: 4px;
-	background-color: #fff;
+  border-bottom: 1px solid #bbb;
+  padding: 4px;
+  background-color: #fff;
 }
 
 div.Updated div.title {
@@ -731,109 +780,112 @@ div.Updated div.smalltext {
 
 /* Global settings */
 .deck {
-	padding: 0px; margin: 0px;
+  padding: 0px;
+  margin: 0px;
 }
 
 .deck .tabBar {
-	padding: 0px;
-	padding-right: 8px;
-	margin: 0px;
-	position: relative;
-	z-index: 2;
-	font: bold 11px Verdana, sans-serif;
+  padding: 0px;
+  padding-right: 8px;
+  margin: 0px;
+  position: relative;
+  z-index: 2;
+  font: bold 11px Verdana, sans-serif;
 }
 
 .deck .tabBar table tbody tr td {
-	margin: 0px; padding: 0px; border: 0px;
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
 }
 
 .deck .tabBar .tab {
-	margin: 0px; padding: 0px;
-	padding-left: 8px;
+  margin: 0px;
+  padding: 0px;
+  padding-left: 8px;
 }
 
 .deck .tabBar .tab a {
-	display: block;
-	padding: 1px 0.5em;
-	vertical-align: text-bottom;
-	background: #3c78b5;
-	border: 1px solid #3c78b5;
-	color: #ffffff;
-	text-decoration: none;
-	white-space: nowrap;
+  display: block;
+  padding: 1px 0.5em;
+  vertical-align: text-bottom;
+  background: #3c78b5;
+  border: 1px solid #3c78b5;
+  color: #ffffff;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .deck .tabBar .tab a:hover {
-	color: #ffffff;
-	background: #003366;
-	border-color: #003366;
+  color: #ffffff;
+  background: #003366;
+  border-color: #003366;
 }
 
 .deck .tabBar .tab#current a {
-	background: white;
-	border: 1px solid #3c78b5;
-	color: black;
+  background: white;
+  border: 1px solid #3c78b5;
+  color: black;
 }
 
 .deck .tabBar .tab#current a:hover {
-	cursor: default;
+  cursor: default;
 }
 
 .deck .cards.tabbed {
-	border: 1px solid #3c78b5;
+  border: 1px solid #3c78b5;
 }
 
 /* Hack to get around clipping problem with no tabs... */
 .deck .cards.untabbed .card {
-	overflow: hidden;
+  overflow: hidden;
 }
 
 .deck .cards.tabbed .card {
-	margin: 0px;
-	padding: 8px;
-	position: relative;
-	z-index: 1;
+  margin: 0px;
+  padding: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Tabs at the top */
 
 .deck .tabBar.top {
-	bottom: -1px;
-	margin-top: 3px;
+  bottom: -1px;
+  margin-top: 3px;
 }
 
 .deck .tabBar.top table tbody tr td {
-	vertical-align: bottom;
+  vertical-align: bottom;
 }
 
 .deck .tabBar.top .tab a {
-	margin-bottom: 1px;
+  margin-bottom: 1px;
 }
 
 .deck .tabBar.top .tab#current a {
-	border-bottom: 1px solid white;
-	padding-bottom: 2px;
-	margin-bottom: 0px;
+  border-bottom: 1px solid white;
+  padding-bottom: 2px;
+  margin-bottom: 0px;
 }
 
 /* Tabs at the bottom */
 
 .deck .tabBar.bottom {
-	top: -1px;
-	margin-bottom: 3px;
+  top: -1px;
+  margin-bottom: 3px;
 }
 
 .deck .tabBar.bottom table tbody tr td {
-	vertical-align: top;
+  vertical-align: top;
 }
 
 .deck .tabBar.bottom .tab a {
-	margin-top: 1px;
+  margin-top: 1px;
 }
 
 .deck .tabBar.bottom .tab#current a {
-	border-top: 1px solid white;
-	padding-top: 2px;
-	margin-top: 0px;
+  border-top: 1px solid white;
+  padding-top: 2px;
+  margin-top: 0px;
 }
-
