@@ -132,7 +132,7 @@
                         <id>war</id>
                         <phase>package</phase>
                         <configuration>
-                            <finalName>${artifactId}-${version}</finalName>
+                            <finalName>${artifactId}-${project.version}</finalName>
                         </configuration>
                         <goals>
                             <goal>attached</goal>
