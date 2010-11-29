@@ -24,7 +24,7 @@
     <parent>
         <artifactId>openejb-tomcat</artifactId>
         <groupId>org.apache.openejb</groupId>
-        <version>3.1.4-SNAPSHOT</version>
+        <version>3.1.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tomee</artifactId>
@@ -33,8 +33,8 @@
     <name>OpenEJB :: Assembly :: TomEE</name>
     <properties>
         <tomcat.version>6.0.29</tomcat.version>
-        <examples.version>1.1-SNAPSHOT</examples.version>
-        <openejb.version>3.1.4-SNAPSHOT</openejb.version>
+        <examples.version>1.0-SNAPSHOT</examples.version>
+        <openejb.version>3.1.5-SNAPSHOT</openejb.version>
     </properties>
     <dependencies>
         <dependency>
