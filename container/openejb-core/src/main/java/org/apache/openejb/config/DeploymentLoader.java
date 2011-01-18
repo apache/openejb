@@ -107,16 +107,6 @@ public class DeploymentLoader {
         } else {
             this.loadingRequiredModuleTypes = new HashSet<Class<? extends DeploymentModule>>(loadingRequiredModuleTypes);
             this.loadingRequiredModuleTypes.add(AppModule.class);
-            if (this.loadingRequiredModuleTypes.contains(WsModule.class)
-                    && !this.loadingRequiredModuleTypes.contains(EjbModule.class)) {
-                logger.warning("Could not load web service module without loading ejb module");
-                this.loadingRequiredModuleTypes.add(EjbModule.class);
-            }
-            if (this.loadingRequiredModuleTypes.contains(WsModule.class)
-                    && !this.loadingRequiredModuleTypes.contains(WebModule.class)) {
-                logger.warning("Could not load web service module without loading web module");
-                this.loadingRequiredModuleTypes.add(WebModule.class);
-            }
         }
     }
 
