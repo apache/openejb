@@ -24,7 +24,6 @@ import org.apache.catalina.Host;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.ServerFactory;
 import org.apache.catalina.Service;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.authenticator.BasicAuthenticator;
@@ -40,6 +39,9 @@ import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.openejb.server.httpd.HttpListener;
 import org.apache.openejb.server.webservices.WsRegistry;
 import org.apache.openejb.server.webservices.WsServlet;
+import org.apache.openejb.tomcat.loader.TomcatHelper;
+
+import static org.apache.openejb.tomcat.catalina.BackportUtil.getServlet;
 import static org.apache.openejb.tomcat.catalina.TomcatWebAppBuilder.IGNORE_CONTEXT;
 
 import java.net.URI;
@@ -55,7 +57,7 @@ public class TomcatWsRegistry implements WsRegistry {
     private List<Connector> connectors;
 
     public TomcatWsRegistry() {
-        StandardServer standardServer = (StandardServer) ServerFactory.getServer();
+        StandardServer standardServer = (StandardServer) TomcatHelper.getServer();
         for (Service service : standardServer.findServices()) {
             if (service.getContainer() instanceof Engine) {
                 connectors = Arrays.asList(service.findConnectors());
@@ -147,8 +149,14 @@ public class TomcatWsRegistry implements WsRegistry {
         // configured true, or it will treat it as a failed deployment
         context.addLifecycleListener(new LifecycleListener() {
             public void lifecycleEvent(LifecycleEvent event) {
-                if (event.getType().equals(Lifecycle.START_EVENT)) {
-                    Context context = (Context) event.getLifecycle();
+            	Context context = (Context) event.getLifecycle();
+            	
+            	if (event.getType().equals(Lifecycle.BEFORE_START_EVENT)) {
+            		context.getServletContext().setAttribute(IGNORE_CONTEXT, "true");	
+            	}
+            	
+            	
+            	if (event.getType().equals(Lifecycle.START_EVENT) || event.getType().equals(Lifecycle.BEFORE_START_EVENT) || event.getType().equals("configure_start")) {
                     context.setConfigured(true);
                 }
             }
@@ -204,22 +212,26 @@ public class TomcatWsRegistry implements WsRegistry {
         }
 
         // Mark this as a dynamic context that should not be inspected by the TomcatWebAppBuilder
-        context.getServletContext().setAttribute(IGNORE_CONTEXT, "true");
 
         // build the servlet
         Wrapper wrapper = context.createWrapper();
         wrapper.setName("webservice");
         wrapper.setServletClass(WsServlet.class.getName());
-        setWsContainer(context, wrapper, httpListener);
-        wrapper.addMapping("/*");
 
-
-        // add add servlet to context
+        // add servlet to context
         context.addChild(wrapper);
+        wrapper.addMapping("/*");
         context.addServletMapping("/*", "webservice");
 
+        String webServicecontainerID = wrapper.getName() + WsServlet.WEBSERVICE_CONTAINER + httpListener.hashCode();
+        wrapper.addInitParameter(WsServlet.WEBSERVICE_CONTAINER, webServicecontainerID);
+        
         // add context to host
         host.addChild(context);
+
+		context.getServletContext().setAttribute(IGNORE_CONTEXT, "true");
+		setWsContainer(context, wrapper, httpListener);
+		
         webserviceContexts.put(path, context);
 
         // register wsdl locations for service-ref resolution
@@ -237,6 +249,10 @@ public class TomcatWsRegistry implements WsRegistry {
         // assure context root with a leading slash
         if (!path.startsWith("/")) path = "/" + path;
 
+        if (TomcatHelper.isTomcat7() && TomcatHelper.isStopping()) {
+        	return;
+        }
+        
         StandardContext context = webserviceContexts.remove(path);
         try {
             context.stop();

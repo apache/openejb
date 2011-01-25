@@ -28,10 +28,10 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 public class OpenEJBValve extends ValveBase {
-    protected TomcatSecurityService securityService;
+	protected TomcatSecurityService securityService;
+    protected static final String info = OpenEJBValve.class.getName() + "/" + OpenEjbVersion.get().getVersion();
 
     public OpenEJBValve() {
-        info = getClass().getName() + "/" + OpenEjbVersion.get().getVersion();
         securityService = getSecurityService();
     }
 

@@ -25,7 +25,6 @@ import org.apache.openejb.tomcat.common.TomcatVersion;
 import org.apache.catalina.Container;
 import org.apache.catalina.Engine;
 import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.ServerFactory;
 import org.apache.catalina.Service;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
@@ -72,6 +71,7 @@ import org.apache.openejb.jee.FacesConfig;
 import org.apache.openejb.jee.ParamValue;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.tomcat.loader.TomcatHelper;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.URLs;
@@ -112,7 +112,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
     private CoreContainerSystem containerSystem;
 
     public TomcatWebAppBuilder() {
-        StandardServer standardServer = (StandardServer) ServerFactory.getServer();
+        StandardServer standardServer = TomcatHelper.getServer();
         globalListenerSupport = new GlobalListenerSupport(standardServer, this);
 
         for (Service service : standardServer.findServices()) {
@@ -549,7 +549,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
         // check each url to determine if it is an ejb jar
         for (URL url : getUrls(standardContext)) {
             try {
-                Class moduleType = DeploymentLoader.discoverModuleType(url, standardContext.getLoader().getClassLoader(), true);
+                Class moduleType = new DeploymentLoader().discoverModuleType(url, standardContext.getLoader().getClassLoader(), true);
                 if (EjbModule.class.isAssignableFrom(moduleType)) {
                     File file;
                     if (url.getProtocol().equals("jar")) {

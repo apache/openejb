@@ -27,6 +27,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.core.StandardServer;
+import org.apache.openejb.tomcat.loader.TomcatHelper;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -55,9 +56,17 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
             } else if (Lifecycle.BEFORE_START_EVENT.equals(type)) {
                 contextListener.beforeStart(standardContext);
             } else if (Lifecycle.START_EVENT.equals(type)) {
+            	if (TomcatHelper.isTomcat7()) {
+            		standardContext.addParameter("openejb.start.late", "true");
+            	}
+            	
                 contextListener.start(standardContext);
             } else if (Lifecycle.AFTER_START_EVENT.equals(type)) {
                 contextListener.afterStart(standardContext);
+                
+                if (TomcatHelper.isTomcat7()) {
+            		standardContext.removeParameter("openejb.start.late");
+            	}
             } else if (Lifecycle.BEFORE_STOP_EVENT.equals(type)) {
                 contextListener.beforeStop(standardContext);
             } else if (Lifecycle.STOP_EVENT.equals(type)) {
@@ -76,6 +85,11 @@ public class GlobalListenerSupport implements PropertyChangeListener, LifecycleL
         } else if (source instanceof StandardServer) {
             StandardServer standardServer = (StandardServer) source;
             String type = event.getType();
+
+            if (Lifecycle.BEFORE_STOP_EVENT.equals(type)) {
+            	TomcatHelper.setStopping(true);
+            }
+            
             if (Lifecycle.AFTER_STOP_EVENT.equals(type)) {
                 contextListener.afterStop(standardServer);
             }
