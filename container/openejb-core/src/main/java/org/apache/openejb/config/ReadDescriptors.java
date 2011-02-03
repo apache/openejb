@@ -100,7 +100,6 @@ public class ReadDescriptors implements DynamicDeployer {
                 }
                 String moduleName = file.getAbsolutePath();
                 
-                System.out.println("FOO moduleName = " + moduleName);
                 try {
                     Persistence persistence = JaxbPersistenceFactory.getPersistence(persistenceUrl);
                     PersistenceModule persistenceModule = new PersistenceModule(moduleName, persistence);
