@@ -28,6 +28,7 @@ import org.apache.openejb.config.sys.Resource;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.ResourceInfo;
 import org.apache.openejb.util.LinkResolver;
+import org.apache.openejb.util.URLs;
 import org.apache.openejb.util.UniqueDefaultLinkResolver;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.ActivationConfig;
@@ -63,6 +64,10 @@ import static org.apache.openejb.util.Join.join;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1261,7 +1266,88 @@ public class AutoConfig implements DynamicDeployer {
             if (jtaDataSourceId != null) setJtaDataSource(unit, jtaDataSourceId);
             if (nonJtaDataSourceId != null) setNonJtaDataSource(unit, nonJtaDataSourceId);
         }
+
+        // Attempt to resolve the jar-file references to things in the actual classpath
+        // Usually these paths are relative to the persistence unit root inside the archive
+        // but in a classpath things are spread out side-by-side
+        if ("classpath.ear".equals(app.getModuleId())) {
+            Map<String, File> map = null;
+            for (PersistenceUnit unit : persistence.getPersistenceUnit()) {
+                
+                List<String> jarFiles = unit.getJarFile();
+                for (int i = 0; i < jarFiles.size(); i++) {
+                    
+                    String earRelativeJarFileLocation = jarFiles.get(i);
+                    if (map == null) {
+                        if (app.getAdditionalLibraries().size() > 0) {
+                            map = mapLibs(app.getAdditionalLibraries());
+                        } else {
+                            map = mapLibs(classPathLibs(app));
+                        }
+                    }
+
+                    String resolvedPath = resolveJarFileRef(map, earRelativeJarFileLocation);
+
+
+                    if (resolvedPath != null) {
+                        logger.info("Adjusting PersistenceUnit(id="+unit.getName()+") <jar-file>"+earRelativeJarFileLocation+"</jar-file> to <jar-file>"+resolvedPath+"</jar-file>");
+
+                        jarFiles.set(i, resolvedPath);
+                    }
+
+                }
+            }
+        }
     }
+
+    private String resolveJarFileRef(Map<String, File> map, String earRelativeJarFileLocation) {
+        File resolved = map.get(earRelativeJarFileLocation);
+
+        if (resolved != null) return resolved.getAbsolutePath();
+
+        String relative = earRelativeJarFileLocation;
+
+        search: while (resolved == null) {
+            for (String path : map.keySet()) {
+                if (path.endsWith(relative)) {
+                    resolved = map.get(path);
+                    break search;
+                }
+            }
+
+            // Trim off a part of the path and try again
+            int i = relative.indexOf('/');
+            if (i >= 0) {
+                relative = relative.substring(i+1);
+            } else {
+                return null;
+            }
+        }
+
+        return (resolved == null) ? null : resolved.getAbsolutePath();
+    }
+
+
+    private List<URL> classPathLibs(AppModule app) {
+        try {
+            return DeploymentsResolver.filteredClasspath(app.getClassLoader());
+        } catch (IOException e) {
+            logger.warning("Unable to determine jars in classpath for resolving persistenceUnit.jarFile list");
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+    private Map<String, File> mapLibs(List<URL> libs) {
+        Map<String, File> map = new HashMap<String, File>();
+
+        for (URL url : libs) {
+            File file = URLs.toFile(url);
+            map.put(file.getAbsolutePath(), file);
+        }
+        
+        return map;
+    }
+
 
     private void setNonJtaDataSource(PersistenceUnit unit, String current) {
 

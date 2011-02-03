@@ -109,7 +109,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory {
     private DynamicDeployer deployer;
     private final DeploymentLoader deploymentLoader;
     private final boolean offline;
-    private static final String CLASSPATH_AS_EAR = "openejb.deployments.classpath.ear";
+    public static final String CLASSPATH_AS_EAR = "openejb.deployments.classpath.ear";
     static final String WEBSERVICES_ENABLED = "openejb.webservices.enabled";
 
     public ConfigurationFactory() {

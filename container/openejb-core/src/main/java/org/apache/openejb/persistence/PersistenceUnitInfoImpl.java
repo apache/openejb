@@ -196,7 +196,12 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
         try {
 
             for (String path : jarFiles) {
-                File file = new File(root, path);
+
+                File file = new File(path);
+                if (!file.isAbsolute() || !file.exists()) {
+                    file = new File(root, path);
+                }
+
                 file = file.getCanonicalFile();
                 jarFileUrls.add(toUrl(file));
             }

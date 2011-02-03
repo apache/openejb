@@ -145,6 +145,18 @@ public class DeploymentsResolver {
         }
     }
 
+    public static List<URL> filteredClasspath(ClassLoader classLoader) throws IOException {
+        UrlSet urlSet = new UrlSet(classLoader);
+        urlSet = urlSet.excludeJavaExtDirs();
+        urlSet = urlSet.excludeJavaEndorsedDirs();
+        urlSet = urlSet.excludeJavaHome();
+        urlSet = urlSet.excludePaths(System.getProperty("sun.boot.class.path", ""));
+        urlSet = urlSet.exclude(".*/JavaVM.framework/.*");
+//        urlSet = applyBuiltinExcludes(urlSet);
+
+        return urlSet.getUrls();
+    }
+    
     /**
      * The algorithm of OpenEJB deployments class-path inclusion and exclusion is implemented as follows:
      * 1- If the string value of the resource URL matches the include class-path pattern
@@ -161,7 +173,7 @@ public class DeploymentsResolver {
      * 2- Loading the resource is the default behaviour in case of not defining a value for any class-path pattern
      * This appears in step 3 of the above algorithm.
      */
-    public static void loadFromClasspath(FileUtils base, List<String> jarList, ClassLoader classLoader) {
+    public static List<URL> loadFromClasspath(FileUtils base, List<String> jarList, ClassLoader classLoader) {
 
         Options options = SystemInstance.get().getOptions();
         String include = options.get(CLASSPATH_INCLUDE, "");
@@ -196,9 +208,9 @@ public class DeploymentsResolver {
             int size = urls.size();
             if (size == 0 && include.length() > 0) {
                 logger.warning("No classpath URLs matched.  Current settings: " + CLASSPATH_EXCLUDE + "='" + exclude + "', " + CLASSPATH_INCLUDE + "='" + include + "'");
-                return;
+                return urls;
             } else if (size == 0 && (!filterDescriptors && prefiltered.getUrls().size() == 0)) {
-                return;
+                return urls;
             } else if (size < 20) {
                 logger.debug("Inspecting classpath for applications: " + urls.size() + " urls.");
             } else {
@@ -237,7 +249,7 @@ public class DeploymentsResolver {
                 }
             }
 
-            if (urls.size() == 0) return;
+            if (urls.size() == 0) return urls;
 
             if (time < 1000) {
                 logger.debug("Searched " + urls.size() + " classpath urls in " + time + " milliseconds.  Average " + (time / urls.size()) + " milliseconds per url.");
@@ -258,9 +270,12 @@ public class DeploymentsResolver {
                     logger.info("Matched: " + url);
                 }
             }
+
+            return urls;
         } catch (IOException e1) {
             e1.printStackTrace();
             logger.warning("Unable to search classpath for modules: Received Exception: " + e1.getClass().getName() + " " + e1.getMessage(), e1);
+            return Collections.EMPTY_LIST;
         }
 
     }
