@@ -16,6 +16,8 @@
  */
 package org.apache.openejb.core.stateful;
 
+import java.util.Map;
+
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
 
@@ -163,5 +165,15 @@ public class StatefulContext extends BaseSessionContext {
         states[Operation.REMOVE.ordinal()] = new LifecycleStatefulSessionState();
         states[Operation.POST_CONSTRUCT.ordinal()] = new LifecycleStatefulSessionState();
     }
+
+	public boolean wasCancelCalled() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: boolean wasCancelCalled()");
+	}
+
+	public Map<String, Object> getContextData() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Map<String, Object> getContextData()");
+	}
 
 }

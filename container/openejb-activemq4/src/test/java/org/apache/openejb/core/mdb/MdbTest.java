@@ -186,6 +186,12 @@ public class MdbTest extends TestCase {
         public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
             return false;
         }
+
+		public MessageEndpoint createEndpoint(XAResource arg0, long arg1)
+				throws UnavailableException {
+			//TODO: next openejb version
+			throw new UnsupportedOperationException("Method not implemented: MessageEndpoint createEndpoint(XAResource arg0, long arg1)");
+		}
     }
 
     public static class JmsEndpoint implements MessageEndpoint, MessageListener {

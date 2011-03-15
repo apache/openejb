@@ -16,24 +16,26 @@
  */
 package org.apache.openejb.assembler.classic;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.SharedCacheMode;
+import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
-import javax.naming.Context;
-import javax.naming.NamingException;
 
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.persistence.PersistenceClassLoaderHandler;
 import org.apache.openejb.persistence.PersistenceUnitInfoImpl;
 import org.apache.openejb.spi.ContainerSystem;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.LogCategory;
-import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.util.Logger;
 
 public class PersistenceBuilder {
 
@@ -136,6 +138,18 @@ public class PersistenceBuilder {
         // Handle Properties
         unitInfo.setProperties(info.properties);
 
+        
+        // Schema version of the persistence.xml file
+        unitInfo.setPersistenceXMLSchemaVersion(info.persistenceXMLSchemaVersion);
+        
+        // Second-level cache mode for the persistence unit
+        SharedCacheMode sharedCacheMode = Enum.valueOf(SharedCacheMode.class, info.sharedCacheMode);
+        unitInfo.setSharedCacheMode(sharedCacheMode);
+        
+        // The validation mode to be used for the persistence unit
+        ValidationMode validationMode = Enum.valueOf(ValidationMode.class, info.validationMode);
+        unitInfo.setValidationMode(validationMode);
+        
         // Persistence Unit Transaction Type
         if (transactionTypeEnv != null) {
             try {

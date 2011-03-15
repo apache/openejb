@@ -23,6 +23,7 @@ import org.apache.openejb.spi.SecurityService;
 
 import java.io.Flushable;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -72,4 +73,14 @@ public class StatelessContext extends BaseSessionContext implements Flushable {
     public void flush() throws IOException {
         flushable.flush();
     }
+
+	public boolean wasCancelCalled() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: boolean wasCancelCalled()");
+	}
+
+	public Map<String, Object> getContextData() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Map<String, Object> getContextData()");
+	}
 }

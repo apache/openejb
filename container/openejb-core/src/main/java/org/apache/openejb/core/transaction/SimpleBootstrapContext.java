@@ -18,9 +18,12 @@
 package org.apache.openejb.core.transaction;
 
 import java.util.Timer;
+
+import javax.resource.spi.work.WorkContext;
 import javax.resource.spi.work.WorkManager;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.BootstrapContext;
+import javax.transaction.TransactionSynchronizationRegistry;
 
 public class SimpleBootstrapContext implements BootstrapContext {
     private final WorkManager workManager;
@@ -47,4 +50,14 @@ public class SimpleBootstrapContext implements BootstrapContext {
     public Timer createTimer() {
         return new Timer(true);
     }
+
+	public TransactionSynchronizationRegistry getTransactionSynchronizationRegistry() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: TransactionSynchronizationRegistry getTransactionSynchronizationRegistry()");
+	}
+
+	public boolean isContextSupported(Class<? extends WorkContext> arg0) {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: boolean isContextSupported(Class<? extends WorkContext> arg0)");
+	}
 }

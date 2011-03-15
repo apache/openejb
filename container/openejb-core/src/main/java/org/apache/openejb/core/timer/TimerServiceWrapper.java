@@ -17,7 +17,9 @@
 package org.apache.openejb.core.timer;
 
 import javax.ejb.EJBException;
+import javax.ejb.ScheduleExpression;
 import javax.ejb.Timer;
+import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 
 import org.apache.openejb.DeploymentInfo;
@@ -61,4 +63,46 @@ public class TimerServiceWrapper implements TimerService {
         }
         return new TimerServiceImpl(timerService, threadContext.getPrimaryKey());
     }
+
+	public Timer createCalendarTimer(ScheduleExpression arg0)
+			throws IllegalArgumentException, IllegalStateException,
+			EJBException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Timer createCalendarTimer(ScheduleExpression arg0)");
+	}
+
+	public Timer createCalendarTimer(ScheduleExpression arg0, TimerConfig arg1)
+			throws IllegalArgumentException, IllegalStateException,
+			EJBException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Timer createCalendarTimer(ScheduleExpression arg0, TimerConfig arg1)");
+	}
+
+	public Timer createIntervalTimer(long arg0, long arg1, TimerConfig arg2)
+			throws IllegalArgumentException, IllegalStateException,
+			EJBException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Timer createIntervalTimer(long arg0, long arg1, TimerConfig arg2)");
+	}
+
+	public Timer createIntervalTimer(Date arg0, long arg1, TimerConfig arg2)
+			throws IllegalArgumentException, IllegalStateException,
+			EJBException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Timer createIntervalTimer(Date arg0, long arg1, TimerConfig arg2)");
+	}
+
+	public Timer createSingleActionTimer(long arg0, TimerConfig arg1)
+			throws IllegalArgumentException, IllegalStateException,
+			EJBException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Timer createSingleActionTimer(long arg0, TimerConfig arg1)");
+	}
+
+	public Timer createSingleActionTimer(Date arg0, TimerConfig arg1)
+			throws IllegalArgumentException, IllegalStateException,
+			EJBException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Timer createSingleActionTimer(Date arg0, TimerConfig arg1)");
+	}
 }

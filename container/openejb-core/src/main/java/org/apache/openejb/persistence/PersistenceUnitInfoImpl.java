@@ -16,6 +16,8 @@
  */
 package org.apache.openejb.persistence;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.net.MalformedURLException;
@@ -24,8 +26,9 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.io.File;
-import java.io.IOException;
+
+import javax.persistence.SharedCacheMode;
+import javax.persistence.ValidationMode;
 import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
@@ -106,6 +109,17 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
      */
     private ClassLoader classLoader;
 
+    
+    // JPA 2.0
+    /** Schema version of the persistence.xml file */
+    private String persistenceXMLSchemaVersion;
+    
+    /** Second-level cache mode for the persistence unit */
+    private SharedCacheMode sharedCacheMode;
+    
+    /** The validation mode to be used for the persistence unit */
+    private ValidationMode validationMode;
+    
     public PersistenceUnitInfoImpl() {
         this.persistenceClassLoaderHandler = null;
     }
@@ -286,4 +300,49 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
             return bytes;
         }
     }
+    
+
+    // JPA 2.0
+    /* (non-Javadoc)
+     * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceXMLSchemaVersion()
+     */
+    public String getPersistenceXMLSchemaVersion() {
+        return this.persistenceXMLSchemaVersion;
+    }
+
+    /**
+     * @param persistenceXMLSchemaVersion the persistenceXMLSchemaVersion to set
+     */
+    public void setPersistenceXMLSchemaVersion(String persistenceXMLSchemaVersion) {
+        this.persistenceXMLSchemaVersion = persistenceXMLSchemaVersion;
+    }
+
+    /* (non-Javadoc)
+     * @see javax.persistence.spi.PersistenceUnitInfo#getSharedCacheMode()
+     */
+    public SharedCacheMode getSharedCacheMode() {
+        return this.sharedCacheMode;
+    }
+    
+    /**
+     * @param sharedCacheMode the sharedCacheMode to set
+     */
+    public void setSharedCacheMode(SharedCacheMode sharedCacheMode) {
+        this.sharedCacheMode = sharedCacheMode;
+    }
+
+    /* (non-Javadoc)
+     * @see javax.persistence.spi.PersistenceUnitInfo#getValidationMode()
+     */
+    public ValidationMode getValidationMode() {
+        return this.validationMode;
+    }
+
+    /**
+     * @param validationMode the validationMode to set
+     */
+    public void setValidationMode(ValidationMode validationMode) {
+        this.validationMode = validationMode;
+    }
+    
 }

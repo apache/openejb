@@ -18,6 +18,8 @@ package org.apache.openejb.core.entity;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Map;
+
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.TimerService;
@@ -349,4 +351,9 @@ public class EntityContext extends BaseContext implements javax.ejb.EntityContex
         states[Operation.BUSINESS.ordinal()] = new LifecycleBusinessTimeoutEntityState();
         states[Operation.TIMEOUT.ordinal()] = new LifecycleBusinessTimeoutEntityState();
     }
+
+	public Map<String, Object> getContextData() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Map<String, Object> getContextData()");
+	}
 }

@@ -17,15 +17,19 @@
  */
 package org.apache.openejb.jee.jpa.unit;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+
+import javax.persistence.SharedCacheMode;
+import javax.persistence.ValidationMode;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
@@ -89,6 +93,8 @@ import java.util.Properties;
     "jarFile",
     "clazz",
     "excludeUnlistedClasses",
+    "sharedCacheMode",
+    "validationMode",
     "properties"
 })
 public class PersistenceUnit {
@@ -110,7 +116,10 @@ public class PersistenceUnit {
     protected List<String> clazz;
     @XmlElement(name = "exclude-unlisted-classes", defaultValue = "false")
     protected Boolean excludeUnlistedClasses;
-
+    @XmlElement(name = "shared-cache-mode")
+    protected SharedCacheMode sharedCacheMode;
+    @XmlElement(name = "validation-mode")
+    protected ValidationMode validationMode;
     @XmlElement(name = "properties")
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
     protected java.util.Properties properties;
@@ -252,5 +261,14 @@ public class PersistenceUnit {
 
     public void setProperties(Properties properties) {
         this.properties = properties;
+    }
+
+    public SharedCacheMode getSharedCacheMode() {
+     // TODO: Is this the correct default?
+        return (sharedCacheMode == null) ? SharedCacheMode.NONE : sharedCacheMode;
+    }
+ 
+    public ValidationMode getValidationMode() {
+        return (validationMode == null) ? ValidationMode.AUTO : validationMode;
     }
 }

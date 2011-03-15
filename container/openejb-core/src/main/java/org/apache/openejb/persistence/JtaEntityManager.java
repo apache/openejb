@@ -17,19 +17,23 @@
  */
 package org.apache.openejb.persistence;
 
-import org.apache.log4j.spi.LoggerFactory;
-import org.apache.openejb.util.LogCategory;
-import org.apache.openejb.util.Logger;
-
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
-import javax.persistence.EntityTransaction;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.TransactionRequiredException;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.metamodel.Metamodel;
+
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
 
 /**
  * The JtaEntityManager is a wrapper around an entity manager that automatically creates and closes entity managers
@@ -346,6 +350,202 @@ public class JtaEntityManager implements EntityManager {
 
         public Timer start(JtaEntityManager em) {
             return new Timer(this, em);
+        }
+    }
+    
+    
+    // JPA 2.0
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#createNamedQuery(java.lang.String, java.lang.Class)
+     */
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.createNamedQuery(name, resultClass);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaQuery)
+     */
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.createQuery(criteriaQuery);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#createQuery(java.lang.String, java.lang.Class)
+     */
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.createQuery(qlString, resultClass);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#detach(java.lang.Object)
+     */
+    public void detach(Object entity) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            entityManager.detach(entity);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#find(java.lang.Class, java.lang.Object, java.util.Map)
+     */
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.find(entityClass, primaryKey, properties);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#find(java.lang.Class, java.lang.Object, javax.persistence.LockModeType)
+     */
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.find(entityClass, entityManager, lockMode);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#find(java.lang.Class, java.lang.Object, javax.persistence.LockModeType, java.util.Map)
+     */
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.find(entityClass, entityManager, lockMode, properties);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#getEntityManagerFactory()
+     */
+    public EntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#getLockMode(java.lang.Object)
+     */
+    public LockModeType getLockMode(Object entity) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.getLockMode(entity);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#getMetamodel()
+     */
+    public Metamodel getMetamodel() {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.getMetamodel();
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#getProperties()
+     */
+    public Map<String, Object> getProperties() {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.getProperties();
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#getCriteriaBuilder()
+     */
+    public CriteriaBuilder getCriteriaBuilder() {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.getCriteriaBuilder();
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#lock(java.lang.Object, javax.persistence.LockModeType, java.util.Map)
+     */
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            entityManager.lock(entityManager, lockMode, properties);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#refresh(java.lang.Object, java.util.Map)
+     */
+    public void refresh(Object entity, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            entityManager.refresh(entityManager, properties);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#refresh(java.lang.Object, javax.persistence.LockModeType)
+     */
+    public void refresh(Object entity, LockModeType lockMode) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            entityManager.refresh(entityManager, lockMode);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#refresh(java.lang.Object, javax.persistence.LockModeType, java.util.Map)
+     */
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            entityManager.refresh(entityManager, lockMode, properties);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#setProperty(java.lang.String, java.lang.Object)
+     */
+    public void setProperty(String name, Object value) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            entityManager.setProperty(name, value);
+        } finally {
+            closeIfNoTx(entityManager);
+        }
+    }
+    /* (non-Javadoc)
+     * @see javax.persistence.EntityManager#unwrap(java.lang.Class)
+     */
+    public <T> T unwrap(Class<T> cls) {
+        EntityManager entityManager = getEntityManager();
+        try {
+            return entityManager.unwrap(cls);
+        } finally {
+            closeIfNoTx(entityManager);
         }
     }
 }

@@ -236,4 +236,9 @@ public class ReflectionInvocationContext implements InvocationContext {
 
         return "InvocationContext(operation=" + operation + ", target="+target.getClass().getName()+", method="+methodName+")";
     }
+
+	public Object getTimer() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Object getTimer()");
+	}
 }

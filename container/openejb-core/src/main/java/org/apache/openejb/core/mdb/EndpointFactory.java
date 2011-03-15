@@ -73,4 +73,10 @@ public class EndpointFactory implements MessageEndpointFactory {
         TransactionType transactionType = deploymentInfo.getTransactionType(method);
         return TransactionType.Required == transactionType;
     }
+
+	public MessageEndpoint createEndpoint(XAResource arg0, long arg1)
+			throws UnavailableException {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: MessageEndpoint createEndpoint(XAResource arg0, long arg1)");
+	}
 }

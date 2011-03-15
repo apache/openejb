@@ -17,6 +17,8 @@
 package org.apache.openejb.core.mdb;
 
 import java.security.Principal;
+import java.util.Map;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.MessageDrivenContext;
@@ -212,5 +214,10 @@ public class MdbContext extends BaseContext implements MessageDrivenContext {
         states[Operation.BUSINESS.ordinal()] = new BusinessTimeoutMdbState();
         states[Operation.TIMEOUT.ordinal()] = new BusinessTimeoutMdbState();
     }
+
+	public Map<String, Object> getContextData() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Map<String, Object> getContextData()");
+	}
 
 }

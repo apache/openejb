@@ -16,6 +16,8 @@
  */
 package org.apache.openejb.core.singleton;
 
+import java.util.Map;
+
 import org.apache.openejb.core.BaseSessionContext;
 import org.apache.openejb.core.Operation;
 import org.apache.openejb.core.ThreadContext;
@@ -62,5 +64,15 @@ public class SingletonContext extends BaseSessionContext {
         states[Operation.POST_CONSTRUCT.ordinal()] = new PostConstructSessionState();
         states[Operation.PRE_DESTROY.ordinal()] = new LifecycleSessionState();
     }
+
+	public boolean wasCancelCalled() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: boolean wasCancelCalled()");
+	}
+
+	public Map<String, Object> getContextData() {
+		//TODO: next openejb version
+		throw new UnsupportedOperationException("Method not implemented: Map<String, Object> getContextData()");
+	}
 
 }
