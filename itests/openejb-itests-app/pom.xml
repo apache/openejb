@@ -77,11 +77,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
-      <artifactId>ejb31-api-experimental</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-itests-beans</artifactId>
       <version>${project.version}</version>
       <type>ejb</type>

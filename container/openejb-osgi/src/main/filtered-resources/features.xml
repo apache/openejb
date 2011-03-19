@@ -59,13 +59,8 @@
         <feature version="5.0-2">javaee-api</feature>
         <bundle>mvn:org.apache.openejb/openejb-jee/${version}</bundle>
     </feature>
-    <feature name="ejb31-api-experimental" version="${version}">
-        <feature version="5.0-2">javaee-api</feature>
-        <bundle>mvn:org.apache.openejb/ejb31-api-experimental/${version}</bundle>
-    </feature>
     <feature name="openejb-core" version="${version}">
         <feature version="5.0-2">javaee-api</feature>
-        <feature version="${version}">ejb31-api-experimental</feature>
         <feature version="${version}">openejb-api</feature>
         <feature version="${version}">openejb-javaagent</feature>
         <feature version="${version}">openejb-jee</feature>

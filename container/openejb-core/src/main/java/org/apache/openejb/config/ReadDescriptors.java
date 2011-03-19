@@ -98,7 +98,7 @@ public class ReadDescriptors implements DynamicDeployer {
                 if (file.getName().endsWith("persistence.xml")) {
                     file = file.getParentFile().getParentFile();
                 }
-                String moduleName = file.getAbsolutePath();
+                String moduleName = file.toURI().toString();
                 
                 try {
                     Persistence persistence = JaxbPersistenceFactory.getPersistence(persistenceUrl);
