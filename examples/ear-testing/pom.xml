@@ -36,6 +36,7 @@
        - http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding
        -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <openejb.version>3.2.0-SNAPSHOT</openejb.version>
   </properties>
   <build>
     <defaultGoal>install</defaultGoal>

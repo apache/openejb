@@ -27,6 +27,10 @@
   <packaging>pom</packaging>
   <name>Quartz App</name>
 
+  <properties>
+    <openejb.version>3.2.0-SNAPSHOT</openejb.version>
+  </properties>
+
   <modules>
     <module>quartz-ra</module>
     <module>quartz-beans</module>
@@ -50,7 +54,7 @@
       <dependency>
 	<groupId>org.apache.openejb</groupId>
 	<artifactId>openejb-core</artifactId>
-	<version>3.1.5-SNAPSHOT</version>
+	<version>${openejb.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
