@@ -35,6 +35,7 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.config.sys.Resource;
 import org.apache.openejb.config.sys.ServiceProvider;
 import org.apache.openejb.config.sys.Container;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Messages;
@@ -496,10 +497,10 @@ class AppInfoBuilder {
                 info.jarFiles.addAll(persistenceUnit.getJarFile());
                 info.classes.addAll(persistenceUnit.getClazz());
                 info.mappingFiles.addAll(persistenceUnit.getMappingFile());
-                
+
                 info.persistenceXMLSchemaVersion = persistence.getVersion();
                 info.sharedCacheMode = persistenceUnit.getSharedCacheMode().toString();
-                info.validationMode = persistenceUnit.getValidationMode().toString();                
+                info.validationMode = persistenceUnit.getValidationMode().toString();
 
                 // Handle Properties
                 info.properties.putAll(persistenceUnit.getProperties());
@@ -561,7 +562,7 @@ class AppInfoBuilder {
                     info.properties.setProperty(lookupProperty, openejbLookupClass);
                     logger.debug("Adjusting PersistenceUnit(name="+info.name+") property to "+lookupProperty+"="+openejbLookupClass);
                 }
-                } else if ("org.eclipse.persistence.jpa.PersistenceProvider".equals(info.provider) || "org.eclipse.persistence.jpa.osgi.PersistenceProvider".equals(info.provider)){
+            } else if ("org.eclipse.persistence.jpa.PersistenceProvider".equals(info.provider) || "org.eclipse.persistence.jpa.osgi.PersistenceProvider".equals(info.provider)){
 
                 String lookupProperty = "eclipselink.target-server";
                 String openejbLookupClass = MakeTxLookup.ECLIPSELINK_FACTORY;
@@ -572,13 +573,21 @@ class AppInfoBuilder {
                     info.properties.setProperty(lookupProperty, openejbLookupClass);
                     logger.debug("Adjusting PersistenceUnit(name="+info.name+") property to "+lookupProperty+"="+openejbLookupClass);
                 }
+            }  else if (info.provider == null || "org.apache.openjpa.persistence.PersistenceProviderImpl".equals(info.provider)){
 
-                final Set<Object> keys = new HashSet<Object>(info.properties.keySet());
-                for (Object key : keys) {
-                    if (!(key instanceof String)) continue;
+                String property = "openjpa.RuntimeUnenhancedClasses";
+                String value = "supported";
 
-                    String s = (String) key;
-                    if (s.matches("openjpa.Connection(DriverName|URL|UserName|Password)")) {
+                String existing = info.properties.getProperty(property);
+
+                if (existing == null){
+                    info.properties.setProperty(property, value);
+                    logger.debug("Adjusting PersistenceUnit(name="+info.name+") property to "+property+"="+value);
+                }
+
+                final Set<String> keys = new HashSet<String>(info.properties.stringPropertyNames());
+                for (String key : keys) {
+                    if (key.matches("openjpa.Connection(DriverName|URL|UserName|Password)")) {
                         final Object o = info.properties.remove(key);
                         logger.warning("Removing PersistenceUnit(name=" + info.name + ") property " + key + "=" + o + "  [not valid in a container environment]");
                     }
@@ -641,29 +650,29 @@ class AppInfoBuilder {
     }
 
     void configureWebserviceSecurity(WebAppInfo info, WebModule module) {
-        // no security to configure for WebModule 
+        // no security to configure for WebModule
         // --> this method should be removed
     }
-    
+
     /*
      * left package-local for a unit test
      */
     void configureWebserviceSecurity(EjbJarInfo ejbJarInfo, EjbModule ejbModule) {
         Object altDD = ejbModule.getOpenejbJar();
 	List<PortInfo> infoList = ejbJarInfo.portInfos;
-	
+
 	configureWebserviceScurity(infoList, altDD);
     }
-    
+
     private void configureWebserviceScurity(List<PortInfo> infoList, Object altDD) {
         if (altDD == null || (! (altDD instanceof OpenejbJar))) return;
-        
+
         OpenejbJar openejbJar = (OpenejbJar) altDD;
         Map<String, EjbDeployment> deploymentsByEjbName = openejbJar.getDeploymentsByEjbName();
-        
+
         for (PortInfo portInfo : infoList) {
             EjbDeployment deployment = deploymentsByEjbName.get(portInfo.serviceLink);
-            
+
             if (deployment == null) continue;
             portInfo.realmName = deployment.getProperties().getProperty("webservice.security.realm");
             portInfo.securityRealmName = deployment.getProperties().getProperty("webservice.security.securityRealm");
@@ -681,9 +690,9 @@ class AppInfoBuilder {
             portInfo.properties = deployment.getProperties();
         }
     }
-    
+
     private static boolean skipMdb(EnterpriseBeanInfo bean) {
-        return bean instanceof MessageDrivenBeanInfo && System.getProperty("duct tape") != null;
+        return bean instanceof MessageDrivenBeanInfo && SystemInstance.get().hasProperty("openejb.geronimo");
     }
 
 }
