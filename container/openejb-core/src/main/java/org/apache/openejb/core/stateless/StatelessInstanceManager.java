@@ -393,7 +393,7 @@ public class StatelessInstanceManager {
         }
 
         // Finally, fill the pool and start it
-        for (int i = 0; i < min; i++) {
+        if (!options.get("BackgroundStartup", false)) for (int i = 0; i < min; i++) {
             Instance obj = createInstance(deploymentInfo);
 
             if (obj == null) continue;
