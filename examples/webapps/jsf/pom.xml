@@ -25,12 +25,16 @@
   <name>OpenEJB :: Web Examples :: JSF with MyFaces</name>
   <version>1.0-SNAPSHOT</version>
   <url>http://openejb.apache.org</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
     <finalName>jsf</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -59,9 +63,7 @@
     </repository>
     <repository>
       <id>java.net</id>
-      <url>http://download.java.net/maven/1
-      </url>
-      <layout>legacy</layout>
+      <url>http://download.java.net/maven/1</url>
     </repository>
   </repositories>
   <dependencies>
@@ -78,20 +80,23 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.myfaces.tomahawk
-      </groupId>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
-      <version>1.1.6</version>
+      <version>1.1.9</version>
       <scope>runtime</scope>
       <exclusions>
         <exclusion>
-          <artifactId>jstl</artifactId>
           <groupId>javax.servlet</groupId>
+          <artifactId>jstl</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>xmlParserAPIs</artifactId>
+          <groupId>xml-apis</groupId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>jstl</groupId>
+      <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.2</version>
       <scope>runtime</scope>
@@ -99,7 +104,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.5</version>
+      <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -109,7 +114,6 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
   <!--
   This section allows you to configure where to publish libraries for sharing.
   It is not required and may be deleted.  For more information see:
@@ -125,5 +129,4 @@
       <url>file://${basedir}/target/snapshot-repo/</url>
     </snapshotRepository>
   </distributionManagement>
-
 </project>
