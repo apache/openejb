@@ -104,7 +104,7 @@
               <mainClass>org.apache.openejb.test.Main</mainClass>
             </manifest>
           </archive>
-          <finalName>openejb-${pom.version}</finalName>
+          <finalName>apache-openejb-${pom.version}</finalName>
         </configuration>
       </plugin>
     </plugins>
