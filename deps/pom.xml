@@ -18,22 +18,16 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <artifactId>api</artifactId>
+    <artifactId>openejb</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>ejb31-api-experimental</artifactId>
-  <packaging>jar</packaging>
-  <name>OpenEJB :: APIs :: EJB 3.1 Experimental</name>
+  <artifactId>deps</artifactId>
+  <packaging>pom</packaging>
+  <name>OpenEJB :: Dependencies</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>6.0-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+  <modules>
+    <module>javaee-api</module>
+  </modules>
 </project>
-

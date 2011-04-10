@@ -57,6 +57,12 @@
 			<version>${project.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+			      <groupId>org.apache.openejb</groupId>
+			      <artifactId>javaee-web-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
