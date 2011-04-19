@@ -416,7 +416,7 @@ public class JtaEntityManager implements EntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.find(entityClass, entityManager, lockMode);
+            return entityManager.find(entityClass, primaryKey, lockMode);
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -427,7 +427,7 @@ public class JtaEntityManager implements EntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.find(entityClass, entityManager, lockMode, properties);
+            return entityManager.find(entityClass, primaryKey, lockMode, properties);
         } finally {
             closeIfNoTx(entityManager);
         }
