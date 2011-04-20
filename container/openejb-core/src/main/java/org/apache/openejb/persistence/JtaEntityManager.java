@@ -238,7 +238,10 @@ public class JtaEntityManager implements EntityManager {
     public boolean contains(Object entity) {
         final Timer timer = Op.contains.start(this);
         try {
-            return isTransactionActive() && getEntityManager().contains(entity);
+            if (!extended &&  !isTransactionActive()) {
+                return false;
+            }
+            return getEntityManager().contains(entity);
         } finally {
             timer.stop();
         }
@@ -305,6 +308,13 @@ public class JtaEntityManager implements EntityManager {
         }
         return query;
     }
+    
+    private <T> TypedQuery<T> proxyIfNoTx(EntityManager entityManager, TypedQuery<T> query) {
+        if (!extended && !isTransactionActive()) {
+            return new JtaTypedQuery<T>(entityManager, query);
+        }
+        return query;
+    }
 
     public void joinTransaction() {
         if (logger.isDebugEnabled()) {
@@ -346,7 +356,7 @@ public class JtaEntityManager implements EntityManager {
     }
 
     private static enum Op {
-        clear, close, contains, createNamedQuery, createNativeQuery, createQuery, find, flush, getFlushMode, getReference, getTransaction, lock, merge, refresh, remove, setFlushMode, persist;
+        clear, close, contains, createNamedQuery, createNativeQuery, createQuery, find, flush, getFlushMode, getReference, getTransaction, lock, merge, refresh, remove, setFlushMode, persist, detach, getLockMode;
 
         public Timer start(JtaEntityManager em) {
             return new Timer(this, em);
@@ -359,44 +369,52 @@ public class JtaEntityManager implements EntityManager {
      * @see javax.persistence.EntityManager#createNamedQuery(java.lang.String, java.lang.Class)
      */
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        EntityManager entityManager = getEntityManager();
+        final Timer timer = Op.createNamedQuery.start(this);
         try {
-            return entityManager.createNamedQuery(name, resultClass);
+            EntityManager entityManager = getEntityManager();
+            TypedQuery<T> query = entityManager.createNamedQuery(name, resultClass);
+            return proxyIfNoTx(entityManager, query);
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaQuery)
      */
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        EntityManager entityManager = getEntityManager();
+        final Timer timer = Op.createQuery.start(this);
         try {
-            return entityManager.createQuery(criteriaQuery);
+            EntityManager entityManager = getEntityManager();
+            TypedQuery<T> query = entityManager.createQuery(criteriaQuery);
+            return proxyIfNoTx(entityManager, query);
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#createQuery(java.lang.String, java.lang.Class)
      */
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-        EntityManager entityManager = getEntityManager();
+        final Timer timer = Op.createQuery.start(this);
         try {
-            return entityManager.createQuery(qlString, resultClass);
+            EntityManager entityManager = getEntityManager();
+            TypedQuery<T> query = entityManager.createQuery(qlString, resultClass);
+            return proxyIfNoTx(entityManager, query);
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#detach(java.lang.Object)
      */
     public void detach(Object entity) {
-        EntityManager entityManager = getEntityManager();
+        final Timer timer = Op.detach.start(this);
         try {
-            entityManager.detach(entity);
+            if (!extended && isTransactionActive()) {
+                getEntityManager().detach(entity);
+            }
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
@@ -405,7 +423,12 @@ public class JtaEntityManager implements EntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.find(entityClass, primaryKey, properties);
+            final Timer timer = Op.find.start(this);
+            try {
+                return entityManager.find(entityClass, primaryKey, properties);
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -416,7 +439,12 @@ public class JtaEntityManager implements EntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.find(entityClass, primaryKey, lockMode);
+            final Timer timer = Op.find.start(this);
+            try {
+                return entityManager.find(entityClass, primaryKey, lockMode);
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -427,7 +455,12 @@ public class JtaEntityManager implements EntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
         EntityManager entityManager = getEntityManager();
         try {
-            return entityManager.find(entityClass, primaryKey, lockMode, properties);
+            final Timer timer = Op.find.start(this);
+            try {
+                return entityManager.find(entityClass, primaryKey, lockMode, properties);
+            } finally {
+                timer.stop();
+            }
         } finally {
             closeIfNoTx(entityManager);
         }
@@ -442,12 +475,13 @@ public class JtaEntityManager implements EntityManager {
      * @see javax.persistence.EntityManager#getLockMode(java.lang.Object)
      */
     public LockModeType getLockMode(Object entity) {
-        EntityManager entityManager = getEntityManager();
+        assertTransactionActive();
+        final Timer timer = Op.getLockMode.start(this);
         try {
-            return entityManager.getLockMode(entity);
+            return getEntityManager().getLockMode(entity);
         } finally {
-            closeIfNoTx(entityManager);
-        }
+            timer.stop();
+        }        
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#getMetamodel()
@@ -486,44 +520,48 @@ public class JtaEntityManager implements EntityManager {
      * @see javax.persistence.EntityManager#lock(java.lang.Object, javax.persistence.LockModeType, java.util.Map)
      */
     public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
-        EntityManager entityManager = getEntityManager();
+        assertTransactionActive();
+        final Timer timer = Op.lock.start(this);
         try {
-            entityManager.lock(entityManager, lockMode, properties);
+            getEntityManager().lock(entity, lockMode, properties);
         } finally {
-            closeIfNoTx(entityManager);
-        }
+            timer.stop();
+        }        
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#refresh(java.lang.Object, java.util.Map)
      */
     public void refresh(Object entity, Map<String, Object> properties) {
-        EntityManager entityManager = getEntityManager();
+        assertTransactionActive();
+        final Timer timer = Op.refresh.start(this);
         try {
-            entityManager.refresh(entityManager, properties);
+            getEntityManager().refresh(entity, properties);
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#refresh(java.lang.Object, javax.persistence.LockModeType)
      */
     public void refresh(Object entity, LockModeType lockMode) {
-        EntityManager entityManager = getEntityManager();
+        assertTransactionActive();
+        final Timer timer = Op.refresh.start(this);
         try {
-            entityManager.refresh(entityManager, lockMode);
+            getEntityManager().refresh(entity, lockMode);
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
      * @see javax.persistence.EntityManager#refresh(java.lang.Object, javax.persistence.LockModeType, java.util.Map)
      */
     public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
-        EntityManager entityManager = getEntityManager();
+        assertTransactionActive();
+        final Timer timer = Op.refresh.start(this);
         try {
-            entityManager.refresh(entityManager, lockMode, properties);
+            getEntityManager().refresh(entity, lockMode, properties);
         } finally {
-            closeIfNoTx(entityManager);
+            timer.stop();
         }
     }
     /* (non-Javadoc)
@@ -541,11 +579,6 @@ public class JtaEntityManager implements EntityManager {
      * @see javax.persistence.EntityManager#unwrap(java.lang.Class)
      */
     public <T> T unwrap(Class<T> cls) {
-        EntityManager entityManager = getEntityManager();
-        try {
-            return entityManager.unwrap(cls);
-        } finally {
-            closeIfNoTx(entityManager);
-        }
+        return getEntityManager().unwrap(cls);
     }
 }

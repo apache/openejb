@@ -28,8 +28,8 @@ import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 
 /**
- * The JtaEntityManagerRegistry tracks JTA entity managers for transation and extended scoped
- * entity managers.  A signle instance of this object should be created and shared by all
+ * The JtaEntityManagerRegistry tracks JTA entity managers for transaction and extended scoped
+ * entity managers.  A single instance of this object should be created and shared by all
  * JtaEntityManagers in the server instance.  Failure to do this will result in multiple entity
  * managers being created for a single persistence until, and that will result in cache
  * incoherence.
@@ -41,7 +41,7 @@ public class JtaEntityManagerRegistry {
     private final TransactionSynchronizationRegistry transactionRegistry;
 
     /**
-     * Registry of entended context entity managers.
+     * Registry of extended context entity managers.
      */
     private final ThreadLocal<ExtendedRegistry> extendedRegistry = new ThreadLocal<ExtendedRegistry>() {
         protected ExtendedRegistry initialValue() {
@@ -58,11 +58,11 @@ public class JtaEntityManagerRegistry {
     }
 
     /**
-     * Gets an entity manager instance from the transaction registry, extended regitry or for a transaction scoped
-     * entity manager, creates a new one when an exisitng instance is not found.
+     * Gets an entity manager instance from the transaction registry, extended registry or for a transaction scoped
+     * entity manager, creates a new one when an existing instance is not found.
      * </p>
      * It is important that a component adds extended scoped entity managers to this registry when the component is
-     * entered and removes them when exited.  If this registration is not preformed, an IllegalStateException will
+     * entered and removes them when exited.  If this registration is not performed, an IllegalStateException will
      * be thrown when entity manger is fetched.
      * @param entityManagerFactory the entity manager factory from which an entity manager is required
      * @param properties the properties passed to the entity manager factory when an entity manager is created
