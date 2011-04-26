@@ -343,6 +343,16 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 return e;
             }
         }
+        if (e instanceof TransactionRolledbackLocalException) {
+            if (!rmiRemote && interfaceType.isBusiness()) {
+                return new EJBTransactionRolledbackException(e.getMessage()).initCause(getCause(e));
+            } else if (interfaceType.isLocal()) {
+                return e;
+            } else {
+            	// Remote execution
+                return new RemoteException(e.getMessage(), getCause(e));
+            }
+        }
         if (e instanceof TransactionRolledbackException) {
             if (!rmiRemote && interfaceType.isBusiness()) {
                 return new EJBTransactionRolledbackException(e.getMessage()).initCause(getCause(e));

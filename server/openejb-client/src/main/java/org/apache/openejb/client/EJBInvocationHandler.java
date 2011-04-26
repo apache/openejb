@@ -191,6 +191,9 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
      * @param method
      */
     protected Throwable convertException(Throwable e, Method method) {
+    	if (remote && e instanceof TransactionRolledbackLocalException) {
+    		return new RemoteException(e.getMessage(), getCause(e));
+    	}
         if (!remote && e instanceof RemoteException) {
             if (e instanceof TransactionRequiredException) {
                 return new TransactionRequiredLocalException(e.getMessage()).initCause(getCause(e));
