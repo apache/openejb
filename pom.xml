@@ -294,6 +294,18 @@
 
   <profiles>
     <profile>
+        <id>prepare</id>
+        <activation>
+            <property>
+                <name>prepare</name>
+            </property>
+        </activation>
+        <modules>
+            <module>deps</module>
+        </modules>
+    </profile>
+
+    <profile>
       <id>assemble</id>
       <activation>
         <property>

@@ -29,5 +29,6 @@
 
   <modules>
     <module>javaee-api</module>
+    <module>javaee-web-api</module>
   </modules>
 </project>
