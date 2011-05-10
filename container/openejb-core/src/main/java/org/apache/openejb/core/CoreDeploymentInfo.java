@@ -54,11 +54,16 @@ import org.apache.openejb.core.timer.EjbTimerService;
 import org.apache.openejb.core.timer.MethodSchedule;
 import org.apache.openejb.core.transaction.TransactionType;
 import org.apache.openejb.core.transaction.TransactionPolicyFactory;
+import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.Index;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 
 public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
+    private Logger logger = Logger.getInstance(LogCategory.OPENEJB, CoreDeploymentInfo.class);
+ 
+    public static final String USER_DEFAULT_INTERCEPTOR_KEY = "org.apache.openejb.default.user.interceptors";
+    public static final String USER_DEFAULT_INTERCEPTOR_SEPARATOR = ",";
 
     private boolean destroyed;
     private Class homeInterface;
@@ -123,6 +128,7 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
     private final Set<InterceptorData> instanceScopedInterceptors = new HashSet<InterceptorData>();
 
     private final List<InterceptorInstance> systemInterceptors = new ArrayList<InterceptorInstance>(); 
+    private final List<InterceptorInstance> userDefaultInterceptors = new ArrayList<InterceptorInstance>();
     private final Map<Method, Method> methodMap = new HashMap<Method, Method>();
     private final Map<String, String> securityRoleReferenceMap = new HashMap<String, String>();
     private String jarPath;
@@ -174,6 +180,36 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
         return null;
     }
 
+    /**
+     * load default interceptors configured in properties.
+     */
+    private CoreDeploymentInfo(DeploymentContext context, BeanType componentType) {
+        this.context = context;
+        this.componentType = componentType;
+
+        String interceptors = SystemInstance.get().getProperties().getProperty(USER_DEFAULT_INTERCEPTOR_KEY);
+        if (interceptors != null) {
+            String[] interceptorArray = interceptors.split(USER_DEFAULT_INTERCEPTOR_SEPARATOR);
+            ClassLoader classLoader = context.getClassLoader();
+            for (String interceptor : interceptorArray) {
+                Object interceptorObject;
+                String name = interceptor.trim();
+                if (name.length() <= 0) {
+                    continue;
+                }
+
+                try {
+                    Class<?> clazz = classLoader.loadClass(name);
+                    interceptorObject = clazz.newInstance();
+                } catch (Exception e) {
+                    logger.warning("interceptor " + interceptor + " not found, are you sure the container can load it?");
+                    continue;
+                }
+                addUserDefaultInterceptor(interceptorObject);
+            }
+        }
+    }
+
     public CoreDeploymentInfo(DeploymentContext context,
                               Class beanClass, Class homeInterface,
                               Class remoteInterface,
@@ -182,10 +218,10 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
                               Class serviceEndpointInterface, List<Class> businessLocals, List<Class> businessRemotes, Class pkClass,
                               BeanType componentType
     ) throws SystemException {
+        this(context, componentType);
         if (context == null || beanClass == null) {
             throw new NullPointerException("context or beanClass input parameter is null");
         }
-        this.context = context;
         this.pkClass = pkClass;
 
         this.homeInterface = homeInterface;
@@ -202,8 +238,6 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
         this.beanClass = beanClass;
         this.pkClass = pkClass;
         this.serviceEndpointInterface = serviceEndpointInterface;
-
-        this.componentType = componentType;
 
 //        if (businessLocal != null && localHomeInterface == null){
 //            this.localHomeInterface = BusinessLocalHome.class;
@@ -293,11 +327,10 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
     }
 
     public CoreDeploymentInfo(DeploymentContext context, Class beanClass, Class mdbInterface, Map<String, String> activationProperties) throws SystemException {
-        this.context = context;
+        this(context, BeanType.MESSAGE_DRIVEN);
         this.beanClass = beanClass;
         this.mdbInterface = mdbInterface;
         this.activationProperties.putAll(activationProperties);
-        this.componentType = BeanType.MESSAGE_DRIVEN;
 
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             try {
@@ -743,12 +776,19 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
         systemInterceptors.add(new InterceptorInstance(interceptor));    
     }
 
-    public List<InterceptorInstance> getSystemInterceptors() {
-        return systemInterceptors;
+    private void addUserDefaultInterceptor(Object interceptor) {
+        userDefaultInterceptors.add(new InterceptorInstance(interceptor));
+    }
+
+    public List<InterceptorInstance> getSystemAndUserInterceptors() {
+        List<InterceptorInstance> interceptors = new ArrayList<InterceptorInstance>();
+        interceptors.addAll(systemInterceptors);
+        interceptors.addAll(userDefaultInterceptors);
+        return interceptors;
     }
 
     public List<InterceptorData> getCallbackInterceptors() {
-        return addSystemInterceptorDatas(callbackInterceptors);
+        return addUserAndSystemInterceptorDatas(callbackInterceptors);
     }
 
     public void setCallbackInterceptors(List<InterceptorData> callbackInterceptors) {
@@ -761,19 +801,19 @@ public class CoreDeploymentInfo implements org.apache.openejb.DeploymentInfo {
 
         List<InterceptorData> interceptors = methodInterceptors.get(method);
 
-        return addSystemInterceptorDatas(interceptors);
+        return addUserAndSystemInterceptorDatas(interceptors);
     }
 
-    private List<InterceptorData> addSystemInterceptorDatas(List<InterceptorData> interceptors) {
+    private List<InterceptorData> addUserAndSystemInterceptorDatas(List<InterceptorData> interceptors) {
         if (interceptors == null) interceptors = Collections.EMPTY_LIST;
 
-        if (systemInterceptors.size() <= 0) return interceptors;
+        if (systemInterceptors.size() <= 0 && userDefaultInterceptors.size() <= 0) return interceptors;
 
         // we have system interceptors to add to the beginning of the stack
         
-        List<InterceptorData> datas = new ArrayList<InterceptorData>(systemInterceptors.size() + interceptors.size());
+        List<InterceptorData> datas = new ArrayList<InterceptorData>(getSystemAndUserInterceptors().size() + interceptors.size());
 
-        for (InterceptorInstance instance : systemInterceptors) {
+        for (InterceptorInstance instance : getSystemAndUserInterceptors()) {
             datas.add(instance.getData());
         }
 

@@ -603,7 +603,7 @@ public class ManagedContainer implements RpcContainer {
             HashMap<String, Object> interceptorInstances = new HashMap<String, Object>();
 
             // Add the stats interceptor instance and other already created interceptor instances
-            for (InterceptorInstance interceptorInstance : deploymentInfo.getSystemInterceptors()) {
+            for (InterceptorInstance interceptorInstance : deploymentInfo.getSystemAndUserInterceptors()) {
                 Class clazz = interceptorInstance.getData().getInterceptorClass();
                 interceptorInstances.put(clazz.getName(), interceptorInstance.getInterceptor());
             }
