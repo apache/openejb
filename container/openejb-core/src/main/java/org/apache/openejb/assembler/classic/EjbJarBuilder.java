@@ -48,7 +48,7 @@ public class EjbJarBuilder {
 
         for (EnterpriseBeanInfo ejbInfo : ejbJar.enterpriseBeans) {
             try {
-                EnterpriseBeanBuilder deploymentBuilder = new EnterpriseBeanBuilder(classLoader, ejbInfo, ejbJar.moduleId, new ArrayList<String>());
+                EnterpriseBeanBuilder deploymentBuilder = new EnterpriseBeanBuilder(classLoader, ejbInfo, ejbJar.moduleId, ejbJar.uniqueId, new ArrayList<String>());
                 CoreDeploymentInfo deployment = (CoreDeploymentInfo) deploymentBuilder.build();
 
                 interceptorBindingBuilder.build(deployment, ejbInfo);

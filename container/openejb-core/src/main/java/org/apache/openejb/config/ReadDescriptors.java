@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.config;
 
-import static org.apache.openejb.util.URLs.toFilePath;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.core.webservices.WsdlResolver;
 import org.apache.openejb.jee.ApplicationClient;
@@ -25,6 +24,8 @@ import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.FacesConfig;
 import org.apache.openejb.jee.HandlerChains;
 import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.assembler.classic.ValidatorBuilder;
+import org.apache.openejb.config.rules.ValidationBase;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.WebApp;
@@ -57,6 +58,7 @@ import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.net.URL;
 import java.util.List;
 
@@ -73,19 +75,23 @@ public class ReadDescriptors implements DynamicDeployer {
                 readOpenejbJar(ejbModule);
             }
 
+            readValidationConfigType(ejbModule);
             readCmpOrm(ejbModule);
         }
 
         for (ClientModule clientModule : appModule.getClientModules()) {
             readAppClient(clientModule, appModule);
+            readValidationConfigType(clientModule);
         }
 
         for (ConnectorModule connectorModule : appModule.getResourceModules()) {
             readConnector(connectorModule, appModule);
+            readValidationConfigType(connectorModule);
         }
 
         for (WebModule webModule : appModule.getWebModules()) {
             readWebApp(webModule, appModule);
+            readValidationConfigType(webModule);
         }
 
         List<URL> persistenceUrls = (List<URL>) appModule.getAltDDs().get("persistence.xml");
@@ -116,6 +122,16 @@ public class ReadDescriptors implements DynamicDeployer {
 
         return appModule;
 
+    }
+
+    private void readValidationConfigType(Module module) {
+        if (module.getValidationConfig() != null) {
+            return;
+        }
+        URL url = (URL) module.getAltDDs().get("validation.xml");
+        if (url != null) {
+            module.setValidationConfig(ValidatorBuilder.readConfig(url));
+        }
     }
 
     private void readOpenejbJar(EjbModule ejbModule) throws OpenEJBException {

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import javax.naming.InitialContext;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.validation.ValidatorFactory;
 import javax.persistence.EntityManagerFactory;
 import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ConnectionManager;
@@ -115,7 +117,10 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
 
     public static final String JAVA_OPENEJB_NAMING_CONTEXT = "openejb/";
 
-    public static final String PERSISTENCE_UNIT_NAMING_CONTEXT = "openejb/PersistenceUnit/";
+    public static final String PERSISTENCE_UNIT_NAMING_CONTEXT = JAVA_OPENEJB_NAMING_CONTEXT + "PersistenceUnit/";
+
+    public static final String VALIDATOR_FACTORY_NAMING_CONTEXT = JAVA_OPENEJB_NAMING_CONTEXT + "ValidatorFactory/";
+    public static final String VALIDATOR_NAMING_CONTEXT = JAVA_OPENEJB_NAMING_CONTEXT + "Validator/";
 
     private static final String OPENEJB_URL_PKG_PREFIX = "org.apache.openejb.core.ivm.naming";
 
@@ -132,6 +137,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
     protected OpenEjbConfigurationFactory configFactory;
     private final Map<String, AppInfo> deployedApplications = new HashMap<String, AppInfo>();
     private final List<DeploymentListener> deploymentListeners = new ArrayList<DeploymentListener>();
+    private final Set<String> uniqueIds = new HashSet<String>();
 
 
     public org.apache.openejb.spi.ContainerSystem getContainerSystem() {
@@ -482,6 +488,43 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                 classLoader = ClassLoaderUtil.createClassLoader(appInfo.jarPath, new URL []{generatedJar.toURI().toURL()}, classLoader);
             }
 
+            Context containerSystemContext = containerSystem.getJNDIContext();
+
+            // Bean Validation
+            // ValidatorFactory needs to be put in the map sent to the entity manager factory
+            // so it has to be constructed before
+            Map<String, ValidatorFactory> validatorFactories = new HashMap<String, ValidatorFactory>();
+            //geronimo will handle the bean validator by itself
+            if (!SystemInstance.get().hasProperty("openejb.geronimo")){
+                for (ClientInfo clientInfo : appInfo.clients) {
+                    validatorFactories.put(clientInfo.uniqueId, ValidatorBuilder.buildFactory(classLoader, clientInfo.validationInfo));
+                }
+                for (ConnectorInfo connectorInfo : appInfo.connectors) {
+                    validatorFactories.put(connectorInfo.uniqueId, ValidatorBuilder.buildFactory(classLoader, connectorInfo.validationInfo));
+                }
+                for (EjbJarInfo ejbJarInfo : appInfo.ejbJars) {
+                    validatorFactories.put(ejbJarInfo.uniqueId, ValidatorBuilder.buildFactory(classLoader, ejbJarInfo.validationInfo));
+                }
+                for (WebAppInfo webAppInfo : appInfo.webApps) {
+                    validatorFactories.put(webAppInfo.uniqueId, ValidatorBuilder.buildFactory(classLoader, webAppInfo.validationInfo));
+                }
+                uniqueIds.addAll(validatorFactories.keySet());
+
+                // validators bindings
+                for (Map.Entry<String, ValidatorFactory> validatorFactory : validatorFactories.entrySet()) {
+                    String id = validatorFactory.getKey();
+                    ValidatorFactory factory = validatorFactory.getValue();
+                    try {
+                        containerSystemContext.bind(VALIDATOR_FACTORY_NAMING_CONTEXT + id, factory);
+                        containerSystemContext.bind(VALIDATOR_NAMING_CONTEXT + id, factory.usingContext().getValidator());
+                    } catch (NameAlreadyBoundException e) {
+                        throw new OpenEJBException("ValidatorFactory already exists for module " + id);
+                    } catch (Exception e) {
+                        throw new OpenEJBException(e);
+                    }
+                }
+            }
+
             // JPA - Persistence Units MUST be processed first since they will add ClassFileTransformers
             // to the class loader which must be added before any classes are loaded
             PersistenceBuilder persistenceBuilder = new PersistenceBuilder(persistenceClassLoaderHandler);
@@ -616,7 +659,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                 List<Injection> injections = injectionBuilder.buildInjections(clientInfo.jndiEnc);
 
                 // build the enc
-                JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(clientInfo.jndiEnc, injections, "Bean", clientInfo.moduleId, classLoader);
+                JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(clientInfo.jndiEnc, injections, "Bean", clientInfo.moduleId, clientInfo.uniqueId, classLoader);
                 // if there is at least a remote client classes
                 // or if there is no local client classes
                 // then, we can set the client flag
@@ -906,6 +949,17 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                 undeployException.getCauses().add(new Exception("persistence-unit: " + unitInfo.id + ": " + t.getMessage(), t));
             }
         }
+
+        for (String id : uniqueIds) {
+        try {
+                globalContext.unbind(VALIDATOR_FACTORY_NAMING_CONTEXT + id);
+                globalContext.unbind(VALIDATOR_NAMING_CONTEXT + id);
+            } catch (NamingException e) {
+                undeployException.getCauses().add(new Exception("validator: " + id + ": " + e.getMessage(), e));
+            }
+        }
+        uniqueIds.clear();
+
 
         try {
             if (globalContext instanceof IvmContext) {

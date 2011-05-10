@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Class is intentionally not an interface as that would encourage "smart" implementations
  * @version $Revision$ $Date$
  */
-public class EjbModule implements WsModule {
+public class EjbModule extends Module implements WsModule {
 
     private final ValidationContext validation;
 
@@ -45,7 +45,6 @@ public class EjbModule implements WsModule {
     private Webservices webservices;
     private String moduleId;
     private final AtomicReference<ClassFinder> finder = new AtomicReference<ClassFinder>();
-    private final Map<String,Object> altDDs = new HashMap<String,Object>();
     private final Set<String> watchedResources = new TreeSet<String>();
 
     private ClientModule clientModule;
@@ -118,10 +117,6 @@ public class EjbModule implements WsModule {
 
     public ValidationContext getValidation() {
         return validation;
-    }
-
-    public Map<String, Object> getAltDDs() {
-        return altDDs;
     }
 
     public ClassLoader getClassLoader() {

@@ -53,6 +53,8 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceContext;
 import java.net.MalformedURLException;
@@ -78,17 +80,18 @@ public class JndiEncBuilder {
     private final boolean beanManagedTransactions;
     private final JndiEncInfo jndiEnc;
     private final URI moduleUri;
+    private final String uniqueId;
     private final List<Injection> injections;
     private final ClassLoader classLoader;
 
     private boolean useCrossClassLoaderRef = true;
     private boolean client = false;
 
-    public JndiEncBuilder(JndiEncInfo jndiEnc, List<Injection> injections, String moduleId, ClassLoader classLoader) throws OpenEJBException {
-        this(jndiEnc, injections, null, moduleId, classLoader);
+    public JndiEncBuilder(JndiEncInfo jndiEnc, List<Injection> injections, String moduleId, String uniqueId, ClassLoader classLoader) throws OpenEJBException {
+        this(jndiEnc, injections, null, moduleId, uniqueId, classLoader);
     }
 
-    public JndiEncBuilder(JndiEncInfo jndiEnc, List<Injection> injections, String transactionType, String moduleId, ClassLoader classLoader) throws OpenEJBException {
+    public JndiEncBuilder(JndiEncInfo jndiEnc, List<Injection> injections, String transactionType, String moduleId, String uniqueId, ClassLoader classLoader) throws OpenEJBException {
         this.jndiEnc = jndiEnc;
         this.injections = injections;
         beanManagedTransactions = transactionType != null && transactionType.equalsIgnoreCase("Bean");
@@ -98,6 +101,7 @@ public class JndiEncBuilder {
         } catch (URISyntaxException e) {
             throw new OpenEJBException(e);
         }
+        this.uniqueId = uniqueId;
         this.classLoader = classLoader;
     }
 
@@ -135,6 +139,14 @@ public class JndiEncBuilder {
 
         bindings.put("java:comp/ORB", new SystemComponentReference(ORB.class));
         bindings.put("java:comp/HandleDelegate", new SystemComponentReference(HandleDelegate.class));
+
+        // bind bean validation objects
+        String moduleId = null;
+        if (moduleUri != null) {
+            moduleId = moduleUri.toString();
+        }
+        bindings.put("java:comp/ValidatorFactory", new IntraVmJndiReference(Assembler.VALIDATOR_FACTORY_NAMING_CONTEXT + uniqueId));
+        bindings.put("java:comp/Validator", new IntraVmJndiReference(Assembler.VALIDATOR_NAMING_CONTEXT + uniqueId));
 
         // get JtaEntityManagerRegistry
         JtaEntityManagerRegistry jtaEntityManagerRegistry = SystemInstance.get().getComponent(JtaEntityManagerRegistry.class);
@@ -237,6 +249,12 @@ public class JndiEncBuilder {
                 } else {
                     reference = new URLReference(referenceInfo.resourceID);
                 }
+            } else if (ValidatorFactory.class.getName().equals(referenceInfo.referenceType)) {
+                String jndiName = Assembler.VALIDATOR_FACTORY_NAMING_CONTEXT + uniqueId;
+                reference = new IntraVmJndiReference(jndiName);
+            } else if (Validator.class.getName().equals(referenceInfo.referenceType)) {
+                String jndiName = Assembler.VALIDATOR_NAMING_CONTEXT + uniqueId;
+                reference = new IntraVmJndiReference(jndiName);
             } else if (referenceInfo.location != null) {
                 reference = buildReferenceLocation(referenceInfo.location);
             } else if (referenceInfo.resourceID != null) {
@@ -256,16 +274,14 @@ public class JndiEncBuilder {
                 if (EJBContext.class.isAssignableFrom(type)) {
                     String jndiName = "java:comp/EJBContext";
                     linkRef = new LinkRef(jndiName);
-                    bindings.put(normalize(referenceInfo.resourceEnvRefName), linkRef);
-                    continue;
                 } else if (WebServiceContext.class.equals(type)) {
                     String jndiName = "java:comp/WebServiceContext";
                     linkRef = new LinkRef(jndiName);
-                    bindings.put(normalize(referenceInfo.resourceEnvRefName), linkRef);
-                    continue;
                 } else if (TimerService.class.equals(type)) {
                     String jndiName = "java:comp/TimerService";
                     linkRef = new LinkRef(jndiName);
+                }
+                if (linkRef != null) {
                     bindings.put(normalize(referenceInfo.resourceEnvRefName), linkRef);
                     continue;
                 }
@@ -296,7 +312,7 @@ public class JndiEncBuilder {
                 continue;
             }
 
-            String jndiName = "openejb/PersistenceUnit/" + referenceInfo.unitId;
+            String jndiName = PersistenceBuilder.getOpenEJBJndiName(referenceInfo.unitId);
             Reference reference = new IntraVmJndiReference(jndiName);
             bindings.put(normalize(referenceInfo.referenceName), reference);
         }
@@ -311,7 +327,8 @@ public class JndiEncBuilder {
             Context context = SystemInstance.get().getComponent(ContainerSystem.class).getJNDIContext();
             EntityManagerFactory factory;
             try {
-                factory = (EntityManagerFactory) context.lookup("openejb/PersistenceUnit/" + contextInfo.unitId);
+                String jndiName = PersistenceBuilder.getOpenEJBJndiName(contextInfo.unitId);
+                factory = (EntityManagerFactory) context.lookup(jndiName);
             } catch (NamingException e) {
                 throw new OpenEJBException("PersistenceUnit '" + contextInfo.unitId + "' not found for EXTENDED ref '" + contextInfo.referenceName + "'");
             }

@@ -64,6 +64,8 @@ import static org.apache.openejb.util.Join.join;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,6 +99,9 @@ public class AutoConfig implements DynamicDeployer {
         // User transaction is automatically handled
         ignoredReferenceTypes.add("javax.transaction.UserTransaction");
         ignoredReferenceTypes.add("javax.ejb.TimerService");
+        // Bean Validation is automatically handled
+        ignoredReferenceTypes.add(Validator.class.getName());
+        ignoredReferenceTypes.add(ValidatorFactory.class.getName());
     }
 
     private final ConfigurationFactory configFactory;

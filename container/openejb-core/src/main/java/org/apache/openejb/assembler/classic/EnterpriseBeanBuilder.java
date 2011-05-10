@@ -46,14 +46,16 @@ class EnterpriseBeanBuilder {
     protected static final Messages messages = new Messages("org.apache.openejb.util.resources");
     private final EnterpriseBeanInfo bean;
     private final String moduleId;
+    private final String uniqueId;
     private final List<String> defaultInterceptors;
     private final BeanType ejbType;
     private final ClassLoader cl;
     private List<Exception> warnings = new ArrayList<Exception>();
 
-    public EnterpriseBeanBuilder(ClassLoader cl, EnterpriseBeanInfo bean, String moduleId, List<String> defaultInterceptors) {
+    public EnterpriseBeanBuilder(ClassLoader cl, EnterpriseBeanInfo bean, String moduleId, String uniqueId, List<String> defaultInterceptors) {
         this.bean = bean;
         this.moduleId = moduleId;
+        this.uniqueId = uniqueId;
         this.defaultInterceptors = defaultInterceptors;
 
         if (bean.type == EnterpriseBeanInfo.STATEFUL) {
@@ -122,7 +124,7 @@ class EnterpriseBeanBuilder {
         List<Injection> injections = injectionBuilder.buildInjections(bean.jndiEnc);
 
         // build the enc
-        JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, injections, transactionType, moduleId, cl);
+        JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(bean.jndiEnc, injections, transactionType, moduleId, uniqueId, cl);
         Context root = jndiEncBuilder.build();
 
         DeploymentContext deploymentContext = new DeploymentContext(bean.ejbDeploymentId, cl, root);
@@ -198,7 +200,7 @@ class EnterpriseBeanBuilder {
 
                     try {
                         ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
-                        Object o = containerSystem.getJNDIContext().lookup("openejb/PersistenceUnit/" + info.unitId);
+                        Object o = containerSystem.getJNDIContext().lookup(PersistenceBuilder.getOpenEJBJndiName(info.unitId));
                         extendedEntityManagerFactories.put((EntityManagerFactory) o, info.properties);
                     } catch (NamingException e) {
                         throw new OpenEJBException("PersistenceUnit '" + info.unitId + "' not found for EXTENDED ref '" + info.referenceName + "'");

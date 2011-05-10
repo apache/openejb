@@ -142,6 +142,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.PersistenceUnits;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.WebServiceRef;
