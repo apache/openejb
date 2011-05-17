@@ -16,55 +16,54 @@
  */
 package org.apache.openejb.config;
 
-import static org.apache.openejb.util.URLs.toFile;
+import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
-import org.apache.openejb.assembler.classic.PersistenceUnitInfo;
-import org.apache.openejb.assembler.classic.JndiEncInfo;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ConnectorInfo;
-import org.apache.openejb.assembler.classic.ResourceInfo;
-import org.apache.openejb.assembler.classic.MdbContainerInfo;
-import org.apache.openejb.assembler.classic.WebAppInfo;
-import org.apache.openejb.assembler.classic.ServletInfo;
-import org.apache.openejb.assembler.classic.PortInfo;
+import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 import org.apache.openejb.assembler.classic.HandlerChainInfo;
+import org.apache.openejb.assembler.classic.JndiEncInfo;
+import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
-import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.assembler.classic.PersistenceUnitInfo;
+import org.apache.openejb.assembler.classic.PortInfo;
+import org.apache.openejb.assembler.classic.ResourceInfo;
+import org.apache.openejb.assembler.classic.ServletInfo;
+import org.apache.openejb.assembler.classic.ValidatorBuilder;
+import org.apache.openejb.assembler.classic.WebAppInfo;
+import org.apache.openejb.config.sys.Container;
 import org.apache.openejb.config.sys.Resource;
 import org.apache.openejb.config.sys.ServiceProvider;
-import org.apache.openejb.config.sys.Container;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.util.Logger;
-import org.apache.openejb.util.LogCategory;
-import org.apache.openejb.util.Messages;
-import org.apache.openejb.util.MakeTxLookup;
-import org.apache.openejb.util.References;
-import org.apache.openejb.util.CircularReferencesException;
-import org.apache.openejb.jee.oejb3.EjbDeployment;
-import org.apache.openejb.jee.oejb3.OpenejbJar;
-import org.apache.openejb.jee.jpa.unit.Persistence;
-import org.apache.openejb.jee.jpa.unit.PersistenceUnit;
-import org.apache.openejb.jee.jpa.unit.Property;
-import org.apache.openejb.jee.jpa.JpaJaxbUtil;
-import org.apache.openejb.jee.jpa.EntityMappings;
-import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.AdminObject;
 import org.apache.openejb.jee.ApplicationClient;
-import org.apache.openejb.jee.Connector;
-import org.apache.openejb.jee.ResourceAdapter;
 import org.apache.openejb.jee.ConfigProperty;
-import org.apache.openejb.jee.OutboundResourceAdapter;
 import org.apache.openejb.jee.ConnectionDefinition;
+import org.apache.openejb.jee.Connector;
+import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.InboundResource;
 import org.apache.openejb.jee.MessageListener;
-import org.apache.openejb.jee.AdminObject;
-import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.jee.Servlet;
-import org.apache.openejb.jee.Webservices;
-import org.apache.openejb.jee.WebserviceDescription;
+import org.apache.openejb.jee.OutboundResourceAdapter;
 import org.apache.openejb.jee.PortComponent;
+import org.apache.openejb.jee.ResourceAdapter;
 import org.apache.openejb.jee.ServiceImplBean;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebserviceDescription;
+import org.apache.openejb.jee.Webservices;
+import org.apache.openejb.jee.jpa.EntityMappings;
+import org.apache.openejb.jee.jpa.JpaJaxbUtil;
+import org.apache.openejb.jee.jpa.unit.Persistence;
+import org.apache.openejb.jee.jpa.unit.PersistenceUnit;
+import org.apache.openejb.jee.oejb3.EjbDeployment;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.util.CircularReferencesException;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
+import org.apache.openejb.util.MakeTxLookup;
+import org.apache.openejb.util.Messages;
+import org.apache.openejb.util.References;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -75,15 +74,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.List;
 import java.util.Properties;
-import java.util.ArrayList;
 import java.util.Set;
-import java.util.LinkedHashSet;
-import java.net.URL;
-import java.io.File;
-import java.io.IOException;
+import java.util.TreeMap;
+
+import static org.apache.openejb.util.URLs.toFile;
 
 /**
  * @version $Rev$ $Date$
@@ -145,6 +140,8 @@ class AppInfoBuilder {
                     bean.containerId = d.getContainerId();
                 }
 
+                ejbJarInfo.uniqueId = ejbModule.getUniqueId();
+                ejbJarInfo.validationInfo = ValidatorBuilder.getInfo(ejbModule.getValidationConfig());
                 ejbJarInfo.portInfos.addAll(configureWebservices(ejbModule.getWebservices()));
                 configureWebserviceSecurity(ejbJarInfo, ejbModule);
 
@@ -259,6 +256,8 @@ class AppInfoBuilder {
             clientInfo.callbackHandler = applicationClient.getCallbackHandler();
             clientInfo.moduleId = getClientModuleId(clientModule);
             clientInfo.watchedResources.addAll(clientModule.getWatchedResources());
+            clientInfo.validationInfo = ValidatorBuilder.getInfo(clientModule.getValidationConfig());
+            clientInfo.uniqueId = clientModule.getUniqueId();
 
             clientInfo.jndiEnc = jndiEncInfoBuilder.build(applicationClient, clientModule.getJarLocation(), clientInfo.moduleId);
             appInfo.clients.add(clientInfo);
@@ -274,6 +273,8 @@ class AppInfoBuilder {
             webAppInfo.codebase = webModule.getJarLocation();
             webAppInfo.moduleId = webModule.getModuleId();
             webAppInfo.watchedResources.addAll(webModule.getWatchedResources());
+            webAppInfo.validationInfo = ValidatorBuilder.getInfo(webModule.getValidationConfig());
+            webAppInfo.uniqueId = webModule.getUniqueId();
 
             webAppInfo.host = webModule.getHost();
             webAppInfo.contextRoot = webModule.getContextRoot();
@@ -311,6 +312,8 @@ class AppInfoBuilder {
             connectorInfo.codebase = connectorModule.getJarLocation();
             connectorInfo.moduleId = connectorModule.getModuleId();
             connectorInfo.watchedResources.addAll(connectorModule.getWatchedResources());
+            connectorInfo.validationInfo = ValidatorBuilder.getInfo(connectorModule.getValidationConfig());
+            connectorInfo.uniqueId = connectorModule.getUniqueId();
 
             List<URL> libraries = connectorModule.getLibraries();
             for (URL url : libraries) {
