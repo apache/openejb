@@ -256,7 +256,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
 			usingOpenEJB = true;
 			try {
 				if (openejbPath.startsWith("classpath:/")) {
-					URL resource = TomEEContainerTest.class.getResource(openejbPath.substring(10));
+					URL resource = TomEEContainer.class.getResource(openejbPath.substring(10));
 					copyStream(resource.openStream(), new FileOutputStream(new File(directory, "webapps/openejb.war")));
 				} else {
 					FileInputStream is = new FileInputStream(new File(openejbPath));

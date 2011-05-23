@@ -25,7 +25,7 @@ public class TomEEConfiguration implements ContainerConfiguration {
 	private int stopPort = 8005;
 	private String stopCommand = "SHUTDOWN";
 	private String dir = System.getProperty("java.io.tmpdir") + "/arquillian-apache-tomee";
-	private String openejbPath = "classpath:/openejb-tomcat-webapp-4.0.0-SNAPSHOT.war";
+	private String openejbPath = "lib/openejb.war";
 	private int timeout = 30;
 	
 	public int getHttpPort() {
