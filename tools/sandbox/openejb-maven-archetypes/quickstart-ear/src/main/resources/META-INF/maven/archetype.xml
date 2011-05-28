@@ -1,0 +1,19 @@
+<archetype>
+  <id>maven-openejb-quickstart-ear</id>
+  <resources>
+    <resource>pom.xml</resource>
+    <resource>ear/pom.xml</resource>
+    <resource>ejbs/src/main/resources/META-INF/ejb-jar.xml</resource>
+    <resource>ejbs/pom.xml</resource>
+    <resource>primary-source/pom.xml</resource>
+    <resource>projects/logging/pom.xml</resource>
+    <resource>projects/pom.xml</resource>
+    <resource>servlets/pom.xml</resource>
+    <resource>servlets/servlet/pom.xml</resource>
+    <resource>servlets/servlet/src/main/webapp/index.jsp</resource>
+    <resource>servlets/servlet/src/main/webapp/WEB-INF/web.xml</resource>
+    <resource>ejbs/src/main/java/org/superbiz/CalculatorBean.java</resource>
+    <resource>primary-source/src/main/java/org/superbiz/CalculatorRemote.java</resource>
+    <resource>ejbs/src/test/java/org/superbiz/CalculatorTest.java</resource>
+  </resources>
+</archetype>

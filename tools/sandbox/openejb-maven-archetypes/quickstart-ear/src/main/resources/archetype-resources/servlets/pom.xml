@@ -1,0 +1,17 @@
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>${groupId}</groupId>
+   <artifactId>${artifactId}-servlets</artifactId>
+   <packaging>pom</packaging>
+   <name>${artifactId}-Servlets</name>
+   <version>${version}</version>
+   <parent>
+      <groupId>${groupId}</groupId>
+      <artifactId>${artifactId}-project</artifactId>
+      <version>${version}</version>
+   </parent>
+   <modules>
+      <module>servlet</module>
+   </modules>
+</project>
+

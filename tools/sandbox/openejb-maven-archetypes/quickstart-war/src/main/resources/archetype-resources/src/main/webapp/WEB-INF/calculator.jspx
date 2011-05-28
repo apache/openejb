@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="MacRoman"?>
+
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" xmlns:c="http://java.sun.com/jstl/core_rt">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="MacRoman"/>
+    <jsp:element name="text">
+        <jsp:attribute name="lang">EN</jsp:attribute>
+        <jsp:body>
+            <form action="Calculator" method="post">
+                <c:if test="${result != null}">
+                    Result: ${result}<br />
+                </c:if>
+                <label for="num1">Number 1</label><input type="text" name="num1" length="10" value="${num1}"/><br />
+                <label for="num2">Number 2</label><input type="text" name="num2" length="10" value="${num2}"/><br />
+                               
+                <c:choose>
+                    <c:when test="${op == 'sum'}">
+                        Add<input type="radio" name="op" value="sum" checked="checked"/>
+                        Multiply<input type="radio" name="op" value="multiply"/><br />
+                    </c:when>
+                    <c:when test="${op == 'multiply'}">
+                        Add<input type="radio" name="op" value="sum"/>
+                        Multiply<input type="radio" name="op" value="multiply" checked="checked"/><br />
+                    </c:when>
+                    <c:otherwise>
+                        Add<input type="radio" name="op" value="sum"/>
+                        Multiply<input type="radio" name="op" value="multiply"/><br />
+                    </c:otherwise>
+                </c:choose>
+                
+                <input type="submit"/>
+                
+            </form>
+        </jsp:body>
+    </jsp:element>
+
+</jsp:root>

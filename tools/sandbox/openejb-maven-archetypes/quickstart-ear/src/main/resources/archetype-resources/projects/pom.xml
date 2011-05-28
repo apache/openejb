@@ -1,0 +1,16 @@
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>root.project</groupId>
+   <version>${version}</version>
+   <artifactId>projects</artifactId>
+   <packaging>pom</packaging>
+   <name>sub projects</name>
+   <parent>
+      <groupId>root</groupId>
+      <artifactId>project</artifactId>
+      <version>${version}</version>
+   </parent>
+   <modules>
+      <module>logging</module>
+   </modules>
+</project>
