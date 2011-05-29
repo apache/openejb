@@ -38,7 +38,20 @@ package org.apache.openejb.tools.twitter;
  */
 public class Retweet {
 
+    // Implementation ideas
+
+    //  Seems signpost is just what we need for OAuth http://code.google.com/p/oauth-signpost/wiki/GettingStarted
+
+    //  Twitter API
+
+    //  list - HTTP GET http://api.twitter.com/1/lists/statuses.xml?slug=contributors&owner_screen_name=OpenEJB
+
+    //  retweet - HTTP POST http://api.twitter.com/1/statuses/retweet/<statusid>.xml
+
+    // Little bit of Apache Commons HTTPClient and Signpost and we're good to go
+
     public static void main(String[] args) {
+
 
         // Grab the http://twitter.com/#!/OpenEJB/contributors feed via the Twitter API
 
