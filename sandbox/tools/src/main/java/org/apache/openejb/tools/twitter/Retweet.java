@@ -16,6 +16,22 @@
  */
 package org.apache.openejb.tools.twitter;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.OAuthProvider;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+import oauth.signpost.basic.DefaultOAuthProvider;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.Assert;
+
 /**
  *
  * We should monitor this feed http://twitter.com/#!/OpenEJB/contributors
@@ -41,8 +57,8 @@ public class Retweet {
     // Implementation ideas
 
     //  Seems signpost is just what we need for OAuth http://code.google.com/p/oauth-signpost/wiki/GettingStarted
-
-    //  Twitter API
+	   
+	//  Twitter API
 
     //  list - HTTP GET http://api.twitter.com/1/lists/statuses.xml?slug=contributors&owner_screen_name=OpenEJB
 
@@ -52,7 +68,16 @@ public class Retweet {
 
     public static void main(String[] args) {
 
-
+    	// Register a Twitter App
+        
+    	// User should authorize it with READ/WRITE access. See AuthorizationUrlGenerator.java (user=OpenEJB Twitter Account)
+    	
+    	// On Authorization, user is given a PIN number. 
+    	
+    	// Based on the PIN number get the AccessToken. And save the access token permanently (File / DB ) 
+    	
+    	// Use this access token for any READ/WRITE 
+    	 
         // Grab the http://twitter.com/#!/OpenEJB/contributors feed via the Twitter API
 
         // Scan for new tweets from the last hour
@@ -60,7 +85,16 @@ public class Retweet {
         // Retweet any tweets that haven't been retweeted
 
         // We could look at the OpenEJB twitter feed itself to determine if a tweet
-        // has already been retweeted
-
+        // has already been retweeted 	
+      
     }
+
+
+	
+	
+		
+
+
+
+	
 }

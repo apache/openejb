@@ -19,38 +19,24 @@ package org.apache.openejb.tools.examples;
 /**
  * Most the examples do not have any documentation.
  *
- * There are some wiki pages for some of the examples, but these
- * are hard to create and maintain.  The examples change frequently
- * enough that we really should have documentation that goes with
- * each version of the examples.
+ * There are some wiki pages for some of the examples, but these are hard to create and maintain.  The examples change frequently enough that we really should have documentation that goes with each version of the examples.
  *
- * If we put a README.md file in each example and use Markdown
- * which is a really simple text format that has many tools
- * capable of generating html, we could probably generate a
- * web page for each example.  Then we could generate a index
- * for all the examples.
+ * If we put a README.md file in each example and use Markdown which is a really simple text format that has many tools capable of generating html, we could probably generate a web page for each example.  Then we could generate a index for all the examples.
  *
  * We could then take this all and upload it to the website
  *
- * Something kind of like this:
- *    http://people.apache.org/~dblevins/simple-stateless.html
+ * Something kind of like this, but nicer looking, with breadcrumbs and links for navigating around to other examples: http://people.apache.org/~dblevins/simple-stateless.html
  *
- * But nicer looking, with breadcrumbs and links for navigating
- * around to other examples
+ *
  *
  *
  * IDEAS FOR AFTER SOMETHING IS WORKING
  *
- * Perhaps at some point some xref style processing of the source
- * and links to the source
+ * Perhaps at some point some xref style processing of the source and links to the source
  *
- * Perhaps at some point use ASM to see what annotations and API
- * classes were used and make an index that lists examples by
- * which APIs are used
+ * Perhaps at some point use ASM to see what annotations and API classes were used and make an index that lists examples by which APIs are used
  *
- * Perhaps at some point use Swizzle stream to do a sort of SNIPPET
- * thing like the Confluence plugin, so we wouldn't have to copy
- * source into the example
+ * Perhaps at some point use Swizzle stream to do a sort of SNIPPET thing like the Confluence plugin, so we wouldn't have to copy source into the example
  *
  * @version $Rev$ $Date$
  */
