@@ -1,0 +1,13 @@
+Here is a perspective on why we might want to generate IDE examples zip separately, "in addition to " the  maven archetypes, ant samples. 
+
+Following is taken from a dev list discussion:
+
+We also need to keep the user in mind - specially the one who does most of their learning at work. I teach for a living and at client sites, I cannot run maven - downloading jars is an issue. Nobody uses subversion - a very famous commercial SCM is used . Automated downloading of stuff from central repo is totally blocked and you can get into a lot of trouble for attempting to bypass security. These are financial and insurance firms and due to legal requirements, they cannot have a desktop configuration of their choice, they have to meet certain very stringent security parameters. If i need to show openejb examples, I have to show them on my laptop. Prior to coming to class, I have to run the examples on my laptop and download dependencies, since i am not allowed to connect my laptop to the network or plugin a CD/floppy/USB on the client machine.
+
+What I can do though is get a pre-approved set of zip files and put them on a share, so that they can access it and use it. It becomes even easier to utilize that zip if it is known that it is for education and learning and none of those jars are permitted to be used in the real project until that particular software/jar is formally approved.
+
+Getting a pre-approved zip also sometimes takes its own sweet time, thats why having the ability to browse our examples online is just fantastic. People might not get to run them immediately, but they add a great value to folks who cannot download stuff on their work machines. 
+
+ So imagine we putting up all these maven archetypes, maven based projects and quite a few folks do not get to use our examples at work. Maven, ant , subversion are great ways to share examples, no doubt about that. I fully agree with you on the demerits of putting IDE files into subversion (although in some cases - specially in a learning environment it is easier and does make sense to put them in svn - wont go there at this moment). 
+
+As for support for maven in IDE's, thats great, but again, 100% of the companies I go to use eclipse based IDE's. How many are open to installing a plugin of your choice like m2eclipse? -- 10% probably, others are pretty locked down. So even though Intellij and Netbeans have fantastic support and m2eclipse is awesome, the truth out there is that all the above software can only be installed on a personal laptop, in a corporate environment - specially certain verticals, its a challenge. 
