@@ -79,6 +79,13 @@
     <version>3.0.5.RELEASE</version>
 </dependency>
 
+  <dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.1.1</version>
+    <scope>compile</scope>
+  </dependency>
+
   </dependencies>
 </project>
 

@@ -16,21 +16,18 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
 import oauth.signpost.OAuthConsumer;
-import oauth.signpost.OAuthProvider;
 import oauth.signpost.basic.DefaultOAuthConsumer;
-import oauth.signpost.basic.DefaultOAuthProvider;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.Assert;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
 
 /**
  *
@@ -65,29 +62,72 @@ public class Retweet {
     //  retweet - HTTP POST http://api.twitter.com/1/statuses/retweet/<statusid>.xml
 
     // Little bit of Apache Commons HTTPClient and Signpost and we're good to go
+	
+	public static OAuthConsumer consumer;
+	static Properties retweetToolProperties=RetweetAppUtil.getTwitterAppProperties();
 
     public static void main(String[] args) {
 
-    	// Register a Twitter App
         
-    	// User should authorize it with READ/WRITE access. See AuthorizationUrlGenerator.java (user=OpenEJB Twitter Account)
-    	
-    	// On Authorization, user is given a PIN number. 
-    	
-    	// Based on the PIN number get the AccessToken. And save the access token permanently (File / DB ) 
-    	
-    	// Use this access token for any READ/WRITE 
-    	 
-        // Grab the http://twitter.com/#!/OpenEJB/contributors feed via the Twitter API
-
+    	initConsumer();
+    	getStatusesFromOpenEJBContributorsList();
+       	
         // Scan for new tweets from the last hour
 
         // Retweet any tweets that haven't been retweeted
 
         // We could look at the OpenEJB twitter feed itself to determine if a tweet
-        // has already been retweeted 	
-      
+       
+    	// has already been retweeted 	
+    	
+    	
     }
+    
+	public static void initConsumer() {
+		consumer=new DefaultOAuthConsumer(
+				retweetToolProperties.getProperty("retweetApp.consumer.key"),
+				retweetToolProperties
+				.getProperty("retweetApp.consumerSecret.key"));
+		
+		consumer.setTokenWithSecret(retweetToolProperties.getProperty("retweetApp.authorizedUser.consumer.token"),
+   			 retweetToolProperties.getProperty("retweetApp.authorizedUser.consumer.tokenSecret"));
+	
+	}
+
+	public static HttpResponse getStatusesFromOpenEJBContributorsList() {
+		String listName="contributors";
+		String ownerScreenName="OpenEJB";
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpGet httpGet = getHttpRequestToRetrieveListStatuses(listName, ownerScreenName);
+		HttpResponse contributorsListStatusesResponse = getContribListStatusesResponse(httpClient, httpGet);
+		
+		return contributorsListStatusesResponse;
+	}
+	
+	private static HttpGet getHttpRequestToRetrieveListStatuses(String listName,
+			String ownerScreenName) {
+		HttpGet httpGet = new HttpGet("http://api.twitter.com/1/lists/statuses.json?slug="+listName
+				+"&owner_screen_name="+ownerScreenName);
+		System.out.println("Getting list using "+httpGet.getURI());
+		return httpGet;
+	}
+
+	private static HttpResponse getContribListStatusesResponse(HttpClient httpClient,
+			HttpGet httpGet) {
+		HttpResponse response = null;
+		try {
+			response = httpClient.execute(httpGet);
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	
+
+
 
 
 	

@@ -16,8 +16,6 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Properties;
 
 import oauth.signpost.OAuth;
@@ -30,40 +28,19 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 
-import org.springframework.core.io.ClassPathResource;
+import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
 
 public class AuthorizationUrlGenerator {
 	static Properties retweetToolProperties;
 	static OAuthConsumer consumer;
 	static OAuthProvider provider;
 
-	public static void main(String[] args) {
-		retweetToolProperties = getTwitterAppProperties();
+	public static String getAuthorizationUrlForUser(){
+		retweetToolProperties = RetweetAppUtil.getTwitterAppProperties();
 		intializeOAuthConsumerAndProvider();
-		getAuthorizationUrl();
+		return getAuthorizationUrl();
 
-	}
-
-	private static Properties getTwitterAppProperties() {
-
-		Properties retweetAppProperties = new Properties();
-		try {
-			ClassPathResource retweetToolPropertiesFile = new ClassPathResource(
-			"RetweetTool.properties");
-			retweetAppProperties.load(retweetToolPropertiesFile
-					.getInputStream());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		System.out.print("Using the following properties: ");
-		System.out.print("---------------------------------");
-		retweetAppProperties.list(System.out);
-		return retweetAppProperties;
-
-	}
+	}	
 	
 	private static void intializeOAuthConsumerAndProvider() {
 
@@ -80,10 +57,11 @@ public class AuthorizationUrlGenerator {
 	}
 
 	
-	private static void getAuthorizationUrl() {
+	private static String getAuthorizationUrl() {
 
+		String authUrl=null;
 		try {
-			getAccessAuthorizationURL();
+		authUrl=getAccessAuthorizationURL();
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
 		} catch (OAuthNotAuthorizedException e) {
@@ -93,10 +71,12 @@ public class AuthorizationUrlGenerator {
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
+		
+		return authUrl;
 
 	}
 
-	private static void getAccessAuthorizationURL()
+	private static String getAccessAuthorizationURL()
 	throws OAuthMessageSignerException, OAuthNotAuthorizedException,
 	OAuthExpectationFailedException, OAuthCommunicationException {
 
@@ -106,7 +86,10 @@ public class AuthorizationUrlGenerator {
 		System.out.println("Paste the below URL in the browser and authorize");
 		System.out.println(authUrl);
 		System.out.println("#####################");
-
+		
+		return authUrl;
+		
+				
 	}
 
 	
