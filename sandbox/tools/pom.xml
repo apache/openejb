@@ -66,6 +66,7 @@
       <scope>test</scope>
     </dependency>
     
+    <!--  SignPost Dependencies For Signing requests -->
       <dependency>
         <groupId>oauth.signpost</groupId>
         <artifactId>signpost-core</artifactId>
@@ -73,18 +74,41 @@
         <scope>compile</scope>
       </dependency>
       
+      <dependency>
+    	<groupId>oauth.signpost</groupId>
+    	<artifactId>signpost-commonshttp4</artifactId>
+    	<version>1.2.1.1</version>
+	 </dependency>
+      
+      
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-core</artifactId>
     <version>3.0.5.RELEASE</version>
 </dependency>
 
+<!--  Apache commons compatible with signpost -->
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
     <version>4.1.1</version>
     <scope>compile</scope>
   </dependency>
+
+ <dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpcore</artifactId>
+    <version>4.1.1</version>
+    <scope>compile</scope>
+  </dependency>
+  
+ <!-- For Parsing JSON response -->
+   <dependency>
+  <groupId>org.codehaus.jackson</groupId>
+  <artifactId>jackson-mapper-asl</artifactId>
+  <version>1.6.4</version>
+  <scope>compile</scope>
+</dependency>
 
   </dependencies>
 </project>

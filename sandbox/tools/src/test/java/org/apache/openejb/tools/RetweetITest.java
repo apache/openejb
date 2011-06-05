@@ -16,38 +16,35 @@
  */
 package org.apache.openejb.tools;
 
-import static org.junit.Assert.assertTrue;
-import java.io.IOException;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.openejb.tools.twitter.ContribListStatusRetriever;
-import org.apache.openejb.tools.twitter.Retweet;
-import org.junit.BeforeClass;
+import org.apache.openejb.tools.twitter.JsonResponseParser;
 import org.junit.Test;
 
-
-public class RetweetTest {
+public class RetweetITest {
 
 	
-	@BeforeClass
-	public static void setUp()
-	{
-	  Retweet.initConsumer();
-	}
 	
+	@SuppressWarnings("rawtypes")
 	@Test
-	public void contributorsListStatusesShouldBeRetrieved() throws ClientProtocolException, IOException
+	public void convertJsonResponseToListOfKeyValuePairs()
 	{
-		HttpResponse response=ContribListStatusRetriever.getStatusesFromOpenEJBContributorsList();
+		HttpResponse statusesFromOpenEJBContributorsList = ContribListStatusRetriever.getStatusesFromOpenEJBContributorsList();
+		String responseBody = JsonResponseParser.getResponseBody(statusesFromOpenEJBContributorsList);
 		
-		assertTrue(response.getStatusLine().getStatusCode()==200);
+		assertNotNull(responseBody);
 		
-		ResponseHandler<String> responseHander = new BasicResponseHandler();
-		String responseBody = (String)responseHander.handleResponse(response);
-		System.out.println(responseBody);
+		StringReader jsonDataReader=new StringReader(responseBody);
+		List<Map> listFromJson = JsonResponseParser.getListFromJson(jsonDataReader);
+		
+		assertNotNull(listFromJson);
 	}
-
+	
 
 }
