@@ -23,66 +23,58 @@ import java.util.Map;
 
 public class OpenEJBMessageFilterUtil {
 
-	@SuppressWarnings("rawtypes")
-	public static List<String> getNonRetweetedOpenEJBStatusIDs( List<Map> keyValuePairs) {
-		
-		List<String> openEJBStatusIDs = new ArrayList<String>();
-		
-		for (Object keyValuePair : keyValuePairs) {
-			Map keyValue = (Map) keyValuePair;
-			if (keyValue.containsKey("text")) {
-				String tweet = (String) keyValue.get("text");
-				if(isOpenEJBTweet(tweet) && !isRetweeted(keyValue))
-				{
-					System.out.println("Adding Tweet:"+tweet);
-					Number tweetId=(Number) keyValue.get("id");
-					openEJBStatusIDs.add(tweetId.toString());					
-				}
-				else
-				{
-					System.out.println("Tweet Not Considered:" +keyValue.get("text"));
-					System.out.println("IsOpenEJBTweet?:"+isOpenEJBTweet(tweet));
-					System.out.println("Was it retweeted before:"+isRetweeted(keyValue));
-				}
-				
-			}
-		}
-		
-		return openEJBStatusIDs;
-	}
+    @SuppressWarnings("rawtypes")
+    public static List<String> getNonRetweetedOpenEJBStatusIDs(List<Map> keyValuePairs) {
 
-	@SuppressWarnings("rawtypes")
-	private static boolean isRetweeted( Map keyValue) {
-		Integer retweetCount= new Integer((Integer) keyValue.get("retweet_count"));
-		if(retweetCount>0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	
-	
-	private static boolean isOpenEJBTweet(String tweet) {
-		String[] words = tweet.split(" ");
-		List<String> wordsAsList = Arrays.asList(words);
-		for (String word : wordsAsList) {
-			if (isOpenEJBMentioned(word))
-			{
-				String mentionName=word.trim().substring(1,8);
-				if(mentionName.equalsIgnoreCase("openejb"))
-				{return true;}
-			}
-		}
-		return false;
-	}
+        List<String> openEJBStatusIDs = new ArrayList<String>();
+
+        for (Object keyValuePair : keyValuePairs) {
+            Map keyValue = (Map) keyValuePair;
+            if (keyValue.containsKey("text")) {
+                String tweet = (String) keyValue.get("text");
+                if (isOpenEJBTweet(tweet) && !isRetweeted(keyValue)) {
+                    System.out.println("Adding Tweet:" + tweet);
+                    Number tweetId = (Number) keyValue.get("id");
+                    openEJBStatusIDs.add(tweetId.toString());
+                } else {
+                    System.out.println("Tweet Not Considered:" + keyValue.get("text"));
+                    System.out.println("IsOpenEJBTweet?:" + isOpenEJBTweet(tweet));
+                    System.out.println("Was it retweeted before:" + isRetweeted(keyValue));
+                }
+
+            }
+        }
+
+        return openEJBStatusIDs;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static boolean isRetweeted(Map keyValue) {
+        Integer retweetCount = new Integer((Integer) keyValue.get("retweet_count"));
+        if (retweetCount > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
-	private static boolean isOpenEJBMentioned(String word) {
-		return (word.startsWith("#") || word.startsWith("@")) &&word.trim().length()>=8;
-	}
-	
-	
+    private static boolean isOpenEJBTweet(String tweet) {
+        String[] words = tweet.split(" ");
+        List<String> wordsAsList = Arrays.asList(words);
+        for (String word : wordsAsList) {
+            if (isOpenEJBMentioned(word)) {
+                String mentionName = word.trim().substring(1, 8);
+                if (mentionName.equalsIgnoreCase("openejb")) {return true;}
+            }
+        }
+        return false;
+    }
+
+
+    private static boolean isOpenEJBMentioned(String word) {
+        return (word.startsWith("#") || word.startsWith("@")) && word.trim().length() >= 8;
+    }
+
+
 }

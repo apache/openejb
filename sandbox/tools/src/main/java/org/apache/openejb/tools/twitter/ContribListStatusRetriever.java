@@ -16,42 +16,43 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.IOException;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 
+import java.io.IOException;
+
 public class ContribListStatusRetriever {
 
-	public static HttpResponse getStatusesFromOpenEJBContributorsList() {
-		String listName="contributors";
-		String ownerScreenName="OpenEJB";
-		HttpGet httpGet = getHttpRequestToRetrieveListStatuses(listName, ownerScreenName);
-		HttpResponse contributorsListStatusesResponse = getContribListStatusesResponse(httpGet);
-		
-		return contributorsListStatusesResponse;
-	}
-	
-	private static HttpGet getHttpRequestToRetrieveListStatuses(String listName,
-			String ownerScreenName) {
-		HttpGet httpGet = new HttpGet("http://api.twitter.com/1/lists/statuses.json?slug="+listName
-				+"&owner_screen_name="+ownerScreenName);
-		System.out.println("Getting list using "+httpGet.getURI());
-		return httpGet;
-	}
-	
+    public static HttpResponse getStatusesFromOpenEJBContributorsList() {
 
-	private static HttpResponse getContribListStatusesResponse(
-			HttpGet httpGet) {
-		HttpResponse response = null;
-		try {
-			response = Retweet.getHttpClient().execute(httpGet);
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return response;
-	}
+        String listName = "contributors";
+        String ownerScreenName = "OpenEJB";
+        HttpGet httpGet = getHttpRequestToRetrieveListStatuses(listName, ownerScreenName);
+        HttpResponse contributorsListStatusesResponse = getContribListStatusesResponse(httpGet);
+
+        return contributorsListStatusesResponse;
+    }
+
+    private static HttpGet getHttpRequestToRetrieveListStatuses(String listName, String ownerScreenName) {
+
+        HttpGet httpGet = new HttpGet("http://api.twitter.com/1/lists/statuses.json?slug=" + listName
+                + "&owner_screen_name=" + ownerScreenName);
+        System.out.println("Getting list using " + httpGet.getURI());
+        return httpGet;
+    }
+
+
+    private static HttpResponse getContribListStatusesResponse(HttpGet httpGet) {
+
+        HttpResponse response = null;
+        try {
+            response = Retweet.getHttpClient().execute(httpGet);
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
 }

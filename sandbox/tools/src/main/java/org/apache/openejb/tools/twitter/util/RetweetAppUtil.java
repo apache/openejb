@@ -16,33 +16,33 @@
  */
 package org.apache.openejb.tools.twitter.util;
 
+import org.springframework.core.io.ClassPathResource;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.springframework.core.io.ClassPathResource;
-
 public class RetweetAppUtil {
-	
-	public static Properties getTwitterAppProperties() {
 
-		Properties retweetAppProperties = new Properties();
-		try {
-			ClassPathResource retweetToolPropertiesFile = new ClassPathResource(
-			"RetweetTool.properties");
-			retweetAppProperties.load(retweetToolPropertiesFile
-					.getInputStream());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    public static Properties getTwitterAppProperties() {
 
-		System.out.print("Using the following properties: ");
-		System.out.print("---------------------------------");
-		retweetAppProperties.list(System.out);
-		return retweetAppProperties;
+        Properties retweetAppProperties = new Properties();
+        try {
+            ClassPathResource retweetToolPropertiesFile = new ClassPathResource(
+                    "RetweetTool.properties");
+            retweetAppProperties.load(retweetToolPropertiesFile
+                    .getInputStream());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-	}
+        System.out.print("Using the following properties: ");
+        System.out.print("---------------------------------");
+        retweetAppProperties.list(System.out);
+        return retweetAppProperties;
+
+    }
 
 }

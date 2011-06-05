@@ -16,8 +16,6 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.util.Properties;
-
 import oauth.signpost.OAuth;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
@@ -27,71 +25,72 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
-
 import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
 
+import java.util.Properties;
+
 public class AuthorizationUrlGenerator {
-	static Properties retweetToolProperties;
-	static OAuthConsumer consumer;
-	static OAuthProvider provider;
+    static Properties retweetToolProperties;
+    static OAuthConsumer consumer;
+    static OAuthProvider provider;
 
-	public static String getAuthorizationUrlForUser(){
-		retweetToolProperties = RetweetAppUtil.getTwitterAppProperties();
-		intializeOAuthConsumerAndProvider();
-		return getAuthorizationUrl();
+    public static String getAuthorizationUrlForUser() {
 
-	}	
-	
-	private static void intializeOAuthConsumerAndProvider() {
+        retweetToolProperties = RetweetAppUtil.getTwitterAppProperties();
+        intializeOAuthConsumerAndProvider();
+        return getAuthorizationUrl();
 
-		consumer = new DefaultOAuthConsumer(
-				retweetToolProperties.getProperty("retweetApp.consumer.key"),
-				retweetToolProperties
-				.getProperty("retweetApp.consumerSecret.key"));
+    }
 
-		provider = new DefaultOAuthProvider(
-				"http://twitter.com/oauth/request_token",
-				"http://twitter.com/oauth/access_token",
-				"http://twitter.com/oauth/authorize");
+    private static void intializeOAuthConsumerAndProvider() {
 
-	}
+        consumer = new DefaultOAuthConsumer(
+                retweetToolProperties.getProperty("retweetApp.consumer.key"),
+                retweetToolProperties
+                        .getProperty("retweetApp.consumerSecret.key"));
 
-	
-	private static String getAuthorizationUrl() {
+        provider = new DefaultOAuthProvider(
+                "http://twitter.com/oauth/request_token",
+                "http://twitter.com/oauth/access_token",
+                "http://twitter.com/oauth/authorize");
 
-		String authUrl=null;
-		try {
-		authUrl=getAccessAuthorizationURL();
-		} catch (OAuthMessageSignerException e) {
-			e.printStackTrace();
-		} catch (OAuthNotAuthorizedException e) {
-			e.printStackTrace();
-		} catch (OAuthExpectationFailedException e) {
-			e.printStackTrace();
-		} catch (OAuthCommunicationException e) {
-			e.printStackTrace();
-		}
-		
-		return authUrl;
+    }
 
-	}
 
-	private static String getAccessAuthorizationURL()
-	throws OAuthMessageSignerException, OAuthNotAuthorizedException,
-	OAuthExpectationFailedException, OAuthCommunicationException {
+    private static String getAuthorizationUrl() {
 
-		String authUrl;
-		authUrl = provider.retrieveRequestToken(consumer, OAuth.OUT_OF_BAND);
-		System.out.println("#####################");
-		System.out.println("Paste the below URL in the browser and authorize");
-		System.out.println(authUrl);
-		System.out.println("#####################");
-		
-		return authUrl;
-		
-				
-	}
+        String authUrl = null;
+        try {
+            authUrl = getAccessAuthorizationURL();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        }
 
-	
-	
+        return authUrl;
+
+    }
+
+    private static String getAccessAuthorizationURL()
+            throws OAuthMessageSignerException, OAuthNotAuthorizedException,
+            OAuthExpectationFailedException, OAuthCommunicationException {
+
+        String authUrl;
+        authUrl = provider.retrieveRequestToken(consumer, OAuth.OUT_OF_BAND);
+        System.out.println("#####################");
+        System.out.println("Paste the below URL in the browser and authorize");
+        System.out.println(authUrl);
+        System.out.println("#####################");
+
+        return authUrl;
+
+
+    }
+
+
 }

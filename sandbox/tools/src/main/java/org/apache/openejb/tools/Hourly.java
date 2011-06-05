@@ -19,12 +19,12 @@ package org.apache.openejb.tools;
 import org.apache.openejb.tools.twitter.Retweet;
 
 /**
- *  You can execute standalone java programs with Maven like so:
- *
- *  mvn clean install exec:java -Dexec.mainClass=org.apache.openejb.tools.Hourly
- *
- *  The idea is to setup this main class as an Hourly cron job
- *  If we have other things we want to do hourly, we can do them here.
+ * You can execute standalone java programs with Maven like so:
+ * <p/>
+ * mvn clean install exec:java -Dexec.mainClass=org.apache.openejb.tools.Hourly
+ * <p/>
+ * The idea is to setup this main class as an Hourly cron job
+ * If we have other things we want to do hourly, we can do them here.
  *
  * @version $Rev$ $Date$
  */

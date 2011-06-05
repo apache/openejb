@@ -17,7 +17,7 @@
 package org.apache.openejb.tools.twitter;
 
 public class StoreAccessToken {
-  //Retrieve access token based on the PIN number provided by the user.
-  // Store it in File/DB
-  // This access token would be used for any READ/WRITE
+    //Retrieve access token based on the PIN number provided by the user.
+    // Store it in File/DB
+    // This access token would be used for any READ/WRITE
 }
