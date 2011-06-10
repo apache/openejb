@@ -883,3 +883,114 @@ div.Updated div.smalltext {
   font-weight: normal;
   color: #555;
 }
+
+/****** Deck Settings *******/
+
+/* Global settings */
+.deck {
+	padding: 0px; margin: 0px;
+}
+
+.deck .tabBar {
+	padding: 0px;
+	padding-right: 8px;
+	margin: 0px;
+	position: relative;
+	z-index: 2;
+	font: bold 11px Verdana, sans-serif;
+}
+
+.deck .tabBar table tbody tr td {
+	margin: 0px; padding: 0px; border: 0px;
+}
+
+.deck .tabBar .tab {
+	margin: 0px; padding: 0px;
+	padding-left: 8px;
+}
+
+.deck .tabBar .tab a {
+	display: block;
+	padding: 1px 0.5em;
+	vertical-align: text-bottom;
+	background: #3c78b5;
+	border: 1px solid #3c78b5;
+	color: #ffffff;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.deck .tabBar .tab a:hover {
+	color: #ffffff;
+	background: #003366;
+	border-color: #003366;
+}
+
+.deck .tabBar .tab#current a {
+	background: white;
+	border: 1px solid #3c78b5;
+	color: black;
+}
+
+.deck .tabBar .tab#current a:hover {
+	cursor: default;
+}
+
+.deck .cards.tabbed {
+	border: 1px solid #3c78b5;
+}
+
+/* Hack to get around clipping problem with no tabs... */
+.deck .cards.untabbed .card {
+	overflow: hidden;
+}
+
+.deck .cards.tabbed .card {
+	margin: 0px;
+	padding: 8px;
+	position: relative;
+	z-index: 1;
+}
+
+/* Tabs at the top */
+
+.deck .tabBar.top {
+	bottom: -1px;
+	margin-top: 3px;
+}
+
+.deck .tabBar.top table tbody tr td {
+	vertical-align: bottom;
+}
+
+.deck .tabBar.top .tab a {
+	margin-bottom: 1px;
+}
+
+.deck .tabBar.top .tab#current a {
+	border-bottom: 1px solid white;
+	padding-bottom: 2px;
+	margin-bottom: 0px;
+}
+
+/* Tabs at the bottom */
+
+.deck .tabBar.bottom {
+	top: -1px;
+	margin-bottom: 3px;
+}
+
+.deck .tabBar.bottom table tbody tr td {
+	vertical-align: top;
+}
+
+.deck .tabBar.bottom .tab a {
+	margin-top: 1px;
+}
+
+.deck .tabBar.bottom .tab#current a {
+	border-top: 1px solid white;
+	padding-top: 2px;
+	margin-top: 0px;
+}
+
