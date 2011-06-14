@@ -31,6 +31,6 @@ import org.apache.openejb.tools.examples.GenerateIndex;
 public class Daily {
 
     public static void main(String[] args) {
-        GenerateIndex.main(args);
+        GenerateIndex.main(args); // "/tmp/examples.zip" "/tmp/openejb" for example
     }
 }
