@@ -16,9 +16,12 @@
  */
 package org.apache.openejb.tools.twitter;
 
-public class RetweetAppConstants {
+import java.util.Locale;
 
-	public static final String TWITTER_DATE_FORMAT="EEE MMM d H:m:s Z y";
-	public static final String USER_TIMELINE_STATUS_URL="http://api.twitter.com/1/statuses/user_timeline.json?include_rts=true&count=20&screen_name=";
-	public static final String RETWEET_URL="http://api.twitter.com/1/statuses/retweet/";
+public interface RetweetAppConstants {
+
+	static final String TWITTER_DATE_FORMAT="EEE MMM d H:m:s Z y";
+	static final Locale TWITTER_LOCALE = Locale.ENGLISH;
+	static final String USER_TIMELINE_STATUS_URL="http://api.twitter.com/1/statuses/user_timeline.json?include_rts=true&count=20&screen_name=";
+	static final String RETWEET_URL="http://api.twitter.com/1/statuses/retweet/";
 }

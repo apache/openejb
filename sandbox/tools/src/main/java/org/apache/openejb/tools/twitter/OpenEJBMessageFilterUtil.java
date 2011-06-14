@@ -27,9 +27,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-public class OpenEJBMessageFilterUtil {
+public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 	
-	static SimpleDateFormat dateFormat = new SimpleDateFormat(RetweetAppConstants.TWITTER_DATE_FORMAT);
+	static SimpleDateFormat dateFormat = new SimpleDateFormat(TWITTER_DATE_FORMAT, TWITTER_LOCALE);
 	private static Logger logger = Logger.getLogger(OpenEJBMessageFilterUtil.class);
 	
 	@SuppressWarnings("rawtypes")
@@ -80,15 +80,17 @@ public class OpenEJBMessageFilterUtil {
     	String dateAsString =(String) keyValue.get("created_at");
     	Calendar calendar = Calendar.getInstance();
     	calendar.add(Calendar.HOUR_OF_DAY, -1);
+
+        Date tweetDate;
     	try {
-			Date tweetDate = dateFormat.parse(dateAsString);
-			logger.debug("Older than an hour?: "+tweetDate.before(calendar.getTime()));
-			return tweetDate.before(calendar.getTime());
+			tweetDate = dateFormat.parse(dateAsString);
 		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        
-    	return false;
+            logger.error("can't parse date " + dateAsString, e);
+            return false;
+        }
+
+        logger.debug("Older than an hour?: "+ tweetDate.before(calendar.getTime()));
+        return tweetDate.before(calendar.getTime());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -96,8 +98,7 @@ public class OpenEJBMessageFilterUtil {
         
 		Integer retweetCount;
 		try {
-			retweetCount = null;
-			retweetCount = getRetweetCount(keyValue, retweetCount);
+			retweetCount = getRetweetCount(keyValue, null);
 		} catch (NumberFormatException ignoredException) {
 			//Sometimes retweet-count returned by twitter is "100+" A non Number.
 			//Ignoring such exception
@@ -105,11 +106,7 @@ public class OpenEJBMessageFilterUtil {
 			return true;
 		}        
 		
-		if (retweetCount > 0) {
-            return true;
-        } else {
-            return false;
-        }
+		return retweetCount > 0;
     }
 
 	@SuppressWarnings("rawtypes")
