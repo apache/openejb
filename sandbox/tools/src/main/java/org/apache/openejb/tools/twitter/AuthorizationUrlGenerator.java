@@ -30,7 +30,7 @@ import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
 import java.util.Properties;
 
 public class AuthorizationUrlGenerator {
-    static Properties retweetToolProperties;
+	static Properties retweetToolProperties;
     static OAuthConsumer consumer;
     static OAuthProvider provider;
 

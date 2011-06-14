@@ -14,29 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools;
+package org.apache.openejb.tools.twitter;
 
-import org.apache.openejb.tools.twitter.Retweet;
-import org.apache.openejb.tools.twitter.UserStatusRetriever;
-import org.junit.BeforeClass;
-import org.junit.Test;
+public class RetweetAppConstants {
 
-
-public class RetweetTest {
-
-	
-	@BeforeClass
-	public static void setUp()
-	{
-	  Retweet.initConsumer();
-	}
-		
-	@Test
-	public void userStatusShouldBeRetrieved()
-	{
-		UserStatusRetriever.getUserOpenEJBStatus("stratwine");
-		//No asserts. Just to check if it run without exceptions
-	}
-
-
+	public static final String TWITTER_DATE_FORMAT="EEE MMM d H:m:s Z y";
+	public static final String USER_TIMELINE_STATUS_URL="http://api.twitter.com/1/statuses/user_timeline.json?include_rts=true&count=20&screen_name=";
+	public static final String RETWEET_URL="http://api.twitter.com/1/statuses/retweet/";
 }

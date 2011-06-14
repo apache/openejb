@@ -16,23 +16,24 @@
  */
 package org.apache.openejb.tools.twitter;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.Set;
+
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.log4j.Logger;
 import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * We should monitor this feed http://twitter.com/#!/OpenEJB/contributors
@@ -60,31 +61,26 @@ public class Retweet {
 
     public static Properties retweetToolProperties = RetweetAppUtil.getTwitterAppProperties();
     public static OAuthConsumer consumer;
+    private static Logger logger = Logger.getLogger(Retweet.class);
 
-    @SuppressWarnings("rawtypes")
     public static void main(String[] args) {
-        HttpResponse response = ContribListStatusRetriever.getStatusesFromOpenEJBContributorsList();
-        String responseBody = JsonResponseParser.getResponseBody(response);
-        StringReader jsonDataReader = new StringReader(responseBody);
-        //Each status is a entry in the list. Each status has various properties in the form of key-value pairs
-        List<Map> listFromJson = JsonResponseParser.getListFromJson(jsonDataReader);
-        List<String> nonRetweetedOpenEJBStatusIDs = OpenEJBMessageFilterUtil.getNonRetweetedOpenEJBStatusIDs(listFromJson);
 
-        System.out.println("About to retweet:" + nonRetweetedOpenEJBStatusIDs);
-        retweetIfListIsNotEmpty(nonRetweetedOpenEJBStatusIDs);
+    	Set<String> nonRetweetedOpenEJBStatusIDs = UserStatusRetriever.getAllContributorsOpenEJBStatuses();
+        logger.info("About to retweet:" + nonRetweetedOpenEJBStatusIDs);
+        retweetIfNotEmpty(nonRetweetedOpenEJBStatusIDs);
 
     }
 
-    private static void retweetIfListIsNotEmpty(List<String> nonRetweetedOpenEJBStatusIDs) {
+    private static void retweetIfNotEmpty(Collection<String> nonRetweetedOpenEJBStatusIDs) {
 
         if (!nonRetweetedOpenEJBStatusIDs.isEmpty()) {
-            retweetThisListOfStatuses(nonRetweetedOpenEJBStatusIDs);
+            retweetThisCollectionOfStatuses(nonRetweetedOpenEJBStatusIDs);
         } else {
-            System.out.println("No message to retweet.");
+            logger.info("No message to retweet.");
         }
     }
 
-    private static void retweetThisListOfStatuses(List<String> nonRetweetedOpenEJBStatusIDs) {
+    private static void retweetThisCollectionOfStatuses(Collection<String> nonRetweetedOpenEJBStatusIDs) {
 
         for (String statusIDToRetweet : nonRetweetedOpenEJBStatusIDs) {
             try {
@@ -114,14 +110,14 @@ public class Retweet {
     }
 
     public static HttpResponse retweet(String statusIDToRetweet) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
-        HttpPost httpPost = new HttpPost("http://api.twitter.com/1/statuses/retweet/" + statusIDToRetweet + ".json");
+        HttpPost httpPost = new HttpPost(RetweetAppConstants.RETWEET_URL+statusIDToRetweet+".json");
         initConsumer();
         consumer.sign(httpPost);
         HttpResponse response = null;
         try {
             response = getHttpClient().execute(httpPost);
-            System.out.println(response.getStatusLine());
-            System.out.println("Retweeted " + statusIDToRetweet);
+            logger.debug(response.getStatusLine());
+            logger.info("Retweeted " + statusIDToRetweet);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -136,7 +132,7 @@ public class Retweet {
     }
 
     private static void pauseBeforeTheNextRetweet() {
-        try {
+        try { //So it doesn't look like spamming
             Thread.sleep(1000 * 60 * 5);
         } catch (InterruptedException e) {
             e.printStackTrace();

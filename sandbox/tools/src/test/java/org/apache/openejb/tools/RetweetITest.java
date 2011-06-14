@@ -16,35 +16,35 @@
  */
 package org.apache.openejb.tools;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.StringReader;
-import java.util.List;
-import java.util.Map;
-
+import static org.junit.Assert.*;
+import java.io.IOException;
 import org.apache.http.HttpResponse;
-import org.apache.openejb.tools.twitter.ContribListStatusRetriever;
-import org.apache.openejb.tools.twitter.JsonResponseParser;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.openejb.tools.twitter.ScreenNamesRetriever;
+import org.apache.openejb.tools.twitter.UserStatusRetriever;
 import org.junit.Test;
 
 public class RetweetITest {
 
-	
-	
-	@SuppressWarnings("rawtypes")
 	@Test
-	public void convertJsonResponseToListOfKeyValuePairs()
+	public void screenNamesListShouldNotBeEmpty()
 	{
-		HttpResponse statusesFromOpenEJBContributorsList = ContribListStatusRetriever.getStatusesFromOpenEJBContributorsList();
-		String responseBody = JsonResponseParser.getResponseBody(statusesFromOpenEJBContributorsList);
-		
-		assertNotNull(responseBody);
-		
-		StringReader jsonDataReader=new StringReader(responseBody);
-		List<Map> listFromJson = JsonResponseParser.getListFromJson(jsonDataReader);
-		
-		assertNotNull(listFromJson);
+		assertFalse(ScreenNamesRetriever.getContributorsNames().isEmpty());
 	}
 	
+	@Test
+	public void userStatusShouldBeRetrieved() throws ClientProtocolException, IOException
+	{
+		HttpGet httpGet = UserStatusRetriever.getHttpRequestToRetrieveUserStatuses("stratwine");
+		HttpResponse userStatusResponse = UserStatusRetriever.getUserStatusResponse(httpGet);
+		ResponseHandler<String> responseHander = new BasicResponseHandler();
+		String responseBody = (String)responseHander.handleResponse(userStatusResponse);
+		System.out.println(responseBody);
+		assertTrue(userStatusResponse.getStatusLine().getStatusCode()==200);
+
+	}
 
 }

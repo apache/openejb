@@ -20,6 +20,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -33,6 +34,8 @@ import java.util.Map;
 
 
 public class JsonResponseParser {
+	
+	private static Logger logger = Logger.getLogger(JsonResponseParser.class);
 
     public static String getResponseBody(HttpResponse response) {
         ResponseHandler<String> responseHander = new BasicResponseHandler();
@@ -45,7 +48,7 @@ public class JsonResponseParser {
             e.printStackTrace();
         }
 
-        System.out.println("Response Body Data:" + responseBody);
+        logger.debug("Response Body Data:" + responseBody);
 
         return responseBody;
     }
@@ -64,8 +67,29 @@ public class JsonResponseParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Json to List of key value pairs:" + result);
+        logger.debug("Json to List of key value pairs:" + result);
         return result;
     }
+    
+
+	@SuppressWarnings("rawtypes")
+	public static Map getMapFromJson(Reader jsonDataReader)
+	{
+		Map result = null;
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			result=mapper.readValue(jsonDataReader, new TypeReference<Map>() {
+			});
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	
+	}
 
 }
