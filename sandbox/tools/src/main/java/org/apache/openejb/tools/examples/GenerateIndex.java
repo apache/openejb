@@ -16,13 +16,20 @@
  */
 package org.apache.openejb.tools.examples;
 
+import com.petebevin.markdown.MarkdownProcessor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,6 +64,15 @@ public class GenerateIndex {
     private static final String README_MD = "README.md";
     private static final String POM_XML = "pom.xml";
     private static final String INDEX_HTML = "index.html";
+    private static final String HEAD = getTemplate("head.frag.html");
+    private static final String FOOT = getTemplate("foot.frag.html");
+    private static final String DEFAULT = getTemplate("default-index.frag.html");
+    private static final Object HEAD_MAIN = getTemplate("main-head.frag.html");
+    private static final Object FOOT_MAIN = getTemplate("main-foot.frag.html");
+    private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
+    private static final List<String> EXCLUDED_FOLDERS = new ArrayList<String>() {{
+        add("examples");
+    }};
 
     // A couple possible markdown processors in Java
     //   http://code.google.com/p/markdownj/wiki/Maven
@@ -71,10 +87,10 @@ public class GenerateIndex {
      * <p/>
      * mvn clean install exec:java -Dexec.mainClass=org.apache.openejb.tools.examples.GenerateIndex
      *
-     * @param args
+     * @param args zip-location work-folder
      */
     public static void main(String[] args) {
-        if (args.length < 1) {
+        if (args.length < 2) {
             LOGGER.info("Usage: <main> <examples-zip-location> <output-folder>");
             return;
         }
@@ -86,29 +102,66 @@ public class GenerateIndex {
         extract(args[0], extractedDir.getPath());
 
         Collection<File> examples = listFolders(extractedDir, POM_XML);
+        List<File> generatedIndexHtml = new ArrayList<File>();
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
             generated.mkdirs();
 
             File readme = new File(example, README_MD);
+            String html = "";
             if (readme.exists()) {
                 // use the README.md markdown file to generate an index.html page
 
-                // TODO
-            } else {
+                try {
+                    html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
+
+                    // if readme keeps small it will be ok
+                    html = html.replace("<code>", "<code class=\"prettyprint\">");
+                    html = new StringBuilder(HEAD).append(html).append(FOOT).toString();
+                } catch (IOException e) {
+                    LOGGER.warn("can't read readme file for example " + example.getName());
+                }
+            }
+            if (html.isEmpty()) {
                 // If there is no README.md we should just generate a basic page
                 // maybe something that includes the FooTest.java code and shows
                 // shows that with links to other classes in the example
                 LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
 
-                // TODO
+                html = new StringBuilder(HEAD).append(DEFAULT).append(FOOT).toString();
+            }
+
+            try {
+                File index = new File(generated, INDEX_HTML);
+                FileUtils.writeStringToFile(index, html);
+                generatedIndexHtml.add(index);
+            } catch (IOException e) {
+                LOGGER.error("can't write index file for example " + example.getName());
             }
         }
 
         // create an index for all example directories
         Collection<File> indexes = listFolders(extractedDir, INDEX_HTML);
-        // TODO
+        StringBuilder mainIndex = new StringBuilder(HEAD);
+        mainIndex.append(HEAD_MAIN);
+        mainIndex.append("    <ul>");
+        Collections.sort(generatedIndexHtml);
+        for (File example : generatedIndexHtml) {
+            String name = example.getPath().replace(generatedDir.getPath(), "")
+                            .replaceFirst(File.separator, "/").replaceFirst("/", "");
+            mainIndex.append("      <li>\n").append("      <a href=\"")
+                .append(name)
+                .append("\">").append(example.getParentFile().getName()).append("</a>\n")
+                .append("      </li>\n");
+        }
+        mainIndex.append("    </ul>");
+        mainIndex.append(FOOT_MAIN).append(FOOT);
+        try {
+            FileUtils.writeStringToFile(new File(generatedDir, INDEX_HTML), mainIndex.toString());
+        } catch (IOException e) {
+            LOGGER.error("can't write main index file.");
+        }
     }
 
     private static Collection<File> listFolders(File extractedDir, String name) {
@@ -116,7 +169,7 @@ public class GenerateIndex {
         for (File file : extractedDir.listFiles()) {
             if (file.isDirectory()) {
                 examples.addAll(listFolders(file, name));
-            } else if (name.equals(file.getName())) {
+            } else if (!EXCLUDED_FOLDERS.contains(file.getParentFile().getName()) && name.equals(file.getName())) {
                 examples.add(file.getParentFile());
             }
         }
@@ -152,5 +205,18 @@ public class GenerateIndex {
             LOGGER.error("can't unzip examples", e);
             throw new RuntimeException("can't unzip " + filename);
         }
+    }
+
+    private static String getTemplate(String file) {
+        URL url = Thread.currentThread().getContextClassLoader().getResource("generate-index/" + file);
+        try {
+            File f = new File(url.toURI());
+            return FileUtils.readFileToString(f);
+        } catch (URISyntaxException e) {
+            LOGGER.error("can't get template " + file);
+        } catch (IOException e) {
+            LOGGER.error("can't read template " + file);
+        }
+        return "";
     }
 }
