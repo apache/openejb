@@ -17,16 +17,23 @@
 package org.apache.openejb.tools.examples;
 
 import com.petebevin.markdown.MarkdownProcessor;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
@@ -64,15 +71,19 @@ public class GenerateIndex {
     private static final String README_MD = "README.md";
     private static final String POM_XML = "pom.xml";
     private static final String INDEX_HTML = "index.html";
+    private static final String GLOSSARY_HTML = "glossary.html";
     private static final String HEAD = getTemplate("head.frag.html");
     private static final String FOOT = getTemplate("foot.frag.html");
     private static final String DEFAULT = getTemplate("default-index.frag.html");
     private static final String HEAD_MAIN = getTemplate("main-head.frag.html");
     private static final String FOOT_MAIN = getTemplate("main-foot.frag.html");
     private static final String TITLE = "TITLE";
+    private static final String JAVAX_PREFIX = "javax.";
+    private static final String IMPORT_START = "import ";
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
     private static final List<String> EXCLUDED_FOLDERS = new ArrayList<String>() {{
         add("examples");
+        add(".svn");
     }};
 
     // A couple possible markdown processors in Java
@@ -102,12 +113,15 @@ public class GenerateIndex {
         // crack open the examples zip file
         extract(args[0], extractedDir.getPath());
 
+        Map<String, Set<String>> exampleLinksByKeyword = new HashMap<String, Set<String>>();
         Collection<File> examples = listFolders(extractedDir, POM_XML);
         List<File> generatedIndexHtml = new ArrayList<File>();
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
-            generated.mkdirs();
+            if (!generated.mkdirs()) {
+                LOGGER.warn("can't create folder " + generated.getPath());
+            }
 
             File readme = new File(example, README_MD);
             String html = "";
@@ -135,24 +149,72 @@ public class GenerateIndex {
                     .append(DEFAULT).append(FOOT).toString();
             }
 
+            File index;
             try {
-                File index = new File(generated, INDEX_HTML);
+                index = new File(generated, INDEX_HTML);
                 FileUtils.writeStringToFile(index, html);
                 generatedIndexHtml.add(index);
             } catch (IOException e) {
                 LOGGER.error("can't write index file for example " + example.getName());
+                continue;
+            }
+
+            Collection<File> javaFiles = listFilesEndingWith(example, ".java");
+            for (File file : javaFiles) {
+                try {
+                    Set<String> imports = getImports(file);
+                    if (imports != null) {
+                        for (String name : imports) {
+                            if (name.startsWith(JAVAX_PREFIX)) {
+                                if (!exampleLinksByKeyword.containsKey(name)) {
+                                    exampleLinksByKeyword.put(name, new HashSet<String>());
+                                }
+                                exampleLinksByKeyword.get(name).add(getLink(generatedDir, index));
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("can't read " + file.getPath());
+                }
             }
         }
 
+        // create a glossary page
+        StringBuilder glossaryContent = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example Glossary"))
+                                                        .append("<h2>Glossary</h2>\n");
+        glossaryContent.append("<ul>\n");
+        for (Entry<String, Set<String>> clazz : exampleLinksByKeyword.entrySet()) {
+            glossaryContent.append("<li>").append(clazz.getKey()).append("\n<ul>\n");
+            for (String link : clazz.getValue()) {
+                String name = link;
+                int idx = name.lastIndexOf('/');
+                int idxBefore = name.lastIndexOf('/', idx - 1);
+                if (idx >= 0 && idxBefore >= 0) {
+                    name = name.substring(idxBefore + 1, idx);
+                }
+                glossaryContent.append("<li><a href=\"").append(link).append("\">").append(name).append("</a></li>");
+            }
+            glossaryContent.append("</ul>");
+        }
+        glossaryContent.append("</ul></li>\n")
+            .append(FOOT);
+        File glossary;
+        try {
+            glossary = new File(generatedDir, GLOSSARY_HTML);
+            FileUtils.writeStringToFile(glossary, glossaryContent.toString());
+        } catch (IOException e) {
+            LOGGER.error("can't write glossary file");
+        }
+
+
         // create an index for all example directories
-        Collection<File> indexes = listFolders(extractedDir, INDEX_HTML);
         StringBuilder mainIndex = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example"));
         mainIndex.append(HEAD_MAIN);
+        mainIndex.append("<ul><li><a href=\"").append(GLOSSARY_HTML).append("\">").append("Glossary").append("</a></li></ul>");
         mainIndex.append("    <ul>\n");
         Collections.sort(generatedIndexHtml);
         for (File example : generatedIndexHtml) {
-            String name = example.getPath().replace(generatedDir.getPath(), "")
-                            .replaceFirst(File.separator, "/").replaceFirst("/", "");
+            String name = getLink(generatedDir, example);
             mainIndex.append("      <li>\n").append("        <a href=\"")
                 .append(name)
                 .append("\">").append(example.getParentFile().getName()).append("</a>\n")
@@ -167,6 +229,25 @@ public class GenerateIndex {
         }
     }
 
+    private static Set<String> getImports(File file) throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String line;
+        Set<String> imports = new HashSet<String>();
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith(IMPORT_START)) {
+                String clazz = line.replace(IMPORT_START, "");
+                imports.add(clazz.substring(0, clazz.length() - 1));
+            }
+        }
+        in.close();
+        return imports;
+    }
+
+    private static String getLink(File generatedDir, File example) {
+        return example.getPath().replace(generatedDir.getPath(), "")
+                            .replaceFirst(File.separator, "/").replaceFirst("/", "");
+    }
+
     private static Collection<File> listFolders(File extractedDir, String name) {
         Collection<File> examples = new ArrayList<File>();
         for (File file : extractedDir.listFiles()) {
@@ -179,10 +260,24 @@ public class GenerateIndex {
         return examples;
     }
 
+    private static Collection<File> listFilesEndingWith(File extractedDir, String end) {
+        Collection<File> examples = new ArrayList<File>();
+        for (File file : extractedDir.listFiles()) {
+            if (file.isDirectory() && !EXCLUDED_FOLDERS.contains(file.getName())) {
+                examples.addAll(listFilesEndingWith(file, end));
+            } else if (file.getName().endsWith(end)) {
+                examples.add(file);
+            }
+        }
+        return examples;
+    }
+
     public static void extract(String filename, String output) {
         File extractHere = new File(output);
         if (!extractHere.exists()) {
-            extractHere.mkdirs();
+            if (!extractHere.mkdirs()) {
+                LOGGER.warn("can't create folder " + extractHere.getPath());
+            }
         }
 
         try {
@@ -192,7 +287,10 @@ public class GenerateIndex {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
-                    new File(output + File.separator + entry.getName()).mkdirs();
+                    File file = new File(output + File.separator + entry.getName());
+                    if (!file.mkdirs()) {
+                        LOGGER.warn("can't create folder " + file.getPath());
+                    }
                 } else {
                     int count;
                     File file = new File(output + File.separator + entry.getName());
