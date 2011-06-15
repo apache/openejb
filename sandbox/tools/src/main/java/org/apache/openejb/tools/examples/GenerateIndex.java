@@ -74,7 +74,6 @@ public class GenerateIndex {
     private static final String GLOSSARY_HTML = "glossary.html";
     private static final String HEAD = getTemplate("head.frag.html");
     private static final String FOOT = getTemplate("foot.frag.html");
-    private static final String DEFAULT = getTemplate("default-index.frag.html");
     private static final String HEAD_MAIN = getTemplate("main-head.frag.html");
     private static final String FOOT_MAIN = getTemplate("main-foot.frag.html");
     private static final String TITLE = "TITLE";
@@ -119,15 +118,12 @@ public class GenerateIndex {
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
-            if (!generated.mkdirs()) {
-                LOGGER.warn("can't create folder " + generated.getPath());
-            }
+            mkdirp(generated);
 
             File readme = new File(example, README_MD);
             String html = "";
             if (readme.exists()) {
                 // use the README.md markdown file to generate an index.html page
-
                 try {
                     html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
 
@@ -139,27 +135,12 @@ public class GenerateIndex {
                     LOGGER.warn("can't read readme file for example " + example.getName());
                 }
             }
-            if (html.isEmpty()) {
-                // If there is no README.md we should just generate a basic page
-                // maybe something that includes the FooTest.java code and shows
-                // shows that with links to other classes in the example
-                LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
 
-                html = new StringBuilder(HEAD.replace(TITLE, example.getName() + " example"))
-                    .append(DEFAULT).append(FOOT).toString();
-            }
+            File index = new File(generated, INDEX_HTML);
 
-            File index;
-            try {
-                index = new File(generated, INDEX_HTML);
-                FileUtils.writeStringToFile(index, html);
-                generatedIndexHtml.add(index);
-            } catch (IOException e) {
-                LOGGER.error("can't write index file for example " + example.getName());
-                continue;
-            }
-
-            Collection<File> javaFiles = listFilesEndingWith(example, ".java");
+            List<File> javaFiles = listFilesEndingWith(example, ".java");
+            Collections.sort(javaFiles);
+            Map<String, Integer> apiCount = new HashMap<String, Integer>();
             for (File file : javaFiles) {
                 try {
                     Set<String> imports = getImports(file);
@@ -171,11 +152,33 @@ public class GenerateIndex {
                                 }
                                 exampleLinksByKeyword.get(name).add(getLink(generatedDir, index));
                             }
+                            if (!apiCount.containsKey(name)) {
+                                apiCount.put(name, 1);
+                            } else {
+                                apiCount.put(name, apiCount.get(name) + 1);
+                            }
                         }
                     }
                 } catch (IOException e) {
                     LOGGER.error("can't read " + file.getPath());
                 }
+            }
+
+            if (html.isEmpty()) {
+                // If there is no README.md we should just generate a basic page
+                // maybe something that includes the FooTest.java code and shows
+                // shows that with links to other classes in the example
+                LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
+
+                html = new StringBuilder(HEAD.replace(TITLE, example.getName() + " example"))
+                    .append(getDefaultExampleContent(example.getName(), extractedDir, javaFiles, apiCount)).append(FOOT).toString();
+            }
+
+            try {
+                FileUtils.writeStringToFile(index, html);
+                generatedIndexHtml.add(index);
+            } catch (IOException e) {
+                LOGGER.error("can't write index file for example " + example.getName());
             }
         }
 
@@ -229,6 +232,28 @@ public class GenerateIndex {
         }
     }
 
+    private static String getDefaultExampleContent(String name, File prefix, List<File> javaFiles, Map<String, Integer> apiCount) {
+        StringBuilder builder = new StringBuilder("<h2>").append(name).append("</h2>\n")
+            .append("<div id=\"javaFiles\">\n")
+            .append("<ul>");
+        for (File f : javaFiles) {
+            String path = f.getPath().replace(prefix.getPath(), "");
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            builder.append("<li>").append(path).append("</li>\n");
+        }
+        builder.append("</ul>\n").append("</div>\n");
+
+        builder.append("<div id=\"api\">\n").append("<ul>\n");
+        for (Map.Entry<String, Integer> api : apiCount.entrySet()) {
+            builder.append("<li>").append(api.getKey()).append(": ").append(api.getValue()).append(" times</li>\n");
+        }
+        builder.append("</ul>\n").append("</div>\n");
+
+        return builder.toString();
+    }
+
     private static Set<String> getImports(File file) throws IOException {
         BufferedReader in = new BufferedReader(new FileReader(file));
         String line;
@@ -260,8 +285,8 @@ public class GenerateIndex {
         return examples;
     }
 
-    private static Collection<File> listFilesEndingWith(File extractedDir, String end) {
-        Collection<File> examples = new ArrayList<File>();
+    private static List<File> listFilesEndingWith(File extractedDir, String end) {
+        List<File> examples = new ArrayList<File>();
         for (File file : extractedDir.listFiles()) {
             if (file.isDirectory() && !EXCLUDED_FOLDERS.contains(file.getName())) {
                 examples.addAll(listFilesEndingWith(file, end));
@@ -274,11 +299,7 @@ public class GenerateIndex {
 
     public static void extract(String filename, String output) {
         File extractHere = new File(output);
-        if (!extractHere.exists()) {
-            if (!extractHere.mkdirs()) {
-                LOGGER.warn("can't create folder " + extractHere.getPath());
-            }
-        }
+        mkdirp(extractHere);
 
         try {
             // we'll read everything so ZipFile is useless
@@ -287,10 +308,7 @@ public class GenerateIndex {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
-                    File file = new File(output + File.separator + entry.getName());
-                    if (!file.mkdirs()) {
-                        LOGGER.warn("can't create folder " + file.getPath());
-                    }
+                    mkdirp(new File(output + File.separator + entry.getName()));
                 } else {
                     int count;
                     File file = new File(output + File.separator + entry.getName());
@@ -305,6 +323,14 @@ public class GenerateIndex {
         } catch (Exception e) {
             LOGGER.error("can't unzip examples", e);
             throw new RuntimeException("can't unzip " + filename);
+        }
+    }
+
+    private static void mkdirp(File file) {
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                LOGGER.warn("can't create folder " + file.getPath());
+            }
         }
     }
 
