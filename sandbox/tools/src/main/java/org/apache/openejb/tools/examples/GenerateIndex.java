@@ -148,17 +148,17 @@ public class GenerateIndex {
         Collection<File> indexes = listFolders(extractedDir, INDEX_HTML);
         StringBuilder mainIndex = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example"));
         mainIndex.append(HEAD_MAIN);
-        mainIndex.append("    <ul>");
+        mainIndex.append("    <ul>\n");
         Collections.sort(generatedIndexHtml);
         for (File example : generatedIndexHtml) {
             String name = example.getPath().replace(generatedDir.getPath(), "")
                             .replaceFirst(File.separator, "/").replaceFirst("/", "");
-            mainIndex.append("      <li>\n").append("      <a href=\"")
+            mainIndex.append("      <li>\n").append("        <a href=\"")
                 .append(name)
                 .append("\">").append(example.getParentFile().getName()).append("</a>\n")
                 .append("      </li>\n");
         }
-        mainIndex.append("    </ul>");
+        mainIndex.append("    </ul>\n");
         mainIndex.append(FOOT_MAIN).append(FOOT);
         try {
             FileUtils.writeStringToFile(new File(generatedDir, INDEX_HTML), mainIndex.toString());
