@@ -67,8 +67,9 @@ public class GenerateIndex {
     private static final String HEAD = getTemplate("head.frag.html");
     private static final String FOOT = getTemplate("foot.frag.html");
     private static final String DEFAULT = getTemplate("default-index.frag.html");
-    private static final Object HEAD_MAIN = getTemplate("main-head.frag.html");
-    private static final Object FOOT_MAIN = getTemplate("main-foot.frag.html");
+    private static final String HEAD_MAIN = getTemplate("main-head.frag.html");
+    private static final String FOOT_MAIN = getTemplate("main-foot.frag.html");
+    private static final String TITLE = "TITLE";
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
     private static final List<String> EXCLUDED_FOLDERS = new ArrayList<String>() {{
         add("examples");
@@ -118,7 +119,8 @@ public class GenerateIndex {
 
                     // if readme keeps small it will be ok
                     html = html.replace("<code>", "<code class=\"prettyprint\">");
-                    html = new StringBuilder(HEAD).append(html).append(FOOT).toString();
+                    html = new StringBuilder(HEAD.replace(TITLE, example.getName() + " example"))
+                        .append(html).append(FOOT).toString();
                 } catch (IOException e) {
                     LOGGER.warn("can't read readme file for example " + example.getName());
                 }
@@ -129,7 +131,8 @@ public class GenerateIndex {
                 // shows that with links to other classes in the example
                 LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
 
-                html = new StringBuilder(HEAD).append(DEFAULT).append(FOOT).toString();
+                html = new StringBuilder(HEAD.replace(TITLE, example.getName() + " example"))
+                    .append(DEFAULT).append(FOOT).toString();
             }
 
             try {
@@ -143,7 +146,7 @@ public class GenerateIndex {
 
         // create an index for all example directories
         Collection<File> indexes = listFolders(extractedDir, INDEX_HTML);
-        StringBuilder mainIndex = new StringBuilder(HEAD);
+        StringBuilder mainIndex = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example"));
         mainIndex.append(HEAD_MAIN);
         mainIndex.append("    <ul>");
         Collections.sort(generatedIndexHtml);
