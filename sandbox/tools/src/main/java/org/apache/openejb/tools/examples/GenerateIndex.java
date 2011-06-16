@@ -226,7 +226,10 @@ public class GenerateIndex {
             .append("</div></ul>\n")
             .append("<div class=\"clear\" />\n")
             .append("<div id=\"checkboxes-check\"><ul>\n");
-        for (String api : exampleLinksByKeyword.keySet()) {
+
+        List<String> apis = new ArrayList<String>(exampleLinksByKeyword.keySet());
+        Collections.sort(apis);
+        for (String api : apis) {
             glossaryContent.append("<li>")
                     .append("<input type=\"checkbox\" id=\"").append(api.replace('.', '-')) // . means class in css
                         .append("\" checked=\"true\" onclick=\"javascript:checkBoxClicked(this.id, this.checked)\" >")
@@ -240,10 +243,10 @@ public class GenerateIndex {
 
         Map<String, String> linkByExample = new HashMap<String, String>();
 
-        for (Entry<String, Set<String>> clazz : exampleLinksByKeyword.entrySet()) {
-            glossaryContent.append("<li class=\"").append(clazz.getKey().replace('.', '-')).append("\">")
-                .append(clazz.getKey()).append("\n<ul>\n");
-            List<String> sortedExamples = new ArrayList<String>(clazz.getValue());
+        for (String api : apis) {
+            glossaryContent.append("<li class=\"").append(api.replace('.', '-')).append("\">")
+                .append(api).append("\n<ul>\n");
+            List<String> sortedExamples = new ArrayList<String>(exampleLinksByKeyword.get(api));
             Collections.sort(sortedExamples);
             for (String link : sortedExamples) {
                 String name = link;
@@ -253,7 +256,7 @@ public class GenerateIndex {
                     name = name.substring(idxBefore + 1, idx);
                 }
                 if (!linkByExample.containsKey(name)) {
-                    linkByExample.put(name, link);
+                    linkByExample.put(link, name);
                 }
                 glossaryContent.append("<li><a href=\"").append(link).append("\">").append(name).append("</a></li>");
             }
@@ -261,9 +264,12 @@ public class GenerateIndex {
         }
         glossaryContent.append("</ul></li></div>\n");
 
-        for (Entry<String, String> example : linkByExample.entrySet()) {
-            aggregated.append("<li class=\"").append(getHTMLClass(exampleLinksByKeyword, example.getValue())).append("\">")
-                .append("<a href=\"").append(example.getValue()).append("\">").append(example.getKey()).append("</a>")
+        List<String> links = new ArrayList<String>(linkByExample.keySet());
+        Collections.sort(links);
+        for (String link : links) {
+            String exampleLink = linkByExample.get(link);
+            aggregated.append("<li class=\"").append(getHTMLClass(exampleLinksByKeyword, link)).append("\">")
+                .append("<a href=\"").append(link).append("\">").append(exampleLink).append("</a>")
                 .append("</li>\n");
         }
         aggregated.append("</ul></div>\n");
