@@ -1,0 +1,46 @@
+<script>
+$(document).ready(function() {
+  $('#aggregate').hide();
+  $('#checkboxes-check').hide();
+});
+
+function checkBoxClicked(that) {
+   $('.' + that.id).each(function(i, val) {
+     if (that.checked) {
+       $(val).show('slow');
+     } else {
+       $(val).hide();
+     }
+   });
+}
+
+function selectCheckboxes(b) {
+  $('input[type=checkbox]').each(function(i, val) {
+    if (($(val).attr('checked') == false && b) || ($(val).attr('checked') == true && !b)) {
+        $(val).click();
+    }
+  });
+}
+
+function showCheckboxes() {
+    if ($('#checkboxes-check').is(':visible')) {
+        $('#checkboxes-check').hide();
+        $('#showCheckboxes').attr('value', 'Show API');
+    } else {
+        $('#checkboxes-check').show();
+        $('#showCheckboxes').attr('value', 'Hide API');
+    }
+}
+
+function aggregate(button) {
+  if (button.value == 'Aggregate') {
+    button.value = 'Split';
+    $('#list').hide();
+    $('#aggregate').show('slow');
+  } else {
+    button.value = 'Aggregate';
+    $('#list').show('slow');
+    $('#aggregate').hide();
+  }
+}
+</script>

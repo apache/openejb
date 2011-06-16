@@ -183,24 +183,9 @@ public class GenerateIndex {
         }
 
         // create a glossary page
-        StringBuilder glossaryContent = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example Glossary"))
-                                                        .append("<h2>Glossary</h2>\n");
-        glossaryContent.append("<ul>\n");
-        for (Entry<String, Set<String>> clazz : exampleLinksByKeyword.entrySet()) {
-            glossaryContent.append("<li>").append(clazz.getKey()).append("\n<ul>\n");
-            for (String link : clazz.getValue()) {
-                String name = link;
-                int idx = name.lastIndexOf('/');
-                int idxBefore = name.lastIndexOf('/', idx - 1);
-                if (idx >= 0 && idxBefore >= 0) {
-                    name = name.substring(idxBefore + 1, idx);
-                }
-                glossaryContent.append("<li><a href=\"").append(link).append("\">").append(name).append("</a></li>");
-            }
-            glossaryContent.append("</ul>");
-        }
-        glossaryContent.append("</ul></li>\n")
-            .append(FOOT);
+        StringBuilder glossaryContent = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example Glossary"));
+        glossaryContent.append(getGlossaryContent(exampleLinksByKeyword));
+        glossaryContent.append(FOOT);
         File glossary;
         try {
             glossary = new File(generatedDir, GLOSSARY_HTML);
@@ -213,17 +198,7 @@ public class GenerateIndex {
         // create an index for all example directories
         StringBuilder mainIndex = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example"));
         mainIndex.append(HEAD_MAIN);
-        mainIndex.append("<ul><li><a href=\"").append(GLOSSARY_HTML).append("\">").append("Glossary").append("</a></li></ul>");
-        mainIndex.append("    <ul>\n");
-        Collections.sort(generatedIndexHtml);
-        for (File example : generatedIndexHtml) {
-            String name = getLink(generatedDir, example);
-            mainIndex.append("      <li>\n").append("        <a href=\"")
-                .append(name)
-                .append("\">").append(example.getParentFile().getName()).append("</a>\n")
-                .append("      </li>\n");
-        }
-        mainIndex.append("    </ul>\n");
+        mainIndex.append(getMainContent(generatedIndexHtml, generatedDir));
         mainIndex.append(FOOT_MAIN).append(FOOT);
         try {
             FileUtils.writeStringToFile(new File(generatedDir, INDEX_HTML), mainIndex.toString());
@@ -232,10 +207,104 @@ public class GenerateIndex {
         }
     }
 
+    private static String getGlossaryContent(Map<String, Set<String>> exampleLinksByKeyword) {
+        StringBuilder glossaryContent = new StringBuilder("<h2>Glossary</h2>\n");
+
+        glossaryContent.append(getTemplate("js.glossary.frag.html"));
+
+        // checkboxes
+        glossaryContent.append("<div id=\"checkboxes\">\n")
+            .append("<div id=\"checkboxes-button\"><ul>\n")
+            .append("<li><input type=\"button\" value=\"Aggregate\"")
+                    .append(" onclick=\"javascript:aggregate(this)\" ></li>")
+            .append("<li><input type=\"button\" value=\"Show APIs\" id=\"showCheckboxes\"")
+                    .append(" onclick=\"javascript:showCheckboxes()\" ></li>")
+            .append("<li><input type=\"button\" value=\"Select All\"")
+                    .append(" onclick=\"javascript:selectCheckboxes(true)\" ></li>")
+            .append("<li><input type=\"button\" value=\"Select None\"")
+                .append(" onclick=\"javascript:selectCheckboxes(false)\" ></li>")
+            .append("</div></ul>\n")
+            .append("<div id=\"checkboxes-check\"><ul>\n");
+        for (String api : exampleLinksByKeyword.keySet()) {
+            glossaryContent.append("<li>")
+                    .append("<input type=\"checkbox\" id=\"").append(api.replace('.', '-')) // . means class in css
+                        .append("\" checked=\"checked\" onclick=\"javascript:checkBoxClicked(this)\" >")
+                    .append(api)
+                .append("</li>\n");
+        }
+        glossaryContent.append("</ul></div>\n</div>\n");
+
+        StringBuilder aggregated = new StringBuilder("<div id=\"aggregate\">\n<ul>");
+        glossaryContent.append("<div id=\"list\">\n<ul>\n");
+
+        Map<String, String> linkByExample = new HashMap<String, String>();
+
+        for (Entry<String, Set<String>> clazz : exampleLinksByKeyword.entrySet()) {
+            glossaryContent.append("<li class=\"").append(clazz.getKey().replace('.', '-')).append("\">")
+                .append(clazz.getKey()).append("\n<ul>\n");
+            List<String> sortedExamples = new ArrayList<String>(clazz.getValue());
+            Collections.sort(sortedExamples);
+            for (String link : sortedExamples) {
+                String name = link;
+                int idx = name.lastIndexOf('/');
+                int idxBefore = name.lastIndexOf('/', idx - 1);
+                if (idx >= 0 && idxBefore >= 0) {
+                    name = name.substring(idxBefore + 1, idx);
+                }
+                if (!linkByExample.containsKey(name)) {
+                    linkByExample.put(name, link);
+                }
+                glossaryContent.append("<li><a href=\"").append(link).append("\">").append(name).append("</a></li>");
+            }
+            glossaryContent.append("</ul>");
+        }
+        glossaryContent.append("</ul></li></div>\n");
+
+        for (Entry<String, String> example : linkByExample.entrySet()) {
+            aggregated.append("<li class=\"").append(getHTMLClass(exampleLinksByKeyword, example.getValue())).append("\">")
+                .append("<a href=\"").append(example.getValue()).append("\">").append(example.getKey()).append("</a>")
+                .append("</li>\n");
+        }
+        aggregated.append("</ul></div>\n");
+        return glossaryContent.append(aggregated).toString();
+    }
+
+    private static String getHTMLClass(Map<String, Set<String>> exampleLinksByKeyword, String value) {
+        StringBuilder clazz = new StringBuilder("example");
+        for (Entry<String, Set<String>> links : exampleLinksByKeyword.entrySet()) {
+            for (String link : links.getValue()) {
+                if (value.equals(link)) {
+                    clazz.append(" ").append(links.getKey().replace('.', '-'));
+                    break;
+                }
+            }
+        }
+        return clazz.toString();
+    }
+
+    private static String getMainContent(List<File> generatedIndexHtml, File generatedDir) {
+        // list of all examples
+        StringBuilder mainIndex = new StringBuilder("<div id=\"examples\"><ul><li><a href=\"")
+            .append(GLOSSARY_HTML).append("\">").append("Glossary").append("</a></li></ul>");
+        mainIndex.append("    <ul>\n");
+        Collections.sort(generatedIndexHtml);
+        for (File example : generatedIndexHtml) {
+            String link = getLink(generatedDir, example);
+            String exampleName = example.getParentFile().getName();
+            mainIndex.append("      <li class=\"").append(exampleName).append("\">\n")
+                .append("        <a href=\"").append(link)
+                .append("\">").append(exampleName).append("</a>\n")
+                .append("      </li>\n");
+        }
+        mainIndex.append("    </ul>\n</div>\n");
+
+        return mainIndex.toString();
+    }
+
     private static String getDefaultExampleContent(String name, File prefix, List<File> javaFiles, Map<String, Integer> apiCount) {
         StringBuilder builder = new StringBuilder("<h2>").append(name).append("</h2>\n")
             .append("<div id=\"javaFiles\">\n")
-            .append("<ul>");
+            .append("<ul>Files:\n");
         for (File f : javaFiles) {
             String path = f.getPath().replace(prefix.getPath(), "");
             if (path.startsWith("/")) {
@@ -245,7 +314,7 @@ public class GenerateIndex {
         }
         builder.append("</ul>\n").append("</div>\n");
 
-        builder.append("<div id=\"api\">\n").append("<ul>\n");
+        builder.append("<div id=\"api\">\n").append("<ul>API used:\n");
         for (Map.Entry<String, Integer> api : apiCount.entrySet()) {
             builder.append("<li>").append(api.getKey()).append(": ").append(api.getValue()).append(" times</li>\n");
         }
@@ -270,7 +339,7 @@ public class GenerateIndex {
 
     private static String getLink(File generatedDir, File example) {
         return example.getPath().replace(generatedDir.getPath(), "")
-                            .replaceFirst(File.separator, "/").replaceFirst("/", "");
+                        .replace(File.separator, "/").replaceFirst("/", "");
     }
 
     private static Collection<File> listFolders(File extractedDir, String name) {
