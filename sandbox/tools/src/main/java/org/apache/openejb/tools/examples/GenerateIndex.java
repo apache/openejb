@@ -217,13 +217,14 @@ public class GenerateIndex {
             .append("<div id=\"checkboxes-button\"><ul>\n")
             .append("<li><input type=\"button\" value=\"Aggregate\"")
                     .append(" onclick=\"javascript:aggregate(this)\" ></li>")
-            .append("<li><input type=\"button\" value=\"Show APIs\" id=\"showCheckboxes\"")
+            .append("<li><input type=\"button\" value=\"Hide APIs\" id=\"showCheckboxes\"")
                     .append(" onclick=\"javascript:showCheckboxes()\" ></li>")
             .append("<li><input type=\"button\" value=\"Select All\"")
                     .append(" onclick=\"javascript:selectCheckboxes(true)\" ></li>")
             .append("<li><input type=\"button\" value=\"Select None\"")
                 .append(" onclick=\"javascript:selectCheckboxes(false)\" ></li>")
             .append("</div></ul>\n")
+            .append("<div class=\"clear\" />\n")
             .append("<div id=\"checkboxes-check\"><ul>\n");
         for (String api : exampleLinksByKeyword.keySet()) {
             glossaryContent.append("<li>")
