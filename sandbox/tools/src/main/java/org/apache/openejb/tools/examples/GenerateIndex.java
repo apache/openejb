@@ -229,7 +229,7 @@ public class GenerateIndex {
         for (String api : exampleLinksByKeyword.keySet()) {
             glossaryContent.append("<li>")
                     .append("<input type=\"checkbox\" id=\"").append(api.replace('.', '-')) // . means class in css
-                        .append("\" checked=\"checked\" onclick=\"javascript:checkBoxClicked(this)\" >")
+                        .append("\" checked=\"true\" onclick=\"javascript:checkBoxClicked(this.id, this.checked)\" >")
                     .append(api)
                 .append("</li>\n");
         }

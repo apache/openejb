@@ -3,21 +3,21 @@ $(document).ready(function() {
   $('#aggregate').hide();
 });
 
-function checkBoxClicked(that) {
-   $('.' + that.id).each(function(i, val) {
-     if (that.checked) {
+function checkBoxClicked(id, b) {
+   $('.' + id).each(function(i, val) {
+     if (b) {
        $(val).show('slow');
      } else {
        $(val).hide();
      }
+     $(val).attr('checked', b);
    });
 }
 
 function selectCheckboxes(b) {
   $('input[type=checkbox]').each(function(i, val) {
-    if (($(val).attr('checked') == false && b) || ($(val).attr('checked') == true && !b)) {
-        $(val).click();
-    }
+      checkBoxClicked($(val).attr('id'), b);
+      $(val).attr('checked', b);
   });
 }
 
@@ -41,5 +41,12 @@ function aggregate(button) {
     $('#list').show('slow');
     $('#aggregate').hide();
   }
+  // order to show selected whic are in non slected too
+  $('input[type=checkbox,checked=false]').each(function(i, val) {
+      checkBoxClicked($(val).attr('id'), false);
+  });
+  $('input[type=checkbox,checked=true]').each(function(i, val) {
+      checkBoxClicked($(val).attr('id'), true);
+  });
 }
 </script>
