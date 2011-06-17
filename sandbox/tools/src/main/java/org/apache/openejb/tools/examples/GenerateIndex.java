@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,11 +32,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+
+import static org.apache.openejb.tools.examples.ListBuilder.newList;
+import static org.apache.openejb.tools.examples.MapBuilder.newMap;
 
 /**
  * Most the examples do not have any documentation.
@@ -65,33 +69,37 @@ import org.apache.log4j.Logger;
  */
 public class GenerateIndex {
     private static final Logger LOGGER = Logger.getLogger(GenerateIndex.class);
+
     private static final int BUFFER_SIZE = 1024;
+
     private static final String EXTRACTED_EXAMPLES = "extracted";
     private static final String GENERATED_EXAMPLES = "generated";
-    private static final String README_MD = "README.md";
-    private static final String POM_XML = "pom.xml";
     private static final String INDEX_HTML = "index.html";
     private static final String GLOSSARY_HTML = "glossary.html";
-    private static final String HEAD = getTemplate("head.frag.html");
-    private static final String FOOT = getTemplate("foot.frag.html");
-    private static final String HEAD_MAIN = getTemplate("main-head.frag.html");
-    private static final String FOOT_MAIN = getTemplate("main-foot.frag.html");
-    private static final String TITLE = "TITLE";
-    private static final String JAVAX_PREFIX = "javax.";
-    private static final String IMPORT_START = "import ";
-    private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
+    private static final String README_MD = "README.md";
+    private static final String POM_XML = "pom.xml";
+
     private static final List<String> EXCLUDED_FOLDERS = new ArrayList<String>() {{
         add("examples");
         add(".svn");
+        add("target");
+        add(".git");
+        add(".settings");
     }};
 
-    // A couple possible markdown processors in Java
-    //   http://code.google.com/p/markdownj/wiki/Maven
-    //   http://code.google.com/p/doxia-module-markdown/wiki/Usage
+    private static final String JAVAX_PREFIX = "javax.";
+    private static final String IMPORT_START = "import ";
 
+    private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
 
-    // Syntax highlighting can be done with this:
-    //   http://code.google.com/p/google-code-prettify
+    private static final String TEMPLATE_COMMON_PROPERTIES = "generate-index/config.properties";
+    private static final String MAIN_TEMPLATE = "index.vm";
+    private static final String DEFAULT_EXAMPLE_TEMPLATE = "example.vm";
+    private static final String EXTERNALE_TEMPLATE = "external.vm";
+    private static final String GLOSSARY_TEMPLATE = "glossary.vm";
+
+    private static final String TITLE = "title";
+    private static final String BASE = "base";
 
     /**
      * Can be run in an IDE or via Maven like so:
@@ -102,17 +110,30 @@ public class GenerateIndex {
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            LOGGER.info("Usage: <main> <examples-zip-location> <output-folder>");
+            LOGGER.info("Usage: <main> <examples-zip-location> <work-folder>");
             return;
         }
 
+        Properties properties = new Properties();
+        URL propertiesUrl = Thread.currentThread().getContextClassLoader().getResource(TEMPLATE_COMMON_PROPERTIES);
+        try {
+            properties.load(propertiesUrl.openStream());
+        } catch (IOException e) {
+            LOGGER.error("can't read common properties, please put a " + TEMPLATE_COMMON_PROPERTIES + " file");
+        }
+
+        // will be used everywhere so keep it here
+        String base = properties.getProperty(BASE);
+
+        // working folder
         File extractedDir = new File(args[1], EXTRACTED_EXAMPLES);
         File generatedDir = new File(args[1], GENERATED_EXAMPLES);
 
         // crack open the examples zip file
         extract(args[0], extractedDir.getPath());
 
-        Map<String, Set<String>> exampleLinksByKeyword = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> exampleLinksByKeyword = new TreeMap<String, Set<String>>();
+        Map<String, String> nameByLink = new TreeMap<String, String>();
         Collection<File> examples = listFolders(extractedDir, POM_XML);
         List<File> generatedIndexHtml = new ArrayList<File>();
         for (File example : examples) {
@@ -126,154 +147,116 @@ public class GenerateIndex {
                 // use the README.md markdown file to generate an index.html page
                 try {
                     html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
-
-                    // if readme keeps small it will be ok
-                    html = html.replace("<code>", "<code class=\"prettyprint\">");
-                    html = new StringBuilder(HEAD.replace(TITLE, example.getName() + " example"))
-                        .append(html).append(FOOT).toString();
                 } catch (IOException e) {
                     LOGGER.warn("can't read readme file for example " + example.getName());
                 }
             }
 
             File index = new File(generated, INDEX_HTML);
+            generatedIndexHtml.add(index);
+            nameByLink.put(getLink(generatedDir, index), example.getName());
 
             List<File> javaFiles = listFilesEndingWith(example, ".java");
-            Collections.sort(javaFiles);
-            Map<String, Integer> apiCount = new HashMap<String, Integer>();
-            for (File file : javaFiles) {
-                try {
-                    Set<String> imports = getImports(file);
-                    if (imports != null) {
-                        for (String name : imports) {
-                            if (name.startsWith(JAVAX_PREFIX)) {
-                                if (!exampleLinksByKeyword.containsKey(name)) {
-                                    exampleLinksByKeyword.put(name, new HashSet<String>());
-                                }
-                                exampleLinksByKeyword.get(name).add(getLink(generatedDir, index));
-                            }
-                            if (!apiCount.containsKey(name)) {
-                                apiCount.put(name, 1);
-                            } else {
-                                apiCount.put(name, apiCount.get(name) + 1);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("can't read " + file.getPath());
-                }
-            }
+            Map<String, Integer> apiCount = getAndUpdateApis(javaFiles, exampleLinksByKeyword, generatedDir, index);
 
             if (html.isEmpty()) {
-                // If there is no README.md we should just generate a basic page
-                // maybe something that includes the FooTest.java code and shows
-                // shows that with links to other classes in the example
                 LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
 
-                html = new StringBuilder(HEAD.replace(TITLE, example.getName() + " example"))
-                    .append(getDefaultExampleContent(example.getName(), extractedDir, javaFiles, apiCount)).append(FOOT).toString();
-            }
-
-            try {
-                FileUtils.writeStringToFile(index, html);
-                generatedIndexHtml.add(index);
-            } catch (IOException e) {
-                LOGGER.error("can't write index file for example " + example.getName());
+                tpl(DEFAULT_EXAMPLE_TEMPLATE,
+                    newMap()
+                        .add(TITLE, example.getName() + " example")
+                        .add(BASE, base)
+                        .add("apis", apiCount)
+                        .add("files", removePrefix(extractedDir, javaFiles))
+                        .map(),
+                    index.getPath());
+            } else {
+                tpl(EXTERNALE_TEMPLATE,
+                    newMap()
+                        .add(TITLE, example.getName() + " example")
+                        .add(BASE, base)
+                        .add("content", html)
+                        .map(),
+                    index.getPath());
             }
         }
+
+        Map<String, String> exampleLinks = getExampleLinks(generatedIndexHtml, generatedDir);
 
         // create a glossary page
-        StringBuilder glossaryContent = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example Glossary"));
-        glossaryContent.append(getGlossaryContent(exampleLinksByKeyword));
-        glossaryContent.append(FOOT);
-        File glossary;
-        try {
-            glossary = new File(generatedDir, GLOSSARY_HTML);
-            FileUtils.writeStringToFile(glossary, glossaryContent.toString());
-        } catch (IOException e) {
-            LOGGER.error("can't write glossary file");
-        }
-
+        tpl(GLOSSARY_TEMPLATE,
+            newMap()
+                .add(TITLE, "OpenEJB Example Glossary")
+                .add(BASE, base)
+                .add("javascripts", newList().add("glossary.js").list())
+                .add("links", nameByLink)
+                .add("classes", getClassesByApi(exampleLinksByKeyword))
+                .add("exampleByKeyword", exampleLinksByKeyword)
+                .add("examples", exampleLinks)
+                .add("aggregateClasses", getAggregateClasses(new ArrayList<String>(exampleLinks.keySet()), exampleLinksByKeyword))
+                .map(),
+            new File(generatedDir, GLOSSARY_HTML).getPath());
 
         // create an index for all example directories
-        StringBuilder mainIndex = new StringBuilder(HEAD.replace(TITLE, "OpenEJB Example"));
-        mainIndex.append(HEAD_MAIN);
-        mainIndex.append(getMainContent(generatedIndexHtml, generatedDir));
-        mainIndex.append(FOOT_MAIN).append(FOOT);
-        try {
-            FileUtils.writeStringToFile(new File(generatedDir, INDEX_HTML), mainIndex.toString());
-        } catch (IOException e) {
-            LOGGER.error("can't write main index file.");
-        }
+        tpl(MAIN_TEMPLATE,
+            newMap()
+                .add(TITLE, "OpenEJB Example")
+                .add(BASE, base)
+                .add("examples", exampleLinks)
+                .map(),
+            new File(generatedDir, INDEX_HTML).getPath());
     }
 
-    private static String getGlossaryContent(Map<String, Set<String>> exampleLinksByKeyword) {
-        StringBuilder glossaryContent = new StringBuilder("<h2>Glossary</h2>\n");
-
-        glossaryContent.append(getTemplate("js.glossary.frag.html"));
-
-        // checkboxes
-        glossaryContent.append("<div id=\"checkboxes\">\n")
-            .append("<div id=\"checkboxes-button\"><ul>\n")
-            .append("<li><input type=\"button\" value=\"Aggregate\"")
-                    .append(" onclick=\"javascript:aggregate(this)\" ></li>")
-            .append("<li><input type=\"button\" value=\"Hide APIs\" id=\"showCheckboxes\"")
-                    .append(" onclick=\"javascript:showCheckboxes()\" ></li>")
-            .append("<li><input type=\"button\" value=\"Select All\"")
-                    .append(" onclick=\"javascript:selectCheckboxes(true)\" ></li>")
-            .append("<li><input type=\"button\" value=\"Select None\"")
-                .append(" onclick=\"javascript:selectCheckboxes(false)\" ></li>")
-            .append("</div></ul>\n")
-            .append("<div class=\"clear\" />\n")
-            .append("<div id=\"checkboxes-check\"><ul>\n");
-
-        List<String> apis = new ArrayList<String>(exampleLinksByKeyword.keySet());
-        Collections.sort(apis);
-        for (String api : apis) {
-            glossaryContent.append("<li>")
-                    .append("<input type=\"checkbox\" id=\"").append(api.replace('.', '-')) // . means class in css
-                        .append("\" checked=\"true\" onclick=\"javascript:checkBoxClicked(this.id, this.checked)\" >")
-                    .append(api)
-                .append("</li>\n");
+    private static Map<String, String> getAggregateClasses(List<String> links, Map<String, Set<String>> exampleLinksByKeyword) {
+        Map<String, String> classes = new HashMap<String, String>();
+        for (String link: links) {
+            classes.put(link, getHTMLClass(exampleLinksByKeyword, link));
         }
-        glossaryContent.append("</ul></div>\n</div>\n");
+        return classes;
+    }
 
-        StringBuilder aggregated = new StringBuilder("<div id=\"aggregate\">\n<ul>");
-        glossaryContent.append("<div id=\"list\">\n<ul>\n");
+    private static Map<String, String> getClassesByApi(Map<String, Set<String>> exampleLinksByKeyword) {
+        Map<String, String> classes = new HashMap<String, String>();
+        for (String api : exampleLinksByKeyword.keySet()) {
+            classes.put(api, api.replace(".", "-"));
+        }
+        return classes;
+    }
 
-        Map<String, String> linkByExample = new HashMap<String, String>();
+    private static List<String> removePrefix(File path, List<File> files) {
+        List<String> processed = new ArrayList<String>();
+        for (File file : files) {
+            processed.add(getLink(path, file));
+        }
+        return processed;
+    }
 
-        for (String api : apis) {
-            glossaryContent.append("<li class=\"").append(api.replace('.', '-')).append("\">")
-                .append(api).append("\n<ul>\n");
-            List<String> sortedExamples = new ArrayList<String>(exampleLinksByKeyword.get(api));
-            Collections.sort(sortedExamples);
-            for (String link : sortedExamples) {
-                String name = link;
-                int idx = name.lastIndexOf('/');
-                int idxBefore = name.lastIndexOf('/', idx - 1);
-                if (idx >= 0 && idxBefore >= 0) {
-                    name = name.substring(idxBefore + 1, idx);
+    private static Map<String, Integer> getAndUpdateApis(List<File> javaFiles, Map<String, Set<String>> exampleLinksByKeyword, File generatedDir, File index) {
+        Map<String, Integer> apiCount = new TreeMap<String, Integer>();
+        Collections.sort(javaFiles);
+        for (File file : javaFiles) {
+            try {
+                Set<String> imports = getImports(file);
+                if (imports != null) {
+                    for (String name : imports) {
+                        if (name.startsWith(JAVAX_PREFIX)) {
+                            if (!exampleLinksByKeyword.containsKey(name)) {
+                                exampleLinksByKeyword.put(name, new HashSet<String>());
+                            }
+                            exampleLinksByKeyword.get(name).add(getLink(generatedDir, index));
+                        }
+                        if (!apiCount.containsKey(name)) {
+                            apiCount.put(name, 1);
+                        } else {
+                            apiCount.put(name, apiCount.get(name) + 1);
+                        }
+                    }
                 }
-                if (!linkByExample.containsKey(name)) {
-                    linkByExample.put(link, name);
-                }
-                glossaryContent.append("<li><a href=\"").append(link).append("\">").append(name).append("</a></li>");
+            } catch (IOException e) {
+                LOGGER.error("can't read " + file.getPath());
             }
-            glossaryContent.append("</ul>");
         }
-        glossaryContent.append("</ul></li></div>\n");
-
-        List<String> links = new ArrayList<String>(linkByExample.keySet());
-        Collections.sort(links);
-        for (String link : links) {
-            String exampleLink = linkByExample.get(link);
-            aggregated.append("<li class=\"").append(getHTMLClass(exampleLinksByKeyword, link)).append("\">")
-                .append("<a href=\"").append(link).append("\">").append(exampleLink).append("</a>")
-                .append("</li>\n");
-        }
-        aggregated.append("</ul></div>\n");
-        return glossaryContent.append(aggregated).toString();
+        return apiCount;
     }
 
     private static String getHTMLClass(Map<String, Set<String>> exampleLinksByKeyword, String value) {
@@ -289,45 +272,16 @@ public class GenerateIndex {
         return clazz.toString();
     }
 
-    private static String getMainContent(List<File> generatedIndexHtml, File generatedDir) {
+    private static Map<String, String> getExampleLinks(List<File> generatedIndexHtml, File generatedDir) {
         // list of all examples
-        StringBuilder mainIndex = new StringBuilder("<div id=\"examples\"><ul><li><a href=\"")
-            .append(GLOSSARY_HTML).append("\">").append("Glossary").append("</a></li></ul>");
-        mainIndex.append("    <ul>\n");
+        Map<String, String> links = new TreeMap<String, String>();
         Collections.sort(generatedIndexHtml);
         for (File example : generatedIndexHtml) {
             String link = getLink(generatedDir, example);
             String exampleName = example.getParentFile().getName();
-            mainIndex.append("      <li class=\"").append(exampleName).append("\">\n")
-                .append("        <a href=\"").append(link)
-                .append("\">").append(exampleName).append("</a>\n")
-                .append("      </li>\n");
+            links.put(link, exampleName);
         }
-        mainIndex.append("    </ul>\n</div>\n");
-
-        return mainIndex.toString();
-    }
-
-    private static String getDefaultExampleContent(String name, File prefix, List<File> javaFiles, Map<String, Integer> apiCount) {
-        StringBuilder builder = new StringBuilder("<h2>").append(name).append("</h2>\n")
-            .append("<div id=\"javaFiles\">\n")
-            .append("<ul>Files:\n");
-        for (File f : javaFiles) {
-            String path = f.getPath().replace(prefix.getPath(), "");
-            if (path.startsWith("/")) {
-                path = path.substring(1);
-            }
-            builder.append("<li>").append(path).append("</li>\n");
-        }
-        builder.append("</ul>\n").append("</div>\n");
-
-        builder.append("<div id=\"api\">\n").append("<ul>API used:\n");
-        for (Map.Entry<String, Integer> api : apiCount.entrySet()) {
-            builder.append("<li>").append(api.getKey()).append(": ").append(api.getValue()).append(" times</li>\n");
-        }
-        builder.append("</ul>\n").append("</div>\n");
-
-        return builder.toString();
+        return links;
     }
 
     private static Set<String> getImports(File file) throws IOException {
@@ -346,7 +300,7 @@ public class GenerateIndex {
 
     private static String getLink(File generatedDir, File example) {
         return example.getPath().replace(generatedDir.getPath(), "")
-                        .replace(File.separator, "/").replaceFirst("/", "");
+            .replace(File.separator, "/").replaceFirst("/", "");
     }
 
     private static Collection<File> listFolders(File extractedDir, String name) {
@@ -390,7 +344,7 @@ public class GenerateIndex {
                     File file = new File(output + File.separator + entry.getName());
                     FileOutputStream fos = new FileOutputStream(file);
                     while ((count = zip.read(buf, 0, BUFFER_SIZE)) != -1) {
-                       fos.write(buf, 0, count);
+                        fos.write(buf, 0, count);
                     }
                     fos.flush();
                     fos.close();
@@ -410,16 +364,8 @@ public class GenerateIndex {
         }
     }
 
-    private static String getTemplate(String file) {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("generate-index/" + file);
-        try {
-            File f = new File(url.toURI());
-            return FileUtils.readFileToString(f);
-        } catch (URISyntaxException e) {
-            LOGGER.error("can't get template " + file);
-        } catch (IOException e) {
-            LOGGER.error("can't read template " + file);
-        }
-        return "";
+    // just a shortcut
+    private static void tpl(String template, Map<String, Object> mapContext, String path) {
+        OpenEJBTemplate.get().apply(template, mapContext, path);
     }
 }

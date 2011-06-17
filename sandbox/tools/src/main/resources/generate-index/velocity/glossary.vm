@@ -1,0 +1,45 @@
+#parse("generate-index/velocity/header.vm")
+            <h2>Glossary</h2>
+
+            <div id="checkboxes">
+                <div id="checkboxes-button">
+                    <ul>
+                        <li><input type="button" value="Aggregate" onclick="javascript:aggregate(this)" ></li>
+                        <li><input type="button" value="Hide APIs" id="showCheckboxes" onclick="javascript:showCheckboxes()" ></li>
+                        <li><input type="button" value="Select All" onclick="javascript:selectCheckboxes(true)" ></li>
+                        <li><input type="button" value="Select None" onclick="javascript:selectCheckboxes(false)" ></li>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+
+                <div id="checkboxes-check">
+                    <ul>
+#foreach( $api in $exampleByKeyword.keySet() )
+                        <li><input type="checkbox" id="$classes.get($api)" checked="true" onclick="javascript:checkBoxClicked(this.id, this.checked)" >$api</li>
+#end
+                    </ul>
+                </div>
+            </div>
+
+            <div id="list">
+                <ul>
+#foreach( $api in $exampleByKeyword.entrySet() )
+                    <li class="$classes.get($api.key)">$api.key
+                        <ul>
+#foreach( $link in $api.value )
+                            <li><a href="$link">$links.get($link)</a></li>
+#end
+                        </ul>
+                    </li>
+#end
+                </ul>
+            </div>
+
+            <div id="aggregate">
+                <ul>
+#foreach( $example in $links.entrySet() )
+                    <li class="$aggregateClasses.get($example.key)"><a href="$example.key">$example.value</a></li>
+#end
+                </ul>
+            </div>
+#parse("generate-index/velocity/footer.vm")
