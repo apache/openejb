@@ -1,9 +1,7 @@
 package org.apache.openejb.tools.examples;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Romain Manni-Bucau

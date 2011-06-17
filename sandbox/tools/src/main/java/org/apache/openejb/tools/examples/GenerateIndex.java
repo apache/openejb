@@ -132,10 +132,10 @@ public class GenerateIndex {
         // crack open the examples zip file
         extract(args[0], extractedDir.getPath());
 
+        // generate index.html by example
         Map<String, Set<String>> exampleLinksByKeyword = new TreeMap<String, Set<String>>();
         Map<String, String> nameByLink = new TreeMap<String, String>();
         Collection<File> examples = listFolders(extractedDir, POM_XML);
-        List<File> generatedIndexHtml = new ArrayList<File>();
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
@@ -153,7 +153,6 @@ public class GenerateIndex {
             }
 
             File index = new File(generated, INDEX_HTML);
-            generatedIndexHtml.add(index);
             nameByLink.put(getLink(generatedDir, index), example.getName());
 
             List<File> javaFiles = listFilesEndingWith(example, ".java");
@@ -181,19 +180,17 @@ public class GenerateIndex {
             }
         }
 
-        Map<String, String> exampleLinks = getExampleLinks(generatedIndexHtml, generatedDir);
-
-        // create a glossary page
+        // create a glossary page (OR search)
         tpl(GLOSSARY_TEMPLATE,
             newMap()
                 .add(TITLE, "OpenEJB Example Glossary")
                 .add(BASE, base)
-                .add("javascripts", newList().add("glossary.js").list())
+                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList().add("glossary.js").list())
                 .add("links", nameByLink)
-                .add("classes", getClassesByApi(exampleLinksByKeyword))
+                .add("classes", getClassesByApi(exampleLinksByKeyword)) // css class(es)
                 .add("exampleByKeyword", exampleLinksByKeyword)
-                .add("examples", exampleLinks)
-                .add("aggregateClasses", getAggregateClasses(new ArrayList<String>(exampleLinks.keySet()), exampleLinksByKeyword))
+                .add("examples", nameByLink)
+                .add("aggregateClasses", getAggregateClasses(new ArrayList<String>(nameByLink.keySet()), exampleLinksByKeyword))
                 .map(),
             new File(generatedDir, GLOSSARY_HTML).getPath());
 
@@ -202,7 +199,7 @@ public class GenerateIndex {
             newMap()
                 .add(TITLE, "OpenEJB Example")
                 .add(BASE, base)
-                .add("examples", exampleLinks)
+                .add("examples", nameByLink)
                 .map(),
             new File(generatedDir, INDEX_HTML).getPath());
     }
@@ -270,18 +267,6 @@ public class GenerateIndex {
             }
         }
         return clazz.toString();
-    }
-
-    private static Map<String, String> getExampleLinks(List<File> generatedIndexHtml, File generatedDir) {
-        // list of all examples
-        Map<String, String> links = new TreeMap<String, String>();
-        Collections.sort(generatedIndexHtml);
-        for (File example : generatedIndexHtml) {
-            String link = getLink(generatedDir, example);
-            String exampleName = example.getParentFile().getName();
-            links.put(link, exampleName);
-        }
-        return links;
     }
 
     private static Set<String> getImports(File file) throws IOException {

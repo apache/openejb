@@ -22,6 +22,7 @@ public final class OpenEJBTemplate {
     private static final OpenEJBTemplate INSTANCE = new OpenEJBTemplate();
     private static final String LOG_TAG = OpenEJBTemplate.class.getName();
     private static final String PREFIX = "generate-index/velocity/";
+    public static final String USER_JAVASCRIPTS = "javascripts";
 
     private VelocityEngine engine;
     private Map<String, URL> resources = new HashMap<String, URL>();
