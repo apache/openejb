@@ -1,6 +1,14 @@
 #parse("generate-index/velocity/header.vm")
             <h2>OpenEJB examples:</h2>
 
+            <div id="checkboxes-check">
+                <ul>
+#foreach( $entry in $classes.entrySet() )
+                    <li><input type="button" selected="false" api="$classes.get($entry.key)" value="$entry.key" onclick="javascript:filterExamples(this)" ></li>
+#end
+                </ul>
+            </div>
+
             <div id="examples">
                 <ul>
                     <li><a href="glossary.html">Glossary</a></li>
@@ -8,10 +16,9 @@
 
                 <ul>
 #foreach( $example in $examples.entrySet() )
-                    <li class="$example.value">
-                        <a href="$example.key">$example.value</a>
-                    </li>
+                    <li class="$aggregatedClasses.get($example.key)"><a href="$example.key">$example.value</a></li>
 #end
                 </ul>
             </div>
+            <div id='filtering' style="display:none;"></div>
 #parse("generate-index/velocity/footer.vm")

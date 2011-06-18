@@ -29,8 +29,10 @@ import org.apache.openejb.tools.examples.GenerateIndex;
  * @version $Rev$ $Date$
  */
 public class Daily {
+    private static final String EXAMPLE_ZIP_LOCATION = "/tmp/examples.zip";
+    private static final String EXAMPLE_WORKING_FOLDER = "/tmp/openejb";
 
     public static void main(String[] args) {
-        GenerateIndex.main(new String[] { "/tmp/examples.zip", "/tmp/openejb"});
+        GenerateIndex.main(new String[] { EXAMPLE_ZIP_LOCATION, EXAMPLE_WORKING_FOLDER });
     }
 }

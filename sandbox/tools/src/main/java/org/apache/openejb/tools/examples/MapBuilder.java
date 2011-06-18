@@ -6,23 +6,33 @@ import java.util.Map;
 /**
  * @author Romain Manni-Bucau
  */
-public final class MapBuilder {
-    private Map<String, Object> internal = new HashMap<String, Object>();
+public final class MapBuilder<A, B> {
+    private Map<A, B> internal = new HashMap<A, B>();
+    private Class<A> kClass;
+    private Class<B> vClass;
 
-    private MapBuilder() {
-        // no-op
+    private MapBuilder(Class<A> a, Class<B> b) {
+        kClass = a;
+        vClass = b;
     }
 
-    public static MapBuilder newMap() {
-        return new MapBuilder();
+    public static <T1, T2> MapBuilder<T1, T2> newMap(Class<T1> kClass, Class<T2> vClass) {
+        return new MapBuilder<T1, T2>(kClass, vClass);
     }
 
-    public MapBuilder add(String key, Object value) {
+    public MapBuilder<A, B> add(A key, B value) {
         internal.put(key, value);
         return this;
     }
 
-    public Map<String, Object> map() {
+    public Map<A, B> map() {
         return internal;
+    }
+
+    @Override public String toString() {
+        return "MapBuilder{" +
+            "key = " + kClass +
+            ", value = " + vClass +
+            '}';
     }
 }

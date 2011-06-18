@@ -24,7 +24,7 @@ body {
     width: 400px;
 }
 
-#checkboxes ul {
+#checkboxes-button ul, #checkboxes-check ul {
     list-style-type:none;
 }
 

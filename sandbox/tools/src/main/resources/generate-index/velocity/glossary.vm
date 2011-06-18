@@ -38,7 +38,7 @@
             <div id="aggregate">
                 <ul>
 #foreach( $example in $links.entrySet() )
-                    <li class="$aggregateClasses.get($example.key)"><a href="$example.key">$example.value</a></li>
+                    <li class="$aggregatedClasses.get($example.key)"><a href="$example.key">$example.value</a></li>
 #end
                 </ul>
             </div>
