@@ -1,0 +1,10 @@
+#parse("generate-index/velocity/header.vm")
+            <h2>Source: $file</h2>
+
+            <div id="source">
+                <pre>
+                    <code>
+$code
+                    </code>
+                </pre>
+#parse("generate-index/velocity/footer.vm")

@@ -66,6 +66,15 @@ public final class ViewHelper {
         return processed;
     }
 
+    public static List<String> startFromPrefix(String prefix, List<File> files) {
+        List<String> processed = new ArrayList<String>();
+        for (File file : files) {
+            int index = file.getPath().indexOf(prefix);
+            processed.add(file.getPath().substring(index));
+        }
+        return processed;
+    }
+
     public static Map<String, Integer> getAndUpdateApis(List<File> javaFiles, Map<String, Set<String>> exampleLinksByKeyword, File generatedDir, File index) {
         Map<String, Integer> apiCount = new TreeMap<String, Integer>();
         Collections.sort(javaFiles);

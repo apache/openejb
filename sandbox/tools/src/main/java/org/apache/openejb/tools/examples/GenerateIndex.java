@@ -41,7 +41,7 @@ import static org.apache.openejb.tools.examples.ViewHelper.getAndUpdateApis;
 import static org.apache.openejb.tools.examples.ViewHelper.getClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getExamplesClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getLink;
-import static org.apache.openejb.tools.examples.ViewHelper.removePrefix;
+import static org.apache.openejb.tools.examples.ViewHelper.startFromPrefix;
 import static org.apache.openejb.tools.examples.ZipHelper.extract;
 import static org.apache.openejb.tools.examples.ZipHelper.zipDirectory;
 
@@ -83,6 +83,7 @@ public class GenerateIndex {
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
     private static final String TEMPLATE_COMMON_PROPERTIES = "generate-index/config.properties";
     private static final String MAIN_TEMPLATE = "index.vm";
+    private static final String CODE_TEMPLATE = "code.vm";
     private static final String DEFAULT_EXAMPLE_TEMPLATE = "example.vm";
     private static final String EXTERNALE_TEMPLATE = "external.vm";
 
@@ -141,18 +142,41 @@ public class GenerateIndex {
             String link = getLink(generatedDir, index);
             nameByLink.put(link, example.getName());
 
-            File zip = zip = new File(generated, example.getName() + ".zip");
+            File zip = new File(generated, example.getName() + ".zip");
             String zipLink = getLink(generatedDir, zip);
             zipLinks.put(link, zipLink);
 
             try {
                 zipDirectory(example, zip, example.getParent());
             } catch (IOException e) {
-                LOGGER.error("can't zip example " + example.getName());
+                LOGGER.error("can't zip example " + example.getName(), e);
             }
 
             List<File> javaFiles = listFilesEndingWith(example, ".java");
             Map<String, Integer> apiCount = getAndUpdateApis(javaFiles, exampleLinksByKeyword, generatedDir, index);
+            for (File java : javaFiles) {
+                String code;
+                try {
+                    code = FileUtils.readFileToString(java);
+                } catch (IOException e) {
+                    LOGGER.error("can't read source " + java.getPath(), e);
+                    continue;
+                }
+
+                String source = getLink(example, java);
+                File sourceFile = new File(generated, source);
+                mkdirp(sourceFile.getParentFile());
+
+                tpl(CODE_TEMPLATE,
+                    newMap(String.class, Object.class)
+                        .add(TITLE, source + " source")
+                        .add(BASE, base)
+                        .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
+                        .add("file", source)
+                        .add("code", code)
+                        .map(),
+                    sourceFile.getPath() + ".html");
+            }
 
             if (html.isEmpty()) {
                 LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
@@ -164,7 +188,7 @@ public class GenerateIndex {
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("apis", apiCount)
                         .add("link", zip.getName())
-                        .add("files", removePrefix(extractedDir, javaFiles))
+                        .add("files", startFromPrefix("src/", javaFiles))
                         .map(),
                     index.getPath());
             } else {

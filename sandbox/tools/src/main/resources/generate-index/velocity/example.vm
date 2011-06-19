@@ -9,7 +9,7 @@
                 <ul>
                     Files:
 #foreach( $file in $files )
-                    <li>$file</li>
+                    <li><a href="${file}.html">$file</a></li>
 #end
                 </ul>
             </div>

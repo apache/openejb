@@ -20,5 +20,4 @@
 #end
                 </ul>
             </div>
-            <div id='filtering' style="display:none;"></div>
 #parse("generate-index/velocity/footer.vm")
