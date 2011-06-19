@@ -25,10 +25,12 @@ body {
     text-align: center;
 }
 
-#checkboxes-button ul, #checkboxes-check ul {
+#checkboxes-button ul, #checkboxes-check ul, #header ul {
     list-style-type:none;
 }
-
+#floatingbar ul li {
+    margin-top: -1.1em;
+}
 #checkboxes-button ul li {
     float:left;
 }
@@ -50,10 +52,9 @@ body {
 #floatingbar ul {
     list-style-type:none;
 }
-#floatingbar ul li {
+#floatingbar ul li, #header ul li {
     float:left;
     color:#666;
-    margin-top: -1.1em;
 }
 #floatingbar ul li a {
     text-decoration:none;

@@ -71,8 +71,6 @@ import static org.apache.openejb.tools.examples.ZipHelper.zipDirectory;
 public class GenerateIndex {
     private static final Logger LOGGER = Logger.getLogger(GenerateIndex.class);
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
-    private static final String BASE_VAR = ExamplesPropertiesManager.get().getProperty("template.var.base");
-    private static final String TITLE_VAR = ExamplesPropertiesManager.get().getProperty("template.var.title");
 
     /**
      * Can be run in an IDE or via Maven like so:
@@ -84,9 +82,6 @@ public class GenerateIndex {
      */
     public static void generate(String examplesZip, String workFolder) {
         Properties properties = ExamplesPropertiesManager.get();
-
-        // will be used everywhere so keep it here
-        String base = properties.getProperty("base");
 
         // working folder
         File extractedDir = new File(workFolder, properties.getProperty("extracted"));
@@ -146,8 +141,7 @@ public class GenerateIndex {
 
                 tpl(properties.getProperty("template.code"),
                     newMap(String.class, Object.class)
-                        .add(TITLE_VAR, source + " source")
-                        .add(BASE_VAR, base)
+                        .add("title", source + " source")
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("file", source)
                         .add("code", code)
@@ -160,8 +154,7 @@ public class GenerateIndex {
 
                 tpl(properties.getProperty("template.default"),
                     newMap(String.class, Object.class)
-                        .add(TITLE_VAR, example.getName() + " example")
-                        .add(BASE_VAR, base)
+                        .add("title", example.getName() + " example")
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("apis", apiCount)
                         .add("link", zip.getName())
@@ -171,8 +164,7 @@ public class GenerateIndex {
             } else {
                 tpl(properties.getProperty("template.external"),
                     newMap(String.class, Object.class)
-                        .add(TITLE_VAR, example.getName() + " example")
-                        .add(BASE_VAR, base)
+                        .add("title", example.getName() + " example")
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("content", html)
                         .map(),
@@ -187,8 +179,7 @@ public class GenerateIndex {
         // create a glossary page (OR search)
         tpl(properties.getProperty("template.glossary"),
             newMap(String.class, Object.class)
-                .add(TITLE_VAR, "OpenEJB Example Glossary")
-                .add(BASE_VAR, base)
+                .add("title", "OpenEJB Example Glossary")
                 .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
                 .add("links", nameByLink)
                 .add("zipLinks", zipLinks)
@@ -202,8 +193,7 @@ public class GenerateIndex {
         // create an index for all example directories
         tpl(properties.getProperty("template.main"),
             newMap(String.class, Object.class)
-                .add(TITLE_VAR, "OpenEJB Example")
-                .add(BASE_VAR, base)
+                .add("title", "OpenEJB Example")
                 .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
                 .add("zipLinks", zipLinks)
                 .add("examples", nameByLink)
@@ -216,6 +206,11 @@ public class GenerateIndex {
 
     // just a shortcut
     private static void tpl(String template, Map<String, Object> mapContext, String path) {
-        OpenEJBTemplate.get().apply(template, mapContext, path);
+        OpenEJBTemplate.get().apply(template,
+            newMap(mapContext)
+                .add("base", ExamplesPropertiesManager.get().getProperty("home.resources"))
+                .add("home", ExamplesPropertiesManager.get().getProperty("home.site"))
+                .map(),
+            path);
     }
 }

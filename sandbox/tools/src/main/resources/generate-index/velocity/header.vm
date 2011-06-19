@@ -20,6 +20,14 @@
     </head>
 
     <body>
+        <div id="header">
+          <ul>
+            <li><a href="" onclick="javascript:history.go(-1);return false;"> &lt;&lt; </a></li>
+            <li><a href="$home"> Examples browser </a></li>
+          </ul>
+        </div>
+        <div class="clear"></div>
+
         <div id="floatingbar">
           <ul>
             <li><a href="http://twitter.com/#!/OpenEJB">OpenEJB on Twitter</a></li>
