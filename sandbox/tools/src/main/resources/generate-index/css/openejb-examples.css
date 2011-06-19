@@ -21,7 +21,8 @@ body {
 #checkboxes-check {
     margin-right: 0;
     float: right;
-    width: 400px;
+    width: 25em;
+    text-align: center;
 }
 
 #checkboxes-button ul, #checkboxes-check ul {
@@ -64,4 +65,9 @@ body {
 }
 #floatingbar ul li a:hover {
     color:#000033;
+}
+
+.button {
+    font-size: 0.8em;
+    width: 20em;
 }

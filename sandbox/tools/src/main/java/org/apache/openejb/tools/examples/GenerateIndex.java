@@ -40,6 +40,7 @@ import static org.apache.openejb.tools.examples.OpenEJBTemplate.USER_JAVASCRIPTS
 import static org.apache.openejb.tools.examples.ViewHelper.getAggregateClasses;
 import static org.apache.openejb.tools.examples.ViewHelper.getAndUpdateApis;
 import static org.apache.openejb.tools.examples.ViewHelper.getClassesByApi;
+import static org.apache.openejb.tools.examples.ViewHelper.getExamplesClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getLink;
 import static org.apache.openejb.tools.examples.ViewHelper.removePrefix;
 
@@ -70,12 +71,12 @@ import static org.apache.openejb.tools.examples.ViewHelper.removePrefix;
 public class GenerateIndex {
     private static final Logger LOGGER = Logger.getLogger(GenerateIndex.class);
 
-    private static final String EXTRACTED_EXAMPLES = "extracted";
-    private static final String GENERATED_EXAMPLES = "generated";
-    private static final String INDEX_HTML = "index.html";
-    private static final String GLOSSARY_HTML = "glossary.html";
-    private static final String README_MD = "README.md";
-    private static final String POM_XML = "pom.xml";
+    public static final String EXTRACTED_EXAMPLES = "extracted";
+    public static final String GENERATED_EXAMPLES = "generated";
+    public static final String INDEX_HTML = "index.html";
+    public static final String GLOSSARY_HTML = "glossary.html";
+    public static final String README_MD = "README.md";
+    public static final String POM_XML = "pom.xml";
 
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
 
@@ -168,7 +169,8 @@ public class GenerateIndex {
             }
         }
 
-        Map<String, String> classesByApi = getClassesByApi(exampleLinksByKeyword); // css class(es)
+        Map<String, String> classesByApi = getClassesByApi(exampleLinksByKeyword, '.', ViewHelper.REPLACED_CHAR); // css class(es) for aggregates
+        Map<String, String> examplesClassesByApi = getExamplesClassesByApi(exampleLinksByKeyword); // css class(es) for buttons
         Map<String, String> aggregatedClasses = getAggregateClasses(new ArrayList<String>(nameByLink.keySet()), exampleLinksByKeyword);
 
         // create a glossary page (OR search)
@@ -178,9 +180,9 @@ public class GenerateIndex {
                 .add(BASE, base)
                 .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
                 .add("links", nameByLink)
+                .add("examples", nameByLink)
                 .add("classes", classesByApi)
                 .add("exampleByKeyword", exampleLinksByKeyword)
-                .add("examples", nameByLink)
                 .add("aggregatedClasses", aggregatedClasses)
                 .map(),
             new File(generatedDir, GLOSSARY_HTML).getPath());
@@ -193,6 +195,7 @@ public class GenerateIndex {
                 .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
                 .add("examples", nameByLink)
                 .add("classes", classesByApi)
+                .add("examplesClasses", examplesClassesByApi)
                 .add("aggregatedClasses", aggregatedClasses)
                 .map(),
             new File(generatedDir, INDEX_HTML).getPath());

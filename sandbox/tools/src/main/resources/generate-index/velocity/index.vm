@@ -4,7 +4,7 @@
             <div id="checkboxes-check">
                 <ul>
 #foreach( $entry in $classes.entrySet() )
-                    <li><input type="button" selected="false" api="$classes.get($entry.key)" value="$entry.key" onclick="javascript:filterExamples(this)" ></li>
+                    <li><input class="$examplesClasses.get($entry.key)" type="button" api="$classes.get($entry.key)" value="$entry.key" onclick="javascript:filterExamples(this)" ></li>
 #end
                 </ul>
             </div>
