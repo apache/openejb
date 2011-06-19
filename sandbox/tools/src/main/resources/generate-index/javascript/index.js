@@ -35,7 +35,7 @@ function filterExamples($button) {
     }
 
     // filtering examples
-    $('div#examples').find('li').each(function(i, val) {
+    $('div#examples').find('li' + filteringForExamples).each(function(i, val) {
         $(val).show('slow');
     });
     if (selectedClasses.length > 0) {
@@ -45,7 +45,7 @@ function filterExamples($button) {
     }
 
     // filtering buttons (apis)
-    $('div#checkboxes-check > ul > li > input[type=button].button').each(function(i, val) {
+    $('div#checkboxes-check > ul > li > input[type=button].button' + filteringForButtons).each(function(i, val) {
         $(val).show('slow');
     });
     if (correspondingExamples.length > 0) {
