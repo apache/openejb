@@ -2,6 +2,10 @@
             <h2>OpenEJB examples:</h2>
 
             <div id="checkboxes-check">
+                <div id="search-box">
+                    API: <input id="searchbox" type="text" />
+                </div>
+
                 <ul>
 #foreach( $entry in $classes.entrySet() )
                     <li><input class="$examplesClasses.get($entry.key)" type="button" api="$classes.get($entry.key)" value="$entry.key" onclick="javascript:filterExamples(this)" ></li>

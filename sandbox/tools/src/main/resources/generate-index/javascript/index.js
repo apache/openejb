@@ -1,3 +1,40 @@
+$(document).ready(function() {
+    $('input[type=text]#searchbox').keyup(function() {
+        input = $(this).val();
+        if (input.length != 0) {
+            var filter = input.split(' ');
+            var regexps = new Array();
+            var idx = 0;
+
+            for (var i = 0; i < filter.length; i++) {
+                if (!$.trim(filter[i]).length == 0) {
+                    regexps[idx++] = new RegExp(filter[i],"i");
+                }
+            }
+        }
+
+        // filtering apis
+        $('div#checkboxes-check > ul > li > input[type=button].button').each(function(i, val) {
+                var toShow = false;
+                if (input.length == 0) {
+                    toShow = true;
+                } else {
+                    for (var i = 0; i < regexps.length; i++) {
+                        if (regexps[i].test($(val).attr('value'))) {
+                            toShow = true;
+                            break;
+                        }
+                    }
+                }
+                if (toShow) {
+                    $(val).show('slow');
+                } else {
+                    $(val).hide();
+                }
+            });
+        });
+});
+
 var close = ' X';
 var selectedClasses = new Array(); // classes to use
 var correspondingExamples = new Array(); // classes to use
