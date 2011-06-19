@@ -1,6 +1,10 @@
 #parse("generate-index/velocity/header.vm")
             <h2>$title</h2>
 
+            <div id="download">
+                <a href="$link">Download as zip</a>
+            </div>
+
             <div id="javaFiles">
                 <ul>
                     Files:

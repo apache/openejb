@@ -33,6 +33,6 @@ public class Daily {
     private static final String EXAMPLE_WORKING_FOLDER = "/tmp/openejb";
 
     public static void main(String[] args) {
-        GenerateIndex.main(new String[] { EXAMPLE_ZIP_LOCATION, EXAMPLE_WORKING_FOLDER });
+        GenerateIndex.generate(EXAMPLE_ZIP_LOCATION, EXAMPLE_WORKING_FOLDER);
     }
 }

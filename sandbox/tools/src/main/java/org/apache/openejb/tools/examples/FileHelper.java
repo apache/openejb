@@ -14,11 +14,11 @@ import org.apache.log4j.Logger;
  * @author Romain Manni-Bucau
  */
 public final class FileHelper {
-    private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
-    private static final int BUFFER_SIZE = 1024;
-    private static final List<String> EXCLUDED_FOLDERS = ListBuilder.newList(String.class)
+    public static final List<String> EXCLUDED_FOLDERS = ListBuilder.newList(String.class)
         .add("examples").add(".svn").add("target").add(".git").add(".settings")
         .list();
+
+    private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 
     private FileHelper() {
         // no-op
@@ -46,35 +46,6 @@ public final class FileHelper {
             }
         }
         return examples;
-    }
-
-    public static void extract(String filename, String output) {
-        File extractHere = new File(output);
-        mkdirp(extractHere);
-
-        try {
-            // we'll read everything so ZipFile is useless
-            ZipInputStream zip = new ZipInputStream(new FileInputStream(filename));
-            byte[] buf = new byte[BUFFER_SIZE];
-            ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    mkdirp(new File(output + File.separator + entry.getName()));
-                } else {
-                    int count;
-                    File file = new File(output + File.separator + entry.getName());
-                    FileOutputStream fos = new FileOutputStream(file);
-                    while ((count = zip.read(buf, 0, BUFFER_SIZE)) != -1) {
-                        fos.write(buf, 0, count);
-                    }
-                    fos.flush();
-                    fos.close();
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("can't unzip examples", e);
-            throw new RuntimeException("can't unzip " + filename);
-        }
     }
 
     public static void mkdirp(File file) {

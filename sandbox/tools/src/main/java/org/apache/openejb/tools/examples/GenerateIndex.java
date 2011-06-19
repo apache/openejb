@@ -30,7 +30,6 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import static org.apache.openejb.tools.examples.FileHelper.extract;
 import static org.apache.openejb.tools.examples.FileHelper.listFilesEndingWith;
 import static org.apache.openejb.tools.examples.FileHelper.listFolders;
 import static org.apache.openejb.tools.examples.FileHelper.mkdirp;
@@ -43,6 +42,8 @@ import static org.apache.openejb.tools.examples.ViewHelper.getClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getExamplesClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getLink;
 import static org.apache.openejb.tools.examples.ViewHelper.removePrefix;
+import static org.apache.openejb.tools.examples.ZipHelper.extract;
+import static org.apache.openejb.tools.examples.ZipHelper.zipDirectory;
 
 /**
  * Most the examples do not have any documentation.
@@ -76,16 +77,16 @@ public class GenerateIndex {
     public static final String INDEX_HTML = "index.html";
     public static final String GLOSSARY_HTML = "glossary.html";
     public static final String README_MD = "README.md";
+
     public static final String POM_XML = "pom.xml";
 
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
-
     private static final String TEMPLATE_COMMON_PROPERTIES = "generate-index/config.properties";
     private static final String MAIN_TEMPLATE = "index.vm";
     private static final String DEFAULT_EXAMPLE_TEMPLATE = "example.vm";
     private static final String EXTERNALE_TEMPLATE = "external.vm";
-    private static final String GLOSSARY_TEMPLATE = "glossary.vm";
 
+    private static final String GLOSSARY_TEMPLATE = "glossary.vm";
     private static final String TITLE = "title";
     private static final String BASE = "base";
 
@@ -94,14 +95,10 @@ public class GenerateIndex {
      * <p/>
      * mvn clean install exec:java -Dexec.mainClass=org.apache.openejb.tools.examples.GenerateIndex
      *
-     * @param args zip-location work-folder
+     * @param examplesZip examples zip location
+     * @param workFolder work folder
      */
-    public static void main(String[] args) {
-        if (args.length < 2) {
-            LOGGER.info("Usage: <main> <examples-zip-location> <work-folder>");
-            return;
-        }
-
+    public static void generate(String examplesZip, String workFolder) {
         Properties properties = new Properties();
         URL propertiesUrl = Thread.currentThread().getContextClassLoader().getResource(TEMPLATE_COMMON_PROPERTIES);
         try {
@@ -114,15 +111,16 @@ public class GenerateIndex {
         String base = properties.getProperty(BASE);
 
         // working folder
-        File extractedDir = new File(args[1], EXTRACTED_EXAMPLES);
-        File generatedDir = new File(args[1], GENERATED_EXAMPLES);
+        File extractedDir = new File(workFolder, EXTRACTED_EXAMPLES);
+        File generatedDir = new File(workFolder, GENERATED_EXAMPLES);
 
         // crack open the examples zip file
-        extract(args[0], extractedDir.getPath());
+        extract(examplesZip, extractedDir.getPath());
 
         // generate index.html by example
         Map<String, Set<String>> exampleLinksByKeyword = new TreeMap<String, Set<String>>();
         Map<String, String> nameByLink = new TreeMap<String, String>();
+        Map<String, String> zipLinks = new TreeMap<String, String>();
         Collection<File> examples = listFolders(extractedDir, POM_XML);
         for (File example : examples) {
             // create a directory for each example
@@ -140,7 +138,18 @@ public class GenerateIndex {
             }
 
             File index = new File(generated, INDEX_HTML);
-            nameByLink.put(getLink(generatedDir, index), example.getName());
+            String link = getLink(generatedDir, index);
+            nameByLink.put(link, example.getName());
+
+            File zip = zip = new File(generated, example.getName() + ".zip");
+            String zipLink = getLink(generatedDir, zip);
+            zipLinks.put(link, zipLink);
+
+            try {
+                zipDirectory(example, zip, example.getParent());
+            } catch (IOException e) {
+                LOGGER.error("can't zip example " + example.getName());
+            }
 
             List<File> javaFiles = listFilesEndingWith(example, ".java");
             Map<String, Integer> apiCount = getAndUpdateApis(javaFiles, exampleLinksByKeyword, generatedDir, index);
@@ -154,6 +163,7 @@ public class GenerateIndex {
                         .add(BASE, base)
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("apis", apiCount)
+                        .add("link", zip.getName())
                         .add("files", removePrefix(extractedDir, javaFiles))
                         .map(),
                     index.getPath());
@@ -180,6 +190,7 @@ public class GenerateIndex {
                 .add(BASE, base)
                 .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
                 .add("links", nameByLink)
+                .add("zipLinks", zipLinks)
                 .add("examples", nameByLink)
                 .add("classes", classesByApi)
                 .add("exampleByKeyword", exampleLinksByKeyword)
@@ -193,6 +204,7 @@ public class GenerateIndex {
                 .add(TITLE, "OpenEJB Example")
                 .add(BASE, base)
                 .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
+                .add("zipLinks", zipLinks)
                 .add("examples", nameByLink)
                 .add("classes", classesByApi)
                 .add("examplesClasses", examplesClassesByApi)
