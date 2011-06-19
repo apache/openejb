@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 
 public class OpenEJBMessageFilterUtil implements RetweetAppConstants {

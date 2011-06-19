@@ -19,12 +19,13 @@ import org.apache.velocity.runtime.log.CommonsLogLogChute;
 public final class OpenEJBTemplate {
     private static final Logger LOGGER = Logger.getLogger(OpenEJBTemplate.class);
 
-    public static final String USER_JAVASCRIPTS = "javascripts";
-    public static final String USER_CSS = "css";
-
     private static final OpenEJBTemplate INSTANCE = new OpenEJBTemplate();
     private static final String LOG_TAG = OpenEJBTemplate.class.getName();
-    private static final String PREFIX = "generate-index/velocity/";
+    private static final String BASE = ExamplesPropertiesManager.get().getProperty("velocity");
+
+    // to be used by others classes
+    public static final String USER_JAVASCRIPTS = ExamplesPropertiesManager.get().getProperty("javascripts");
+    public static final String USER_CSS = ExamplesPropertiesManager.get().getProperty("css");
 
     private VelocityEngine engine;
     private Map<String, URL> resources = new HashMap<String, URL>();
@@ -56,7 +57,7 @@ public final class OpenEJBTemplate {
         }
 
         if (!resources.containsKey(template)) {
-            URL resource = Thread.currentThread().getContextClassLoader().getResource(PREFIX + template);
+            URL resource = Thread.currentThread().getContextClassLoader().getResource(BASE + template);
             resources.put(template, resource);
         }
 

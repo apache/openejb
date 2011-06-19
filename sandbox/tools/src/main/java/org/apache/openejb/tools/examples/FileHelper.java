@@ -1,24 +1,20 @@
 package org.apache.openejb.tools.examples;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.apache.log4j.Logger;
 
 /**
  * @author Romain Manni-Bucau
  */
 public final class FileHelper {
-    public static final List<String> EXCLUDED_FOLDERS = ListBuilder.newList(String.class)
-        .add("examples").add(".svn").add("target").add(".git").add(".settings")
-        .list();
-
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
+
+    public static final List<String> EXCLUDED_FOLDERS = Arrays.asList(
+        ExamplesPropertiesManager.get().getProperty("excluded").split(","));
 
     private FileHelper() {
         // no-op

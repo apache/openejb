@@ -19,7 +19,6 @@ package org.apache.openejb.tools.examples;
 import com.petebevin.markdown.MarkdownProcessor;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -71,25 +70,9 @@ import static org.apache.openejb.tools.examples.ZipHelper.zipDirectory;
  */
 public class GenerateIndex {
     private static final Logger LOGGER = Logger.getLogger(GenerateIndex.class);
-
-    public static final String EXTRACTED_EXAMPLES = "extracted";
-    public static final String GENERATED_EXAMPLES = "generated";
-    public static final String INDEX_HTML = "index.html";
-    public static final String GLOSSARY_HTML = "glossary.html";
-    public static final String README_MD = "README.md";
-
-    public static final String POM_XML = "pom.xml";
-
     private static final MarkdownProcessor PROCESSOR = new MarkdownProcessor();
-    private static final String TEMPLATE_COMMON_PROPERTIES = "generate-index/config.properties";
-    private static final String MAIN_TEMPLATE = "index.vm";
-    private static final String CODE_TEMPLATE = "code.vm";
-    private static final String DEFAULT_EXAMPLE_TEMPLATE = "example.vm";
-    private static final String EXTERNALE_TEMPLATE = "external.vm";
-
-    private static final String GLOSSARY_TEMPLATE = "glossary.vm";
-    private static final String TITLE = "title";
-    private static final String BASE = "base";
+    private static final String BASE_VAR = ExamplesPropertiesManager.get().getProperty("template.var.base");
+    private static final String TITLE_VAR = ExamplesPropertiesManager.get().getProperty("template.var.title");
 
     /**
      * Can be run in an IDE or via Maven like so:
@@ -100,20 +83,14 @@ public class GenerateIndex {
      * @param workFolder work folder
      */
     public static void generate(String examplesZip, String workFolder) {
-        Properties properties = new Properties();
-        URL propertiesUrl = Thread.currentThread().getContextClassLoader().getResource(TEMPLATE_COMMON_PROPERTIES);
-        try {
-            properties.load(propertiesUrl.openStream());
-        } catch (IOException e) {
-            LOGGER.error("can't read common properties, please put a " + TEMPLATE_COMMON_PROPERTIES + " file");
-        }
+        Properties properties = ExamplesPropertiesManager.get();
 
         // will be used everywhere so keep it here
-        String base = properties.getProperty(BASE);
+        String base = properties.getProperty("base");
 
         // working folder
-        File extractedDir = new File(workFolder, EXTRACTED_EXAMPLES);
-        File generatedDir = new File(workFolder, GENERATED_EXAMPLES);
+        File extractedDir = new File(workFolder, properties.getProperty("extracted"));
+        File generatedDir = new File(workFolder, properties.getProperty("generated"));
 
         // crack open the examples zip file
         extract(examplesZip, extractedDir.getPath());
@@ -122,13 +99,13 @@ public class GenerateIndex {
         Map<String, Set<String>> exampleLinksByKeyword = new TreeMap<String, Set<String>>();
         Map<String, String> nameByLink = new TreeMap<String, String>();
         Map<String, String> zipLinks = new TreeMap<String, String>();
-        Collection<File> examples = listFolders(extractedDir, POM_XML);
+        Collection<File> examples = listFolders(extractedDir, properties.getProperty("pom"));
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
             mkdirp(generated);
 
-            File readme = new File(example, README_MD);
+            File readme = new File(example, properties.getProperty("readme"));
             String html = "";
             if (readme.exists()) {
                 try {
@@ -138,7 +115,7 @@ public class GenerateIndex {
                 }
             }
 
-            File index = new File(generated, INDEX_HTML);
+            File index = new File(generated, properties.getProperty("index"));
             String link = getLink(generatedDir, index);
             nameByLink.put(link, example.getName());
 
@@ -167,10 +144,10 @@ public class GenerateIndex {
                 File sourceFile = new File(generated, source);
                 mkdirp(sourceFile.getParentFile());
 
-                tpl(CODE_TEMPLATE,
+                tpl(properties.getProperty("template.code"),
                     newMap(String.class, Object.class)
-                        .add(TITLE, source + " source")
-                        .add(BASE, base)
+                        .add(TITLE_VAR, source + " source")
+                        .add(BASE_VAR, base)
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("file", source)
                         .add("code", code)
@@ -179,12 +156,12 @@ public class GenerateIndex {
             }
 
             if (html.isEmpty()) {
-                LOGGER.warn("no " + README_MD + " for example " + example.getName() + " [" + example.getPath() + "]");
+                LOGGER.warn("no readme for example " + example.getName() + " [" + example.getPath() + "]");
 
-                tpl(DEFAULT_EXAMPLE_TEMPLATE,
+                tpl(properties.getProperty("template.default"),
                     newMap(String.class, Object.class)
-                        .add(TITLE, example.getName() + " example")
-                        .add(BASE, base)
+                        .add(TITLE_VAR, example.getName() + " example")
+                        .add(BASE_VAR, base)
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("apis", apiCount)
                         .add("link", zip.getName())
@@ -192,10 +169,10 @@ public class GenerateIndex {
                         .map(),
                     index.getPath());
             } else {
-                tpl(EXTERNALE_TEMPLATE,
+                tpl(properties.getProperty("template.external"),
                     newMap(String.class, Object.class)
-                        .add(TITLE, example.getName() + " example")
-                        .add(BASE, base)
+                        .add(TITLE_VAR, example.getName() + " example")
+                        .add(BASE_VAR, base)
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("content", html)
                         .map(),
@@ -208,10 +185,10 @@ public class GenerateIndex {
         Map<String, String> aggregatedClasses = getAggregateClasses(new ArrayList<String>(nameByLink.keySet()), exampleLinksByKeyword);
 
         // create a glossary page (OR search)
-        tpl(GLOSSARY_TEMPLATE,
+        tpl(properties.getProperty("template.glossary"),
             newMap(String.class, Object.class)
-                .add(TITLE, "OpenEJB Example Glossary")
-                .add(BASE, base)
+                .add(TITLE_VAR, "OpenEJB Example Glossary")
+                .add(BASE_VAR, base)
                 .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
                 .add("links", nameByLink)
                 .add("zipLinks", zipLinks)
@@ -220,13 +197,13 @@ public class GenerateIndex {
                 .add("exampleByKeyword", exampleLinksByKeyword)
                 .add("aggregatedClasses", aggregatedClasses)
                 .map(),
-            new File(generatedDir, GLOSSARY_HTML).getPath());
+            new File(generatedDir, properties.getProperty("glossary")).getPath());
 
         // create an index for all example directories
-        tpl(MAIN_TEMPLATE,
+        tpl(properties.getProperty("template.main"),
             newMap(String.class, Object.class)
-                .add(TITLE, "OpenEJB Example")
-                .add(BASE, base)
+                .add(TITLE_VAR, "OpenEJB Example")
+                .add(BASE_VAR, base)
                 .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
                 .add("zipLinks", zipLinks)
                 .add("examples", nameByLink)
@@ -234,7 +211,7 @@ public class GenerateIndex {
                 .add("examplesClasses", examplesClassesByApi)
                 .add("aggregatedClasses", aggregatedClasses)
                 .map(),
-            new File(generatedDir, INDEX_HTML).getPath());
+            new File(generatedDir, properties.getProperty("index")).getPath());
     }
 
     // just a shortcut

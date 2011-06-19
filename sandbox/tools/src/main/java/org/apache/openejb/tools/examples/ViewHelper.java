@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,8 +24,9 @@ public final class ViewHelper {
 
     public static final char REPLACED_CHAR = '_';
 
-    private static final String JAVAX_PREFIX = "javax.";
-    private static final String IMPORT_START = "import ";
+    private static final List<String> JAVAX_PREFIX = Arrays.asList(
+        ExamplesPropertiesManager.get().getProperty("api.filtering").split(","));
+    private static final String IMPORT_START = ExamplesPropertiesManager.get().getProperty("api.import");
 
     private ViewHelper() {
         // no-op
@@ -40,10 +42,11 @@ public final class ViewHelper {
 
     public static Map<String, String> getExamplesClassesByApi(Map<String, Set<String>> exampleLinksByKeyword) {
         Map<String, String> classes = new TreeMap<String, String>();
+        String index = ExamplesPropertiesManager.get().getProperty("index");
         for (Entry<String, Set<String>> entry : exampleLinksByKeyword.entrySet()) {
             Set<String> examples = new HashSet<String>();
             for (String example : entry.getValue()) {
-                examples.add(example.substring(0, example.length() - GenerateIndex.INDEX_HTML.length() - 1));
+                examples.add(example.substring(0, example.length() - index.length() - 1));
             }
             classes.put(entry.getKey(), concatHTMLClasses(examples, "button", '/', REPLACED_CHAR));
         }
@@ -56,14 +59,6 @@ public final class ViewHelper {
             classes.put(api, api.replace(toReplace, replaced));
         }
         return classes;
-    }
-
-    public static List<String> removePrefix(File path, List<File> files) {
-        List<String> processed = new ArrayList<String>();
-        for (File file : files) {
-            processed.add(getLink(path, file));
-        }
-        return processed;
     }
 
     public static List<String> startFromPrefix(String prefix, List<File> files) {
@@ -83,16 +78,19 @@ public final class ViewHelper {
                 Set<String> imports = getImports(file);
                 if (imports != null) {
                     for (String name : imports) {
-                        if (name.startsWith(JAVAX_PREFIX)) {
+                        name = name.trim();
+
+                        if (matches(name)) {
                             if (!exampleLinksByKeyword.containsKey(name)) {
                                 exampleLinksByKeyword.put(name, new HashSet<String>());
                             }
                             exampleLinksByKeyword.get(name).add(getLink(generatedDir, index));
-                        }
-                        if (!apiCount.containsKey(name)) {
-                            apiCount.put(name, 1);
-                        } else {
-                            apiCount.put(name, apiCount.get(name) + 1);
+
+                            if (!apiCount.containsKey(name)) {
+                                apiCount.put(name, 1);
+                            } else {
+                                apiCount.put(name, apiCount.get(name) + 1);
+                            }
                         }
                     }
                 }
@@ -101,6 +99,15 @@ public final class ViewHelper {
             }
         }
         return apiCount;
+    }
+
+    private static boolean matches(String name) {
+        for (String api : JAVAX_PREFIX) {
+            if (name.startsWith(api)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String concatHTMLClasses(Set<String> values, String defaultClass, char toReplace, char replaced) {

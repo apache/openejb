@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.tools;
 
+import org.apache.openejb.tools.examples.ExamplesPropertiesManager;
 import org.apache.openejb.tools.examples.GenerateIndex;
 
 /**
@@ -29,10 +30,9 @@ import org.apache.openejb.tools.examples.GenerateIndex;
  * @version $Rev$ $Date$
  */
 public class Daily {
-    private static final String EXAMPLE_ZIP_LOCATION = "/tmp/examples.zip";
-    private static final String EXAMPLE_WORKING_FOLDER = "/tmp/openejb";
-
     public static void main(String[] args) {
-        GenerateIndex.generate(EXAMPLE_ZIP_LOCATION, EXAMPLE_WORKING_FOLDER);
+        GenerateIndex.generate(
+            ExamplesPropertiesManager.get().getProperty("examples.zip"),
+            ExamplesPropertiesManager.get().getProperty("examples.working"));
     }
 }

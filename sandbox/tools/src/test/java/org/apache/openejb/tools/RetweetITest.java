@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.tools;
 
-import static org.junit.Assert.*;
 import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -26,6 +25,9 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.openejb.tools.twitter.ScreenNamesRetriever;
 import org.apache.openejb.tools.twitter.UserStatusRetriever;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class RetweetITest {
 

@@ -16,7 +16,7 @@ import static org.apache.openejb.tools.examples.FileHelper.mkdirp;
  */
 public final class ZipHelper {
     private static final Logger LOGGER = Logger.getLogger(ZipHelper.class);
-    private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = Integer.parseInt(ExamplesPropertiesManager.get().getProperty("zip.buffer"));
 
     private ZipHelper() {
         // no-op
@@ -59,8 +59,8 @@ public final class ZipHelper {
 
         String[] entries = dir.list();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipName));
-        for (int i = 0; i < entries.length; i++) {
-            File f = new File(dir, entries[i]);
+        for (String entry : entries) {
+            File f = new File(dir, entry);
             zipFile(out, f, skip);
         }
         out.close();

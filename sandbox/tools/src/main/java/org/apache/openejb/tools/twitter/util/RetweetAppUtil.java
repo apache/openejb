@@ -16,12 +16,11 @@
  */
 package org.apache.openejb.tools.twitter.util;
 
-import org.apache.log4j.Logger;
-import org.springframework.core.io.ClassPathResource;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.log4j.Logger;
+import org.springframework.core.io.ClassPathResource;
 
 public class RetweetAppUtil {
 
