@@ -40,7 +40,7 @@ import static org.apache.openejb.tools.examples.ViewHelper.getAndUpdateApis;
 import static org.apache.openejb.tools.examples.ViewHelper.getClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getExamplesClassesByApi;
 import static org.apache.openejb.tools.examples.ViewHelper.getLink;
-import static org.apache.openejb.tools.examples.ViewHelper.startFromPrefix;
+import static org.apache.openejb.tools.examples.ViewHelper.removePrefix;
 import static org.apache.openejb.tools.examples.ZipHelper.extract;
 import static org.apache.openejb.tools.examples.ZipHelper.zipDirectory;
 
@@ -158,7 +158,7 @@ public class GenerateIndex {
                         .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                         .add("apis", apiCount)
                         .add("link", zip.getName())
-                        .add("files", startFromPrefix("src/", javaFiles))
+                        .add("files", removePrefix(example.getPath(), javaFiles))
                         .map(),
                     index.getPath());
             } else {

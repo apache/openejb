@@ -61,11 +61,15 @@ public final class ViewHelper {
         return classes;
     }
 
-    public static List<String> startFromPrefix(String prefix, List<File> files) {
+    public static List<String> removePrefix(String prefix, List<File> files) {
         List<String> processed = new ArrayList<String>();
         for (File file : files) {
-            int index = file.getPath().indexOf(prefix);
-            processed.add(file.getPath().substring(index));
+            String path = file.getPath().substring(prefix.length());
+            if (path.startsWith("/")) {
+                processed.add(path.substring(1));
+            } else {
+                processed.add(path);
+            }
         }
         return processed;
     }
