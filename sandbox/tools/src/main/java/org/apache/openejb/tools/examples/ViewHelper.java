@@ -46,7 +46,9 @@ public final class ViewHelper {
         for (Entry<String, Set<String>> entry : exampleLinksByKeyword.entrySet()) {
             Set<String> examples = new HashSet<String>();
             for (String example : entry.getValue()) {
-                examples.add(example.substring(0, example.length() - index.length() - 1));
+                if (example.length() > index.length()) {
+                    examples.add(example.substring(0, example.length() - index.length() - 1));
+                }
             }
             classes.put(entry.getKey(), concatHTMLClasses(examples, "button", '/', REPLACED_CHAR));
         }

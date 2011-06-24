@@ -28,6 +28,7 @@
         </div>
         <div class="clear"></div>
 
+        <!--
         <div id="floatingbar">
           <ul>
             <li><a href="http://twitter.com/#!/OpenEJB">OpenEJB on Twitter</a></li>
@@ -35,5 +36,6 @@
             <li><a href="http://openejb.apache.org">OpenEJB Official Website</a></li>
           </ul>
         </div>
+        -->
 
         <div id="content">
