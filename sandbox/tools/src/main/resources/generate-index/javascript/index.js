@@ -59,7 +59,7 @@ function filterExamples($button) {
     // refresh
     var filteringForExamples = ''; // for examples
     if (selectedClasses.length > 0) {
-        filteringForExamples = '.'.concat(selectedClasses.join("."));
+        filteringForExamples = '.'.concat(selectedClasses.join('.'));
     }
 
     var filteringForButtons = ''; // for buttons
@@ -72,24 +72,51 @@ function filterExamples($button) {
     }
 
     // filtering examples
-    $('div#examples').find('li' + filteringForExamples).each(function(i, val) {
-        $(val).show('slow');
-    });
+    $('div#examples').find('li' + filteringForExamples).show('slow');
     if (selectedClasses.length > 0) {
-        $('div#examples').find('li:not(' + filteringForExamples + ').example').each(function(i, val) {
-            $(val).hide();
-        });
+        $('div#examples').find('li:not(' + filteringForExamples + ').example').hide();
     }
 
     // filtering buttons (apis)
-    $('div#checkboxes-check > ul > li > input[type=button].button' + filteringForButtons).each(function(i, val) {
-        $(val).show('slow');
-    });
     if (correspondingExamples.length > 0) {
-        $('div#checkboxes-check > ul > li > input[type=button].button').not(filteringForButtons).each(function(i, val) {
-            if (!$(val).attr('selected')) { // to be kept
-                $(val).hide();
+        var examples = new Array();
+        $('div#examples').find('li' + filteringForExamples).each(function(i, val) {
+            examples.push($(val).attr('example'));
+        }); 
+
+        $('div#checkboxes-check > ul > li > input[type=button].button').hide();
+        for (var i = 0; i < examples.length; i++) {
+            if (examples[i].length > 0) {
+                $('li[example="' + examples[i].substring(examples[i].lastIndexOf('_') + 1, examples[i].length) + '"]').each(function(i, val) {
+                    $buttons = $(val).attr('class');
+                    $buttons = $buttons.substring('example '.length, $buttons.length);
+                    $buttonsArray = $buttons.split(' ');
+                    for (var b = 0; b < $buttonsArray.length; b++) {
+                        if (shouldIHideIt(examples, $buttonsArray[b]) && selectedClasses.indexOf($buttonsArray[b]) == -1) {
+                            $('input[api="' + $buttonsArray[b] + '"]').hide();
+                        } else {
+                            $('input[api="' + $buttonsArray[b] + '"]').show('slow');
+                        }
+                    }
+                });
             }
-        });
+        }alert('ok');
+    } else {
+        $('div#checkboxes-check > ul > li > input[type=button].button').show('slow');
     }
+}
+
+function shouldIHideIt(list, api) {
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].length > 0) {
+            $item = $('li[example="' + list[i].substring(list[i].lastIndexOf('_') + 1, list[i].length) + '"]').next().attr('class');
+            if ($item != undefined && $item != false) {
+                $apis = $item.split(' ');
+                if ($apis.indexOf(api) == -1) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }

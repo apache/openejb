@@ -95,6 +95,9 @@ public class GenerateIndex {
         Map<String, String> nameByLink = new TreeMap<String, String>();
         Map<String, String> zipLinks = new TreeMap<String, String>();
         Collection<File> examples = listFolders(extractedDir, properties.getProperty("pom"));
+        if (examples.contains(extractedDir)) {
+            examples.remove(extractedDir);
+        }
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
