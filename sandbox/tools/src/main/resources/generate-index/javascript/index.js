@@ -15,24 +15,27 @@ $(document).ready(function() {
 
         // filtering apis
         $('div#checkboxes-check > ul > li > input[type=button].button').each(function(i, val) {
-                var toShow = false;
-                if (input.length == 0) {
-                    toShow = true;
-                } else {
-                    for (var i = 0; i < regexps.length; i++) {
-                        if (regexps[i].test($(val).attr('value'))) {
-                            toShow = true;
-                            break;
-                        }
+            var toShow = false;
+            if (input.length == 0) {
+                toShow = true;
+            } else {
+                for (var i = 0; i < regexps.length; i++) {
+                    if (regexps[i].test($(val).attr('value'))) {
+                        toShow = true;
+                        break;
                     }
                 }
-                if (toShow) {
-                    $(val).show('slow');
-                } else {
-                    $(val).hide();
-                }
-            });
+            }
+            if (toShow) {
+                $(val).show('slow');
+            } else {
+                $(val).hide();
+            }
         });
+
+        // used only in click-filtering mode
+        $('#api-info').hide();
+    });
 });
 
 var close = ' X';
@@ -40,6 +43,10 @@ var selectedClasses = new Array(); // classes to use
 var correspondingExamples = new Array(); // classes to use
 
 function filterExamples($button) {
+    // resetting filter by text input
+    $('#searchbox').val('');
+
+    // selecting the clicked button
     if ($button.selected) {
         $button.value = $button.value.substring(0, $button.value.length - close.length);
         for (var i = 0; i < selectedClasses.length; i++) {
@@ -56,7 +63,7 @@ function filterExamples($button) {
     }
     $button.selected = !$button.selected;
 
-    // refresh
+    // refreshing
     var filteringForExamples = ''; // for examples
     if (selectedClasses.length > 0) {
         filteringForExamples = '.'.concat(selectedClasses.join('.'));
@@ -82,39 +89,50 @@ function filterExamples($button) {
         var examples = new Array();
         $('div#examples').find('li' + filteringForExamples).each(function(i, val) {
             examples.push($(val).attr('example'));
-        }); 
+        });
+        examples = filterArray(examples);
 
         $('div#checkboxes-check > ul > li > input[type=button].button').hide();
         for (var i = 0; i < examples.length; i++) {
-            if (examples[i].length > 0) {
-                $('li[example="' + examples[i].substring(examples[i].lastIndexOf('_') + 1, examples[i].length) + '"]').each(function(i, val) {
-                    $buttons = $(val).attr('class');
-                    $buttons = $buttons.substring('example '.length, $buttons.length);
-                    $buttonsArray = $buttons.split(' ');
-                    for (var b = 0; b < $buttonsArray.length; b++) {
-                        if (shouldIHideIt(examples, $buttonsArray[b]) && selectedClasses.indexOf($buttonsArray[b]) == -1) {
-                            $('input[api="' + $buttonsArray[b] + '"]').hide();
-                        } else {
-                            $('input[api="' + $buttonsArray[b] + '"]').show('slow');
-                        }
+            $('li[example="' + examples[i].substring(examples[i].lastIndexOf('_') + 1, examples[i].length) + '"]').each(function(i, val) {
+                $buttons = $(val).attr('class');
+                $buttons = $buttons.substring('example '.length, $buttons.length);
+                $buttonsArray = $buttons.split(' ');
+                for (var b = 0; b < $buttonsArray.length; b++) {
+                    if (shouldIHideIt(examples, $buttonsArray[b]) && selectedClasses.indexOf($buttonsArray[b]) == -1) {
+                        $('input[api="' + $buttonsArray[b] + '"]').hide();
+                    } else {
+                        $('input[api="' + $buttonsArray[b] + '"]').show('slow');
                     }
-                });
-            }
+                }
+            });
         }
+
+        $('#api-info').show();
+        $('#api-info').text(examples.length + ' examples are matching');
     } else {
         $('div#checkboxes-check > ul > li > input[type=button].button').show('slow');
+        $('#api-info').hide();
     }
+}
+
+function filterArray(list) {
+    var out = new Array();
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].length > 0) {
+            out.push(list[i]);
+        }
+    }
+    return out;
 }
 
 function shouldIHideIt(list, api) {
     for (var i = 0; i < list.length; i++) {
-        if (list[i].length > 0) {
-            $item = $('li[example="' + list[i].substring(list[i].lastIndexOf('_') + 1, list[i].length) + '"]').next().attr('class');
-            if ($item != undefined && $item != false) {
-                $apis = $item.split(' ');
-                if ($apis.indexOf(api) == -1) {
-                    return false;
-                }
+        $item = $('li[example="' + list[i].substring(list[i].lastIndexOf('_') + 1, list[i].length) + '"]').next().attr('class');
+        if ($item != undefined && $item != false) {
+            $apis = $item.split(' ');
+            if ($apis.indexOf(api) == -1) {
+                return false;
             }
         }
     }

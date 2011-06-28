@@ -6,6 +6,8 @@
                     API: <input id="searchbox" type="text" />
                 </div>
 
+                <div id="api-info"></div>
+
                 <ul>
 #foreach( $entry in $classes.entrySet() )
                     <li><input class="$examplesClasses.get($entry.key)" type="button" api="$classes.get($entry.key)" value="$entry.key" onclick="javascript:filterExamples(this)" ></li>
