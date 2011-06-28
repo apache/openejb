@@ -5,7 +5,7 @@ $(document).ready(function() {
 function checkBoxClicked(id, b) {
    $('.' + id).each(function(i, val) {
      if (b) {
-       $(val).show('slow');
+       $(val).show('fast');
      } else {
        $(val).hide();
      }
@@ -34,10 +34,10 @@ function aggregate(button) {
   if (button.value == 'Aggregate') {
     button.value = 'Split';
     $('#list').hide();
-    $('#aggregate').show('slow');
+    $('#aggregate').show('fast');
   } else {
     button.value = 'Aggregate';
-    $('#list').show('slow');
+    $('#list').show('fast');
     $('#aggregate').hide();
   }
   // order to show selected whic are in non slected too

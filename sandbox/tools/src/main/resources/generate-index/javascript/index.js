@@ -27,7 +27,7 @@ $(document).ready(function() {
                 }
             }
             if (toShow) {
-                $(val).show('slow');
+                $(val).show('fast');
             } else {
                 $(val).hide();
             }
@@ -79,7 +79,7 @@ function filterExamples($button) {
     }
 
     // filtering examples
-    $('div#examples').find('li' + filteringForExamples).show('slow');
+    $('div#examples').find('li' + filteringForExamples).show('fast');
     if (selectedClasses.length > 0) {
         $('div#examples').find('li:not(' + filteringForExamples + ').example').hide();
     }
@@ -102,7 +102,7 @@ function filterExamples($button) {
                     if (shouldIHideIt(examples, $buttonsArray[b]) && selectedClasses.indexOf($buttonsArray[b]) == -1) {
                         $('input[api="' + $buttonsArray[b] + '"]').hide();
                     } else {
-                        $('input[api="' + $buttonsArray[b] + '"]').show('slow');
+                        $('input[api="' + $buttonsArray[b] + '"]').show('fast');
                     }
                 }
             });
@@ -111,7 +111,7 @@ function filterExamples($button) {
         $('#api-info').show();
         $('#api-info').text(examples.length + ' examples are matching');
     } else {
-        $('div#checkboxes-check > ul > li > input[type=button].button').show('slow');
+        $('div#checkboxes-check > ul > li > input[type=button].button').show('fast');
         $('#api-info').hide();
     }
 }
