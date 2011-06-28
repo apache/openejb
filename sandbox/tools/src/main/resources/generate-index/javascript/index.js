@@ -100,7 +100,7 @@ function filterExamples($button) {
                     }
                 });
             }
-        }alert('ok');
+        }
     } else {
         $('div#checkboxes-check > ul > li > input[type=button].button').show('slow');
     }
