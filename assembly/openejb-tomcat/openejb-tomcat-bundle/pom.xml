@@ -140,7 +140,6 @@
 	<modules>
 		<module>utils</module>
 		<module>tomee6</module>
-		<module>tomee7</module>
 	</modules>
 </project>
 
