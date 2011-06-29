@@ -29,6 +29,10 @@
   <packaging>pom</packaging>
   <name>OpenEJB :: Assembly</name>
 
+  <properties>
+    <tomcatVersion>6.0.32</tomcatVersion>
+  </properties>
+
   <modules>
     <module>openejb-webapp-common</module>
     <module>openejb-itests-standalone-client</module>
