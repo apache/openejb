@@ -17,7 +17,14 @@
 package org.apache.openejb.transaction;
 
 import junit.framework.TestCase;
+import org.apache.openejb.jee.EmptyType;
 import org.apache.openejb.jee.SingletonBean;
+import org.apache.openejb.jee.StatelessBean;
+import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit.Configuration;
+import org.apache.openejb.junit.Module;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -34,10 +41,12 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @version $Rev$ $Date$
  */
+@RunWith(ApplicationComposer.class)
 public class TransactionRollbackCauseTest extends TestCase {
 
     @EJB
@@ -46,11 +55,23 @@ public class TransactionRollbackCauseTest extends TestCase {
     @Resource
     private UserTransaction userTransaction;
     
-    public void test() throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(EJBContainer.MODULES, new SingletonBean(Orange.class));
-        EJBContainer.createEJBContainer(map).getContext().bind("inject", this);
+    @Configuration
+    public Properties config() {
+        final Properties p = new Properties();
+        p.put("bvalDatabase", "new://Resource?type=DataSource");
+        p.put("bvalDatabase.JdbcDriver", "org.hsqldb.jdbcDriver");
+        p.put("bvalDatabase.JdbcUrl", "jdbc:hsqldb:mem:bval");
+        return p;
+    }
 
+    @Module
+    public SingletonBean app() throws Exception {
+        final SingletonBean bean = new  SingletonBean(Orange.class);
+        return bean;
+    }
+
+    @Test
+    public void test() throws Exception {
         userTransaction.begin();
 
         orange.exceptionRollback();
