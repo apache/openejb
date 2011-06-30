@@ -116,6 +116,12 @@
       <version>1.0</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jsp_2.2_spec</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api-embedded</artifactId>
       <version>${javaee-api.version}</version>
