@@ -112,6 +112,9 @@
        -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <!-- to change easily the javaee api version -->
+    <javaee-api.version>6.0-SNAPSHOT</javaee-api.version>
+
     <bval.version>0.2-incubating</bval.version>
     <org.apache.activemq.version>5.4.2</org.apache.activemq.version>
     <quartz.version>1.8.4</quartz.version>

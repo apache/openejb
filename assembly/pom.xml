@@ -38,7 +38,7 @@
     <module>openejb-itests-standalone-client</module>
     <module>openejb-standalone</module>
     <module>openejb-tomcat</module>
-    <module>javaee-api-libs</module>
+    <!-- module>javaee-api-libs</module -->
   </modules>
 </project>
 
