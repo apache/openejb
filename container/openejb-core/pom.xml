@@ -221,6 +221,13 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
+    <!-- we do not use SFL4J internally but some dependencies come
+    with a bad version of slf4j-api that can produce a CNFE -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-api</artifactId>
