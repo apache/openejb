@@ -27,6 +27,9 @@
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>OpenEJB :: Web Examples :: EJB WebService</name>
+  <properties>
+    <openejb.version>3.2.0-SNAPSHOT</openejb.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.openejb</groupId>
@@ -43,7 +46,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
-      <version>3.1.1</version>
+      <version>${openejb.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
