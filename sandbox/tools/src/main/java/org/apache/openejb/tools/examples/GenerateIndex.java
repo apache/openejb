@@ -81,14 +81,29 @@ public class GenerateIndex {
      * @param workFolder work folder
      */
     public static void generate(String examplesZip, String workFolder) {
+        LOGGER.info("Generating example pages from " + examplesZip + " to " + workFolder);
+
         Properties properties = ExamplesPropertiesManager.get();
 
+        File workingFolder = new File(workFolder);
+        if (workingFolder.exists()) {
+            try {
+                FileUtils.deleteDirectory(workingFolder);
+            } catch (IOException e) {
+                LOGGER.error("can't delete " + workFolder);
+                // continue...
+            }
+        }
+        mkdirp(workingFolder);
+
         // working folder
-        File extractedDir = new File(workFolder, properties.getProperty("extracted"));
-        File generatedDir = new File(workFolder, properties.getProperty("generated"));
+        File extractedDir = new File(workingFolder, properties.getProperty("extracted"));
+        File generatedDir = new File(workingFolder, properties.getProperty("generated"));
 
         // crack open the examples zip file
         extract(examplesZip, extractedDir.getPath());
+
+        LOGGER.info("extracting examples into " + extractedDir.getPath());
 
         // generate index.html by example
         Map<String, Set<String>> exampleLinksByKeyword = new TreeMap<String, Set<String>>();
