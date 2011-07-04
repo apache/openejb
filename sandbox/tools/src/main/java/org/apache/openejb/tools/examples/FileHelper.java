@@ -26,7 +26,7 @@ public final class FileHelper {
             if (file.isDirectory() && !EXCLUDED_FOLDERS.contains(file.getName())) {
                 examples.addAll(listFolders(file, name));
             } else if (!EXCLUDED_FOLDERS.contains(file.getParentFile().getName()) && name.equals(file.getName())
-                    && !file.getName().startsWith("openejb-")) {
+                    && !file.getParentFile().getName().startsWith("openejb-")) {
                 examples.add(file.getParentFile());
             }
         }
