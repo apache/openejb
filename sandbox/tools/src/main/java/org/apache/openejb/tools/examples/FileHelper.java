@@ -23,7 +23,7 @@ public final class FileHelper {
     public static Collection<File> listFolders(File extractedDir, String name) {
         Collection<File> examples = new ArrayList<File>();
         for (File file : extractedDir.listFiles()) {
-            if (file.isDirectory()) {
+            if (file.isDirectory() && !EXCLUDED_FOLDERS.contains(file.getName())) {
                 examples.addAll(listFolders(file, name));
             } else if (!EXCLUDED_FOLDERS.contains(file.getParentFile().getName()) && name.equals(file.getName())) {
                 examples.add(file.getParentFile());
