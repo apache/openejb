@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
@@ -34,6 +36,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.catalina.startup.Bootstrap;
 import org.apache.velocity.Template;
@@ -127,17 +130,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
         try {
             copyArchive(archive);
-
-            boolean deployed = false;
-            int attempts = 0;
-            while (attempts < configuration.getTimeout() && deployed == false) {
-                // need to poll for the app being deployed
-                attempts++;
-                Thread.sleep(1000);
-
-                deployed = checkDeploymentStatus(archive);
-            }
-
+            deployUsingDeployerEjb(archive);
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
             return new ProtocolMetaData().addContext(httpContext);
         } catch (Exception e) {
@@ -146,11 +139,20 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
         }
     }
 
+    private void deployUsingDeployerEjb(Archive<?> archive) throws NamingException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Properties properties = new Properties();
+        properties.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
+        InitialContext context = new InitialContext(properties);
+        Object deployer = context.lookup("openejb/DeployerBusinessRemote");
+        Method deploy = deployer.getClass().getDeclaredMethod("deploy", String.class);
+        deploy.invoke(deployer, catalinaDirectory.getAbsolutePath() + "/webapps/" + archive.getName());
+    }
+
     private void copyArchive(Archive<?> archive) throws IOException, FileNotFoundException {
         InputStream is = archive.as(ZipExporter.class).exportAsInputStream();
         copyStream(is, new FileOutputStream(new File(catalinaDirectory, "webapps/" + archive.getName())));
     }
-
+    @Deprecated
     private boolean checkDeploymentStatus(Archive<?> archive) throws Exception {
         if (usingOpenEJB) {
             try {

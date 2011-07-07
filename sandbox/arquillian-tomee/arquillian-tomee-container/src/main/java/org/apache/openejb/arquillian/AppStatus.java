@@ -23,7 +23,8 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-@Stateless
+//@Stateless
+@Deprecated
 public class AppStatus implements AppStatusRemote {
 
     public String[] getDeployedApps() throws AppLookupException {

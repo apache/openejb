@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.openejb.arquillian;
-
+@Deprecated
 public class AppLookupException extends Exception {
 
     private static final long serialVersionUID = 5131748818917110220L;

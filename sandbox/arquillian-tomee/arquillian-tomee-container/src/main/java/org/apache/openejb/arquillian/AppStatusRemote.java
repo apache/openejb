@@ -18,7 +18,8 @@ package org.apache.openejb.arquillian;
 
 import javax.ejb.Remote;
 
-@Remote
+//@Remote
+@Deprecated
 public interface AppStatusRemote {
     public String[] getDeployedApps() throws AppLookupException;
 }
