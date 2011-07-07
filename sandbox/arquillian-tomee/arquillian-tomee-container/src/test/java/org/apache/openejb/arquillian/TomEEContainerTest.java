@@ -35,35 +35,35 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class TomEEContainerTest {
 
-	@Deployment(testable=false)
-	public static WebArchive createDeployment() {
-		return ShrinkWrap.create(WebArchive.class, "test.war")
-			.addClass(TestServlet.class)
-			.addClass(TestEjb.class)
-			.setWebXML(new StringAsset(
-					Descriptors.create(WebAppDescriptor.class)
-					.version("3.0")
-					.servlet(TestServlet.class, "/Test")
-					.exportAsString()
-			));
-	}
-	
-	@Test
-	public void testShouldBeAbleToAccessServletAndEjb() throws Exception {
-		InputStream is = new URL("http://localhost:9080/test/Test").openStream();
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		
-		int bytesRead = -1;
-		byte[] buffer = new byte[8192];
-		while ((bytesRead = is.read(buffer)) > -1) {
-			os.write(buffer, 0, bytesRead);
-		}
-		
-		is.close();
-		os.close();
-		
-		String output = new String(os.toByteArray(), "UTF-8");
-		Assert.assertTrue(output.contains("Hello, OpenEJB"));
-	}
-	
+  @Deployment(testable=false)
+  public static WebArchive createDeployment() {
+    return ShrinkWrap.create(WebArchive.class, "test.war")
+      .addClass(TestServlet.class)
+      .addClass(TestEjb.class)
+      .setWebXML(new StringAsset(
+          Descriptors.create(WebAppDescriptor.class)
+          .version("3.0")
+          .servlet(TestServlet.class, "/Test")
+          .exportAsString()
+      ));
+  }
+  
+  @Test
+  public void testShouldBeAbleToAccessServletAndEjb() throws Exception {
+    InputStream is = new URL("http://localhost:9080/test/Test").openStream();
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    
+    int bytesRead = -1;
+    byte[] buffer = new byte[8192];
+    while ((bytesRead = is.read(buffer)) > -1) {
+      os.write(buffer, 0, bytesRead);
+    }
+    
+    is.close();
+    os.close();
+    
+    String output = new String(os.toByteArray(), "UTF-8");
+    Assert.assertTrue(output.contains("Hello, OpenEJB"));
+  }
+  
 }

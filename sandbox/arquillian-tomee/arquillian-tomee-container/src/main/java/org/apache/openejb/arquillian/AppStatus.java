@@ -26,43 +26,43 @@ import javax.ejb.Stateless;
 @Stateless
 public class AppStatus implements AppStatusRemote {
 
-	public String[] getDeployedApps() throws AppLookupException {
-		// Basically the reflection equivalent of:
-		//
-		//		Assembler assembler = SystemInstance.get().getComponent(Assembler.class);
-		//		Collection<AppInfo> deployedApplications = assembler.getDeployedApplications();
-		//		for (AppInfo appInfo : deployedApplications) {
-		//			result.add(appInfo.path);
-		//		}
-		
-		List<String> result;
-		try {
-			result = new ArrayList<String>();
-			
-			Class<?> systemInstanceCls = Class.forName("org.apache.openejb.loader.SystemInstance");
-			Method getMethod = systemInstanceCls.getMethod("get");
-			Object systemInstanceObj = getMethod.invoke(null);
-			
-			Class<?> assemblerCls = Class.forName("org.apache.openejb.assembler.classic.Assembler");
-			Method getComponentMethod = systemInstanceCls.getMethod("getComponent", Class.class);
-			Object assemblerObj = getComponentMethod.invoke(systemInstanceObj, assemblerCls);
-			
-			Class<?> appInfoCls = Class.forName("org.apache.openejb.assembler.classic.AppInfo");
-			
-			Method getDeployedApplicationsMethod = assemblerCls.getMethod("getDeployedApplications");
-			Collection<?> deployedApplications = (Collection<?>) getDeployedApplicationsMethod.invoke(assemblerObj);
-			for (Object deployedApplication : deployedApplications) {
-				String path = (String) appInfoCls.getDeclaredField("path").get(deployedApplication);
-				result.add(path);
-			}
-			
-			return result.toArray(new String[result.size()]);
-		} catch (Exception e) {
-			throw new AppLookupException("Unable to lookup deployed apps in TomEE. Is this EJB running in TomEE?", e);
-		}
-		
-		
-		
-	}
+  public String[] getDeployedApps() throws AppLookupException {
+    // Basically the reflection equivalent of:
+    //
+    //    Assembler assembler = SystemInstance.get().getComponent(Assembler.class);
+    //    Collection<AppInfo> deployedApplications = assembler.getDeployedApplications();
+    //    for (AppInfo appInfo : deployedApplications) {
+    //      result.add(appInfo.path);
+    //    }
+    
+    List<String> result;
+    try {
+      result = new ArrayList<String>();
+      
+      Class<?> systemInstanceCls = Class.forName("org.apache.openejb.loader.SystemInstance");
+      Method getMethod = systemInstanceCls.getMethod("get");
+      Object systemInstanceObj = getMethod.invoke(null);
+      
+      Class<?> assemblerCls = Class.forName("org.apache.openejb.assembler.classic.Assembler");
+      Method getComponentMethod = systemInstanceCls.getMethod("getComponent", Class.class);
+      Object assemblerObj = getComponentMethod.invoke(systemInstanceObj, assemblerCls);
+      
+      Class<?> appInfoCls = Class.forName("org.apache.openejb.assembler.classic.AppInfo");
+      
+      Method getDeployedApplicationsMethod = assemblerCls.getMethod("getDeployedApplications");
+      Collection<?> deployedApplications = (Collection<?>) getDeployedApplicationsMethod.invoke(assemblerObj);
+      for (Object deployedApplication : deployedApplications) {
+        String path = (String) appInfoCls.getDeclaredField("path").get(deployedApplication);
+        result.add(path);
+      }
+      
+      return result.toArray(new String[result.size()]);
+    } catch (Exception e) {
+      throw new AppLookupException("Unable to lookup deployed apps in TomEE. Is this EJB running in TomEE?", e);
+    }
+    
+    
+    
+  }
 
 }

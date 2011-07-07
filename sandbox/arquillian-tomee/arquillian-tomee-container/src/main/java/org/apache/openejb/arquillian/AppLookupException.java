@@ -18,21 +18,21 @@ package org.apache.openejb.arquillian;
 
 public class AppLookupException extends Exception {
 
-	private static final long serialVersionUID = 5131748818917110220L;
+  private static final long serialVersionUID = 5131748818917110220L;
 
-	public AppLookupException() {
-	}
+  public AppLookupException() {
+  }
 
-	public AppLookupException(String message) {
-		super(message);
-	}
+  public AppLookupException(String message) {
+    super(message);
+  }
 
-	public AppLookupException(Throwable throwable) {
-		super(throwable);
-	}
+  public AppLookupException(Throwable throwable) {
+    super(throwable);
+  }
 
-	public AppLookupException(String message, Throwable throwable) {
-		super(message, throwable);
-	}
+  public AppLookupException(String message, Throwable throwable) {
+    super(message, throwable);
+  }
 
 }
