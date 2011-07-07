@@ -20,5 +20,5 @@ import javax.ejb.Remote;
 
 @Remote
 public interface AppStatusRemote {
-  public String[] getDeployedApps() throws AppLookupException;
+    public String[] getDeployedApps() throws AppLookupException;
 }
