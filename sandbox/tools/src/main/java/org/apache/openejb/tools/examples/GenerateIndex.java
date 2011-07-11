@@ -204,7 +204,7 @@ public class GenerateIndex {
         // create a glossary page (OR search)
         tpl(properties.getProperty("template.glossary"),
             newMap(String.class, Object.class)
-                .add("title", "OpenEJB Example Glossary")
+                .add("title", "OpenEJB Examples Glossary")
                 .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
                 .add("links", nameByLink)
                 .add("zipLinks", zipLinks)
@@ -218,7 +218,7 @@ public class GenerateIndex {
         // create an index for all example directories
         tpl(properties.getProperty("template.main"),
             newMap(String.class, Object.class)
-                .add("title", "OpenEJB Example")
+                .add("title", "OpenEJB Examples")
                 .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
                 .add("zipLinks", zipLinks)
                 .add("examples", nameByLink)
