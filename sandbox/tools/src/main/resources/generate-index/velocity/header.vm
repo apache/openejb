@@ -64,7 +64,7 @@
             <LI><A href="http://openejb.staging.apache.org/faq.html" title="FAQ">FAQ</A></LI>
             <LI><A href="http://openejb.staging.apache.org/download.html" title="Download">Download</A></LI>
             <LI><A href="http://openejb.staging.apache.org/../OPENEJBx30/index.html" title="Index">Documentation</A></LI>
-            <LI><A href="http://openejb.staging.apache.org/examples.html" title="Examples">Examples</A></LI>
+            <LI><A href="http://ci.apache.org/projects/openejb/examples-generated/index.html" title="Examples">Examples</A></LI>
             <LI><A href="http://cwiki.apache.org/confluence/display/OPENEJB/Lightening%20Demos" class="external-link" rel="nofollow">Lightning Demos</A></LI>
             <LI><A href="http://openejb.staging.apache.org/mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
             <LI><A href="http://openejb.staging.apache.org/source-code.html" title="Source Code">Source Code</A></LI>
