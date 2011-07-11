@@ -40,7 +40,7 @@
         <TD class="Col2">&nbsp;</TD>
         <TD class="Col3" id="breadcrumbs">
           <!-- $TOP_NAV_BAR -->
-          <A href="" title="Index">Home</A> | <A href="http://openejb.staging.apache.org/news.html" title="News">News</A> | <A href="http://openejb.staging.apache.org/faq.html" title="FAQ">FAQ</A> | <A href="http://openejb.staging.apache.org/download.html" title="Download">Download</A> | <A href="http://openejb.staging.apache.org/mailing-lists.html" title="Mailing Lists">Lists</A> | <A href="http://issues.apache.org/jira/browse/OPENEJB" class="external-link" rel="nofollow">Issues</A>
+          <A href="http://openejb.staging.apache.org/" title="Index">Home</A> | <A href="http://openejb.staging.apache.org/news.html" title="News">News</A> | <A href="http://openejb.staging.apache.org/faq.html" title="FAQ">FAQ</A> | <A href="http://openejb.staging.apache.org/download.html" title="Download">Download</A> | <A href="http://openejb.staging.apache.org/mailing-lists.html" title="Mailing Lists">Lists</A> | <A href="http://issues.apache.org/jira/browse/OPENEJB" class="external-link" rel="nofollow">Issues</A>
         </TD>
         <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
         <TD class="Col5">&nbsp;</TD>
@@ -59,7 +59,7 @@
             <H3><A name="Navigation-Overview"></A>Overview</H3>
 
             <UL class="alternate" type="square">
-            <LI><A href="" title="Index">Home</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/" title="Index">Home</A></LI>
             <LI><A href="http://openejb.staging.apache.org/news.html" title="News">News</A></LI>
             <LI><A href="http://openejb.staging.apache.org/faq.html" title="FAQ">FAQ</A></LI>
             <LI><A href="http://openejb.staging.apache.org/download.html" title="Download">Download</A></LI>
