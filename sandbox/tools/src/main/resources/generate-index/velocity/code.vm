@@ -1,10 +1,13 @@
 #parse("generate-index/velocity/header.vm")
             <h2>Source: $file</h2>
 
-            <div id="source">
-                <pre class="code-java">
-                    <code>
+            <div class="preformatted panel" style="border-width: 1px;">
+                <div class="preformattedContent panelContent">
+                    <pre class="code-java">
+                        <code>
 $code
-                    </code>
-                </pre>
+                        </code>
+                    </pre>
+                </div>
+            </div>
 #parse("generate-index/velocity/footer.vm")
