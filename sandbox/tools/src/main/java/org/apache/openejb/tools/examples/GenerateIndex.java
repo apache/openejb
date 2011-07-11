@@ -17,6 +17,9 @@
 package org.apache.openejb.tools.examples;
 
 import com.petebevin.markdown.MarkdownProcessor;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +29,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 
 import static org.apache.openejb.tools.examples.FileHelper.listFilesEndingWith;
 import static org.apache.openejb.tools.examples.FileHelper.listFolders;
@@ -99,6 +100,7 @@ public class GenerateIndex {
         // working folder
         File extractedDir = new File(workingFolder, properties.getProperty("extracted"));
         File generatedDir = new File(workingFolder, properties.getProperty("generated"));
+        mkdirp(generatedDir);
 
         // crack open the examples zip file
         extract(examplesZip, extractedDir.getPath());
@@ -143,17 +145,21 @@ public class GenerateIndex {
             }
 
             List<File> javaFiles = listFilesEndingWith(example, ".java");
+            List<File> resourceFiles = listFilesEndingWith(example, ExamplesPropertiesManager.get().getProperty("resources.extensions"));
             Map<String, Integer> apiCount = getAndUpdateApis(javaFiles, exampleLinksByKeyword, generatedDir, index);
-            for (File java : javaFiles) {
+            List<File> files = new ArrayList<File>();
+            files.addAll(javaFiles);
+            files.addAll(resourceFiles);
+            for (File file : files) {
                 String code;
                 try {
-                    code = FileUtils.readFileToString(java);
+                    code = FileUtils.readFileToString(file);
                 } catch (IOException e) {
-                    LOGGER.error("can't read source " + java.getPath(), e);
+                    LOGGER.error("can't read source " + file.getPath(), e);
                     continue;
                 }
 
-                String source = getLink(example, java);
+                String source = getLink(example, file);
                 File sourceFile = new File(generated, source);
                 mkdirp(sourceFile.getParentFile());
 
@@ -177,6 +183,7 @@ public class GenerateIndex {
                         .add("apis", apiCount)
                         .add("link", zip.getName())
                         .add("files", removePrefix(example.getPath(), javaFiles))
+                        .add("resources", removePrefix(example.getPath(), resourceFiles))
                         .map(),
                     index.getPath());
             } else {

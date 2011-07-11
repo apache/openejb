@@ -1,21 +1,9 @@
-body {
-    overflow: hidden;
-    margin-bottom: 1em;
-}
-
-#content {
+#PageContent {
     width: 100%;
-    height: 100%;
-    overflow: auto;
 }
-
 #list, #aggregate {
     width: 600px;
     float: left;
-}
-
-.clear {
-    clear: both;
 }
 
 #checkboxes-check {
@@ -23,6 +11,11 @@ body {
     float: right;
     width: 25em;
     text-align: center;
+}
+
+.spacer {
+    margin: 0px;
+    width: 60em;
 }
 
 #checkboxes-button ul, #checkboxes-check ul, #header ul {
@@ -69,7 +62,7 @@ body {
 }
 
 .button {
-    font-size: 0.8em;
+    font-size: 0.9em;
     width: 20em;
 }
 

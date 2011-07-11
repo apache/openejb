@@ -1,6 +1,4 @@
 #parse("generate-index/velocity/header.vm")
-            <h2>OpenEJB examples:</h2>
-
             <div id="checkboxes-check">
                 <div id="search-box">
                     API: <input id="searchbox" type="text" />
@@ -14,6 +12,7 @@
 #end
                 </ul>
             </div>
+            <div class="spacer" />
 
             <div id="examples">
                 <ul>

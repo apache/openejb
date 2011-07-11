@@ -1,6 +1,4 @@
 #parse("generate-index/velocity/header.vm")
-            <h2>$title</h2>
-
             <div id="download">
                 <a href="$link">Download as zip</a>
             </div>
@@ -19,6 +17,15 @@
                     APIs:
 #foreach( $api in $apis.entrySet() )
                     <li>$api.key is used $api.value times</li>
+#end
+                </ul>
+            </div>
+
+            <div id="api">
+                <ul>
+                    Resources:
+#foreach( $resource in $resources )
+                    <li>$resource</li>
 #end
                 </ul>
             </div>

@@ -1,24 +1,20 @@
 #parse("generate-index/velocity/header.vm")
-            <h2>Glossary</h2>
+            <div id="checkboxes-button">
+                <ul>
+                    <li><input type="button" value="Aggregate" onclick="javascript:aggregate(this)" ></li>
+                    <li><input type="button" value="Hide APIs" id="showCheckboxes" onclick="javascript:showCheckboxes()" ></li>
+                    <li><input type="button" value="Select All" onclick="javascript:selectCheckboxes(true)" ></li>
+                    <li><input type="button" value="Select None" onclick="javascript:selectCheckboxes(false)" ></li>
+                </ul>
+            </div>
+            <div class="clear"></div>
 
-            <div id="checkboxes">
-                <div id="checkboxes-button">
-                    <ul>
-                        <li><input type="button" value="Aggregate" onclick="javascript:aggregate(this)" ></li>
-                        <li><input type="button" value="Hide APIs" id="showCheckboxes" onclick="javascript:showCheckboxes()" ></li>
-                        <li><input type="button" value="Select All" onclick="javascript:selectCheckboxes(true)" ></li>
-                        <li><input type="button" value="Select None" onclick="javascript:selectCheckboxes(false)" ></li>
-                    </ul>
-                </div>
-                <div class="clear"></div>
-
-                <div id="checkboxes-check">
-                    <ul>
+            <div id="checkboxes-check">
+                <ul>
 #foreach( $api in $exampleByKeyword.keySet() )
-                        <li><input type="checkbox" id="$classes.get($api)" checked="true" onclick="javascript:checkBoxClicked(this.id, this.checked)" >$api</li>
+                    <li><input type="checkbox" id="$classes.get($api)" checked="true" onclick="javascript:checkBoxClicked(this.id, this.checked)" >$api</li>
 #end
-                    </ul>
-                </div>
+                </ul>
             </div>
 
             <div id="list">
