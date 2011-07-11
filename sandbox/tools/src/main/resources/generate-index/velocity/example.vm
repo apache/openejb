@@ -25,7 +25,7 @@
                 <ul>
                     Resources:
 #foreach( $resource in $resources )
-                    <li>$resource</li>
+                    <li><a href="${resource}.html">$resource</a></li>
 #end
                 </ul>
             </div>

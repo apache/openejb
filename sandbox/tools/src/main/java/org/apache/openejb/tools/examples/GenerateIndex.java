@@ -18,6 +18,7 @@ package org.apache.openejb.tools.examples;
 
 import com.petebevin.markdown.MarkdownProcessor;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -153,7 +154,7 @@ public class GenerateIndex {
             for (File file : files) {
                 String code;
                 try {
-                    code = FileUtils.readFileToString(file);
+                    code = escape(FileUtils.readFileToString(file));
                 } catch (IOException e) {
                     LOGGER.error("can't read source " + file.getPath(), e);
                     continue;
@@ -227,6 +228,10 @@ public class GenerateIndex {
                 .add("aggregatedClasses", aggregatedClasses)
                 .map(),
             new File(generatedDir, properties.getProperty("index")).getPath());
+    }
+
+    private static String escape(String s) {
+        return StringEscapeUtils.escapeXml(s);
     }
 
     // just a shortcut
