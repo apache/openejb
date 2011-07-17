@@ -1,0 +1,13 @@
+# examples of how it was setup in cron
+02 8 * * 1      $HOME/bin/jira_report.sh attachments.vm 12310530 OpenEJB commits@openejb.apache.org
+14 8 * * 1      $HOME/bin/jira_report.sh attachments.vm 12310511 CXF issues@cxf.apache.org
+04 8 * * 1      $HOME/bin/jira_report.sh opened.vm 12310530 OpenEJB commits@openejb.apache.org
+06 8 * * 5      $HOME/bin/jira_report.sh closed.vm 12310530 OpenEJB commits@openejb.apache.org
+05 8 * * 1      $HOME/bin/jira_report.sh opened.vm 10000 Cayenne commits@cayenne.apache.org cayenne
+07 8 * * 1      $HOME/bin/jira_report.sh closed.vm 10000 Cayenne commits@cayenne.apache.org cayenne
+04 8 1,15 * *      $HOME/bin/jira_report.sh votes.vm  10000 Cayenne commits@cayenne.apache.org cayenne
+08 8 * * 1      $HOME/bin/jira_report.sh opened.vm 10030 Struts2 commits@struts.apache.org struts
+12 8 * * 5      $HOME/bin/jira_report.sh closed.vm 10030 Struts2 commits@struts.apache.org struts
+10 8 * * 1      $HOME/bin/jira_report.sh opened.vm 10130 Shale commits@shale.apache.org struts
+14 8 * * 5      $HOME/bin/jira_report.sh closed.vm 10130 Shale commits@shale.apache.org struts
+
