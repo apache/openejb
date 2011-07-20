@@ -227,6 +227,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+    <!-- defined in scope test in parent, but it's useful -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.openejb</groupId>
