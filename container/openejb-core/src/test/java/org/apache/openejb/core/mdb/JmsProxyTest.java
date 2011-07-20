@@ -17,8 +17,15 @@
  */
 package org.apache.openejb.core.mdb;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import junit.framework.TestCase;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.geronimo.connector.GeronimoBootstrapContext;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.resource.activemq.ActiveMQResourceAdapter;
+import org.apache.openejb.util.NetworkUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -27,19 +34,14 @@ import javax.jms.Session;
 import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.work.WorkManager;
-
-import junit.framework.TestCase;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.geronimo.connector.GeronimoBootstrapContext;
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
-import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.resource.activemq.ActiveMQResourceAdapter;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class JmsProxyTest extends TestCase {
     private static final String REQUEST_QUEUE_NAME = "request";
     private ConnectionFactory connectionFactory;
     private ActiveMQResourceAdapter ra;
+    private String brokerAddress = NetworkUtil.getLocalAddress("tcp://", "");
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -51,7 +53,7 @@ public class JmsProxyTest extends TestCase {
         ra = new ActiveMQResourceAdapter();
 
         // initialize properties
-        ra.setServerUrl("tcp://localhost:61616");
+        ra.setServerUrl(brokerAddress);
         ra.setBrokerXmlConfig(getBrokerXmlConfig());
 
         // create a thead pool for ActiveMQ
@@ -70,11 +72,11 @@ public class JmsProxyTest extends TestCase {
             throw new OpenEJBException(e);
         }
         // Create a ConnectionFactory
-        connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        connectionFactory = new ActiveMQConnectionFactory(brokerAddress);
     }
 
     protected String getBrokerXmlConfig() {
-        return "broker:(tcp://localhost:61616)?useJmx=false";
+        return "broker:(" + brokerAddress + ")?useJmx=false";
     }
 
     protected void tearDown() throws Exception {

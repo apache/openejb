@@ -17,18 +17,6 @@
  */
 package org.apache.openejb.resource.activemq;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
-import javax.sql.DataSource;
-
 import junit.framework.TestCase;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -37,27 +25,29 @@ import org.apache.activemq.network.jms.JmsConnector;
 import org.apache.activemq.store.PersistenceAdapter;
 import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
 import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
-import org.apache.openejb.core.timer.MemoryTimerStore;
-import org.apache.openejb.util.NetworkUtil;
-import org.apache.openejb.util.URISupport;
 import org.apache.openejb.core.CoreContainerSystem;
 import org.apache.openejb.core.ivm.naming.IvmJndiFactory;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ContainerSystem;
+import org.apache.openejb.util.NetworkUtil;
+import org.apache.openejb.util.URISupport;
 import org.apache.xbean.naming.context.ImmutableContext;
 import org.hsqldb.jdbc.jdbcDataSource;
 
-public class OpenEjbBrokerFactoryTest extends TestCase {
-    private int brokerPort = 61616;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
+import javax.sql.DataSource;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
 
-    @Override
-    public void setUp() throws Exception {
-        int port = NetworkUtil.getNextAvailablePort();
-        if (port != -1) {
-            brokerPort = port;
-            System.out.println("Using the port " + brokerPort + " for ActiveMQ broker");
-        }
-    }
+public class OpenEjbBrokerFactoryTest extends TestCase {
+    private int brokerPort = NetworkUtil.getNextAvailablePort(new int[] {61616, 0});
 
     public void testBrokerUri() throws Exception {
         final String prefix = ActiveMQFactory.getBrokerMetaFile();
