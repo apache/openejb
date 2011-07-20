@@ -17,11 +17,15 @@
  */
 package org.apache.openejb.core.mdb;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import junit.framework.TestCase;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.geronimo.connector.GeronimoBootstrapContext;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.resource.activemq.ActiveMQResourceAdapter;
+import org.apache.openejb.util.NetworkUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -35,21 +39,18 @@ import javax.jms.Session;
 import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.work.WorkManager;
-
-import junit.framework.TestCase;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.geronimo.connector.GeronimoBootstrapContext;
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
-import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.resource.activemq.ActiveMQResourceAdapter;
-import org.apache.openejb.util.NetworkUtil;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class JmsTest extends TestCase {
     protected static final String REQUEST_QUEUE_NAME = "request";
     protected ConnectionFactory connectionFactory;
     protected ActiveMQResourceAdapter ra;
     protected String brokerAddress = NetworkUtil.getLocalAddress("tcp://", "");
+    protected String brokerXmlConfig = "broker:(" + brokerAddress + ")?useJmx=false";
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -62,7 +63,7 @@ public class JmsTest extends TestCase {
 
         // initialize properties
         ra.setServerUrl(brokerAddress);
-        ra.setBrokerXmlConfig("broker:(" + brokerAddress + ")?useJmx=false");
+        ra.setBrokerXmlConfig(brokerXmlConfig);
 
 
         // create a thead pool for ActiveMQ
@@ -153,7 +154,7 @@ public class JmsTest extends TestCase {
         }
     }
 
-    
+
     private Destination createListener(Connection connection) throws JMSException {
         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

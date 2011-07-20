@@ -37,56 +37,7 @@ import javax.resource.spi.work.WorkManager;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class JmsProxyTest extends TestCase {
-    private static final String REQUEST_QUEUE_NAME = "request";
-    private ConnectionFactory connectionFactory;
-    private ActiveMQResourceAdapter ra;
-    private String brokerAddress = NetworkUtil.getLocalAddress("tcp://", "");
-
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        // create a transaction manager
-        GeronimoTransactionManager transactionManager = new GeronimoTransactionManager();
-
-        // create the ActiveMQ resource adapter instance
-        ra = new ActiveMQResourceAdapter();
-
-        // initialize properties
-        ra.setServerUrl(brokerAddress);
-        ra.setBrokerXmlConfig(getBrokerXmlConfig());
-
-        // create a thead pool for ActiveMQ
-        Executor threadPool = Executors.newFixedThreadPool(30);
-
-        // create a work manager which ActiveMQ uses to dispatch message delivery jobs
-        WorkManager workManager = new GeronimoWorkManager(threadPool, threadPool, threadPool, transactionManager);
-
-        // wrap the work mananger and transaction manager in a bootstrap context (connector spec thing)
-        BootstrapContext bootstrapContext = new GeronimoBootstrapContext(workManager, transactionManager);
-
-        // start the resource adapter
-        try {
-            ra.start(bootstrapContext);
-        } catch (ResourceAdapterInternalException e) {
-            throw new OpenEJBException(e);
-        }
-        // Create a ConnectionFactory
-        connectionFactory = new ActiveMQConnectionFactory(brokerAddress);
-    }
-
-    protected String getBrokerXmlConfig() {
-        return "broker:(" + brokerAddress + ")?useJmx=false";
-    }
-
-    protected void tearDown() throws Exception {
-        connectionFactory = null;
-        if (ra != null) {
-            ra.stop();
-            ra = null;
-        }
-        super.tearDown();
-    }
+public class JmsProxyTest extends JmsTest {
 
     public void testProxy() throws Exception {
         // create reciever object

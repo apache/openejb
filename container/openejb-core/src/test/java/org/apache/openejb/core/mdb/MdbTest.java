@@ -17,12 +17,9 @@
  */
 package org.apache.openejb.core.mdb;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ra.ActiveMQActivationSpec;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -34,23 +31,14 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.resource.ResourceException;
-import javax.resource.spi.BootstrapContext;
-import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.resource.spi.work.WorkManager;
 import javax.transaction.xa.XAResource;
-
-import junit.framework.TestCase;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.ra.ActiveMQActivationSpec;
-import org.apache.geronimo.connector.GeronimoBootstrapContext;
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
-import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.resource.activemq.ActiveMQResourceAdapter;
-import org.apache.openejb.util.NetworkUtil;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MdbTest extends JmsTest {
 
@@ -68,7 +56,7 @@ public class MdbTest extends JmsTest {
             connection = connectionFactory.createConnection();
             connection.start();
 
-           // create request
+            // create request
             Map<String, Object> request = new TreeMap<String, Object>();
             request.put("args", new Object[]{"cheese"});
 
@@ -144,11 +132,11 @@ public class MdbTest extends JmsTest {
             return false;
         }
 
-		public MessageEndpoint createEndpoint(XAResource arg0, long arg1)
-				throws UnavailableException {
-			//TODO: next openejb version
-			throw new UnsupportedOperationException("Method not implemented: MessageEndpoint createEndpoint(XAResource arg0, long arg1)");
-		}
+        public MessageEndpoint createEndpoint(XAResource arg0, long arg1)
+                throws UnavailableException {
+            //TODO: next openejb version
+            throw new UnsupportedOperationException("Method not implemented: MessageEndpoint createEndpoint(XAResource arg0, long arg1)");
+        }
     }
 
     public static class JmsEndpoint implements MessageEndpoint, MessageListener {
@@ -169,7 +157,7 @@ public class MdbTest extends JmsTest {
             try {
                 // process request
                 ObjectMessage requestMessage = (ObjectMessage) message;
-                    Map<String, Object[]> request = (Map<String, Object[]>) requestMessage.getObject();
+                Map<String, Object[]> request = (Map<String, Object[]>) requestMessage.getObject();
                 Object[] args = (Object[]) request.get("args");
                 String returnValue = "test-" + args[0];
 
