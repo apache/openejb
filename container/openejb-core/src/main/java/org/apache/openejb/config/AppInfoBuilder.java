@@ -259,7 +259,7 @@ class AppInfoBuilder {
             clientInfo.validationInfo = ValidatorBuilder.getInfo(clientModule.getValidationConfig());
             clientInfo.uniqueId = clientModule.getUniqueId();
 
-            clientInfo.jndiEnc = jndiEncInfoBuilder.build(applicationClient, clientModule.getJarLocation(), clientInfo.moduleId);
+            clientInfo.jndiEnc = jndiEncInfoBuilder.build(applicationClient, clientModule.getJarLocation(), clientInfo.uniqueId);
             appInfo.clients.add(clientInfo);
         }
     }
