@@ -18,13 +18,14 @@ package org.apache.openejb.core.mdb;
 
 import junit.framework.TestCase;
 import org.apache.openejb.assembler.classic.Assembler;
+import org.apache.openejb.assembler.classic.ResourceInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.core.ivm.naming.InitContextFactory;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.MessageDrivenBean;
-import static org.apache.openejb.util.Join.join;
+import org.apache.openejb.util.NetworkUtil;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -39,12 +40,16 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Stack;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.apache.openejb.util.Join.join;
 
 /**
  * @version $Rev$ $Date$
@@ -56,8 +61,16 @@ public class JmsMdbContainerTest extends TestCase {
         ConfigurationFactory config = new ConfigurationFactory();
         Assembler assembler = new Assembler();
 
+        // define props for RA in order to change the default activeMQ port
+        Properties props = new Properties();
+        String brokerAddress = NetworkUtil.getLocalAddress("tcp://", "");
+        String brokerXmlConfig = "broker:(" + brokerAddress + ")?useJmx=false";
+        props.put("BrokerXmlConfig", brokerXmlConfig);
+
         assembler.createTransactionManager(config.configureService(TransactionServiceInfo.class));
         assembler.createSecurityService(config.configureService(SecurityServiceInfo.class));
+        assembler.createResource(config.configureService(ResourceInfo.class, "Default JMS Resource Adapter",
+                props, "Default JMS Resource Adapter", "ActiveMQResourceAdapter"));
 
         // Setup the descriptor information
 
