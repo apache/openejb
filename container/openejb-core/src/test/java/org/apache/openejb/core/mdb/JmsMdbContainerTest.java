@@ -69,6 +69,8 @@ public class JmsMdbContainerTest extends TestCase {
 
         assembler.createTransactionManager(config.configureService(TransactionServiceInfo.class));
         assembler.createSecurityService(config.configureService(SecurityServiceInfo.class));
+        assembler.createResource(config.configureService(ResourceInfo.class, "Default Unmanaged JDBC Database",
+                new Properties(), "Default Unmanaged JDBC Database", "DataSource"));
         assembler.createResource(config.configureService(ResourceInfo.class, "Default JMS Resource Adapter",
                 props, "Default JMS Resource Adapter", "ActiveMQResourceAdapter"));
 
