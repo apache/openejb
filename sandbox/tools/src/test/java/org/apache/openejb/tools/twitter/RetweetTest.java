@@ -1,0 +1,71 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.openejb.tools.twitter;
+
+import static org.junit.Assert.*;
+
+import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.*;
+import org.apache.openejb.tools.twitter.Retweet;
+import org.apache.openejb.tools.twitter.UserStatusRetriever;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+
+public class RetweetTest {
+
+	
+	@BeforeClass
+	public static void setUp()
+	{
+	  Retweet.initConsumer();
+	}
+		
+	@Test
+	public void userStatusShouldBeRetrieved()
+	{
+		//UserStatusRetriever.getUserOpenEJBStatus("stratwine");
+		//No asserts. Just to check if it run without exceptions
+	}
+
+	@Test
+	public void tomEEMentionsShouldBeAccepted()
+	{
+		assertTrue(isTomEEMentioned("#TomEE"));
+		
+	}
+	
+	@Test
+	public void openEJBMentionsSHouldBeAccepted()
+	{
+		assertTrue(isOpenEJBMentioned("#openejb"));
+	}
+	
+	
+	@Test
+	public void nonOpenEJBMessageShouldBeRejected()
+	{
+		assertFalse(isOpenEJBTweet("some random message"));
+	}
+	
+	@Test
+	public void openEJBOrTomEEMessagesShouldBeAccepted()
+	{
+		assertTrue(isOpenEJBTweet("this is a @TomEE message"));
+		assertTrue(isOpenEJBTweet("this is a #openejb tweet"));
+	}
+
+}
