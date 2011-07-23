@@ -37,10 +37,11 @@ public final class MapBuilder<A, B> {
         return internal;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "MapBuilder{" +
-            "key = " + kClass +
-            ", value = " + vClass +
-            '}';
+                "key = " + kClass +
+                ", value = " + vClass +
+                '}';
     }
 }

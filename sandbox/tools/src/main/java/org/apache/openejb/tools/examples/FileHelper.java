@@ -15,7 +15,7 @@ public final class FileHelper {
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 
     public static final List<String> EXCLUDED_FOLDERS = Arrays.asList(
-        ExamplesPropertiesManager.get().getProperty("excluded").split(","));
+            ExamplesPropertiesManager.get().getProperty("excluded").split(","));
 
     private FileHelper() {
         // no-op
@@ -24,7 +24,7 @@ public final class FileHelper {
     public static Collection<File> listFolders(File extractedDir, String name) {
         Collection<File> examples = new ArrayList<File>();
         for (File file : extractedDir.listFiles()) {
-            if (file.isDirectory() ) {
+            if (file.isDirectory()) {
                 examples.addAll(listFolders(file, name));
             } else if (!EXCLUDED_FOLDERS.contains(file.getParentFile().getName()) && name.equals(file.getName())
                     && !file.getParentFile().getName().startsWith("openejb-")) {

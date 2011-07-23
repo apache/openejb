@@ -24,19 +24,17 @@ import org.junit.Test;
 
 public class RetweetTest {
 
-	
-	@BeforeClass
-	public static void setUp()
-	{
-	  Retweet.initConsumer();
-	}
-		
-	@Test
-	public void userStatusShouldBeRetrieved()
-	{
-		UserStatusRetriever.getUserOpenEJBStatus("stratwine");
-		//No asserts. Just to check if it run without exceptions
-	}
+
+    @BeforeClass
+    public static void setUp() {
+        Retweet.initConsumer();
+    }
+
+    @Test
+    public void userStatusShouldBeRetrieved() {
+        UserStatusRetriever.getUserOpenEJBStatus("stratwine");
+        //No asserts. Just to check if it run without exceptions
+    }
 
 
 }

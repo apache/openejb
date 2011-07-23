@@ -1,5 +1,10 @@
 package org.apache.openejb.tools.examples;
 
+import org.apache.log4j.Logger;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.log.CommonsLogLogChute;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,10 +13,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.log4j.Logger;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.log.CommonsLogLogChute;
 
 /**
  * @author Romain Manni-Bucau
@@ -73,12 +74,12 @@ public final class OpenEJBTemplate {
 
     /**
      * generate a file from a velocity template.
-     *
+     * <p/>
      * In error case (template not found...), only log with error level will be done (no exception).
      *
-     * @param template the template path in PREFIX resource folder
+     * @param template   the template path in PREFIX resource folder
      * @param mapContext the parameters of the template
-     * @param path the output path
+     * @param path       the output path
      */
     public void apply(String template, Map<String, Object> mapContext, String path) {
         FileWriter writer = null;

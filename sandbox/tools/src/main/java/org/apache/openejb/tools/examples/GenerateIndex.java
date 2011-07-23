@@ -80,7 +80,7 @@ public class GenerateIndex {
      * mvn clean install exec:java -Dexec.mainClass=org.apache.openejb.tools.examples.GenerateIndex
      *
      * @param examplesZip examples zip location
-     * @param workFolder work folder
+     * @param workFolder  work folder
      */
     public static void generate(String examplesZip, String workFolder) {
         LOGGER.info("Generating example pages from " + examplesZip + " to " + workFolder);
@@ -165,36 +165,36 @@ public class GenerateIndex {
                 mkdirp(sourceFile.getParentFile());
 
                 tpl(properties.getProperty("template.code"),
-                    newMap(String.class, Object.class)
-                        .add("title", source + " source")
-                        .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
-                        .add("file", source)
-                        .add("code", code)
-                        .map(),
-                    sourceFile.getPath() + ".html");
+                        newMap(String.class, Object.class)
+                                .add("title", source + " source")
+                                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
+                                .add("file", source)
+                                .add("code", code)
+                                .map(),
+                        sourceFile.getPath() + ".html");
             }
 
             if (html.isEmpty()) {
                 LOGGER.warn("no readme for example " + example.getName() + " [" + example.getPath() + "]");
 
                 tpl(properties.getProperty("template.default"),
-                    newMap(String.class, Object.class)
-                        .add("title", example.getName() + " example")
-                        .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
-                        .add("apis", apiCount)
-                        .add("link", zip.getName())
-                        .add("files", removePrefix(example.getPath(), javaFiles))
-                        .add("resources", removePrefix(example.getPath(), resourceFiles))
-                        .map(),
-                    index.getPath());
+                        newMap(String.class, Object.class)
+                                .add("title", example.getName() + " example")
+                                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
+                                .add("apis", apiCount)
+                                .add("link", zip.getName())
+                                .add("files", removePrefix(example.getPath(), javaFiles))
+                                .add("resources", removePrefix(example.getPath(), resourceFiles))
+                                .map(),
+                        index.getPath());
             } else {
                 tpl(properties.getProperty("template.external"),
-                    newMap(String.class, Object.class)
-                        .add("title", example.getName() + " example")
-                        .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
-                        .add("content", html)
-                        .map(),
-                    index.getPath());
+                        newMap(String.class, Object.class)
+                                .add("title", example.getName() + " example")
+                                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
+                                .add("content", html)
+                                .map(),
+                        index.getPath());
             }
         }
 
@@ -204,30 +204,30 @@ public class GenerateIndex {
 
         // create a glossary page (OR search)
         tpl(properties.getProperty("template.glossary"),
-            newMap(String.class, Object.class)
-                .add("title", "OpenEJB Examples Glossary")
-                .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
-                .add("links", nameByLink)
-                .add("zipLinks", zipLinks)
-                .add("examples", nameByLink)
-                .add("classes", classesByApi)
-                .add("exampleByKeyword", exampleLinksByKeyword)
-                .add("aggregatedClasses", aggregatedClasses)
-                .map(),
-            new File(generatedDir, properties.getProperty("glossary")).getPath());
+                newMap(String.class, Object.class)
+                        .add("title", "OpenEJB Examples Glossary")
+                        .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
+                        .add("links", nameByLink)
+                        .add("zipLinks", zipLinks)
+                        .add("examples", nameByLink)
+                        .add("classes", classesByApi)
+                        .add("exampleByKeyword", exampleLinksByKeyword)
+                        .add("aggregatedClasses", aggregatedClasses)
+                        .map(),
+                new File(generatedDir, properties.getProperty("glossary")).getPath());
 
         // create an index for all example directories
         tpl(properties.getProperty("template.main"),
-            newMap(String.class, Object.class)
-                .add("title", "OpenEJB Examples")
-                .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
-                .add("zipLinks", zipLinks)
-                .add("examples", nameByLink)
-                .add("classes", classesByApi)
-                .add("examplesClasses", examplesClassesByApi)
-                .add("aggregatedClasses", aggregatedClasses)
-                .map(),
-            new File(generatedDir, properties.getProperty("index")).getPath());
+                newMap(String.class, Object.class)
+                        .add("title", "OpenEJB Examples")
+                        .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
+                        .add("zipLinks", zipLinks)
+                        .add("examples", nameByLink)
+                        .add("classes", classesByApi)
+                        .add("examplesClasses", examplesClassesByApi)
+                        .add("aggregatedClasses", aggregatedClasses)
+                        .map(),
+                new File(generatedDir, properties.getProperty("index")).getPath());
     }
 
     private static String escape(String s) {
@@ -237,10 +237,10 @@ public class GenerateIndex {
     // just a shortcut
     private static void tpl(String template, Map<String, Object> mapContext, String path) {
         OpenEJBTemplate.get().apply(template,
-            newMap(mapContext)
-                .add("base", ExamplesPropertiesManager.get().getProperty("home.resources"))
-                .add("home", ExamplesPropertiesManager.get().getProperty("home.site"))
-                .map(),
-            path);
+                newMap(mapContext)
+                        .add("base", ExamplesPropertiesManager.get().getProperty("home.resources"))
+                        .add("home", ExamplesPropertiesManager.get().getProperty("home.site"))
+                        .map(),
+                path);
     }
 }

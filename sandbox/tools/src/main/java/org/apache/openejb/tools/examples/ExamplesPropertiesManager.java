@@ -1,9 +1,10 @@
 package org.apache.openejb.tools.examples;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
-import org.apache.log4j.Logger;
 
 /**
  * @author Romain Manni-Bucau

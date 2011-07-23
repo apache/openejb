@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.tools;
 
-import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -26,27 +25,27 @@ import org.apache.openejb.tools.twitter.ScreenNamesRetriever;
 import org.apache.openejb.tools.twitter.UserStatusRetriever;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RetweetITest {
 
-	@Test
-	public void screenNamesListShouldNotBeEmpty()
-	{
-		assertFalse(ScreenNamesRetriever.getContributorsNames().isEmpty());
-	}
-	
-	@Test
-	public void userStatusShouldBeRetrieved() throws ClientProtocolException, IOException
-	{
-		HttpGet httpGet = UserStatusRetriever.getHttpRequestToRetrieveUserStatuses("stratwine");
-		HttpResponse userStatusResponse = UserStatusRetriever.getUserStatusResponse(httpGet);
-		ResponseHandler<String> responseHander = new BasicResponseHandler();
-		String responseBody = (String)responseHander.handleResponse(userStatusResponse);
-		System.out.println(responseBody);
-		assertTrue(userStatusResponse.getStatusLine().getStatusCode()==200);
+    @Test
+    public void screenNamesListShouldNotBeEmpty() {
+        assertFalse(ScreenNamesRetriever.getContributorsNames().isEmpty());
+    }
 
-	}
+    @Test
+    public void userStatusShouldBeRetrieved() throws ClientProtocolException, IOException {
+        HttpGet httpGet = UserStatusRetriever.getHttpRequestToRetrieveUserStatuses("stratwine");
+        HttpResponse userStatusResponse = UserStatusRetriever.getUserStatusResponse(httpGet);
+        ResponseHandler<String> responseHander = new BasicResponseHandler();
+        String responseBody = (String) responseHander.handleResponse(userStatusResponse);
+        System.out.println(responseBody);
+        assertTrue(userStatusResponse.getStatusLine().getStatusCode() == 200);
+
+    }
 
 }

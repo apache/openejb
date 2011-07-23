@@ -16,56 +16,51 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import static org.junit.Assert.*;
-
-import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.*;
-import org.apache.openejb.tools.twitter.Retweet;
-import org.apache.openejb.tools.twitter.UserStatusRetriever;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.isOpenEJBMentioned;
+import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.isOpenEJBTweet;
+import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.isTomEEMentioned;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class RetweetTest {
 
-	
-	@BeforeClass
-	public static void setUp()
-	{
-	  Retweet.initConsumer();
-	}
-		
-	@Test
-	public void userStatusShouldBeRetrieved()
-	{
-		//UserStatusRetriever.getUserOpenEJBStatus("stratwine");
-		//No asserts. Just to check if it run without exceptions
-	}
 
-	@Test
-	public void tomEEMentionsShouldBeAccepted()
-	{
-		assertTrue(isTomEEMentioned("#TomEE"));
-		
-	}
-	
-	@Test
-	public void openEJBMentionsSHouldBeAccepted()
-	{
-		assertTrue(isOpenEJBMentioned("#openejb"));
-	}
-	
-	
-	@Test
-	public void nonOpenEJBMessageShouldBeRejected()
-	{
-		assertFalse(isOpenEJBTweet("some random message"));
-	}
-	
-	@Test
-	public void openEJBOrTomEEMessagesShouldBeAccepted()
-	{
-		assertTrue(isOpenEJBTweet("this is a @TomEE message"));
-		assertTrue(isOpenEJBTweet("this is a #openejb tweet"));
-	}
+    @BeforeClass
+    public static void setUp() {
+        Retweet.initConsumer();
+    }
+
+    @Test
+    public void userStatusShouldBeRetrieved() {
+        //UserStatusRetriever.getUserOpenEJBStatus("stratwine");
+        //No asserts. Just to check if it run without exceptions
+    }
+
+    @Test
+    public void tomEEMentionsShouldBeAccepted() {
+        assertTrue(isTomEEMentioned("#TomEE"));
+
+    }
+
+    @Test
+    public void openEJBMentionsSHouldBeAccepted() {
+        assertTrue(isOpenEJBMentioned("#openejb"));
+    }
+
+
+    @Test
+    public void nonOpenEJBMessageShouldBeRejected() {
+        assertFalse(isOpenEJBTweet("some random message"));
+    }
+
+    @Test
+    public void openEJBOrTomEEMessagesShouldBeAccepted() {
+        assertTrue(isOpenEJBTweet("this is a @TomEE message"));
+        assertTrue(isOpenEJBTweet("this is a #openejb tweet"));
+    }
 
 }

@@ -27,9 +27,10 @@ public final class ListBuilder<T> {
         return internal;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "ListBuilder{" +
-            "type = " + clazz +
-            '}';
+                "type = " + clazz +
+                '}';
     }
 }

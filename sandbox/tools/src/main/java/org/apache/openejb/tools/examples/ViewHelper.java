@@ -1,5 +1,7 @@
 package org.apache.openejb.tools.examples;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import org.apache.log4j.Logger;
 
 /**
  * @author Romain Manni-Bucau
@@ -25,7 +26,7 @@ public final class ViewHelper {
     public static final char REPLACED_CHAR = '_';
 
     private static final List<String> JAVAX_PREFIX = Arrays.asList(
-        ExamplesPropertiesManager.get().getProperty("api.filtering").split(","));
+            ExamplesPropertiesManager.get().getProperty("api.filtering").split(","));
     private static final String IMPORT_START = ExamplesPropertiesManager.get().getProperty("api.import");
 
     private ViewHelper() {
@@ -34,7 +35,7 @@ public final class ViewHelper {
 
     public static Map<String, String> getAggregateClasses(List<String> links, Map<String, Set<String>> exampleLinksByKeyword) {
         Map<String, String> classes = new HashMap<String, String>();
-        for (String link: links) {
+        for (String link : links) {
             classes.put(link, concatHTMLClasses(getApisForExample(exampleLinksByKeyword, link), "example", '.', '_'));
         }
         return classes;
@@ -153,6 +154,6 @@ public final class ViewHelper {
 
     public static String getLink(File generatedDir, File example) {
         return example.getPath().replace(generatedDir.getPath(), "")
-            .replace(File.separator, "/").replaceFirst("/", "");
+                .replace(File.separator, "/").replaceFirst("/", "");
     }
 }

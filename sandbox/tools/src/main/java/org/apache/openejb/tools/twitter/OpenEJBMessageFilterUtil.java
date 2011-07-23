@@ -123,43 +123,39 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
     /*
       * tweet.contains(string) can't help since mentions can end with period, like "#openejb."
       */
-     static boolean isOpenEJBTweet(String tweet) {
-    	
-    	
+    static boolean isOpenEJBTweet(String tweet) {
+
+
         String[] words = tweet.split(" ");
         List<String> wordsAsList = Arrays.asList(words);
         for (String word : wordsAsList) {
             if (isOpenEJBMentioned(word) || isTomEEMentioned(word)) {
-            	return true;
+                return true;
             }
-            
+
         }
         return false;
     }
 
 
-     static boolean isOpenEJBMentioned(String word) {
-        if((word.startsWith("#") || word.startsWith("@")) && word.trim().length() >= 8)
-        {
-        	if (word.trim().substring(1,8).equalsIgnoreCase("openejb"))
-        	{
-        		return true;
-        	}
+    static boolean isOpenEJBMentioned(String word) {
+        if ((word.startsWith("#") || word.startsWith("@")) && word.trim().length() >= 8) {
+            if (word.trim().substring(1, 8).equalsIgnoreCase("openejb")) {
+                return true;
+            }
         }
-        
+
         return false;
     }
 
-     static boolean isTomEEMentioned(String word){
-    	if( (word.startsWith("#") || word.startsWith("@")) && word.trim().length() >=6)
-    	{
-    		if (word.trim().substring(1,6).equals("TomEE"))
-        	{
-        		return true;
-        	}
-    	}
-    	
-    	return false;
+    static boolean isTomEEMentioned(String word) {
+        if ((word.startsWith("#") || word.startsWith("@")) && word.trim().length() >= 6) {
+            if (word.trim().substring(1, 6).equals("TomEE")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
