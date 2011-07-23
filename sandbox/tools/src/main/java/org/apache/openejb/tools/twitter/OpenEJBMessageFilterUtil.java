@@ -129,9 +129,10 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
         for (String word : wordsAsList) {
             if (isOpenEJBMentioned(word)) {
                 String mentionName = word.trim().substring(1, 8);
-                if (mentionName.equalsIgnoreCase("openejb")) {
-                    return true;
-                }
+
+                if (mentionName.equalsIgnoreCase("openejb")) return true;
+
+                if (mentionName.equals("TomEE")) return true;
             }
         }
         return false;
