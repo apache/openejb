@@ -16,10 +16,6 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -32,6 +28,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * We should monitor this feed http://twitter.com/#!/OpenEJB/contributors
@@ -63,7 +64,7 @@ public class Retweet {
 
     public static void main(String[] args) {
 
-    	Set<String> nonRetweetedOpenEJBStatusIDs = UserStatusRetriever.getAllContributorsOpenEJBStatuses();
+        Set<String> nonRetweetedOpenEJBStatusIDs = UserStatusRetriever.getAllContributorsOpenEJBStatuses();
         logger.info("About to retweet:" + nonRetweetedOpenEJBStatusIDs);
         retweetIfNotEmpty(nonRetweetedOpenEJBStatusIDs);
 
@@ -108,7 +109,7 @@ public class Retweet {
     }
 
     public static HttpResponse retweet(String statusIDToRetweet) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
-        HttpPost httpPost = new HttpPost(RetweetAppConstants.RETWEET_URL+statusIDToRetweet+".json");
+        HttpPost httpPost = new HttpPost(RetweetAppConstants.RETWEET_URL + statusIDToRetweet + ".json");
         initConsumer();
         consumer.sign(httpPost);
         HttpResponse response = null;

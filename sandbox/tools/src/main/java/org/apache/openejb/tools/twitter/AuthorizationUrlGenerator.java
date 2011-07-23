@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.util.Properties;
 import oauth.signpost.OAuth;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
@@ -28,8 +27,10 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
 
+import java.util.Properties;
+
 public class AuthorizationUrlGenerator {
-	static Properties retweetToolProperties;
+    static Properties retweetToolProperties;
     static OAuthConsumer consumer;
     static OAuthProvider provider;
 

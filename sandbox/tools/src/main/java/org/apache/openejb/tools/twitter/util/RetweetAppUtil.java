@@ -16,20 +16,22 @@
  */
 package org.apache.openejb.tools.twitter.util;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 public class RetweetAppUtil {
 
-	private static Logger logger = Logger.getLogger(RetweetAppUtil.class);
+    private static Logger logger = Logger.getLogger(RetweetAppUtil.class);
+
     public static Properties getTwitterAppProperties() {
 
-    	Properties retweetAppProperties = new Properties();
-    	try {
-    		ClassPathResource retweetToolPropertiesFile = new ClassPathResource(
+        Properties retweetAppProperties = new Properties();
+        try {
+            ClassPathResource retweetToolPropertiesFile = new ClassPathResource(
                     "RetweetTool.properties");
             retweetAppProperties.load(retweetToolPropertiesFile
                     .getInputStream());

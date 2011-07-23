@@ -16,12 +16,6 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -32,81 +26,84 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class ScreenNamesRetriever {
-	
-	private static Logger logger = Logger.getLogger(ScreenNamesRetriever.class);
-	
-	public static void main(String[] args) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
-		getContributorsNames();
-	}
-	
-	public static List<String>  getContributorsNames() 
-	{
-			List<String> contributorsScreenNames = null;
-        	try {
-        		contributorsScreenNames = getContributorsScreenNames();
-			} catch (OAuthMessageSignerException e) {
-				e.printStackTrace();
-			} catch (OAuthExpectationFailedException e) {
-				e.printStackTrace();
-			} catch (OAuthCommunicationException e) {
-				e.printStackTrace();
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-        	return contributorsScreenNames;
-	}
 
-	@SuppressWarnings("rawtypes")
-	private static List<String> getContributorsScreenNames()
-			throws OAuthMessageSignerException,
-			OAuthExpectationFailedException, OAuthCommunicationException,
-			IOException, ClientProtocolException {
-		HttpResponse response = getContribListMembersResponse();
-		String responseBody = JsonResponseParser.getResponseBody(response);
-		StringReader reader= new StringReader(responseBody);
-		Map mapFromJson = JsonResponseParser.getMapFromJson(reader);
-		logger.debug("MAP:"+mapFromJson);
-		List listFromJson=(List) mapFromJson.get("users");
-		return getScreenNamesAlone(listFromJson);
-	}
+    private static Logger logger = Logger.getLogger(ScreenNamesRetriever.class);
 
-	@SuppressWarnings("rawtypes")
-	private static List<String> getScreenNamesAlone(List listFromJson) 
-	{
-		List<String> contribMembersList = new ArrayList<String>();
-		for(Object object:listFromJson)
-		{
-			LinkedHashMap map = (LinkedHashMap)object;
-			contribMembersList.add((String)map.get("screen_name"));
-		}
-		return contribMembersList;
-	}
-	
+    public static void main(String[] args) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
+        getContributorsNames();
+    }
 
-	private static HttpResponse getContribListMembersResponse()
-			throws OAuthMessageSignerException,
-			OAuthExpectationFailedException, OAuthCommunicationException,
-			IOException, ClientProtocolException {
-		HttpClient client = new DefaultHttpClient();
-		HttpGet httpGet = getRequestForContribListMembers();
-		Retweet.initConsumer();
-		Retweet.consumer.sign(httpGet);
-		HttpResponse response = client.execute(getRequestForContribListMembers());
-		return response;
-	}
-	
-	public static  HttpGet getRequestForContribListMembers() 
-	{
-		String listName="contributors";
-		String ownerScreenName="OpenEJB";
-		HttpGet httpGet = new HttpGet("http://api.twitter.com/1/lists/members.json?slug="+listName
-				+"&owner_screen_name="+ownerScreenName);
-		return httpGet;
-		
-	}
+    public static List<String> getContributorsNames() {
+        List<String> contributorsScreenNames = null;
+        try {
+            contributorsScreenNames = getContributorsScreenNames();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contributorsScreenNames;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static List<String> getContributorsScreenNames()
+            throws OAuthMessageSignerException,
+            OAuthExpectationFailedException, OAuthCommunicationException,
+            IOException, ClientProtocolException {
+        HttpResponse response = getContribListMembersResponse();
+        String responseBody = JsonResponseParser.getResponseBody(response);
+        StringReader reader = new StringReader(responseBody);
+        Map mapFromJson = JsonResponseParser.getMapFromJson(reader);
+        logger.debug("MAP:" + mapFromJson);
+        List listFromJson = (List) mapFromJson.get("users");
+        return getScreenNamesAlone(listFromJson);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static List<String> getScreenNamesAlone(List listFromJson) {
+        List<String> contribMembersList = new ArrayList<String>();
+        for (Object object : listFromJson) {
+            LinkedHashMap map = (LinkedHashMap) object;
+            contribMembersList.add((String) map.get("screen_name"));
+        }
+        return contribMembersList;
+    }
+
+
+    private static HttpResponse getContribListMembersResponse()
+            throws OAuthMessageSignerException,
+            OAuthExpectationFailedException, OAuthCommunicationException,
+            IOException, ClientProtocolException {
+        HttpClient client = new DefaultHttpClient();
+        HttpGet httpGet = getRequestForContribListMembers();
+        Retweet.initConsumer();
+        Retweet.consumer.sign(httpGet);
+        HttpResponse response = client.execute(getRequestForContribListMembers());
+        return response;
+    }
+
+    public static HttpGet getRequestForContribListMembers() {
+        String listName = "contributors";
+        String ownerScreenName = "OpenEJB";
+        HttpGet httpGet = new HttpGet("http://api.twitter.com/1/lists/members.json?slug=" + listName
+                + "&owner_screen_name=" + ownerScreenName);
+        return httpGet;
+
+    }
 
 }

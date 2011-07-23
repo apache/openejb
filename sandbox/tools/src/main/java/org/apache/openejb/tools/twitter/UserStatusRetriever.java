@@ -16,27 +16,26 @@
  */
 package org.apache.openejb.tools.twitter;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
 
 public class UserStatusRetriever {
-	
-	public static HttpGet  getHttpRequestToRetrieveUserStatuses(String screenName)
-	{
-		
-		HttpGet requestForUserStatus=new HttpGet(RetweetAppConstants.USER_TIMELINE_STATUS_URL+screenName);
-		return requestForUserStatus;
-	}
-	
-	public static HttpResponse getUserStatusResponse(HttpGet userStatusRequest)
-	{
+
+    public static HttpGet getHttpRequestToRetrieveUserStatuses(String screenName) {
+
+        HttpGet requestForUserStatus = new HttpGet(RetweetAppConstants.USER_TIMELINE_STATUS_URL + screenName);
+        return requestForUserStatus;
+    }
+
+    public static HttpResponse getUserStatusResponse(HttpGet userStatusRequest) {
         HttpResponse response = null;
         try {
             response = Retweet.getHttpClient().execute(userStatusRequest);
@@ -45,31 +44,28 @@ public class UserStatusRetriever {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return response;
-    	
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public static List<String> getUserOpenEJBStatus(String screenName)
-	{
-	   HttpResponse userStatusResponse = getUserStatusResponse(getHttpRequestToRetrieveUserStatuses(screenName));	
-	   String responseBody = JsonResponseParser.getResponseBody(userStatusResponse);
-	   StringReader dataToParse = new StringReader(responseBody);
-	   List<Map> listFromJson = JsonResponseParser.getListFromJson(dataToParse);
-	   List<String> nonRetweetedOpenEJBStatusIDs = OpenEJBMessageFilterUtil.getNonRetweetedOpenEJBStatusIDs(listFromJson);
-	   return nonRetweetedOpenEJBStatusIDs;
-	}
-	
-	public static Set<String> getAllContributorsOpenEJBStatuses()
-	{
-	  List<String> contributorsNames = ScreenNamesRetriever.getContributorsNames();	
-	  Set<String> openEJBStatuses = new HashSet<String>(); 
-	  for(String screenName : contributorsNames)
-	  {
-		  openEJBStatuses.addAll(getUserOpenEJBStatus(screenName));
-	  }
-	  return openEJBStatuses;
-	}
+
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static List<String> getUserOpenEJBStatus(String screenName) {
+        HttpResponse userStatusResponse = getUserStatusResponse(getHttpRequestToRetrieveUserStatuses(screenName));
+        String responseBody = JsonResponseParser.getResponseBody(userStatusResponse);
+        StringReader dataToParse = new StringReader(responseBody);
+        List<Map> listFromJson = JsonResponseParser.getListFromJson(dataToParse);
+        List<String> nonRetweetedOpenEJBStatusIDs = OpenEJBMessageFilterUtil.getNonRetweetedOpenEJBStatusIDs(listFromJson);
+        return nonRetweetedOpenEJBStatusIDs;
+    }
+
+    public static Set<String> getAllContributorsOpenEJBStatuses() {
+        List<String> contributorsNames = ScreenNamesRetriever.getContributorsNames();
+        Set<String> openEJBStatuses = new HashSet<String>();
+        for (String screenName : contributorsNames) {
+            openEJBStatuses.addAll(getUserOpenEJBStatus(screenName));
+        }
+        return openEJBStatuses;
+    }
 
 }

@@ -16,11 +16,6 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -31,10 +26,16 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 public class JsonResponseParser {
-	
-	private static Logger logger = Logger.getLogger(JsonResponseParser.class);
+
+    private static Logger logger = Logger.getLogger(JsonResponseParser.class);
 
     public static String getResponseBody(HttpResponse response) {
         ResponseHandler<String> responseHander = new BasicResponseHandler();
@@ -69,26 +70,25 @@ public class JsonResponseParser {
         logger.debug("Json to List of key value pairs:" + result);
         return result;
     }
-    
 
-	@SuppressWarnings("rawtypes")
-	public static Map getMapFromJson(Reader jsonDataReader)
-	{
-		Map result = null;
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			result=mapper.readValue(jsonDataReader, new TypeReference<Map>() {
-			});
-		} catch (JsonParseException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return result;
-	
-	}
+
+    @SuppressWarnings("rawtypes")
+    public static Map getMapFromJson(Reader jsonDataReader) {
+        Map result = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            result = mapper.readValue(jsonDataReader, new TypeReference<Map>() {
+            });
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
 
 }

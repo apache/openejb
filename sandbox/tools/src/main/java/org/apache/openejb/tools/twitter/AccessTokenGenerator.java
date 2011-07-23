@@ -16,11 +16,12 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.util.Scanner;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
+
+import java.util.Scanner;
 
 import static org.apache.openejb.tools.twitter.AuthorizationUrlGenerator.consumer;
 import static org.apache.openejb.tools.twitter.AuthorizationUrlGenerator.provider;
