@@ -20,6 +20,7 @@ package org.apache.openejb.tomcat.catalina;
 import static org.apache.openejb.tomcat.catalina.BackportUtil.getServlet;
 import static org.apache.openejb.tomcat.catalina.BackportUtil.*;
 
+import org.apache.catalina.core.NamingContextListener;
 import org.apache.openejb.tomcat.common.LegacyAnnotationProcessor;
 import org.apache.openejb.tomcat.common.TomcatVersion;
 import org.apache.catalina.Container;
@@ -330,28 +331,37 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
 
         // bind extra stuff at the java:comp level which can only be
         // bound after the context is created
-        String listenerName = getNamingContextListener(standardContext).getName();
+        NamingContextListener ncl = getNamingContextListener(standardContext);
+        String listenerName = ncl.getName();
         ContextAccessController.setWritable(listenerName, standardContext);
         try {
 
-            Context openejbContext = SystemInstance.get().getComponent(ContainerSystem.class).getJNDIContext();
+            Context openejbContext = getContainerSystem().getJNDIContext();
             openejbContext = (Context) openejbContext.lookup("openejb");
 
-            Context root = (Context) ContextBindings.getClassLoader().lookup("");
-            safeBind(root, "openejb", openejbContext);
+            // Context root = (Context) ContextBindings.getClassLoader().lookup("");
+            // Context comp = (Context) ContextBindings.getClassLoader().lookup("comp");
 
-            Context comp = (Context) ContextBindings.getClassLoader().lookup("comp");
+            Context root = ncl.getNamingContext();
+            Context comp = (Context) root.lookup("comp");
+            safeBind(root, "openejb", openejbContext);
 
             // add context to WebDeploymentInfo
             for (WebAppInfo webAppInfo : contextInfo.appInfo.webApps) {
-                // Bean Validation
-                standardContext.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", openejbContext.lookup(Assembler.VALIDATOR_FACTORY_NAMING_CONTEXT + webAppInfo.moduleId));
-
-                if (("/" + webAppInfo.contextRoot).equals(standardContext.getPath()) || isRootApplication(standardContext)) {
-                    CoreWebDeploymentInfo webDeploymentInfo = (CoreWebDeploymentInfo) getContainerSystem().getWebDeploymentInfo(webAppInfo.moduleId);
-                    if (webDeploymentInfo != null) {
-                        webDeploymentInfo.setJndiEnc(comp);
+                boolean isRoot = isRootApplication(standardContext);
+                if (("/" + webAppInfo.contextRoot).equals(standardContext.getPath()) || isRoot) {
+                    CoreWebDeploymentInfo webContext = (CoreWebDeploymentInfo) getContainerSystem().getWebDeploymentInfo(webAppInfo.moduleId);
+                    if (webContext != null) {
+                        webContext.setJndiEnc(root);
                     }
+
+                    try {
+                        // Bean Validation
+                        standardContext.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", openejbContext.lookup(Assembler.VALIDATOR_FACTORY_NAMING_CONTEXT.replaceFirst("openejb", "") + webAppInfo.uniqueId));
+                    } catch (NamingException ne) {
+                        logger.warning("no validator factory found for webapp " + webAppInfo.moduleId);
+                    }
+
                     break;
                 }
             }
