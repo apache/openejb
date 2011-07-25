@@ -670,24 +670,24 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
                 jndiEncBuilder.setUseCrossClassLoaderRef(false);
                 Context context = (Context) jndiEncBuilder.build().lookup("comp/env");
 
-                containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.moduleId + "/comp/env", context);
+                containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.uniqueId + "/comp/env", context);
                 if (clientInfo.codebase != null) {
-                    containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.moduleId + "/comp/path", clientInfo.codebase);
+                    containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.uniqueId + "/comp/path", clientInfo.codebase);
                 }
                 if (clientInfo.mainClass != null) {
-                    containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.moduleId + "/comp/mainClass", clientInfo.mainClass);
+                    containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.uniqueId + "/comp/mainClass", clientInfo.mainClass);
                 }
                 if (clientInfo.callbackHandler != null) {
-                    containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.moduleId + "/comp/callbackHandler", clientInfo.callbackHandler);
+                    containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.uniqueId + "/comp/callbackHandler", clientInfo.callbackHandler);
                 }
-                containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.moduleId + "/comp/injections", injections);
+                containerSystem.getJNDIContext().bind("openejb/client/" + clientInfo.uniqueId + "/comp/injections", injections);
 
                 for (String clientClassName : clientInfo.remoteClients) {
-                    containerSystem.getJNDIContext().bind("openejb/client/" + clientClassName, clientInfo.moduleId);
+                    containerSystem.getJNDIContext().bind("openejb/client/" + clientClassName, clientInfo.uniqueId);
                 }
                 
                 for (String clientClassName : clientInfo.localClients) {
-                    containerSystem.getJNDIContext().bind("openejb/client/" + clientClassName, clientInfo.moduleId);
+                    containerSystem.getJNDIContext().bind("openejb/client/" + clientClassName, clientInfo.uniqueId);
                     logger.getChildLogger("client").info("createApplication.createLocalClient", clientClassName, clientInfo.moduleId);
                 }
             }
@@ -909,7 +909,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
         // get the client ids
         List<String> clientIds = new ArrayList<String>();
         for (ClientInfo clientInfo : appInfo.clients) {
-            clientIds.add(clientInfo.moduleId);
+            clientIds.add(clientInfo.uniqueId);
             for (String className : clientInfo.localClients) {
                 clientIds.add(className);
             }
