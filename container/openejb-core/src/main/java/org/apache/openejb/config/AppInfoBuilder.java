@@ -254,7 +254,7 @@ class AppInfoBuilder {
             clientInfo.localClients.addAll(clientModule.getLocalClients());
             clientInfo.remoteClients.addAll(clientModule.getRemoteClients());
             clientInfo.callbackHandler = applicationClient.getCallbackHandler();
-            clientInfo.moduleId = clientModule.getModuleId();
+            clientInfo.moduleId = getClientModuleId(clientModule);
             clientInfo.watchedResources.addAll(clientModule.getWatchedResources());
             clientInfo.validationInfo = ValidatorBuilder.getInfo(clientModule.getValidationConfig());
             clientInfo.uniqueId = clientModule.getUniqueId();
@@ -597,6 +597,16 @@ class AppInfoBuilder {
                 }
             }
         }
+    }
+
+    private static String getClientModuleId(ClientModule clientModule) {
+        String jarLocation = clientModule.getJarLocation();
+        File file = new File(jarLocation);
+        String name = file.getName();
+        if (name.endsWith(".jar") || name.endsWith(".zip")) {
+            name = name.replaceFirst("....$", "");
+        }
+        return name;
     }
 
 

@@ -16,14 +16,16 @@
  */
 package org.apache.openejb.config;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.openejb.jee.ApplicationClient;
 import org.apache.xbean.finder.ClassFinder;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicReference;
+import java.io.File;
 
 /**
  * @version $Rev$ $Date$
@@ -31,23 +33,32 @@ import org.apache.xbean.finder.ClassFinder;
 public class ClientModule extends Module implements DeploymentModule {
     private final ValidationContext validation;
     private ApplicationClient applicationClient;
+    private String jarLocation;
     private ClassLoader classLoader;
     private String mainClass;
     private boolean ejbModuleGenerated;
     private AtomicReference<ClassFinder> finder;
     private final Set<String> localClients = new HashSet<String>();
     private final Set<String> remoteClients = new HashSet<String>();
-    private ID id;
+    private final String moduleId;
     private final Set<String> watchedResources = new TreeSet<String>();
 
     public ClientModule(ApplicationClient applicationClient, ClassLoader classLoader, String jarLocation, String mainClass, String moduleId) {
         this.applicationClient = applicationClient;
         this.classLoader = classLoader;
+        this.jarLocation = jarLocation;
         this.mainClass = mainClass;
 
-        File file = (jarLocation == null) ? null : new File(jarLocation);
-        this.id = new ID(//null, applicationClient,
-            moduleId, file, null, this);
+        if (moduleId == null){
+            if (applicationClient != null && applicationClient.getId() != null){
+                moduleId = applicationClient.getId();
+            } else {
+                File file = new File(jarLocation);
+                moduleId = file.getName();
+            }
+        }
+
+        this.moduleId = moduleId;
         validation = new ValidationContext(ClientModule.class, jarLocation);
     }
 
@@ -76,7 +87,7 @@ public class ClientModule extends Module implements DeploymentModule {
     }
 
     public String getModuleId() {
-        return id.getName();
+        return moduleId;
     }
 
     public ApplicationClient getApplicationClient() {
@@ -104,12 +115,11 @@ public class ClientModule extends Module implements DeploymentModule {
     }
 
     public String getJarLocation() {
-        return (id.getLocation() != null) ? id.getLocation().getAbsolutePath() : null;
+        return jarLocation;
     }
 
     public void setJarLocation(String jarLocation) {
-        this.id = new ID(//null, applicationClient,
-            id.getName(), new File(jarLocation), id.getUri(), this);
+        this.jarLocation = jarLocation;
     }
 
     public String getMainClass() {
