@@ -115,7 +115,7 @@
     <!-- to change easily the javaee api version -->
     <javaee-api.version>6.0-SNAPSHOT</javaee-api.version>
 
-    <bval.version>0.2-incubating</bval.version>
+    <bval.version>0.3-incubating</bval.version>
     <org.apache.activemq.version>5.4.2</org.apache.activemq.version>
     <quartz.version>1.8.4</quartz.version>
     <org.springframework.version>3.0.4.RELEASE</org.springframework.version>
@@ -808,7 +808,7 @@
       <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.1</version>
         <exclusions>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
