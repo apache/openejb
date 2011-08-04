@@ -1,0 +1,8 @@
+           <div id="api">
+                <ul>
+                    APIs:
+#foreach( $api in $apis.entrySet() )
+                    <li>$api.key is used $api.value times</li>
+#end
+                </ul>
+            </div>

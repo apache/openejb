@@ -1,0 +1,8 @@
+           <div id="api">
+                <ul>
+                    Resources:
+#foreach( $resource in $resources )
+                    <li><a href="${resource}.html">$resource</a></li>
+#end
+                </ul>
+            </div>

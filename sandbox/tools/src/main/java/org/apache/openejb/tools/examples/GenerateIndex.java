@@ -174,6 +174,17 @@ public class GenerateIndex {
                         sourceFile.getPath() + ".html");
             }
 
+            List<String> resources = removePrefix(example.getPath(), resourceFiles);
+            List<String> javaFileLinks = removePrefix(example.getPath(), javaFiles);
+
+            html = html.replace("${zip}", zip.getName());
+            html = html.replace("${apis}", OpenEJBTemplate.get().apply("api.vm",
+                    newMap(String.class, Object.class).add("apis", apiCount).map()));
+            html = html.replace("${resources}", OpenEJBTemplate.get().apply("resources.vm",
+                    newMap(String.class, Object.class).add("resources", resources).map()));
+            html = html.replace("${javas}", OpenEJBTemplate.get().apply("java.vm",
+                    newMap(String.class, Object.class).add("files", javaFileLinks).map()));
+
             if (html.isEmpty()) {
                 LOGGER.warn("no readme for example " + example.getName() + " [" + example.getPath() + "]");
 
@@ -183,8 +194,8 @@ public class GenerateIndex {
                                 .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("apis", apiCount)
                                 .add("link", zip.getName())
-                                .add("files", removePrefix(example.getPath(), javaFiles))
-                                .add("resources", removePrefix(example.getPath(), resourceFiles))
+                                .add("files", javaFileLinks)
+                                .add("resources", resources)
                                 .map(),
                         index.getPath());
             } else {

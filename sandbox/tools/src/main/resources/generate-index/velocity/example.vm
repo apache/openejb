@@ -3,30 +3,8 @@
                 <a href="$link">Download as zip</a>
             </div>
 
-            <div id="javaFiles">
-                <ul>
-                    Files:
-#foreach( $file in $files )
-                    <li><a href="${file}.html">$file</a></li>
-#end
-                </ul>
-            </div>
+#parse("generate-index/velocity/java.vm")
+#parse("generate-index/velocity/api.vm")
+#parse("generate-index/velocity/resources.vm")
 
-            <div id="api">
-                <ul>
-                    APIs:
-#foreach( $api in $apis.entrySet() )
-                    <li>$api.key is used $api.value times</li>
-#end
-                </ul>
-            </div>
-
-            <div id="api">
-                <ul>
-                    Resources:
-#foreach( $resource in $resources )
-                    <li><a href="${resource}.html">$resource</a></li>
-#end
-                </ul>
-            </div>
 #parse("generate-index/velocity/footer.vm")

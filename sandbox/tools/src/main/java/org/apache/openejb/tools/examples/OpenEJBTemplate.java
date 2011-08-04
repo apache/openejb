@@ -8,6 +8,7 @@ import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.HashMap;
@@ -98,6 +99,29 @@ public final class OpenEJBTemplate {
                 }
             }
         }
+    }
+
+    public String apply(String template, Map<String, Object> mapContext) {
+        StringWriter writer = null;
+        try {
+            writer = new StringWriter();
+            evaluate(template, mapContext, writer);
+        } catch (IOException ioe) {
+            LOGGER.error("can't apply template " + template, ioe);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    LOGGER.error("can't flush writer", e);
+                }
+            }
+        }
+        if (writer == null) {
+            return "";
+        }
+        return writer.toString();
     }
 
     public static OpenEJBTemplate get() {
