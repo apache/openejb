@@ -121,13 +121,17 @@ public class GenerateIndex {
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
             mkdirp(generated);
 
-            File readme = new File(example, properties.getProperty("readme"));
+            String[] readmes = properties.getProperty("readme").split(",");
             String html = "";
-            if (readme.exists()) {
-                try {
-                    html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
-                } catch (IOException e) {
-                    LOGGER.warn("can't read readme file for example " + example.getName());
+            for (String rd : readmes) {
+                File readme = new File(example, rd.trim());
+                if (readme.exists()) {
+                    try {
+                        html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
+                        break;
+                    } catch (IOException e) {
+                        LOGGER.warn("can't read readme file for example " + example.getName());
+                    }
                 }
             }
 
