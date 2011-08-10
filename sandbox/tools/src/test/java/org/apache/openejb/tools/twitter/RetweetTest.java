@@ -16,51 +16,82 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.isOpenEJBMentioned;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.isOpenEJBTweet;
-import static org.apache.openejb.tools.twitter.OpenEJBMessageFilterUtil.isTomEEMentioned;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class RetweetTest {
 
-
-    @BeforeClass
-    public static void setUp() {
-        Retweet.initConsumer();
-    }
-
-    @Test
-    public void userStatusShouldBeRetrieved() {
-        //UserStatusRetriever.getUserOpenEJBStatus("stratwine");
-        //No asserts. Just to check if it run without exceptions
-    }
-
-    @Test
-    public void tomEEMentionsShouldBeAccepted() {
-        assertTrue(isTomEEMentioned("#TomEE"));
-
-    }
-
-    @Test
-    public void openEJBMentionsSHouldBeAccepted() {
-        assertTrue(isOpenEJBMentioned("#openejb"));
-    }
-
-
+    /**
+     * Any hashtag not specified specified in
+     * RetweetTool.properties against the 'openejb.supported.hashtags' key should be ignored
+     */
     @Test
     public void nonOpenEJBMessageShouldBeRejected() {
         assertFalse(isOpenEJBTweet("some random message"));
     }
 
+    /**
+     * Any hashtag not specified specified in
+     * RetweetTool.properties against the 'tomee.supported.hashtags' key should be ignored
+     */
+
     @Test
-    public void openEJBOrTomEEMessagesShouldBeAccepted() {
-        assertTrue(isOpenEJBTweet("this is a @TomEE message"));
-        assertTrue(isOpenEJBTweet("this is a #openejb tweet"));
+    public void nonTomEEMessagesShouldBeRejected() {
+        assertFalse(OpenEJBMessageFilterUtil.isTomEETweet("some random message"));
     }
 
+    @Test
+    public void openEJBTweetsShouldBeIdentified() {
+        assertTrue(isOpenEJBTweet("this is a #openejb tweet"));
+        assertTrue(isOpenEJBTweet("this is an @openejb tweet"));
+        assertTrue(isOpenEJBTweet("this is an #OPEnEJB tweet")); //case insensitive check
+        assertTrue(isOpenEJBTweet("this is an #openejb-tweet.")); // also accept if hashtag is immediately followed by punctuations etc
+    }
+
+
+    /**
+     * A tweet which contains any of the supported hashtags
+     * RetweetTool.properties 'tomee.supported.hashtags' key holds the supported hashtags
+     */
+    @Test
+    public void tomEETweetsShouldBeIdentified() {
+        assertTrue(OpenEJBMessageFilterUtil.isTomEETweet("this is a #tomee message"));
+
+    }
+
+
+    @Test
+    public void regexPatternShouldMatchWithMessagesContainingHashTags() {
+        //testing for correctness of regex pattern
+        String hashTagsSupported = "openejb|tomee";
+        Pattern pattern = Pattern.compile(".*(#|@)(" + hashTagsSupported + ").*", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher("this is some @tomEE message");
+        Matcher matcher2 = pattern.matcher("this is some @openEjb-message");
+        assertTrue(matcher.matches());
+        assertTrue(matcher2.matches());
+    }
+
+    @Test
+    public void regexPatternShouldNotMatchWithRandomMessage() {
+        //testing for correctness of regex pattern
+        Pattern pattern = Pattern.compile(".*(#|@)openejb.*");
+        Matcher matcher = pattern.matcher("this is a random message");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testEnumUsageWithIfBlocks() {
+        TwitterAccount tAccount = TwitterAccount.OPENEJB;
+        if (!tAccount.equals(TwitterAccount.OPENEJB)) {
+            fail("Enum was not matched");
+        }
+    }
 }

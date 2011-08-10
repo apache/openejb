@@ -62,7 +62,7 @@
     </repository>
     <repository>
       <id>scala-tools</id>
-      <url>http://scala-tools.org/repo-releases</url>
+      <url>http://scala-tools.org/repo-releases/</url>
     </repository>
   </repositories>
 

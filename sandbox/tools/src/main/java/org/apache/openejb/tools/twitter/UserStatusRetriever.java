@@ -16,16 +16,18 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.openejb.tools.twitter.vo.ValidStatuses;
+import org.apache.openejb.tools.twitter.vo.ValidStatusesOfUser;
 
 public class UserStatusRetriever {
 
@@ -49,23 +51,35 @@ public class UserStatusRetriever {
 
     }
 
+    /**
+     * Retrieves non-retweeted, less-than-an-hour-old statuses from a specified contributor
+     * 
+     */
     @SuppressWarnings("rawtypes")
-    public static List<String> getUserOpenEJBStatus(String screenName) {
+    public static ValidStatusesOfUser getAcceptedStatusesOfContributor(String screenName) {
         HttpResponse userStatusResponse = getUserStatusResponse(getHttpRequestToRetrieveUserStatuses(screenName));
         String responseBody = JsonResponseParser.getResponseBody(userStatusResponse);
         StringReader dataToParse = new StringReader(responseBody);
         List<Map> listFromJson = JsonResponseParser.getListFromJson(dataToParse);
-        List<String> nonRetweetedOpenEJBStatusIDs = OpenEJBMessageFilterUtil.getNonRetweetedOpenEJBStatusIDs(listFromJson);
-        return nonRetweetedOpenEJBStatusIDs;
+        
+        ValidStatusesOfUser validStatusesOfUser = OpenEJBMessageFilterUtil.getNonRetweetedValidStatusIDs(listFromJson);
+        return validStatusesOfUser;
     }
 
-    public static Set<String> getAllContributorsOpenEJBStatuses() {
+    public static ValidStatuses getAllContributorsStatuses() {
         List<String> contributorsNames = ScreenNamesRetriever.getContributorsNames();
         Set<String> openEJBStatuses = new HashSet<String>();
+        Set<String> tomEEStatuses = new HashSet<String>();
         for (String screenName : contributorsNames) {
-            openEJBStatuses.addAll(getUserOpenEJBStatus(screenName));
+            openEJBStatuses.addAll(getAcceptedStatusesOfContributor(screenName).getTweetIDsForOpenEJBTwitterAccount());
+            tomEEStatuses.addAll(getAcceptedStatusesOfContributor(screenName).getTweetIDsForTomEETwitterAcount());
         }
-        return openEJBStatuses;
+        
+        ValidStatuses validStatuses = new ValidStatuses();
+        validStatuses.setValidTweetIDsForOpenEJBAccount(openEJBStatuses);
+        validStatuses.setValidTweetIDsForTomEEAccount(tomEEStatuses);
+        
+        return validStatuses;
     }
 
 }

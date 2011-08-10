@@ -60,11 +60,11 @@ public class AccessTokenGenerator {
 
         provider.retrieveAccessToken(consumer, pinFromUser);
 
-        System.out.println("Consumer Token: (Copy and Paste this value in the RetweetTool.properties against retweetApp.authorizedUser.consumer.token)");
+        System.out.println("Consumer Token: (Copy and Paste this value in the RetweetTool.properties against retweetApp< concerned account name >.authorizedUser.consumer.token)");
         System.out.println(consumer.getToken());
 
 
-        System.out.println("Consumer Token Secret: (Copy and Paste this value in RetweetTool.properties against retweetApp.authorizedUser.consumer.tokenSecret)");
+        System.out.println("Consumer Token Secret: (Copy and Paste this value in RetweetTool.properties against retweetApp< concerned account name >.authorizedUser.consumer.tokenSecret)");
         System.out.println(consumer.getTokenSecret());
 
     }

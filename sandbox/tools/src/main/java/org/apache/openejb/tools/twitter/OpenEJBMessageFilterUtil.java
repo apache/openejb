@@ -17,6 +17,8 @@
 package org.apache.openejb.tools.twitter;
 
 import org.apache.log4j.Logger;
+import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
+import org.apache.openejb.tools.twitter.vo.ValidStatusesOfUser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,42 +28,89 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 
     static SimpleDateFormat dateFormat = new SimpleDateFormat(TWITTER_DATE_FORMAT, TWITTER_LOCALE);
     private static Logger logger = Logger.getLogger(OpenEJBMessageFilterUtil.class);
 
+    /**
+     * 
+     * @param keyValuePairs
+     * @return RetweetableStatusesVO contains tweetIDs (i.e StatusIDs ) for OpenEJB account and TomEE account
+     */
     @SuppressWarnings("rawtypes")
-    public static List<String> getNonRetweetedOpenEJBStatusIDs(
+    public static ValidStatusesOfUser getNonRetweetedValidStatusIDs(
             List<Map> keyValuePairs) {
 
-        List<String> openEJBStatusIDs = new ArrayList<String>();
+    	ValidStatusesOfUser retweetableStatusesVO = new ValidStatusesOfUser();
+        List<String> tweetIDsForOpenEJBTwitterAccount = new ArrayList<String>();
+        List<String> tweetIDsForTomEETwitterAcount = new ArrayList<String>();
 
         for (Object keyValuePair : keyValuePairs) {
             Map keyValue = (Map) keyValuePair;
             if (keyValue.containsKey("text")) {
-                acceptOrRejectTweets(openEJBStatusIDs, keyValue);
+                addValidTweetsForOpenEJBAccount(tweetIDsForOpenEJBTwitterAccount, keyValue);
+                addValidTweetsForApacheTomEEAccount(tweetIDsForTomEETwitterAcount,keyValue);
             }
         }
 
-        return openEJBStatusIDs;
+        retweetableStatusesVO.setTweetIDsForOpenEJBTwitterAccount(tweetIDsForOpenEJBTwitterAccount);
+        retweetableStatusesVO.setTweetIDsForTomEETwitterAcount(tweetIDsForTomEETwitterAcount);
+        
+        return retweetableStatusesVO;
     }
 
-    @SuppressWarnings("rawtypes")
-    private static void acceptOrRejectTweets(List<String> openEJBStatusIDs,
+    static void addValidTweetsForApacheTomEEAccount(
+			List<String> tweetIDsForTomEETwitterAcount, Map keyValue) {
+		
+
+        String tweet = (String) keyValue.get("text");
+        if (!isOlderThanAnHour(keyValue) & isTomEETweet(tweet) & !isRetweeted(keyValue)) {
+            addAcceptedTweetIDs(tweetIDsForTomEETwitterAcount, keyValue, tweet);
+        } else {
+            logWhyTweetWasRejectedForTomEEAccount(keyValue, tweet);
+        }
+    
+		
+	}
+
+    private static void logWhyTweetWasRejectedForTomEEAccount(Map keyValue,
+			String tweet) {
+        logger.debug("Is TomEE Tweet?:" + isTomEETweet(tweet));
+        logger.debug("Was it retweeted before:" + isRetweeted(keyValue));
+        logger.info("Tweet Not Considered:" + keyValue.get("text"));
+	}
+
+	/**
+     * Considers as a TomEE tweet, if it contains any of the hashtags configured
+     * Allowed hashtags are configured in RetweetTool.properties
+     * NOTE: The hashtags in the property file should be pipe separated
+     */
+	static boolean isTomEETweet(String tweet) {
+
+		String hashTagsSupported = (String) RetweetAppUtil.getTwitterAppProperties().get("tomee.supported.hashtags");
+		Pattern pattern = Pattern.compile(".*(#|@)("+hashTagsSupported+").*",Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(tweet);
+		return matcher.matches();
+	}
+
+	@SuppressWarnings("rawtypes")
+    static void addValidTweetsForOpenEJBAccount(List<String> openEJBStatusIDs,
                                              Map keyValue) {
         String tweet = (String) keyValue.get("text");
         if (!isOlderThanAnHour(keyValue) & isOpenEJBTweet(tweet) & !isRetweeted(keyValue)) {
-            acceptTweet(openEJBStatusIDs, keyValue, tweet);
+            addAcceptedTweetIDs(openEJBStatusIDs, keyValue, tweet);
         } else {
-            logWhyTweetWasRejected(keyValue, tweet);
+            logWhyTweetWasRejectedForOpenEJBAccount(keyValue, tweet);
         }
     }
 
 
     @SuppressWarnings("rawtypes")
-    private static void acceptTweet(List<String> openEJBStatusIDs,
+    static void addAcceptedTweetIDs(List<String> openEJBStatusIDs,
                                     Map keyValue, String tweet) {
         logger.info("Adding Tweet:" + tweet);
         Number tweetId = (Number) keyValue.get("id");
@@ -69,7 +118,7 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
     }
 
     @SuppressWarnings("rawtypes")
-    private static void logWhyTweetWasRejected(Map keyValue, String tweet) {
+    private static void logWhyTweetWasRejectedForOpenEJBAccount(Map keyValue, String tweet) {
         logger.debug("IsOpenEJBTweet?:" + isOpenEJBTweet(tweet));
         logger.debug("Was it retweeted before:" + isRetweeted(keyValue));
         logger.info("Tweet Not Considered:" + keyValue.get("text"));
@@ -95,8 +144,8 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 
     @SuppressWarnings("rawtypes")
     private static boolean isRetweeted(Map keyValue) {
-
-        Integer retweetCount;
+    	
+       Integer retweetCount;
         try {
             retweetCount = getRetweetCount(keyValue, null);
         } catch (NumberFormatException ignoredException) {
@@ -126,15 +175,10 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
     static boolean isOpenEJBTweet(String tweet) {
 
 
-        String[] words = tweet.split(" ");
-        List<String> wordsAsList = Arrays.asList(words);
-        for (String word : wordsAsList) {
-            if (isOpenEJBMentioned(word) || isTomEEMentioned(word)) {
-                return true;
-            }
-
-        }
-        return false;
+        String hashTagsSupported = (String) RetweetAppUtil.getTwitterAppProperties().get("openejb.supported.hashtags");
+        Pattern pattern = Pattern.compile(".*(#|@)(" + hashTagsSupported + ").*", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(tweet);
+        return matcher.matches();
     }
 
 

@@ -14,27 +14,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools;
+package org.apache.openejb.tools.twitter;
 
-import org.apache.openejb.tools.twitter.Retweet;
-import org.apache.openejb.tools.twitter.UserStatusRetriever;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-
-public class RetweetTest {
-
-
-    @BeforeClass
-    public static void setUp() {
-        Retweet.initConsumer();
-    }
-
-    @Test
-    public void userStatusShouldBeRetrieved() {
-        UserStatusRetriever.getUserOpenEJBStatus("stratwine");
-        //No asserts. Just to check if it run without exceptions
-    }
-
-
+public enum TwitterAccount {
+   OPENEJB,TOMEE
 }

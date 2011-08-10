@@ -91,7 +91,7 @@ public class ScreenNamesRetriever {
             IOException, ClientProtocolException {
         HttpClient client = new DefaultHttpClient();
         HttpGet httpGet = getRequestForContribListMembers();
-        Retweet.initConsumer();
+        Retweet.initConsumerForOpenEJBAccount();
         Retweet.consumer.sign(httpGet);
         HttpResponse response = client.execute(getRequestForContribListMembers());
         return response;
