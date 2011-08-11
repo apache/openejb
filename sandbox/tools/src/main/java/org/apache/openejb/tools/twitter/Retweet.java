@@ -16,17 +16,11 @@
  */
 package org.apache.openejb.tools.twitter;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
-
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -34,6 +28,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * We should monitor this feed http://twitter.com/#!/OpenEJB/contributors
@@ -67,18 +66,18 @@ public class Retweet {
 
         Set<String> validOpenEJBTweetIDs = UserStatusRetriever.getAllContributorsStatuses().getValidTweetIDsForOpenEJBAccount();
         Set<String> validTomEETweetIDs = UserStatusRetriever.getAllContributorsStatuses().getValidTweetIDsForTomEEAccount();
-        retweetIfNotEmpty(validOpenEJBTweetIDs,TwitterAccount.OPENEJB);
-        retweetIfNotEmpty(validTomEETweetIDs,TwitterAccount.TOMEE);
+        retweetIfNotEmpty(validOpenEJBTweetIDs, TwitterAccount.OPENEJB);
+        retweetIfNotEmpty(validTomEETweetIDs, TwitterAccount.TOMEE);
 
     }
 
-    private static void retweetIfNotEmpty(Collection<String> tweetIDs,TwitterAccount twitterAccount) {
+    private static void retweetIfNotEmpty(Collection<String> tweetIDs, TwitterAccount twitterAccount) {
 
         if (!tweetIDs.isEmpty()) {
-        	logger.info("About to retweet "+tweetIDs+" at "+twitterAccount.toString() +" twitter account");
-            retweetThisCollectionOfStatuses(tweetIDs,twitterAccount);
+            logger.info("About to retweet " + tweetIDs + " at " + twitterAccount.toString() + " twitter account");
+            retweetThisCollectionOfStatuses(tweetIDs, twitterAccount);
         } else {
-            logger.info("No message to retweet at "+twitterAccount.toString()+" twitter account");
+            logger.info("No message to retweet at " + twitterAccount.toString() + " twitter account");
         }
     }
 
@@ -86,7 +85,7 @@ public class Retweet {
 
         for (String statusIDToRetweet : nonRetweetedOpenEJBStatusIDs) {
             try {
-                retweet(statusIDToRetweet,twitterAccount);
+                retweet(statusIDToRetweet, twitterAccount);
                 pauseBeforeTheNextRetweet();
             } catch (OAuthMessageSignerException e) {
                 e.printStackTrace();
@@ -110,9 +109,9 @@ public class Retweet {
                 retweetToolProperties.getProperty("retweetApp.openejb.authorizedUser.consumer.tokenSecret"));
 
     }
-    
-    public static void initConsumerForTomEEAccount(){
-    	consumer = new CommonsHttpOAuthConsumer(
+
+    public static void initConsumerForTomEEAccount() {
+        consumer = new CommonsHttpOAuthConsumer(
                 retweetToolProperties.getProperty("retweetApp.consumer.key"),
                 retweetToolProperties
                         .getProperty("retweetApp.consumerSecret.key"));
@@ -120,20 +119,20 @@ public class Retweet {
 
         consumer.setTokenWithSecret(retweetToolProperties.getProperty("retweetApp.tomee.authorizedUser.consumer.token"),
                 retweetToolProperties.getProperty("retweetApp.tomee.authorizedUser.consumer.tokenSecret"));
-    	
+
     }
 
     public static HttpResponse retweet(String statusIDToRetweet, TwitterAccount twitterAccount) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
         HttpPost httpPost = new HttpPost(RetweetAppConstants.RETWEET_URL + statusIDToRetweet + ".json");
-        
+
         initBasedOnAccountToRetweetAt(twitterAccount);
         consumer.sign(httpPost);
         HttpResponse response = null;
         try {
             response = getHttpClient().execute(httpPost);
             logger.debug(response.getStatusLine());
-            
-            logger.info("Retweeted " + statusIDToRetweet +" at "+twitterAccount.toString()+" twitter account" );
+
+            logger.info("Retweeted " + statusIDToRetweet + " at " + twitterAccount.toString() + " twitter account");
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -143,17 +142,14 @@ public class Retweet {
         return response;
     }
 
-	private static void initBasedOnAccountToRetweetAt(
-			TwitterAccount twitterAccount) {
-		if(twitterAccount.equals(TwitterAccount.OPENEJB))
-        {
-        	initConsumerForOpenEJBAccount();
+    private static void initBasedOnAccountToRetweetAt(
+            TwitterAccount twitterAccount) {
+        if (twitterAccount.equals(TwitterAccount.OPENEJB)) {
+            initConsumerForOpenEJBAccount();
+        } else if (twitterAccount.equals(TwitterAccount.TOMEE)) {
+            initConsumerForTomEEAccount();
         }
-        else if(twitterAccount.equals(TwitterAccount.TOMEE))
-        {
-        	initConsumerForTomEEAccount();
-        }
-	}
+    }
 
     public static HttpClient getHttpClient() {
         return new DefaultHttpClient();

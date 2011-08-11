@@ -46,8 +46,7 @@ public class AuthorizationUrlGenerator {
 
         consumer = new DefaultOAuthConsumer(
                 retweetToolProperties.getProperty("retweetApp.consumer.key"),
-                retweetToolProperties
-                        .getProperty("retweetApp.consumerSecret.key"));
+                retweetToolProperties.getProperty("retweetApp.consumerSecret.key"));
 
         provider = new DefaultOAuthProvider(
                 "http://twitter.com/oauth/request_token",

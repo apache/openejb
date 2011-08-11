@@ -21,27 +21,27 @@ import java.util.List;
 
 /**
  * One instance for each contributor. Holds the valid tweet-ids of that particular contributor
- * 
  */
 public class ValidStatusesOfUser {
-	
+
     List<String> tweetIDsForOpenEJBTwitterAccount = new ArrayList<String>();
     List<String> tweetIDsForTomEETwitterAcount = new ArrayList<String>();
-    
-	public List<String> getTweetIDsForOpenEJBTwitterAccount() {
-		return tweetIDsForOpenEJBTwitterAccount;
-	}
-	public void setTweetIDsForOpenEJBTwitterAccount(
-			List<String> tweetIDsForOpenEJBTwitterAccount) {
-		this.tweetIDsForOpenEJBTwitterAccount = tweetIDsForOpenEJBTwitterAccount;
-	}
-	public List<String> getTweetIDsForTomEETwitterAcount() {
-		return tweetIDsForTomEETwitterAcount;
-	}
-	public void setTweetIDsForTomEETwitterAcount(
-			List<String> tweetIDsForTomEETwitterAcount) {
-		this.tweetIDsForTomEETwitterAcount = tweetIDsForTomEETwitterAcount;
-	}
+
+    public List<String> getTweetIDsForOpenEJBTwitterAccount() {
+        return tweetIDsForOpenEJBTwitterAccount;
+    }
+
+    public void setTweetIDsForOpenEJBTwitterAccount(List<String> tweetIDsForOpenEJBTwitterAccount) {
+        this.tweetIDsForOpenEJBTwitterAccount = tweetIDsForOpenEJBTwitterAccount;
+    }
+
+    public List<String> getTweetIDsForTomEETwitterAcount() {
+        return tweetIDsForTomEETwitterAcount;
+    }
+
+    public void setTweetIDsForTomEETwitterAcount(List<String> tweetIDsForTomEETwitterAcount) {
+        this.tweetIDsForTomEETwitterAcount = tweetIDsForTomEETwitterAcount;
+    }
 
 
 }

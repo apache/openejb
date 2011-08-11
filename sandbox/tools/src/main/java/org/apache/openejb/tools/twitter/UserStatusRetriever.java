@@ -16,18 +16,18 @@
  */
 package org.apache.openejb.tools.twitter;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.openejb.tools.twitter.vo.ValidStatuses;
+import org.apache.openejb.tools.twitter.vo.ValidStatusesOfUser;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.openejb.tools.twitter.vo.ValidStatuses;
-import org.apache.openejb.tools.twitter.vo.ValidStatusesOfUser;
 
 public class UserStatusRetriever {
 
@@ -53,7 +53,6 @@ public class UserStatusRetriever {
 
     /**
      * Retrieves non-retweeted, less-than-an-hour-old statuses from a specified contributor
-     * 
      */
     @SuppressWarnings("rawtypes")
     public static ValidStatusesOfUser getAcceptedStatusesOfContributor(String screenName) {
@@ -61,7 +60,7 @@ public class UserStatusRetriever {
         String responseBody = JsonResponseParser.getResponseBody(userStatusResponse);
         StringReader dataToParse = new StringReader(responseBody);
         List<Map> listFromJson = JsonResponseParser.getListFromJson(dataToParse);
-        
+
         ValidStatusesOfUser validStatusesOfUser = OpenEJBMessageFilterUtil.getNonRetweetedValidStatusIDs(listFromJson);
         return validStatusesOfUser;
     }
@@ -74,11 +73,11 @@ public class UserStatusRetriever {
             openEJBStatuses.addAll(getAcceptedStatusesOfContributor(screenName).getTweetIDsForOpenEJBTwitterAccount());
             tomEEStatuses.addAll(getAcceptedStatusesOfContributor(screenName).getTweetIDsForTomEETwitterAcount());
         }
-        
+
         ValidStatuses validStatuses = new ValidStatuses();
         validStatuses.setValidTweetIDsForOpenEJBAccount(openEJBStatuses);
         validStatuses.setValidTweetIDsForTomEEAccount(tomEEStatuses);
-        
+
         return validStatuses;
     }
 

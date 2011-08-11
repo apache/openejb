@@ -20,26 +20,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *  One instance holding valid statuses from all contributors
+ * One instance holding valid statuses from all contributors
  */
 public class ValidStatuses {
 
-	Set<String> validTweetIDsForOpenEJBAccount = new HashSet<String>();
-	Set<String> validTweetIDsForTomEEAccount = new HashSet<String>();
-	
-	public Set<String> getValidTweetIDsForOpenEJBAccount() {
-		return validTweetIDsForOpenEJBAccount;
-	}
-	public void setValidTweetIDsForOpenEJBAccount(
-			Set<String> validTweetIDsForOpenEJBAccount) {
-		this.validTweetIDsForOpenEJBAccount = validTweetIDsForOpenEJBAccount;
-	}
-	public Set<String> getValidTweetIDsForTomEEAccount() {
-		return validTweetIDsForTomEEAccount;
-	}
-	public void setValidTweetIDsForTomEEAccount(
-			Set<String> validTweetIDsForTomEEAccount) {
-		this.validTweetIDsForTomEEAccount = validTweetIDsForTomEEAccount;
-	}
-	
+    Set<String> validTweetIDsForOpenEJBAccount = new HashSet<String>();
+    Set<String> validTweetIDsForTomEEAccount = new HashSet<String>();
+
+    public Set<String> getValidTweetIDsForOpenEJBAccount() {
+        return validTweetIDsForOpenEJBAccount;
+    }
+
+    public void setValidTweetIDsForOpenEJBAccount(Set<String> validTweetIDsForOpenEJBAccount) {
+        this.validTweetIDsForOpenEJBAccount = validTweetIDsForOpenEJBAccount;
+    }
+
+    public Set<String> getValidTweetIDsForTomEEAccount() {
+        return validTweetIDsForTomEEAccount;
+    }
+
+    public void setValidTweetIDsForTomEEAccount(Set<String> validTweetIDsForTomEEAccount) {
+        this.validTweetIDsForTomEEAccount = validTweetIDsForTomEEAccount;
+    }
+
 }

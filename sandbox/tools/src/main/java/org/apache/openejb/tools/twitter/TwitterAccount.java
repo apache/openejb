@@ -17,5 +17,5 @@
 package org.apache.openejb.tools.twitter;
 
 public enum TwitterAccount {
-   OPENEJB,TOMEE
+    OPENEJB, TOMEE
 }

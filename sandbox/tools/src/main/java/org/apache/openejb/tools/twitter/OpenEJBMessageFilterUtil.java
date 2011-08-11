@@ -23,7 +23,6 @@ import org.apache.openejb.tools.twitter.vo.ValidStatusesOfUser;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -37,15 +36,13 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
     private static Logger logger = Logger.getLogger(OpenEJBMessageFilterUtil.class);
 
     /**
-     * 
      * @param keyValuePairs
      * @return RetweetableStatusesVO contains tweetIDs (i.e StatusIDs ) for OpenEJB account and TomEE account
      */
     @SuppressWarnings("rawtypes")
-    public static ValidStatusesOfUser getNonRetweetedValidStatusIDs(
-            List<Map> keyValuePairs) {
+    public static ValidStatusesOfUser getNonRetweetedValidStatusIDs(List<Map> keyValuePairs) {
 
-    	ValidStatusesOfUser retweetableStatusesVO = new ValidStatusesOfUser();
+        ValidStatusesOfUser retweetableStatusesVO = new ValidStatusesOfUser();
         List<String> tweetIDsForOpenEJBTwitterAccount = new ArrayList<String>();
         List<String> tweetIDsForTomEETwitterAcount = new ArrayList<String>();
 
@@ -53,19 +50,18 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
             Map keyValue = (Map) keyValuePair;
             if (keyValue.containsKey("text")) {
                 addValidTweetsForOpenEJBAccount(tweetIDsForOpenEJBTwitterAccount, keyValue);
-                addValidTweetsForApacheTomEEAccount(tweetIDsForTomEETwitterAcount,keyValue);
+                addValidTweetsForApacheTomEEAccount(tweetIDsForTomEETwitterAcount, keyValue);
             }
         }
 
         retweetableStatusesVO.setTweetIDsForOpenEJBTwitterAccount(tweetIDsForOpenEJBTwitterAccount);
         retweetableStatusesVO.setTweetIDsForTomEETwitterAcount(tweetIDsForTomEETwitterAcount);
-        
+
         return retweetableStatusesVO;
     }
 
-    static void addValidTweetsForApacheTomEEAccount(
-			List<String> tweetIDsForTomEETwitterAcount, Map keyValue) {
-		
+    static void addValidTweetsForApacheTomEEAccount(List<String> tweetIDsForTomEETwitterAcount, Map keyValue) {
+
 
         String tweet = (String) keyValue.get("text");
         if (!isOlderThanAnHour(keyValue) & isTomEETweet(tweet) & !isRetweeted(keyValue)) {
@@ -73,33 +69,31 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
         } else {
             logWhyTweetWasRejectedForTomEEAccount(keyValue, tweet);
         }
-    
-		
-	}
 
-    private static void logWhyTweetWasRejectedForTomEEAccount(Map keyValue,
-			String tweet) {
+
+    }
+
+    private static void logWhyTweetWasRejectedForTomEEAccount(Map keyValue, String tweet) {
         logger.debug("Is TomEE Tweet?:" + isTomEETweet(tweet));
         logger.debug("Was it retweeted before:" + isRetweeted(keyValue));
         logger.info("Tweet Not Considered:" + keyValue.get("text"));
-	}
+    }
 
-	/**
+    /**
      * Considers as a TomEE tweet, if it contains any of the hashtags configured
      * Allowed hashtags are configured in RetweetTool.properties
      * NOTE: The hashtags in the property file should be pipe separated
      */
-	static boolean isTomEETweet(String tweet) {
+    static boolean isTomEETweet(String tweet) {
 
-		String hashTagsSupported = (String) RetweetAppUtil.getTwitterAppProperties().get("tomee.supported.hashtags");
-		Pattern pattern = Pattern.compile(".*(#|@)("+hashTagsSupported+").*",Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(tweet);
-		return matcher.matches();
-	}
+        String hashTagsSupported = (String) RetweetAppUtil.getTwitterAppProperties().get("tomee.supported.hashtags");
+        Pattern pattern = Pattern.compile(".*(#|@)(" + hashTagsSupported + ").*", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(tweet);
+        return matcher.matches();
+    }
 
-	@SuppressWarnings("rawtypes")
-    static void addValidTweetsForOpenEJBAccount(List<String> openEJBStatusIDs,
-                                             Map keyValue) {
+    @SuppressWarnings("rawtypes")
+    static void addValidTweetsForOpenEJBAccount(List<String> openEJBStatusIDs, Map keyValue) {
         String tweet = (String) keyValue.get("text");
         if (!isOlderThanAnHour(keyValue) & isOpenEJBTweet(tweet) & !isRetweeted(keyValue)) {
             addAcceptedTweetIDs(openEJBStatusIDs, keyValue, tweet);
@@ -110,8 +104,7 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 
 
     @SuppressWarnings("rawtypes")
-    static void addAcceptedTweetIDs(List<String> openEJBStatusIDs,
-                                    Map keyValue, String tweet) {
+    static void addAcceptedTweetIDs(List<String> openEJBStatusIDs, Map keyValue, String tweet) {
         logger.info("Adding Tweet:" + tweet);
         Number tweetId = (Number) keyValue.get("id");
         openEJBStatusIDs.add(tweetId.toString());
@@ -144,8 +137,8 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 
     @SuppressWarnings("rawtypes")
     private static boolean isRetweeted(Map keyValue) {
-    	
-       Integer retweetCount;
+
+        Integer retweetCount;
         try {
             retweetCount = getRetweetCount(keyValue, null);
         } catch (NumberFormatException ignoredException) {
@@ -180,26 +173,4 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
         Matcher matcher = pattern.matcher(tweet);
         return matcher.matches();
     }
-
-
-    static boolean isOpenEJBMentioned(String word) {
-        if ((word.startsWith("#") || word.startsWith("@")) && word.trim().length() >= 8) {
-            if (word.trim().substring(1, 8).equalsIgnoreCase("openejb")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    static boolean isTomEEMentioned(String word) {
-        if ((word.startsWith("#") || word.startsWith("@")) && word.trim().length() >= 6) {
-            if (word.trim().substring(1, 6).equals("TomEE")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
 }
