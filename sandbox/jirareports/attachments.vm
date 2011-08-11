@@ -7,7 +7,7 @@
 #end
 #set( $void = $params.validate() )
 ##
-#set( $url = "${serverUrl}/secure/IssueNavigator.jspa?view=rss&&pid=${projectId}&status=1&tempMax=200&reset=true&decorator=none" )
+#set( $url = "${serverUrl}/secure/IssueNavigator.jspa?view=rss&&pid=${projectId}&status=1&tempMax=1000&reset=true&decorator=none" )
 #set( $jirarss = $rss.fetch( $url ) )
 #set( $issues = $jirarss.fillAttachments() )
 #set( $void = $date.format("yyyy-MM-dd") )
