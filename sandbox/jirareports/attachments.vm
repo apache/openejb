@@ -15,7 +15,7 @@
 #if ( $email == "true" )
 TO: $to
 FROM: $from
-SUBJECT: $issues.size patches in the queue ($date)
+SUBJECT: $issues.size() patches in the queue ($date)
 
 #end
 ##
@@ -25,7 +25,6 @@ SUBJECT: $issues.size patches in the queue ($date)
 #set( $issues = $issues.greater("@totalAttachments", 0) )
 #foreach( $issue in $issues )
 #set( $issue.attributes.firstPatch = $issue.attachments.min("created").created )
-  $issue.key $issue.attributes.firstPatch
 #end
 
 $projectName - $date.as("EEEE, MMMM d, yyyy")
