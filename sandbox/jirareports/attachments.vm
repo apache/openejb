@@ -12,19 +12,19 @@
 #set( $issues = $jirarss.fillAttachments() )
 #set( $void = $date.format("yyyy-MM-dd") )
 ##
-#if ( $email == "true" )
-TO: $to
-FROM: $from
-SUBJECT: $issues.size() patches in the queue ($date)
-
-#end
-##
 #foreach( $issue in $issues )
 #set( $issue.attributes.totalAttachments = $issue.attachments.size() )
 #end
 #set( $issues = $issues.greater("@totalAttachments", 0) )
 #foreach( $issue in $issues )
 #set( $issue.attributes.firstPatch = $issue.attachments.min("created").created )
+#end
+##
+#if ( $email == "true" )
+TO: $to
+FROM: $from
+SUBJECT: $issues.size() patches in the queue ($date)
+
 #end
 
 $projectName - $date.as("EEEE, MMMM d, yyyy")
