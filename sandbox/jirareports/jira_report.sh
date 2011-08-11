@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 
 java=/usr/local/bin/java
-swizzle=$HOME/swizzle-jirareport-1.2.2-SNAPSHOT-dep.jar
+swizzle=$HOME/swizzle-jirareport-1.6.2-SNAPSHOT-dep.jar
 
 template=${1?Specify a template name}
 id=${2?Specify the numeric id of the project}
