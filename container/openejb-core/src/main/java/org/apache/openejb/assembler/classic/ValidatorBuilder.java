@@ -97,6 +97,7 @@ public final class ValidatorBuilder {
         return factory;
     }
 
+    @SuppressWarnings("unchecked")
     private static Configuration<?> getConfig(ValidationInfo info) {
         Configuration<?> target = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -104,8 +105,8 @@ public final class ValidatorBuilder {
         String providerClassName = info.providerClassName;
         if (providerClassName != null) {
             try {
-                @SuppressWarnings("unchecked")
-                Class<? extends ValidationProvider> clazz = (Class<? extends ValidationProvider>) classLoader.loadClass(providerClassName);
+                @SuppressWarnings("rawtypes")
+                Class clazz = (Class<? extends ValidationProvider>) classLoader.loadClass(providerClassName);
                 target = Validation.byProvider(clazz).configure();
                 logger.info("Using " + providerClassName + " as validation provider.");
             } catch (ClassNotFoundException e) {
