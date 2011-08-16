@@ -339,11 +339,11 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
             Context openejbContext = getContainerSystem().getJNDIContext();
             openejbContext = (Context) openejbContext.lookup("openejb");
 
-            // Context root = (Context) ContextBindings.getClassLoader().lookup("");
-            // Context comp = (Context) ContextBindings.getClassLoader().lookup("comp");
+            Context root = (Context) ContextBindings.getClassLoader().lookup("");
+            Context comp = (Context) ContextBindings.getClassLoader().lookup("comp");
 
-            Context root = ncl.getNamingContext();
-            Context comp = (Context) root.lookup("comp");
+            // Context root = ncl.getNamingContext();
+            // Context comp = (Context) root.lookup("comp");
             safeBind(root, "openejb", openejbContext);
 
             // add context to WebDeploymentInfo
@@ -352,7 +352,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener {
                 if (("/" + webAppInfo.contextRoot).equals(standardContext.getPath()) || isRoot) {
                     CoreWebDeploymentInfo webContext = (CoreWebDeploymentInfo) getContainerSystem().getWebDeploymentInfo(webAppInfo.moduleId);
                     if (webContext != null) {
-                        webContext.setJndiEnc(root);
+                        webContext.setJndiEnc(comp);
                     }
 
                     try {
