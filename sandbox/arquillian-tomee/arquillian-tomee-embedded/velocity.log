@@ -1,0 +1,148 @@
+2011-08-14 21:13:59,775 - Velocimacro : Default library not found.
+2011-08-14 21:13:59,775 - Velocimacro : allowInline = true : VMs can be defined inline in templates
+2011-08-14 21:13:59,775 - Velocimacro : allowInlineToOverride = false : VMs defined inline may NOT replace previous VM definitions
+2011-08-14 21:13:59,775 - Velocimacro : allowInlineLocal = false : VMs defined inline will be global in scope if allowed.
+2011-08-14 21:13:59,775 - Velocimacro : autoload off : VM system will not automatically reload global library macros
+2011-08-14 21:13:59,799 - ResourceManager : found /org/apache/openejb/tomee/configs/catalina.properties with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2011-08-14 21:13:59,801 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 15] : ${catalina.base} cannot be resolved.
+2011-08-14 21:13:59,801 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 36] : ${catalina.base} cannot be resolved.
+2011-08-14 21:13:59,801 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 63] : ${catalina.home} cannot be resolved.
+2011-08-14 21:13:59,801 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 84] : ${catalina.home} cannot be resolved.
+2011-08-14 21:13:59,801 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 114, column 18] : ${tomcatShutdownCommand} cannot be resolved.
+2011-08-14 22:08:43,867 - Log4JLogChute initialized using file 'velocity.log'
+2011-08-14 22:08:43,927 - Starting Apache Velocity v1.6.4 (compiled: 2010-04-27 15:31:23)
+2011-08-14 22:08:43,927 - Default Properties File: org/apache/velocity/runtime/defaults/velocity.properties
+2011-08-14 22:08:43,931 - ResourceLoader instantiated: org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2011-08-14 22:08:43,945 - ResourceCache: initialized (class org.apache.velocity.runtime.resource.ResourceCacheImpl) with class java.util.Collections$SynchronizedMap cache map.
+2011-08-14 22:08:43,947 - Loaded System Directive: org.apache.velocity.runtime.directive.Define
+2011-08-14 22:08:43,947 - Loaded System Directive: org.apache.velocity.runtime.directive.Break
+2011-08-14 22:08:43,948 - Loaded System Directive: org.apache.velocity.runtime.directive.Evaluate
+2011-08-14 22:08:43,949 - Loaded System Directive: org.apache.velocity.runtime.directive.Literal
+2011-08-14 22:08:43,950 - Loaded System Directive: org.apache.velocity.runtime.directive.Macro
+2011-08-14 22:08:43,951 - Loaded System Directive: org.apache.velocity.runtime.directive.Parse
+2011-08-14 22:08:43,952 - Loaded System Directive: org.apache.velocity.runtime.directive.Include
+2011-08-14 22:08:43,952 - Loaded System Directive: org.apache.velocity.runtime.directive.Foreach
+2011-08-14 22:08:43,954 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,985 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,986 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,987 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,987 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,987 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,987 - Created '20' parsers.
+2011-08-14 22:08:43,993 - Velocimacro : "velocimacro.library" is not set.  Trying default library: VM_global_library.vm
+2011-08-14 22:08:43,993 - Velocity was not initialized! Calling init()...
+2011-08-14 22:08:43,994 - Could not load resource 'VM_global_library.vm' from ResourceLoader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader: 
+org.apache.velocity.exception.ResourceNotFoundException: ClasspathResourceLoader Error: cannot find resource VM_global_library.vm
+	at org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader.getResourceStream(ClasspathResourceLoader.java:131)
+	at org.apache.velocity.runtime.resource.loader.ResourceLoader.resourceExists(ResourceLoader.java:224)
+	at org.apache.velocity.runtime.resource.ResourceManagerImpl.getLoaderForResource(ResourceManagerImpl.java:641)
+	at org.apache.velocity.runtime.resource.ResourceManagerImpl.getLoaderNameForResource(ResourceManagerImpl.java:624)
+	at org.apache.velocity.runtime.RuntimeInstance.getLoaderNameForResource(RuntimeInstance.java:1464)
+	at org.apache.velocity.runtime.VelocimacroFactory.initVelocimacro(VelocimacroFactory.java:159)
+	at org.apache.velocity.runtime.RuntimeInstance.init(RuntimeInstance.java:261)
+	at org.apache.velocity.runtime.RuntimeSingleton.init(RuntimeSingleton.java:114)
+	at org.apache.velocity.app.Velocity.init(Velocity.java:79)
+	at org.apache.openejb.arquillian.TomEEContainer.copyTemplateTo(TomEEContainer.java:249)
+	at org.apache.openejb.arquillian.TomEEContainer.copyConfigs(TomEEContainer.java:235)
+	at org.apache.openejb.arquillian.TomEEContainer.start(TomEEContainer.java:89)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController$5.perform(ContainerLifecycleController.java:145)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController$5.perform(ContainerLifecycleController.java:135)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController.forContainer(ContainerLifecycleController.java:183)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController.startContainer(ContainerLifecycleController.java:134)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.jboss.arquillian.impl.core.ObserverImpl.invoke(ObserverImpl.java:90)
+	at org.jboss.arquillian.impl.core.EventContextImpl.invokeObservers(EventContextImpl.java:98)
+	at org.jboss.arquillian.impl.core.EventContextImpl.proceed(EventContextImpl.java:80)
+	at org.jboss.arquillian.impl.client.ContainerDeploymentContextHandler.createContainerContext(ContainerDeploymentContextHandler.java:78)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.jboss.arquillian.impl.core.ObserverImpl.invoke(ObserverImpl.java:90)
+	at org.jboss.arquillian.impl.core.EventContextImpl.proceed(EventContextImpl.java:87)
+	at org.jboss.arquillian.impl.core.ManagerImpl.fire(ManagerImpl.java:126)
+	at org.jboss.arquillian.impl.core.ManagerImpl.fire(ManagerImpl.java:106)
+	at org.jboss.arquillian.impl.core.EventImpl.fire(EventImpl.java:67)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController$2.perform(ContainerLifecycleController.java:83)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController$2.perform(ContainerLifecycleController.java:76)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController.forEachContainer(ContainerLifecycleController.java:176)
+	at org.jboss.arquillian.impl.client.container.ContainerLifecycleController.startContainers(ContainerLifecycleController.java:75)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.jboss.arquillian.impl.core.ObserverImpl.invoke(ObserverImpl.java:90)
+	at org.jboss.arquillian.impl.core.EventContextImpl.invokeObservers(EventContextImpl.java:98)
+	at org.jboss.arquillian.impl.core.EventContextImpl.proceed(EventContextImpl.java:80)
+	at org.jboss.arquillian.impl.core.ManagerImpl.fire(ManagerImpl.java:126)
+	at org.jboss.arquillian.impl.core.ManagerImpl.fire(ManagerImpl.java:106)
+	at org.jboss.arquillian.impl.core.EventImpl.fire(EventImpl.java:67)
+	at org.jboss.arquillian.impl.client.ContainerEventController.execute(ContainerEventController.java:55)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.jboss.arquillian.impl.core.ObserverImpl.invoke(ObserverImpl.java:90)
+	at org.jboss.arquillian.impl.core.EventContextImpl.invokeObservers(EventContextImpl.java:98)
+	at org.jboss.arquillian.impl.core.EventContextImpl.proceed(EventContextImpl.java:80)
+	at org.jboss.arquillian.impl.TestContextHandler.createSuiteContext(TestContextHandler.java:54)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.jboss.arquillian.impl.core.ObserverImpl.invoke(ObserverImpl.java:90)
+	at org.jboss.arquillian.impl.core.EventContextImpl.proceed(EventContextImpl.java:87)
+	at org.jboss.arquillian.impl.core.ManagerImpl.fire(ManagerImpl.java:126)
+	at org.jboss.arquillian.impl.core.ManagerImpl.fire(ManagerImpl.java:106)
+	at org.jboss.arquillian.impl.EventTestRunnerAdaptor.beforeSuite(EventTestRunnerAdaptor.java:58)
+	at org.jboss.arquillian.junit.Arquillian.<init>(Arquillian.java:86)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+	at org.junit.internal.builders.AnnotatedBuilder.buildRunner(AnnotatedBuilder.java:31)
+	at org.junit.internal.builders.AnnotatedBuilder.runnerForClass(AnnotatedBuilder.java:24)
+	at org.junit.runners.model.RunnerBuilder.safeRunnerForClass(RunnerBuilder.java:57)
+	at org.junit.internal.builders.AllDefaultPossibilitiesBuilder.runnerForClass(AllDefaultPossibilitiesBuilder.java:29)
+	at org.junit.runners.model.RunnerBuilder.safeRunnerForClass(RunnerBuilder.java:57)
+	at org.junit.internal.requests.ClassRequest.getRunner(ClassRequest.java:24)
+	at org.apache.maven.surefire.junit4.JUnit4TestSet.execute(JUnit4TestSet.java:33)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:115)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:97)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.maven.surefire.booter.ProviderFactory$ClassLoaderProxy.invoke(ProviderFactory.java:103)
+	at $Proxy0.invoke(Unknown Source)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:150)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcess(SurefireStarter.java:91)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:69)
+2011-08-14 22:08:43,998 - Velocimacro : Default library not found.
+2011-08-14 22:08:43,998 - Velocimacro : allowInline = true : VMs can be defined inline in templates
+2011-08-14 22:08:43,998 - Velocimacro : allowInlineToOverride = false : VMs defined inline may NOT replace previous VM definitions
+2011-08-14 22:08:43,998 - Velocimacro : allowInlineLocal = false : VMs defined inline will be global in scope if allowed.
+2011-08-14 22:08:43,998 - Velocimacro : autoload off : VM system will not automatically reload global library macros
+2011-08-14 22:08:44,024 - ResourceManager : found /org/apache/openejb/tomee/configs/catalina.properties with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2011-08-14 22:08:44,026 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 15] : ${catalina.base} cannot be resolved.
+2011-08-14 22:08:44,026 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 36] : ${catalina.base} cannot be resolved.
+2011-08-14 22:08:44,026 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 63] : ${catalina.home} cannot be resolved.
+2011-08-14 22:08:44,026 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 47, column 84] : ${catalina.home} cannot be resolved.
+2011-08-14 22:08:44,027 - Null reference [template '/org/apache/openejb/tomee/configs/catalina.properties', line 114, column 18] : ${tomcatShutdownCommand} cannot be resolved.
