@@ -66,7 +66,9 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     	try {
 			TomEEContainer tomEEContainer = new TomEEContainer();
 			TomEEConfiguration cfg = new TomEEConfiguration();
-			cfg.setDir("/tmp/oejb");
+
+            File dir = FileUtils.createTempDir();
+            cfg.setDir(dir.getAbsolutePath());
 			tomEEContainer.setup(cfg);
 			tomEEContainer.start();
 			Thread.sleep(120000);
