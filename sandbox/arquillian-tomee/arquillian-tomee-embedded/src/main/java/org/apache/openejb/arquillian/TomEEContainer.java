@@ -30,7 +30,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.apache.catalina.startup.Bootstrap;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.assembler.Deployer;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.tomcat.catalina.TomcatLoader;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -53,6 +56,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     private TomEEConfiguration configuration;
     private File catalinaDirectory;
     private Map<String, String> moduleIds = new HashMap<String, String>();
+    private Deployer deployer;
 
     public Class<TomEEConfiguration> getConfigurationClass() {
         return TomEEConfiguration.class;
@@ -138,6 +142,11 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
             }
 
 			new TomcatLoader().init(properties);
+
+            ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
+            BeanContext beanContext = containerSystem.getBeanContext("openejb/Deployer");
+            deployer = (Deployer) beanContext.getBusinessLocalBeanHome().create();
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new LifecycleException("Something went wrong", e);
@@ -162,13 +171,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     		String tmpDir = System.getProperty("java.io.tmpdir");
     		File file = new File(tmpDir + File.separator + archive.getName());
         	archive.as(ZipExporter.class).exportTo(file, true);
-        	
-        	Properties properties = new Properties();
-            properties.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.RemoteInitialContextFactory");
-            properties.setProperty(Context.PROVIDER_URL, "ejbd://localhost:4201");
-            InitialContext context = new InitialContext(properties);
 
-	        Deployer deployer = (Deployer) context.lookup("openejb/DeployerBusinessRemote");
 	        deployer.deploy(file.getAbsolutePath());
             
             moduleIds.put(archive.getName(), file.getAbsolutePath());
@@ -183,12 +186,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
 
     public void undeploy(Archive<?> archive) throws DeploymentException {
     	try {
-	        Properties properties = new Properties();
-	        properties.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.RemoteInitialContextFactory");
-	        properties.setProperty(Context.PROVIDER_URL, "ejbd://localhost:4201");
-	        InitialContext context = new InitialContext(properties);
 	        String appId = moduleIds.get(archive.getName());
-	        Deployer deployer = (Deployer) context.lookup("openejb/DeployerBusinessRemote");
 	        deployer.undeploy(appId);
         } catch (Exception e) {
             e.printStackTrace();
