@@ -26,18 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
 import org.apache.catalina.startup.Bootstrap;
 import org.apache.openejb.AppContext;
-import org.apache.openejb.BeanContext;
 import org.apache.openejb.assembler.Deployer;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.tomcat.catalina.TomcatLoader;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -59,7 +54,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     private Bootstrap bootstrap;
     private TomEEConfiguration configuration;
     private File catalinaDirectory;
-    private Map<String, AppContext> moduleIds = new HashMap<String, AppContext>();
+    private Map<String, String> moduleIds = new HashMap<String, String>();
     private Deployer deployer;
     private ConfigurationFactory configurationFactory;
     private Assembler assembler;
@@ -174,15 +169,15 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
     	try {
 
-    		String tmpDir = System.getProperty("java.io.tmpdir");
-    		File file = new File(tmpDir + File.separator + archive.getName());
+            final File file = File.createTempFile("deploy", "-" + archive.getName());
+            file.deleteOnExit();
         	archive.as(ZipExporter.class).exportTo(file, true);
 
 
             AppInfo appInfo = configurationFactory.configureApplication(file);
-            AppContext application = assembler.createApplication(appInfo);
-            moduleIds.put(archive.getName(), application);
-            
+            assembler.createApplication(appInfo);
+            moduleIds.put(archive.getName(), appInfo.path);
+
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
             return new ProtocolMetaData().addContext(httpContext);
         } catch (Exception e) {
@@ -193,8 +188,8 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
 
     public void undeploy(Archive<?> archive) throws DeploymentException {
     	try {
-            AppContext appContext = moduleIds.get(archive.getName());
-            assembler.destroyApplication(appContext);
+            String moduleId = moduleIds.get(archive.getName());
+            assembler.destroyApplication(moduleId);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DeploymentException("Unable to undeploy", e);
