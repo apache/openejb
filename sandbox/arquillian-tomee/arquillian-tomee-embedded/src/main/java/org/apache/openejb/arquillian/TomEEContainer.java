@@ -67,21 +67,6 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
         this.configuration = configuration;
     }
 
-    public static void main(String[] args) {
-    	try {
-			TomEEContainer tomEEContainer = new TomEEContainer();
-			TomEEConfiguration cfg = new TomEEConfiguration();
-
-            File dir = FileUtils.createTempDir();
-            cfg.setDir(dir.getAbsolutePath());
-			tomEEContainer.setup(cfg);
-			tomEEContainer.start();
-			Thread.sleep(120000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
     public void start() throws LifecycleException {
         try {
             catalinaDirectory = new File(configuration.getDir());
@@ -169,8 +154,8 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
     	try {
 
-            final File file = File.createTempFile("deploy", "-" + archive.getName());
-            file.deleteOnExit();
+            final File tempDir = FileUtils.createTempDir();
+            final File file = new File(tempDir, archive.getName());
         	archive.as(ZipExporter.class).exportTo(file, true);
 
 

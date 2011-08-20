@@ -19,11 +19,14 @@ package org.apache.openejb.arquillian;
 import org.jboss.arquillian.spi.ConfigurationException;
 import org.jboss.arquillian.spi.client.container.ContainerConfiguration;
 
+import java.io.File;
+import java.io.IOException;
+
 public class TomEEConfiguration implements ContainerConfiguration {
 
     private int httpPort = 8080;
     private int stopPort = 8005;
-    private String dir = System.getProperty("java.io.tmpdir") + "/arquillian-apache-tomee";
+    private String dir;
 
     public int getHttpPort() {
         return httpPort;
@@ -50,5 +53,12 @@ public class TomEEConfiguration implements ContainerConfiguration {
     }
 
     public void validate() throws ConfigurationException {
+        try {
+            if (dir == null) {
+                dir = FileUtils.createTempDir().getAbsolutePath();
+            }
+        } catch (IOException e) {
+            throw new ConfigurationException(String.format("Cannot create tmp TomEE home dir", e));
+        }
     }
 }
