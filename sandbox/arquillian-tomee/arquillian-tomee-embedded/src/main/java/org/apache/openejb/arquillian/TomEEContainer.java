@@ -84,23 +84,23 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
             System.out.println("Starting TomEE from: " + catalinaDirectory.getAbsolutePath());
 
             String catalinaBase = catalinaDirectory.getAbsolutePath();
-            System.setProperty("openejb.deployments.classpath.exclude", ".*");
-            System.setProperty("openejb.deployments.classpath.include", "");
+            System.setProperty("openejb.deployments.classpath", "false");
             System.setProperty("catalina.home", catalinaBase);
             System.setProperty("catalina.base", catalinaBase);
             System.setProperty("openejb.home", catalinaBase);
             System.setProperty("openejb.base", catalinaBase);
-            System.setProperty("openejb.servicemanager.enabled", "true");
+            System.setProperty("openejb.servicemanager.enabled", "false");
             
             bootstrap = new Bootstrap();
             bootstrap.start();
             
             // Bootstrap OpenEJB
             Properties properties = new Properties();
+            properties.setProperty("openejb.deployments.classpath", "false");
             properties.setProperty("openejb.loader", "tomcat-system");
             properties.setProperty("openejb.home", catalinaBase);
             properties.setProperty("openejb.base", catalinaBase);
-            properties.setProperty("openejb.servicemanager.enabled", "true");
+            properties.setProperty("openejb.servicemanager.enabled", "false");
             
             try {
                 Properties tomcatServerInfo = new Properties();
