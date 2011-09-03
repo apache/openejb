@@ -42,8 +42,8 @@
       <outputDirectory>/</outputDirectory>
       <scope>runtime</scope>
       <excludes>
-          <exclude>org.apache.openejb:javaee-api</exclude>
-          <exclude>junit:junit</exclude>
+        <exclude>org.apache.openejb:javaee-api</exclude>
+        <exclude>junit:junit</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
