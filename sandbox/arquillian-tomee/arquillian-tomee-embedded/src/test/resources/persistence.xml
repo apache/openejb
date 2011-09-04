@@ -4,6 +4,7 @@
              version="2.0">
     <persistence-unit name="test">
         <class>org.apache.openejb.arquillian.ServletPersistenceInjectionTest$Address</class>
+        <class>org.apache.openejb.arquillian.ServletFilterPersistenceInjectionTest$Address</class>
 <!--
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
