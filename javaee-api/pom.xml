@@ -28,32 +28,16 @@
   <artifactId>javaee-api</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: JavaEE Full API (zip file)</name>
-  <version>6.0-1</version>
+  <version>6.0-SNAPSHOT</version>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/javaee-api</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/javaee-api</developerConnection>
+    <url>https://svn.apache.org/repos/asf/openejb/trunk/javaee-api</url>
+  </scm>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
     <plugins>
-
-      <!-- filtering LICENSE, ... -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.2</version>
-        <executions>
-          <execution>
-            <id>filter-resources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>resources</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -166,27 +150,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <!--
-       <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-antrun-plugin</artifactId>
-         <version>1.4</version>
-         <executions>
-           <execution>
-             <phase>package</phase>
-             <goals>
-               <goal>run</goal>
-             </goals>
-             <configuration>
-               <tasks>
-                 <unzip src="${project.build.directory}/javaee-api-${project.version}.jar" dest="${project.build.directory}/classes" />
-               </tasks>
-             </configuration>
-           </execution>
-         </executions>
-       </plugin>
-     -->
     </plugins>
   </build>
 
@@ -206,7 +169,6 @@
       <artifactId>geronimo-servlet_3.0_spec</artifactId>
       <version>1.0</version>
     </dependency>
-
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-activation_1.1_spec</artifactId>
@@ -330,10 +292,4 @@
 
   </dependencies>
 
-
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/maven/pom/tags/javaee-api-6.0-1</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/maven/pom/tags/javaee-api-6.0-1</developerConnection>
-    <url>http://svn.apache.org/viewvc/maven/pom/tags/javaee-api-6.0-1</url>
-  </scm>
 </project>
