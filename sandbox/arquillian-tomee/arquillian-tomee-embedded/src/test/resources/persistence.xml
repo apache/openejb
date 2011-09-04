@@ -10,5 +10,6 @@
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
         </properties>
 -->
+        <class>org.apache.openejb.arquillian.ServletListenerPersistenceInjectionTest$Address</class>
     </persistence-unit>
 </persistence>
