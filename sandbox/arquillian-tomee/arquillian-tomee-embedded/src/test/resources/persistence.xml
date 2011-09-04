@@ -3,7 +3,7 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
     <persistence-unit name="test">
-        <class>org.apache.openejb.arquillian.ServletTest$Address</class>
+        <class>org.apache.openejb.arquillian.ServletPersistenceInjectionTest$Address</class>
 <!--
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>

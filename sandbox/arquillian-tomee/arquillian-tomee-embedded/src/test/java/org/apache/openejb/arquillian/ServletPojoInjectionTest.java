@@ -32,14 +32,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.annotation.Resource;
-import javax.ejb.*;
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.UserTransaction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,13 +50,9 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletTest {
+public class ServletPojoInjectionTest {
 
-    @Test
-    public void ejbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Remote: OpenEJB is employed at TomEE Software Inc.";
-        validateTest(expectedOutput);
-    }
+    public static final String TEST_NAME = ServletPojoInjectionTest.class.getSimpleName();
 
     @Test
     public void localEjbInjectionShouldSucceed() throws Exception {
@@ -72,24 +69,6 @@ public class ServletTest {
     @Test
     public void pojoInjectionShouldSucceed() throws Exception {
         final String expectedOutput = "OpenEJB is on the wheel of a 2011 Lexus IS 350";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void transactionInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction injection successful";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void persistentContextInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction manager injection successful";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void persistenceUnitInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction manager factory injection successful";
         validateTest(expectedOutput);
     }
 
@@ -151,7 +130,7 @@ public class ServletTest {
     public static WebArchive createDeployment() {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0")
-                .servlet(ServletToTest.class, "/Test");
+                .servlet(PojoServlet.class, "/" + TEST_NAME);
 
         addEnvEntry(descriptor, "returnEmail", "java.lang.String", "tomee@apache.org");
         addEnvEntry(descriptor, "connectionPool", "java.lang.Integer", "20");
@@ -161,18 +140,15 @@ public class ServletTest {
         addEnvEntry(descriptor, "totalQuantity", "java.lang.Byte", "5");
         addEnvEntry(descriptor, "optionDefault", "java.lang.Character", "X");
         addEnvEntry(descriptor, "auditWriter", "java.lang.Class", "java.lang.String");
-        addEnvEntry(descriptor, "defaultCode", "java.lang.Enum", "org.apache.openejb.arquillian.ServletTest$Code.OK");
+        addEnvEntry(descriptor, "defaultCode", "java.lang.Enum", "org.apache.openejb.arquillian.ServletPojoInjectionTest$Code.OK");
 
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClass(ServletToTest.class)
+        WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
+                .addClass(PojoServlet.class)
                 .addClass(Car.class)
-                .addClass(CompanyRemote.class)
                 .addClass(CompanyLocal.class)
                 .addClass(Company.class)
                 .addClass(DefaultCompany.class)
                 .addClass(SuperMarket.class)
-                .addClass(Address.class)
-                .addAsManifestResource("persistence.xml", ArchivePaths.create("persistence.xml"))
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
                 .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
 
@@ -186,7 +162,7 @@ public class ServletTest {
         ERROR;
     }
 
-    public static class ServletToTest extends HttpServlet {
+    public static class PojoServlet extends HttpServlet {
 
         @Inject
         private Car car;
@@ -195,19 +171,7 @@ public class ServletTest {
         private CompanyLocal localCompany;
 
         @EJB
-        private CompanyRemote remoteCompany;
-
-        @EJB
         private SuperMarket market;
-
-        @Resource
-        private UserTransaction transaction;
-
-        @PersistenceUnit
-        private EntityManagerFactory entityMgrFactory;
-
-        @PersistenceContext
-        private EntityManager entityManager;
 
         @Resource(name = "returnEmail")
         private String returnEmail;
@@ -255,39 +219,8 @@ public class ServletTest {
             if (localCompany != null) {
                 resp.getOutputStream().println("Local: " + localCompany.employ(name));
             }
-            if (remoteCompany != null) {
-                resp.getOutputStream().println("Remote: " + remoteCompany.employ(name));
-            }
             if (market != null) {
                 resp.getOutputStream().println(market.shop(name));
-            }
-            if (transaction != null) {
-                try {
-                    transaction.begin();
-                    transaction.commit();
-                    resp.getOutputStream().println("Transaction injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (entityManager != null) {
-                Address a = new Address();
-                try {
-                    entityManager.contains(a);
-                    resp.getOutputStream().println("Transaction manager injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (entityMgrFactory != null) {
-                Address a = new Address();
-                try {
-                    EntityManager em = entityMgrFactory.createEntityManager();
-                    em.contains(a);
-                    resp.getOutputStream().println("Transaction manager factory injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
             }
             if (connectionPool != null) {
                 resp.getOutputStream().println("Connection Pool: " + connectionPool);
@@ -335,16 +268,12 @@ public class ServletTest {
         public String employ(String employeeName);
     }
 
-    @Remote
-    public static interface CompanyRemote extends Company {
-    }
-
     @Local
     public static interface CompanyLocal extends Company {
     }
 
     @Stateless
-    public static class DefaultCompany implements CompanyRemote, CompanyLocal {
+    public static class DefaultCompany implements CompanyLocal {
 
         private final String name = "TomEE Software Inc.";
 
@@ -366,47 +295,6 @@ public class ServletTest {
 
     }
 
-    @Entity
-    public static class Address {
-        public String getStreet() {
-            return street;
-        }
-
-        public void setStreet(String street) {
-            this.street = street;
-        }
-
-        public String getCity() {
-            return city;
-        }
-
-        public void setCity(String city) {
-            this.city = city;
-        }
-
-        public String getState() {
-            return state;
-        }
-
-        public void setState(String state) {
-            this.state = state;
-        }
-
-        public String getZip() {
-            return zip;
-        }
-
-        public void setZip(String zip) {
-            this.zip = zip;
-        }
-
-        private String street = "123 Lakeview St.", city = "Paradise", state = "ZZ", zip = "00000";
-
-        public String toString() {
-            return "Street: " + street + ", City: " + city + ", State: " + state + ", Zip: " + zip;
-        }
-    }
-
     private static void addEnvEntry(WebAppDescriptor descriptor, String name, String type, String value) {
         Node rootNode = ((NodeProvider) descriptor).getRootNode();
         Node appNode = rootNode.get("/web-app").iterator().next();
@@ -419,7 +307,7 @@ public class ServletTest {
 /*
                 .parent()
                 .create("injection-target")
-                .create("injection-target-class").text("org.apache.openejb.arquillian.ServletTest$ServletToTest")
+                .create("injection-target-class").text("org.apache.openejb.arquillian.ServletPojoInjectionTest$PojoServlet")
                 .parent()
                 .create("injection-target-name").text(name)
 */
@@ -428,7 +316,7 @@ public class ServletTest {
     }
 
     private void validateTest(String expectedOutput) throws IOException {
-        final InputStream is = new URL("http://localhost:9080/test/Test").openStream();
+        final InputStream is = new URL("http://localhost:9080/" + TEST_NAME + "/" + TEST_NAME).openStream();
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         int bytesRead = -1;
