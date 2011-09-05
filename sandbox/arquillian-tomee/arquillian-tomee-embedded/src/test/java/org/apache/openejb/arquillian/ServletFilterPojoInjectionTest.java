@@ -63,7 +63,7 @@ public class ServletFilterPojoInjectionTest {
         validateTest(expectedOutput);
     }
 
-    @Test
+//    @Test
     public void pojoInjectionShouldSucceed() throws Exception {
         final String expectedOutput = "OpenEJB is on the wheel of a 2011 Lexus IS 350";
         validateTest(expectedOutput);
@@ -111,13 +111,13 @@ public class ServletFilterPojoInjectionTest {
         validateTest(expectedOutput);
     }
 
-    @Test
+//    @Test
     public void classEnvEntryInjectionShouldSucceed() throws Exception {
         final String expectedOutput = "java.lang.String";
         validateTest(expectedOutput);
     }
 
-    @Test
+//    @Test
     public void enumEnvEntryInjectionShouldSucceed() throws Exception {
         final String expectedOutput = "DefaultCode: OK";
         validateTest(expectedOutput);
