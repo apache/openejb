@@ -32,6 +32,7 @@
       <includes>
         <include>README.txt</include>
         <include>LICENSE</include>
+        <include>NOTICE</include>
       </includes>
     </fileSet>
   </fileSets>
@@ -40,6 +41,8 @@
       <outputDirectory>/</outputDirectory>
       <excludes>
         <exclude>org.apache.openejb:javaee-api</exclude>
+        <exclude>org.apache.geronimo.specs:geronimo-osgi-locator</exclude>
+        <exclude>*:*:sources</exclude>
         <exclude>junit:junit</exclude>
       </excludes>
     </dependencySet>
