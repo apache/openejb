@@ -106,6 +106,9 @@
                       javax.jws, javax.jws.soap, org.apache.geronimo, org.apache.geronimo.mail,
                       org.apache.geronimo.mail.handlers, org.apache.geronimo.mail.util
                     </Export-Package>
+                    <Import-Package>org.apache.geronimo.osgi.registry.api;resolution:=optional,*</Import-Package>
+                    <Private-Package>org.apache.geronimo.osgi.locator</Private-Package>
+                    <Bundle-Activator>org.apache.geronimo.osgi.locator.Activator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
               </transformers>
@@ -157,6 +160,9 @@
                       javax.jws, javax.ws.rs, javax.jws.soap, org.apache.geronimo, org.apache.geronimo.mail,
                       org.apache.geronimo.mail.handlers, org.apache.geronimo.mail.util
                     </Export-Package>
+                    <Import-Package>org.apache.geronimo.osgi.registry.api;resolution:=optional,*</Import-Package>
+                    <Private-Package>org.apache.geronimo.osgi.locator</Private-Package>
+                    <Bundle-Activator>org.apache.geronimo.osgi.locator.Activator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
               </transformers>
