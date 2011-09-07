@@ -38,9 +38,7 @@
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
       <outputDirectory>/</outputDirectory>
-      <scope>runtime</scope>
       <excludes>
         <exclude>org.apache.openejb:javaee-api</exclude>
         <exclude>junit:junit</exclude>
