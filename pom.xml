@@ -27,8 +27,8 @@
   <groupId>org.apache.openejb</groupId>
   <artifactId>javaee-api</artifactId>
   <packaging>jar</packaging>
-  <name>OpenEJB :: JavaEE Full API (zip file)</name>
-  <version>6.0-2-SNAPSHOT</version>
+  <name>OpenEJB :: JavaEE Full API (zip and jar files)</name>
+  <version>6.0-1-SNAPSHOT</version>
 
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/javaee-api</connection>
@@ -109,6 +109,15 @@
                   </manifestEntries>
                 </transformer>
               </transformers>
+              <filters>
+                <filter>
+                  <artifact>org.apache.geronimo.specs:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/NOTICE*</exclude>
+                    <exclude>META-INF/LICENSE*</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
           <execution>
@@ -146,6 +155,15 @@
                   </manifestEntries>
                 </transformer>
               </transformers>
+              <filters>
+                <filter>
+                  <artifact>org.apache.geronimo.specs:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/NOTICE*</exclude>
+                    <exclude>META-INF/LICENSE*</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
