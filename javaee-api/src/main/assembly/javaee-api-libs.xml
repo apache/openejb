@@ -27,12 +27,11 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${basedir}/target/classes</directory>
+      <directory>${basedir}/target/classes/META-INF</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README.txt</include>
-        <include>NOTICE.txt</include>
-        <include>LICENSE.txt</include>
+        <include>LICENSE</include>
       </includes>
     </fileSet>
   </fileSets>
