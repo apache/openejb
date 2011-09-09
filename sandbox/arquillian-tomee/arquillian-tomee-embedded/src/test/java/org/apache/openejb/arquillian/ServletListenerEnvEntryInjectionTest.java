@@ -51,9 +51,9 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletListenerPojoInjectionTest {
+public class ServletListenerEnvEntryInjectionTest {
 
-    public static final String TEST_NAME = ServletListenerPojoInjectionTest.class.getSimpleName();
+    public static final String TEST_NAME = ServletListenerEnvEntryInjectionTest.class.getSimpleName();
 
     @Test
     public void localEjbInjectionShouldSucceedInCtxtListener() throws Exception {

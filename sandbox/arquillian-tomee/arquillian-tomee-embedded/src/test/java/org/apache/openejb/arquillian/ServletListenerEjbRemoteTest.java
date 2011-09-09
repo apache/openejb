@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.arquillian;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -32,10 +31,11 @@ import org.junit.runner.RunWith;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,13 +45,19 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletRemoteEjbTest {
+public class ServletListenerEjbRemoteTest {
 
-    public static final String TEST_NAME = ServletRemoteEjbTest.class.getSimpleName();
+    public static final String TEST_NAME = ServletListenerEjbRemoteTest.class.getSimpleName();
 
     @Test
-    public void ejbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Remote: OpenEJB is employed at TomEE Software Inc.";
+    public void ejbInjectionShouldSucceedInCtxtListener() throws Exception {
+        final String expectedOutput = "Context: Remote: OpenEJB is employed at TomEE Software Inc.";
+        validateTest(expectedOutput);
+    }
+
+    @Test
+    public void ejbInjectionShouldSucceedInSessionListener() throws Exception {
+        final String expectedOutput = "Session: Remote: OpenEJB is employed at TomEE Software Inc.";
         validateTest(expectedOutput);
     }
 
@@ -59,10 +65,14 @@ public class ServletRemoteEjbTest {
     public static WebArchive createDeployment() {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0")
-                .servlet(RemoteServlet.class, "/" + TEST_NAME);
+                .listener(RemoteServletContextListener.class)
+                .listener(RemoteServletSessionListener.class)
+                .servlet(ServletToCheckListener.class, "/" + TEST_NAME);
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
-                .addClass(RemoteServlet.class)
+                .addClass(RemoteServletContextListener.class)
+                .addClass(RemoteServletSessionListener.class)
+                .addClass(ServletToCheckListener.class)
                 .addClass(CompanyRemote.class)
                 .addClass(DefaultCompany.class)
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
@@ -73,26 +83,60 @@ public class ServletRemoteEjbTest {
         return archive;
     }
 
-    public static enum Code {
-        OK,
-        ERROR;
+    public static enum ContextAttributeName {
+        KEY_Remote,;
     }
 
-    public static class RemoteServlet extends HttpServlet {
+    public static class ServletToCheckListener extends HttpServlet {
+
+        @Override
+        public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            final ServletContext ctxt = req.getServletContext();
+            for (ContextAttributeName s : ContextAttributeName.values()) {
+                resp.getOutputStream().println("Context: " + ctxt.getAttribute(s.name()));
+            }
+
+            final HttpSession session = req.getSession();
+            for (ContextAttributeName s : ContextAttributeName.values()) {
+                resp.getOutputStream().println("Session: " + session.getAttribute(s.name()));
+            }
+        }
+    }
+
+    public static class RemoteServletContextListener implements ServletContextListener {
 
         @EJB
         private CompanyRemote remoteCompany;
 
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String name = req.getParameter("name");
-            if (StringUtils.isEmpty(name)) {
-                name = "OpenEJB";
-            }
+        public void contextInitialized(ServletContextEvent event) {
+            final String name = "OpenEJB";
+            final ServletContext context = event.getServletContext();
 
             if (remoteCompany != null) {
-                resp.getOutputStream().println("Remote: " + remoteCompany.employ(name));
+                context.setAttribute(ContextAttributeName.KEY_Remote.name(), "Remote: " + remoteCompany.employ(name));
             }
+        }
+
+        public void contextDestroyed(ServletContextEvent event) {
+        }
+
+    }
+
+    public static class RemoteServletSessionListener implements HttpSessionListener {
+
+        @EJB
+        private CompanyRemote remoteCompany;
+
+        public void sessionCreated(HttpSessionEvent event) {
+            final String name = "OpenEJB";
+            final HttpSession context = event.getSession();
+
+            if (remoteCompany != null) {
+                context.setAttribute(ContextAttributeName.KEY_Remote.name(), "Remote: " + remoteCompany.employ(name));
+            }
+        }
+
+        public void sessionDestroyed(HttpSessionEvent event) {
         }
 
     }

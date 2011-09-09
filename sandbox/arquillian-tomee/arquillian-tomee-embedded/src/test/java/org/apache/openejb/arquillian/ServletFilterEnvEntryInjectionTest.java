@@ -37,10 +37,7 @@ import javax.ejb.Local;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +47,9 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletPojoInjectionTest {
+public class ServletFilterEnvEntryInjectionTest {
 
-    public static final String TEST_NAME = ServletPojoInjectionTest.class.getSimpleName();
+    public static final String TEST_NAME = ServletFilterEnvEntryInjectionTest.class.getSimpleName();
 
     @Test
     public void localEjbInjectionShouldSucceed() throws Exception {
@@ -130,7 +127,7 @@ public class ServletPojoInjectionTest {
     public static WebArchive createDeployment() {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0")
-                .servlet(PojoServlet.class, "/" + TEST_NAME);
+                .filter(PojoServletFilter.class, "/" + TEST_NAME);
 
         addEnvEntry(descriptor, "returnEmail", "java.lang.String", "tomee@apache.org");
         addEnvEntry(descriptor, "connectionPool", "java.lang.Integer", "20");
@@ -140,10 +137,10 @@ public class ServletPojoInjectionTest {
         addEnvEntry(descriptor, "totalQuantity", "java.lang.Byte", "5");
         addEnvEntry(descriptor, "optionDefault", "java.lang.Character", "X");
         addEnvEntry(descriptor, "auditWriter", "java.lang.Class", "java.lang.String");
-        addEnvEntry(descriptor, "defaultCode", "java.lang.Enum", "org.apache.openejb.arquillian.ServletPojoInjectionTest$Code.OK");
+        addEnvEntry(descriptor, "defaultCode", "java.lang.Enum", "org.apache.openejb.arquillian.ServletFilterPojoInjectionTest$Code.OK");
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
-                .addClass(PojoServlet.class)
+                .addClass(PojoServletFilter.class)
                 .addClass(Car.class)
                 .addClass(CompanyLocal.class)
                 .addClass(Company.class)
@@ -162,7 +159,7 @@ public class ServletPojoInjectionTest {
         ERROR;
     }
 
-    public static class PojoServlet extends HttpServlet {
+    public static class PojoServletFilter implements Filter {
 
         @Inject
         private Car car;
@@ -206,8 +203,17 @@ public class ServletPojoInjectionTest {
         private Class auditWriter;
 
 
+        private FilterConfig config;
+
+        public void init(FilterConfig config) {
+            this.config = config;
+        }
+
+        public void destroy() {
+        }
+
         @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
             String name = req.getParameter("name");
             if (StringUtils.isEmpty(name)) {
                 name = "OpenEJB";
@@ -307,7 +313,7 @@ public class ServletPojoInjectionTest {
 /*
                 .parent()
                 .create("injection-target")
-                .create("injection-target-class").text("org.apache.openejb.arquillian.ServletPojoInjectionTest$PojoServlet")
+                .create("injection-target-class").text("org.apache.openejb.arquillian.ServletPojoInjectionTest$PojoServletFilter")
                 .parent()
                 .create("injection-target-name").text(name)
 */

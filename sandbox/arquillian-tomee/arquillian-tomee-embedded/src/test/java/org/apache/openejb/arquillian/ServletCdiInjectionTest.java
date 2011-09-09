@@ -25,14 +25,22 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
+import org.jboss.shrinkwrap.descriptor.api.Node;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
+import org.jboss.shrinkwrap.descriptor.spi.NodeProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.Remote;
+import javax.ejb.Local;
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.servlet.*;
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,26 +50,29 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletFilterRemoteEjbTest {
+public class ServletCdiInjectionTest {
 
-    public static final String TEST_NAME = ServletFilterRemoteEjbTest.class.getSimpleName();
+    public static final String TEST_NAME = ServletCdiInjectionTest.class.getSimpleName();
 
     @Test
-    public void ejbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Remote: OpenEJB is employed at TomEE Software Inc.";
+    public void pojoInjectionShouldSucceed() throws Exception {
+        final String expectedOutput = "OpenEJB is on the wheel of a 2011 Lexus IS 350";
         validateTest(expectedOutput);
+    }
+
+//    @Test
+    public void testNothing() {
     }
 
     @Deployment(testable = false)
     public static WebArchive createDeployment() {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0")
-                .filter(RemoteServletFilter.class, "/" + TEST_NAME);
+                .servlet(PojoServlet.class, "/" + TEST_NAME);
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
-                .addClass(RemoteServletFilter.class)
-                .addClass(CompanyRemote.class)
-                .addClass(DefaultCompany.class)
+                .addClass(PojoServlet.class)
+                .addClass(Car.class)
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
                 .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
 
@@ -70,53 +81,31 @@ public class ServletFilterRemoteEjbTest {
         return archive;
     }
 
-    public static enum Code {
-        OK,
-        ERROR;
-    }
+    public static class PojoServlet extends HttpServlet {
 
-    public static class RemoteServletFilter implements Filter {
-
-        @EJB
-        private CompanyRemote remoteCompany;
-
-        private FilterConfig config;
-
-        public void init(FilterConfig config) {
-            this.config = config;
-        }
-
-        public void destroy() {
-        }
+        @Inject
+        private Car car;
 
         @Override
-        public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String name = req.getParameter("name");
             if (StringUtils.isEmpty(name)) {
                 name = "OpenEJB";
             }
 
-            if (remoteCompany != null) {
-                resp.getOutputStream().println("Remote: " + remoteCompany.employ(name));
+            if (car != null) {
+                resp.getOutputStream().println(car.drive(name));
             }
         }
-
     }
 
-    @Remote
-    public static interface CompanyRemote {
-        public String employ(String employeeName);
-    }
+    public static class Car {
+        private final String make = "Lexus", model = "IS 350";
+        private final int year = 2011;
 
-    @Stateless
-    public static class DefaultCompany implements CompanyRemote {
-
-        private final String name = "TomEE Software Inc.";
-
-        public String employ(String employeeName) {
-            return employeeName + " is employed at " + name;
+        public String drive(String name) {
+            return name + " is on the wheel of a " + year + " " + make + " " + model;
         }
-
     }
 
     private void validateTest(String expectedOutput) throws IOException {

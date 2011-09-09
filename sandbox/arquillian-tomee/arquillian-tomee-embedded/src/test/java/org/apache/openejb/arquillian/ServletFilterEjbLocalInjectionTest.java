@@ -37,7 +37,12 @@ import javax.ejb.Local;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,9 +52,9 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletFilterPojoInjectionTest {
+public class ServletFilterEjbLocalInjectionTest {
 
-    public static final String TEST_NAME = ServletFilterPojoInjectionTest.class.getSimpleName();
+    public static final String TEST_NAME = ServletFilterEjbLocalInjectionTest.class.getSimpleName();
 
     @Test
     public void localEjbInjectionShouldSucceed() throws Exception {
@@ -63,85 +68,14 @@ public class ServletFilterPojoInjectionTest {
         validateTest(expectedOutput);
     }
 
-//    @Test
-    public void pojoInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "OpenEJB is on the wheel of a 2011 Lexus IS 350";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void stringEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "tomee@apache.org";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void integerTypeEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Connection Pool: 20";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void longTypeEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Start Count: 200000";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void shortTypeEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Init Size: 5";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void byteTypeEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Total Quantity: 5";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void booleanTypeEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Enable Email: true";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void charTypeEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Option Default: X";
-        validateTest(expectedOutput);
-    }
-
-//    @Test
-    public void classEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "java.lang.String";
-        validateTest(expectedOutput);
-    }
-
-//    @Test
-    public void enumEnvEntryInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "DefaultCode: OK";
-        validateTest(expectedOutput);
-    }
-
     @Deployment(testable = false)
     public static WebArchive createDeployment() {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0")
                 .filter(PojoServletFilter.class, "/" + TEST_NAME);
 
-        addEnvEntry(descriptor, "returnEmail", "java.lang.String", "tomee@apache.org");
-        addEnvEntry(descriptor, "connectionPool", "java.lang.Integer", "20");
-        addEnvEntry(descriptor, "startCount", "java.lang.Long", "200000");
-        addEnvEntry(descriptor, "initSize", "java.lang.Short", "5");
-        addEnvEntry(descriptor, "enableEmail", "java.lang.Boolean", "true");
-        addEnvEntry(descriptor, "totalQuantity", "java.lang.Byte", "5");
-        addEnvEntry(descriptor, "optionDefault", "java.lang.Character", "X");
-        addEnvEntry(descriptor, "auditWriter", "java.lang.Class", "java.lang.String");
-        addEnvEntry(descriptor, "defaultCode", "java.lang.Enum", "org.apache.openejb.arquillian.ServletFilterPojoInjectionTest$Code.OK");
-
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
                 .addClass(PojoServletFilter.class)
-                .addClass(Car.class)
                 .addClass(CompanyLocal.class)
                 .addClass(Company.class)
                 .addClass(DefaultCompany.class)
@@ -154,54 +88,13 @@ public class ServletFilterPojoInjectionTest {
         return archive;
     }
 
-    public static enum Code {
-        OK,
-        ERROR;
-    }
-
     public static class PojoServletFilter implements Filter {
-
-        @Inject
-        private Car car;
 
         @EJB
         private CompanyLocal localCompany;
 
         @EJB
         private SuperMarket market;
-
-        @Resource(name = "returnEmail")
-        private String returnEmail;
-
-        @Resource(name = "connectionPool")
-        private Integer connectionPool;
-
-        @Resource(name = "startCount")
-        private Long startCount;
-
-        @Resource(name = "initSize")
-        private Short initSize;
-
-        @Resource(name = "totalQuantity")
-        private Byte totalQuantity;
-
-        @Resource(name = "enableEmail")
-        private Boolean enableEmail;
-
-        @Resource(name = "optionDefault")
-        private Character optionDefault;
-
-        /* TODO: Enable this resource after functionality is fixed
-        @Resource
-        */
-        private Code defaultCode;
-
-        /* TODO: Enable this resource after functionality is fixed
-                @Resource
-                @SuppressWarnings("unchecked")
-        */
-        private Class auditWriter;
-
 
         private FilterConfig config;
 
@@ -219,56 +112,16 @@ public class ServletFilterPojoInjectionTest {
                 name = "OpenEJB";
             }
 
-            if (car != null) {
-                resp.getOutputStream().println(car.drive(name));
-            }
             if (localCompany != null) {
                 resp.getOutputStream().println("Local: " + localCompany.employ(name));
             }
             if (market != null) {
                 resp.getOutputStream().println(market.shop(name));
             }
-            if (connectionPool != null) {
-                resp.getOutputStream().println("Connection Pool: " + connectionPool);
-            }
-            if (startCount != null) {
-                resp.getOutputStream().println("Start Count: " + startCount);
-            }
-            if (initSize != null) {
-                resp.getOutputStream().println("Init Size: " + initSize);
-            }
-            if (totalQuantity != null) {
-                resp.getOutputStream().println("Total Quantity: " + totalQuantity);
-            }
-            if (enableEmail != null) {
-                resp.getOutputStream().println("Enable Email: " + enableEmail);
-            }
-            if (optionDefault != null) {
-                resp.getOutputStream().println("Option Default: " + optionDefault);
-            }
-            if (StringUtils.isNotEmpty(returnEmail) && returnEmail.equals("tomee@apache.org")) {
-                resp.getOutputStream().println(returnEmail);
-            }
-            if (auditWriter != null) {
-                resp.getOutputStream().println(auditWriter.getClass().getName());
-            }
-            if (defaultCode != null) {
-                resp.getOutputStream().println("DefaultCode: " + defaultCode);
-            }
         }
 
 
     }
-
-    public static class Car {
-        private final String make = "Lexus", model = "IS 350";
-        private final int year = 2011;
-
-        public String drive(String name) {
-            return name + " is on the wheel of a " + year + " " + make + " " + model;
-        }
-    }
-
 
     public static interface Company {
         public String employ(String employeeName);
