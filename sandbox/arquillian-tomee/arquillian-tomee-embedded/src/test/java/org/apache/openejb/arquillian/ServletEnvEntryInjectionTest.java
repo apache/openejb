@@ -54,23 +54,6 @@ public class ServletEnvEntryInjectionTest {
 
     public static final String TEST_NAME = ServletEnvEntryInjectionTest.class.getSimpleName();
 
-    @Test
-    public void localEjbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Local: OpenEJB is employed at TomEE Software Inc.";
-        validateTest(expectedOutput);
-    }
-
-    @Test
-    public void localBeanEjbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "OpenEJB shops at Apache Marketplace";
-        validateTest(expectedOutput);
-    }
-
-//    @Test
-    public void pojoInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "OpenEJB is on the wheel of a 2011 Lexus IS 350";
-        validateTest(expectedOutput);
-    }
 
     @Test
     public void stringEnvEntryInjectionShouldSucceed() throws Exception {

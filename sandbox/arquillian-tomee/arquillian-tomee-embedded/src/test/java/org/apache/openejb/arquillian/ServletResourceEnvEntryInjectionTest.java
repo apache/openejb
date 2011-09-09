@@ -19,9 +19,7 @@ package org.apache.openejb.arquillian;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
@@ -29,13 +27,17 @@ import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
+import javax.transaction.UserTransaction;
+import javax.validation.Valid;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,13 +47,13 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletEjbRemoteTest {
+public class ServletResourceEnvEntryInjectionTest {
 
-    public static final String TEST_NAME = ServletEjbRemoteTest.class.getSimpleName();
+    public static final String TEST_NAME = ServletResourceEnvEntryInjectionTest.class.getSimpleName();
 
     @Test
-    public void ejbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Remote: OpenEJB is employed at TomEE Software Inc.";
+    public void transactionInjectionShouldSucceed() throws Exception {
+        final String expectedOutput = "Transaction injection successful";
         validateTest(expectedOutput);
     }
 
@@ -59,12 +61,10 @@ public class ServletEjbRemoteTest {
     public static WebArchive createDeployment() {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0")
-                .servlet(RemoteServlet.class, "/" + TEST_NAME);
+                .servlet(TestServlet.class, "/" + TEST_NAME);
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
-                .addClass(RemoteServlet.class)
-                .addClass(CompanyRemote.class)
-                .addClass(DefaultCompany.class)
+                .addClass(TestServlet.class)
                 .setWebXML(new StringAsset(descriptor.exportAsString()));
 
         System.err.println(descriptor.exportAsString());
@@ -72,10 +72,22 @@ public class ServletEjbRemoteTest {
         return archive;
     }
 
-    public static class RemoteServlet extends HttpServlet {
+    public static class TestServlet extends HttpServlet {
 
-        @EJB
-        private CompanyRemote remoteCompany;
+        @Resource
+        private UserTransaction transaction;
+
+        @Resource
+        private TransactionSynchronizationRegistry transactionSynchronizationRegistry;
+
+        @Resource
+        private Validator validator;
+
+        @Resource
+        private ValidatorFactory validatorFactory;
+
+        @Resource
+        private TransactionManager transactionManager;
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -84,26 +96,17 @@ public class ServletEjbRemoteTest {
                 name = "OpenEJB";
             }
 
-            if (remoteCompany != null) {
-                resp.getOutputStream().println("Remote: " + remoteCompany.employ(name));
+            if (transaction != null) {
+                try {
+                    transaction.begin();
+                    transaction.commit();
+                    resp.getOutputStream().println("Transaction injection successful");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }
 
-    }
-
-    @Remote
-    public static interface CompanyRemote {
-        public String employ(String employeeName);
-    }
-
-    @Stateless
-    public static class DefaultCompany implements CompanyRemote {
-
-        private final String name = "TomEE Software Inc.";
-
-        public String employ(String employeeName) {
-            return employeeName + " is employed at " + name;
-        }
 
     }
 
