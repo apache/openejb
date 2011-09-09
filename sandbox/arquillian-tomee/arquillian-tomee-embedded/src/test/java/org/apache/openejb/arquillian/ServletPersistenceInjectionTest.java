@@ -16,21 +16,24 @@
  */
 package org.apache.openejb.arquillian;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.annotation.Resource;
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +42,8 @@ import javax.transaction.UserTransaction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.net.URL;
 
 import static junit.framework.Assert.assertNotNull;
@@ -51,19 +56,19 @@ public class ServletPersistenceInjectionTest {
 
     @Test
     public void transactionInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction injection successful";
+        final String expectedOutput = "testUserTransaction=true";
         validateTest(expectedOutput);
     }
 
     @Test
     public void persistentContextInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction manager injection successful";
+        final String expectedOutput = "testEntityManager=true";
         validateTest(expectedOutput);
     }
 
     @Test
     public void persistenceUnitInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction manager factory injection successful";
+        final String expectedOutput = "testEntityManagerFactory=true";
         validateTest(expectedOutput);
     }
 
@@ -97,43 +102,51 @@ public class ServletPersistenceInjectionTest {
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String name = req.getParameter("name");
-            if (StringUtils.isEmpty(name)) {
-                name = "OpenEJB";
-            }
+            final Class<? extends PersistenceServlet> clazz = this.getClass();
+            final Method[] methods = clazz.getMethods();
 
-            if (transaction != null) {
-                try {
-                    transaction.begin();
-                    transaction.commit();
-                    resp.getOutputStream().println("Transaction injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (entityManager != null) {
-                Address a = new Address();
-                try {
-                    entityManager.contains(a);
-                    resp.getOutputStream().println("Transaction manager injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (entityMgrFactory != null) {
-                Address a = new Address();
-                try {
-                    EntityManager em = entityMgrFactory.createEntityManager();
-                    em.contains(a);
-                    resp.getOutputStream().println("Transaction manager factory injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+            resp.setContentType("text/plain");
+            final PrintWriter writer = resp.getWriter();
+
+            for (Method method : methods) {
+                if (method.getName().startsWith("test")) {
+
+                    writer.print(method.getName());
+
+                    writer.print("=");
+
+                    try {
+                        method.invoke(this);
+                        writer.println("true");
+                    } catch (Throwable e) {
+                        writer.println("false");
+                    }
                 }
             }
         }
 
+        public void testEntityManagerFactory() {
+            Assert.assertNotNull(entityMgrFactory);
+
+            Address a = new Address();
+            EntityManager em = entityMgrFactory.createEntityManager();
+            em.contains(a);
+        }
+
+        public void testEntityManager() {
+            Assert.assertNotNull(entityManager);
+            Address a = new Address();
+            entityManager.contains(a);
+        }
+
+        public void testUserTransaction() throws Exception{
+            Assert.assertNotNull(transaction);
+            transaction.begin();
+            transaction.commit();
+        }
 
     }
+
 
     @Entity
     public static class Address {
