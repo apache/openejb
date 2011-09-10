@@ -24,34 +24,34 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.*;
 import java.io.IOException;
 
 @RunWith(Arquillian.class)
-public class ServletFilterEjbRemoteInjectionTest extends TestSetup {
+public class ServletFilterCdiInjectionTest extends TestSetup {
+
+    public static final String TEST_NAME = ServletFilterCdiInjectionTest.class.getSimpleName();
 
     @Test
-    public void ejbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "testEjb=true";
+    public void pojoInjectionShouldSucceed() throws Exception {
+        final String expectedOutput = "testCdi=true";
         validateTest(expectedOutput);
     }
 
     @Deployment(testable = false)
     public static WebArchive getArchive() {
-        return new ServletFilterEjbRemoteInjectionTest().createDeployment(RemoteServletFilter.class, CompanyRemote.class, DefaultCompany.class);
+        return new ServletFilterCdiInjectionTest().createDeployment(PojoServletFilter.class, Car.class);
     }
 
     protected void decorateDescriptor(WebAppDescriptor descriptor) {
-        descriptor.filter(RemoteServletFilter.class, "/" + getTestContextName());
+        descriptor.filter(PojoServletFilter.class, "/" + getTestContextName());
     }
 
-    public static class RemoteServletFilter implements Filter {
+    public static class PojoServletFilter implements Filter {
 
-        @EJB
-        private CompanyRemote remoteCompany;
+        @Inject
+        private Car car;
 
         public void init(FilterConfig config) {
         }
@@ -64,28 +64,21 @@ public class ServletFilterEjbRemoteInjectionTest extends TestSetup {
             run(req, resp, this);
         }
 
-        public void testEjb () {
-            Assert.assertNotNull(remoteCompany);
-            remoteCompany.employ("test");
+        public void testCdi() {
+            Assert.assertNotNull(car);
+            car.drive("test");
         }
-
     }
 
-    @Remote
-    public static interface CompanyRemote {
-        public String employ(String employeeName);
-    }
+    public static class Car {
+        private final String make = "Lexus", model = "IS 350";
+        private final int year = 2011;
 
-    @Stateless
-    public static class DefaultCompany implements CompanyRemote {
-
-        private final String name = "TomEE Software Inc.";
-
-        public String employ(String employeeName) {
-            return employeeName + " is employed at " + name;
+        public String drive(String name) {
+            return name + " is on the wheel of a " + year + " " + make + " " + model;
         }
-
     }
+
 
 }
 

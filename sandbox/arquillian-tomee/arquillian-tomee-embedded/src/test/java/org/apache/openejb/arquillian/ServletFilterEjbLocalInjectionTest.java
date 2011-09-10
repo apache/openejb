@@ -16,76 +16,44 @@
  */
 package org.apache.openejb.arquillian;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.descriptor.api.Descriptors;
-import org.jboss.shrinkwrap.descriptor.api.Node;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
-import org.jboss.shrinkwrap.descriptor.spi.NodeProvider;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.ByteArrayOutputStream;
+import javax.servlet.*;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletFilterEjbLocalInjectionTest {
-
-    public static final String TEST_NAME = ServletFilterEjbLocalInjectionTest.class.getSimpleName();
+public class ServletFilterEjbLocalInjectionTest extends TestSetup {
 
     @Test
     public void localEjbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Local: OpenEJB is employed at TomEE Software Inc.";
+        final String expectedOutput = "testLocalEjb=true";
         validateTest(expectedOutput);
     }
 
     @Test
     public void localBeanEjbInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "OpenEJB shops at Apache Marketplace";
+        final String expectedOutput = "testLocalBean=true";
         validateTest(expectedOutput);
     }
 
     @Deployment(testable = false)
-    public static WebArchive createDeployment() {
-        WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
-                .version("3.0")
-                .filter(PojoServletFilter.class, "/" + TEST_NAME);
+    public static WebArchive getArchive() {
+        return new ServletFilterEjbLocalInjectionTest().createDeployment(PojoServletFilter.class,
+                CompanyLocal.class, Company.class, DefaultCompany.class, SuperMarket.class);
+    }
 
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
-                .addClass(PojoServletFilter.class)
-                .addClass(CompanyLocal.class)
-                .addClass(Company.class)
-                .addClass(DefaultCompany.class)
-                .addClass(SuperMarket.class)
-                .setWebXML(new StringAsset(descriptor.exportAsString()))
-                .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
-
-        System.err.println(descriptor.exportAsString());
-
-        return archive;
+    protected void decorateDescriptor(WebAppDescriptor descriptor) {
+        descriptor.filter(PojoServletFilter.class, "/" + getTestContextName());
     }
 
     public static class PojoServletFilter implements Filter {
@@ -96,10 +64,7 @@ public class ServletFilterEjbLocalInjectionTest {
         @EJB
         private SuperMarket market;
 
-        private FilterConfig config;
-
         public void init(FilterConfig config) {
-            this.config = config;
         }
 
         public void destroy() {
@@ -107,17 +72,17 @@ public class ServletFilterEjbLocalInjectionTest {
 
         @Override
         public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
-            String name = req.getParameter("name");
-            if (StringUtils.isEmpty(name)) {
-                name = "OpenEJB";
-            }
+            run(req, resp, this);
+        }
 
-            if (localCompany != null) {
-                resp.getOutputStream().println("Local: " + localCompany.employ(name));
-            }
-            if (market != null) {
-                resp.getOutputStream().println(market.shop(name));
-            }
+        public void testLocalBean() {
+            Assert.assertNotNull(market);
+            market.shop("test");
+        }
+
+        public void testLocalEjb() {
+            Assert.assertNotNull(localCompany);
+            localCompany.employ("test");
         }
 
 
@@ -152,44 +117,6 @@ public class ServletFilterEjbLocalInjectionTest {
             return employeeName + " shops at " + name;
         }
 
-    }
-
-    private static void addEnvEntry(WebAppDescriptor descriptor, String name, String type, String value) {
-        Node rootNode = ((NodeProvider) descriptor).getRootNode();
-        Node appNode = rootNode.get("/web-app").iterator().next();
-        appNode.create("/env-entry")
-                .create("env-entry-name").text(name)
-                .parent()
-                .create("env-entry-type").text(type)
-                .parent()
-                .create("env-entry-value").text(value)
-/*
-                .parent()
-                .create("injection-target")
-                .create("injection-target-class").text("org.apache.openejb.arquillian.ServletPojoInjectionTest$PojoServletFilter")
-                .parent()
-                .create("injection-target-name").text(name)
-*/
-        ;
-
-    }
-
-    private void validateTest(String expectedOutput) throws IOException {
-        final InputStream is = new URL("http://localhost:9080/" + TEST_NAME + "/" + TEST_NAME).openStream();
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        int bytesRead = -1;
-        byte[] buffer = new byte[8192];
-        while ((bytesRead = is.read(buffer)) > -1) {
-            os.write(buffer, 0, bytesRead);
-        }
-
-        is.close();
-        os.close();
-
-        String output = new String(os.toByteArray(), "UTF-8");
-        assertNotNull("Response shouldn't be null", output);
-        assertTrue("Output should contain: " + expectedOutput, output.contains(expectedOutput));
     }
 
 }

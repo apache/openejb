@@ -16,16 +16,12 @@
  */
 package org.apache.openejb.arquillian;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,53 +29,40 @@ import javax.annotation.Resource;
 import javax.persistence.*;
 import javax.servlet.*;
 import javax.transaction.UserTransaction;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class ServletFilterPersistenceInjectionTest {
-
-    public static final String TEST_NAME = ServletFilterPersistenceInjectionTest.class.getSimpleName();
+public class ServletFilterPersistenceInjectionTest extends TestSetup {
 
     @Test
     public void transactionInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction injection successful";
+        final String expectedOutput = "testUserTransaction=true";
         validateTest(expectedOutput);
     }
 
     @Test
     public void persistentContextInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction manager injection successful";
+        final String expectedOutput = "testEntityManager=true";
         validateTest(expectedOutput);
     }
 
     @Test
     public void persistenceUnitInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "Transaction manager factory injection successful";
+        final String expectedOutput = "testEntityManagerFactory=true";
         validateTest(expectedOutput);
     }
 
     @Deployment(testable = false)
-    public static WebArchive createDeployment() {
-        WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
-                .version("3.0")
-                .filter(PersistenceServletFilter.class, "/" + TEST_NAME);
+    public static WebArchive getArchive() {
+        return new ServletFilterPersistenceInjectionTest().createDeployment(PersistenceServletFilter.class, Address.class);
+    }
 
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
-                .addClass(PersistenceServletFilter.class)
-                .addClass(Address.class)
-                .addAsManifestResource("persistence.xml", ArchivePaths.create("persistence.xml"))
-                .setWebXML(new StringAsset(descriptor.exportAsString()))
-                .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+    protected void decorateDescriptor(WebAppDescriptor descriptor) {
+        descriptor.filter(PersistenceServletFilter.class, "/" + getTestContextName());
+    }
 
-        System.err.println(descriptor.exportAsString());
-
-        return archive;
+    public void decorateArchive(WebArchive archive) {
+        archive.addAsManifestResource("persistence.xml", ArchivePaths.create("persistence.xml"));
     }
 
     public static class PersistenceServletFilter implements Filter {
@@ -93,10 +76,7 @@ public class ServletFilterPersistenceInjectionTest {
         @PersistenceContext
         private EntityManager entityManager;
 
-        private FilterConfig config;
-
         public void init(FilterConfig config) {
-            this.config = config;
         }
 
         public void destroy() {
@@ -104,41 +84,28 @@ public class ServletFilterPersistenceInjectionTest {
 
         @Override
         public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
-            String name = req.getParameter("name");
-            if (StringUtils.isEmpty(name)) {
-                name = "OpenEJB";
-            }
-
-            if (transaction != null) {
-                try {
-                    transaction.begin();
-                    transaction.commit();
-                    resp.getOutputStream().println("Transaction injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (entityManager != null) {
-                Address a = new Address();
-                try {
-                    entityManager.contains(a);
-                    resp.getOutputStream().println("Transaction manager injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (entityMgrFactory != null) {
-                Address a = new Address();
-                try {
-                    EntityManager em = entityMgrFactory.createEntityManager();
-                    em.contains(a);
-                    resp.getOutputStream().println("Transaction manager factory injection successful");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
+            run(req, resp, this);
         }
 
+        public void testEntityManagerFactory() {
+            Assert.assertNotNull(entityMgrFactory);
+
+            Address a = new Address();
+            EntityManager em = entityMgrFactory.createEntityManager();
+            em.contains(a);
+        }
+
+        public void testEntityManager() {
+            Assert.assertNotNull(entityManager);
+            Address a = new Address();
+            entityManager.contains(a);
+        }
+
+        public void testUserTransaction() throws Exception{
+            Assert.assertNotNull(transaction);
+            transaction.begin();
+            transaction.commit();
+        }
 
     }
 
@@ -181,24 +148,6 @@ public class ServletFilterPersistenceInjectionTest {
         public String toString() {
             return "Street: " + street + ", City: " + city + ", State: " + state + ", Zip: " + zip;
         }
-    }
-
-    private void validateTest(String expectedOutput) throws IOException {
-        final InputStream is = new URL("http://localhost:9080/" + TEST_NAME + "/" + TEST_NAME).openStream();
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        int bytesRead = -1;
-        byte[] buffer = new byte[8192];
-        while ((bytesRead = is.read(buffer)) > -1) {
-            os.write(buffer, 0, bytesRead);
-        }
-
-        is.close();
-        os.close();
-
-        String output = new String(os.toByteArray(), "UTF-8");
-        assertNotNull("Response shouldn't be null", output);
-        assertTrue("Output should contain: " + expectedOutput, output.contains(expectedOutput));
     }
 
 }
