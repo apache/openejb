@@ -147,7 +147,7 @@ public class ServletFilterEnvEntryInjectionTest {
                 .addClass(DefaultCompany.class)
                 .addClass(SuperMarket.class)
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
-                .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
 
         System.err.println(descriptor.exportAsString());
 

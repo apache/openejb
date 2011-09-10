@@ -100,7 +100,7 @@ public class ServletListenerPersistenceInjectionTest {
                 .addClass(Address.class)
                 .addAsManifestResource("persistence.xml", ArchivePaths.create("persistence.xml"))
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
-                .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
 
         System.err.println(descriptor.exportAsString());
 
