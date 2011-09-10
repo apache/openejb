@@ -74,7 +74,7 @@ public class ServletCdiInjectionTest {
                 .addClass(PojoServlet.class)
                 .addClass(Car.class)
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
-                .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
 
         System.err.println(descriptor.exportAsString());
 

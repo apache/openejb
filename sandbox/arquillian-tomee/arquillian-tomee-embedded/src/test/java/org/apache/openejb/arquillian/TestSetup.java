@@ -45,7 +45,7 @@ public abstract class TestSetup {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, getTestContextName() + ".war")
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
-                .addAsWebResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
         if (archiveClasses != null) {
             for (Class c: archiveClasses) {
                 archive.addClass(c);
