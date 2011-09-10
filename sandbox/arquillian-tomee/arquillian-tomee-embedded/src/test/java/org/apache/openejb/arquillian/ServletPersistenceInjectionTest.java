@@ -42,8 +42,6 @@ import javax.transaction.UserTransaction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.net.URL;
 
 import static junit.framework.Assert.assertNotNull;
@@ -89,6 +87,7 @@ public class ServletPersistenceInjectionTest {
         return archive;
     }
 
+
     public static class PersistenceServlet extends HttpServlet {
 
         @Resource
@@ -102,27 +101,7 @@ public class ServletPersistenceInjectionTest {
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            final Class<? extends PersistenceServlet> clazz = this.getClass();
-            final Method[] methods = clazz.getMethods();
-
-            resp.setContentType("text/plain");
-            final PrintWriter writer = resp.getWriter();
-
-            for (Method method : methods) {
-                if (method.getName().startsWith("test")) {
-
-                    writer.print(method.getName());
-
-                    writer.print("=");
-
-                    try {
-                        method.invoke(this);
-                        writer.println("true");
-                    } catch (Throwable e) {
-                        writer.println("false");
-                    }
-                }
-            }
+            Runner.run(req, resp, this);
         }
 
         public void testEntityManagerFactory() {
