@@ -22,35 +22,7 @@ import org.jboss.arquillian.spi.client.container.ContainerConfiguration;
 import java.io.File;
 import java.io.IOException;
 
-public class TomEEConfiguration implements ContainerConfiguration {
-
-    private int httpPort = 8080;
-    private int stopPort = 8005;
-    private String dir;
-
-    public int getHttpPort() {
-        return httpPort;
-    }
-
-    public void setHttpPort(int httpPort) {
-        this.httpPort = httpPort;
-    }
-
-    public int getStopPort() {
-        return stopPort;
-    }
-
-    public void setStopPort(int stopPort) {
-        this.stopPort = stopPort;
-    }
-
-    public String getDir() {
-        return dir;
-    }
-
-    public void setDir(String dir) {
-        this.dir = dir;
-    }
+public class TomEEConfiguration extends Configuration implements ContainerConfiguration {
 
     public void validate() throws ConfigurationException {
         try {

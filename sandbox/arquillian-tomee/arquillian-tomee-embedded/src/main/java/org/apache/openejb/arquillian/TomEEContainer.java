@@ -28,6 +28,9 @@ import java.util.Properties;
 
 import org.apache.catalina.startup.Bootstrap;
 import org.apache.openejb.AppContext;
+import org.apache.openejb.NoSuchApplicationException;
+import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.UndeployException;
 import org.apache.openejb.assembler.Deployer;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
@@ -49,88 +52,21 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
-public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
+import javax.naming.NamingException;
 
-    private Bootstrap bootstrap;
-    private TomEEConfiguration configuration;
-    private File catalinaDirectory;
-    private Map<String, String> moduleIds = new HashMap<String, String>();
-    private Deployer deployer;
-    private ConfigurationFactory configurationFactory;
-    private Assembler assembler;
+public class TomEEContainer extends Container implements DeployableContainer<TomEEConfiguration> {
 
     public Class<TomEEConfiguration> getConfigurationClass() {
         return TomEEConfiguration.class;
     }
 
     public void setup(TomEEConfiguration configuration) {
-        this.configuration = configuration;
+        setup((Configuration)configuration);
     }
 
     public void start() throws LifecycleException {
         try {
-            catalinaDirectory = new File(configuration.getDir());
-            if (catalinaDirectory.exists()) {
-                catalinaDirectory.delete();
-            }
-
-            catalinaDirectory.mkdirs();
-            catalinaDirectory.deleteOnExit();
-
-            createTomcatDirectories(catalinaDirectory);
-            copyConfigs(catalinaDirectory);
-
-            // Bootstrap Tomcat
-            System.out.println("Starting TomEE from: " + catalinaDirectory.getAbsolutePath());
-
-            String catalinaBase = catalinaDirectory.getAbsolutePath();
-            System.setProperty("openejb.deployments.classpath", "false");
-            System.setProperty("catalina.home", catalinaBase);
-            System.setProperty("catalina.base", catalinaBase);
-            System.setProperty("openejb.home", catalinaBase);
-            System.setProperty("openejb.base", catalinaBase);
-            System.setProperty("openejb.servicemanager.enabled", "false");
-            
-            bootstrap = new Bootstrap();
-            bootstrap.start();
-            
-            // Bootstrap OpenEJB
-            Properties properties = new Properties();
-            properties.setProperty("openejb.deployments.classpath", "false");
-            properties.setProperty("openejb.loader", "tomcat-system");
-            properties.setProperty("openejb.home", catalinaBase);
-            properties.setProperty("openejb.base", catalinaBase);
-            properties.setProperty("openejb.servicemanager.enabled", "false");
-            
-            try {
-                Properties tomcatServerInfo = new Properties();
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                tomcatServerInfo.load(classLoader.getResourceAsStream("org/apache/catalina/util/ServerInfo.properties"));
-
-                String serverNumber = tomcatServerInfo.getProperty("server.number");
-                if (serverNumber == null) {
-                    // Tomcat5 only has server.info
-                    String serverInfo = tomcatServerInfo.getProperty("server.info");
-                    if (serverInfo != null) {
-                        int slash = serverInfo.indexOf('/');
-                        serverNumber = serverInfo.substring(slash + 1);
-                    }
-                }
-                if (serverNumber != null) {
-                    System.setProperty("tomcat.version", serverNumber);
-                }
-
-                String serverBuilt = tomcatServerInfo.getProperty("server.built");
-                if (serverBuilt != null) {
-                    System.setProperty("tomcat.built", serverBuilt);
-                }
-            } catch (Throwable e) {
-            }
-
-			new TomcatLoader().init(properties);
-
-            assembler = SystemInstance.get().getComponent(Assembler.class);
-            configurationFactory = new ConfigurationFactory();
+            startInternal();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,8 +76,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
 
     public void stop() throws LifecycleException {
         try {
-            bootstrap.stopServer();
-            deleteTree(catalinaDirectory);
+            stopInternal();
         } catch (Exception e) {
             throw new LifecycleException("Unable to stop server", e);
         }
@@ -155,13 +90,12 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     	try {
 
             final File tempDir = FileUtils.createTempDir();
-            final File file = new File(tempDir, archive.getName());
+            final String name = archive.getName();
+            final File file = new File(tempDir, name);
         	archive.as(ZipExporter.class).exportTo(file, true);
 
 
-            AppInfo appInfo = configurationFactory.configureApplication(file);
-            assembler.createApplication(appInfo);
-            moduleIds.put(archive.getName(), appInfo.path);
+            deploy(name, file);
 
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
             return new ProtocolMetaData().addContext(httpContext);
@@ -173,38 +107,11 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
 
     public void undeploy(Archive<?> archive) throws DeploymentException {
     	try {
-            String moduleId = moduleIds.get(archive.getName());
-            assembler.destroyApplication(moduleId);
+            final String name = archive.getName();
+            undeploy(name);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DeploymentException("Unable to undeploy", e);
-        }
-    }
-
-    private void deleteTree(File file) {
-        if (file == null)
-            return;
-        if (!file.exists())
-            return;
-
-        if (file.isFile()) {
-            file.delete();
-            return;
-        }
-
-        if (file.isDirectory()) {
-            if (".".equals(file.getName()))
-                return;
-            if ("..".equals(file.getName()))
-                return;
-
-            File[] children = file.listFiles();
-
-            for (File child : children) {
-                deleteTree(child);
-            }
-
-            file.delete();
         }
     }
 
@@ -216,64 +123,4 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    private void copyConfigs(File directory) throws Exception {
-        File confDir = new File(directory, "conf");
-        copyFileTo(confDir, "catalina.policy");
-        copyTemplateTo(confDir, "catalina.properties");
-        copyFileTo(confDir, "context.xml");
-        copyFileTo(confDir, "logging.properties");
-        copyFileTo(confDir, "openejb.xml");
-        copyFileTo(confDir, "server.xml");
-        copyFileTo(confDir, "tomcat-users.xml");
-        copyFileTo(confDir, "web.xml");
-    }
-
-    private void copyTemplateTo(File targetDir, String filename) throws Exception {
-        Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new Log4JLogChute());
-        Velocity.setProperty(Velocity.RESOURCE_LOADER, "class");
-        Velocity.setProperty("class.resource.loader.description", "Velocity Classpath Resource Loader");
-        Velocity.setProperty("class.resource.loader.class", ClasspathResourceLoader.class.getName());
-        Velocity.init();
-        Template template = Velocity.getTemplate("/org/apache/openejb/tomee/configs/" + filename);
-        VelocityContext context = new VelocityContext();
-        context.put("tomcatHttpPort", Integer.toString(configuration.getHttpPort()));
-        context.put("tomcatShutdownPort", Integer.toString(configuration.getStopPort()));
-        Writer writer = new FileWriter(new File(targetDir, filename));
-        template.merge(context, writer);
-        writer.flush();
-        writer.close();
-    }
-
-    private void copyFileTo(File targetDir, String filename) throws IOException {
-        InputStream is = getClass().getResourceAsStream("/org/apache/openejb/tomee/configs/" + filename);
-        FileOutputStream os = new FileOutputStream(new File(targetDir, filename));
-
-        copyStream(is, os);
-    }
-
-    private void copyStream(InputStream is, FileOutputStream os) throws IOException {
-        byte[] buffer = new byte[8192];
-        int bytesRead = -1;
-
-        while ((bytesRead = is.read(buffer)) > -1) {
-            os.write(buffer, 0, bytesRead);
-        }
-
-        is.close();
-        os.close();
-    }
-
-    private void createTomcatDirectories(File directory) {
-        createDirectory(directory, "apps");
-        createDirectory(directory, "conf");
-        createDirectory(directory, "lib");
-        createDirectory(directory, "logs");
-        createDirectory(directory, "webapps");
-        createDirectory(directory, "temp");
-        createDirectory(directory, "work");
-    }
-
-    private void createDirectory(File parent, String directory) {
-        new File(parent, directory).mkdirs();
-    }
 }
