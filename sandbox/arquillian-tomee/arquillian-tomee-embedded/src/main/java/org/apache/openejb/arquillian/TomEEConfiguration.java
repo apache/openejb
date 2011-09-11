@@ -16,10 +16,10 @@
  */
 package org.apache.openejb.arquillian;
 
+import org.apache.tomee.embedded.Configuration;
 import org.jboss.arquillian.spi.ConfigurationException;
 import org.jboss.arquillian.spi.client.container.ContainerConfiguration;
 
-import java.io.File;
 import java.io.IOException;
 
 public class TomEEConfiguration extends Configuration implements ContainerConfiguration {

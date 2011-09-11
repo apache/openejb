@@ -17,31 +17,9 @@
 package org.apache.openejb.arquillian;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
-import org.apache.catalina.startup.Bootstrap;
-import org.apache.openejb.AppContext;
-import org.apache.openejb.NoSuchApplicationException;
-import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.UndeployException;
-import org.apache.openejb.assembler.Deployer;
-import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.Assembler;
-import org.apache.openejb.config.ConfigurationFactory;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.tomcat.catalina.TomcatLoader;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.runtime.log.Log4JLogChute;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.apache.tomee.embedded.Configuration;
+import org.apache.tomee.embedded.Container;
 import org.jboss.arquillian.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.spi.client.container.DeploymentException;
 import org.jboss.arquillian.spi.client.container.LifecycleException;
@@ -51,8 +29,6 @@ import org.jboss.arquillian.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
-
-import javax.naming.NamingException;
 
 public class TomEEContainer extends Container implements DeployableContainer<TomEEConfiguration> {
 
