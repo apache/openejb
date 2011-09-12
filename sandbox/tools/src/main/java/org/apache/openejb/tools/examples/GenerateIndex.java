@@ -120,7 +120,7 @@ public class GenerateIndex {
 
 		Map<String, String> exampleNames = new TreeMap<String, String>(Collections.reverseOrder()); // to start with the longest
 		for (File example : examples) {
-			exampleNames.put(example.getName(), "../" + example.getName()); // value is the link... should be enough
+			exampleNames.put(example.getName(), "../" + example.getName() + "/index.html"); // value is the link... should be enough
 		}
 		
         for (File example : examples) {
@@ -134,13 +134,13 @@ public class GenerateIndex {
                 File readme = new File(example, rd.trim());
                 if (readme.exists()) {
                     try {
-                        html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
-
-						// auto link examples
+                        String content = FileUtils.readFileToString(readme);
+                        // auto link examples
                         // all example names should start with a space in the md if it was not already replaced
 						for (Map.Entry<String, String> exampleName : exampleNames.entrySet()){
-							html = html.replace(" " + exampleName.getKey(), "[" + exampleName.getKey() + "](" + exampleName.getValue() + ")");
+							content = content.replace(" " + exampleName.getKey(), " <a href=\"" + exampleName.getValue() + "\">" + exampleName.getKey() + "</a>");
 						}
+                        html = PROCESSOR.markdown(content);
                         break;
                     } catch (IOException e) {
                         LOGGER.warn("can't read readme file for example " + example.getName());
