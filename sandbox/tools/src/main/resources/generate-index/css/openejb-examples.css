@@ -1,5 +1,6 @@
-.code {
+pre {
     font-size: 1em;
+    overflow: auto;
 }
 
 #PageContent {
