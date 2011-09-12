@@ -141,11 +141,11 @@ public class GenerateIndex {
                         for (Map.Entry<String, String> exampleName : exampleNames.entrySet()){
                             content = content.replace(" " + exampleName.getKey(), " <a href=\"" + exampleName.getValue() + "\">" + exampleName.getKey() + "</a>");
                         }
-                        html.replace("<code>", "<div class=\"preformatted panel\" style=\"border-width: 1px;\">\n" +
+                        html = html.replace("<pre><code>", "<div class=\"preformatted panel\" style=\"border-width: 1px;\">\n" +
                             "                <div class=\"preformattedContent panelContent\">\n" +
                             "                    <pre class=\"code-java\">\n" +
                             "                        <code>");
-                        html.replace("</code>", "</code>\n" +
+                        html = html.replace("</code></pre>", "</code>\n" +
                             "                    </pre>\n" +
                             "                </div>\n" +
                             "            </div>");
