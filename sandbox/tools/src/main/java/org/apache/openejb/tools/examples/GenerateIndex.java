@@ -111,7 +111,7 @@ public class GenerateIndex {
 
         // generate index.html by example
         Map<String, Set<String>> exampleLinksByKeyword = new TreeMap<String, Set<String>>();
-        Map<String, String> nameByLink = new TreeMap<String, String>();
+        TreeMap<String, String> nameByLink = new TreeMap<String, String>();
         Map<String, String> zipLinks = new TreeMap<String, String>();
         Collection<File> examples = listFolders(extractedDir, properties.getProperty("pom"));
         if (examples.contains(extractedDir)) {
@@ -150,7 +150,7 @@ public class GenerateIndex {
 
             File index = new File(generated, properties.getProperty("index"));
             String link = getLink(generatedDir, index);
-            nameByLink.put(link, example.getName());
+            nameByLink.put(example.getName(), link);
 
             File zip = new File(generated, example.getName() + ".zip");
             String zipLink = getLink(generatedDir, zip);
@@ -236,21 +236,21 @@ public class GenerateIndex {
 
         Map<String, String> classesByApi = getClassesByApi(exampleLinksByKeyword, '.', ViewHelper.REPLACED_CHAR); // css class(es) for aggregates
         Map<String, String> examplesClassesByApi = getExamplesClassesByApi(exampleLinksByKeyword); // css class(es) for buttons
-        Map<String, String> aggregatedClasses = getAggregateClasses(new ArrayList<String>(nameByLink.keySet()), exampleLinksByKeyword);
+        Map<String, String> aggregatedClasses = getAggregateClasses(new ArrayList<String>(nameByLink.values()), exampleLinksByKeyword);
+
 
         // create a glossary page (OR search)
         tpl(properties.getProperty("template.glossary"),
-                newMap(String.class, Object.class)
-                        .add("title", "OpenEJB Examples Glossary")
-                        .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
-                        .add("links", nameByLink)
-                        .add("zipLinks", zipLinks)
-                        .add("examples", nameByLink)
-                        .add("classes", classesByApi)
-                        .add("exampleByKeyword", exampleLinksByKeyword)
-                        .add("aggregatedClasses", aggregatedClasses)
-                        .map(),
-                new File(generatedDir, properties.getProperty("glossary")).getPath());
+            newMap(String.class, Object.class)
+                .add("title", "OpenEJB Examples Glossary")
+                .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
+                .add("zipLinks", zipLinks)
+                .add("examples", nameByLink)
+                .add("classes", classesByApi)
+                .add("exampleByKeyword", exampleLinksByKeyword)
+                .add("aggregatedClasses", aggregatedClasses)
+                .map(),
+            new File(generatedDir, properties.getProperty("glossary")).getPath());
 
         // create an index for all example directories
         tpl(properties.getProperty("template.main"),
