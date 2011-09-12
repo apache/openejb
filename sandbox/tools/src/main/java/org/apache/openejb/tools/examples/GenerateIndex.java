@@ -135,12 +135,20 @@ public class GenerateIndex {
                 if (readme.exists()) {
                     try {
                         String content = FileUtils.readFileToString(readme);
+                        html = PROCESSOR.markdown(content);
                         // auto link examples
                         // all example names should start with a space in the md if it was not already replaced
-						for (Map.Entry<String, String> exampleName : exampleNames.entrySet()){
-							content = content.replace(" " + exampleName.getKey(), " <a href=\"" + exampleName.getValue() + "\">" + exampleName.getKey() + "</a>");
-						}
-                        html = PROCESSOR.markdown(content);
+                        for (Map.Entry<String, String> exampleName : exampleNames.entrySet()){
+                            content = content.replace(" " + exampleName.getKey(), " <a href=\"" + exampleName.getValue() + "\">" + exampleName.getKey() + "</a>");
+                        }
+                        html.replace("<code>", "<div class=\"preformatted panel\" style=\"border-width: 1px;\">\n" +
+                            "                <div class=\"preformattedContent panelContent\">\n" +
+                            "                    <pre class=\"code-java\">\n" +
+                            "                        <code>");
+                        html.replace("</code>", "</code>\n" +
+                            "                    </pre>\n" +
+                            "                </div>\n" +
+                            "            </div>");
                         break;
                     } catch (IOException e) {
                         LOGGER.warn("can't read readme file for example " + example.getName());
