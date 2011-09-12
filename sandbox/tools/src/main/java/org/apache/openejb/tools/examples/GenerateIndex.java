@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -116,6 +117,12 @@ public class GenerateIndex {
         if (examples.contains(extractedDir)) {
             examples.remove(extractedDir);
         }
+
+		Map<String, String> exampleNames = new TreeMap<String, String>(Collections.reverseOrder()); // to start with the longest
+		for (File example : examples) {
+			exampleNames.put(example.getName(), "../" + example.getName()); // value is the link... should be enough
+		}
+		
         for (File example : examples) {
             // create a directory for each example
             File generated = new File(generatedDir, example.getPath().replace(extractedDir.getPath(), ""));
@@ -128,6 +135,12 @@ public class GenerateIndex {
                 if (readme.exists()) {
                     try {
                         html = PROCESSOR.markdown(FileUtils.readFileToString(readme));
+
+						// auto link examples
+                        // all example names should start with a space in the md if it was not already replaced
+						for (Map.Entry<String, String> exampleName : exampleNames.entrySet()){
+							html = html.replace(" " + exampleName.getKey(), "[" + exampleName.getKey() + "](" + exampleName.getValue() + ")");
+						}
                         break;
                     } catch (IOException e) {
                         LOGGER.warn("can't read readme file for example " + example.getName());
@@ -168,14 +181,18 @@ public class GenerateIndex {
                 File sourceFile = new File(generated, source);
                 mkdirp(sourceFile.getParentFile());
 
+				String sourcePath = sourceFile.getPath() + ".html";
                 tpl(properties.getProperty("template.code"),
                         newMap(String.class, Object.class)
                                 .add("title", source + " source")
+                                .add("breadcrumbName", file.getName())
                                 .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("file", source)
                                 .add("code", code)
+                                .add("parentLink", link)
+                                .add("parentLabel", example.getName())
                                 .map(),
-                        sourceFile.getPath() + ".html");
+                        sourcePath);
             }
 
             List<String> resources = removePrefix(example.getPath(), resourceFiles);
@@ -195,6 +212,7 @@ public class GenerateIndex {
                 tpl(properties.getProperty("template.default"),
                         newMap(String.class, Object.class)
                                 .add("title", example.getName() + " example")
+                                .add("breadcrumbName", example.getName())
                                 .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("apis", apiCount)
                                 .add("link", zip.getName())
@@ -206,6 +224,7 @@ public class GenerateIndex {
                 tpl(properties.getProperty("template.external"),
                         newMap(String.class, Object.class)
                                 .add("title", example.getName() + " example")
+                                .add("breadcrumbName", example.getName())
                                 .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("content", html)
                                 .map(),

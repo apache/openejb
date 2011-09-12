@@ -19,6 +19,8 @@
                   <SMALL>
                     <NOTICE><!-- $FOOTER -->
                       Apache OpenEJB is an project of The Apache Software Foundation (ASF)
+					  <a id="fb_share_link" name="fb_share" type="icon" share_url=""></a>
+					  <a id="tweeter_share_link" href="" class="twitter-share-button">Share on twitter</a>
                     </NOTICE>
                   </SMALL>
                 </SPAN>
@@ -44,6 +46,7 @@
         _uacct = "UA-2717626-1";
         urchinTracker();
       </SCRIPT>
+	  <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
     </SPAN>
     </body>
 </html>

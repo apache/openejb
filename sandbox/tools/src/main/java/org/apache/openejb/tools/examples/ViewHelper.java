@@ -67,7 +67,7 @@ public final class ViewHelper {
     public static List<String> removePrefix(String prefix, List<File> files) {
         List<String> processed = new ArrayList<String>();
         for (File file : files) {
-            String path = file.getPath().substring(prefix.length());
+            String path = file.getPath().substring(prefix.length()).replace(File.separator, "/");
             if (path.startsWith("/")) {
                 processed.add(path.substring(1));
             } else {

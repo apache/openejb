@@ -1,4 +1,5 @@
 #parse("generate-index/velocity/header.vm")
+#parse("generate-index/velocity/breadcrumb.vm")
             <div id="download">
                 <a href="$link">Download as zip</a>
             </div>
