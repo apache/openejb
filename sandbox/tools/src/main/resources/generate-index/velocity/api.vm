@@ -2,7 +2,7 @@
                 <ul>
                     APIs:
 #foreach( $api in $apis.entrySet() )
-                    <li>$api.key is used $api.value times</li>
+                    <li><a href="$api_prefix$api.key.replace('.', '/')$api_suffix">$api.key</a> is used $api.value times</li>
 #end
                 </ul>
             </div>

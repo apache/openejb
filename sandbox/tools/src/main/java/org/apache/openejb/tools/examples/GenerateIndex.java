@@ -184,7 +184,7 @@ public class GenerateIndex {
 				String sourcePath = sourceFile.getPath() + ".html";
                 tpl(properties.getProperty("template.code"),
                         newMap(String.class, Object.class)
-                                .add("title", source + " source")
+                                .add("title", file.getName() + " source")
                                 .add("breadcrumbName", file.getName())
                                 .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("file", source)
@@ -218,6 +218,8 @@ public class GenerateIndex {
                                 .add("link", zip.getName())
                                 .add("files", javaFileLinks)
                                 .add("resources", resources)
+                                .add("api_prefix", ExamplesPropertiesManager.get().getProperty("api.prefix"))
+                                .add("api_suffix", ExamplesPropertiesManager.get().getProperty("api.suffix"))
                                 .map(),
                         index.getPath());
             } else {

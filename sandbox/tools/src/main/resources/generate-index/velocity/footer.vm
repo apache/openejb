@@ -19,8 +19,6 @@
                   <SMALL>
                     <NOTICE><!-- $FOOTER -->
                       Apache OpenEJB is an project of The Apache Software Foundation (ASF)
-					  <a id="fb_share_link" name="fb_share" type="icon" share_url=""></a>
-					  <a id="tweeter_share_link" href="" class="twitter-share-button">Share on twitter</a>
                     </NOTICE>
                   </SMALL>
                 </SPAN>
