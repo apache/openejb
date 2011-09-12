@@ -16,10 +16,6 @@
 
             <div id="examples">
                 <ul>
-                    <li><a href="glossary.html">Glossary</a></li>
-                </ul>
-
-                <ul>
 #foreach( $example in $examples.entrySet() )
                     <li example="$example.value" class="$aggregatedClasses.get($example.value)"><a href="$example.value">$example.key</a> <a href="$zipLinks.get($example.value)">[Download zip]</a></li>
 #end
