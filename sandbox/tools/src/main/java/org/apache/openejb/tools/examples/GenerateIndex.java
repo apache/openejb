@@ -238,20 +238,6 @@ public class GenerateIndex {
         Map<String, String> examplesClassesByApi = getExamplesClassesByApi(exampleLinksByKeyword); // css class(es) for buttons
         Map<String, String> aggregatedClasses = getAggregateClasses(new ArrayList<String>(nameByLink.values()), exampleLinksByKeyword);
 
-
-        // create a glossary page (OR search)
-        tpl(properties.getProperty("template.glossary"),
-            newMap(String.class, Object.class)
-                .add("title", "OpenEJB Examples Glossary")
-                .add(USER_JAVASCRIPTS, newList(String.class).add("glossary.js").list())
-                .add("zipLinks", zipLinks)
-                .add("examples", nameByLink)
-                .add("classes", classesByApi)
-                .add("exampleByKeyword", exampleLinksByKeyword)
-                .add("aggregatedClasses", aggregatedClasses)
-                .map(),
-            new File(generatedDir, properties.getProperty("glossary")).getPath());
-
         // create an index for all example directories
         tpl(properties.getProperty("template.main"),
                 newMap(String.class, Object.class)
