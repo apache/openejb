@@ -17,7 +17,7 @@
             <div id="examples">
                 <ul>
 #foreach( $example in $examples.entrySet() )
-                    <li example="$example.value" class="$aggregatedClasses.get($example.value)"><a href="$example.value">$example.key</a> <a href="$zipLinks.get($example.value)">[Download zip]</a></li>
+                    <li example="$example.value" class="$aggregatedClasses.get($example.value)"><a href="$example.value">$example.key</a> <a class="downloadzip" href="$zipLinks.get($example.value)">zip</a></li>
 #end
                 </ul>
             </div>
