@@ -49,6 +49,9 @@ import java.net.URL;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+/**
+ * TODO Add float and double
+ */
 @RunWith(Arquillian.class)
 public class ServletEnvEntryInjectionTest {
 
