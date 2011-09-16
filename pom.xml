@@ -28,12 +28,12 @@
   <artifactId>javaee-api</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: JavaEE Full API (zip and jar files)</name>
-  <version>6.0-2-SNAPSHOT</version>
+  <version>6.0-1</version>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/javaee-api</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/javaee-api</developerConnection>
-    <url>https://svn.apache.org/repos/asf/openejb/trunk/javaee-api</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/javaee-api-6.0-1</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/tags/javaee-api-6.0-1</developerConnection>
+    <url>https://svn.apache.org/repos/asf/openejb/tags/javaee-api-6.0-1</url>
   </scm>
 
   <build>
