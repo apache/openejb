@@ -267,10 +267,6 @@
       			<groupId>org.apache.openwebbeans</groupId>
       		</exclusion>
       		<exclusion>
-      			<artifactId>bsh</artifactId>
-      			<groupId>org.beanshell</groupId>
-      		</exclusion>
-      		<exclusion>
       			<artifactId>commons-dbcp</artifactId>
       			<groupId>commons-dbcp</groupId>
       		</exclusion>
