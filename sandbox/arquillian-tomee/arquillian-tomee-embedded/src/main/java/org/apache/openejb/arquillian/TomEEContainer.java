@@ -30,19 +30,27 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
-public class TomEEContainer extends Container implements DeployableContainer<TomEEConfiguration> {
+public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
+
+    private Container container;
+    private TomEEConfiguration configuration;
+
+    public TomEEContainer() {
+        container = new Container();
+    }
 
     public Class<TomEEConfiguration> getConfigurationClass() {
         return TomEEConfiguration.class;
     }
 
     public void setup(TomEEConfiguration configuration) {
-        setup((Configuration)configuration);
+        container.setup((Configuration) configuration);
+        this.configuration = configuration;
     }
 
     public void start() throws LifecycleException {
         try {
-            startInternal();
+            container.start();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,7 +60,7 @@ public class TomEEContainer extends Container implements DeployableContainer<Tom
 
     public void stop() throws LifecycleException {
         try {
-            stopInternal();
+            container.stop();
         } catch (Exception e) {
             throw new LifecycleException("Unable to stop server", e);
         }
@@ -71,7 +79,7 @@ public class TomEEContainer extends Container implements DeployableContainer<Tom
         	archive.as(ZipExporter.class).exportTo(file, true);
 
 
-            deploy(name, file);
+            container.deploy(name, file);
 
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
             return new ProtocolMetaData().addContext(httpContext);
@@ -84,7 +92,7 @@ public class TomEEContainer extends Container implements DeployableContainer<Tom
     public void undeploy(Archive<?> archive) throws DeploymentException {
     	try {
             final String name = archive.getName();
-            undeploy(name);
+            container.undeploy(name);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DeploymentException("Unable to undeploy", e);

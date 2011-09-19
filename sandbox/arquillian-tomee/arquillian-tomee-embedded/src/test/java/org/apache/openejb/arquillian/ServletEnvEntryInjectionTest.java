@@ -100,15 +100,21 @@ public class ServletEnvEntryInjectionTest {
         validateTest(expectedOutput);
     }
 
-//    @Test
+    @Test
     public void classEnvEntryInjectionShouldSucceed() throws Exception {
         final String expectedOutput = "java.lang.String";
         validateTest(expectedOutput);
     }
 
-//    @Test
+    @Test
     public void enumEnvEntryInjectionShouldSucceed() throws Exception {
         final String expectedOutput = "DefaultCode: OK";
+        validateTest(expectedOutput);
+    }
+
+    @Test
+    public void lookupEnvEntryInjectionShouldSucceed() throws Exception {
+        final String expectedOutput = "Name:";
         validateTest(expectedOutput);
     }
 
@@ -126,7 +132,16 @@ public class ServletEnvEntryInjectionTest {
         addEnvEntry(descriptor, "totalQuantity", "java.lang.Byte", "5");
         addEnvEntry(descriptor, "optionDefault", "java.lang.Character", "X");
         addEnvEntry(descriptor, "auditWriter", "java.lang.Class", "java.lang.String");
-        addEnvEntry(descriptor, "defaultCode", "java.lang.Enum", "org.apache.openejb.arquillian.ServletPojoInjectionTest$Code.OK");
+        addEnvEntry(descriptor, "defaultCode", Code.class.getName(), "OK");
+
+        Node rootNode = ((NodeProvider) descriptor).getRootNode();
+        Node appNode = rootNode.get("/web-app").iterator().next();
+        appNode.create("/env-entry")
+                .create("env-entry-name").text("name")
+                .parent()
+                .create("lookup-name").text("java:module/ModuleName")
+        ;
+
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
                 .addClass(PojoServlet.class)
@@ -165,17 +180,15 @@ public class ServletEnvEntryInjectionTest {
         @Resource(name = "optionDefault")
         private Character optionDefault;
 
-        /* TODO: Enable this resource after functionality is fixed
-        @Resource
-        */
+        @Resource(name = "defaultCode")
         private Code defaultCode;
 
-        /* TODO: Enable this resource after functionality is fixed
-                @Resource
-                @SuppressWarnings("unchecked")
-        */
+        @Resource(name = "auditWriter")
+        @SuppressWarnings("unchecked")
         private Class auditWriter;
 
+        @Resource(name = "name")
+        private String name;
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -206,10 +219,14 @@ public class ServletEnvEntryInjectionTest {
                 resp.getOutputStream().println(returnEmail);
             }
             if (auditWriter != null) {
-                resp.getOutputStream().println(auditWriter.getClass().getName());
+                resp.getOutputStream().println(auditWriter.getName());
             }
             if (defaultCode != null) {
                 resp.getOutputStream().println("DefaultCode: " + defaultCode);
+            }
+
+            if (this.name != null) {
+                resp.getOutputStream().println("Name: " + this.name);
             }
         }
     }

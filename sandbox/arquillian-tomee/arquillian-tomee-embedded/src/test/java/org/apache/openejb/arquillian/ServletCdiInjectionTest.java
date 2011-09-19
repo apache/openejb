@@ -31,11 +31,13 @@ import org.jboss.shrinkwrap.descriptor.spi.NodeProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -56,9 +58,14 @@ public class ServletCdiInjectionTest {
 
     @Test
     public void pojoInjectionShouldSucceed() throws Exception {
-        final String expectedOutput = "OpenEJB is on the wheel of a 2011 Lexus IS 350";
-        validateTest(expectedOutput);
+        validateTest("OpenEJB is on the wheel of a 2011 Lexus IS 350");
     }
+
+    @Test
+    public void beanManagerInjectionShouldSucceed() throws Exception {
+        validateTest("beanManager");
+    }
+
 
 //    @Test
     public void testNothing() {
@@ -83,8 +90,16 @@ public class ServletCdiInjectionTest {
 
     public static class PojoServlet extends HttpServlet {
 
+        @Resource
+        private BeanManager beanManager;
+
         @Inject
         private Car car;
+
+        @PostConstruct
+        public void construct() {
+            System.out.println("construct");
+        }
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -95,6 +110,10 @@ public class ServletCdiInjectionTest {
 
             if (car != null) {
                 resp.getOutputStream().println(car.drive(name));
+            }
+
+            if (beanManager != null) {
+                resp.getOutputStream().println("beanManager");
             }
         }
     }

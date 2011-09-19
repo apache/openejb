@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.arquillian;
 
+import org.apache.openejb.util.SetAccessible;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -23,6 +24,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
+import org.junit.Assert;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -30,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 
@@ -37,6 +40,15 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 public abstract class TestSetup {
+
+    public static void assertFields(Object obj) throws IllegalAccessException {
+        final Field[] fields = obj.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+            SetAccessible.on(field);
+            Assert.assertNotNull(field.getName(), field.get(obj));
+        }
+    }
 
     public WebArchive createDeployment(Class...archiveClasses) {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
@@ -69,7 +81,11 @@ public abstract class TestSetup {
     }
 
     protected void validateTest(String expectedOutput) throws IOException {
-        final InputStream is = new URL("http://localhost:9080/" + getTestContextName() + "/" + getTestContextName()).openStream();
+        validateTest(getTestContextName(), expectedOutput);
+    }
+
+    protected void validateTest(String servlet, String expectedOutput) throws IOException {
+        final InputStream is = new URL("http://localhost:9080/" + getTestContextName() + "/" + servlet).openStream();
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         int bytesRead = -1;
@@ -83,7 +99,7 @@ public abstract class TestSetup {
 
         String output = new String(os.toByteArray(), "UTF-8");
         assertNotNull("Response shouldn't be null", output);
-        assertTrue("Output should contain: " + expectedOutput, output.contains(expectedOutput));
+        assertTrue("Output should contain: " + expectedOutput + "\n" + output, output.contains(expectedOutput));
     }
 
     public static void run(ServletRequest req, ServletResponse resp, Object obj) throws IOException {
@@ -105,6 +121,10 @@ public abstract class TestSetup {
                     writer.println("true");
                 } catch (Throwable e) {
                     writer.println("false");
+                    writer.println("");
+                    writer.println("STACKTRACE");
+                    writer.println("");
+                    e.printStackTrace(writer);
                 }
             }
         }
