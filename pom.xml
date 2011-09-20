@@ -292,6 +292,7 @@
     <module>container</module>
     <module>server</module>
     <module>examples</module>
+    <module>assembly</module>
   </modules>
 
   <profiles>
@@ -305,21 +306,7 @@
     </profile>
 
     <profile>
-      <id>assemble</id>
-      <activation>
-        <property>
-          <name>assemble</name>
-        </property>
-      </activation>
-      <modules>
-        <module>assembly</module>
-      </modules>
-    </profile>
-    <profile>
       <id>release</id>
-      <modules>
-        <module>assembly</module>
-      </modules>
       <build>
         <plugins>
           <!-- We want to sign the artifact, the POM, and all attached artifacts -->
