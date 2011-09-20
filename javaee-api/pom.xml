@@ -78,7 +78,6 @@
               <artifactSet>
                 <excludes>
                   <exclude>*:*:sources</exclude>
-                  <exclude>*:geronimo-el*</exclude>
                   <exclude>*:geronimo-jsp*</exclude>
                   <exclude>*:geronimo-servlet*</exclude>
                 </excludes>
