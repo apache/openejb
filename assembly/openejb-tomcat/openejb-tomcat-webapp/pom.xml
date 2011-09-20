@@ -75,8 +75,8 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
-      <classifier>tomcat</classifier>
       <version>${javaee-api.version}</version>
+      <classifier>tomcat</classifier>
       <exclusions>
         <exclusion>
           <groupId>org.apache.geronimo.specs</groupId>

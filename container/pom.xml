@@ -35,13 +35,4 @@
         <module>openejb-osgi</module>
         <module>openejb-activemq4</module>
     </modules>
-	<dependencyManagement>
-		<dependencies>
-		    <dependency>
-		      <groupId>org.apache.openejb</groupId>
-		      <artifactId>javaee-api</artifactId>
-          <version>${javaee-api.version}</version>
-		    </dependency>
-		</dependencies>
-	</dependencyManagement>
 </project>
