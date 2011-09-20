@@ -1,0 +1,5 @@
+This folder is used to store patched libraries used by OpenEJB.
+
+This is not a parent project to be able to release each patched libraries
+independently. If you think it is not relevant feel free to break it.
+
