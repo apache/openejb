@@ -214,7 +214,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
-      <artifactId>javaee-api-embedded</artifactId>
+      <artifactId>javaee-api</artifactId>
       <version>${javaee-api.version}</version>
     </dependency>
     <dependency>
@@ -624,7 +624,7 @@
                                 <!-- JavaEE API -->
                     <artifactItem>
                       <groupId>org.apache.openejb</groupId>
-                      <artifactId>javaee-api-embedded</artifactId>
+                      <artifactId>javaee-api</artifactId>
                       <overWrite>true</overWrite>
                       <outputDirectory>${project.build.directory}/dependency/lib</outputDirectory>
                     </artifactItem>
