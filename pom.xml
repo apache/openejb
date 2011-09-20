@@ -27,8 +27,7 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>6</version>
-    <relativePath/>
+    <version>10</version>
   </parent>
 
   <groupId>org.apache.openejb</groupId>
@@ -138,25 +137,10 @@
           <version>2.1</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.4.2</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.2.1</version>
-        </plugin>
-        <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <version>2.0.1</version>
           <extensions>true</extensions>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>rat-maven-plugin</artifactId>
-          <version>1.0-alpha-3</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -299,94 +283,6 @@
 
   <profiles>
     <profile>
-      <id>prepare</id>
-      <activation>
-        <property>
-          <name>prepare</name>
-        </property>
-      </activation>
-    </profile>
-
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <!-- We want to sign the artifact, the POM, and all attached artifacts -->
-          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.0-alpha-4</version>
-            <configuration>
-              <passphrase>${gpg.passphrase}</passphrase>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- We want to deploy the artifact to a staging location for perusal -->
-          <plugin>
-            <inherited>true</inherited>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <version>2.4</version>
-            <configuration>
-              <altDeploymentRepository>${deploy.altRepository}</altDeploymentRepository>
-              <updateReleaseInfo>true</updateReleaseInfo>
-              <uniqueVersion>false</uniqueVersion>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>2.0.2</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.2</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <inherited>false</inherited>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/src.xml</descriptor>
-              </descriptors>
-              <tarLongFileMode>gnu</tarLongFileMode>
-              <finalName>openejb-${project.version}-src</finalName>
-            </configuration>
-            <executions>
-              <execution>
-                <id>make-assembly</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
       <id>rat</id>
       <modules>
         <module>itests</module>
@@ -455,17 +351,6 @@
     </profile>
   </profiles>
   <repositories>
-    <repository>
-      <id>JBoss Repository</id>
-      <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
     <repository>
       <id>apache-m2-snapshot</id>
       <name>Apache M2 Snapshot Repository</name>
