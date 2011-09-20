@@ -19,7 +19,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +28,7 @@
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
     <version>6</version>
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>org.apache.openejb</groupId>
@@ -88,7 +89,8 @@
 
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/openejb3</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/openejb3</developerConnection>
+    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/trunk/openejb3
+    </developerConnection>
     <url>http://svn.apache.org/viewvc/openejb/trunk/openejb3</url>
   </scm>
 
@@ -132,8 +134,8 @@
     <pluginManagement>
       <plugins>
         <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>2.1</version>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -152,9 +154,9 @@
           <extensions>true</extensions>
         </plugin>
         <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>rat-maven-plugin</artifactId>
-            <version>1.0-alpha-3</version>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>rat-maven-plugin</artifactId>
+          <version>1.0-alpha-3</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -177,14 +179,14 @@
         </configuration>
       </plugin>
       <plugin>
-	<groupId>org.apache.felix</groupId>
-	<artifactId>maven-bundle-plugin</artifactId>
-	<configuration>
-	  <instructions>
-	    <Bundle-Name>Apache ${project.name}</Bundle-Name>
-	    <Export-Package>${openejb.osgi.export}</Export-Package>
-	    <Import-Package>${openejb.osgi.import}</Import-Package>
-	    <Private-Package>${openejb.osgi.private.pkg}</Private-Package>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Bundle-Name>Apache ${project.name}</Bundle-Name>
+            <Export-Package>${openejb.osgi.export}</Export-Package>
+            <Import-Package>${openejb.osgi.import}</Import-Package>
+            <Private-Package>${openejb.osgi.private.pkg}</Private-Package>
             <Implementation-Title>Apache OpenEJB</Implementation-Title>
             <Implementation-Version>${project.version}</Implementation-Version>
           </instructions>
@@ -218,29 +220,29 @@
           </formats>
         </configuration>
       </plugin>
-<!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clover-plugin</artifactId>
-        <configuration>
-          <jdk>1.5</jdk>
-          <excludes>
-            <exclude>**/package-info.java</exclude>
-          </excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <id>site</id>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>instrument</goal>
-              <goal>aggregate</goal>
-              <goal>save-history</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
--->
+      <!--
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-clover-plugin</artifactId>
+              <configuration>
+                <jdk>1.5</jdk>
+                <excludes>
+                  <exclude>**/package-info.java</exclude>
+                </excludes>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>site</id>
+                  <phase>pre-site</phase>
+                  <goals>
+                    <goal>instrument</goal>
+                    <goal>aggregate</goal>
+                    <goal>save-history</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+      -->
       <!-- Add NOTICE and LICENSE to generated JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -274,15 +276,15 @@
           <remoteTagging>true</remoteTagging>
         </configuration>
       </plugin>
-	  <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-jar-plugin</artifactId>
-	    <version>2.1</version>
-	    <configuration>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
           </archive>
-	    </configuration>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -297,12 +299,12 @@
 
   <profiles>
     <profile>
-        <id>prepare</id>
-        <activation>
-            <property>
-                <name>prepare</name>
-            </property>
-        </activation>
+      <id>prepare</id>
+      <activation>
+        <property>
+          <name>prepare</name>
+        </property>
+      </activation>
     </profile>
 
     <profile>
@@ -783,12 +785,12 @@
         <version>1.8.2</version>
         <exclusions>
           <exclusion>
-              <groupId>org.apache.geronimo.javamail</groupId>
-              <artifactId>geronimo-javamail_1.4_provider</artifactId>
+            <groupId>org.apache.geronimo.javamail</groupId>
+            <artifactId>geronimo-javamail_1.4_provider</artifactId>
           </exclusion>
           <exclusion>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-javamail_1.4_spec</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.4_spec</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1185,17 +1187,17 @@
         <version>2.4</version>
         <configuration>
           <aggregate>true</aggregate>
-		  <additionalJOption>-J-Xmx1024m</additionalJOption>
+          <additionalJOption>-J-Xmx1024m</additionalJOption>
         </configuration>
       </plugin>
-<!--
-      <plugin>
-        <artifactId>maven-clover-plugin</artifactId>
-        <configuration>
-          <generateHistorical>true</generateHistorical>
-        </configuration>
-      </plugin>
--->
+      <!--
+            <plugin>
+              <artifactId>maven-clover-plugin</artifactId>
+              <configuration>
+                <generateHistorical>true</generateHistorical>
+              </configuration>
+            </plugin>
+      -->
     </plugins>
   </reporting>
 </project>
