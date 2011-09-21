@@ -363,9 +363,6 @@
                 <exclude>**/.*</exclude>
                 <exclude>**/.*/*</exclude>
                 <exclude>**/eclipse-classes/**/*</exclude>
-                
-                <!-- left the readme files -->
-                <exclude>**/DATA-README.txt</exclude>
               </excludes>
             </configuration>
           </plugin>
