@@ -19,7 +19,12 @@
 -->
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.openejb.patch</groupId>
+  <parent>
+    <groupId>org.apache.openejb.patch</groupId>
+    <artifactId>openejb-patch-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
   <artifactId>openejb-bval</artifactId>
   <version>0.3-SNAPSHOT</version>
   <name>Apache OpenEJB Patch :: Bean Validation</name>
@@ -69,8 +74,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
-  </properties>
 </project>
