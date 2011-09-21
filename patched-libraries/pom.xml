@@ -39,6 +39,7 @@
   <modules>
     <module>bval-patched</module>
     <module>jstl-patched</module>
+    <module>openwebbeans-jsf-patched</module>
   </modules>
 
   <build>
