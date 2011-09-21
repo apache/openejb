@@ -92,7 +92,7 @@
   </scm>
 
   <properties>
-    <!-- This is used by a manifest classpath entry -->
+    <!-- This is used by a manifest classpath entry  -->
     <xbeanVersion>3.5</xbeanVersion>
 
 
