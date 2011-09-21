@@ -425,6 +425,17 @@
       </snapshots>
     </repository>
     <repository>
+      <id>apache-incubating-repository2</id>
+      <name>Apache Incubating Repository2</name>
+      <url>http://ws.zones.apache.org/repository2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>tomcat-private-repository</id>
       <name>Tomcat Private Repository</name>
       <url>http://tomcat.apache.org/dev/dist/m2-repository</url>
