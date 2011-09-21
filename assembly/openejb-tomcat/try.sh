@@ -17,7 +17,7 @@
 #
 cd target/
 
-tar xzvf openejb-3.0.4-SNAPSHOT-bin.tar.gz
-cd openejb-3.0.4-SNAPSHOT
+tar xzvf openejb-3.0.4-bin.tar.gz
+cd openejb-3.0.4
 ./bin/openejb start
 
