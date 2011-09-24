@@ -34,7 +34,7 @@
   <name>OpenEJB</name>
   <packaging>pom</packaging>
 
-  <version>3.0.4</version>
+  <version>3.0.4-SNAPSHOT</version>
 
   <description>
     Apache OpenEJB is an open source, modular, configurable and extendable EJB Container System and EJB Server.
@@ -86,9 +86,9 @@
   </ciManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/openejb-3.0.4</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/tags/openejb-3.0.4</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/openejb/tags/openejb-3.0.4</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/branches/openejb-3.0.x</connection>
+    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/openejb/branches/openejb-3.0.x</developerConnection>
+    <url>http://svn.apache.org/viewvc/incubator/openejb/branches/openejb-3.0.x</url>
   </scm>
 
   <properties>
