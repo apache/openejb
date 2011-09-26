@@ -354,6 +354,13 @@
           <tomcatHttpPort>8080</tomcatHttpPort>
           <tomcatShutdownPort>8181</tomcatShutdownPort>
           <tomcatVersion>${version.org.apache.tomcat}</tomcatVersion>
+          <libs>
+            <jarArtifact>
+              <groupId>org.apache.openejb</groupId>
+              <artifactId>openejb-logging</artifactId>
+              <version>${version.org.apache.openejb}</version>
+            </jarArtifact>
+          </libs>
           <webapps>
             <webappArtifact>
               <groupId>org.apache.openejb</groupId>
