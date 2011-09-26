@@ -16,13 +16,27 @@
  */
 package org.apache.openejb.arquillian.remote;
 
-import javax.ejb.Stateless;
+import java.io.IOException;
 
-@Stateless
-public class TestEjb {
+import javax.ejb.EJB;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-    public String greet(String name) {
-        return "Hello, " + name;
+public class TstServlet extends HttpServlet {
+
+    @EJB
+    private TstEjb myEjb;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String name = req.getParameter("name");
+        if (name == null || name.length() == 0) {
+            name = "OpenEJB";
+        }
+
+        resp.getOutputStream().print(myEjb.greet(name));
     }
 
 }

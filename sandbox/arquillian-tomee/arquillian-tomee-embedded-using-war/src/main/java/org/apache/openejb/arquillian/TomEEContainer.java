@@ -50,6 +50,7 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 import org.jboss.shrinkwrap.resolver.impl.maven.filter.StrictFilter;
 
 public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
+    private static final String OPENEJB_VERSION = "4.0.0-SNAPSHOT";
 
     private Bootstrap bootstrap;
     private TomEEConfiguration configuration;
@@ -107,9 +108,17 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     }
 
     private void installOpenEJB(File catalinaDirectory) throws IOException {
-    	Collection<GenericArchive> archives = new SimpleMavenBuilderImpl()
-        .artifact("org.apache.openejb:openejb-tomcat-webapp:war:4.0.0-SNAPSHOT")
-        .resolveAs(GenericArchive.class, new StrictFilter());
+    	Collection<GenericArchive> archives;
+
+        if (configuration.isPlusContainer()) {
+            archives = new SimpleMavenBuilderImpl()
+            .artifact("org.apache.openejb:openejb-tomcat-plus-webapp:war:" + OPENEJB_VERSION)
+            .resolveAs(GenericArchive.class, new StrictFilter());
+        } else {
+            archives = new SimpleMavenBuilderImpl()
+                .artifact("org.apache.openejb:openejb-tomcat-webapp:war:" + OPENEJB_VERSION)
+                .resolveAs(GenericArchive.class, new StrictFilter());
+        }
 
     	GenericArchive archive = archives.iterator().next();
     	archive.as(ZipExporter.class).exportTo(new File(catalinaDirectory, "webapps/openejb.war"), true);

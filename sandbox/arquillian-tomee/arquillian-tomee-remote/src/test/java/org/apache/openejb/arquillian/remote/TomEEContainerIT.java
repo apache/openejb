@@ -37,8 +37,13 @@ public class TomEEContainerIT {
 
     @Deployment(testable = false)
     public static WebArchive createDeployment() {
-        return ShrinkWrap.create(WebArchive.class, "test.war").addClass(TestServlet.class).addClass(TestEjb.class)
-                .setWebXML(new StringAsset(Descriptors.create(WebAppDescriptor.class).version("3.0").servlet(TestServlet.class, "/Test").exportAsString()));
+        return ShrinkWrap.create(WebArchive.class, "test.war")
+                .addClass(TstServlet.class)
+                .addClass(TstEjb.class)
+                .setWebXML(new StringAsset(Descriptors.create(WebAppDescriptor.class)
+                    .version("3.0")
+                    .servlet(TstServlet.class, "/Test")
+                        .exportAsString()));
     }
 
     @Test
@@ -46,7 +51,7 @@ public class TomEEContainerIT {
         InputStream is = new URL("http://localhost:8080/test/Test").openStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        int bytesRead = -1;
+        int bytesRead;
         byte[] buffer = new byte[8192];
         while ((bytesRead = is.read(buffer)) > -1) {
             os.write(buffer, 0, bytesRead);

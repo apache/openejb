@@ -24,6 +24,7 @@ public class TomEEConfiguration implements ContainerConfiguration {
     private int httpPort = 8080;
     private int stopPort = 8005;
     private String dir = System.getProperty("java.io.tmpdir") + "/arquillian-apache-tomee";
+    private boolean plusContainer = true;
 
     public int getHttpPort() {
         return httpPort;
@@ -47,6 +48,14 @@ public class TomEEConfiguration implements ContainerConfiguration {
 
     public void setDir(String dir) {
         this.dir = dir;
+    }
+
+    public boolean isPlusContainer() {
+        return plusContainer;
+    }
+
+    public void setPlusContainer(boolean plusContainer) {
+        this.plusContainer = plusContainer;
     }
 
     public void validate() throws ConfigurationException {
