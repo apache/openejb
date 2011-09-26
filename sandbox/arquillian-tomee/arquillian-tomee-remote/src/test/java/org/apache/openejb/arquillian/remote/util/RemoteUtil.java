@@ -15,7 +15,7 @@ public class RemoteUtil {
         // no-op
     }
 
-    public static String readContent(String url) throws MalformedURLException, IOException, UnsupportedEncodingException {
+    public static String readContent(String url) throws IOException {
         InputStream is = new URL(url).openStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 

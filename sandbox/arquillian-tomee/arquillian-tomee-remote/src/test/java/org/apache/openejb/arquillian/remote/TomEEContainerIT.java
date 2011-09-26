@@ -22,6 +22,8 @@ import java.net.URL;
 
 import junit.framework.Assert;
 
+import org.apache.openejb.arquillian.remote.ejb.TstEjb;
+import org.apache.openejb.arquillian.remote.servlet.TstServlet;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;

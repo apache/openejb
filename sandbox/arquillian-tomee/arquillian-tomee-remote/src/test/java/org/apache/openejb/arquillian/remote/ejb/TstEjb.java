@@ -14,29 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.openejb.arquillian.remote;
+package org.apache.openejb.arquillian.remote.ejb;
 
-import java.io.IOException;
+import javax.ejb.Stateless;
 
-import javax.ejb.EJB;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+@Stateless
+public class TstEjb {
 
-public class TstServlet extends HttpServlet {
-
-    @EJB
-    private TstEjb myEjb;
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("name");
-        if (name == null || name.length() == 0) {
-            name = "OpenEJB";
-        }
-
-        resp.getOutputStream().print(myEjb.greet(name));
+    public String greet(String name) {
+        return "Hello, " + name;
     }
 
 }

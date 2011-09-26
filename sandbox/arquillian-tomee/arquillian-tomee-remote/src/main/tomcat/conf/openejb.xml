@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openejb>
+  <Container id="My Singleton Container" type="SINGLETON">
+    AccessTimeout = 30 seconds
+  </Container>
+
+  <Container id="My Stateful Container" type="STATEFUL">
+    AccessTimeout = 30 seconds
+    Passivator   org.apache.openejb.core.stateful.SimplePassivater
+    TimeOut  20
+    Capacity  1000
+    BulkPassivate  100
+  </Container>
+
+  <Container id="My Stateless Container" type="STATELESS">
+    AccessTimeout = 30 seconds
+    MaxSize = 10
+    MinSize = 0
+    StrictPooling = true
+    MaxAge = 0 hours
+    IdleTimeout = 0 minutes
+  </Container>
+
+  <Resource id="My DataSource" type="DataSource">
+    JdbcDriver org.hsqldb.jdbcDriver
+    JdbcUrl jdbc:hsqldb:file:data/hsqldb/hsqldb
+    UserName sa
+    Password
+    JtaManaged true
+  </Resource>
+
+  <Resource id="My Unmanaged DataSource" type="DataSource">
+    JdbcDriver org.hsqldb.jdbcDriver
+    JdbcUrl jdbc:hsqldb:file:data/hsqldb/hsqldb
+    UserName sa
+    Password
+    JtaManaged false
+  </Resource>
+
+  <Resource id="MyJmsResourceAdapter" type="ActiveMQResourceAdapter">
+    BrokerXmlConfig
+    ServerUrl vm://localhost?broker.persistent=false
+  </Resource>
+
+  <Resource id="MyJmsConnectionFactory" type="javax.jms.ConnectionFactory">
+    ResourceAdapter MyJmsResourceAdapter
+  </Resource>
+
+  <Container id="MyJmsMdbContainer" ctype="MESSAGE">
+    ResourceAdapter MyJmsResourceAdapter
+  </Container>
+
+  <Resource id="QUEUE" type="javax.jms.Queue"/>
+
+  <Deployments dir="apps/" />
+</openejb>

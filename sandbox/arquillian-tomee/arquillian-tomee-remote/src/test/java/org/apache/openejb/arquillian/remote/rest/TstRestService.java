@@ -1,4 +1,4 @@
-package org.apache.openejb.arquillian.remote;
+package org.apache.openejb.arquillian.remote.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
