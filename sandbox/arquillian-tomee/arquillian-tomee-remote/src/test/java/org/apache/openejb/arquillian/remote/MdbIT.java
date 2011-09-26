@@ -17,7 +17,6 @@
 package org.apache.openejb.arquillian.remote;
 
 import org.apache.openejb.arquillian.remote.ejb.TstMdb;
-import org.apache.openejb.arquillian.remote.rest.TstRestService;
 import org.apache.openejb.arquillian.remote.servlet.TstMdbServlet;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
