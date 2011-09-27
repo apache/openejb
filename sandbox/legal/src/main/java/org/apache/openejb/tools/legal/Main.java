@@ -22,8 +22,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.swizzle.stream.StreamLexer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -55,25 +56,47 @@ public class Main {
     }
 
     private Set<URI> crawl(URI index) throws IOException {
-        final Set<URI> resources = new HashSet<URI>();
+        final Set<URI> resources = new LinkedHashSet<URI>();
 
-        HttpGet request = new HttpGet(index);
+        final HttpGet request = new HttpGet(index);
         request.setHeader("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13");
-        HttpResponse response = client.execute(request);
-        StreamLexer lexer = new StreamLexer(response.getEntity().getContent());
+        final HttpResponse response = client.execute(request);
+
+        final InputStream content = response.getEntity().getContent();
+        final StreamLexer lexer = new StreamLexer(content);
+
+        final Set<URI> crawl = new LinkedHashSet<URI>();
 
         //<a href="https://repository.apache.org/content/repositories/orgapacheopenejb-094/archetype-catalog.xml">archetype-catalog.xml</a>
-        while (lexer.readAndMark("<a ","/a>")) {
-            final String link = lexer.peek("href=\"", "\"");
-            final String name = lexer.peek(">", "<");
+        while (lexer.readAndMark("<a ", "/a>")) {
 
-            final URI uri = index.resolve(link);
+            try {
+                final String link = lexer.peek("href=\"", "\"");
+                final String name = lexer.peek(">", "<");
 
-            if (name.endsWith("/")) {
-                resources.addAll(crawl(uri));
-            } else {
+                final URI uri = index.resolve(link);
+
+                if (name.equals("../")) continue;
+                if (link.equals("../")) continue;
+
+                if (name.endsWith("/")) {
+                    crawl.add(uri);
+                    continue;
+                }
+
+                if (!uri.getPath().matches(".*(jar|zip|tar.gz)")) continue;
+
                 resources.add(uri);
+
+            } finally {
+                lexer.unmark();
             }
+        }
+
+        content.close();
+
+        for (URI uri : crawl) {
+            resources.addAll(crawl(uri));
         }
         return resources;
     }
