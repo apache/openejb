@@ -27,23 +27,23 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${basedir}/target/classes</directory>
+      <directory>${basedir}/target/classes/META-INF</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README.txt</include>
-        <include>NOTICE.txt</include>
-        <include>LICENSE.txt</include>
+        <include>LICENSE</include>
+        <include>NOTICE</include>
       </includes>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
       <outputDirectory>/</outputDirectory>
-      <scope>runtime</scope>
       <excludes>
-          <exclude>org.apache.openejb:javaee-api</exclude>
-          <exclude>junit:junit</exclude>
+        <exclude>org.apache.openejb:javaee-api</exclude>
+        <exclude>org.apache.geronimo.specs:geronimo-osgi-locator</exclude>
+        <exclude>*:*:sources</exclude>
+        <exclude>junit:junit</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
