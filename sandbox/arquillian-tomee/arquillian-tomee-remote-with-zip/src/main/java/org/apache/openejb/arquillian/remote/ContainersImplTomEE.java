@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.arquillian;
+package org.apache.openejb.arquillian.remote;
 
 import java.io.Closeable;
 import java.io.File;
