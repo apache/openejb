@@ -1,0 +1,41 @@
+<html>
+<head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+<a href="archives.html">archives</a> -  <a href="licenses.html">licenses</a> - <a href="notices.html">notices</a> - <a href="content">contents</a><br/><br/>
+<h1>$archive.uri</h1>
+
+<a href="content/${archive.uri}.contents">contents</a>
+
+<h2>Declared Notices</h2>
+<ul>
+#foreach($notice in $archive.declaredNotices)
+    <li>
+        <ul>
+        #foreach($uri in $notice.locations($archive))
+            <li>$uri</li>
+        #end
+        </ul>
+        <pre>$notice.text</pre>
+    </li>
+#end
+</ul>
+
+<h2>Undeclared Notices</h2>
+<ul>
+#foreach($notice in $archive.otherNotices)
+    <li>
+        <ul>
+        #foreach($uri in $notice.locations($archive))
+            <li>$uri</li>
+        #end
+        </ul>
+        <pre>$notice.text</pre>
+    </li>
+#end
+</ul>
+
+</body>
+</html>

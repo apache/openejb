@@ -70,6 +70,12 @@ public class IOUtil {
         return new String(out.toByteArray());
     }
 
+    public static String slurp(URL url) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        copy(url.openStream(), out);
+        return new String(out.toByteArray());
+    }
+
     public static void writeString(File file, String string) throws IOException {
         final FileWriter out = new FileWriter(file);
         try {

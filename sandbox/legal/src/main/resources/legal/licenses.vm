@@ -1,6 +1,11 @@
 <html>
+<head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+</head>
 
 <body>
+<a href="archives.html">archives</a> -  <a href="licenses.html">licenses</a> - <a href="notices.html">notices</a> - <a href="content">contents</a><br/><br/>
+<h1>Licenses</h1>
 
 #foreach($license in $licenses)
     <h1>License</h1>
@@ -9,7 +14,7 @@ $license.text
 </pre>
     <ul>
     #foreach($archive in $license.archives)
-        <li>$archive.uri</li>
+        <li><a href="${reports.licenses($archive)}">$archive.uri</a></li>
     #end
     </ul>
 #end
