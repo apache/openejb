@@ -37,7 +37,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -72,25 +71,30 @@ public class Main {
 
     public Main(String... args) throws Exception {
         client = new DefaultHttpClient();
-//        local = File.createTempFile("repository-check", "local");
-//        assert local.delete();
-//        assert local.mkdirs();
-        local = new File("/var/folders/Kp/KpmOujsB2RWdqE+BYnAOX++++TI/-Tmp-/repository-check7644335928314455238local");
 
-        repository = new File(local, "repo");
-        content = new File(local, "content");
+        this.staging = new URI(args[0]);
 
+        String name = new File(this.staging.getPath()).getName();
+
+        if (args.length > 1) {
+            this.local = new File(args[1]);
+        } else {
+            this.local = new File(name);
+        }
+
+        this.repository = new File(local, "repo");
+        this.content = new File(local, "content");
+
+        mkdirs(local);
         mkdirs(repository);
         mkdirs(content);
-
-        staging = new URI(args[0]);
 
         log.info("Repo: " + staging);
         log.info("Local: " + local);
 
-        reports = new Reports();
+        this.reports = new Reports();
 
-        URL style = this.getClass().getClassLoader().getResource("legal/style.css");
+        final URL style = this.getClass().getClassLoader().getResource("legal/style.css");
         IOUtil.copy(style.openStream(), new File(local, "style.css"));
 
         licenses("asl-2.0");
@@ -104,13 +108,12 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        new Main("https://repository.apache.org/content/repositories/orgapacheopenejb-094").main();
+        new Main(args).main();
     }
 
     private void main() throws Exception {
-        // https://repository.apache.org/content/repositories/orgapacheopenejb-094
 
-//        prepare();
+        prepare();
 
         final List<File> jars = collect(repository, new FileFilter() {
             @Override
