@@ -54,7 +54,7 @@
     <module>common</module>
     <module>arquillian-tomee-embedded</module>
     <module>arquillian-tomee-embedded-using-war</module>
-    <module>arquillian-tomee-remote-with-zip</module>
+    <module>arquillian-tomee-remote</module>
     <module>moviefun-example</module>
     <module>tests</module>
   </modules>
