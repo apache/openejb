@@ -67,12 +67,13 @@ public class Main {
     private final File content;
     private Reports reports;
     private Map<String, String> licenses = new HashMap<String, String>();
+    private String filter;
 
 
     public Main(String... args) throws Exception {
         client = new DefaultHttpClient();
 
-        this.staging = new URI(args[0]);
+        this.staging = getURI(args[0]);
 
         String name = new File(this.staging.getPath()).getName();
 
@@ -95,12 +96,23 @@ public class Main {
 
         this.reports = new Reports();
 
+        this.filter = System.getProperty("filter", "org/apache/openejb");
         final URL style = this.getClass().getClassLoader().getResource("legal/style.css");
         IOUtil.copy(style.openStream(), new File(local, "style.css"));
 
         licenses("asl-2.0");
         licenses("cpl-1.0");
         licenses("cddl-1.0");
+    }
+
+    private URI getURI(String arg) throws URISyntaxException {
+        final URI uri = new URI(arg);
+        if (arg.startsWith("file:")) {
+            File file = new File(uri);
+            file = file.getAbsoluteFile();
+            return file.toURI();
+        }
+        return uri;
     }
 
     private void licenses(String s) throws IOException {
@@ -301,13 +313,27 @@ public class Main {
     }
 
     private void prepare() throws URISyntaxException, IOException {
-
-        final Set<URI> resources = crawl(staging);
-
         final Set<File> files = new HashSet<File>();
 
-        for (URI uri : resources) {
-            files.add(download(uri));
+        if (staging.toString().startsWith("http")) {
+            final Set<URI> resources = crawl(staging);
+
+            for (URI uri : resources) {
+                files.add(download(uri));
+            }
+        } else if (staging.toString().startsWith("file:")) {
+            File file = new File(staging);
+            List<File> collect = collect(file, new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    String path = pathname.getAbsolutePath();
+                    return path.matches(filter) && isValidArchive(path);
+                }
+            });
+
+            for (File f : collect) {
+                files.add(copy(f));
+            }
         }
 
         for (File file : files) {
@@ -523,6 +549,20 @@ public class Main {
         mkparent(file);
 
         IOUtil.copy(content, file);
+
+        return file;
+    }
+
+    private File copy(File src) throws IOException {
+        final URI uri = src.toURI();
+
+        final File file = getFile(uri);
+
+        log.info("Copy " + uri);
+
+        mkparent(file);
+
+        IOUtil.copy(IOUtil.read(src), file);
 
         return file;
     }
@@ -746,7 +786,7 @@ public class Main {
                     continue;
                 }
 
-                if (!uri.getPath().matches(".*(jar|zip|war|ear|tar.gz)")) continue;
+                if (!isValidArchive(uri.getPath())) continue;
 
                 resources.add(uri);
 
@@ -761,5 +801,9 @@ public class Main {
             resources.addAll(crawl(uri));
         }
         return resources;
+    }
+
+    private boolean isValidArchive(String path) {
+        return path.matches(".*\\.(jar|zip|war|ear|tar.gz)");
     }
 }
