@@ -17,6 +17,8 @@
 package org.apache.openejb.arquillian.remote;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.Collection;
 
 import org.apache.openejb.arquillian.common.SimpleMavenBuilderImpl;
@@ -31,8 +33,20 @@ public class RemoteTomEEContainer extends TomEEContainer {
 	private static final String OPENEJB_VERSION = "4.0.0-beta-1-SNAPSHOT";
 
 	private RemoteServer container;
+	private boolean needsStart = false;
 
     public void start() throws LifecycleException {
+    	// see if TomEE is already running by checking the http port
+    	try {
+			connect(configuration.getHttpPort());
+		} catch (Exception e) {
+			needsStart = true;
+		}
+    	
+    	if (! needsStart) {
+    		return;
+    	}
+    	
     	File catalinaDirectory = new File(configuration.getDir());
     	catalinaDirectory.mkdirs();
 
@@ -84,6 +98,15 @@ public class RemoteTomEEContainer extends TomEEContainer {
     }
 
     public void stop() throws LifecycleException {
-    	container.stop();
+    	// only stop the container if we started it
+    	if (needsStart) {
+    		container.stop();
+    	}
+    }
+    
+    public void connect(int port) throws Exception {
+    	Socket socket = new Socket("localhost", port);
+        OutputStream out = socket.getOutputStream();
+        out.close();
     }
 }
