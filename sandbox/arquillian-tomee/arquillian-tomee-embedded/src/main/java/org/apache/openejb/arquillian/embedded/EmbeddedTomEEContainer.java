@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.openejb.arquillian;
+package org.apache.openejb.arquillian.embedded;
 
 import java.io.File;
 
+import org.apache.openejb.arquillian.common.FileUtils;
+import org.apache.openejb.arquillian.common.TomEEConfiguration;
+import org.apache.openejb.arquillian.common.TomEEContainer;
 import org.apache.tomee.embedded.Configuration;
 import org.apache.tomee.embedded.Container;
-import org.jboss.arquillian.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.spi.client.container.DeploymentException;
 import org.jboss.arquillian.spi.client.container.LifecycleException;
 import org.jboss.arquillian.spi.client.protocol.ProtocolDescription;
@@ -28,14 +30,12 @@ import org.jboss.arquillian.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
-public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
+public class EmbeddedTomEEContainer extends TomEEContainer {
 
     private Container container;
-    private TomEEConfiguration configuration;
 
-    public TomEEContainer() {
+    public EmbeddedTomEEContainer() {
         container = new Container();
     }
 
@@ -44,11 +44,24 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     }
 
     public void setup(TomEEConfiguration configuration) {
-        container.setup((Configuration) configuration);
+        container.setup(convertConfiguration(configuration));
         this.configuration = configuration;
     }
 
-    public void start() throws LifecycleException {
+    /*
+     * Not exactly as elegant as I'd like. Maybe we could have the EmbeddedServer configuration in openejb-core so all the adapters can use it.
+     * Depending on tomee-embedded is fine in this adapter, but less desirable in the others, as we'd get loads of stuff in the classpath we don't need.
+     */
+    private Configuration convertConfiguration(TomEEConfiguration tomeeConfiguration) {
+    	Configuration configuration = new Configuration();
+    	configuration.setDir(tomeeConfiguration.getDir());
+    	configuration.setHttpPort(tomeeConfiguration.getHttpPort());
+    	configuration.setStopPort(tomeeConfiguration.getStopPort());
+    	
+		return configuration;
+	}
+
+	public void start() throws LifecycleException {
         try {
             container.start();
 
@@ -69,7 +82,7 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
     public ProtocolDescription getDefaultProtocol() {
         return new ProtocolDescription("Servlet 3.0");
     }
-
+    
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
     	try {
 
@@ -98,13 +111,4 @@ public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
             throw new DeploymentException("Unable to undeploy", e);
         }
     }
-
-    public void deploy(Descriptor descriptor) throws DeploymentException {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    public void undeploy(Descriptor descriptor) throws DeploymentException {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
 }
