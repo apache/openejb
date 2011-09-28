@@ -1,0 +1,23 @@
+<html>
+
+<body>
+
+<h1>All</h1>
+<ul>
+<li>all (licenses, notices, <a href="content">contents</a>)</li>
+</ul>
+
+<h1>Archives</h1>
+<ul>
+#foreach($archive in $archives)
+    <li>$archive.uri  (licenses, notices, <a href="content/${archive.uri}.contents">contents</a>)
+        <ul>
+        #foreach($file in $archive.legal.entrySet())
+            <li><a href="$file.value">$file.key</a></li>
+        #end
+        </ul>
+    </li>
+#end
+</ul>
+</body>
+</html>

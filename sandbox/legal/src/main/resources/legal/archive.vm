@@ -1,0 +1,17 @@
+<html>
+
+<body>
+<h1>$archive.uri</h1>
+<ul>
+#foreach($archive in $archives)
+    <li>$archive.uri
+        <ul>
+        #foreach($file in $archive.legal.entrySet())
+            <li><a href="$file.value">$file.key</a></li>
+        #end
+        </ul>
+    </li>
+#end
+</ul>
+</body>
+</html>

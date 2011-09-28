@@ -1,0 +1,17 @@
+<html>
+
+<body>
+
+#foreach($notice in $notices)
+    <h1>Notice</h1>
+<pre>
+$notice.text
+</pre>
+    <ul>
+    #foreach($archive in $notice.archives)
+        <li>$archive.uri</li>
+    #end
+    </ul>
+#end
+</body>
+</html>

@@ -16,8 +16,10 @@
  */
 package org.apache.openejb.tools.legal;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -26,11 +28,19 @@ import org.apache.log4j.PatternLayout;
 import org.codehaus.swizzle.stream.StreamLexer;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -52,19 +62,31 @@ public class Main {
 
     private final DefaultHttpClient client;
     private final File local;
-    private final URI repo;
-    private final File localRepo;
+    private final URI staging;
+    private final File repository;
+    private final File content;
+    private String asl;
 
     public Main(String... args) throws Exception {
         client = new DefaultHttpClient();
-        local = File.createTempFile("repository-check", "local");
-        assert local.delete();
-        assert local.mkdirs();
+//        local = File.createTempFile("repository-check", "local");
+//        assert local.delete();
+//        assert local.mkdirs();
+        local = new File("/var/folders/Kp/KpmOujsB2RWdqE+BYnAOX++++TI/-Tmp-/repository-check7644335928314455238local");
 
-        localRepo = new File(local, "repo");
-        assert localRepo.mkdirs();
+        repository = new File(local, "repo");
+        content = new File(local, "content");
 
-        repo = new URI(args[0]);
+        mkdirs(repository);
+        mkdirs(content);
+
+        staging = new URI(args[0]);
+
+        log.info("Repo: " + staging);
+        log.info("Local: " + local);
+
+//        URL resource = this.getClass().getResource("licenses/asl.txt");
+//        asl = IOUtil.readString(resource).trim();
     }
 
     public static void main(String[] args) throws Exception {
@@ -74,9 +96,90 @@ public class Main {
     private void main() throws Exception {
         // https://repository.apache.org/content/repositories/orgapacheopenejb-094
 
-        final URI index = new URI("https://repository.apache.org/content/repositories/orgapacheopenejb-094");
+//        prepare();
 
-        final Set<URI> resources = crawl(index);
+        final List<File> jars = collect(repository, new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isFile();
+            }
+        });
+
+        final List<Archive> archives = new ArrayList<Archive>();
+        for (File file : jars) {
+            final Archive archive = new Archive(file);
+            archives.add(archive);
+        }
+
+        Templates.template("archives.vm").add("archives", archives).write(new File(local, "report.html"));
+
+        reportLicenses(archives);
+        reportNotices(archives);
+    }
+
+    private void reportLicenses(List<Archive> archives) throws IOException {
+        Map<License, License> licenses = new HashMap<License, License>();
+
+        for (Archive archive : archives) {
+            List<File> files = collect(contents(archive.getFile()), new LicenseFilter());
+            for (File file : files) {
+                final License license = new License(IOUtil.slurp(file));
+
+                License existing = licenses.get(license);
+                if (existing == null) {
+                    licenses.put(license, license);
+                    existing = license;
+                }
+
+                existing.getArchives().add(archive);
+                archive.getLicenses().add(existing);
+            }
+        }
+
+        Templates.template("licenses.vm").add("licenses", licenses.values()).write(new File(local, "licenses.html"));
+    }
+
+    private void reportNotices(List<Archive> archives) throws IOException {
+        Map<Notice, Notice> notices = new HashMap<Notice, Notice>();
+
+        for (Archive archive : archives) {
+            List<File> files = collect(contents(archive.getFile()), new NoticeFilter());
+            for (File file : files) {
+                final Notice notice = new Notice(IOUtil.slurp(file));
+
+                Notice existing = notices.get(notice);
+                if (existing == null) {
+                    notices.put(notice, notice);
+                    existing = notice;
+                }
+
+                existing.getArchives().add(archive);
+                archive.getNotices().add(existing);
+            }
+        }
+
+        Templates.template("notices.vm").add("notices", notices.values()).write(new File(local, "notices.html"));
+    }
+
+    private List<URI> allNoticeFiles() {
+        List<File> legal = collect(content, new LegalFilter());
+        for (File file : legal) {
+            log.info("Legal " + file);
+        }
+
+        URI uri = local.toURI();
+        List<URI> uris = new ArrayList<URI>();
+        for (File file : legal) {
+            URI full = file.toURI();
+            URI relativize = uri.relativize(full);
+            uris.add(relativize);
+        }
+        return uris;
+    }
+
+    private void prepare() throws URISyntaxException, IOException {
+
+        final Set<URI> resources = crawl(staging);
 
         final Set<File> files = new HashSet<File>();
 
@@ -95,18 +198,20 @@ public class Main {
         try {
             final ZipInputStream zip = IOUtil.unzip(archive);
 
-            final File contents = new File(archive.getAbsolutePath() + ".contents");
-            assert contents.mkdir();
+            final File contents = contents(archive);
 
             try {
                 ZipEntry entry = null;
 
                 while ((entry = zip.getNextEntry()) != null) {
+
+                    if (entry.isDirectory()) continue;
+
                     final String path = entry.getName();
 
                     final File fileEntry = new File(contents, path);
 
-                    mkdirs(fileEntry);
+                    mkparent(fileEntry);
 
                     // Open the output file
 
@@ -124,37 +229,274 @@ public class Main {
         }
     }
 
+    public class License {
+        private final String text;
+        private String key;
+        private Set<Archive> archives = new HashSet<Archive>();
+
+        public License(String text) {
+            this.text = text.trim().intern();
+            key = text.replaceAll("[ \\n\\t\\r]+", "").intern();
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Set<Archive> getArchives() {
+            return archives;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            License license = (License) o;
+
+            if (!key.equals(license.key)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return key.hashCode();
+        }
+    }
+
+    public class Notice {
+        private final String text;
+        private String key;
+        private Set<Archive> archives = new HashSet<Archive>();
+
+        public Notice(String text) {
+            this.text = text.trim().intern();
+            key = text.replaceAll("[ \\n\\t\\r]+", "").intern();
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Set<Archive> getArchives() {
+            return archives;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Notice notice = (Notice) o;
+
+            if (!key.equals(notice.key)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return key.hashCode();
+        }
+    }
+
+    public List<File> collect(File dir, FileFilter filter) {
+        final List<File> accepted = new ArrayList<File>();
+        if (filter.accept(dir)) accepted.add(dir);
+
+        final File[] files = dir.listFiles();
+        if (files != null) for (File file : files) {
+            accepted.addAll(collect(file, filter));
+        }
+
+        return accepted;
+    }
+
+    private File contents(File archive) {
+        String path = archive.getAbsolutePath().substring(local.getAbsolutePath().length() + 1);
+
+        if (path.startsWith("repo/")) path = path.substring("repo/".length());
+        if (path.startsWith("content/")) path = path.substring("content/".length());
+
+        final File contents = new File(content, path + ".contents");
+        mkdirs(contents);
+        return contents;
+    }
+
     private File download(URI uri) throws IOException {
+
+        final File file = getFile(uri);
+
+        if (file.exists()) {
+
+            long length = getConentLength(uri);
+
+            if (file.length() == length) {
+                log.info("Exists " + uri);
+                return file;
+            } else {
+                log.info("Incomplete " + uri);
+            }
+        }
+
         log.info("Download " + uri);
 
         final HttpResponse response = get(uri);
 
         final InputStream content = response.getEntity().getContent();
-        final String name = uri.toString().replace(repo.toString(), "").replaceFirst("^/", "");
 
-        final File file = new File(localRepo, name);
-
-        mkdirs(file);
+        mkparent(file);
 
         IOUtil.copy(content, file);
 
         return file;
     }
 
+    private static class LegalFilter implements FileFilter {
+
+        private static final NoticeFilter notice = new NoticeFilter();
+        private static final LicenseFilter license = new LicenseFilter();
+
+        @Override
+        public boolean accept(File pathname) {
+            return notice.accept(pathname) || license.accept(pathname);
+        }
+    }
+
+    private static class NoticeFilter implements FileFilter {
+        @Override
+        public boolean accept(File pathname) {
+            final String name = pathname.getName().toLowerCase();
+
+            if (name.equals("notice")) return true;
+            if (name.equals("notice.txt")) return true;
+
+            return false;
+        }
+    }
+
+    private static class LicenseFilter implements FileFilter {
+        @Override
+        public boolean accept(File pathname) {
+            final String name = pathname.getName().toLowerCase();
+
+            if (name.equals("license")) return true;
+            if (name.equals("license.txt")) return true;
+
+            return false;
+        }
+    }
+
+    public class Archive {
+
+        private final URI uri;
+        private final File file;
+        private final Map<URI, URI> map;
+
+        private final Set<License> licenses = new HashSet<License>();
+        private final Set<Notice> notices = new HashSet<Notice>();
+
+        private final Set<License> declaredLicenses = new HashSet<License>();
+        private final Set<Notice> declaredNotices = new HashSet<Notice>();
+
+        public Archive(File file) {
+            this.uri = repository.toURI().relativize(file.toURI());
+            this.file = file;
+            this.map = map();
+        }
+
+        public Set<License> getDeclaredLicenses() {
+            return declaredLicenses;
+        }
+
+        public Set<Notice> getDeclaredNotices() {
+            return declaredNotices;
+        }
+
+        public Set<License> getLicenses() {
+            return licenses;
+        }
+
+        public Set<Notice> getNotices() {
+            return notices;
+        }
+
+        public URI getUri() {
+            return uri;
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        public Map<URI, URI> getLegal() {
+            return map;
+        }
+
+        private Map<URI, URI> map() {
+            final File jarContents = contents(file);
+            final List<File> legal = collect(jarContents, new LegalFilter());
+
+            Map<URI, URI> map = new LinkedHashMap<URI, URI>();
+            for (File file : legal) {
+                URI name = jarContents.toURI().relativize(file.toURI());
+                URI link = local.toURI().relativize(file.toURI());
+
+                map.put(name, link);
+            }
+            return map;
+        }
+    }
+
+    private long getConentLength(URI uri) throws IOException {
+        HttpResponse head = head(uri);
+        Header[] headers = head.getHeaders("Content-Length");
+
+        for (Header header : headers) {
+            return new Long(header.getValue());
+        }
+
+        return -1;
+    }
+
+    private File getFile(URI uri) {
+        final String name = uri.toString().replace(staging.toString(), "").replaceFirst("^/", "");
+        return new File(repository, name);
+    }
+
+    private void mkparent(File file) {
+        mkdirs(file.getParentFile());
+    }
+
     private void mkdirs(File file) {
 
-        final File parent = file.getParentFile();
+        if (!file.exists()) {
 
-        if (!parent.exists()) {
-            assert parent.mkdirs() : "mkdirs " + parent;
+            assert file.mkdirs() : "mkdirs " + file;
+
             return;
         }
 
-        assert parent.isDirectory() : "not a directory" + parent;
+        assert file.isDirectory() : "not a directory" + file;
     }
 
     private HttpResponse get(URI uri) throws IOException {
         final HttpGet request = new HttpGet(uri);
+        request.setHeader("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13");
+        return client.execute(request);
+    }
+
+    private HttpResponse head(URI uri) throws IOException {
+        final HttpHead request = new HttpHead(uri);
         request.setHeader("User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13");
         return client.execute(request);
     }
@@ -187,7 +529,7 @@ public class Main {
                     continue;
                 }
 
-                if (!uri.getPath().matches(".*(jar|zip|war|tar.gz)")) continue;
+                if (!uri.getPath().matches(".*(jar|zip|war|ear|tar.gz)")) continue;
 
                 resources.add(uri);
 
@@ -203,6 +545,4 @@ public class Main {
         }
         return resources;
     }
-
-
 }

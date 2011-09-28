@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,6 +62,12 @@ public class IOUtil {
         } finally {
             close(in);
         }
+    }
+
+    public static String slurp(File file) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        copy(file, out);
+        return new String(out.toByteArray());
     }
 
     public static void writeString(File file, String string) throws IOException {

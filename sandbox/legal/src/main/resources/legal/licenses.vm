@@ -1,0 +1,17 @@
+<html>
+
+<body>
+
+#foreach($license in $licenses)
+    <h1>License</h1>
+<pre>
+$license.text
+</pre>
+    <ul>
+    #foreach($archive in $license.archives)
+        <li>$archive.uri</li>
+    #end
+    </ul>
+#end
+</body>
+</html>
