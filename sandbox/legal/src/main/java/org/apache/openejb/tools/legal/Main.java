@@ -82,10 +82,11 @@ public class Main {
             this.local = new File(name);
         }
 
+        mkdirs(local);
+
         this.repository = new File(local, "repo");
         this.content = new File(local, "content");
 
-        mkdirs(local);
         mkdirs(repository);
         mkdirs(content);
 
