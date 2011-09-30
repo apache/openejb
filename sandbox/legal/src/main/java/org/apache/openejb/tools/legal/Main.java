@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -153,6 +154,15 @@ public class Main {
     }
 
     private void reportLicenses(List<Archive> archives) throws IOException {
+        initLicenses(archives);
+
+        Templates.template("licenses.vm")
+                .add("licenses", getLicenses(archives))
+                .add("reports", reports)
+                .write(new File(local, "licenses.html"));
+    }
+
+    private void initLicenses(List<Archive> archives) throws IOException {
         Map<License, License> licenses = new HashMap<License, License>();
 
         for (Archive archive : archives) {
@@ -171,45 +181,23 @@ public class Main {
                 archive.getLicenses().add(existing);
             }
         }
+    }
 
-        Templates.template("licenses.vm")
-                .add("licenses", licenses.values())
-                .add("reports", reports)
-                .write(new File(local, "licenses.html"));
+    private Collection<License> getLicenses(List<Archive> archives) {
+        Set<License> licenses = new LinkedHashSet<License>();
+        for (Archive archive : archives) {
+            licenses.addAll(archive.getLicenses());
+        }
+        return licenses;
     }
 
     private void reportDeclaredLicenses(List<Archive> archives) throws IOException {
 
         for (Archive archive : archives) {
 
-            final Set<License> undeclared = new HashSet<License>(archive.getLicenses());
-
-            final File contents = contents(archive.getFile());
-            final List<File> files = collect(contents, new Filters(new DeclaredFilter(contents), new LicenseFilter()));
-
-            for (File file : files) {
-
-                final License license = new License(IOUtil.slurp(file));
-
-                undeclared.remove(license);
-
-            }
-
-            archive.getOtherLicenses().addAll(undeclared);
-
-            final Set<License> declared = new HashSet<License>(archive.getLicenses());
-            declared.removeAll(undeclared);
-            archive.getDeclaredLicenses().addAll(declared);
-
-
-            for (License license : undeclared) {
-
-                for (License declare : declared) {
-                    if (license.implies(declare)) {
-                        archive.getOtherLicenses().remove(license);
-                    }
-                }
-            }
+            classifyLicenses(archive);
+        }
+        for (Archive archive : archives) {
 
             Templates.template("archive-licenses.vm")
                     .add("archive", archive)
@@ -217,6 +205,37 @@ public class Main {
                     .write(new File(local, reports.licenses(archive)));
         }
 
+    }
+
+    private void classifyLicenses(Archive archive) throws IOException {
+        final Set<License> undeclared = new HashSet<License>(archive.getLicenses());
+
+        final File contents = contents(archive.getFile());
+        final List<File> files = collect(contents, new Filters(new DeclaredFilter(contents), new LicenseFilter()));
+
+        for (File file : files) {
+
+            final License license = new License(IOUtil.slurp(file));
+
+            undeclared.remove(license);
+
+        }
+
+        archive.getOtherLicenses().addAll(undeclared);
+
+        final Set<License> declared = new HashSet<License>(archive.getLicenses());
+        declared.removeAll(undeclared);
+        archive.getDeclaredLicenses().addAll(declared);
+
+
+        for (License license : undeclared) {
+
+            for (License declare : declared) {
+                if (license.implies(declare)) {
+                    archive.getOtherLicenses().remove(license);
+                }
+            }
+        }
     }
 
     private void reportDeclaredNotices(List<Archive> archives) throws IOException {
@@ -602,6 +621,19 @@ public class Main {
         }
     }
 
+    private static class N implements FileFilter {
+        private final FileFilter filter;
+
+        private N(FileFilter filter) {
+            this.filter = filter;
+        }
+
+        @Override
+        public boolean accept(File pathname) {
+            return !filter.accept(pathname);
+        }
+    }
+
     private static class DeclaredFilter implements FileFilter {
         private final File file;
 
@@ -656,6 +688,7 @@ public class Main {
 
         private final Set<License> otherLicenses = new HashSet<License>();
         private final Set<Notice> otherNotices = new HashSet<Notice>();
+        private Map<URI,URI> others;
 
         public Archive(File file) {
             this.uri = repository.toURI().relativize(file.toURI());
@@ -699,9 +732,30 @@ public class Main {
             return map;
         }
 
+        public Map<URI, URI> getOtherLegal() {
+            if (others == null) {
+                others = mapOther();
+            }
+            return others;
+        }
+
+        private Map<URI, URI> mapOther() {
+            final File jarContents = contents(file);
+            final List<File> legal = collect(jarContents, new Filters(new N(new DeclaredFilter(jarContents)), new LegalFilter()));
+
+            Map<URI, URI> map = new LinkedHashMap<URI, URI>();
+            for (File file : legal) {
+                URI name = jarContents.toURI().relativize(file.toURI());
+                URI link = local.toURI().relativize(file.toURI());
+
+                map.put(name, link);
+            }
+            return map;
+        }
+
         private Map<URI, URI> map() {
             final File jarContents = contents(file);
-            final List<File> legal = collect(jarContents, new LegalFilter());
+            final List<File> legal = collect(jarContents, new Filters(new DeclaredFilter(jarContents), new LegalFilter()));
 
             Map<URI, URI> map = new LinkedHashMap<URI, URI>();
             for (File file : legal) {

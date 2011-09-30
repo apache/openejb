@@ -1,22 +1,29 @@
 <html>
 <head>
-    <link href="style.css" type="text/css" rel="stylesheet" />
+    <link href="style.css" type="text/css" rel="stylesheet"/>
 </head>
 
 <body>
-<a href="archives.html">archives</a> -  <a href="licenses.html">licenses</a> - <a href="notices.html">notices</a> - <a href="content">contents</a><br/><br/>
+<a href="archives.html">archives</a> - <a href="licenses.html">licenses</a> - <a href="notices.html">notices</a> - <a href="content">contents</a><br/><br/>
+
 <h1>Archives</h1>
 <ul>
-#foreach($archive in $archives)
-
-    <li>$archive.uri  (<a href="${reports.licenses($archive)}">licenses</a>, <a href="$reports.notices($archive)">notices</a>, <a href="content/${archive.uri}.contents">contents</a>)
-        <ul>
-        #foreach($file in $archive.legal.entrySet())
-            <li><a href="$file.value">$file.key</a></li>
-        #end
-        </ul>
-    </li>
-#end
+    #foreach($archive in $archives)
+        <li>$archive.uri  (<a href="${reports.licenses($archive)}">licenses</a>, <a href="$reports.notices($archive)">notices</a>, <a href="content/${archive.uri}.contents">contents</a>)
+            <ul> Declared
+                #foreach($file in $archive.legal.entrySet())
+                    <li><a href="$file.value">$file.key</a></li>
+                #end
+            </ul>
+            #if ($archive.otherLegal.size() > 0 )
+                <ul> Jars
+                    #foreach($file in $archive.otherLegal.entrySet())
+                        <li><a href="$file.value">$file.key</a></li>
+                    #end
+                </ul>
+            #end
+        </li>
+    #end
 </ul>
 </body>
 </html>
