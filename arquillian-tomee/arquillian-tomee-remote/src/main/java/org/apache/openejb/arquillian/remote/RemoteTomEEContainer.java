@@ -77,8 +77,8 @@ public class RemoteTomEEContainer extends TomEEContainer {
 	            System.setProperty("catalina.home", openejbHome.getAbsolutePath());
 			    System.setProperty("catalina.base", openejbHome.getAbsolutePath());
 			    Paths paths = new Paths(new File(openejbHome.getAbsolutePath(), "/webapps/openejb"));
-//			    Installer installer = new Installer(paths, true);
-//			    installer.installAll();
+			    Installer installer = new Installer(paths, true);
+			    installer.installAll();
 			    
 			    Map<String, String> replacements = new HashMap<String, String>();
 			    replacements.put("8080", String.valueOf(configuration.getHttpPort()));

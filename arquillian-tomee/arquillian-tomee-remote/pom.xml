@@ -328,5 +328,10 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+    	<groupId>org.codehaus.swizzle</groupId>
+    	<artifactId>swizzle-stream</artifactId>
+    	<version>1.0.2</version>
+    </dependency>
   </dependencies>
 </project>
