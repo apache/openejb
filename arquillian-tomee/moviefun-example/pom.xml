@@ -84,7 +84,7 @@
     <dependency>
       <groupId>org.jboss.arquillian</groupId>
       <artifactId>arquillian-junit</artifactId>
-      <version>${arquillian.version}</version>
+      <version>${version.arquillian}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
