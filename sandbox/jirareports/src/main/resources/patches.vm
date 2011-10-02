@@ -1,0 +1,82 @@
+#set( $void = $params.required( "serverUrl" , "https?://.+", "the base URL where jira is available, no trailing slash" ) )
+#set( $void = $params.required( "projectId" , "[0-9]+", "the numeric id the project" ) )
+#set( $void = $params.required( "projectName" , ".+", "the display name the project" ) )
+#if ( $email == "true" )
+#set( $void = $params.required( "to" , ".+", "the email 'To' address" ) )
+#set( $void = $params.required( "from" , ".+", "the email 'From' address" ) )
+#end
+#set( $void = $params.validate() )
+##
+#set( $url = "${serverUrl}/secure/IssueNavigator.jspa?view=rss&&pid=${projectId}&status=1&tempMax=1000&reset=true&decorator=none" )
+#set( $jirarss = $rss.fetch( $url ) )
+#set( $issues = $jirarss.fillAttachments() )
+#set( $void = $date.format("yyyy-MM-dd") )
+##
+#foreach( $issue in $issues )
+#set( $issue.attributes.totalAttachments = $issue.attachments.size() )
+#end
+#set( $issues = $issues.greater("@totalAttachments", 0) )
+#foreach( $issue in $issues )
+#set( $issue.attributes.firstPatch = $issue.attachments.min("created").created )
+#end
+##  Patches in SVN
+#set( $u = $utils.load("org.apache.openejb.tools.patches.PatchReport") )
+#set( $patches = $u.patches("https://svn.apache.org/repos/asf/openejb") )
+#set( $list = $u.list )
+#set ( $year = 0 )
+#set ( $quarter = 0 )
+#foreach( $e in $patches.entrySet() )
+#set( $e.value.attributes.author = $e.key )
+#set( $e.value.attributes.patches = $e.value.entries.size() )
+#set( $e.value.attributes.quarter = $e.value.entries.greater("date", $u.ago(90)).size() )
+#set( $e.value.attributes.year = $e.value.entries.greater("date", $u.ago(365)).size() )
+#set ( $year = $year + $e.value.attributes.year )
+#set ( $quarter = $quarter + $e.value.attributes.quarter )
+#set( $z = $list.add( $e.value ) )
+#end
+##
+#if ( $email == "true" )
+TO: $to
+FROM: $from
+SUBJECT: $issues.size() patches in the queue ($date)
+
+#end
+
+$projectName - $date.as("EEEE, MMMM d, yyyy")
+
+# Committed to SVN
+
+  Patches Applied
+
+   - $quarter this quarter
+   - $year this year
+
+  Committers Applying Patches
+
+  - Recently (90 days)
+
+#foreach( $item in $list.greater("@quarter", 0).descending("@quarter") )
+      - $item.attributes.author  $item.attributes.quarter
+#end
+
+  - This year (12 months)
+
+#foreach( $item in $list.greater("@year", 0).descending("@year") )
+      - $item.attributes.author  $item.attributes.year
+#end
+
+# Submitted to JIRA (unapplied)
+
+  $issues.size() Open Issues with Attachments
+
+  (sorted oldest to newest)
+
+#foreach( $issue in $issues.sort("@firstPatch") )
+    [$issue.key] $issue.summary
+      $date.format($issue.created)  $issue.reporter   $issue.type
+#foreach ( $attachment in $issue.attachments.sort("created") )
+      $date.format($attachment.created)  $attachment.author   $attachment.url
+#end
+      $issue.link
+
+#end
