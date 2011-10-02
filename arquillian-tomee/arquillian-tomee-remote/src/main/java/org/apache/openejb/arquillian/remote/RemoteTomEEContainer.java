@@ -16,23 +16,32 @@
  */
 package org.apache.openejb.arquillian.remote;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.openejb.arquillian.common.MavenCache;
-import org.apache.openejb.arquillian.common.SimpleMavenBuilderImpl;
 import org.apache.openejb.arquillian.common.TomEEContainer;
 import org.apache.openejb.config.RemoteServer;
+import org.apache.openejb.tomcat.installer.Installer;
+import org.apache.openejb.tomcat.installer.Paths;
 import org.jboss.arquillian.spi.client.container.LifecycleException;
-import org.jboss.shrinkwrap.api.GenericArchive;
-import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
-import org.jboss.shrinkwrap.api.exporter.ZipExporter;
-import org.jboss.shrinkwrap.resolver.impl.maven.filter.StrictFilter;
 import org.sonatype.aether.artifact.Artifact;
 
+/*
+ * TODO: delete old embedded adapter, move the tests and set those up
+ */
 public class RemoteTomEEContainer extends TomEEContainer {
 	private RemoteServer container;
 	private boolean needsStart = false;
@@ -49,39 +58,52 @@ public class RemoteTomEEContainer extends TomEEContainer {
     		return;
     	}
     	
-    	File workingDirectory = new File(configuration.getDir());
-    	workingDirectory.mkdirs();
-
-    	File openejbHome = null;
-    	
-    	if (configuration.getTomcatVersion() == null || configuration.getTomcatVersion().length() == 0) {
-        	downloadTomEE(workingDirectory);
-        	openejbHome = findOpenEJBHome(workingDirectory);
-    	} else {
-    		downloadTomcat(workingDirectory, configuration.getTomcatVersion());
-    		openejbHome = findOpenEJBHome(workingDirectory);
-            File webappsOpenEJB = new File(openejbHome, "webapps/openejb");
-            webappsOpenEJB.mkdirs();
-            downloadOpenEJBWebapp(webappsOpenEJB);
+    	try {
+	    	File workingDirectory = new File(configuration.getDir());
+	    	workingDirectory.mkdirs();
+	
+	    	File openejbHome = null;
+	    	
+	    	if (configuration.getTomcatVersion() == null || configuration.getTomcatVersion().length() == 0) {
+	        	downloadTomEE(workingDirectory);
+	        	openejbHome = findOpenEJBHome(workingDirectory);
+	    	} else {
+	    		downloadTomcat(workingDirectory, configuration.getTomcatVersion());
+	    		openejbHome = findOpenEJBHome(workingDirectory);
+	            File webappsOpenEJB = new File(openejbHome, "webapps/openejb");
+	            webappsOpenEJB.mkdirs();
+	            downloadOpenEJBWebapp(webappsOpenEJB);
+	
+	            System.setProperty("catalina.home", openejbHome.getAbsolutePath());
+			    System.setProperty("catalina.base", openejbHome.getAbsolutePath());
+			    Paths paths = new Paths(new File(openejbHome.getAbsolutePath(), "/webapps/openejb"));
+//			    Installer installer = new Installer(paths, true);
+//			    installer.installAll();
+			    
+			    Map<String, String> replacements = new HashMap<String, String>();
+			    replacements.put("8080", String.valueOf(configuration.getHttpPort()));
+			    replacements.put("8005", String.valueOf(configuration.getStopPort()));
+			    replace(replacements, new File(openejbHome, "conf/server.xml"));
+	    	}
+	
+	    	if (openejbHome == null || (! openejbHome.exists())) {
+	    		throw new LifecycleException("Error finding OPENEJB_HOME");
+	    	}
+	    	
+	    	System.setProperty("tomee.http.port", String.valueOf(configuration.getHttpPort()));
+	    	System.setProperty("tomee.shutdown.port", String.valueOf(configuration.getStopPort()));
+	    	System.setProperty("java.naming.provider.url","http://localhost:" + configuration.getHttpPort() + "/openejb/ejb");
+	    	System.setProperty("connect.tries","90");
+	    	System.setProperty("server.http.port", String.valueOf(configuration.getHttpPort()));
+	    	System.setProperty("server.shutdown.port", String.valueOf(configuration.getStopPort()));
+	    	System.setProperty("java.opts", "-Xmx512m -Xms256m -XX:PermSize=64m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=64m");
+	    	System.setProperty("openejb.home", openejbHome.getAbsolutePath());
+	
+	    	container = new RemoteServer();
+			container.start();
+    	} catch (Exception e) {
+    		throw new LifecycleException("Unable to start remote container", e);
     	}
-
-    	// TODO: then we need to use the Installer to fix up the ports we want to use.
-    	
-    	if (openejbHome == null || (! openejbHome.exists())) {
-    		throw new LifecycleException("Error finding OPENEJB_HOME");
-    	}
-    	
-    	System.setProperty("tomee.http.port", String.valueOf(configuration.getHttpPort()));
-    	System.setProperty("tomee.shutdown.port", String.valueOf(configuration.getStopPort()));
-    	System.setProperty("java.naming.provider.url","http://localhost:" + configuration.getHttpPort() + "/openejb/ejb");
-    	System.setProperty("connect.tries","90");
-    	System.setProperty("server.http.port", String.valueOf(configuration.getHttpPort()));
-    	System.setProperty("server.shutdown.port", String.valueOf(configuration.getStopPort()));
-    	System.setProperty("java.opts", "-Xmx512m -Xms256m -XX:PermSize=64m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=64m");
-    	System.setProperty("openejb.home", openejbHome.getAbsolutePath());
-
-    	container = new RemoteServer();
-		container.start();
     }
 
 	private File findOpenEJBHome(File directory) {
@@ -169,6 +191,65 @@ public class RemoteTomEEContainer extends TomEEContainer {
         out.close();
     }
 
+	private void replace(Map<String, String> replacements, File file) throws IOException {
+		BufferedReader reader = null;
+		PrintWriter writer = null;
+		
+		try {
+			File tmpFile = copyToTempFile(file);
+			reader = new BufferedReader(new FileReader(tmpFile));
+			writer = new PrintWriter(new FileWriter(file));
+			String line = null;
+			
+			while ((line = reader.readLine()) != null) {
+				Iterator<String> iterator = replacements.keySet().iterator();
+				while (iterator.hasNext()) {
+					String pattern = iterator.next();
+					String replacement = replacements.get(pattern);
+					
+					line = line.replaceAll(pattern, replacement);
+				}
+				
+				writer.println(line);
+			}
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (reader != null) {
+				reader.close();
+			}
+			
+			if (writer != null) {
+				writer.close();
+			}
+		}
+	}
 
-
+	private File copyToTempFile(File file) throws IOException {
+		InputStream is = null;
+		OutputStream os = null;
+		
+		File tmpFile;
+		try {
+			tmpFile = File.createTempFile("oejb", ".fil");
+			tmpFile.deleteOnExit();
+			
+			is = new FileInputStream(file);
+			os = new FileOutputStream(tmpFile);
+			
+			Installer.copy(is, os);
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (is != null) {
+				is.close();
+			}
+			
+			if (os != null) {
+				os.close();
+			}
+		}
+		
+		return tmpFile;
+	}
 }
