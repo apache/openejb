@@ -25,6 +25,8 @@ public class TomEEConfiguration implements ContainerConfiguration {
     private int stopPort = 8005;
     private String dir = System.getProperty("java.io.tmpdir") + "/arquillian-apache-tomee";
     private boolean plusContainer = true;
+    private String tomcatVersion = null;
+    private String openejbVersion = "1.0.0-beta-1";
 
     public int getHttpPort() {
         return httpPort;
@@ -57,7 +59,23 @@ public class TomEEConfiguration implements ContainerConfiguration {
     public void setPlusContainer(boolean plusContainer) {
         this.plusContainer = plusContainer;
     }
+    
+    public String getTomcatVersion() {
+		return tomcatVersion;
+	}
 
-    public void validate() throws ConfigurationException {
+	public void setTomcatVersion(String tomcatVersion) {
+		this.tomcatVersion = tomcatVersion;
+	}
+
+	public String getOpenejbVersion() {
+		return openejbVersion;
+	}
+
+	public void setOpenejbVersion(String openejbVersion) {
+		this.openejbVersion = openejbVersion;
+	}
+
+	public void validate() throws ConfigurationException {
     }
 }

@@ -17,21 +17,23 @@
 package org.apache.openejb.arquillian.remote;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Collection;
 
+import org.apache.openejb.arquillian.common.MavenCache;
 import org.apache.openejb.arquillian.common.SimpleMavenBuilderImpl;
 import org.apache.openejb.arquillian.common.TomEEContainer;
 import org.apache.openejb.config.RemoteServer;
 import org.jboss.arquillian.spi.client.container.LifecycleException;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
+import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.resolver.impl.maven.filter.StrictFilter;
+import org.sonatype.aether.artifact.Artifact;
 
 public class RemoteTomEEContainer extends TomEEContainer {
-	private static final String OPENEJB_VERSION = "4.0.0-beta-1-SNAPSHOT";
-
 	private RemoteServer container;
 	private boolean needsStart = false;
 
@@ -47,38 +49,23 @@ public class RemoteTomEEContainer extends TomEEContainer {
     		return;
     	}
     	
-    	File catalinaDirectory = new File(configuration.getDir());
-    	catalinaDirectory.mkdirs();
+    	File workingDirectory = new File(configuration.getDir());
+    	workingDirectory.mkdirs();
 
-    	String artifactName;
-		if (configuration.isPlusContainer()) {
-			artifactName = "org.apache.openejb:apache-tomee:zip:plus:" + OPENEJB_VERSION;
-		} else {
-			artifactName = "org.apache.openejb:apache-tomee:zip:webprofile:" + OPENEJB_VERSION;
-		}
-            
-    	Collection<GenericArchive> archives = new SimpleMavenBuilderImpl()
-            .artifact(artifactName)
-            .resolveAs(GenericArchive.class, new StrictFilter());
-
-    	GenericArchive archive = archives.iterator().next();
-    	archive.as(ExplodedExporter.class).exportExploded(catalinaDirectory);
-    	
-    	File parent = new File(catalinaDirectory, archive.getName());
-    	if ((!parent.exists()) || (!parent.isDirectory())) {
-    		throw new LifecycleException("Unable to unpack TomEE zip file");
-    	}
-    	
     	File openejbHome = null;
     	
-    	for (File directory : parent.listFiles()) {
-    		if (".".equals(directory.getName()) || "..".equals(directory.getName())) continue;
-    		
-    		if (directory.isDirectory()) {
-    			openejbHome = directory;
-    			break;
-    		}
+    	if (configuration.getTomcatVersion() == null || configuration.getTomcatVersion().length() == 0) {
+        	downloadTomEE(workingDirectory);
+        	openejbHome = findOpenEJBHome(workingDirectory);
+    	} else {
+    		downloadTomcat(workingDirectory, configuration.getTomcatVersion());
+    		openejbHome = findOpenEJBHome(workingDirectory);
+            File webappsOpenEJB = new File(openejbHome, "webapps/openejb");
+            webappsOpenEJB.mkdirs();
+            downloadOpenEJBWebapp(webappsOpenEJB);
     	}
+
+    	// TODO: then we need to use the Installer to fix up the ports we want to use.
     	
     	if (openejbHome == null || (! openejbHome.exists())) {
     		throw new LifecycleException("Error finding OPENEJB_HOME");
@@ -97,6 +84,78 @@ public class RemoteTomEEContainer extends TomEEContainer {
 		container.start();
     }
 
+	private File findOpenEJBHome(File directory) {
+		File conf = new File(directory, "conf");
+		File webapps = new File(directory, "webapps");
+		
+		if (conf.exists() && conf.isDirectory() && webapps.exists() && webapps.isDirectory()) {
+			return directory;
+		}
+		
+		for (File file : directory.listFiles()) {
+			if (".".equals(file.getName()) || "..".equals(file.getName())) continue;
+			
+			File found = findOpenEJBHome(file);
+			if (found != null) {
+				return found;
+			}
+		}
+		
+		return null;
+	}
+
+	protected void downloadTomEE(File catalinaDirectory) throws LifecycleException {
+		String artifactName;
+		if (configuration.isPlusContainer()) {
+			artifactName = "org.apache.openejb:apache-tomee:zip:plus:" + configuration.getOpenejbVersion();
+		} else {
+			artifactName = "org.apache.openejb:apache-tomee:zip:webprofile:" + configuration.getOpenejbVersion();
+		}
+            
+        File zipFile = downloadFile(artifactName, null);
+        ZipExtractor.unzip(zipFile, catalinaDirectory);
+	}
+
+    protected File downloadFile(String artifactName, String altUrl) {
+        Artifact artifact = new MavenCache().getArtifact(artifactName, altUrl);
+        return artifact.getFile();
+    }
+
+	protected void downloadOpenEJBWebapp(File targetDirectory) throws LifecycleException {
+		String artifactName;
+		if (configuration.isPlusContainer()) {
+			artifactName = "org.apache.openejb:openejb-tomcat-plus-webapp:war:" + configuration.getOpenejbVersion();
+		} else {
+			artifactName = "org.apache.openejb:openejb-tomcat-webapp:war:" + configuration.getOpenejbVersion();
+		}
+
+        File zipFile = downloadFile(artifactName, null);
+        ZipExtractor.unzip(zipFile, targetDirectory);
+    }
+	
+	protected void downloadTomcat(File catalinaDirectory, String tomcatVersion) throws LifecycleException {
+		String source = null;
+
+		if (tomcatVersion.startsWith("7.")) {
+			source = "http://archive.apache.org/dist/tomcat/tomcat-7/v"	+ tomcatVersion + "/bin/apache-tomcat-" + tomcatVersion	+ ".zip";
+		}
+
+		if (tomcatVersion.startsWith("6.")) {
+			source = "http://archive.apache.org/dist/tomcat/tomcat-6/v"	+ tomcatVersion + "/bin/apache-tomcat-" + tomcatVersion	+ ".zip";
+		}
+
+		if (tomcatVersion.startsWith("5.5")) {
+			source = "http://archive.apache.org/dist/tomcat/tomcat-5/v"	+ tomcatVersion + "/bin/apache-tomcat-" + tomcatVersion	+ ".zip";
+		}
+
+		if (source == null) {
+			throw new LifecycleException("Unable to find URL for Tomcat " + tomcatVersion);
+		}
+
+        File zipFile = downloadFile("org.apache.openejb:tomcat:zip:" + tomcatVersion, source);
+        ZipExtractor.unzip(zipFile, catalinaDirectory);
+	}
+
     public void stop() throws LifecycleException {
     	// only stop the container if we started it
     	if (needsStart) {
@@ -109,4 +168,7 @@ public class RemoteTomEEContainer extends TomEEContainer {
         OutputStream out = socket.getOutputStream();
         out.close();
     }
+
+
+
 }
