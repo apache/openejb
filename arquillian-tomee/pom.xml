@@ -63,6 +63,7 @@
     <module>arquillian-tomee-remote</module>
     <module>arquillian-tomee-moviefun-example</module>
     <module>arquillian-tomee-tests</module>
+    <module>ziplock</module>
   </modules>
 
   <build>
