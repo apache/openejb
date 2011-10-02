@@ -48,10 +48,16 @@
   </repositories>
 
   <properties>
-    <version.openejb>4.0.0-beta-2-SNAPSHOT</version.openejb>
-    <version.tomee>1.0.0-beta-2-SNAPSHOT</version.tomee>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <arquillian.version>1.0.0.Alpha5</arquillian.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.arquillian>1.0.0.Alpha5</version.arquillian>
+    <version.cdi-api>1.0</version.cdi-api>
+    <version.openejb>4.0.0-beta-2-SNAPSHOT</version.openejb>
+    <version.org.apache.tomcat>7.0.21</version.org.apache.tomcat>
+    <version.tomee>1.0.0-beta-2-SNAPSHOT</version.tomee>
   </properties>
+
   <modules>
     <module>common</module>
     <module>arquillian-tomee-embedded</module>
