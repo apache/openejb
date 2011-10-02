@@ -21,7 +21,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.openejb</groupId>
-  <artifactId>arquillian-tomee-moviefun-sample</artifactId>
+  <artifactId>arquillian-tomee-moviefun-example</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>TomEE Arquillian Adaptor :: Sample :: Moviefun</name>
