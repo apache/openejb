@@ -75,12 +75,12 @@
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
     </dependency>
-    <dependency> 
-      <groupId>junit</groupId> 
-      <artifactId>junit</artifactId> 
-      <version>4.8.1</version> 
-      <scope>test</scope> 
-    </dependency> 
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.jboss.arquillian</groupId>
       <artifactId>arquillian-junit</artifactId>
@@ -102,16 +102,16 @@
     </snapshotRepository>
   </distributionManagement>
   <profiles>
-   <profile>
+    <profile>
       <id>tomee</id>
       <dependencies>
-         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>arquillian-tomee-container</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-         </dependency>
+        <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>arquillian-tomee-container</artifactId>
+          <version>1.0-SNAPSHOT</version>
+          <scope>test</scope>
+        </dependency>
       </dependencies>
-   </profile>
+    </profile>
   </profiles>
 </project>

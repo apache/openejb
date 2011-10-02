@@ -17,7 +17,7 @@
     limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>arquillian-tomee</artifactId>
@@ -31,136 +31,136 @@
 
   <name>TomEE Arquillian Adaptor :: Embedded Adaptor</name>
 
-   <dependencies>
+  <dependencies>
 
-      <dependency>
-         <groupId>org.apache.openejb</groupId>
-         <artifactId>tomee-embedded</artifactId>
-         <version>${version.tomee}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>tomee-embedded</artifactId>
+      <version>${version.tomee}</version>
+    </dependency>
 
-      <dependency>
-         <groupId>org.jboss.arquillian</groupId>
-         <artifactId>arquillian-spi</artifactId>
-         <version>${version.arquillian}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian</groupId>
+      <artifactId>arquillian-spi</artifactId>
+      <version>${version.arquillian}</version>
+    </dependency>
 
-      <dependency>
-        <groupId>org.jboss.arquillian.protocol</groupId>
-        <artifactId>arquillian-protocol-servlet</artifactId>
-        <version>${version.arquillian}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.protocol</groupId>
+      <artifactId>arquillian-protocol-servlet</artifactId>
+      <version>${version.arquillian}</version>
+    </dependency>
 
-      <dependency>
-         <groupId>org.jboss.arquillian.testenricher</groupId>
-         <artifactId>arquillian-testenricher-cdi</artifactId>
-         <version>${version.arquillian}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-cdi</artifactId>
+      <version>${version.arquillian}</version>
+    </dependency>
 
-      <dependency>
-         <groupId>org.jboss.arquillian.testenricher</groupId>
-         <artifactId>arquillian-testenricher-resource</artifactId>
-         <version>${version.arquillian}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-resource</artifactId>
+      <version>${version.arquillian}</version>
+    </dependency>
 
-      <dependency>
-         <groupId>org.jboss.arquillian.testenricher</groupId>
-         <artifactId>arquillian-testenricher-ejb</artifactId>
-         <version>${version.arquillian}</version>
-      </dependency>
-    
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>tomcat-catalina</artifactId>
-         <version>${version.org.apache.tomcat}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-ejb</artifactId>
+      <version>${version.arquillian}</version>
+    </dependency>
 
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>tomcat-coyote</artifactId>
-         <version>${version.org.apache.tomcat}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>${version.org.apache.tomcat}</version>
+    </dependency>
 
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>tomcat-jasper</artifactId>
-         <version>${version.org.apache.tomcat}</version>
-         <exclusions>
-         	<exclusion>
-         		<groupId>org.eclipse.jdt.core.compiler</groupId>
-         		<artifactId>ecj</artifactId>
-         	</exclusion>
-         </exclusions>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-coyote</artifactId>
+      <version>${version.org.apache.tomcat}</version>
+    </dependency>
 
-      <dependency>
-        <groupId>org.jboss.arquillian</groupId>
-        <artifactId>arquillian-junit</artifactId>
-        <version>${version.arquillian}</version>
-        <scope>test</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jasper</artifactId>
+      <version>${version.org.apache.tomcat}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jdt.core.compiler</groupId>
+          <artifactId>ecj</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <version>4.8.1</version>
-         <scope>test</scope>
-      </dependency>
-      
-      <dependency>
-      	<groupId>org.eclipse.jdt.core.compiler</groupId>
-      	<artifactId>ecj</artifactId>
-      	<version>3.5.1</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.openejb</groupId>
-      	<artifactId>javaee-api</artifactId>
-      	<version>6.0-1</version>
-      	<type>jar</type>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.velocity</groupId>
-      	<artifactId>velocity</artifactId>
-      	<version>1.6.4</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.geronimo.specs</groupId>
-      	<artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-      	<version>1.1</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.openejb</groupId>
-      	<artifactId>openejb-client</artifactId>
-      	<version>${version.openejb}</version>
-      	<type>jar</type>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.openejb</groupId>
-      	<artifactId>openejb-tomcat-catalina</artifactId>
-      	<version>${version.openejb}</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.openejb</groupId>
-      	<artifactId>openejb-core</artifactId>
-      	<version>${version.openejb}</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-      <dependency>
-      	<groupId>org.apache.openejb</groupId>
-      	<artifactId>arquillian-tomee-common</artifactId>
-      	<version>1.0-SNAPSHOT</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-   </dependencies>
-   
+    <dependency>
+      <groupId>org.jboss.arquillian</groupId>
+      <artifactId>arquillian-junit</artifactId>
+      <version>${version.arquillian}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jdt.core.compiler</groupId>
+      <artifactId>ecj</artifactId>
+      <version>3.5.1</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>6.0-1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.6.4</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+      <version>1.1</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-client</artifactId>
+      <version>${version.openejb}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-tomcat-catalina</artifactId>
+      <version>${version.openejb}</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-core</artifactId>
+      <version>${version.openejb}</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>arquillian-tomee-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
 </project>

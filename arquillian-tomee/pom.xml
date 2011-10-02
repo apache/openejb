@@ -48,7 +48,6 @@
   </repositories>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <arquillian.version>1.0.0.Alpha5</arquillian.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.arquillian>1.0.0.Alpha5</version.arquillian>

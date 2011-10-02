@@ -17,7 +17,7 @@
     limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>arquillian-tomee</artifactId>
@@ -31,7 +31,7 @@
 
   <name>TomEE Arquillian Adaptor :: Common</name>
 
-   <dependencies>
+  <dependencies>
 
     <dependency>
       <groupId>org.jboss.arquillian</groupId>
@@ -105,7 +105,7 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-client</artifactId>
@@ -119,7 +119,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
@@ -277,7 +277,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.sonatype.aether</groupId>
       <artifactId>aether-api</artifactId>
@@ -285,22 +285,22 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
-       <groupId>org.jboss.shrinkwrap.resolver</groupId>
-       <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-       <version>1.0.0-alpha-12</version>
-       <type>jar</type>
-       <scope>compile</scope>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+      <version>1.0.0-alpha-12</version>
+      <type>jar</type>
+      <scope>compile</scope>
     </dependency>
-      
+
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
       <version>1.0.0-alpha-12</version>
       <type>jar</type>
       <scope>compile</scope>
-     </dependency>
-   </dependencies>
-   
+    </dependency>
+  </dependencies>
+
 </project>
