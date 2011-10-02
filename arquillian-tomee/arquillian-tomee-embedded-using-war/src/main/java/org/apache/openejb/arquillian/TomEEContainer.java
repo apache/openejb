@@ -50,7 +50,7 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 import org.jboss.shrinkwrap.resolver.impl.maven.filter.StrictFilter;
 
 public class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
-    private static final String OPENEJB_VERSION = "4.0.0-SNAPSHOT";
+    private static final String OPENEJB_VERSION = "4.0.0-beta-2-SNAPSHOT";
 
     private Bootstrap bootstrap;
     private TomEEConfiguration configuration;
