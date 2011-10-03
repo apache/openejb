@@ -80,18 +80,17 @@ public class RemoteTomEEContainer extends TomEEContainer {
 			    Paths paths = new Paths(new File(openejbHome.getAbsolutePath(), "/webapps/openejb"));
 			    Installer installer = new Installer(paths, true);
 			    installer.installAll();
-			    
-			    Map<String, String> replacements = new HashMap<String, String>();
-			    replacements.put("8080", String.valueOf(configuration.getHttpPort()));
-			    replacements.put("8005", String.valueOf(configuration.getStopPort()));
-			    replace(replacements, new File(openejbHome, "conf/server.xml"));
 	    	}
 	
 	    	if (openejbHome == null || (! openejbHome.exists())) {
 	    		throw new LifecycleException("Error finding OPENEJB_HOME");
 	    	}
 	    	
-	    	//FileUtils.deleteOnExit(openejbHome);
+	    	FileUtils.deleteOnExit(openejbHome);
+	    	Map<String, String> replacements = new HashMap<String, String>();
+		    replacements.put("8080", String.valueOf(configuration.getHttpPort()));
+		    replacements.put("8005", String.valueOf(configuration.getStopPort()));
+		    replace(replacements, new File(openejbHome, "conf/server.xml"));
 	    	
 	    	System.setProperty("tomee.http.port", String.valueOf(configuration.getHttpPort()));
 	    	System.setProperty("tomee.shutdown.port", String.valueOf(configuration.getStopPort()));

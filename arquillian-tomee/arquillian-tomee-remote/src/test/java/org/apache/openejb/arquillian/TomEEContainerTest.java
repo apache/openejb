@@ -43,7 +43,7 @@ public class TomEEContainerTest {
 
     @Test
     public void testShouldBeAbleToAccessServletAndEjb() throws Exception {
-        InputStream is = new URL("http://localhost:8080/test/Test").openStream();
+        InputStream is = new URL("http://localhost:9080/test/Test").openStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         int bytesRead = -1;
