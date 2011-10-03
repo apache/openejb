@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.openejb.arquillian.common.FileUtils;
 import org.apache.openejb.arquillian.common.MavenCache;
 import org.apache.openejb.arquillian.common.TomEEContainer;
 import org.apache.openejb.config.RemoteServer;
@@ -89,6 +90,8 @@ public class RemoteTomEEContainer extends TomEEContainer {
 	    	if (openejbHome == null || (! openejbHome.exists())) {
 	    		throw new LifecycleException("Error finding OPENEJB_HOME");
 	    	}
+	    	
+	    	//FileUtils.deleteOnExit(openejbHome);
 	    	
 	    	System.setProperty("tomee.http.port", String.valueOf(configuration.getHttpPort()));
 	    	System.setProperty("tomee.shutdown.port", String.valueOf(configuration.getStopPort()));

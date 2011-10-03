@@ -33,7 +33,7 @@ public class FileUtils {
         deleteOnExit(tempDir);
         return tempDir;
     }
-
+    
     private FileUtils() {
     }
 
@@ -49,7 +49,7 @@ public class FileUtils {
         });
     }
 
-    private static void deleteOnExit(File file) {
+    public static void deleteOnExit(File file) {
         delete.add(file.getAbsolutePath());
     }
 
