@@ -3,13 +3,14 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
     <persistence-unit name="test">
-        <class>org.apache.openejb.arquillian.ServletPersistenceInjectionTest$Address</class>
-        <class>org.apache.openejb.arquillian.ServletFilterPersistenceInjectionTest$Address</class>
+        <class>org.apache.openejb.arquillian.tests.persistence.Address</class>
+        <class>org.apache.openejb.arquillian.tests.filterpersistence.Address</class>
+        <class>org.apache.openejb.arquillian.tests.listenerpersistence.Address</class>
 <!--
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
         </properties>
 -->
-        <class>org.apache.openejb.arquillian.ServletListenerPersistenceInjectionTest$Address</class>
+        
     </persistence-unit>
 </persistence>

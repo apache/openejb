@@ -28,6 +28,7 @@ import org.junit.Assert;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -56,7 +57,9 @@ public abstract class TestSetup {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, getTestContextName() + ".war")
                 .setWebXML(new StringAsset(descriptor.exportAsString()))
+                .addAsLibraries(new File("target/test-libs/junit.jar"))
                 .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+        
         if (archiveClasses != null) {
             for (Class c: archiveClasses) {
                 archive.addClass(c);
@@ -99,34 +102,6 @@ public abstract class TestSetup {
         String output = new String(os.toByteArray(), "UTF-8");
         assertNotNull("Response shouldn't be null", output);
         assertTrue("Output should contain: " + expectedOutput + "\n" + output, output.contains(expectedOutput));
-    }
-
-    public static void run(ServletRequest req, ServletResponse resp, Object obj) throws IOException {
-        final Class<?> clazz = obj.getClass();
-        final Method[] methods = clazz.getMethods();
-
-        resp.setContentType("text/plain");
-        final PrintWriter writer = resp.getWriter();
-
-        for (Method method : methods) {
-            if (method.getName().startsWith("test")) {
-
-                writer.print(method.getName());
-
-                writer.print("=");
-
-                try {
-                    method.invoke(obj);
-                    writer.println("true");
-                } catch (Throwable e) {
-                    writer.println("false");
-                    writer.println("");
-                    writer.println("STACKTRACE");
-                    writer.println("");
-                    e.printStackTrace(writer);
-                }
-            }
-        }
     }
 
 }
