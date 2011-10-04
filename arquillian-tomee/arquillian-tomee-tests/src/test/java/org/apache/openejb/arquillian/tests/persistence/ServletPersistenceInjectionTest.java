@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.arquillian.tests.persistence;
 
+import org.apache.openejb.arquillian.tests.Runner;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -67,6 +69,8 @@ public class ServletPersistenceInjectionTest {
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
                 .addClass(PersistenceServlet.class)
                 .addClass(Address.class)
+                .addClass(Runner.class)
+                .addAsLibraries(new File("target/test-libs/junit.jar"))
                 .addAsManifestResource("persistence.xml", ArchivePaths.create("persistence.xml"))
                 .setWebXML(new StringAsset(descriptor.exportAsString()));
 
