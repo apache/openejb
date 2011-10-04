@@ -60,9 +60,8 @@ public class Blue extends HttpServlet {
             Assert.assertNotNull(field.getName(), field.get(this));
         }
 
-        final String name = ServletResourceEnvEntryInjectionTest.class.getSimpleName();
-        Assert.assertEquals("app", name, app);
-        Assert.assertEquals("module", name, module);
+        Assert.assertEquals("app", "ServletResourceEnvEntryInjectionTest", app);
+        Assert.assertEquals("module", "ServletResourceEnvEntryInjectionTest", module);
     }
 
 }

@@ -1,6 +1,7 @@
 package org.apache.openejb.arquillian.tests.resenventry;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import javax.annotation.Resource;
 import javax.enterprise.inject.spi.BeanManager;
@@ -45,7 +46,12 @@ public class Orange extends HttpServlet {
 
     public void test() throws Exception {
 
-        ServletResourceEnvEntryInjectionTest.assertFields(this);
+        final Field[] fields = this.getClass().getDeclaredFields();
+		
+		for (Field field : fields) {
+		    field.setAccessible(true);
+		    Assert.assertNotNull(field.getName(), field.get(this));
+		}
 
         Assert.assertEquals("app", "BuiltInEnvironmentEntriesTest", app);
     }

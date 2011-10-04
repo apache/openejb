@@ -45,7 +45,7 @@ public class ServletResourceEnvEntryInjectionTest extends TestSetup  {
 
     @Deployment(testable = false)
     public static WebArchive getArchive() {
-        return new ServletResourceEnvEntryInjectionTest().createDeployment(TestRun.class, ServletResourceEnvEntryInjectionTest.class, Blue.class, Red.class, Green.class, Orange.class, Purple.class);
+        return new ServletResourceEnvEntryInjectionTest().createDeployment(TestRun.class, Blue.class, Red.class, Green.class, Orange.class, Purple.class);
     }
 }
 

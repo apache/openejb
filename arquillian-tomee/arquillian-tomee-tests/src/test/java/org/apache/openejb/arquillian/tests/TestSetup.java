@@ -41,15 +41,6 @@ import static junit.framework.Assert.assertTrue;
 
 public abstract class TestSetup {
 
-    public static void assertFields(Object obj) throws IllegalAccessException {
-        final Field[] fields = obj.getClass().getDeclaredFields();
-
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Assert.assertNotNull(field.getName(), field.get(obj));
-        }
-    }
-
     public WebArchive createDeployment(Class...archiveClasses) {
         WebAppDescriptor descriptor = Descriptors.create(WebAppDescriptor.class)
                 .version("3.0");
