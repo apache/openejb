@@ -1,4 +1,4 @@
-package org.apache.openejb.arquillian.tests.cdiinject;
+package org.apache.openejb.arquillian.tests.cdi.constructor;
 
 public class Car {
     private final String make = "Lexus", model = "IS 350";

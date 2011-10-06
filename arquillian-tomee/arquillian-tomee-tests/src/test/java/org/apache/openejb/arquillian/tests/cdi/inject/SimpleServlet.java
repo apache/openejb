@@ -1,4 +1,4 @@
-package org.apache.openejb.arquillian.tests.cdiinject;
+package org.apache.openejb.arquillian.tests.cdi.inject;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
-public class PojoServlet extends HttpServlet {
+public class SimpleServlet extends HttpServlet {
 
     @Resource
     private BeanManager beanManager;
