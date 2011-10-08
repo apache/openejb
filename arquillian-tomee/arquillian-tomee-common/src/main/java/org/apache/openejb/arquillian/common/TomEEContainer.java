@@ -92,6 +92,7 @@ public abstract class TomEEContainer implements DeployableContainer<TomEEConfigu
     	try {
     		String tmpDir = System.getProperty("java.io.tmpdir");
     		File file = new File(tmpDir + File.separator + archive.getName());
+    		file.deleteOnExit();
         	archive.as(ZipExporter.class).exportTo(file, true);
         	
         	Properties properties = new Properties();
