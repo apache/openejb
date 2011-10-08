@@ -16,9 +16,14 @@
  */
 package org.superbiz.moviefun;
 
+import java.io.File;
+import java.net.URL;
+
+import org.jboss.arquillian.api.ArquillianResource;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.impl.base.asset.ClassLoaderAsset;
 import org.junit.Test;
@@ -26,20 +31,42 @@ import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 public class MoviesIT {
+	
+	@ArquillianResource
+	private URL deploymentUrl;
+	
+	//@Drone
+	//private DefaultSelenium driver;
 
 	@Deployment(testable = false)
     public static WebArchive createDeployment() {
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
         		.addPackage("org.superbiz.moviefun")
-        		.addDirectory("src/main/webapp")
-        		.addAsManifestResource(new ClassLoaderAsset("META-INF/ejb-jar.xml") , "ejb-jar.xml")
-        		.addAsManifestResource(new ClassLoaderAsset("META-INF/persistence.xml") , "persistence.xml");
-        
-        
+        		.addPackage("org.superbiz.moviefun.util")
+        		.addAsResource(new ClassLoaderAsset("META-INF/ejb-jar.xml") , "META-INF/ejb-jar.xml")
+        		.addAsResource(new ClassLoaderAsset("META-INF/persistence.xml") , "META-INF/persistence.xml");
+        		
+        addResources("src/main/webapp", "", archive);
+        System.out.println(archive.toString(true));
 		return archive;
     }
 	
-    @Test
+    private static void addResources(String source, String target, WebArchive archive) {
+		File sourceFile = new File(source);
+		if (! sourceFile.exists()) return;
+		if (sourceFile.isFile()) {
+			archive.add(new FileAsset(sourceFile), target);
+		}
+		
+		if (sourceFile.isDirectory()) {
+			for (File file : sourceFile.listFiles()) {
+				if (file.getName().startsWith(".")) continue;
+				addResources(source + File.separator + file.getName(), target + File.separator + file.getName(), archive);
+			}
+		}
+	}
+
+	@Test
     public void testShouldMakeSureWebappIsWorking() throws Exception {
     	System.out.println("Hello");
     }
