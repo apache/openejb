@@ -52,6 +52,12 @@
       <outputFileNameMapping></outputFileNameMapping>
 
       <unpack>true</unpack>
+       <unpackOptions>
+            <excludes>
+                <exclude>META-INF/LICENSE.txt</exclude>
+                <exclude>META-INF/NOTICE.txt</exclude>
+            </excludes>
+       </unpackOptions>
       <includes>
           <include>org.apache.openejb:javaee-api</include>
           <include>org.apache.openejb:xbean-finder</include>
