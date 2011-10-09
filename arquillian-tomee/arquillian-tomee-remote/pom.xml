@@ -323,7 +323,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
-      <artifactId>openejb-tomcat-common</artifactId>
+      <artifactId>tomee-common</artifactId>
       <version>${version.openejb}</version>
       <type>jar</type>
       <scope>compile</scope>

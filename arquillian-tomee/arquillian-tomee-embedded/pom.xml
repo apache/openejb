@@ -142,7 +142,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
-      <artifactId>openejb-tomcat-catalina</artifactId>
+      <artifactId>tomee-catalina</artifactId>
       <version>${version.openejb}</version>
       <type>jar</type>
       <scope>compile</scope>
