@@ -27,4 +27,10 @@
                <property name="stopPort">9005</property>
            </configuration>
        </container>
+       
+       <extension qualifier="selenium-server">
+	       <configuration>
+	           <property name="enable">true</property>
+	       </configuration>
+       </extension>
 </arquillian>

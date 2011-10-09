@@ -35,8 +35,8 @@ import org.apache.openejb.arquillian.common.FileUtils;
 import org.apache.openejb.arquillian.common.MavenCache;
 import org.apache.openejb.arquillian.common.TomEEContainer;
 import org.apache.openejb.config.RemoteServer;
-import org.apache.openejb.tomcat.installer.Installer;
-import org.apache.openejb.tomcat.installer.Paths;
+import org.apache.tomee.installer.Installer;
+import org.apache.tomee.installer.Paths;
 import org.jboss.arquillian.spi.client.container.LifecycleException;
 import org.sonatype.aether.artifact.Artifact;
 
