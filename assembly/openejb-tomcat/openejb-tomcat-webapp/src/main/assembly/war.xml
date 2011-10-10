@@ -37,8 +37,8 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README.txt</include>
-        <include>NOTICE.txt</include>
-        <include>LICENSE.txt</include>
+        <include>META-INF/LICENSE</include>
+        <include>META-INF/NOTICE</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -46,8 +46,6 @@
       <outputDirectory>/</outputDirectory>
       <excludes>
           <exclude>org/**</exclude>
-          <exclude>META-INF/LICENSE</exclude>
-          <exclude>META-INF/NOTICE</exclude>
       </excludes>
     </fileSet>
     <fileSet>
