@@ -57,8 +57,6 @@ public class MoviesSeleniumTest {
         				new File("target/test-libs/commons-logging.jar"),
         				new File("target/test-libs/jstl.jar"),
         				new File("target/test-libs/log4j.jar"),
-        				new File("target/test-libs/myfaces-api.jar"),
-        				new File("target/test-libs/myfaces-impl.jar"),
         				new File("target/test-libs/standard.jar"));
         
         addResources("src/main/webapp", "", archive);
