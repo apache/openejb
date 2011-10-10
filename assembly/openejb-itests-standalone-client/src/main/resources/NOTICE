@@ -5,4 +5,28 @@ Copyright 1999-2011 The Apache OpenEJB development community
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
+#########################################################################
+## APACHE OPENEJB DEPENDENCIES                                         ##
+#########################################################################
+
+=========================================================================
+==  ASM Notice                                                         ==
+=========================================================================
+
+Copyright (c) 2000-2005 INRIA, France Telecom
+All rights reserved.
+
+=========================================================================
+==  Backport Util Concurrent Notice                                    ==
+=========================================================================
+
+The backport-util-concurrent software has been released to the public domain,
+as explained at: http://creativecommons.org/licenses/publicdomain.
+
+Acknowledgements: backport-util-concurrent is based in large part on the public
+domain sources from:
+1) JSR166,
+2) package dl.util.concurrent,
+3) Doug Lea's "collections" package.
+
 
