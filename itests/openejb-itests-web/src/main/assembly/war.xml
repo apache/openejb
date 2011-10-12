@@ -33,16 +33,8 @@
       </includes>
     </fileSet>
     <fileSet>
-      <!-- TODO: There're two ways to leverage MRRP:
-         -  o the one below
-         -  o pom.xml where MRRP is configured to output the files in the directory of our choice
-         -->
-      <directory>${basedir}/target/maven-shared-archive-resources/META-INF</directory>
-      <outputDirectory>META-INF</outputDirectory>
-      <includes>
-        <include>LICENSE</include>
-        <include>NOTICE</include>
-      </includes>
+      <directory>${basedir}/target/classes</directory>
+      <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
   <dependencySets>
