@@ -40,32 +40,18 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian</groupId>
-      <artifactId>arquillian-spi</artifactId>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-container-spi</artifactId>
       <version>${version.arquillian}</version>
     </dependency>
-
     <dependency>
-      <groupId>org.jboss.arquillian.protocol</groupId>
-      <artifactId>arquillian-protocol-servlet</artifactId>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-container-test-spi</artifactId>
       <version>${version.arquillian}</version>
     </dependency>
-
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-cdi</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-resource</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-ejb</artifactId>
+      <artifactId>arquillian-testenricher-initialcontext</artifactId>
       <version>${version.arquillian}</version>
     </dependency>
 
@@ -94,8 +80,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian</groupId>
-      <artifactId>arquillian-junit</artifactId>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
       <version>${version.arquillian}</version>
       <scope>test</scope>
     </dependency>

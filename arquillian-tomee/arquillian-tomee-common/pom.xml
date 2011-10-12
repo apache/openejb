@@ -34,15 +34,16 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.jboss.arquillian</groupId>
-      <artifactId>arquillian-spi</artifactId>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-container-spi</artifactId>
       <version>${version.arquillian}</version>
     </dependency>
 
-    <dependency>
+    <dependency> <!-- for embedded mode it is important otherwise you'll have weird error around classloaders -->
       <groupId>org.jboss.arquillian.protocol</groupId>
       <artifactId>arquillian-protocol-servlet</artifactId>
       <version>${version.arquillian}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -54,7 +55,7 @@
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-resource</artifactId>
-      <version>${version.arquillian}</version>
+      <version>1.0.0.CR4</version>
     </dependency>
 
     <dependency>
@@ -65,8 +66,8 @@
 
 
     <dependency>
-      <groupId>org.jboss.arquillian</groupId>
-      <artifactId>arquillian-junit</artifactId>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
       <version>${version.arquillian}</version>
       <scope>test</scope>
       <exclusions>

@@ -16,8 +16,8 @@
  */
 package org.apache.openejb.arquillian.common;
 
-import org.jboss.arquillian.spi.TestEnricher;
-import org.jboss.arquillian.spi.client.deployment.AuxiliaryArchiveAppender;
+import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
+import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.arquillian.testenricher.cdi.CDIInjectionEnricher;
 import org.jboss.arquillian.testenricher.ejb.EJBInjectionEnricher;
 import org.jboss.arquillian.testenricher.resource.ResourceInjectionEnricher;
@@ -28,10 +28,9 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 public class TomEEArchiveAppender implements AuxiliaryArchiveAppender {
 
     public Archive<?> createAuxiliaryArchive() {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class, "arquillian-jboss-testenrichers.jar")
+        return ShrinkWrap.create(JavaArchive.class, "arquillian-jboss-testenrichers.jar")
                 .addPackages(true, EJBInjectionEnricher.class.getPackage(), ResourceInjectionEnricher.class.getPackage(), CDIInjectionEnricher.class.getPackage())
                 .addAsServiceProvider(TestEnricher.class, CDIInjectionEnricher.class, EJBInjectionEnricher.class, ResourceInjectionEnricher.class);
-        return archive;
     }
 
 }

@@ -18,8 +18,6 @@ package org.apache.openejb.arquillian.tests.filtercdiinject;
 
 import org.apache.openejb.arquillian.tests.TestRun;
 import org.apache.openejb.arquillian.tests.TestSetup;
-import org.jboss.arquillian.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
 import org.junit.Test;
