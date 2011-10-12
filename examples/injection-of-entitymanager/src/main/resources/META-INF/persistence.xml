@@ -22,8 +22,8 @@
   <persistence-unit name="movie-unit">
     <jta-data-source>movieDatabase</jta-data-source>
     <non-jta-data-source>movieDatabaseUnmanaged</non-jta-data-source>
+    <jar-file>libs/junit-4.1.jar</jar-file>
     <class>org.superbiz.injection.jpa.Movie</class>
-
     <properties>
       <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
     </properties>

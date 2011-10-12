@@ -30,7 +30,8 @@ public class ComponentRegistryBeanTest extends TestCase {
     public void test() throws Exception {
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
-
+        props.setProperty("openejb.descriptors.output", "true");
+        
         InitialContext context = new InitialContext(props);
 
         // Both references below will point to the exact same instance
