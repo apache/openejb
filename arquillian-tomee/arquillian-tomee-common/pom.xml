@@ -47,25 +47,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-cdi</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-resource</artifactId>
-      <version>1.0.0.CR4</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-ejb</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-
-    <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
       <version>${version.arquillian}</version>

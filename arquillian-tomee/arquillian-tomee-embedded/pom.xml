@@ -49,11 +49,6 @@
       <artifactId>arquillian-container-test-spi</artifactId>
       <version>${version.arquillian}</version>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-initialcontext</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.tomcat</groupId>

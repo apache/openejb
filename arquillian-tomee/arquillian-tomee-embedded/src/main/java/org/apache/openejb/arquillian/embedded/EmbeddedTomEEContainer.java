@@ -16,11 +16,9 @@
  */
 package org.apache.openejb.arquillian.embedded;
 
-import org.apache.openejb.AppContext;
 import org.apache.openejb.arquillian.common.FileUtils;
 import org.apache.openejb.arquillian.common.TomEEConfiguration;
 import org.apache.openejb.arquillian.common.TomEEContainer;
-import org.apache.openejb.core.ivm.naming.ContextWrapper;
 import org.apache.openejb.util.NetworkUtil;
 import org.apache.tomee.embedded.Configuration;
 import org.apache.tomee.embedded.Container;
@@ -30,22 +28,15 @@ import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
-import org.jboss.arquillian.container.spi.context.annotation.ContainerScoped;
-import org.jboss.arquillian.core.api.InstanceProducer;
-import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
 import java.io.File;
 
 public class EmbeddedTomEEContainer extends TomEEContainer {
 
     public static final String TOMEE_ARQUILLIAN_HTTP_PORT = "tomee.arquillian.http";
     public static final String TOMEE_ARQUILLIAN_STOP_PORT = "tomee.arquillian.stop";
-
-    @Inject @ContainerScoped private InstanceProducer<Context> jndiContext;
 
     private Container container;
 
@@ -114,8 +105,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
         	archive.as(ZipExporter.class).exportTo(file, true);
 
 
-            AppContext context = container.deploy(name, file);
-            jndiContext.set(new RemoveJavaPrefixContext(context.getGlobalJndiContext()));
+            container.deploy(name, file);
 
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
             httpContext.add(new Servlet("ArquillianServletRunner", "/" + getArchiveNameWithoutExtension(archive)));
@@ -133,26 +123,6 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
         } catch (Exception e) {
             e.printStackTrace();
             throw new DeploymentException("Unable to undeploy", e);
-        }
-    }
-
-    private class RemoveJavaPrefixContext extends ContextWrapper {
-
-        public static final String JAVA_PREFIX = "java:";
-
-        public RemoveJavaPrefixContext(Context ctx) {
-            super(ctx);
-        }
-
-        private String strip(String s) {
-            if (s.startsWith(JAVA_PREFIX)) {
-                return s.substring(JAVA_PREFIX.length());
-            }
-            return s;
-        }
-
-        @Override public Object lookup(String name) throws NamingException {
-            return context.lookup(strip(name));
         }
     }
 }
