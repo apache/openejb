@@ -59,11 +59,11 @@
   <modules>
     <module>arquillian-tomee-common</module>
     <module>arquillian-tomee-embedded</module>
+    <module>arquillian-tomee-tests</module>
     <!--
         <module>arquillian-tomee-embedded-with-war</module>
         <module>arquillian-tomee-remote</module>
         <module>arquillian-tomee-moviefun-example</module>
-        <module>arquillian-tomee-tests</module>
         <module>ziplock</module>
         -->
   </modules>
