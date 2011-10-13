@@ -21,6 +21,7 @@ import org.apache.openejb.arquillian.common.FileUtils;
 import org.apache.openejb.arquillian.common.TomEEConfiguration;
 import org.apache.openejb.arquillian.common.TomEEContainer;
 import org.apache.openejb.core.ivm.naming.ContextWrapper;
+import org.apache.openejb.util.NetworkUtil;
 import org.apache.tomee.embedded.Configuration;
 import org.apache.tomee.embedded.Container;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
@@ -35,18 +36,14 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 
-import javax.naming.Binding;
-import javax.naming.CompositeName;
 import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameClassPair;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import java.io.File;
-import java.util.Hashtable;
 
 public class EmbeddedTomEEContainer extends TomEEContainer {
+
+    public static final String TOMEE_ARQUILLIAN_HTTP_PORT = "tomee.arquillian.http";
+    public static final String TOMEE_ARQUILLIAN_STOP_PORT = "tomee.arquillian.stop";
 
     @Inject @ContainerScoped private InstanceProducer<Context> jndiContext;
 
@@ -72,13 +69,22 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
     private Configuration convertConfiguration(TomEEConfiguration tomeeConfiguration) {
     	Configuration configuration = new Configuration();
     	configuration.setDir(tomeeConfiguration.getDir());
-    	configuration.setHttpPort(tomeeConfiguration.getHttpPort());
-    	configuration.setStopPort(tomeeConfiguration.getStopPort());
+    	configuration.setHttpPort(getPortAndShare(TOMEE_ARQUILLIAN_HTTP_PORT, tomeeConfiguration.getHttpPort()));
+    	configuration.setStopPort(getPortAndShare(TOMEE_ARQUILLIAN_STOP_PORT, tomeeConfiguration.getStopPort()));
     	
 		return configuration;
 	}
 
-	public void start() throws LifecycleException {
+    private int getPortAndShare(String systemPropName, int value) {
+        int port = value;
+        if (port <= 0) {
+            port = NetworkUtil.getNextAvailablePort();
+        }
+        System.setProperty(systemPropName, Integer.toString(port));
+        return port;
+    }
+
+    public void start() throws LifecycleException {
         try {
             container.start();
         } catch (Exception e) {
