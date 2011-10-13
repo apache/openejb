@@ -18,16 +18,13 @@ package org.apache.openejb.arquillian.tests.filterpersistence;
 
 import org.apache.openejb.arquillian.tests.TestRun;
 import org.apache.openejb.arquillian.tests.TestSetup;
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.persistence.*;
-import javax.servlet.*;
 
 @RunWith(Arquillian.class)
 public class ServletFilterPersistenceInjectionTest extends TestSetup {

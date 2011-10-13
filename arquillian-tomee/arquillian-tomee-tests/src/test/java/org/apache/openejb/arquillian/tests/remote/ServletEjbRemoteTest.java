@@ -16,11 +16,9 @@
  */
 package org.apache.openejb.arquillian.tests.remote;
 
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
@@ -68,7 +66,7 @@ public class ServletEjbRemoteTest {
         final InputStream is = new URL("http://localhost:9080/" + TEST_NAME + "/" + TEST_NAME).openStream();
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        int bytesRead = -1;
+        int bytesRead;
         byte[] buffer = new byte[8192];
         while ((bytesRead = is.read(buffer)) > -1) {
             os.write(buffer, 0, bytesRead);

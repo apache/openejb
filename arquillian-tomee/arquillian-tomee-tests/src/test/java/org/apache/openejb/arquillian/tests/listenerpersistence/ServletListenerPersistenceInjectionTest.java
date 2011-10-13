@@ -16,7 +16,7 @@
  */
 package org.apache.openejb.arquillian.tests.listenerpersistence;
 
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -28,8 +28,6 @@ import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.persistence.*;
-import javax.servlet.http.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

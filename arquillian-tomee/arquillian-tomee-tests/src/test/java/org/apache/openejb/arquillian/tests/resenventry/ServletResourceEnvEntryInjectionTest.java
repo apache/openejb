@@ -18,15 +18,12 @@ package org.apache.openejb.arquillian.tests.resenventry;
 
 import org.apache.openejb.arquillian.tests.TestRun;
 import org.apache.openejb.arquillian.tests.TestSetup;
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
 public class ServletResourceEnvEntryInjectionTest extends TestSetup  {

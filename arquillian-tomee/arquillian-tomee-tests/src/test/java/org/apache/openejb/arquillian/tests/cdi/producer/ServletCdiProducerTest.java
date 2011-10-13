@@ -19,7 +19,7 @@ package org.apache.openejb.arquillian.tests.cdi.producer;
 import org.apache.openejb.arquillian.tests.TestRun;
 import org.apache.openejb.arquillian.tests.Tests;
 import org.apache.openejb.arquillian.tests.cdi.constructor.ServletCdiConstructorInjectionTest;
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;

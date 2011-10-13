@@ -16,22 +16,16 @@
  */
 package org.apache.openejb.arquillian.tests.localinject;
 
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
-import org.jboss.shrinkwrap.descriptor.api.Node;
 import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
-import org.jboss.shrinkwrap.descriptor.spi.NodeProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +57,7 @@ public class ServletEjbLocalInjectionTest {
                 .version("3.0")
                 .servlet(PojoServlet.class, "/" + TEST_NAME);
 
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
+        return ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
                 .addClass(PojoServlet.class)
                 .addClass(CompanyLocal.class)
                 .addClass(Company.class)
@@ -71,15 +65,13 @@ public class ServletEjbLocalInjectionTest {
                 .addClass(OtherCompany.class)
                 .addClass(SuperMarket.class)
                 .setWebXML(new StringAsset(descriptor.exportAsString()));
-
-        return archive;
     }
 
     private void validateTest(String expectedOutput) throws IOException {
         final InputStream is = new URL("http://localhost:9080/" + TEST_NAME + "/" + TEST_NAME).openStream();
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        int bytesRead = -1;
+        int bytesRead;
         byte[] buffer = new byte[8192];
         while ((bytesRead = is.read(buffer)) > -1) {
             os.write(buffer, 0, bytesRead);

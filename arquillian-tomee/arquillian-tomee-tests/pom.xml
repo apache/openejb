@@ -25,51 +25,6 @@
   <name>TomEE Arquillian Adaptor :: Tests</name>
 
   <dependencies>
-
-    <dependency>
-      <groupId>org.jboss.arquillian</groupId>
-      <artifactId>arquillian-spi</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.protocol</groupId>
-      <artifactId>arquillian-protocol-servlet</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-cdi</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-resource</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-ejb</artifactId>
-      <version>${version.arquillian}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian</groupId>
-      <artifactId>arquillian-junit</artifactId>
-      <version>${version.arquillian}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
-      <version>${version.cdi-api}</version>
-      <scope>test</scope>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
@@ -80,7 +35,13 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.1</version>
+      <version>4.9</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <version>1.0.0.CR1</version>
       <scope>test</scope>
     </dependency>
 
@@ -132,9 +93,9 @@
       </activation>
       <dependencies>
         <dependency>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>${project.groupId}</groupId>
           <artifactId>arquillian-tomee-embedded</artifactId>
-          <version>1.0-SNAPSHOT</version>
+          <version>${project.version}</version>
         </dependency>
       </dependencies>
     </profile>
