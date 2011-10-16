@@ -104,9 +104,9 @@
       <id>arquillian-tomee-remote</id>
       <dependencies>
         <dependency>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>${project.groupId}</groupId>
           <artifactId>arquillian-tomee-remote</artifactId>
-          <version>1.0-SNAPSHOT</version>
+          <version>${project.version}</version>
         </dependency>
       </dependencies>
     </profile>
