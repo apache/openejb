@@ -258,10 +258,10 @@
           <artifactId>quartz</artifactId>
           <groupId>org.quartz-scheduler</groupId>
         </exclusion>
-        <exclusion>
+        <!-- <exclusion>
           <artifactId>openwebbeans-impl</artifactId>
           <groupId>org.apache.openwebbeans</groupId>
-        </exclusion>
+        </exclusion>-->
         <exclusion>
           <artifactId>openwebbeans-ee-common</artifactId>
           <groupId>org.apache.openwebbeans</groupId>
