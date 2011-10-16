@@ -154,8 +154,8 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.extension</groupId>
-      <artifactId>arquillian-drone</artifactId>
-	  <version>1.0.0.Alpha5</version>
+      <artifactId>arquillian-drone-selenium</artifactId>
+      <version>${version.arquillian}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -176,6 +176,20 @@
     	<version>${version.selenium}</version>
     	<type>jar</type>
     	<scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.jboss.arquillian.extension</groupId>
+    	<artifactId>arquillian-drone-impl</artifactId>
+    	<version>${version.arquillian}</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.jboss.arquillian.extension</groupId>
+    	<artifactId>arquillian-drone-selenium-server</artifactId>
+    	<version>${version.arquillian}</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
     </dependency>
   </dependencies>
   <!-- This section allows you to configure where to publish libraries for 

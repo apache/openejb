@@ -22,7 +22,7 @@ import java.net.URL;
 import junit.framework.Assert;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.drone.annotation.Drone;
+import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import com.thoughtworks.selenium.DefaultSelenium;
 
 @RunWith(Arquillian.class)
-public class MoviesSeleniumTest {
+public class MoviesSeleniumIT {
 	
 	@ArquillianResource
 	private URL deploymentUrl;
@@ -81,7 +81,7 @@ public class MoviesSeleniumTest {
 
 	@Test
     public void testShouldMakeSureWebappIsWorking() throws Exception {
-		driver.open(deploymentUrl + "/moviefun/");
+		driver.open(deploymentUrl.toString());
 		driver.click("link=Setup");
 		driver.waitForPageToLoad("30000");
 		Assert.assertTrue(driver.isTextPresent("Seeded Database with the Following movies"));
@@ -115,6 +115,7 @@ public class MoviesSeleniumTest {
 		Assert.assertTrue(driver.isTextPresent("Zoolander"));
 		Assert.assertTrue(driver.isTextPresent("Shanghai Noon"));
 		Assert.assertTrue(driver.isTextPresent("1 - 4 of 4"));
+		driver.close();
     }
 
 }
