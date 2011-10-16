@@ -38,9 +38,6 @@ import java.util.List;
         targetNamespace = "http://superbiz.org/wsdl")
 public class MoviesImpl implements Movies, MoviesRemote {
 
-    @EJB
-    private Notifier notifier;
-
     @PersistenceContext(unitName = "movie-unit")
     private EntityManager entityManager;
 
@@ -62,7 +59,6 @@ public class MoviesImpl implements Movies, MoviesRemote {
     @Override
     public void deleteMovie(Movie movie) {
         entityManager.remove(movie);
-        notifier.notify("Deleted Movie \"" + movie.getTitle() + "\" (" + movie.getYear() + ")");
     }
 
     @Override
