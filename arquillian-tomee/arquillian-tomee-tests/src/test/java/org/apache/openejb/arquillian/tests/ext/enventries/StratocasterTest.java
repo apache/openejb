@@ -31,6 +31,7 @@ import org.jboss.shrinkwrap.descriptor.spi.NodeProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -61,6 +62,11 @@ public class StratocasterTest {
         WebArchive archive = ShrinkWrap.create(WebArchive.class, TEST_NAME + ".war")
                 .addClass(PojoServlet.class)
                 .addClass(Code.class)
+                .addClass(Stratocaster.class)
+                .addClass(Pickup.class)
+                .addClass(PickupEditor.class)
+                .addClass(Style.class)
+                .addAsLibraries(new File("target/test-libs/junit.jar"))
                 .setWebXML(new StringAsset(descriptor.exportAsString()));
 
         System.err.println(descriptor.exportAsString());
