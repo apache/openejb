@@ -70,7 +70,7 @@
               <goal>unpack</goal>
             </goals>
             <configuration>
-              <excludes>META-INF/services/javax.ws.rs.ext.RuntimeDelegate</excludes>
+              <excludes>META-INF/services/javax.ws.rs.ext.RuntimeDelegate,org/apache/cxf/jaxrs/impl/HttpHeadersImpl.class</excludes>
               <artifactItems>
                 <artifactItem>
                   <groupId>org.apache.cxf</groupId>
