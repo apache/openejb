@@ -59,7 +59,7 @@ body > header {
 
 body > header > h1 {
 	display: block;
-	background: transparent url(../image/logo_apache.png) no-repeat;
+	background: transparent url(http://openejb.staging.apache.org/resources/image/logo_apache.png) no-repeat;
     height: 42px;
 }
 body > header form {
@@ -72,11 +72,11 @@ nav {
 position: absolute;
   width: 193px;
   margin-left: 20px;
-  background: url(../image/bg_nav.png) repeat-y 5px 0;
+  background: url(http://openejb.staging.apache.org/resources/image/bg_nav.png) repeat-y 5px 0;
   }
 header nav h2 {
 	display: block;
-	background: transparent url(../image/logo_openEJB.png) no-repeat;
+	background: transparent url(http://openejb.staging.apache.org/resources/image/logo_openEJB.png) no-repeat;
     height: 130px;
     width: 193px;
 }
@@ -103,7 +103,7 @@ nav ul a:focus {text-decoration:underline}
 nav ul a.active {
   width: 163px;
   color: #d33603;
-  background: url(../image/bg_active_link.png) repeat-x 0 12px;
+  background: url(http://openejb.staging.apache.org/resources/image/bg_active_link.png) repeat-x 0 12px;
   padding: 1px 0;
   font-style: normal;
 }
@@ -254,18 +254,18 @@ section.steps ul li {
   font-size: 16px;
   }
 section.steps ul li.one {
-  background: url(../image/picto_step_1.png) no-repeat top left;
+  background: url(http://openejb.staging.apache.org/resources/image/picto_step_1.png) no-repeat top left;
   color: #01988c;
 }
 section.steps ul li.two {
-  background: url(../image/picto_step_2.png) no-repeat top left;
+  background: url(http://openejb.staging.apache.org/resources/image/picto_step_2.png) no-repeat top left;
 }
 
 section.steps ul li.three {
-  background: url(../image/picto_step_3.png) no-repeat top left;
+  background: url(http://openejb.staging.apache.org/resources/image/picto_step_3.png) no-repeat top left;
 }
 section.steps ul li.four {
-  background: url(../image/picto_step_4.png) no-repeat top left;
+  background: url(http://openejb.staging.apache.org/resources/image/picto_step_4.png) no-repeat top left;
 }
 
 /* section alerte */
@@ -273,7 +273,7 @@ section.main > article > section.alerte {
   width: 585px;
 	margin: 0 0 10px 0;
 	padding: 10px;
-	background: url(../image/bg_alerte.png) repeat 0 0;
+	background: url(http://openejb.staging.apache.org/resources/image/bg_alerte.png) repeat 0 0;
 	font-size: 12px;
 	color: #f86402;
 	border: none;
@@ -413,11 +413,11 @@ Section.achats ul li.last {
 	width: 19px;
 	height: 17px;
 	padding: 0 5px 0 0;
-	background: url(../image/checkbox.png) no-repeat;
+	background: url(http://openejb.staging.apache.org/resources/image/checkbox.png) no-repeat;
 	display: inline-block;
 }
 .radio {
-	background: url(../image/radio.png) no-repeat;
+	background: url(http://openejb.staging.apache.org/resources/image/radio.png) no-repeat;
 }
 .select {
 	position: absolute;
@@ -427,7 +427,7 @@ Section.achats ul li.last {
 	margin: 0 10px 0 0;
 	color: #000;
 	font: 12px/21px arial,sans-serif;
-	background: url(../image/select.png) no-repeat top right;
+	background: url(http://openejb.staging.apache.org/resources/image/select.png) no-repeat top right;
 	border: 1px solid #eeedec;
 	overflow: hidden;
 }
