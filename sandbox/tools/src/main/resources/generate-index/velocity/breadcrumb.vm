@@ -1,1 +1,3 @@
-<a href="$home">Example Home</a> #if ($parentLink) &gt; <a href="$home/$parentLink">$parentLabel</a> #end &gt; $breadcrumbName
+
+<a href="$home">Example Home</a> #if ($parentLink) &gt; <a href="$home/$parentLink">$parentLabel</a> #end &gt; $breadcrumbName 
+

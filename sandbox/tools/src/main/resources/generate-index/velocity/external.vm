@@ -3,6 +3,7 @@
     <div>
         <section>
 #parse("generate-index/velocity/breadcrumb.vm")
+
             $content
         </section>
     </div>
