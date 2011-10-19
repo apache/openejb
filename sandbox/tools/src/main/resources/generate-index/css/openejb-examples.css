@@ -61,6 +61,7 @@ body > header > h1 {
 	display: block;
 	background: transparent url(http://openejb.staging.apache.org/resources/image/logo_apache.png) no-repeat;
     height: 42px;
+    float: right; width: 148px; height: 42px; margin: 16px 8px 5px 10px;
 }
 body > header form {
   float: right;
