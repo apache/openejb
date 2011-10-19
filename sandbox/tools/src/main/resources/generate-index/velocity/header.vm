@@ -52,12 +52,12 @@
                 <H3><A name="Navigation-Overview"></A>Overview</H3>
 
 <UL class="alternate" type="square">
-	<LI><A href="" title="Index">Home</A></LI>
-	<LI><A href="downloads.html" title="Downloads">Downloads</A></LI>
-	<LI><A href="../OPENEJBx30/index.html" title="Index">Documentation</A></LI>
-	<LI><A href="examples.html" title="Examples">Examples</A></LI>
-	<LI><A href="mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
-	<LI><A href="source-code.html" title="Source Code">Source Code</A></LI>
+	<LI><A href="http://openejb.apache.org/" title="Index">Home</A></LI>
+	<LI><A href="http://openejb.apache.org/downloads.html" title="Downloads">Downloads</A></LI>
+	<LI><A href="http://openejb.apache.org/OPENEJBx30/index.html" title="Index">Documentation</A></LI>
+	<LI><A href="$base" title="Examples">Examples</A></LI>
+	<LI><A href="http://openejb.apache.org/mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+	<LI><A href="http://openejb.apache.org/source-code.html" title="Source Code">Source Code</A></LI>
 	<LI><A href="http://blogs.apache.org/openejb" class="external-link" rel="nofollow">Project Blog</A></LI>
 </UL>
 
@@ -65,8 +65,8 @@
 <H3><A name="Navigation-Community"></A>Community</H3>
 
 <UL class="alternate" type="square">
-	<LI><A href="team.html" title="Team">Team</A></LI>
-	<LI><A href="articles.html" title="Articles">Articles</A></LI>
+	<LI><A href="http://openejb.apache.org/team.html" title="Team">Team</A></LI>
+	<LI><A href="http://openejb.apache.org/articles.html" title="Articles">Articles</A></LI>
 	<LI><A href="http://webchat.freenode.net/?channels=openejb" class="external-link" rel="nofollow">IRC</A></LI>
 </UL>
 
@@ -85,7 +85,7 @@
 <H3><A name="Navigation-Index"></A>Index</H3>
 <UL class="alternate" type="square">
 	<LI><A href="space-index.html" title="Space Index">Site Index</A></LI>
-	<LI><A href="../OPENEJBx30/space-index.html" title="Space Index">Doc Index</A></LI>
+	<LI><A href="http://openejb.apache.org/OPENEJBx30/space-index.html" title="Space Index">Doc Index</A></LI>
 </UL>
         <H3>Feeds</H3>
         <UL>
