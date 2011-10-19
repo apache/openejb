@@ -1,3 +1,6 @@
+<article>
+    <div>
+        <section>
            <div id="javaFiles">
                 <ul>
                     Files:
@@ -6,3 +9,6 @@
 #end
                 </ul>
             </div>
+        </section>
+    </div>
+</article>

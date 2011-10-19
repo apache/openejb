@@ -1,50 +1,13 @@
- </DIV>
-          </P>
-        </TD>
-        <TD class="Col4"><IMG src="http://openejb.apache.org/images/dotTrans.gif"></TD>
-        <TD class="Col5">
-        </TD>
-      </TR>
-      <TR  class="Row5">
-        <TD class="Col1">&nbsp;</TD>
-        <TD class="Col2">&nbsp;</TD>
-        <TD class="Col3">
-          <br>
-          <br>
-          <IMG width="100%" height="1" src="http://openejb.apache.org/images/line_light.gif">
-          <table width="100%">
-            <tr>
-              <td>
-                <SPAN class="bodyGrey">
-                  <SMALL>
-                    <NOTICE><!-- $FOOTER -->
-                      Apache OpenEJB is an project of The Apache Software Foundation (ASF)
-                    </NOTICE>
-                  </SMALL>
-                </SPAN>
-              </td>
-            </tr>
-          </table>
-          <br>
-        </TD>
-        <TD class="Col4"><IMG src="http://openejb.apache.org/images/dotTrans.gif"></TD>
-        <TD class="Col5">&nbsp;</TD>
-      </TR>
-    </TABLE>
+        </SECTION>
+      </ARTICLE>
+    </SECTION>
+    <!-- /MAIN ========================================================= -->
 
-    <!-- Needed for composition plugin -->
-    <!-- delay the loading of large javascript files to the end so that they don't interfere with the loading of page content -->
-    <SPAN style="display: none">
-      <SCRIPT type="text/javascript" language="JavaScript"
-              src="http://cwiki.apache.org/confluence/labels-javascript"></SCRIPT>
-
-      <SCRIPT src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-      </SCRIPT>
-      <SCRIPT type="text/javascript">
-        _uacct = "UA-2717626-1";
-        urchinTracker();
-      </SCRIPT>
-	  <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
-    </SPAN>
-    </body>
-</html>
+    <!-- FOOTER ======================================================== -->
+    <!--
+    <footer>
+    </footer>
+    -->
+    <!-- /FOOTER ======================================================= -->
+    </BODY>
+</HTML>

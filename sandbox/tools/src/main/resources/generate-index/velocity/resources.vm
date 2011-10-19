@@ -1,3 +1,6 @@
+<article>
+    <div>
+        <section>
            <div id="api">
                 <ul>
                     Resources:
@@ -6,3 +9,6 @@
 #end
                 </ul>
             </div>
+        </section>
+    </div>
+</article>
