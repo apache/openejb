@@ -37,8 +37,8 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README.txt</include>
-        <include>NOTICE.txt</include>
-        <include>LICENSE.txt</include>
+        <include>META-INF/LICENSE</include>
+        <include>META-INF/NOTICE</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -46,17 +46,25 @@
       <outputDirectory>/</outputDirectory>
       <excludes>
           <exclude>org/**</exclude>
-          <exclude>META-INF/LICENSE</exclude>
-          <exclude>META-INF/NOTICE</exclude>
       </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/src/main/webapp</directory>
+      <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>${basedir}/target/classes</directory>
       <outputDirectory>WEB-INF/classes</outputDirectory>
+      <excludes>
+        <exclude>**/LICENSE</exclude>
+        <exclude>**/NOTICE</exclude>
+        <exclude>**/LICENSE.txt</exclude>
+        <exclude>**/NOTICE.txt</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>${basedir}/target</directory>
-      <outputDirectory>lib</outputDirectory>
+      <outputDirectory>WEB-INF/lib</outputDirectory>
       <includes>
         <include>openejb-tomcat*.jar</include>
       </includes>
@@ -68,7 +76,7 @@
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>lib</outputDirectory>
+      <outputDirectory>WEB-INF/lib</outputDirectory>
       <scope>runtime</scope>
       <excludes>
           <exclude>org.apache.tomcat:catalina</exclude>

@@ -92,7 +92,7 @@
   </scm>
 
   <properties>
-    <!-- This is used by a manifest classpath entry -->
+    <!-- This is used by a manifest classpath entry  -->
     <xbeanVersion>3.5</xbeanVersion>
 
 
@@ -312,6 +312,26 @@
                 <id>attach-javadocs</id>
                 <goals>
                   <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/src.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>gnu</tarLongFileMode>
+              <finalName>openejb-${project.version}-src</finalName>
+            </configuration>
+            <executions>
+              <execution>
+                <id>make-assembly</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
                 </goals>
               </execution>
             </executions>

@@ -15,38 +15,21 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
 -->
 
-<!-- $Rev$ $Date$ -->
-
 <assembly>
-  <id>itests</id>
   <formats>
-    <format>war</format>
+    <format>zip</format>
+    <format>tar.gz</format>
   </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-        <directory>${basedir}</directory>
-      <includes>
-        <include>README.txt</include>
-      </includes>
-    </fileSet>
-    <fileSet>
-      <directory>${basedir}/target/classes</directory>
+      <directory>.</directory>
       <outputDirectory>/</outputDirectory>
+      <excludes>
+        <exclude>**/target/**</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
-  <dependencySets>
-    <dependencySet>
-      <outputDirectory>WEB-INF/lib</outputDirectory>
-      <includes>
-          <include>junit:junit</include>
-          <include>org.apache.openejb:openejb-itests-beans</include>
-          <include>org.apache.openejb:openejb-itests-servlets</include>
-      </includes>
-      <scope>test</scope>
-    </dependencySet>
-  </dependencySets>
 </assembly>
-
