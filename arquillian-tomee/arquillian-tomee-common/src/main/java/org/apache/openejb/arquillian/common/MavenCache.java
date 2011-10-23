@@ -26,13 +26,14 @@ import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.jboss.shrinkwrap.resolver.impl.maven.MavenRepositorySettings;
+import org.jboss.shrinkwrap.resolver.impl.maven.MavenDependencyResolverSettings;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.installation.InstallRequest;
 import org.sonatype.aether.installation.InstallationException;
+import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 import org.sonatype.aether.resolution.ArtifactResult;
@@ -48,21 +49,20 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
  */
 public class MavenCache {
 
-	private final MavenRepositorySettings settings;
+	private final MavenDependencyResolverSettings settings;
 	private final RepositorySystem system;
 	private final RepositorySystemSession session;
 
 	public MavenCache() {
-		this.settings = new MavenRepositorySettings();
+		this.settings = new MavenDependencyResolverSettings();
 		this.system = getRepositorySystem();
 		this.session = getSession();
 	}
 
 	public RepositorySystemSession getSession() {
 		MavenRepositorySystemSession session = new MavenRepositorySystemSession();
-		session.setLocalRepositoryManager(system.newLocalRepositoryManager(settings.getLocalRepository()));
-		session.setTransferListener(settings.getTransferListener());
-		session.setRepositoryListener(settings.getRepositoryListener());
+		LocalRepository localRepository = new LocalRepository(settings.getSettings().getLocalRepository());
+		session.setLocalRepositoryManager(system.newLocalRepositoryManager(localRepository));
 
 		return session;
 	}
