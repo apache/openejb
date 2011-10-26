@@ -36,6 +36,7 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaD
 import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 public abstract class TomEEContainer implements DeployableContainer<TomEEConfiguration> {
@@ -86,7 +87,7 @@ public abstract class TomEEContainer implements DeployableContainer<TomEEConfigu
     }
 
     public ProtocolDescription getDefaultProtocol() {
-        return new ProtocolDescription("Servlet 3.0");
+        return new ProtocolDescription("Servlet 2.5");
     }
 
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
@@ -107,7 +108,12 @@ public abstract class TomEEContainer implements DeployableContainer<TomEEConfigu
             moduleIds.put(archive.getName(), file.getAbsolutePath());
 
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
-            httpContext.add(new Servlet("ArquillianServletRunner", "/" + getArchiveNameWithoutExtension(archive)));
+            if (archive instanceof WebArchive) {
+            	httpContext.add(new Servlet("ArquillianServletRunner", "/" + getArchiveNameWithoutExtension(archive)));
+            } else {
+            	httpContext.add(new Servlet("ArquillianServletRunner", "/arquillian-protocol"));
+            }
+            
             // we should probably get all servlets and add them to the context
             return new ProtocolMetaData().addContext(httpContext);
         } catch (Exception e) {

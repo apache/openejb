@@ -333,5 +333,12 @@
     	<artifactId>swizzle-stream</artifactId>
     	<version>1.0.2</version>
     </dependency>
+    <dependency>
+    	<groupId>org.jboss.shrinkwrap.descriptors</groupId>
+    	<artifactId>shrinkwrap-descriptors-impl</artifactId>
+    	<version>1.1.0-alpha-2</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>

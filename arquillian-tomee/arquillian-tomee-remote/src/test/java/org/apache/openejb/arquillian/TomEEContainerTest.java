@@ -20,6 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.ejb.EJB;
+
 import junit.framework.Assert;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -35,15 +37,21 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class TomEEContainerTest {
 
-    @Deployment(testable = false)
+    @Deployment
     public static WebArchive createDeployment() {
-        return ShrinkWrap.create(WebArchive.class, "test.war").addClass(TestServlet.class).addClass(TestEjb.class)
+        return ShrinkWrap.create(WebArchive.class, "test.war").addClass(TestServlet.class).addClass(TestEjb.class).addClass(TomEEContainerTest.class)
                 .setWebXML(new StringAsset(Descriptors.create(WebAppDescriptor.class).version("3.0").servlet(TestServlet.class, "/Test").exportAsString()));
     }
 
-    @Test
-    public void nothing(){}
+    @EJB
+    private TestEjb ejb;
+    
+    @Test 
+    public void testEjbIsNotNull() throws Exception {
+    	Assert.assertNotNull(ejb);
+    }
 
+    @Test
     public void testShouldBeAbleToAccessServletAndEjb() throws Exception {
         InputStream is = new URL("http://localhost:9080/test/Test").openStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();

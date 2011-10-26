@@ -77,6 +77,7 @@ public class RemoteTomEEContainer extends TomEEContainer {
 	
 	            System.setProperty("catalina.home", openejbHome.getAbsolutePath());
 			    System.setProperty("catalina.base", openejbHome.getAbsolutePath());
+			    System.setProperty("openejb.deploymentId.format","{appId}/{ejbJarId}/{ejbName}");
 			    Paths paths = new Paths(new File(openejbHome.getAbsolutePath(), "/webapps/openejb"));
 			    Installer installer = new Installer(paths, true);
 			    installer.installAll();
