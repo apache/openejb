@@ -34,7 +34,7 @@ public class Tests {
         final InputStream is = new URL(location).openStream();
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        int bytesRead = -1;
+        int bytesRead;
         byte[] buffer = new byte[8192];
         while ((bytesRead = is.read(buffer)) > -1) {
             os.write(buffer, 0, bytesRead);
