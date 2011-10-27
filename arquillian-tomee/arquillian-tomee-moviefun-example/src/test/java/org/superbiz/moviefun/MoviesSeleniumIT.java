@@ -31,6 +31,8 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.impl.base.asset.ClassLoaderAsset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.superbiz.moviefun.util.JsfUtil;
+import org.superbiz.moviefun.util.PaginationHelper;
 
 import com.thoughtworks.selenium.DefaultSelenium;
 
@@ -46,8 +48,7 @@ public class MoviesSeleniumIT {
 	@Deployment(testable = false)
     public static WebArchive createDeployment() {
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "moviefun.war")
-        		.addPackage("org.superbiz.moviefun")
-        		.addPackage("org.superbiz.moviefun.util")
+        		.addClasses(ActionServlet.class, Movie.class, MovieController.class, Movies.class, MoviesImpl.class, MoviesRemote.class, JsfUtil.class, PaginationHelper.class)
         		.addAsResource(new ClassLoaderAsset("META-INF/ejb-jar.xml") , "META-INF/ejb-jar.xml")
         		.addAsResource(new ClassLoaderAsset("META-INF/persistence.xml") , "META-INF/persistence.xml")
         		.addAsLibraries(new File("target/test-libs/commons-beanutils.jar"),
