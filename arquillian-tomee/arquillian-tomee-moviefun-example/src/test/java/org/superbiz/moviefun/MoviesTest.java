@@ -1,28 +1,34 @@
 package org.superbiz.moviefun;
 
-import java.util.List;
-
-import javax.ejb.embeddable.EJBContainer;
-import static org.junit.Assert.*;
-
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.ejb.embeddable.EJBContainer;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class MoviesTest {
+    private static EJBContainer ejbContainer;
+	private static MoviesRemote movies;
 
-	private MoviesRemote movies;
-
-	@Before
-	public void setUp() throws Exception {
-        EJBContainer ejbContainer = EJBContainer.createEJBContainer();
+    @BeforeClass public static void setUp() throws Exception {
+        ejbContainer = EJBContainer.createEJBContainer();
         Object object = ejbContainer.getContext().lookup("java:global/arquillian-tomee-moviefun-example/Movies!org.superbiz.moviefun.MoviesRemote");
 
         assertTrue(object instanceof MoviesRemote);
         movies = (MoviesRemote) object;
     }
+
+    @AfterClass public static void tearDown() {
+        if (ejbContainer != null) {
+            ejbContainer.close();
+        }
+    }
 	
-	@Test
-	public void testShouldAddAMovie() throws Exception {
+	@Test public void testShouldAddAMovie() throws Exception {
 		Movie movie = new Movie();
 		movie.setDirector("Michael Bay");
 		movie.setGenre("Action");
