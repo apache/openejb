@@ -18,21 +18,18 @@ import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 public class MoviesEJBIT {
-
-	@Deployment
-	public static JavaArchive createDeployment() {
+	@Deployment public static JavaArchive createDeployment() {
 		// explicit archive name required until ARQ-77 is resolved
 		return ShrinkWrap.create(JavaArchive.class, "test.jar").addClasses(Movie.class, MoviesImpl.class, Movies.class, MoviesRemote.class, MoviesEJBIT.class)
 				.addAsResource(new ClassLoaderAsset("META-INF/ejb-jar.xml") , "META-INF/ejb-jar.xml")
         		.addAsResource(new ClassLoaderAsset("META-INF/persistence.xml") , "META-INF/persistence.xml");
 	}
 
-	@EJB
-	Movies movies;
+	@EJB private Movies movies;
 
-	@Test
-	public void shouldBeAbleToAddAMovie() throws Exception {
+	@Test public void shouldBeAbleToAddAMovie() throws Exception {
 		assertNotNull("Verify that the ejb was injected", movies);
+
 		Movie movie = new Movie();
 		movie.setDirector("Michael Bay");
 		movie.setGenre("Action");

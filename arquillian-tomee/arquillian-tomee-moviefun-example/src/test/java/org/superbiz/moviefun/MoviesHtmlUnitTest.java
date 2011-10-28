@@ -64,7 +64,12 @@ public class MoviesHtmlUnitTest {
 
         assertMoviesPresent(page);
 
-        page = webClient.getPage("http://localhost:9999/moviefun/faces/movie/List.xhtml");
+        try {
+            page = webClient.getPage("http://localhost:9999/moviefun/faces/movie/List.xhtml");
+        } catch (Exception e) {
+            e.printStackTrace(); // just to get it in the console in debug phase
+            throw e;
+        }
 
         assertMoviesPresent(page);
         webClient.closeAllWindows();

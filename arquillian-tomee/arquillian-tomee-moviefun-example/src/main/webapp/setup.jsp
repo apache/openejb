@@ -19,13 +19,11 @@
 <%@ page import="javax.naming.InitialContext" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List" %>
-<%@ page import="javax.naming.NamingException" %>
-<%@ page import="org.superbiz.moviefun.MoviesImpl" %>
 
 <h2>Setup</h2>
 <%
     InitialContext initialContext = new InitialContext();
-    Movies moviesBean = (Movies) initialContext.lookup("java:comp/env/movies");
+    Movies moviesBean = (Movies) initialContext.lookup("java:global/moviefun/Movies");
 
     moviesBean.addMovie(new Movie("Wedding Crashers", "David Dobkin", "Comedy", 7, 2005));
     moviesBean.addMovie(new Movie("Starsky & Hutch", "Todd Phillips", "Action", 6, 2004));

@@ -16,8 +16,6 @@
  */
 package org.superbiz.moviefun;
 
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
 import javax.persistence.EntityManager;
@@ -31,7 +29,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 import java.util.List;
 
-@LocalBean
 @Stateless(name = "Movies")
 @WebService(portName = "MoviesPort",
         serviceName = "MoviesWebService",
