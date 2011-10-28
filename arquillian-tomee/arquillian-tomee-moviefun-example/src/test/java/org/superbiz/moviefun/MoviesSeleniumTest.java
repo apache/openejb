@@ -37,7 +37,7 @@ import org.superbiz.moviefun.util.PaginationHelper;
 import com.thoughtworks.selenium.DefaultSelenium;
 
 @RunWith(Arquillian.class)
-public class MoviesSeleniumIT {
+public class MoviesSeleniumTest {
 	
 	@ArquillianResource
 	private URL deploymentUrl;

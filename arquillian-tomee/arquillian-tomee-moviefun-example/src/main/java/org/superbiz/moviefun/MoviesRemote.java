@@ -21,25 +21,27 @@ import java.util.List;
 
 @Remote
 public interface MoviesRemote {
-    public int count();
+    int count();
 
-    public List<Movie> findRange(int[] range);
+    List<Movie> findRange(int[] range);
 
-    public List<Movie> findByDirector(String director);
+    List<Movie> findByDirector(String director);
 
-    public List<Movie> findByGenre(String genre);
+    List<Movie> findByGenre(String genre);
 
-    public List<Movie> findByTitle(String title);
+    List<Movie> findByTitle(String title);
 
-    public List<Movie> getMovies();
+    List<Movie> getMovies();
 
-    public void deleteMovieId(long id);
+    void deleteMovieId(long id);
 
-    public void deleteMovie(Movie movie);
+    void deleteMovie(Movie movie);
 
-    public void editMovie(Movie movie);
+    void editMovie(Movie movie);
 
-    public void addMovie(Movie movie);
+    void addMovie(Movie movie);
 
-    public Movie find(Long id);
+    Movie find(Long id);
+
+    void clean();
 }

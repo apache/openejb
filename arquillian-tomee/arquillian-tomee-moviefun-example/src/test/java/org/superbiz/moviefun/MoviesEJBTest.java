@@ -12,20 +12,26 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.impl.base.asset.ClassLoaderAsset;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(Arquillian.class)
-public class MoviesEJBIT {
+public class MoviesEJBTest {
 	@Deployment public static JavaArchive createDeployment() {
 		// explicit archive name required until ARQ-77 is resolved
-		return ShrinkWrap.create(JavaArchive.class, "test.jar").addClasses(Movie.class, MoviesImpl.class, Movies.class, MoviesRemote.class, MoviesEJBIT.class)
+		return ShrinkWrap.create(JavaArchive.class, "test.jar").addClasses(Movie.class, MoviesImpl.class, Movies.class, MoviesRemote.class, MoviesEJBTest.class)
 				.addAsResource(new ClassLoaderAsset("META-INF/ejb-jar.xml") , "META-INF/ejb-jar.xml")
         		.addAsResource(new ClassLoaderAsset("META-INF/persistence.xml") , "META-INF/persistence.xml");
 	}
 
 	@EJB private Movies movies;
+
+    @Before @After public void clean() {
+        movies.clean();
+    }
 
 	@Test public void shouldBeAbleToAddAMovie() throws Exception {
 		assertNotNull("Verify that the ejb was injected", movies);

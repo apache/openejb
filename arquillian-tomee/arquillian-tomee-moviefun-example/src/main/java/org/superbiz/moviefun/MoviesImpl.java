@@ -43,6 +43,10 @@ public class MoviesImpl implements Movies, MoviesRemote {
         return entityManager.find(Movie.class, id);
     }
 
+    @Override public void clean() {
+        entityManager.createQuery("delete from Movie").executeUpdate();
+    }
+
     @Override
     public void addMovie(Movie movie) {
         entityManager.persist(movie);

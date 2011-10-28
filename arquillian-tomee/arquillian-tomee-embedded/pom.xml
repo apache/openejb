@@ -98,21 +98,18 @@
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-cdi</artifactId>
       <version>${version.arquillian}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-resource</artifactId>
       <version>${version.arquillian}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-ejb</artifactId>
       <version>${version.arquillian}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>

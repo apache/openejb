@@ -1,6 +1,8 @@
 package org.superbiz.moviefun;
 
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -27,7 +29,11 @@ public class MoviesTest {
             ejbContainer.close();
         }
     }
-	
+
+    @Before @After public void clean() {
+        movies.clean();
+    }
+
 	@Test public void testShouldAddAMovie() throws Exception {
 		Movie movie = new Movie();
 		movie.setDirector("Michael Bay");
