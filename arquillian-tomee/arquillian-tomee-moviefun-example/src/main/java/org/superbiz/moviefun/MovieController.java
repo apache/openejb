@@ -40,7 +40,7 @@ public class MovieController implements Serializable {
     private Movie current;
     private DataModel items = null;
     @EJB
-    private MoviesImpl ejbFacade;
+    private Movies ejbFacade;
     private PaginationHelper pagination;
     private int selectedItemIndex;
 
@@ -55,7 +55,7 @@ public class MovieController implements Serializable {
         return current;
     }
 
-    private MoviesImpl getFacade() {
+    private Movies getFacade() {
         return ejbFacade;
     }
 
