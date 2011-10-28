@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.arquillian.embedded;
 
+import org.apache.openejb.AppContext;
 import org.apache.openejb.arquillian.common.FileUtils;
 import org.apache.openejb.arquillian.common.TomEEConfiguration;
 import org.apache.openejb.arquillian.common.TomEEContainer;
@@ -29,13 +30,14 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 import org.jboss.arquillian.container.spi.context.annotation.ContainerScoped;
+import org.jboss.arquillian.container.spi.context.annotation.DeploymentScoped;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 
+import javax.enterprise.inject.spi.BeanManager;
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import java.io.File;
 
 public class EmbeddedTomEEContainer extends TomEEContainer {
@@ -44,6 +46,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
     public static final String TOMEE_ARQUILLIAN_STOP_PORT = "tomee.arquillian.stop";
 
     @Inject @ContainerScoped private InstanceProducer<Context> contextInstance;
+    @Inject @DeploymentScoped private InstanceProducer<BeanManager> beanManagerInstance;
 
     private Container container;
 
@@ -101,7 +104,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
     }
 
     public ProtocolDescription getDefaultProtocol() {
-        return new ProtocolDescription("Servlet 3.0");
+        return new ProtocolDescription("Local");
     }
     
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
@@ -113,10 +116,11 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
         	archive.as(ZipExporter.class).exportTo(file, true);
 
 
-            container.deploy(name, file);
+            AppContext appContext = container.deploy(name, file);
 
             HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
             httpContext.add(new Servlet("ArquillianServletRunner", "/" + getArchiveNameWithoutExtension(archive)));
+            beanManagerInstance.set(appContext.getBeanManager());
             return new ProtocolMetaData().addContext(httpContext);
         } catch (Exception e) {
             e.printStackTrace();
