@@ -28,15 +28,22 @@ import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
+import org.jboss.arquillian.container.spi.context.annotation.ContainerScoped;
+import org.jboss.arquillian.core.api.InstanceProducer;
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import java.io.File;
 
 public class EmbeddedTomEEContainer extends TomEEContainer {
 
     public static final String TOMEE_ARQUILLIAN_HTTP_PORT = "tomee.arquillian.http";
     public static final String TOMEE_ARQUILLIAN_STOP_PORT = "tomee.arquillian.stop";
+
+    @Inject @ContainerScoped private InstanceProducer<Context> contextInstance;
 
     private Container container;
 
@@ -78,6 +85,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer {
     public void start() throws LifecycleException {
         try {
             container.start();
+            contextInstance.set(container.getJndiContext());
         } catch (Exception e) {
             e.printStackTrace();
             throw new LifecycleException("Something went wrong", e);

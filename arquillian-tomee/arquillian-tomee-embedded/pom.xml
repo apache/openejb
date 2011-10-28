@@ -89,6 +89,35 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-cdi</artifactId>
+      <version>${version.arquillian}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-resource</artifactId>
+      <version>${version.arquillian}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-ejb</artifactId>
+      <version>${version.arquillian}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+    	<groupId>org.jboss.shrinkwrap.descriptors</groupId>
+    	<artifactId>shrinkwrap-descriptors-impl</artifactId>
+    	<version>1.1.0-alpha-2</version>
+    	<type>jar</type>
+    	<scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.eclipse.jdt.core.compiler</groupId>
       <artifactId>ecj</artifactId>
       <version>3.5.1</version>
