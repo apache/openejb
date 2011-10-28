@@ -6,13 +6,10 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 
-public class RemoteTomEEEJBEnricherArchiveAppender implements AuxiliaryArchiveAppender
-{
-	   @Override
-	   public Archive<?> createAuxiliaryArchive()
-	   {
-	      return ShrinkWrap.create(JavaArchive.class, "arquillian-tomee-testenricher-ejb.jar")
-	                  .addClasses(RemoteTomEEEnricher.class, RemoteTomEEEJBEnricherExtension.class, SecurityActions.class)
-	                  .addAsServiceProvider(RemoteLoadableExtension.class, RemoteTomEEEJBEnricherExtension.class);
-	   }
-	}
+public class RemoteTomEEEJBEnricherArchiveAppender implements AuxiliaryArchiveAppender {
+    @Override public Archive<?> createAuxiliaryArchive() {
+        return ShrinkWrap.create(JavaArchive.class, "arquillian-tomee-testenricher-ejb.jar")
+                   .addClasses(RemoteTomEEObserver.class, RemoteTomEERemoteExtension.class)
+                   .addAsServiceProvider(RemoteLoadableExtension.class, RemoteTomEERemoteExtension.class);
+    }
+}
