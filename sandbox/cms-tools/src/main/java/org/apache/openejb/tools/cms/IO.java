@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.util;
+package org.apache.openejb.tools.cms;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -41,8 +41,6 @@ import java.util.zip.ZipOutputStream;
  * @version $Rev$ $Date$
  */
 public class IO {
-
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(IO.class);
 
     public static String readString(URL url) throws IOException {
         final InputStream in = url.openStream();
@@ -154,7 +152,7 @@ public class IO {
     public static boolean delete(File file) {
         if (file == null) return false;
         if (!file.delete()) {
-            log.error("Delete failed " + file.getAbsolutePath());
+            System.err.println("Delete failed " + file.getAbsolutePath());
             return false;
         }
 

@@ -1,8 +1,0 @@
-           <div id="api">
-                <ul>
-                    APIs:
-#foreach( $api in $apis.entrySet() )
-                    <li><a href="$api_prefix$api.key.replace('.', '/')$api_suffix">$api.key</a></li>
-#end
-                </ul>
-            </div>

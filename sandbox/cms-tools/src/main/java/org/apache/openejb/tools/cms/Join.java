@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.util;
+package org.apache.openejb.tools.cms;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

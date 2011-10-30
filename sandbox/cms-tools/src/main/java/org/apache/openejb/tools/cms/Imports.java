@@ -14,13 +14,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.examples;
+package org.apache.openejb.tools.cms;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.openejb.tools.util.IO;
 import org.codehaus.swizzle.stream.StreamLexer;
 
 import java.io.File;
@@ -35,7 +30,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import static org.apache.openejb.tools.util.Join.join;
+import static org.apache.openejb.tools.cms.Join.join;
 
 /**
  * @version $Rev$ $Date$
@@ -45,27 +40,18 @@ public class Imports {
     //private static String base = "http://download.oracle.com/javaee/6/api/javax/ejb/AccessTimeout.html";
     private static String link = "<li><a href=\"http://download.oracle.com/javaee/6/api/%s.html\">%s</a></li>\n";
 
-    static {
-        Logger root = Logger.getRootLogger();
-
-        root.addAppender(new ConsoleAppender(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN)));
-        root.setLevel(Level.INFO);
-    }
-
-    private static final Logger log = Logger.getLogger(Imports.class);
-
     public void run(String... args) throws Exception {
 
         for (String arg : args) {
             final File file = new File(arg);
 
             if (!file.exists()) {
-                log.error("Does not exist: " + file.getAbsolutePath());
+                System.err.println("Does not exist: " + file.getAbsolutePath());
                 continue;
             }
 
             if (!file.isDirectory()) {
-                log.error("Not a directory: " + file.getAbsolutePath());
+                System.err.println("Not a directory: " + file.getAbsolutePath());
                 continue;
             }
 
@@ -139,8 +125,7 @@ public class Imports {
 
     public static void main(String[] args) throws Exception {
         args = processSystemProperties(args);
-//        new Outline().run(args);
-        new Imports().run("/Users/dblevins/work/all/trunk/openejb/examples/decorators");
+        new Imports().run(args);
     }
 
     public static String[] processSystemProperties(String[] args) {
