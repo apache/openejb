@@ -4,7 +4,7 @@
         <section>
 #parse("generate-index/velocity/breadcrumb.vm")
 
-            $content
+$content
         </section>
     </div>
 <article>
