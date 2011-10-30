@@ -37,7 +37,6 @@ import static org.apache.openejb.tools.examples.FileHelper.listFolders;
 import static org.apache.openejb.tools.examples.FileHelper.mkdirp;
 import static org.apache.openejb.tools.examples.ListBuilder.newList;
 import static org.apache.openejb.tools.examples.MapBuilder.newMap;
-import static org.apache.openejb.tools.examples.OpenEJBTemplate.USER_JAVASCRIPTS;
 import static org.apache.openejb.tools.examples.ViewHelper.getAggregateClasses;
 import static org.apache.openejb.tools.examples.ViewHelper.getAndUpdateApis;
 import static org.apache.openejb.tools.examples.ViewHelper.getClassesByApi;
@@ -194,7 +193,6 @@ public class GenerateIndex {
                         newMap(String.class, Object.class)
                                 .add("title", file.getName() + " source")
                                 .add("breadcrumbName", file.getName())
-                                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("file", source)
                                 .add("code", code)
                                 .add("parentLink", link)
@@ -221,7 +219,6 @@ public class GenerateIndex {
                         newMap(String.class, Object.class)
                                 .add("title", example.getName() + " example")
                                 .add("breadcrumbName", example.getName())
-                                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("apis", apiCount)
                                 .add("link", zip.getName())
                                 .add("files", javaFileLinks)
@@ -235,7 +232,6 @@ public class GenerateIndex {
                         newMap(String.class, Object.class)
                                 .add("title", example.getName() + " example")
                                 .add("breadcrumbName", example.getName())
-                                .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("prettyprint.js").list())
                                 .add("content", html)
                                 .map(),
                         index.getPath());
@@ -250,7 +246,7 @@ public class GenerateIndex {
         tpl(properties.getProperty("template.main"),
                 newMap(String.class, Object.class)
                         .add("title", "OpenEJB Examples")
-                        .add(USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
+                        .add(OpenEJBTemplate.USER_JAVASCRIPTS, newList(String.class).add("index.js").list())
                         .add("zipLinks", zipLinks)
                         .add("examples", nameByLink)
                         .add("classes", classesByApi)

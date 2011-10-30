@@ -14,7 +14,7 @@ $(document).ready(function() {
         }
 
         // filtering apis
-        $('div#checkboxes-check > ul > li > input[type=button].button').each(function(i, val) {
+        $('ul.api > li > input[type=button].button').each(function(i, val) {
             var toShow = false;
             if (input.length == 0) {
                 toShow = true;
@@ -79,20 +79,20 @@ function filterExamples($button) {
     }
 
     // filtering examples
-    $('div#examples').find('li' + filteringForExamples).show('fast');
+    $('ul#examples > li.example').show('fast');
     if (selectedClasses.length > 0) {
-        $('div#examples').find('li:not(' + filteringForExamples + ').example').hide();
+        $('ul#examples').find('li:not(' + filteringForExamples + ').example').hide();
     }
 
     // filtering buttons (apis)
     if (correspondingExamples.length > 0) {
         var examples = new Array();
-        $('div#examples').find('li' + filteringForExamples).each(function(i, val) {
+        $('ul#examples').find('li' + filteringForExamples).each(function(i, val) {
             examples.push($(val).attr('example'));
         });
         examples = filterArray(examples);
 
-        $('div#checkboxes-check > ul > li > input[type=button].button').hide();
+        $('ul.api > li.api > input[type=button].button').hide();
         for (var i = 0; i < examples.length; i++) {
             $('li[example="' + examples[i].substring(examples[i].lastIndexOf('_') + 1, examples[i].length) + '"]').each(function(i, val) {
                 $buttons = $(val).attr('class');
@@ -111,7 +111,7 @@ function filterExamples($button) {
         $('#api-info').show();
         $('#api-info').text(examples.length + ' examples are matching');
     } else {
-        $('div#checkboxes-check > ul > li > input[type=button].button').show('fast');
+        $('ul.api > li.api > input[type=button].button').show('fast');
         $('#api-info').hide();
     }
 }

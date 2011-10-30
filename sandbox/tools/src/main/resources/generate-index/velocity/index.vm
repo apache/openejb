@@ -1,39 +1,32 @@
 #parse("generate-index/velocity/header.vm")
-<ARTICLE class="aside">
-    <DIV>
-        <SECTION>
-            <ASIDE class="self">
-                <div id="checkboxes-check">
-                    <div id="search-box">
-                        <H3><SPAN>API:</SPAN></H3>
-                        <input id="searchbox" type="text"/>
-                    </div>
+    <div class="row">
+        <div class="span-one-third">
+            <ul class="api">
+#foreach( $entry in $classes.entrySet() )
+                <li class="api">
+                    <input class="api $examplesClasses.get($entry.key)" type="button"
+                           api="$classes.get($entry.key)" value="$entry.key"
+                           onclick="javascript:filterExamples(this)">
+               </li>
+#end
+            </ul>
+        </div>
 
-                    <div id="api-info"></div>
+        <div class="span-one-third">
+            <ul id="examples">
+#foreach( $example in $examples.entrySet() )
+                <li example="$example.value" class="example $aggregatedClasses.get($example.value)">
+                    <a href="$example.value">$example.key</a>
+                    <a class="downloadzip" href="$zipLinks.get($example.value)">zip</a>
+                </li>
+#end
+            </ul>
+        </div>
 
-                    <ul>
-                        #foreach( $entry in $classes.entrySet() )
-                            <li><input class="$examplesClasses.get($entry.key)" type="button"
-                                       api="$classes.get($entry.key)" value="$entry.key"
-                                       onclick="javascript:filterExamples(this)"></li>
-                        #end
-                    </ul>
-                </div>
-            </ASIDE>
-        </SECTION>
-
-        <SECTION>
-            <div id="examples">
-                <ul>
-                    #foreach( $example in $examples.entrySet() )
-                        <li example="$example.value" class="$aggregatedClasses.get($example.value)"><a
-                                href="$example.value">$example.key</a> <a class="downloadzip"
-                                                                          href="$zipLinks.get($example.value)">zip</a>
-                        </li>
-                    #end
-                </ul>
-            </div>
-        </SECTION>
-    </DIV>
-</ARTICLE>
+        <div class="span-one-third">
+            <h3><span>API:</span></h3>
+            <input id="searchbox" type="text"/>
+            <div id="api-info"></div>
+        </div>
+    </div>
 #parse("generate-index/velocity/footer.vm")
