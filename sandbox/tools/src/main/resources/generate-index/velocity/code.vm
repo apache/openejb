@@ -2,14 +2,13 @@
 <article>
     <div>
         <section>
-            #parse("generate-index/velocity/breadcrumb.vm")
+#parse("generate-index/velocity/breadcrumb.vm")
             <h2>Source: $file</h2>
 
             <div class="preformatted panel" style="border-width: 1px;">
                 <div class="preformattedContent panelContent">
                     <pre class="code-java">
-                        <code>
-$code
+<code>$code
                         </code>
                     </pre>
                 </div>

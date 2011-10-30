@@ -143,7 +143,7 @@ public class GenerateIndex {
                         html = html.replace("<pre><code>", "<div class=\"preformatted panel\" style=\"border-width: 1px;\">\n" +
                             "                <div class=\"preformattedContent panelContent\">\n" +
                             "                    <pre class=\"code-java\">\n" +
-                            "                        <code>");
+                            "<code>"); // don't indent here
                         html = html.replace("</code></pre>", "</code>\n" +
                             "                    </pre>\n" +
                             "                </div>\n" +
