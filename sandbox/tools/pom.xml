@@ -141,6 +141,14 @@
       <artifactId>velocity</artifactId>
       <version>1.7</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.swizzle</groupId>
+      <artifactId>swizzle-stream</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
+
   </dependencies>
 
 </project>
