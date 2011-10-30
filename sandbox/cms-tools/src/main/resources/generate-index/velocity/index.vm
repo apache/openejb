@@ -1,0 +1,24 @@
+#parse("generate-index/velocity/header.vm")
+            <div id="checkboxes-check">
+                <div id="search-box">
+                    API: <input id="searchbox" type="text" />
+                </div>
+
+                <div id="api-info"></div>
+
+                <ul>
+#foreach( $entry in $classes.entrySet() )
+                    <li><input class="$examplesClasses.get($entry.key)" type="button" api="$classes.get($entry.key)" value="$entry.key" onclick="javascript:filterExamples(this)" ></li>
+#end
+                </ul>
+            </div>
+            <div class="spacer" />
+
+            <div id="examples">
+                <ul>
+#foreach( $example in $examples.entrySet() )
+                    <li example="$example.value" class="$aggregatedClasses.get($example.value)"><a href="$example.value">$example.key</a> <a class="downloadzip" href="$zipLinks.get($example.value)">zip</a></li>
+#end
+                </ul>
+            </div>
+#parse("generate-index/velocity/footer.vm")

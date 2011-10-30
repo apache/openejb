@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>$title</title>
+
+        <link href="http://openejb.apache.org/all.css" rel="stylesheet" type="text/css">
+        <!--[if IE]><link rel="stylesheet" type="text/css" media="screen, projection" href="openejb.apache.org/ie.css"><![endif]-->
+
+#if ($css )
+#foreach( $stylesheet in $css )
+        <link href="$base/css/$stylesheet" type="text/css" rel="stylesheet" />
+#end
+#end
+        <link href="$base/css/prettify.css" type="text/css" rel="stylesheet" />
+        <link href="$base/css/openejb-examples.css" type="text/css" rel="stylesheet" />
+
+        <script src="$base/javascript/prettify.js" type="text/javascript"></script>
+        <script src="$base/javascript/jquery-latest.js"></script>
+		<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
+		<script src="$base/javascript/common.js"></script>
+#if ($javascripts )
+#foreach( $js in $javascripts )
+        <script src="$base/javascript/$js"></script>
+#end
+#end
+        <link rel="SHORTCUT ICON" href="http://openejb.apache.org/images/favicon.ico">
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    </head>
+
+    <body>
+       <A name="top"></A>
+    <TABLE class="frameTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+      <TR class="Row1">
+        <TD class="Col1"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col2"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col3"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+      </TR>
+      <TR class="Row2">
+        <TD class="Col1"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col2">&nbsp;</TD>
+        <TD class="Col3" id="breadcrumbs">
+          <!-- $TOP_NAV_BAR -->
+          <A href="http://openejb.staging.apache.org/" title="Index">Home</A> | <A href="http://openejb.staging.apache.org/news.html" title="News">News</A> | <A href="http://openejb.staging.apache.org/faq.html" title="FAQ">FAQ</A> | <A href="http://openejb.staging.apache.org/download.html" title="Download">Download</A> | <A href="http://openejb.staging.apache.org/mailing-lists.html" title="Mailing Lists">Lists</A> | <A href="http://issues.apache.org/jira/browse/OPENEJB" class="external-link" rel="nofollow">Issues</A>
+        </TD>
+        <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5">&nbsp;</TD>
+      </TR>
+      <TR class="Row3">
+        <TD class="Col1"><IMG alt="" class="Row3Img" id="thinLine" src="http://openejb.apache.org/images/line_sm.gif"></TD>
+        <TD class="Col2"><IMG alt="" class="Row3Img" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col3"><IMG alt="" class="Row3Img" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col4"><IMG alt="" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+        <TD class="Col5"><IMG alt="" class="Row3Img" src="http://openejb.apache.org/images/dotTrans.gif"></TD>
+      </TR>
+      <TR class="Row4">
+        <TD class="Col1">
+          <SPAN id="Navigation">
+
+            <H3><A name="Navigation-Overview"></A>Overview</H3>
+
+            <UL class="alternate" type="square">
+            <LI><A href="http://openejb.staging.apache.org/" title="Index">Home</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/news.html" title="News">News</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/faq.html" title="FAQ">FAQ</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/download.html" title="Download">Download</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/../OPENEJBx30/index.html" title="Index">Documentation</A></LI>
+            <LI><A href="http://ci.apache.org/projects/openejb/examples-generated/index.html" title="Examples">Examples</A></LI>
+            <LI><A href="http://cwiki.apache.org/confluence/display/OPENEJB/Lightening%20Demos" class="external-link" rel="nofollow">Lightning Demos</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/mailing-lists.html" title="Mailing Lists">Mailing Lists</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/source-code.html" title="Source Code">Source Code</A></LI>
+            <LI><A href="http://blogs.apache.org/openejb" class="external-link" rel="nofollow">Project Blog</A></LI>
+            </UL>
+
+
+            <H3><A name="Navigation-Servers"></A>Servers</H3>
+
+            <UL class="alternate" type="square">
+            <LI><A href="http://openejb.staging.apache.org/local-server.html" title="Local Server">Local</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/remote-server.html" title="Remote Server">Remote</A></LI>
+            </UL>
+
+
+            <H3><A name="Navigation-Integrations"></A>Integrations</H3>
+
+            <UL class="alternate" type="square">
+            <LI><A href="http://openejb.staging.apache.org/../OPENEJBx30/tomcat.html" title="Tomcat">Tomcat</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/geronimo.html" title="Geronimo">Geronimo</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/webobjects.html" title="WebObjects">WebObjects</A></LI>
+            </UL>
+
+
+            <H3><A name="Navigation-Community"></A>Community</H3>
+
+            <UL class="alternate" type="square">
+            <LI><A href="http://openejb.staging.apache.org/team.html" title="Team">Team</A></LI>
+            <LI><A href="http://openejb.staging.apache.org/articles.html" title="Articles">Articles</A></LI>
+            <LI><A href="http://webchat.freenode.net/?channels=openejb" class="external-link" rel="nofollow">IRC</A></LI>
+            </UL>
+
+
+            <H3><A name="Navigation-RelatedProjects"></A>Related Projects</H3>
+
+            <UL class="alternate" type="square">
+            <LI><A href="http://activemq.apache.org/" class="external-link" rel="nofollow">ActiveMQ</A></LI>
+            <LI><A href="http://openjpa.apache.org/" class="external-link" rel="nofollow">OpenJPA</A></LI>
+            <LI><A href="http://cxf.apache.org/" class="external-link" rel="nofollow">CXF</A></LI>
+            </UL>
+
+          </SPAN>
+        </TD>
+        <TD class="Col2">&nbsp;</TD>
+        <TD class="Col3">
+          <TABLE id="PageHeader" border="0" width="100%">
+            <TR>
+              <TD>
+                <A href="http://openejb.org/">
+                  <IMG hspace="0" src="http://openejb.apache.org/images/logo_openejb.gif" vspace="0">
+                </A>
+              </TD>
+              <TD align="right">
+                <A href="http://www.apache.org/">
+                  <IMG src="http://www.apache.org/images/asf-logo.gif" width="258" height="66">
+                </A>
+              </TD>
+            </TR>
+            <TR>
+              <TD id="page_title">
+                <!-- $TITLE -->
+                ${title}
+              </TD>
+              <td align="right" style="text-align: right;">
+                <table align="right">
+                  <tr>
+                      <TD>
+                        <!-- Google CSE Search Box Begins  -->
+                        <FORM id="searchbox_010475492895890475512:_t4iqjrgx90" action="http://www.google.com/cse">
+                          <INPUT type="hidden" name="cx" value="010475492895890475512:_t4iqjrgx90">
+                          <INPUT type="hidden" name="cof" value="FORID:0">
+                          <INPUT name="q" type="text" size="25">
+                          <INPUT type="submit" name="sa" value="Search">
+                        </FORM>
+                        <SCRIPT type="text/javascript"
+                                src="http://www.google.com/coop/cse/brand?form=searchbox_010475492895890475512:_t4iqjrgx90"></SCRIPT>
+                        <!-- Google CSE Search Box Ends -->
+                      </TD>
+                      <TD>
+                        <a id="fb_share_link" name="fb_share" share_url="" type="button_count"></a>
+                      </TD>
+                      <TD>
+                        <a id="tweeter_share_link" href="" class="twitter-share-button">Share on twitter</a>
+                      </TD>
+                    </tr>
+                </table>
+              </td>
+            </TR>
+          </TABLE>
+          <P>
+            <!-- $BODY -->
+            <DIV id="PageContent">

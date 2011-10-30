@@ -1,0 +1,8 @@
+           <div id="javaFiles">
+                <ul>
+                    Files:
+#foreach( $file in $files )
+                    <li><a href="${file}.html">$file</a></li>
+#end
+                </ul>
+            </div>

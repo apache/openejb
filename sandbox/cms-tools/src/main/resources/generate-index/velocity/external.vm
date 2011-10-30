@@ -1,0 +1,4 @@
+#parse("generate-index/velocity/header.vm")
+#parse("generate-index/velocity/breadcrumb.vm")
+            $content
+#parse("generate-index/velocity/footer.vm")
