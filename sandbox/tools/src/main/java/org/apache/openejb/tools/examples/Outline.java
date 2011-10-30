@@ -74,7 +74,9 @@ public class Outline {
         out.print("Title: ");
         out.println(title(dir));
         out.println();
-        out.println("*Help us document this example! Source available in [svn](http://svn.apache.org/repos/asf/openejb/trunk/openejb/examples/" + dir.getName() + ") or [git](https://github.com/apache/openejb/tree/trunk/openejb/examples/" + dir.getName() + "). Open a [JIRA](https://issues.apache.org/jira/browse/TOMEE) with patch or pull request*");
+        String path = dir.getAbsolutePath();
+        path = path.substring(0, path.indexOf("examples/") + 10);
+        out.println("*Help us document this example! Source available in [svn](http://svn.apache.org/repos/asf/openejb/trunk/openejb/examples/" + path + ") or [git](https://github.com/apache/openejb/tree/trunk/openejb/examples/" + path + "). Open a [JIRA](https://issues.apache.org/jira/browse/TOMEE) with patch or pull request*");
         final File main = Files.file(dir, "src", "main");
         final File test = Files.file(dir, "src", "test");
 
