@@ -43,7 +43,7 @@ public class Imports {
     public void run(String... args) throws Exception {
 
         for (String arg : args) {
-            final File file = new File(arg);
+            File file = new File(arg);
 
             if (!file.exists()) {
                 System.err.println("Does not exist: " + file.getAbsolutePath());
@@ -51,8 +51,7 @@ public class Imports {
             }
 
             if (!file.isDirectory()) {
-                System.err.println("Not a directory: " + file.getAbsolutePath());
-                continue;
+                file = file.getParentFile();
             }
 
             final Set<String> imports = imports(file);
