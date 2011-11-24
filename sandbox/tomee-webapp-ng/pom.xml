@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tomee-webapp-ng</groupId>
+  <artifactId>tomee-webapp-ng</artifactId>
+  <version>1.0.0-beta-2-SNAPSHOT</version>
+  <packaging>war</packaging>
+
+  <repositories>
+    <repository>
+      <id>primefaces</id>
+      <name>PrimeFaces repository</name>
+      <url>http://repository.primefaces.org/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.primefaces</groupId>
+      <artifactId>primefaces</artifactId>
+      <version>3.0.M4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.primefaces.themes</groupId>
+      <artifactId>rocket</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>tomee-webapp</artifactId>
+      <version>4.0.0-beta-2-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>7.0.21</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <configuration>
+          <packagingExcludes>WEB-INF/web.xml</packagingExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.googlecode.t7mp</groupId>
+        <artifactId>maven-t7-plugin</artifactId>
+        <version>0.9.7</version>
+        <configuration>
+          <tomcatHttpPort>1234</tomcatHttpPort>
+          <tomcatShutdownPort>13245</tomcatShutdownPort>
+          <tomcatVersion>7.0.21</tomcatVersion>
+          <webapps>
+            <webappArtifact>
+              <groupId>org.apache.openejb</groupId>
+              <artifactId>tomee-webapp</artifactId>
+              <version>4.0.0-beta-2-SNAPSHOT</version>
+              <contextPath>openejb</contextPath>
+            </webappArtifact>
+          </webapps>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

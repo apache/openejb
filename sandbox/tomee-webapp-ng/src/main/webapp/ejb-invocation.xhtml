@@ -1,0 +1,27 @@
+<ui:composition template="WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+  <ui:define name="title">Method invocation configuration</ui:define>
+  <ui:define name="content">
+    <h:form>
+      <h:dataTable value="#{ejbInvocationHelper.methodParameters}" var="methodInfo">
+        <h:column>
+          <f:facet name="header">
+            <h:outputText value="Type" />
+          </f:facet>
+          <h:outputText value="#{methodInfo.type}" />
+        </h:column>
+        <h:column>
+          <f:facet name="header">
+            <h:outputText value="Value" />
+          </f:facet>
+          <h:inputText value="#{methodInfo.value}" />
+        </h:column>
+      </h:dataTable>
+      <h:messages />
+      <h:commandButton action="#{ejbInvocationHelper.submit}" value="Submit" />
+    </h:form>
+  </ui:define>
+</ui:composition>

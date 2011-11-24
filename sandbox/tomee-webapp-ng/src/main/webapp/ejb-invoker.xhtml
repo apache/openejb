@@ -1,0 +1,9 @@
+<ui:composition template="WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+  <ui:define name="title">Method invocation</ui:define>
+  <ui:define name="content">
+    <h:outputText value="Result: #{ejbInvokerHelper.invoke}" />
+  </ui:define>
+</ui:composition>

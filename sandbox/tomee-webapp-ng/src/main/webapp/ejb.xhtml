@@ -1,0 +1,27 @@
+<ui:composition template="WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+  <ui:define name="title"> EJB(s)</ui:define>
+  <ui:define name="content">
+    <p:tree value="#{ejbHelper.EJB}" var="node" dynamic="true" style="width:100%;">
+      <p:treeNode type="root">
+        <h:outputText value="#{node}" styleClass="root" />
+      </p:treeNode>
+      <p:treeNode type="empty">
+        <h:outputText value="#{node}" styleClass="empty" />
+      </p:treeNode>
+      <p:treeNode type="application">
+        <h:outputText value="#{node}" styleClass="application" />
+      </p:treeNode>
+      <p:treeNode type="ejb">
+        <h:link outcome="ejb-methods" value="#{node.name} (#{node.classname})">
+          <f:param name="app" value="#{node.app}"/>
+          <f:param name="name" value="#{node.name}"/>
+        </h:link>
+      </p:treeNode>
+    </p:tree>
+  </ui:define>
+</ui:composition>

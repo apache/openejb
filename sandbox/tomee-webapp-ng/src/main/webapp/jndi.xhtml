@@ -1,0 +1,26 @@
+<ui:composition template="WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+  <ui:define name="title"> Jndi Tree(s)</ui:define>
+  <ui:define name="content">
+    <p:tree value="#{jndiHelper.jndi}" var="node" dynamic="true" style="width:100%;">
+      <p:treeNode type="root">
+        <h:outputText value="#{node}" styleClass="root" />
+      </p:treeNode>
+      <p:treeNode type="application">
+        <h:outputText value="#{node}" styleClass="application" />
+      </p:treeNode>
+      <p:treeNode type="module">
+        <h:outputText value="#{node}" styleClass="module" />
+      </p:treeNode>
+      <p:treeNode type="context">
+        <h:outputText value="#{node}" styleClass="context" />
+      </p:treeNode>
+      <p:treeNode type="leaf">
+        <h:outputText value="#{node.name} > #{node.value}" styleClass="leaf" />
+      </p:treeNode>
+    </p:tree>
+  </ui:define>
+</ui:composition>
