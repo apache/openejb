@@ -27,9 +27,6 @@ import javax.ejb.RemoteHome;
 import org.apache.openejb.core.stateful.StatefulEjbObjectHandler;
 import org.apache.openejb.util.proxy.ProxyManager;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 @Stateless(name = "httpd/session")
 @RemoteHome(WebSessionHome.class)
 public class WebSessionBean implements SessionBean {

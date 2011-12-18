@@ -12,9 +12,6 @@ import javax.inject.Named;
 import javax.naming.NamingException;
 import java.util.List;
 
-/**
- * @author rmannibucau
- */
 @Named("ejbHelper")
 @ApplicationScoped
 public class EJBHelper {

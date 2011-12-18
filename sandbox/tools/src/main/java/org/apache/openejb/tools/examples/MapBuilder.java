@@ -3,9 +3,6 @@ package org.apache.openejb.tools.examples;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class MapBuilder<A, B> {
     private Map<A, B> internal = new HashMap<A, B>();
     private Class<A> kClass;

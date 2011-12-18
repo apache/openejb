@@ -19,9 +19,6 @@ import java.util.Map;
 
 import static org.apache.tomee.webapp.jsf.JndiHelper.JndiTreeHelper.runOnJndiTree;
 
-/**
- * @author rmannibucau
- */
 @Named
 @ApplicationScoped
 public class JndiHelper {

@@ -36,9 +36,6 @@ import org.apache.openejb.webadmin.HttpHome;
 import javax.ejb.Stateless;
 import javax.ejb.RemoteHome;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 @Stateless(name = "ClientTools/ViewJndi")
 @RemoteHome(HttpHome.class)
 public class InvokeObjectBean extends WebAdminBean implements Constants {

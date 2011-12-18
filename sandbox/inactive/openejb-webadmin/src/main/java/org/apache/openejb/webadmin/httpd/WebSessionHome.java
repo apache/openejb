@@ -20,9 +20,6 @@ import java.rmi.RemoteException;
 
 import javax.ejb.EJBHome;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 public interface WebSessionHome extends EJBHome {
 
     public WebSession create() throws RemoteException;

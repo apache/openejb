@@ -18,7 +18,6 @@ package org.apache.openejb.webadmin;
 
 /**This interface takes care of HTTP Responses.  It sends data back to the browser.
  * 
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface HttpResponse extends java.io.Serializable{
     /** sets a header to be sent back to the browser

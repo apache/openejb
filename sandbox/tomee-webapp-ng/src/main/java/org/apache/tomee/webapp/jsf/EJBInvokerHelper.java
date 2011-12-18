@@ -22,9 +22,6 @@ import static org.apache.tomee.webapp.jsf.OpenEJBHelper.baseClass;
 import static org.apache.tomee.webapp.jsf.OpenEJBHelper.bean;
 import static org.apache.tomee.webapp.jsf.OpenEJBHelper.method;
 
-/**
- * @author rmannibucau
- */
 @Named("ejbInvokerHelper")
 public class EJBInvokerHelper {
     @Inject @Named("invocation") @SessionScoped private Invocation invocation;

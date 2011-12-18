@@ -15,9 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class OpenEJBTemplate {
     private static final Logger LOGGER = Logger.getLogger(OpenEJBTemplate.class);
 

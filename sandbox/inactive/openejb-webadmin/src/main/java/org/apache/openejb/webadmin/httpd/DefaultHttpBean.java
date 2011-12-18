@@ -38,7 +38,6 @@ import org.apache.openejb.loader.SystemInstance;
 
 /** This is a webadmin bean which has default functionality such as genderating
  * error pages and setting page content.
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 @Stateless(name = "httpd/DefaultBean")
 @RemoteHome(HttpHome.class)

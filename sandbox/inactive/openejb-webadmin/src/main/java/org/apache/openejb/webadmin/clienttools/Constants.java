@@ -16,9 +16,6 @@
  */
 package org.apache.openejb.webadmin.clienttools;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 public interface Constants {
     public static final String VIEW_CLASS = "/ClientTools/ViewClass";
     public static final String VIEW_JNDI = "/ClientTools/ViewJndi";

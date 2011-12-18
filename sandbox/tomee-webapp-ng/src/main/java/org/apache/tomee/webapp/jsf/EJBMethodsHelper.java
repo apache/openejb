@@ -14,9 +14,6 @@ import static org.apache.tomee.webapp.jsf.OpenEJBHelper.app;
 import static org.apache.tomee.webapp.jsf.OpenEJBHelper.baseClass;
 import static org.apache.tomee.webapp.jsf.OpenEJBHelper.methods;
 
-/**
- * @author rmannibucau
- */
 @Named("ejbMethodsHelper")
 public class EJBMethodsHelper {
     private List<OpenEJBHelper.MethodInfo> dataTable;

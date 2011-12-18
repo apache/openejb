@@ -20,7 +20,6 @@ package org.apache.openejb.webadmin;
 /** An interface to take care of HTTP Requests.  It parses headers, content, form and url
  *  parameters.
  *
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface HttpRequest extends java.io.Serializable{
     

@@ -5,7 +5,6 @@ import org.codehaus.mojo.exec.AbstractExecMojo;
 /**
  * This abstract mojo is used by all mojos Deploy/Undeploy/Start/Stop
  * 
- * @author <a href="mailto:jlmonteiro@apache.org">Jean-Louis MONTEIRO</a>
  * @version $Id$
  * @since 2.0
  */

@@ -18,8 +18,6 @@ package org.apache.openejb.webadmin;
 
 
 /** The standard EJB Object interface for the webadmin
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Uberg</a>
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface HttpObject extends javax.ejb.EJBObject {
     /** This is the main method for all the web admin beans.  It does all the processing

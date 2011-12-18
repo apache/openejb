@@ -3,9 +3,6 @@ package org.apache.openejb.tools.examples;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class ListBuilder<T> {
     private List<T> internal = new ArrayList<T>();
     private Class<T> clazz;

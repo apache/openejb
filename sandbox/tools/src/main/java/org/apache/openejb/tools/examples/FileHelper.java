@@ -8,9 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class FileHelper {
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 

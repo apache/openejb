@@ -39,7 +39,6 @@ import javax.ejb.RemoteHome;
 
 /** This bean lists the openejb.log and transaction.log files
  *
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 @Stateless(name = "Webadmin/ListLogs")
 @RemoteHome(HttpHome.class)

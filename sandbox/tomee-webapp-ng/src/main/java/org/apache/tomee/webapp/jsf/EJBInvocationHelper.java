@@ -11,9 +11,6 @@ import java.util.List;
 import static org.apache.tomee.webapp.jsf.JSFHelper.param;
 import static org.apache.tomee.webapp.jsf.OpenEJBHelper.method;
 
-/**
- * @author rmannibucau
- */
 @Named("ejbInvocationHelper")
 @SessionScoped
 public class EJBInvocationHelper implements Serializable {

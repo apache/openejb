@@ -33,7 +33,6 @@ import javax.ejb.Stateless;
 import javax.ejb.RemoteHome;
 
 /** Prints out a list of system properties for the server.
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 @Stateless(name = "Webadmin/Properties")
 @RemoteHome(HttpHome.class)

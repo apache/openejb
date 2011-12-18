@@ -12,9 +12,6 @@ import java.util.zip.ZipOutputStream;
 
 import static org.apache.openejb.tools.examples.FileHelper.mkdirp;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class ZipHelper {
     private static final Logger LOGGER = Logger.getLogger(ZipHelper.class);
     private static final int BUFFER_SIZE = Integer.parseInt(ExamplesPropertiesManager.get().getProperty("zip.buffer"));

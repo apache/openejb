@@ -20,9 +20,6 @@ package org.apache.openejb.util;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class NetworkUtil {
     private NetworkUtil() {
         // no-op

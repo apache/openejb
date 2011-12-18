@@ -17,10 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ${package}.ejb.CalculatorImpl;
 
-/**
- *
- * @author jon
- */
 public class CalculatorServlet extends HttpServlet {
     @EJB
     private CalculatorImpl calc;

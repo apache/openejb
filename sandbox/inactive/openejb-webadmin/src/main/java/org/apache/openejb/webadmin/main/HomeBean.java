@@ -29,7 +29,6 @@ import javax.ejb.RemoteHome;
 
 /** This class represents the "Home" page for the webadmin.  It contains general
  * information, and more content to be added later.
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 @Stateless(name = "Webadmin/Home")
 @RemoteHome(HttpHome.class)

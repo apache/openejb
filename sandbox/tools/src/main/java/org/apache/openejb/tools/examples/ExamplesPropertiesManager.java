@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class ExamplesPropertiesManager {
     private static final Logger LOGGER = Logger.getLogger(ExamplesPropertiesManager.class);
     private static final String TEMPLATE_COMMON_PROPERTIES = "generate-index/config.properties";

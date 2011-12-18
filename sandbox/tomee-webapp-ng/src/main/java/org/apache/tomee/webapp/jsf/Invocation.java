@@ -6,9 +6,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author rmannibucau
- */
 @Named("invocation")
 @SessionScoped
 public class Invocation implements Serializable {

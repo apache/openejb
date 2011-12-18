@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * @author rmannibucau
- */
 public class PatchedMetadataMap extends MetadataMap<String, String> {
     public PatchedMetadataMap(Map<String, List<String>> store, boolean ro, boolean ci) {
         super(store, ro, ci);

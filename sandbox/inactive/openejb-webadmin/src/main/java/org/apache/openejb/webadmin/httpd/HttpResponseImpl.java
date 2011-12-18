@@ -38,8 +38,6 @@ import org.apache.openejb.util.JarUtils;
 import org.apache.openejb.util.OpenEjbVersion;
 
 /** This class takes care of HTTP Responses.  It sends data back to the browser.
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class HttpResponseImpl implements HttpResponse {
 

@@ -40,9 +40,6 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.BeanType;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 @Stateless(name = "ClientTools/ViewEjb")
 @RemoteHome(HttpHome.class)
 public class ViewEjbBean extends WebAdminBean implements Constants {

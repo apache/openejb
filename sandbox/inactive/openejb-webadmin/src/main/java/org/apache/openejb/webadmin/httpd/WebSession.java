@@ -20,9 +20,6 @@ import javax.ejb.EJBObject;
 
 import org.apache.openejb.webadmin.HttpSession;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 public interface WebSession extends EJBObject, HttpSession {
 
 }

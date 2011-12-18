@@ -44,8 +44,6 @@ import org.apache.openejb.loader.FileUtils;
 
 /** A class to take care of HTTP Requests.  It parses headers, content, form and url
  * parameters.
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class HttpRequestImpl implements HttpRequest {
     public static final String FORM_URL_ENCODED = "application/x-www-form-urlencoded";

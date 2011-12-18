@@ -21,7 +21,6 @@ import java.io.Serializable;
 /**
  * A simple data object for ejb and resource reference data
  * 
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class ReferenceData implements Serializable {
 	public static final String RESOURCE_REFERENCE = "resource_reference";

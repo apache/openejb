@@ -38,8 +38,6 @@ import org.apache.openejb.webadmin.HttpObject;
  * This is the main class for the web administration.  It takes care of the
  * processing from the browser, sockets and threading.
  * 
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  * @since 11/25/2001
  */
 public class HttpServer implements ServerService{

@@ -18,7 +18,6 @@ package org.apache.openejb.webadmin;
 
 /** This is ejb interface for the webadmin.  It contains one message which gets
  * executed on each webadmin bean
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface HttpBean extends javax.ejb.SessionBean{
     /** This is the main method for all the web admin beans.  It does all the processing

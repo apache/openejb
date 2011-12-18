@@ -22,8 +22,6 @@ import javax.ejb.CreateException;
 
 /** This is the standard EJB Home interface for the webadmin.  It contains the
  * create method.
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Uberg</a>
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface HttpHome extends javax.ejb.EJBHome {
     /** Creates a new EJB object for the web administration

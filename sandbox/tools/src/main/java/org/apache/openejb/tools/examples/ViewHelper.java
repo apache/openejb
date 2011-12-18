@@ -17,9 +17,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-/**
- * @author Romain Manni-Bucau
- */
 public final class ViewHelper {
     private static final Logger LOGGER = Logger.getLogger(ViewHelper.class);
 

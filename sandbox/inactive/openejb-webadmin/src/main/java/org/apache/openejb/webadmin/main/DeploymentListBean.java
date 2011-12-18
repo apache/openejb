@@ -49,8 +49,6 @@ import javax.ejb.RemoteHome;
 /**
  * A bean which lists all deployed beans.
  * 
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 @Stateless(name = "Webadmin/DeploymentList")
 @RemoteHome(HttpHome.class)

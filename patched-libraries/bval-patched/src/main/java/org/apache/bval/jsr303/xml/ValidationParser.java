@@ -49,7 +49,6 @@ import java.util.Set;
  *
  * see https://issues.apache.org/jira/browse/BVAL-97
  *
- * @author rmannibucau
  */
 public class ValidationParser {
     private static final String DEFAULT_VALIDATION_XML_FILE = "META-INF/validation.xml";

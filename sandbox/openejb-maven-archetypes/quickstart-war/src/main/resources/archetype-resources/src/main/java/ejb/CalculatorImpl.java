@@ -10,10 +10,6 @@ package ${package}.ejb;
 
 import javax.ejb.Stateless;
 
-/**
- *
- * @author jon
- */
 @Stateless
 public class CalculatorImpl {
     public int sum (int num1, int num2) {

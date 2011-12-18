@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * @author rmannibucau
- */
 public final class OpenEJBHelper {
     private static final ContainerSystem CONTAINER_SYSTEM = SystemInstance.get().getComponent(ContainerSystem.class);
 

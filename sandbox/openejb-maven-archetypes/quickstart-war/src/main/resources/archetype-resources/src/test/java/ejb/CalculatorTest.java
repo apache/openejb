@@ -15,10 +15,6 @@ import javax.naming.InitialContext;
 import org.junit.Before;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author jon
- */
 public class CalculatorTest {
     
     private InitialContext context;

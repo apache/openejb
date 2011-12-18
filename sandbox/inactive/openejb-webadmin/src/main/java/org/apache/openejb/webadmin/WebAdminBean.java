@@ -55,8 +55,6 @@ import javax.naming.NamingEnumeration;
  *  public void writeSubMenuItems(PrintWriter body) throws IOException {}<br>
  *  </code>
  *
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public abstract class WebAdminBean implements HttpBean {
     /** used for the session context

@@ -16,9 +16,6 @@
  */
 package org.apache.openejb.webadmin;
 
-/**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
- */
 public interface HttpSession {
 
     public void removeAttribute(String name);
