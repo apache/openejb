@@ -16,19 +16,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!--
-    TODO: Start with hard coded versions. Next step will be to use maven
-    filters
--->
+
 <features>
   <repository>mvn:org.apache.openejb/javaee-api/${project.version}/xml/features</repository>
 
-  <feature name="javaee-api-embedded" version="${project.version}">
+  <feature name="javaee-api" version="${project.version}">
     <bundle>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta_1.1_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-activation_1.1_spec/${geronimo-activation_1.1_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/${geronimo-annotation_1.1_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-atinject_1.0_spec/${geronimo-atinject_1.0_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-servlet_3.0_spec/${geronimo-servlet_3.0_spec.version}</bundle>
+    <bundle>mvn:org.apache.geronimo.specs/geronimo-jsp_2.2_spec/${geronimo-jsp_2.2_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-ejb_3.1_spec/${geronimo-ejb_3.1_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-el_2.2_spec/${geronimo-el_2.2_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-interceptor_1.1_spec/${geronimo-interceptor_1.1_spec.version}</bundle>
