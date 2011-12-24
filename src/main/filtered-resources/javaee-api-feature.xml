@@ -18,8 +18,6 @@
 -->
 
 <features>
-  <repository>mvn:org.apache.openejb/javaee-api/${project.version}/xml/features</repository>
-
   <feature name="javaee-api" version="${project.version}">
     <bundle>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta_1.1_spec.version}</bundle>
     <bundle>mvn:org.apache.geronimo.specs/geronimo-activation_1.1_spec/${geronimo-activation_1.1_spec.version}</bundle>
