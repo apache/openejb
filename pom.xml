@@ -106,13 +106,13 @@
     <openejb.osgi.symbolic.name>${project.groupId}.${project.artifactId}</openejb.osgi.symbolic.name>
 
     <!-- to change easily the javaee api version -->
-    <javaee-api.version>6.0-3-SNAPSHOT</javaee-api.version>
+    <javaee-api.version>6.0-3</javaee-api.version>
 
     <!-- Used mainly in assembly/openejb-tomcat* projects  -->
     <tomcat.version>7.0.21</tomcat.version>
 
     <!-- used mainly by jetty modules -->
-    <openejb-cxf.version>2.5.1-SNAPSHOT</openejb-cxf.version>
+    <openejb-cxf.version>2.5.1</openejb-cxf.version>
     <jetty.version>7.5.3.v20111011</jetty.version>
 
     <!--
