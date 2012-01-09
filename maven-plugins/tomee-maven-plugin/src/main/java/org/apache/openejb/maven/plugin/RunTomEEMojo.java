@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -333,9 +335,19 @@ public class RunTomEEMojo extends AbstractMojo {
     private File resolve() {
         if ("snapshots".equals(apacheRepos) || "true".equals(apacheRepos)) {
             remoteRepos.add(new DefaultArtifactRepository("apache", "https://repository.apache.org/content/repositories/snapshots/",
-            new DefaultRepositoryLayout(),
-            new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY , CHECKSUM_POLICY_WARN),
-            new ArtifactRepositoryPolicy(false, UPDATE_POLICY_NEVER , CHECKSUM_POLICY_WARN)));
+                new DefaultRepositoryLayout(),
+                new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY , CHECKSUM_POLICY_WARN),
+                new ArtifactRepositoryPolicy(false, UPDATE_POLICY_NEVER , CHECKSUM_POLICY_WARN)));
+        } else {
+            try {
+                new URI(apacheRepos); // to check it is a uri
+                remoteRepos.add(new DefaultArtifactRepository("additional-repo-tomee-mvn-plugin", apacheRepos,
+                        new DefaultRepositoryLayout(),
+                        new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY , CHECKSUM_POLICY_WARN),
+                        new ArtifactRepositoryPolicy(true, UPDATE_POLICY_NEVER , CHECKSUM_POLICY_WARN)));
+            } catch (URISyntaxException e) {
+                // ignored, use classical repos
+            }
         }
 
         try {
