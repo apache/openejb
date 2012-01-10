@@ -25,6 +25,7 @@ import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.util.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -187,6 +188,12 @@ public abstract class AbstractTomEEMojo extends AbstractMojo {
     }
 
     private void copyWar() {
+        try {
+            FileUtils.deleteDirectory(warFile);
+        } catch (IOException e) {
+            throw new TomEEException(e.getMessage(), e);
+        }
+
         InputStream is = null;
         OutputStream os = null;
         try {
