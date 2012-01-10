@@ -18,17 +18,12 @@
 package org.apache.openejb.maven.plugin;
 
 /**
- * @goal run
+ * @goal stop
  * @requiresDependencyResolution runtime
  */
-public class RunTomEEMojo extends AbstractTomEEMojo {
+public class StopTomEEMojo extends AbstractTomEEMojo {
     @Override
     public String getCmd() {
-        return "start";
-    }
-
-    @Override
-    protected boolean getNoShutdownHook() {
-        return false;
+        return "stopd";
     }
 }

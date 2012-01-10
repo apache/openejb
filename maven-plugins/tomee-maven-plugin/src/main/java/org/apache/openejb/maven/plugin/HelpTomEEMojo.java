@@ -17,18 +17,21 @@
 
 package org.apache.openejb.maven.plugin;
 
-/**
- * @goal run
- * @requiresDependencyResolution runtime
- */
-public class RunTomEEMojo extends AbstractTomEEMojo {
-    @Override
-    public String getCmd() {
-        return "start";
-    }
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
+/**
+ * @goal help
+ */
+public class HelpTomEEMojo extends AbstractMojo {
     @Override
-    protected boolean getNoShutdownHook() {
-        return false;
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        getLog().info("Available commands:");
+        getLog().info("\t- tomee:run: run and wait the server");
+        getLog().info("\t- tomee:start: run the server");
+        getLog().info("\t- tomee:stop: stop the server (to use with start)");
+        getLog().info("\t- tomee:configtest: run configtest tomcat command");
+        getLog().info("\t- tomee:help: this");
     }
 }
