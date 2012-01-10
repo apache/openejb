@@ -188,8 +188,10 @@ public abstract class AbstractTomEEMojo extends AbstractMojo {
     }
 
     private void copyWar() {
+        final File out = new File(catalinaBase, webappDir + "/" + warFile.getName());
+
         try {
-            FileUtils.deleteDirectory(warFile);
+            FileUtils.deleteDirectory(out);
         } catch (IOException e) {
             throw new TomEEException(e.getMessage(), e);
         }
@@ -198,7 +200,7 @@ public abstract class AbstractTomEEMojo extends AbstractMojo {
         OutputStream os = null;
         try {
             is = new FileInputStream(warFile);
-            os = new FileOutputStream(new File(catalinaBase, webappDir + "/" + warFile.getName()));
+            os = new FileOutputStream(out);
             copy(is, os);
         } catch (Exception e) {
             throw new TomEEException(e.getMessage(), e);
