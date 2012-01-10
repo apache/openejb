@@ -22,7 +22,6 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.DefaultArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -55,7 +54,7 @@ import static org.apache.maven.artifact.versioning.VersionRange.createFromVersio
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.IOUtil.copy;
 
-public abstract class AbstractTomEEMojo extends AbstractMojo {
+public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     /**
      * @component
      */
@@ -112,19 +111,9 @@ public abstract class AbstractTomEEMojo extends AbstractMojo {
     protected String tomeeClassifier;
 
     /**
-     * @parameter expression="${tomee-plugin.http}" default-value="8080"
-     */
-    protected int tomeeHttpPort = 8008;
-
-    /**
      * @parameter expression="${tomee-plugin.shutdown}" default-value="8005"
      */
     protected int tomeeShutdownPort = 8005;
-
-    /**
-     * @parameter expression="${tomee-plugin.host}" default-value="localhost"
-     */
-    protected String tomeeHost;
 
     /**
      * @parameter expression="${tomee-plugin.args}"
