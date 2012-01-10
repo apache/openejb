@@ -1,0 +1,40 @@
+#set( $version = "1.0.0-beta-2" )
+#set( $upgrades = $utils.load("org.apache.openejb.tools.release.Upgrades") )
+#set( $upgrades = $upgrades.add("TOMEE", ["1.0.0-beta-2"]) )
+#set( $upgrades = $upgrades.add("OPENEJB", ["4.0.0-beta-2"]) )
+#set( $upgrades = $upgrades.add("OWB", ["1.1.2", "1.1.3"]) )
+#set( $upgrades = $upgrades.add("AMQ", ["5.4.3", "5.5.0", "5.5.1"]) )
+#set( $upgrades = $upgrades.add("CXF", ["2.4.2", "2.4.3", "2.4.4", "2.4.5", "2.5", "2.5.1"]) )
+#set( $issues = $upgrades.issues.unique("key") )
+
+Apache TomEE $version
+
+$date
+
+New Features:
+
+#foreach ( $issue in $issues.equals("type", "New Feature") )
+  * [$issue.key] $issue.summary
+#end
+
+Improvements:
+
+#foreach ( $issue in $issues.equals("type", "Improvement") )
+  * [$issue.key] $issue.summary
+#end
+
+Bugs:
+
+#foreach ( $issue in $issues.equals("type", "Bug") )
+  * [$issue.key] $issue.summary
+#end
+
+Tasks & Sub-Tasks:
+
+#foreach ( $issue in $issues.equals("type", "Task") )
+  * [$issue.key] $issue.summary
+#end
+#foreach ( $issue in $issues.equals("type", "Sub-task") )
+  * [$issue.key] $issue.summary
+#end
+

@@ -86,6 +86,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.codehaus.swizzle</groupId>
+      <artifactId>swizzle-jirareport</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.swizzle</groupId>
+      <artifactId>swizzle-stream</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.rat.tentacles</groupId>
       <artifactId>apache-rat-tentacles</artifactId>
       <version>0.1-SNAPSHOT</version>

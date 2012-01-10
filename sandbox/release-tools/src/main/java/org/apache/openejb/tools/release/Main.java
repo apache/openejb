@@ -42,6 +42,7 @@ public class Main {
     static {
         commands.put("download", DownloadDirectory.class);
         commands.put("legal", org.apache.rat.tentacles.Main.class);
+        commands.put("notes", ReleaseNotes.class);
     }
 
     public static void main(String[] args) throws Exception {
