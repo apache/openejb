@@ -59,7 +59,7 @@ public class ListEjbMojo extends AbstractCommandMojo {
         boolean empty = true;
         final StringBuilder sb = new StringBuilder();
         if (bc.localbean) {
-            sb.append("LocalBean");
+            sb.append("Local Bean");
             empty = false;
         }
         if (bc.businessLocal != null && !bc.businessLocal.isEmpty()) {
