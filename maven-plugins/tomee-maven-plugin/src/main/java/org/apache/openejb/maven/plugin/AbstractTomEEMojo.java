@@ -1,4 +1,5 @@
-package org.apache.openejb.maven.plugin;/*
+package org.apache.openejb.maven.plugin;
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
  *  this work for additional information regarding copyright ownership.
@@ -159,7 +160,12 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     /**
      * @parameter
      */
-    protected Map<String, String> systemVariables = new HashMap<String, String>();
+    protected Map<String, String> systemVariables;
+
+    /**
+     * @parameter
+     */
+    protected List<String> libs;
 
     /**
      * @parameter default-value="${project.build.directory}/${project.build.finalName}.${project.packaging}"
@@ -170,11 +176,59 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         unzip(resolve(), catalinaBase);
+        copyLibs();
         overrideConf(config);
         overrideConf(bin);
         overrideAddresses();
         copyWar();
         run();
+    }
+
+    private void copyLibs() {
+        if (libs == null || libs.isEmpty()) {
+            return;
+        }
+
+        final File destParent = new File(catalinaBase, "lib");
+        for (String lib : libs) {
+            copyLib(lib, destParent);
+        }
+    }
+
+    private void copyLib(final String lib, final File destParent) {
+        FileInputStream is = null;
+        FileOutputStream os = null;
+        final String[] infos = lib.split(":");
+        final String classifier;
+        final String type;
+        if (infos.length < 3) {
+            throw new TomEEException("format for librairies should be <groupId>:<artifactId>:<version>[:<type>[:<classifier>]]");
+        }
+        if (infos.length >= 4) {
+            type = infos[3];
+        } else {
+            type = "jar";
+        }
+        if (infos.length == 5) {
+            classifier = infos[4];
+        } else {
+            classifier = null;
+        }
+
+        try {
+            final Artifact artifact = factory.createDependencyArtifact(infos[0], infos[1], createFromVersion(infos[2]), type, classifier, SCOPE_COMPILE);
+            resolver.resolve(artifact, remoteRepos, local);
+            final File file = artifact.getFile();
+            is = new FileInputStream(file);
+            os = new FileOutputStream(new File(destParent, file.getName()));
+            copy(is, os);
+        } catch (Exception e) {
+            getLog().error(e.getMessage(), e);
+            throw new TomEEException(e.getMessage(), e);
+        } finally {
+            close(is);
+            close(os);
+        }
     }
 
     private void copyWar() {
@@ -281,7 +335,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         }
         if (debug) {
             builder.command().addAll(Arrays.asList(
-                "-Xnoagent", "-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort
+                    "-Xnoagent", "-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort
             ));
         }
         builder.command().addAll(systemProperties());
@@ -339,7 +393,9 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         if (getNoShutdownHook()) {
             prop.put("tomee.noshutdownhook", "true");
         }
-        prop.putAll(systemVariables);
+        if (systemVariables != null) {
+            prop.putAll(systemVariables);
+        }
 
         // converting it
         final List<String> strings = new ArrayList<String>();
@@ -372,16 +428,16 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     private File resolve() {
         if ("snapshots".equals(apacheRepos) || "true".equals(apacheRepos)) {
             remoteRepos.add(new DefaultArtifactRepository("apache", "https://repository.apache.org/content/repositories/snapshots/",
-                new DefaultRepositoryLayout(),
-                new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY , CHECKSUM_POLICY_WARN),
-                new ArtifactRepositoryPolicy(false, UPDATE_POLICY_NEVER , CHECKSUM_POLICY_WARN)));
+                    new DefaultRepositoryLayout(),
+                    new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY, CHECKSUM_POLICY_WARN),
+                    new ArtifactRepositoryPolicy(false, UPDATE_POLICY_NEVER, CHECKSUM_POLICY_WARN)));
         } else {
             try {
                 new URI(apacheRepos); // to check it is a uri
                 remoteRepos.add(new DefaultArtifactRepository("additional-repo-tomee-mvn-plugin", apacheRepos,
                         new DefaultRepositoryLayout(),
-                        new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY , CHECKSUM_POLICY_WARN),
-                        new ArtifactRepositoryPolicy(true, UPDATE_POLICY_NEVER , CHECKSUM_POLICY_WARN)));
+                        new ArtifactRepositoryPolicy(true, UPDATE_POLICY_DAILY, CHECKSUM_POLICY_WARN),
+                        new ArtifactRepositoryPolicy(true, UPDATE_POLICY_NEVER, CHECKSUM_POLICY_WARN)));
             } catch (URISyntaxException e) {
                 // ignored, use classical repos
             }
