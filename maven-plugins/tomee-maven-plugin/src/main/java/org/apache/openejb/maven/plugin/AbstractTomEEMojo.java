@@ -24,7 +24,6 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.util.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,6 +50,8 @@ import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.CHEC
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER;
 import static org.apache.maven.artifact.versioning.VersionRange.createFromVersion;
+import static org.apache.openejb.util.JarExtractor.delete;
+import static org.codehaus.plexus.util.FileUtils.copyDirectory;
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.IOUtil.copy;
 
@@ -177,25 +178,33 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     }
 
     private void copyWar() {
-        final File out = new File(catalinaBase, webappDir + "/" + warFile.getName());
-
-        try {
-            FileUtils.deleteDirectory(out);
-        } catch (IOException e) {
-            throw new TomEEException(e.getMessage(), e);
+        final String name = warFile.getName();
+        final File out = new File(catalinaBase, webappDir + "/" + name);
+        delete(out);
+        if (!out.isDirectory()) {
+            final File unpacked = new File(catalinaBase, webappDir + "/" + name.substring(0, name.lastIndexOf('.')));
+            delete(unpacked);
         }
 
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(warFile);
-            os = new FileOutputStream(out);
-            copy(is, os);
-        } catch (Exception e) {
-            throw new TomEEException(e.getMessage(), e);
-        } finally {
-            close(is);
-            close(os);
+        if (warFile.isDirectory()) {
+            try {
+                copyDirectory(warFile, out);
+            } catch (IOException e) {
+                throw new TomEEException(e.getMessage(), e);
+            }
+        } else {
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                is = new FileInputStream(warFile);
+                os = new FileOutputStream(out);
+                copy(is, os);
+            } catch (Exception e) {
+                throw new TomEEException(e.getMessage(), e);
+            } finally {
+                close(is);
+                close(os);
+            }
         }
     }
 
