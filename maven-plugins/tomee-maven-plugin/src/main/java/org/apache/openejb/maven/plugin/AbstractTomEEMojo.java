@@ -25,24 +25,23 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.openejb.config.RemoteServer;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -326,87 +325,53 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     }
 
     protected void run() {
-        final ProcessBuilder builder = baseProcessBuilder();
-        builder.command(java(),
-                "-javaagent:" + new File(catalinaBase, "lib/openejb-javaagent.jar").getAbsolutePath(),
-                "-cp", cp());
-        if (args != null && args.length() > 0) {
-            builder.command().addAll(Arrays.asList(args.split(" ")));
-        }
+        System.setProperty("openejb.home", catalinaBase.getAbsolutePath());
         if (debug) {
-            builder.command().addAll(Arrays.asList(
-                    "-Xnoagent", "-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort
-            ));
-        }
-        builder.command().addAll(systemProperties());
-        builder.command().addAll(Arrays.asList("org.apache.catalina.startup.Bootstrap", getCmd()));
-        builder.redirectErrorStream(true);
-
-        final Process process;
-        try {
-            process = builder.start();
-        } catch (Exception e) {
-            throw new TomEEException(e.getMessage(), e);
+            System.setProperty("openejb.server.debug", "true");
+            System.setProperty("server.debug.port", Integer.toString(debugPort));
         }
 
-        final InputStream is = process.getInputStream();
-        final BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-        do {
-            try {
-                line = br.readLine();
-                getLog().info(line);
-            } catch (IOException e) {
-                line = null;
+        final List<String> strings = new ArrayList<String>();
+        if (systemVariables != null) {
+            for (Map.Entry<String, String> entry : systemVariables.entrySet()) {
+                if (entry.getValue().contains(" ")) {
+                    strings.add(String.format("'-D%s=%s'", entry.getKey(), entry.getValue()));
+                } else {
+                    strings.add(String.format("-D%s=%s", entry.getKey(), entry.getValue()));
+                }
             }
-        } while (line != null);
+        }
+        if (args != null) {
+            strings.addAll(Arrays.asList(args.split(" ")));
+        }
+        if (getNoShutdownHook()) {
+            strings.add("-Dtomee.noshutdownhook=true");
+        }
 
-        try {
-            process.waitFor();
-        } catch (InterruptedException e) {
-            throw new TomEEException(e.getMessage(), e);
+        final RemoteServer server = new RemoteServer(Integer.MAX_VALUE, false);
+        final CountDownLatch latch = new CountDownLatch(1);
+        if (!getNoShutdownHook()) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override public void run() {
+                    server.stop();
+                    latch.countDown();
+                }
+            });
+        }
+
+        server.start(strings, getCmd(), false);
+
+        if (!getNoShutdownHook()) {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                // ignored
+            }
         }
     }
 
     protected static String java() {
         return new File(System.getProperty("java.home"), "/bin/java").getAbsolutePath();
-    }
-
-    protected ProcessBuilder baseProcessBuilder() {
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.directory(catalinaBase);
-        return processBuilder;
-    }
-
-    protected List<String> systemProperties() {
-        // using a map since it is easier to read
-        final Map<String, String> prop = new HashMap<String, String>();
-        prop.put("java.util.logging.config.file", new File(catalinaBase, "conf/logging.properties").getAbsolutePath());
-        prop.put("java.util.logging.manager", "org.apache.juli.ClassLoaderLogManager");
-        prop.put("java.endorsed.dirs", new File(catalinaBase, "endorsed").getAbsolutePath());
-        prop.put("catalina.base", catalinaBase.getAbsolutePath());
-        prop.put("catalina.home", catalinaBase.getAbsolutePath());
-        prop.put("java.io.tmpdir", new File(catalinaBase, "temp").getAbsolutePath());
-        if (debug) {
-            prop.put("java.compiler", "NONE");
-        }
-        if (getNoShutdownHook()) {
-            prop.put("tomee.noshutdownhook", "true");
-        }
-        if (systemVariables != null) {
-            prop.putAll(systemVariables);
-        }
-
-        // converting it
-        final List<String> strings = new ArrayList<String>();
-        for (Map.Entry<String, String> entry : prop.entrySet()) {
-            if (entry.getValue().contains(" ")) {
-                strings.add(String.format("'-D%s=%s'", entry.getKey(), entry.getValue()));
-            } else {
-                strings.add(String.format("-D%s=%s", entry.getKey(), entry.getValue()));
-            }
-        }
-        return strings;
     }
 
     protected boolean getNoShutdownHook() {

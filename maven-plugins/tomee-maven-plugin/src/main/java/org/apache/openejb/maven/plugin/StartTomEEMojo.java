@@ -24,6 +24,6 @@ package org.apache.openejb.maven.plugin;
 public class StartTomEEMojo extends AbstractTomEEMojo {
     @Override
     public String getCmd() {
-        return "startd";
+        return "start";
     }
 }
