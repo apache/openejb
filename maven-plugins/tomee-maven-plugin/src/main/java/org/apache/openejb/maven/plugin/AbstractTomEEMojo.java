@@ -150,7 +150,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     protected File config;
 
     /**
-     * @parameter expression="${tomee-plugin.conf}" default-value="${basedir}/src/main/tomee/bin"
+     * @parameter expression="${tomee-plugin.bin}" default-value="${basedir}/src/main/tomee/bin"
      * @optional
      */
     protected File bin;
