@@ -26,4 +26,9 @@ public class ConfigTestTomEEMojo extends AbstractTomEEMojo {
     public String getCmd() {
         return "configtest";
     }
+
+    @Override
+    protected int getConnectAttempts() {
+        return 0;
+    }
 }

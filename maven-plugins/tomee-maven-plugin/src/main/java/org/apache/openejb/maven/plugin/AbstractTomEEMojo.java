@@ -41,7 +41,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -348,13 +347,11 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
             strings.add("-Dtomee.noshutdownhook=true");
         }
 
-        final RemoteServer server = new RemoteServer(Integer.MAX_VALUE, false);
-        final CountDownLatch latch = new CountDownLatch(1);
+        final RemoteServer server = new RemoteServer(getConnectAttempts(), false);
         if (!getNoShutdownHook()) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override public void run() {
                     server.stop();
-                    latch.countDown();
                 }
             });
         }
@@ -363,11 +360,15 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
 
         if (!getNoShutdownHook()) {
             try {
-                latch.await();
+                server.getServer().waitFor(); // connect attempts = 0
             } catch (InterruptedException e) {
                 // ignored
             }
         }
+    }
+
+    protected  int getConnectAttempts() {
+        return Integer.MAX_VALUE;
     }
 
     protected static String java() {
