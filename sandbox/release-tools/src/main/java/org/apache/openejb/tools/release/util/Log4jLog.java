@@ -14,13 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.util;
 
 import org.apache.log4j.Logger;
 
 /**
-* @version $Rev$ $Date$
-*/
+ * @version $Rev$ $Date$
+ */
 class Log4jLog implements Options.Log {
     private final Logger log;
 

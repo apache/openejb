@@ -14,17 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.util;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Collections;
-import java.lang.reflect.Constructor;
 
 /**
  * The purpose of this class is to provide a more strongly typed version of a

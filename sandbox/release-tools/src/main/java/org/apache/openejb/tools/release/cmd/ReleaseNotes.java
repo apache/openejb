@@ -14,11 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.cmd;
+
+import org.apache.openejb.tools.release.Command;
 
 /**
  * @version $Rev$ $Date$
  */
+@Command
 public class ReleaseNotes {
 
     public static void main(String[] args) throws Throwable {

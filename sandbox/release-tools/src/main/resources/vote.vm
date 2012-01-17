@@ -1,0 +1,25 @@
+Subject: [VOTE] OpenEJB $openejbVersion/TomEE $tomeeVersion (staging-$build)
+To: $to
+From: $from
+
+[generated email]
+
+SVN Tag:
+
+ $tags$openejbVersion/
+
+Maven Repo:
+
+ $staging
+
+Binaries & Source:
+
+ http://people.apache.org/~$user/staging-$build/$openejbVersion/
+
+Legal:
+
+ http://people.apache.org/~$user/staging-$build/legal/archives.html
+
+
+Vote will be open for 72 hours or as needed.
+

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.util;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -44,6 +44,27 @@ import java.util.regex.Pattern;
  * @version $Rev$ $Date$
  */
 public class Files {
+
+    public static File file(String... parts) {
+        File dir = null;
+        for (String part : parts) {
+            if (dir == null) {
+                dir = new File(part);
+            } else {
+                dir = new File(dir, part);
+            }
+        }
+
+        return dir;
+    }
+
+    public static File file(File dir, String... parts) {
+        for (String part : parts) {
+            dir = new File(dir, part);
+        }
+
+        return dir;
+    }
 
     public static List<File> collect(final File dir, final String regex) {
         return collect(dir, Pattern.compile(regex));

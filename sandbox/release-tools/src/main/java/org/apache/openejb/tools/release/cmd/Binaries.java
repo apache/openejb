@@ -14,9 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.cmd;
 
-import org.apache.log4j.Logger;
+import org.apache.openejb.tools.release.Command;
+import org.apache.openejb.tools.release.Release;
 import org.apache.rat.tentacles.NexusClient;
 import org.apache.xbean.finder.UriSet;
 
@@ -26,16 +27,16 @@ import java.net.URI;
 /**
  * Little utility that downloads the binaries into
  */
-public class DownloadDirectory {
+@Command(dependsOn = Close.class)
+public class Binaries {
 
     public static void main(String[] args) throws Exception {
         final NexusClient client = new NexusClient();
 
-        final Options options = new Options(System.getProperties());
-        options.setLogger(new Log4jLog(Logger.getLogger(DownloadDirectory.class)));
+        final File dir = new File(Release.downloads + File.separator + Release.openejbVersion);
+        final URI repo = URI.create(Release.staging);
 
-        final File dir = options.get("dir", new File("/tmp/openejb-4.0.0-beta-2"));
-        final URI repo = options.get("staging", URI.create("https://repository.apache.org/content/repositories/orgapacheopenejb-029/"));
+        System.out.println("Downloads: " + dir.getAbsolutePath());
 
         if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("Cannot make directory: " + dir.getAbsolutePath());
 
@@ -45,8 +46,10 @@ public class DownloadDirectory {
         UriSet binaries = all.include(".*\\.(zip|gz|war).*");
         binaries = binaries.exclude(".*\\.asc\\.(sha1|md5)");
 
+
         for (URI uri : binaries.include(".*\\/(openejb-standalone|openejb-tomcat|apache-tomee|examples)-.*|.*source-release.*")) {
             final File file = new File(dir, uri.getPath().replaceAll(".*/", ""));
+            System.out.println("Downloading " + file.getName());
             client.download(uri, file);
         }
     }

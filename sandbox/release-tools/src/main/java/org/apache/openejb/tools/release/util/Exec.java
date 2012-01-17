@@ -14,10 +14,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,7 +59,7 @@ public class Exec {
             command.addAll(Arrays.asList(args));
 
             final ProcessBuilder builder = new ProcessBuilder();
-            builder.directory(new File(dir.getAbsolutePath()));
+            if (dir != null) builder.directory(new File(dir.getAbsolutePath()));
             builder.command(command);
             builder.environment().put("PATH", "/opt/local/bin:/opt/local/sbin:/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:/usr/X11R6/bin:/usr/local/bin:/Users/dblevins/bin");
             builder.environment().putAll(env);
@@ -72,5 +74,28 @@ public class Exec {
             throw new RuntimeException(e);
         }
     }
+
+    public static OutputStream open(String program, String... args) throws RuntimeException {
+        try {
+            final List<String> command = new ArrayList<String>();
+            command.add(program);
+            command.addAll(Arrays.asList(args));
+
+            final ProcessBuilder builder = new ProcessBuilder();
+            if (dir != null) builder.directory(new File(dir.getAbsolutePath()));
+            builder.command(command);
+            builder.environment().put("PATH", "/opt/local/bin:/opt/local/sbin:/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:/usr/X11R6/bin:/usr/local/bin:/Users/dblevins/bin");
+            builder.environment().putAll(env);
+            final Process process = builder.start();
+
+            Pipe.pipe(process.getInputStream(), System.out);
+            Pipe.pipe(process.getErrorStream(), System.err);
+
+            return new BufferedOutputStream(process.getOutputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

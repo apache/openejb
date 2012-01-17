@@ -20,8 +20,13 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.openejb.tools.release.util.Commands;
+import org.apache.openejb.tools.release.util.JarLocation;
+import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.finder.archive.ClasspathArchive;
 
-import java.lang.reflect.Method;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,12 +42,20 @@ public class Main {
         root.setLevel(Level.INFO);
     }
 
-    private static Map<String, Class> commands = new HashMap<String, Class>();
+    public static Map<String, Class<?>> commands = new HashMap<String, Class<?>>();
 
     static {
-        commands.put("download", DownloadDirectory.class);
-        commands.put("legal", org.apache.rat.tentacles.Main.class);
-        commands.put("notes", ReleaseNotes.class);
+        try {
+            final File file = JarLocation.jarLocation(Main.class);
+            final AnnotationFinder finder = new AnnotationFinder(ClasspathArchive.archive(Main.class.getClassLoader(), file.toURI().toURL()));
+
+            for (Class<?> clazz : finder.findAnnotatedClasses(Command.class)) {
+
+                commands.put(Commands.name(clazz), clazz);
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -66,8 +79,7 @@ public class Main {
 
         final Class clazz = commands.get(command);
 
-        final Method main = clazz.getMethod("main", String[].class);
-        main.invoke(null, new Object[]{args});
+        Commands.run(args, clazz);
 
     }
 

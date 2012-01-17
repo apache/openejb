@@ -14,7 +14,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release;
+package org.apache.openejb.tools.release.cmd;
+
+import org.apache.openejb.tools.release.Command;
+import org.apache.openejb.tools.release.Release;
+import org.apache.openejb.tools.release.util.Exec;
+import org.apache.openejb.tools.release.util.Files;
 
 import java.io.File;
 
@@ -23,12 +28,28 @@ import static java.lang.String.format;
 /**
  * @version $Rev$ $Date$
  */
-public class UpdateTckRepo {
+@Command
+public class Deploy {
 
     public static void main(String... args) throws Exception {
 
-        // TODO Set repo to Nexus staging repo
+        // TODO Look for gpg on the path, report error if not found
 
-        // TODO Kick off TCK run
+        final String tag = Release.tags + Release.openejbVersion;
+
+        final File dir = new File(Release.workdir);
+        Files.mkdir(dir);
+        Exec.cd(dir);
+
+        Exec.exec("svn", "co", tag);
+
+        Exec.cd(new File(dir + File.separator + Release.openejbVersion));
+
+        Exec.export("MAVEN_OPTS", Release.mavenOpts);
+        Exec.exec("mvn",
+                "-Darguments=-Dmaven.test.skip=true -DfailIfNoTests=false",
+                "release:perform",
+                format("-DconnectionUrl=scm:svn:%s", tag)
+        );
     }
 }

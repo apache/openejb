@@ -16,24 +16,27 @@
  */
 package org.apache.openejb.tools.release;
 
-import static java.lang.String.format;
-import static org.apache.openejb.tools.release.Exec.exec;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Tag {
+public class DateAdapter extends XmlAdapter<String, Date> {
 
-    public static void main(String... args) throws Exception {
+    // Sun Jan 15 23:22:43 UTC 2012
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 
-        final String version = "openejb-4.0.0-beta-2";
-        final String branch = "https://svn.apache.org/repos/asf/openejb/branches/" + version;
-        final String tag = "https://svn.apache.org/repos/asf/openejb/tags/" + version;
-
-        if (exec("svn", "info", tag) == 0) {
-            exec("svn", "-m", format("recreating tag for %s", version), "rm", tag);
-        }
-
-        exec("svn", "-m", format("recreating tag for %s", version), "cp", branch, tag);
+    @Override
+    public String marshal(Date v) throws Exception {
+        return dateFormat.format(v);
     }
+
+    @Override
+    public Date unmarshal(String v) throws Exception {
+        if ("n/a".equals(v)) return null;
+        return dateFormat.parse(v);
+    }
+
 }

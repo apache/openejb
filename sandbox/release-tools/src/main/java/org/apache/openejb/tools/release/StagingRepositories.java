@@ -16,35 +16,21 @@
  */
 package org.apache.openejb.tools.release;
 
-import java.io.File;
+import org.apache.openejb.tools.release.util.ObjectList;
 
-import static java.lang.String.format;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Deploy {
+@XmlRootElement
+public class StagingRepositories {
 
-    public static void main(String... args) throws Exception {
+    @XmlElementWrapper(name = "data")
+    private final ObjectList<Repository> stagingProfileRepository = new ObjectList<Repository>();
 
-        // TODO Look for gpg on the path, report error if not found
-
-        final String version = "openejb-4.0.0-beta-2";
-        final String tag = "https://svn.apache.org/repos/asf/openejb/tags/" + version;
-
-        final File dir = new File("/tmp/release");
-        Files.mkdir(dir);
-        Exec.cd(dir);
-
-        Exec.exec("svn", "co", tag);
-
-        Exec.cd(new File(dir + "/" + version));
-
-        Exec.export("MAVEN_OPTS", "-Xmx2048m -XX:MaxPermSize=1024m");
-        Exec.exec("mvn",
-                "-Darguments=-Dmaven.test.skip=true -DfailIfNoTests=false",
-                "release:perform",
-                format("-DconnectionUrl=scm:svn:%s", tag)
-        );
+    public ObjectList<Repository> getRepositories() {
+        return stagingProfileRepository;
     }
 }

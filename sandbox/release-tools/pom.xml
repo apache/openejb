@@ -37,6 +37,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <slf4j-version>1.5.6</slf4j-version>
   </properties>
 
   <build>
@@ -78,7 +79,24 @@
   </build>
 
   <dependencies>
-
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j-version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j-version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl104-over-slf4j</artifactId>
+      <version>${slf4j-version}</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-stream</artifactId>
@@ -108,6 +126,30 @@
       <artifactId>xbean-finder</artifactId>
       <version>3.10-SNAPSHOT</version>
     </dependency>
+
+    <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.2</version>
+    </dependency>
+    <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>3.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-rest-api</artifactId>
+      <version>1.9.2.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.1.2</version>
+    </dependency>
+
 
   </dependencies>
 

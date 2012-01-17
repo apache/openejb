@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.tools.release;
 
+import org.apache.openejb.tools.release.util.Options;
 import org.codehaus.swizzle.jira.Issue;
 import org.codehaus.swizzle.jira.Jira;
 import org.codehaus.swizzle.jira.JiraRss;
@@ -23,10 +24,8 @@ import org.codehaus.swizzle.jira.MapObjectList;
 import org.codehaus.swizzle.jira.Project;
 import org.codehaus.swizzle.jira.Version;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -67,7 +66,7 @@ public class Upgrades {
                     final Version ver = jira.getVersion(project, version);
 
                     if (ver == null) {
-                        missing.add(project+":"+version);
+                        missing.add(project + ":" + version);
                         continue;
                     }
 
