@@ -97,21 +97,16 @@
       <version>${slf4j-version}</version>
       <scope>compile</scope>
     </dependency>
+
     <dependency>
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-stream</artifactId>
-      <version>1.6.1</version>
+      <version>1.6.2-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-jirareport</artifactId>
-      <version>1.6.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.swizzle</groupId>
-      <artifactId>swizzle-stream</artifactId>
       <version>1.6.1</version>
     </dependency>
 
