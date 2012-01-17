@@ -17,6 +17,8 @@
 package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
+import org.apache.openejb.tools.release.Release;
+import org.apache.openejb.tools.release.util.Files;
 
 /**
  * @version $Rev$ $Date$
@@ -25,6 +27,9 @@ import org.apache.openejb.tools.release.Command;
 public class Legal {
 
     public static void main(String[] args) throws Exception {
-        org.apache.rat.tentacles.Main.main(args);
+        org.apache.rat.tentacles.Main.main(new String[]{
+                Release.staging,
+                Files.file(Release.builddir, "staging-" + Release.build, "legal").getAbsolutePath()
+        });
     }
 }

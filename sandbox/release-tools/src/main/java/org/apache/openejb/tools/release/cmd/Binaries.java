@@ -18,6 +18,7 @@ package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Release;
+import org.apache.openejb.tools.release.util.Files;
 import org.apache.rat.tentacles.NexusClient;
 import org.apache.xbean.finder.UriSet;
 
@@ -33,7 +34,7 @@ public class Binaries {
     public static void main(String[] args) throws Exception {
         final NexusClient client = new NexusClient();
 
-        final File dir = new File(Release.downloads + File.separator + Release.openejbVersion);
+        final File dir = Files.file(Release.builddir, "staging-" + Release.build, Release.openejbVersion);
         final URI repo = URI.create(Release.staging);
 
         System.out.println("Downloads: " + dir.getAbsolutePath());

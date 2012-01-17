@@ -16,8 +16,10 @@
  */
 package org.apache.openejb.tools.release;
 
+import org.apache.openejb.tools.release.util.Files;
 import org.apache.openejb.tools.release.util.Options;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 /**
@@ -33,16 +35,22 @@ public class Release {
     public static String tckBranches = "https://svn.apache.org/repos/tck/openejb-tck/branches/";
     public static String tckTrunk = "https://svn.apache.org/repos/tck/openejb-tck/trunk";
     public static String staging = "https://repository.apache.org/content/repositories/orgapacheopenejb-075";
-    public static String downloads = "/tmp/downloads";
+    public static String builddir = "/tmp/downloads";
     public static String workdir = "/tmp/release";
     public static String mavenOpts = "-Xmx2048m -XX:MaxPermSize=1024m";
     public static String from = "dblevins@apache.org";
-//    public static String to = from;
+    //    public static String to = from;
     public static String to = "dev@openejb.apache.org";
-
     public static String user = System.getProperty("user.name");
+    public static String build = "075";
 
     static {
+        final File public_html = Files.file(System.getProperty("user.home"), "public_html");
+
+        if (public_html.exists())  {
+            builddir = public_html.getAbsolutePath();
+        }
+
         final Options options = new Options(System.getProperties());
 
         for (Field field : Release.class.getFields()) {
@@ -53,10 +61,9 @@ public class Release {
                 e.printStackTrace();
             }
         }
+
+        build = Release.staging.replaceAll(".*-", "");
     }
 
-    public static void main(String[] args) {
-        System.out.println("openejbVersion = " + openejbVersion);
-        System.out.println("staging = " + staging);
-    }
+
 }

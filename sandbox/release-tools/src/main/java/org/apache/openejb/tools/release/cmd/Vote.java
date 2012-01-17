@@ -43,8 +43,6 @@ public class Vote {
             }
         }
 
-        template.add("build", Release.staging.replaceAll(".*-", ""));
-
         final String email = template.apply();
 
         System.out.println(email);
