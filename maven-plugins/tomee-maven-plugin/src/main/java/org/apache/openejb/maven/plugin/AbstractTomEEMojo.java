@@ -144,16 +144,22 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     protected String webappDir;
 
     /**
-     * @parameter expression="${tomee-plugin.conf}" default-value="${basedir}/src/main/tomee/conf"
+     * @parameter expression="${tomee-plugin.conf}" default-value="${project.basedir}/src/main/tomee/conf"
      * @optional
      */
     protected File config;
 
     /**
-     * @parameter expression="${tomee-plugin.bin}" default-value="${basedir}/src/main/tomee/bin"
+     * @parameter expression="${tomee-plugin.bin}" default-value="${project.basedir}/src/main/tomee/bin"
      * @optional
      */
     protected File bin;
+
+    /**
+     * @parameter expression="${tomee-plugin.lib}" default-value="${project.basedir}/src/main/tomee/lib"
+     * @optional
+     */
+    protected File lib;
 
     /**
      * @parameter
@@ -177,6 +183,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         copyLibs();
         overrideConf(config);
         overrideConf(bin);
+        overrideConf(lib);
         overrideAddresses();
         copyWar();
         run();

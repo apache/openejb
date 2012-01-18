@@ -19,13 +19,17 @@ package org.apache.openejb.maven.plugin;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.openejb.assembler.Deployer;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
-import org.apache.openejb.maven.plugin.table.Line;
-import org.apache.openejb.maven.plugin.table.Lines;
+import org.apache.openejb.table.Line;
+import org.apache.openejb.table.Lines;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -48,7 +52,7 @@ public class ListEjbMojo extends AbstractCommandMojo {
                 }
             }
         }
-        lines.print(getLog());
+        lines.print(new LogPrinterStream(getLog()));
     }
 
     private static String componentType(final EnterpriseBeanInfo bean) {
@@ -76,5 +80,26 @@ public class ListEjbMojo extends AbstractCommandMojo {
             sb.append("Remote").append(Arrays.asList(bc.businessRemote));
         }
         return sb.toString();
+    }
+
+    private static class LogPrinterStream extends PrintStream {
+        private Log logger;
+
+        public LogPrinterStream(Log log) {
+            super(new NullOuputStream());
+            logger = log;
+        }
+
+        @Override
+        public void println(String x) {
+            logger.info(x);
+        }
+
+        private static class NullOuputStream extends OutputStream {
+            @Override
+            public void write(int b) throws IOException {
+                // no-op
+            }
+        }
     }
 }
