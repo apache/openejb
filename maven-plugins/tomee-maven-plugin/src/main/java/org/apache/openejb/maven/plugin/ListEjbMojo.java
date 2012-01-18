@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * highly inspired from openejb karaf commands.
+ * highly inspired from openejb command helper but with some different data.
  *
  * @goal list
  */
