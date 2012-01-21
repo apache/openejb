@@ -47,7 +47,7 @@ public class Vote {
 
         System.out.println(email);
 
-        final OutputStream out = Exec.open("ssh", "people.apache.org", "/usr/sbin/sendmail -it");
+        final OutputStream out = Exec.write("ssh", "people.apache.org", "/usr/sbin/sendmail -it");
         out.write(email.getBytes());
         out.flush();
         out.close();

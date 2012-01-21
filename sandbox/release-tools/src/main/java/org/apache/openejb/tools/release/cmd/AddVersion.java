@@ -24,4 +24,7 @@ import org.apache.openejb.tools.release.Command;
  */
 @Command
 public class AddVersion {
+
+    public static void main(String[] args) throws Exception {
+    }
 }
