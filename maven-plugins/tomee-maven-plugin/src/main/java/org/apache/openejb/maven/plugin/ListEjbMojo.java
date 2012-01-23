@@ -91,8 +91,8 @@ public class ListEjbMojo extends AbstractCommandMojo {
         }
 
         @Override
-        public void println(String x) {
-            logger.info(x);
+        public void print(String s) {
+            logger.info(s.replace(System.getProperty("line.separator"), ""));
         }
 
         private static class NullOuputStream extends OutputStream {
