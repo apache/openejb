@@ -144,6 +144,13 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     protected String webappDir;
 
     /**
+     * relative to tomee.base.
+     *
+     * @parameter default-value="lib"
+     */
+    protected String libDir;
+
+    /**
      * @parameter expression="${tomee-plugin.conf}" default-value="${project.basedir}/src/main/tomee/conf"
      * @optional
      */
@@ -172,6 +179,11 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     protected List<String> libs;
 
     /**
+     * @parameter
+     */
+    protected List<String> webapps;
+
+    /**
      * @parameter default-value="${project.build.directory}/${project.build.finalName}.${project.packaging}"
      * @readonly
      */
@@ -180,7 +192,8 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         unzip(resolve(), catalinaBase);
-        copyLibs();
+        copyLibs(libs, new File(catalinaBase, libDir), "jar");
+        copyLibs(webapps, new File(catalinaBase, webappDir), "war");
         overrideConf(config);
         overrideConf(bin);
         overrideConf(lib);
@@ -189,18 +202,17 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         run();
     }
 
-    private void copyLibs() {
-        if (libs == null || libs.isEmpty()) {
+    private void copyLibs(final List<String> files, final File destParent, final String defaultType) {
+        if (files == null || files.isEmpty()) {
             return;
         }
 
-        final File destParent = new File(catalinaBase, "lib");
-        for (String lib : libs) {
-            copyLib(lib, destParent);
+        for (String file : files) {
+            copyLib(file, destParent, defaultType);
         }
     }
 
-    private void copyLib(final String lib, final File destParent) {
+    private void copyLib(final String lib, final File destParent, final String defaultType) {
         FileInputStream is = null;
         FileOutputStream os = null;
         final String[] infos = lib.split(":");
@@ -212,7 +224,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         if (infos.length >= 4) {
             type = infos[3];
         } else {
-            type = "jar";
+            type = defaultType;
         }
         if (infos.length == 5) {
             classifier = infos[4];
