@@ -38,7 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -52,10 +55,9 @@ public class ReviewCommits {
 
     public static void main(String... args) throws Exception {
 
-        final String branch = Release.branches + Release.openejbVersion;
         final String tag = Release.tags + Release.openejbVersion;
 
-        final InputStream in = Exec.read("svn", "log", "--verbose", "--xml", "-rHEAD:{2011-10-05}", tag);
+        final InputStream in = Exec.read("svn", "log", "--verbose", "--xml", "-rHEAD:{" + Release.lastReleaseDate + "}", tag);
 
         final JAXBContext context = JAXBContext.newInstance(Commit.Log.class);
         final Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -63,13 +65,28 @@ public class ReviewCommits {
         final Commit.Log log = (Commit.Log) unmarshaller.unmarshal(in);
 
         ObjectList<Commit> commits = log.getCommits();
-//        commits = commits.difference(commits.matches("message", ".*(OPENEJB|TOMEE)-[0-9]+.*"));
-
-//        commits = commits.matches("message", ".*OPENEJB.*");
-
         commits = commits.ascending("revision");
+
+        for (Commit commit : commits) {
+            final String[] tokens = commit.getMessage().split("[^A-Z0-9-]+");
+            for (String token : tokens) {
+                if (token.matches("(OPENEJB|TOMEE)-[0-9]+")){
+                    try {
+                        addIssue(getJira().getIssue(token));
+                    } catch (Exception e) {
+                        System.out.printf("Invalid JIRA '%s'\n", token);
+                    }
+                }
+            }
+        }
+
+        final Date reviewed = new SimpleDateFormat("yyyy-MM-dd").parse("2012-01-05");
+        commits = commits.greater("date", reviewed);
         commits = commits.subtract(commits.contains("message", "OPENEJB-"));
         commits = commits.subtract(commits.contains("message", "TOMEE-"));
+
+        System.out.printf("Are you ready to review %s commits?", commits.size());
+        System.out.println();
 
         for (Commit commit : commits) {
             handle(commit);
@@ -79,7 +96,6 @@ public class ReviewCommits {
 //            System.out.println(commit);
 //        }
 //
-        System.out.println("commits.size() = " + commits.size());
 
     }
 
@@ -93,9 +109,13 @@ public class ReviewCommits {
         System.out.printf("[%s]: ", Join.join(", ", Key.values()));
 
         final String line = readLine().toUpperCase();
-        final Key key = Key.valueOf(line);
-        if (!key.pressed(commit)) handle(commit);
 
+        try {
+            final Key key = Key.valueOf(line);
+            if (!key.pressed(commit)) handle(commit);
+        } catch (IllegalArgumentException e) {
+            return handle(commit);
+        }
 
         return true;
     }
@@ -114,7 +134,7 @@ public class ReviewCommits {
     private static void addIssue(Issue issue) {
         last.remove(issue);
         last.add(0, issue);
-        while (last.size() > 9) {
+        while (last.size() > 20) {
             last.remove(last.size() - 1);
         }
     }
@@ -134,7 +154,7 @@ public class ReviewCommits {
                 issueTypes.add(jira.getIssueType("New Feature"));
                 issueTypes.add(jira.getIssueType("Bug"));
                 issueTypes.add(jira.getIssueType("Task"));
-                issueTypes.add(jira.getIssueType("Dependency Upgrade"));
+                issueTypes.add(jira.getIssueType("Dependency upgrade"));
 
             } catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -224,10 +244,7 @@ public class ReviewCommits {
                         }
                     }
 
-                    final Version v = jira.getVersion(project, version);
-                    if (v != null) {
-
-                    }
+                    final Version v = jira.getVersion(issue.getProject(), version);
                     issue.getFixVersions().add(v);
 
                     System.out.printf("%s %s\n%s %s\n", issue.getProject(), issue.getSummary(), issue.getType(), Join.join(",", issue.getFixVersions()));
@@ -253,29 +270,14 @@ public class ReviewCommits {
                 return false;
             }
 
-            private String v(String version) {
-                return version.replaceFirst("^[a-z]+-", "");
-            }
         });
 
         private static Issue createIssue(Jira jira, Issue issue) throws Exception {
-            toMap(issue).remove("votes");
-
-            for (Version version : issue.getFixVersions()) {
-                toMap(version).remove("archived");
-                toMap(version).remove("sequence");
-                toMap(version).remove("released");
-                toMap(version).remove("releaseDate");
-            }
+            trimIssue(issue);
 
             return jira.createIssue(issue);
         }
 
-        private static Map toMap(MapObject issue) throws NoSuchFieldException, IllegalAccessException {
-            final Field fields = MapObject.class.getDeclaredField("fields");
-            fields.setAccessible(true);
-            return (Map) fields.get(issue);
-        }
 
         private static Issue resolve(String key, List<Issue> issues) {
             try {
@@ -312,6 +314,29 @@ public class ReviewCommits {
         public boolean pressed(Commit commit) {
             return action.perform(commit);
         }
+    }
+
+    public static String v(String version) {
+        return version.replaceFirst("^[a-z]+-", "");
+    }
+
+    public static Issue trimIssue(Issue issue) throws NoSuchFieldException, IllegalAccessException {
+        toMap(issue).remove("votes");
+
+        for (Version version : issue.getFixVersions()) {
+            toMap(version).remove("archived");
+            toMap(version).remove("sequence");
+            toMap(version).remove("released");
+            toMap(version).remove("releaseDate");
+        }
+
+        return issue;
+    }
+
+    public static Map toMap(MapObject issue) throws NoSuchFieldException, IllegalAccessException {
+        final Field fields = MapObject.class.getDeclaredField("fields");
+        fields.setAccessible(true);
+        return (Map) fields.get(issue);
     }
 
     public static interface Action {

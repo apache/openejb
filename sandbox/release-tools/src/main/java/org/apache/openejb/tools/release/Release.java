@@ -43,6 +43,7 @@ public class Release {
     public static String to = "dev@openejb.apache.org";
     public static String user = System.getProperty("user.name");
     public static String build = "075";
+    public static String lastReleaseDate = "2011-10-05";
 
     static {
         final File public_html = Files.file(System.getProperty("user.home"), "public_html");

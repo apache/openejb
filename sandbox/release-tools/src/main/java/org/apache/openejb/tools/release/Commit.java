@@ -94,6 +94,23 @@ public class Commit {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Commit commit = (Commit) o;
+
+        if (revision != commit.revision) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (revision ^ (revision >>> 32));
+    }
+
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Path {
 

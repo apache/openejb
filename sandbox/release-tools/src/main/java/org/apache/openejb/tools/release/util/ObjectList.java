@@ -17,15 +17,12 @@
 package org.apache.openejb.tools.release.util;
 
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -42,6 +39,14 @@ public class ObjectList<E> extends ArrayList<E> {
 
     public ObjectList(int i) {
         super(i);
+    }
+
+    private static int compare(Object a, Object b) {
+        if (a instanceof Comparable) {
+            return ((Comparable) a).compareTo(b);
+        } else {
+            return a.toString().compareTo(b.toString());
+        }
     }
 
     public Object min(String field) {
@@ -337,25 +342,24 @@ public class ObjectList<E> extends ArrayList<E> {
         return list;
     }
 
-    private ObjectList compareAndCollect(String field, Object data, int condition) {
+    private ObjectList compareAndCollect(String field, Object valueB, int condition) {
         if (size() == 0) return this;
         try {
-            Class type = get(0).getClass();
-            HashMap map = new HashMap();
-            Object base;
 
-            map.put(field, data);
-            Constructor constructor = type.getConstructor(new Class[]{Map.class});
-            base = constructor.newInstance(new Object[]{map});
+            final Accessor accessor = new Accessor(field, this);
+            final ObjectList subset = new ObjectList();
 
-            Comparator comparator = getComparator(field);
-
-            ObjectList subset = new ObjectList();
             for (int i = 0; i < size(); i++) {
-                Object object = get(i);
-                int value = comparator.compare(object, base);
-                if (value / condition > 0) {
-                    subset.add(object);
+                try {
+                    final Object object = get(i);
+                    final Object valueA = accessor.getValue(object);
+
+                    int result = ObjectList.compare(valueA, valueB);
+
+                    if (result / condition > 0) {
+                        subset.add(object);
+                    }
+                } catch (Exception e) {
                 }
             }
             return subset;
@@ -406,11 +410,7 @@ public class ObjectList<E> extends ArrayList<E> {
             try {
                 Object a = accessor.getValue((Object) objectA);
                 Object b = accessor.getValue((Object) objectB);
-                if (a instanceof Comparable) {
-                    return ((Comparable) a).compareTo(b);
-                } else {
-                    return a.toString().compareTo(b.toString());
-                }
+                return ObjectList.compare(a, b);
             } catch (Exception e) {
                 return 0;
             }
