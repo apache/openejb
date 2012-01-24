@@ -19,8 +19,6 @@ package org.apache.openejb.camel;
 import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.Producer;
-import org.apache.openejb.assembler.classic.AppInfo;
 
 import java.util.Map;
 
