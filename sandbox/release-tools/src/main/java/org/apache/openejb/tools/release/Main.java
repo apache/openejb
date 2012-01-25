@@ -75,7 +75,7 @@ public class Main {
         }
 
         final String command = (list.size() == 0) ? "help" : list.remove(0);
-        args = (String[]) list.toArray(new String[list.size()]);
+        args = list.toArray(new String[list.size()]);
 
         final Class clazz = commands.get(command);
 

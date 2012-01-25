@@ -28,8 +28,10 @@ import java.lang.reflect.Field;
  */
 public class Release {
 
-    public static String openejbVersion = "openejb-4.0.0-beta-2";
-    public static String tomeeVersion = "tomee-1.0.0-beta-2";
+    public static String openejbSimpleVersion = "4.0.0-beta-2";
+    public static String tomeeSimpleVersion = "1.0.0-beta-2";
+    public static String openejbVersion = "openejb-" + openejbSimpleVersion;
+    public static String tomeeVersion = "tomee-" + tomeeSimpleVersion;
 
     public static String trunk = "https://svn.apache.org/repos/asf/openejb/trunk/openejb/";
     public static String branches = "https://svn.apache.org/repos/asf/openejb/branches/";
