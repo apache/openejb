@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.tools.release;
 
+import com.sun.xml.internal.bind.v2.runtime.Location;
 import org.apache.openejb.tools.release.util.Files;
 import org.apache.openejb.tools.release.util.Options;
 
@@ -30,6 +31,7 @@ public class Release {
     public static String openejbVersion = "openejb-4.0.0-beta-2";
     public static String tomeeVersion = "tomee-1.0.0-beta-2";
 
+    public static String trunk = "https://svn.apache.org/repos/asf/openejb/trunk/openejb/";
     public static String branches = "https://svn.apache.org/repos/asf/openejb/branches/";
     public static String tags = "https://svn.apache.org/repos/asf/openejb/tags/";
     public static String tckBranches = "https://svn.apache.org/repos/tck/openejb-tck/branches/";
