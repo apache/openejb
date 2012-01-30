@@ -35,7 +35,7 @@ public class Deploy {
 
         // TODO Look for gpg on the path, report error if not found
 
-        final String tag = Release.tags + Release.openejbVersion;
+        final String tag = Release.tags + Release.openejbVersionName;
 
         final File dir = new File(Release.workdir);
         Files.mkdir(dir);
@@ -43,7 +43,7 @@ public class Deploy {
 
         Exec.exec("svn", "co", tag);
 
-        Exec.cd(new File(dir + File.separator + Release.openejbVersion));
+        Exec.cd(new File(dir + File.separator + Release.openejbVersionName));
 
         Exec.export("MAVEN_OPTS", Release.mavenOpts);
         Exec.exec("mvn",

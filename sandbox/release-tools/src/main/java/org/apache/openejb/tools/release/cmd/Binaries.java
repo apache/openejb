@@ -34,7 +34,7 @@ public class Binaries {
     public static void main(String[] args) throws Exception {
         final NexusClient client = new NexusClient();
 
-        final File dir = Files.file(Release.builddir, "staging-" + Release.build, Release.openejbVersion);
+        final File dir = Files.file(Release.builddir, "staging-" + Release.build, Release.openejbVersionName);
         final URI repo = URI.create(Release.staging);
 
         System.out.println("Downloads: " + dir.getAbsolutePath());

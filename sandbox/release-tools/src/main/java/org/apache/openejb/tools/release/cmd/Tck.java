@@ -48,24 +48,24 @@ public class Tck {
 
         cd(dir);
 
-        final String branch = Release.tckBranches + Release.tomeeVersion;
+        final String branch = Release.tckBranches + Release.tomeeVersionName;
 
         // Make the branch
         if (exec("svn", "info", branch) != 0) {
 
-            exec("svn", "-m", format("[release-tools] tck branch for %s", Release.tomeeVersion), "cp", Release.tckTrunk.toString(), branch);
+            exec("svn", "-m", format("[release-tools] tck branch for %s", Release.tomeeVersionName), "cp", Release.tckTrunk.toString(), branch);
         }
 
         // Checkout the branch
         exec("svn", "co", branch);
 
-        final File tck = cd(new File(dir + "/" + Release.tomeeVersion));
+        final File tck = cd(new File(dir + "/" + Release.tomeeVersionName));
 
         updatePom(Release.staging, new File(tck, "pom.xml"));
 
-        updateWebProfile(branch, tck, Release.tomeeVersion);
+        updateWebProfile(branch, tck, Release.tomeeVersionName);
 
-        exec("svn", "-m", "[release-tools] update staging repo for " + Release.tomeeVersion, "ci");
+        exec("svn", "-m", "[release-tools] update staging repo for " + Release.tomeeVersionName, "ci");
     }
 
     private static void updateWebProfile(final String branch, final File dir, String version) throws IOException {

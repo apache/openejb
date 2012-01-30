@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.SQLOutput;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +53,7 @@ public class CloseJiras {
 
     public static void main(String... args) throws Exception {
 
-        final String tag = Release.tags + Release.openejbVersion;
+        final String tag = Release.tags + Release.openejbVersionName;
 
         final InputStream in = Exec.read("svn", "log", "--verbose", "--xml", "-rHEAD:{" + Release.lastReleaseDate + "}", tag);
 
@@ -111,9 +110,9 @@ public class CloseJiras {
 
             final Version version;
             if (issue.getKey().startsWith("TOMEE-")) {
-                version = state.jira.getVersion("TOMEE", ReviewCommits.v(Release.tomeeVersion));
+                version = state.jira.getVersion("TOMEE", Release.tomeeVersion);
             } else if (issue.getKey().startsWith("OPENEJB-")) {
-                version = state.jira.getVersion("OPENEJB", ReviewCommits.v(Release.openejbVersion));
+                version = state.jira.getVersion("OPENEJB", Release.openejbVersion);
             } else {
                 continue;
             }

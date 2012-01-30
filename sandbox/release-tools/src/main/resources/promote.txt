@@ -1,0 +1,30 @@
+Request URL:https://repository.apache.org/service/local/staging/bulk/promote?undefined
+Request Method:POST
+Status Code:201 Created
+Request Headersview source
+Accept-Charset:ISO-8859-1,utf-8;q=0.7,*;q=0.3
+Accept-Encoding:gzip,deflate,sdch
+Accept-Language:en-US,en;q=0.8
+Authorization:Basic ZGJsZXZpbnM6U24wd21hbmE=
+Connection:keep-alive
+Content-Length:82
+Content-Type:application/json
+Cookie:JSESSIONID=a61ffb19-350f-46e3-a405-7bf2e91dde55
+Host:repository.apache.org
+Origin:https://repository.apache.org
+Referer:https://repository.apache.org/index.html
+User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.75 Safari/535.7
+X-Requested-With:XMLHttpRequest
+accept:application/json
+Query String Parametersview URL encoded
+undefined:
+Request Payload
+{"data":{"stagedRepositoryIds":["orgapacheopenejb-075"],"description":"finished"}}
+Response Headersview source
+Connection:Keep-Alive
+Content-Length:0
+Content-Type:text/plain
+Date:Mon, 23 Jan 2012 11:33:57 GMT
+Keep-Alive:timeout=15, max=100
+Server:Noelios-Restlet-Engine/1.1.6-SONATYPE-5348-V4
+Via:1.1 repository.apache.org

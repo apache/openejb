@@ -72,12 +72,12 @@ public class AddVersion {
             replaceSnapshot = true;
         }
 
-        final File workingDir = new File(Release.builddir, Release.openejbVersion);
+        final File workingDir = new File(Release.builddir, Release.openejbVersionName);
         final String[][] replacements = new String[][] {
-                new String[] { currentVersion(Release.openejbSimpleVersion, replaceSnapshot),
-                                nextVersion("openejb next version", Release.openejbSimpleVersion, replaceSnapshot, setSnapshot) },
-                new String[] { currentVersion(Release.tomeeSimpleVersion, replaceSnapshot),
-                                nextVersion("openejb next version", Release.tomeeSimpleVersion, replaceSnapshot, setSnapshot) }
+                new String[] { currentVersion(Release.openejbVersion, replaceSnapshot),
+                                nextVersion("openejb next version", Release.openejbVersion, replaceSnapshot, setSnapshot) },
+                new String[] { currentVersion(Release.tomeeVersion, replaceSnapshot),
+                                nextVersion("openejb next version", Release.tomeeVersion, replaceSnapshot, setSnapshot) }
         };
 
         // we hardcode the tomee or openejb version in some java, properties, pom (of course ;))...so simply take eveything we can

@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Commit;
 import org.apache.openejb.tools.release.Release;
@@ -28,7 +27,6 @@ import org.codehaus.swizzle.jira.Issue;
 import org.codehaus.swizzle.jira.IssueType;
 import org.codehaus.swizzle.jira.Jira;
 import org.codehaus.swizzle.jira.MapObject;
-import org.codehaus.swizzle.jira.MapObjectList;
 import org.codehaus.swizzle.jira.Version;
 
 import javax.xml.bind.JAXBContext;
@@ -40,7 +38,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +52,7 @@ public class ReviewCommits {
 
     public static void main(String... args) throws Exception {
 
-        final String tag = Release.tags + Release.openejbVersion;
+        final String tag = Release.tags + Release.openejbVersionName;
 
         final InputStream in = Exec.read("svn", "log", "--verbose", "--xml", "-rHEAD:{" + Release.lastReleaseDate + "}", tag);
 
@@ -70,7 +67,7 @@ public class ReviewCommits {
         for (Commit commit : commits) {
             final String[] tokens = commit.getMessage().split("[^A-Z0-9-]+");
             for (String token : tokens) {
-                if (token.matches("(OPENEJB|TOMEE)-[0-9]+")){
+                if (token.matches("(OPENEJB|TOMEE)-[0-9]+")) {
                     try {
                         addIssue(getJira().getIssue(token));
                     } catch (Exception e) {
@@ -223,7 +220,7 @@ public class ReviewCommits {
 
                     final String summary = prompt("summary");
                     final String project = prompt("TOMEE");
-                    final String version = prompt("TOMEE".equals(project)?v(Release.tomeeVersion): v(Release.openejbVersion));
+                    final String version = prompt("TOMEE".equals(project) ? Release.tomeeVersion : Release.openejbVersion);
                     final String type = prompt("Improvement").toLowerCase();
 
                     Issue issue = new Issue();

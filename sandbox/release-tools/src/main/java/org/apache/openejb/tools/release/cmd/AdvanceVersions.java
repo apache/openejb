@@ -21,12 +21,16 @@ import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Files;
 import org.apache.openejb.tools.release.util.IO;
 import org.codehaus.swizzle.stream.ReplaceStringInputStream;
+import org.codehaus.swizzle.stream.StreamLexer;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.format;
 import static org.apache.openejb.tools.release.util.Exec.cd;
@@ -37,31 +41,52 @@ import static org.apache.openejb.tools.release.util.Files.collect;
  * @version $Rev$ $Date$
  */
 @Command(dependsOn = Close.class)
-public class UpdateVersions {
+public class AdvanceVersions {
 
     public static void main(String... args) throws Exception {
 
-        final File dir = new File("/tmp/release/branch");
+        final File dir = new File(Release.workdir);
         Files.mkdir(dir);
 
         cd(dir);
 
-        final String branch = Release.branches + Release.openejbVersionName;
+        exec("svn", "co", Release.trunk);
 
-        // Make the branch
-        if (exec("svn", "info", branch) != 0) {
+        final File workingCopy = cd(new File(dir + File.separator + "openejb"));
 
-            exec("svn", "-m", format("[release-tools] tck branch for %s", Release.openejbVersionName), "cp", Release.trunk, branch);
+        final Set<String> versions = collectVersions(workingCopy);
+
+        for (String version : versions) {
+            System.out.println(version);
         }
-
-        // Checkout the branch
-        exec("svn", "co", branch);
-
-        final File workingCopy = cd(new File(dir + "/" + Release.openejbVersionName));
 
         updateVersions(workingCopy);
 
-        exec("svn", "-m", "[release-tools] update staging repo for " + Release.openejbVersionName, "ci");
+//        exec("svn", "-m", "[release-tools] update staging repo for " + Release.openejbVersionName, "ci");
+    }
+
+    private static Set<String> collectVersions(File workingCopy) throws IOException {
+        Set<String> versions = new HashSet<String>();
+
+
+        final List<File> files = collect(workingCopy, ".*pom.xml");
+
+        for (File file : files) {
+            final InputStream read = IO.read(file);
+            final StreamLexer lexer = new StreamLexer(read);
+
+            while (lexer.readAndMark("<dependency>", "</dependency>")) {
+                final String groupId = lexer.peek("<groupId>", "</groupId>");
+                final String artifactId = lexer.peek("<artifactId>", "</artifactId>");
+                final String version = lexer.peek("<version>", "</version>");
+                lexer.unmark();
+                if (version != null && version.contains("-SNAPSHOT")) versions.add(String.format("%s:%s:%s", groupId, artifactId, version));
+            }
+
+            read.close();
+        }
+
+        return versions;
     }
 
     private static void updateVersions(File workingCopy) throws IOException {
@@ -72,8 +97,12 @@ public class UpdateVersions {
         for (File file : files) {
             InputStream in = IO.read(file);
 
-            in = new ReplaceStringInputStream(in, "1.0.0-beta-2-SNAPSHOT", "1.0.0-beta-3-SNAPSHOT");
+            in = new ReplaceStringInputStream(in, "4.0.0-beta-2-SNAPSHOT-SNAPSHOT", "4.0.0-beta-3-SNAPSHOT");
             in = new ReplaceStringInputStream(in, "4.0.0-beta-2-SNAPSHOT", "4.0.0-beta-3-SNAPSHOT");
+            in = new ReplaceStringInputStream(in, "1.0.0-beta-2-SNAPSHOT", "1.0.0-beta-3-SNAPSHOT");
+            in = new ReplaceStringInputStream(in, "6.0-3-SNAPSHOT", "6.0-3");
+            in = new ReplaceStringInputStream(in, "1.3-SNAPSHOT", "1.2");
+            in = new ReplaceStringInputStream(in, "2.5.1-SNAPSHOT", "2.5.1");
 
             update(file, in);
         }

@@ -30,14 +30,14 @@ public class Tag {
 
     public static void main(String... args) throws Exception {
 
-        final String branch = Release.branches + Release.openejbVersion;
-        final String tag = Release.tags + Release.openejbVersion;
+        final String branch = Release.branches + Release.openejbVersionName;
+        final String tag = Release.tags + Release.openejbVersionName;
 
         if (exec("svn", "info", tag) == 0) {
-            exec("svn", "-m", format("[release-tools] recreating tag for %s", Release.openejbVersion), "rm", tag);
+            exec("svn", "-m", format("[release-tools] recreating tag for %s", Release.openejbVersionName), "rm", tag);
         }
 
-        exec("svn", "-m", format("[release-tools] creating tag for %s", Release.openejbVersion), "cp", branch, tag);
+        exec("svn", "-m", format("[release-tools] creating tag for %s", Release.openejbVersionName), "cp", branch, tag);
     }
 
 }
