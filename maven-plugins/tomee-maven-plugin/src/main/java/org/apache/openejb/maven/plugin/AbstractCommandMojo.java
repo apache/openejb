@@ -25,7 +25,7 @@ public abstract class AbstractCommandMojo extends AbstractAddressMojo {
     protected Object lookup(String name) {
         final Properties props = new Properties();
         props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.RemoteInitialContextFactory");
-        props.put(Context.PROVIDER_URL, "http://" + tomeeHost + ":" + tomeeHttpPort + "/openejb/ejb");
+        props.put(Context.PROVIDER_URL, "http://" + tomeeHost + ":" + tomeeHttpPort + "/tomee/ejb");
         try {
             return new InitialContext(props).lookup(name);
         } catch (Exception e) {
