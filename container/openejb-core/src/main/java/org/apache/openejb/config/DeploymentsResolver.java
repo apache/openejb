@@ -256,7 +256,7 @@ public class DeploymentsResolver implements DeploymentFilterable {
 
             UrlSet unchecked = new UrlSet();
             if (!filterDescriptors) {
-                unchecked = prefiltered.exclude(urlSet);
+                unchecked = NewLoaderLogic.applyBuiltinExcludes(prefiltered.exclude(urlSet));
                 if (filterSystemApps) {
                     unchecked = unchecked.exclude(".*/openejb-[^/]+(.(jar|ear|war)(./)?|/target/classes/?)");
                 }
