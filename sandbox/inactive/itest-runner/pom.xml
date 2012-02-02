@@ -111,8 +111,8 @@
       <version>0.9.94</version>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <artifactId>commons-lang3</artifactId>
+      <groupId>org.apache.commons</groupId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
