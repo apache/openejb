@@ -10,5 +10,6 @@ public class MoveClassesTest {
     @Test
     public void moveGeneratedCompiledClassesToPackageClasses() throws IOException {
         FileUtils.copyDirectory(new File("target/test-classes/" + Main.BASE_PACKAGE), new File("target/classes/" + Main.BASE_PACKAGE));
+        FileUtils.deleteDirectory(new File("src/test/java/generated"));
     }
 }
