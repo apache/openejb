@@ -26,14 +26,14 @@
 
   <groupId>org.apache.openejb.patch</groupId>
   <artifactId>openejb-cxf-bundle</artifactId>
-  <version>2.5.1-SNAPSHOT</version>
+  <version>2.5.2-SNAPSHOT</version>
   <name>Apache OpenEJB Patch :: CXF Bundle</name>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-bundle</artifactId>
-      <version>2.5.1</version>
+      <version>2.5.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
