@@ -14,7 +14,6 @@ import org.apache.openejb.util.LogStream;
 import org.apache.openejb.util.LogStreamFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -57,8 +56,6 @@ public class InfoMojo extends AbstractMojo {
             getLog().info("dumped configuration in " + output.getPath());
         } catch (OpenEJBException e) {
             throw new MojoFailureException("can't get the configuration", e);
-        } catch (IOException e) {
-            throw new MojoFailureException("can't write the configuration", e);
         }
     }
 
