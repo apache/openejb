@@ -9,17 +9,12 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
-import org.apache.openejb.loader.IO;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.LogStream;
 import org.apache.openejb.util.LogStreamFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
@@ -58,28 +53,12 @@ public class InfoMojo extends AbstractMojo {
             info = replaceContainer(info);
 
             final File output = new File(module, ConfigurationFactory.APP_INFO_XML);
-            dump(output, info);
+            configurationFactory.dump(output, info);
             getLog().info("dumped configuration in " + output.getPath());
         } catch (OpenEJBException e) {
             throw new MojoFailureException("can't get the configuration", e);
         } catch (IOException e) {
             throw new MojoFailureException("can't write the configuration", e);
-        }
-    }
-
-    private void dump(final File output, final AppInfo info) throws IOException, MojoFailureException {
-        final File parent = output.getParentFile();
-        if (!parent.exists() && !parent.mkdirs()) {
-            throw new MojoFailureException("can't create directory " + output.getParent());
-        }
-
-        // TODO: something else is surely better than java serialization!
-        final OutputStream fos = new BufferedOutputStream(new FileOutputStream(output));
-        final ObjectOutputStream oos = new ObjectOutputStream(fos);
-        try {
-            oos.writeObject(info);
-        } finally {
-            IO.close(fos);
         }
     }
 
