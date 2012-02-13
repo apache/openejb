@@ -35,6 +35,7 @@
 
   <modules>
     <module>tomee-maven-plugin</module>
+    <module>properties-maven-plugin</module>
   </modules>
 
   <dependencyManagement>
