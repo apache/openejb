@@ -9,11 +9,14 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.loader.IO;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.LogStream;
 import org.apache.openejb.util.LogStreamFactory;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 
 /**
@@ -36,31 +39,48 @@ public class InfoMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        getLog().info("creating module for " + module.getPath());
+        final String path = module.getPath();
+        getLog().info("creating module for " + path);
 
         System.setProperty("openejb.log.factory", MavenLogStreamFactory.class.getName());
         MavenLogStreamFactory.setLogger(getLog());
 
         final ConfigurationFactory configurationFactory = new ConfigurationFactory();
+        FileWriter outputWriter = null;
         try {
             OpenEJB.init(System.getProperties());
 
             final AppModule appModule = configurationFactory.loadApplication(Thread.currentThread().getContextClassLoader(), id, Arrays.asList(module));
 
             AppInfo info = configurationFactory.configureApplication(appModule);
-            info = replacePath(info);
-            info = replaceContainer(info);
+            info = replaceContainers(info);
+
+            final StringWriter writer = new StringWriter();
+            ConfigurationFactory.dump(writer, info);
+            final String xml = replacePath(path, writer.toString());
 
             final File output = new File(module, ConfigurationFactory.APP_INFO_XML);
-            configurationFactory.dump(output, info);
+            final File parent = output.getParentFile();
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new OpenEJBException("can't create directory " + output.getParent());
+            }
+            outputWriter = new FileWriter(output);
+            outputWriter.write(xml);
+
             getLog().info("dumped configuration in " + output.getPath());
-        } catch (OpenEJBException e) {
+        } catch (Exception e) {
             throw new MojoFailureException("can't get the configuration", e);
+        } finally {
+            IO.close(outputWriter);
         }
     }
 
+    private String replacePath(final String path, final String s) {
+        return s.replace(path, ConfigurationFactory.APP_INFO_XML_PATH);
+    }
+
     // TODO?
-    private AppInfo replaceContainer(AppInfo appInfo) {
+    private AppInfo replaceContainers(AppInfo appInfo) {
         return appInfo;
     }
 
