@@ -18,7 +18,7 @@ package org.apache.openejb.tools.examples;
 
 import com.petebevin.markdown.MarkdownProcessor;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
