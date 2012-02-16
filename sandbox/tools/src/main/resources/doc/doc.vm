@@ -1,0 +1,20 @@
+<h1>$key.title</h1>
+<p>
+    $key.description
+</p>
+
+<table>
+    <tr>
+#foreach( $col in $columns )
+        <td>$col</td>
+#end
+    </tr>
+#foreach( $item in $values)
+    <tr>
+#foreach( $col in $columns )
+        <td>$item.info.get($col)</td>
+#end
+    </tr>
+#end
+## skipping where (origin of the property = field, method or class)
+</table>
