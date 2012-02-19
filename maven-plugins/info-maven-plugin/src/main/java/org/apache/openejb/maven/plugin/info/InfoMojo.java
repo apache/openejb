@@ -9,6 +9,7 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.config.PreconfiguredFactory;
 import org.apache.openejb.loader.IO;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.LogStream;
@@ -56,10 +57,10 @@ public class InfoMojo extends AbstractMojo {
             info = replaceContainers(info);
 
             final StringWriter writer = new StringWriter();
-            ConfigurationFactory.dump(writer, info);
+            PreconfiguredFactory.dump(writer, info);
             final String xml = replacePath(path, writer.toString());
 
-            final File output = new File(module, ConfigurationFactory.APP_INFO_XML);
+            final File output = new File(module, PreconfiguredFactory.APP_INFO_XML);
             final File parent = output.getParentFile();
             if (!parent.exists() && !parent.mkdirs()) {
                 throw new OpenEJBException("can't create directory " + output.getParent());
@@ -76,17 +77,12 @@ public class InfoMojo extends AbstractMojo {
     }
 
     private String replacePath(final String path, final String s) {
-        return s.replace(path, ConfigurationFactory.APP_INFO_XML_PATH);
+        return s.replace(path, PreconfiguredFactory.APP_INFO_XML_PATH);
     }
 
     // TODO?
     private AppInfo replaceContainers(AppInfo appInfo) {
         return appInfo;
-    }
-
-    // TODO?
-    private AppInfo replacePath(AppInfo info) {
-        return info;
     }
 
     public static class MavenLogStreamFactory implements LogStreamFactory {

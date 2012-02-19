@@ -1,5 +1,7 @@
 package org.apache.openejb.maven.plugins.properties;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.settings.Proxy;
@@ -11,7 +13,13 @@ import java.util.Collection;
 /**
  * @goal copy-settings-proxy
  */
-public class ProxySettingsPropertiesMojo extends AbstractPropertiesPlugin {
+public class ProxySettingsPropertiesMojo extends AbstractMojo {
+    /**
+     * @parameter expression="${session}"
+     * @required
+     */
+    private MavenSession session;
+
     /**
      * @parameter expression="${settings}"
      * @required
@@ -53,7 +61,17 @@ public class ProxySettingsPropertiesMojo extends AbstractPropertiesPlugin {
         getLog().info("set proxy " + toString(proxy));
     }
 
-    private String toString(final Proxy proxy) {
+    protected void setProperty(final String key, final String value) {
+        session.getUserProperties().setProperty(key, value);
+    }
+
+    protected void setPropertyIfNotNull(final String key, final String value) {
+        if (value != null) {
+            setProperty(key, value);
+        }
+    }
+
+    private static String toString(final Proxy proxy) {
         return new StringBuilder(proxy.getId())
                 .append("[")
                 .append(proxy.getProtocol()).append("://")
