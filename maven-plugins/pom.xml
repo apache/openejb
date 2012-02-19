@@ -36,6 +36,8 @@
   <modules>
     <module>tomee-maven-plugin</module>
     <module>info-maven-plugin</module>
+    <module>dd-maven-plugin</module>
+    <module>openejb-embedded-maven-plugin</module>
   </modules>
 
   <dependencyManagement>
