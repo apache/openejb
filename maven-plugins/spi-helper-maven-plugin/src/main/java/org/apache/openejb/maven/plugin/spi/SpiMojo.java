@@ -5,22 +5,23 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.apache.openejb.maven.plugin.spi.xml.Scan;
+import org.apache.xbean.finder.Annotated;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.FileArchive;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,64 +48,107 @@ public class SpiMojo extends AbstractMojo {
     private List<String> annotations;
 
     /**
+     * @parameter
+     */
+    private List<String> subclasses;
+
+    /**
+     * @parameter
+     */
+    private List<String> implementations;
+
+    /**
      * @parameter expression="${spi.output}" default-value="META-INF/scan.xml"
      */
     private String outputFilename;
 
+    /**
+     * @parameter expression="${spi.meta}" default-value="false"
+     */
+    private boolean useMeta;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            final Archive archive = new FileArchive(createClassLoader(), module);
-            final ExtendedAnnotationFinder finder = new ExtendedAnnotationFinder(archive);
+            final ClassLoader loader = createClassLoader();
+            final Archive archive = new FileArchive(loader, module);
+            final AnnotationFinder finder = new AnnotationFinder(archive);
             finder.link();
-            final Map<String, List<AnnotationFinder.Info>> info = finder.getAnnotated();
 
             final Scan scan = new Scan();
-            for (Map.Entry<String, List<AnnotationFinder.Info>> entry : info.entrySet()) {
-                final Annotation annotation = new Annotation();
-                annotation.name = entry.getKey();
 
-                if (annotations != null && !annotations.isEmpty()) {
-                    if (!annotations.contains(annotation.name)) {
-                        continue;
+            //
+            // find classes
+            //
+
+            if (annotations != null) {
+                for (String annotation : annotations) {
+                    final Class<? extends Annotation> annClazz = (Class<? extends Annotation>) load(loader, annotation);
+
+                    if (!useMeta) {
+                        for (Class<?> clazz : finder.findAnnotatedClasses(annClazz)) {
+                            scan.getClassname().add(clazz.getName());
+                        }
+                    } else {
+                        for (Annotated<Class<?>> clazz : finder.findMetaAnnotatedClasses(annClazz)) {
+                            scan.getClassname().add(clazz.get().getName());
+                        }
                     }
-                } else if (annotation.name.startsWith("java.lang")) {
-                    continue;
+
+                    if (!useMeta) {
+                        for (Field clazz : finder.findAnnotatedFields(annClazz)) {
+                            scan.getClassname().add(clazz.getDeclaringClass().getName());
+                        }
+                    } else {
+                        for (Annotated<Field> clazz : finder.findMetaAnnotatedFields(annClazz)) {
+                            scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                        }
+                    }
+
+                    if (!useMeta) {
+                        for (Method clazz : finder.findAnnotatedMethods(annClazz)) {
+                            scan.getClassname().add(clazz.getDeclaringClass().getName());
+                        }
+                    } else {
+                        for (Annotated<Method> clazz : finder.findMetaAnnotatedMethods(annClazz)) {
+                            scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                        }
+                    }
                 }
-
-                scan.annotation.add(annotation);
-
-                for (AnnotationFinder.Info value : entry.getValue()) {
-                    if (value instanceof AnnotationFinder.ClassInfo) {
-                        final Class clazz = new Class();
-                        clazz.name = value.getName();
-                        annotation.classes.add(clazz);
-                    } else if (value instanceof AnnotationFinder.FieldInfo) {
-                        final Field field = new Field();
-                        field.classname = ((AnnotationFinder.FieldInfo) value).getDeclaringClass().getName();
-                        field.name = value.getName();
-                        annotation.fields.add(field);
-                    } else if (value instanceof AnnotationFinder.MethodInfo) {
-                        final Method method = new Method();
-                        method.classname = ((AnnotationFinder.MethodInfo) value).getDeclaringClass().getName();
-                        method.name = value.getName();
-                        annotation.methods.add(method);
-                    }
-                }                
             }
+
+            if (subclasses != null) {
+                for (String subclass : subclasses) {
+                    for (Class<?> clazz : finder.findSubclasses(load(loader, subclass))) {
+                        scan.getClassname().add(clazz.getName());
+                    }
+                }
+            }
+
+            if (implementations != null) {
+                for (String implementation : implementations) {
+                    for (Class<?> clazz : finder.findImplementations(load(loader, implementation))) {
+                        scan.getClassname().add(clazz.getName());
+                    }
+                }
+            }
+
+            //
+            // dump found classes
+            //
 
             File output = new File(outputFilename);
             if (!output.isAbsolute()) {
                 output = new File(module, outputFilename);
             }
-            if (!output.getParentFile().mkdirs()) {
+            if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
                 getLog().error("can't create " + output.getParent());
                 return;
             }
 
-            final JAXBContext context = JAXBContext.newInstance(Scan.class);
             final FileWriter writer = new FileWriter(output);
             try {
+                final JAXBContext context = JAXBContext.newInstance(Scan.class);
                 context.createMarshaller().marshal(scan, writer);
             } finally {
                 writer.close();
@@ -113,6 +157,14 @@ public class SpiMojo extends AbstractMojo {
             getLog().info("generated " + output.getPath());
         } catch (Exception e) {
             getLog().error(e);
+        }
+    }
+
+    private Class<?> load(final ClassLoader loader, final String name) throws MojoFailureException {
+        try {
+            return loader.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            throw new MojoFailureException("can't load " + name, e);
         }
     }
 
@@ -135,38 +187,5 @@ public class SpiMojo extends AbstractMojo {
             getLog().warn("can't find " + module.getPath());
         }
         return new URLClassLoader(urls.toArray(new URL[urls.size()]), Thread.currentThread().getContextClassLoader());
-    }
-
-    @XmlRootElement
-    public static class Scan {
-        @XmlElementWrapper(name = "annotations")
-        public List<Annotation> annotation = new ArrayList<Annotation>();
-    }
-
-    public static class Annotation {
-        @XmlAttribute
-        public String name;
-        public List<Class> classes = new ArrayList<Class>();
-        public List<Method> methods = new ArrayList<Method>();
-        public List<Field> fields = new ArrayList<Field>();
-    }
-
-    public static class Method {
-        @XmlAttribute
-        public String classname;
-        @XmlAttribute
-        public String name;
-    }
-
-    public static class Field {
-        @XmlAttribute
-        public String classname;
-        @XmlAttribute
-        public String name;
-    }
-
-    public static class Class {
-        @XmlAttribute
-        public String name;
     }
 }
