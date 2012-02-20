@@ -39,6 +39,7 @@
     <module>dd-maven-plugin</module>
     <module>openejb-embedded-maven-plugin</module>
     <module>maven-util</module>
+    <module>spi-helper-maven-plugin</module>
   </modules>
 
   <dependencyManagement>
@@ -72,6 +73,11 @@
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-core</artifactId>
         <version>${openejb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-finder-shaded</artifactId>
+        <version>3.10-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
