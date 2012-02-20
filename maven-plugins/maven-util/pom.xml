@@ -9,9 +9,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>info-maven-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
-  <name>OpenEJB Maven Plugins :: Info Maven Plugin</name>
+  <artifactId>maven-util</artifactId>
+  <name>OpenEJB Maven Plugins :: Util</name>
 
   <dependencies>
     <dependency>
@@ -19,21 +18,8 @@
       <artifactId>maven-plugin-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>maven-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
   </dependencies>
-
-  <properties>
-    <maven-plugin.prefix>info</maven-plugin.prefix>
-  </properties>
 </project>
