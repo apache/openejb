@@ -26,6 +26,11 @@
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>maven-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <properties>

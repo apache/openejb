@@ -22,10 +22,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.Deployer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * @goal undeploy
  */

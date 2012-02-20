@@ -8,13 +8,14 @@ import org.apache.openejb.maven.plugin.dd.Merger;
 
 import javax.xml.bind.JAXBElement;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 
-public class ValidationxmlMerger implements Merger<ValidationConfigType> {
-    private final Log log;
-
-    public ValidationxmlMerger(final Log logger) {
-        log = logger;
+public class ValidationMerger extends Merger<ValidationConfigType> {
+    public ValidationMerger(final Log logger) {
+        super(logger);
     }
 
     @Override
@@ -45,6 +46,21 @@ public class ValidationxmlMerger implements Merger<ValidationConfigType> {
             return JaxbOpenejb.unmarshal(ValidationConfigType.class, new BufferedInputStream(url.openStream()));
         } catch (Exception e) {
             return createEmpty();
+        }
+    }
+
+    @Override
+    public String descriptorName() {
+        return "validation.xml";
+    }
+
+    @Override
+    public void dump(File dump, ValidationConfigType object) throws Exception {
+        final BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(dump));
+        try {
+            JaxbOpenejb.marshal(ValidationConfigType.class, object, stream);
+        } finally {
+            stream.close();
         }
     }
 }

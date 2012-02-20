@@ -4,15 +4,16 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.openejb.maven.plugin.dd.Merger;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URL;
 import java.util.Properties;
 
-public class EnventriespropertiesMerger implements Merger<Properties> {
-    private final Log log;
-
-    public EnventriespropertiesMerger(final Log logger) {
-        log = logger;
+public class EnvEntriesMerger extends Merger<Properties> {
+    public EnvEntriesMerger(final Log logger) {
+        super(logger);
     }
 
     @Override
@@ -41,5 +42,20 @@ public class EnventriespropertiesMerger implements Merger<Properties> {
             // ignored
         }
         return read;
+    }
+
+    @Override
+    public String descriptorName() {
+        return "env-entries.properties";
+    }
+
+    @Override
+    public void dump(final File dump, final Properties object) throws Exception {
+        final Writer writer = new FileWriter(dump);
+        try {
+            object.store(writer, "merged env-entries.properties");
+        } finally {
+            writer.close();
+        }
     }
 }

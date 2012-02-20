@@ -7,13 +7,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.openejb.config.NewLoaderLogic;
+import org.apache.openejb.maven.util.MavenLogStreamFactory;
+import org.apache.xbean.finder.AbstractFinder;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.ResourceFinder;
-import org.codehaus.plexus.interpolation.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,7 +44,14 @@ public class MergeDDForWebappMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * @parameter expression="${project.build.outputDirectory}/${project.build.finalName}/WEB-INF"
+     * @parameter expression="${project.build.sourceDirectory}/main/webapp/WEB-INF"
+     * @required
+     * @readonly
+     */
+    private File webInfSrc;
+
+    /**
+     * @parameter expression="${project.build.directory}/${project.build.finalName}/WEB-INF"
      * @required
      * @readonly
      */
@@ -59,21 +69,34 @@ public class MergeDDForWebappMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        System.setProperty("openejb.log.factory", "org.apache.openejb.maven.util.MavenLogStreamFactory");
+        MavenLogStreamFactory.setLogger(getLog());
+
         initIncludeExclude();
-        final Map<String, Merger<?>> mergers = initMerger();
+        final Map<String, Merger<?>> mergers;
+        try {
+            mergers = initMerger();
+        } catch (Exception e) {
+            getLog().error("can't find mergers", e);
+            return;
+        }
 
         getLog().info("looking for descriptors...");
         final List<Artifact> artifacts = getDependencies();
 
         final ResourceFinder webInfFinder;
         try {
-            webInfFinder = new ResourceFinder(webInf.toURI().toURL());
+            webInfFinder = new ResourceFinder(webInfSrc.toURI().toURL());
         } catch (MalformedURLException e) {
             throw new MojoFailureException("can't create a finder for webinf", e);
         }
 
         final Map<Artifact, ResourceFinder> finders = finders(artifacts);
         for (String dd : MANAGED_DD) {
+            if (!mergers.containsKey(dd)) {
+                getLog().warn("ignoring " + dd + " because no merger found");
+            }
+
             int ddCount = 0;
             Object reference;
             final Merger<Object> merger = (Merger<Object>) mergers.get(dd);
@@ -101,25 +124,38 @@ public class MergeDDForWebappMojo extends AbstractMojo {
                 }
             }
 
-            // todo: dump it in web-inf...
             if (ddCount > 0) {
-                getLog().info(dd = " => ");
-                getLog().info(reference.toString());
+                if (!webInf.exists() && !webInf.mkdirs()) {
+                    getLog().error("can't create " + webInf.getPath());
+                }
+                final File dump = new File(webInf, dd);
+                try {
+                    merger.dump(dump, reference);
+                    getLog().info(dd + " merged on " + dump.getPath());
+                } catch (Exception e) {
+                    getLog().error("can't save " + dd + " in " + dump.getPath());
+                }
+            } else {
+                getLog().debug("no " + dd + " found, this descriptor will be ignored");
             }
         }
     }
 
-    private Map<String, Merger<?>> initMerger() {
+    private Map<String, Merger<?>> initMerger() throws Exception {
         final Map<String, Merger<?>> mergers = new HashMap<String, Merger<?>>();
-        for (String dd : MANAGED_DD) {
-            final String name = "org.apache.openejb.maven.plugin.dd.merger." + StringUtils.capitalizeFirstLetter(dd).replace(".", "").replace("-", "") + "Merger";
+        final ClassLoader cl = new URLClassLoader(new URL[] { getClass().getProtectionDomain().getCodeSource().getLocation() }, ClassLoader.getSystemClassLoader());
+        final AbstractFinder finder = new ClassFinder(cl, true).link();
+        final List<Class> foundMergers = finder.findSubclasses((Class) cl.loadClass(Merger.class.getName()));
+        
+        for (Class<? extends Merger> m : foundMergers) {
             try {
-                mergers.put(dd,
-                        (Merger<?>) Thread.currentThread().getContextClassLoader()
-                                            .loadClass(name)
-                                            .getConstructor(Log.class).newInstance(getLog()));
+                // reload the class with the current classloader to avoid to miss some dependencies
+                // excluded to scan faster
+                final Merger<?> instance = (Merger<?>) Thread.currentThread().getContextClassLoader().loadClass(m.getName())
+                                                .getConstructor(Log.class).newInstance(getLog());
+                mergers.put(instance.descriptorName(), instance);
             } catch (Exception e) {
-                e.printStackTrace(); // TODO
+                getLog().warn("can't instantiate " + m.getName() + ", does it provide a constructor with a maven logger?");
             }
         }
         return mergers;

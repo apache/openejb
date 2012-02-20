@@ -1,21 +1,22 @@
 package org.apache.openejb.maven.plugin.dd.merger;
 
 import org.apache.maven.plugin.logging.Log;
-import org.apache.openejb.config.sys.JaxbOpenejb;
 import org.apache.openejb.jee.AssemblyDescriptor;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.Interceptor;
+import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.maven.plugin.dd.Merger;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 
-public class EjbjarxmlMerger implements Merger<EjbJar> {
-    private final Log log;
-
-    public EjbjarxmlMerger(final Log logger) {
-        log = logger;
+public class EjbJarMerger extends Merger<EjbJar> {
+    public EjbJarMerger(final Log logger) {
+        super(logger);
     }
 
     @Override
@@ -54,9 +55,24 @@ public class EjbjarxmlMerger implements Merger<EjbJar> {
     @Override
     public EjbJar read(URL url) {
         try {
-            return JaxbOpenejb.unmarshal(EjbJar.class, new BufferedInputStream(url.openStream()));
+            return (EjbJar) JaxbJavaee.unmarshal(EjbJar.class, new BufferedInputStream(url.openStream()), false);
         } catch (Exception e) {
             return createEmpty();
+        }
+    }
+
+    @Override
+    public String descriptorName() {
+        return "ejb-jar.xml";
+    }
+
+    @Override
+    public void dump(final File dump, final EjbJar ejbJar) throws Exception {
+        final BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(dump));
+        try {
+            JaxbJavaee.marshal(EjbJar.class, ejbJar, stream);
+        } finally {
+            stream.close();
         }
     }
 }
