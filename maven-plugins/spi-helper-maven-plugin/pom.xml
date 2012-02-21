@@ -31,11 +31,6 @@
       <artifactId>xbean-xml</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>6.0-3</version>
-    </dependency>
   </dependencies>
 
   <properties>

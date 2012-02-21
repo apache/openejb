@@ -27,6 +27,8 @@ public final class XMLAnnotationFinderHelper {
     public static IAnnotationFinder finderFromXml(final InputStream is, final ClassLoader loader) throws JAXBException {
         final Scan scan = (Scan) JAXB_CONTEXT.createUnmarshaller().unmarshal(new BufferedInputStream(is));
 
+        // TODO: manage packages
+
         Class<?>[] classes = new Class<?>[scan.getClassname().size()];
         int i = 0;
         for (String clazz : scan.getClassname()) {
@@ -44,6 +46,6 @@ public final class XMLAnnotationFinderHelper {
         }
 
         final Archive archive = new ClassesArchive(classes);
-        return new AnnotationFinder(archive).link();
+        return new AnnotationFinder(archive); // don't link here
     }
 }

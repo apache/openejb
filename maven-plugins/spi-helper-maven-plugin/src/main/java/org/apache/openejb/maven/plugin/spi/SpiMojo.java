@@ -1,6 +1,16 @@
 package org.apache.openejb.maven.plugin.spi;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -9,6 +19,7 @@ import org.apache.openejb.xbean.xml.Scan;
 import org.apache.xbean.finder.Annotated;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 
 import javax.xml.bind.JAXBContext;
@@ -30,16 +41,19 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @goal generate
+ * @requiresDependencyResolution compile+runtime
  * @phase compile
  */
 public class SpiMojo extends AbstractMojo {
     private static final Map<String, Profile> DEFAULT_PROFILES = new HashMap<String, Profile>();
+    private static final String DEFAULT_PROFILE = "jee6";
 
     static {
         final Profile jee6 = new Profile(
@@ -99,7 +113,7 @@ public class SpiMojo extends AbstractMojo {
                         // no implementations
                 )
         );
-        DEFAULT_PROFILES.put("jee6", jee6);
+        DEFAULT_PROFILES.put(DEFAULT_PROFILE, jee6);
     }
 
     /**
@@ -107,6 +121,13 @@ public class SpiMojo extends AbstractMojo {
      * @required
      */
     private File module;
+
+    /**
+     * @parameter default-value="${project.build.outputDirectory}"
+     *
+     * for webapps "${project.build.directory}/${project.build.finalName}" is better
+     */
+    private File outputFolder;
 
     /**
      * @parameter default-value="${project}"
@@ -145,6 +166,41 @@ public class SpiMojo extends AbstractMojo {
      */
     private boolean useMeta;
 
+    /**
+     * @parameter expression="${spi.aggregated-archive}" default-value="true"
+     */
+    private boolean useAggregatedArchiveIfWar;
+
+    /**
+     * @parameter default-value="${project.packaging}"
+     * @readonly
+     */
+    private String packaging;
+
+    /**
+     * @parameter expression="${project.pluginArtifactRepositories}"
+     * @required
+     * @readonly
+     */
+    private List remotePluginRepositories;
+
+    /**
+     * @parameter expression="${localRepository}"
+     * @readonly
+     * @required
+     */
+    private ArtifactRepository local;
+
+    /**
+     * @component
+     */
+    protected ArtifactFactory factory;
+
+    /**
+     * @component
+     */
+    protected ArtifactResolver resolver;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         //
@@ -160,14 +216,34 @@ public class SpiMojo extends AbstractMojo {
                 }
             }
         }
-        profileToUse.add(new Profile(annotations, subclasses, implementations));
+        if (annotations != null || subclasses != null || implementations != null) {
+            profileToUse.add(new Profile(annotations, subclasses, implementations));
+        }
+
+        if (profileToUse.isEmpty()) {
+            profileToUse.add(DEFAULT_PROFILES.get(DEFAULT_PROFILE));
+        }
+
+        //
+        // creating the archive and its classloader
+        //
+
+        // war is different since it will contain a single descriptor for its lib too (not an ear)
+        boolean war = "war".equals(packaging);
+        final Archive archive;
+        final URLClassLoader loader = createClassLoader(providedDependenciesClassLoader());
+        if (war && useAggregatedArchiveIfWar) {
+            // no parent to avoid to not simply look lib/
+            archive = new ClasspathArchive(loader, loader.getURLs());
+            getLog().info("using an aggregated archive");
+        } else {
+            archive = new FileArchive(loader, module);
+            getLog().info("using an file archive");
+        }
 
         // the result
         final Scan scan = new Scan();
-
         try {
-            final ClassLoader loader = createClassLoader();
-            final Archive archive = new FileArchive(loader, module);
             final AnnotationFinder finder = new AnnotationFinder(archive);
             finder.link();
 
@@ -247,10 +323,7 @@ public class SpiMojo extends AbstractMojo {
             // dump found classes
             //
 
-            File output = new File(outputFilename);
-            if (!output.isAbsolute()) {
-                output = new File(module, outputFilename);
-            }
+            final File output = path(outputFolder, outputFilename);
             if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
                 getLog().error("can't create " + output.getParent());
                 return;
@@ -279,6 +352,53 @@ public class SpiMojo extends AbstractMojo {
         }
     }
 
+    private File path(File outputFolder, String outputFilename) {
+        File output = new File(outputFilename);
+        if (!output.isAbsolute()) {
+            output = new File(outputFolder, outputFilename);
+        }
+        return output;
+    }
+
+    private ClassLoader providedDependenciesClassLoader() {
+        final Set<URL> urls = new HashSet<URL>();
+
+        // provided artifacts
+        for (Artifact artifact : (Set<Artifact>) project.getDependencyArtifacts()) {
+            if (!"provided".equals(artifact.getScope())) {
+                continue;
+            }
+
+            try {
+                urls.add(artifact.getFile().toURI().toURL());
+            } catch (MalformedURLException e) {
+                getLog().warn("can't use artifact " + artifact.toString());
+            }
+        }
+
+        // plugin dependencies
+        final Plugin thisPlugin = (Plugin) project.getBuild().getPluginsAsMap().get("org.apache.openejb:spi-helper-maven-plugin");
+        if (thisPlugin != null && thisPlugin.getDependencies() != null) {
+            for (Dependency artifact : thisPlugin.getDependencies()) {
+                final Artifact resolved = new DefaultArtifact(
+                        artifact.getGroupId(), artifact.getArtifactId(), VersionRange.createFromVersion(artifact.getVersion()),
+                        artifact.getScope(), artifact.getType(), artifact.getClassifier(), new DefaultArtifactHandler());
+                try {
+                    resolver.resolve(resolved, remotePluginRepositories, local);
+                    urls.add(resolved.getFile().toURI().toURL());
+                } catch (ArtifactResolutionException e) {
+                    getLog().warn("can't resolve " + artifact.getArtifactId());
+                } catch (ArtifactNotFoundException e) {
+                    getLog().warn("can't find " + artifact.getArtifactId());
+                } catch (MalformedURLException e) {
+                    getLog().warn("can't get url of " + resolved.getFile() + " for artifact " + resolved.getArtifactId());
+                }
+            }
+        }
+
+        return new URLClassLoader(urls.toArray(new URL[urls.size()]), ClassLoader.getSystemClassLoader());
+    }
+
     private Class<?> load(final ClassLoader loader, final String name) throws MojoFailureException {
         try {
             return loader.loadClass(name);
@@ -287,7 +407,7 @@ public class SpiMojo extends AbstractMojo {
         }
     }
 
-    private ClassLoader createClassLoader() {
+    private URLClassLoader createClassLoader(final ClassLoader parent) {
         final List<URL> urls = new ArrayList<URL>();
         for (Artifact artifact : (Set<Artifact>) project.getArtifacts()) {
             try {
@@ -305,7 +425,7 @@ public class SpiMojo extends AbstractMojo {
         } else {
             getLog().warn("can't find " + module.getPath());
         }
-        return new URLClassLoader(urls.toArray(new URL[urls.size()]), Thread.currentThread().getContextClassLoader());
+        return new URLClassLoader(urls.toArray(new URL[urls.size()]), parent);
     }
 
     public static final class Profile {
