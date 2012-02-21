@@ -12,8 +12,15 @@ import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.FileArchive;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -129,7 +136,7 @@ public class SpiMojo extends AbstractMojo {
     private List<String> profiles;
 
     /**
-     * @parameter expression="${spi.output}" default-value="META-INF/scan.xml"
+     * @parameter expression="${spi.output}" default-value="META-INF/org/apache/xbean/scan.xml"
      */
     private String outputFilename;
 
@@ -252,7 +259,16 @@ public class SpiMojo extends AbstractMojo {
             final FileWriter writer = new FileWriter(output);
             try {
                 final JAXBContext context = JAXBContext.newInstance(Scan.class);
-                context.createMarshaller().marshal(scan, writer);
+                final TransformerFactory factory = TransformerFactory.newInstance();
+                final Transformer transformer = factory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+                final StringWriter tempWriter = new StringWriter();
+                context.createMarshaller().marshal(scan, tempWriter);
+
+                final StreamResult result = new StreamResult(writer);
+                transformer.transform(new StreamSource(new StringReader(tempWriter.toString())), result);
             } finally {
                 writer.close();
             }
