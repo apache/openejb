@@ -1,4 +1,4 @@
-package org.apache.openejb.maven.plugin.spi.xml;
+package org.apache.openejb.xbean.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -5,7 +5,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.apache.openejb.maven.plugin.spi.xml.Scan;
+import org.apache.openejb.xbean.xml.Scan;
 import org.apache.xbean.finder.Annotated;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
@@ -21,7 +21,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,6 +32,31 @@ import java.util.Set;
  * @phase compile
  */
 public class SpiMojo extends AbstractMojo {
+    private static final Map<String, Profile> DEFAULT_PROFILES = new HashMap<String, Profile>();
+
+    static {
+        final Profile jee6 = new Profile(
+                Arrays.asList( // annotations
+                        "javax.ejb.Singleton",
+                        "javax.ejb.Stateful",
+                        "javax.ejb.Stateless",
+                        "javax.enterprise.inject.Specializes",
+                        "javax.annotation.ManagedBean",
+                        "javax.ejb.MessageDriven",
+
+                        "org.apache.openejb.api.LocalClient",
+                        "org.apache.openejb.api.RemoteClient"
+                ),
+                Arrays.asList( // subclasses
+                        "javax.ws.rs.core.Application"
+                ),
+                new ArrayList<String>( // implementations
+                        // no implementations
+                )
+        );
+        DEFAULT_PROFILES.put("jee6", jee6);
+    }
+
     /**
      * @parameter default-value="${project.build.outputDirectory}"
      * @required
@@ -58,6 +86,11 @@ public class SpiMojo extends AbstractMojo {
     private List<String> implementations;
 
     /**
+     * @parameter
+     */
+    private List<String> profiles;
+
+    /**
      * @parameter expression="${spi.output}" default-value="META-INF/scan.xml"
      */
     private String outputFilename;
@@ -69,66 +102,98 @@ public class SpiMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        //
+        // create profiles to use
+        //
+        final List<Profile> profileToUse = new ArrayList<Profile>();
+        if (profiles != null) {
+            for (String profile : profiles) {
+                if (DEFAULT_PROFILES.containsKey(profile)) {
+                    profileToUse.add(DEFAULT_PROFILES.get(profile));
+                } else {
+                    getLog().info("can't find profile " + profile + ", available ones are " + DEFAULT_PROFILES.keySet());
+                }
+            }
+        }
+        profileToUse.add(new Profile(annotations, subclasses, implementations));
+
+        // the result
+        final Scan scan = new Scan();
+
         try {
             final ClassLoader loader = createClassLoader();
             final Archive archive = new FileArchive(loader, module);
             final AnnotationFinder finder = new AnnotationFinder(archive);
             finder.link();
 
-            final Scan scan = new Scan();
-
             //
             // find classes
             //
 
-            if (annotations != null) {
-                for (String annotation : annotations) {
-                    final Class<? extends Annotation> annClazz = (Class<? extends Annotation>) load(loader, annotation);
+            for (Profile profile : profileToUse) {
+                if (profile.getAnnotations() != null) {
+                    for (String annotation : profile.getAnnotations()) {
+                        final Class<? extends Annotation> annClazz;
+                        try {
+                            annClazz = (Class<? extends Annotation>) load(loader, annotation);
+                        } catch (MojoFailureException mfe) {
+                            getLog().warn("can't find " + annotation);
+                            continue;
+                        }
 
-                    if (!useMeta) {
-                        for (Class<?> clazz : finder.findAnnotatedClasses(annClazz)) {
-                            scan.getClassname().add(clazz.getName());
+                        if (!useMeta) {
+                            for (Class<?> clazz : finder.findAnnotatedClasses(annClazz)) {
+                                scan.getClassname().add(clazz.getName());
+                            }
+                        } else {
+                            for (Annotated<Class<?>> clazz : finder.findMetaAnnotatedClasses(annClazz)) {
+                                scan.getClassname().add(clazz.get().getName());
+                            }
                         }
-                    } else {
-                        for (Annotated<Class<?>> clazz : finder.findMetaAnnotatedClasses(annClazz)) {
-                            scan.getClassname().add(clazz.get().getName());
-                        }
-                    }
 
-                    if (!useMeta) {
-                        for (Field clazz : finder.findAnnotatedFields(annClazz)) {
-                            scan.getClassname().add(clazz.getDeclaringClass().getName());
+                        if (!useMeta) {
+                            for (Field clazz : finder.findAnnotatedFields(annClazz)) {
+                                scan.getClassname().add(clazz.getDeclaringClass().getName());
+                            }
+                        } else {
+                            for (Annotated<Field> clazz : finder.findMetaAnnotatedFields(annClazz)) {
+                                scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                            }
                         }
-                    } else {
-                        for (Annotated<Field> clazz : finder.findMetaAnnotatedFields(annClazz)) {
-                            scan.getClassname().add(clazz.get().getDeclaringClass().getName());
-                        }
-                    }
 
-                    if (!useMeta) {
-                        for (Method clazz : finder.findAnnotatedMethods(annClazz)) {
-                            scan.getClassname().add(clazz.getDeclaringClass().getName());
-                        }
-                    } else {
-                        for (Annotated<Method> clazz : finder.findMetaAnnotatedMethods(annClazz)) {
-                            scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                        if (!useMeta) {
+                            for (Method clazz : finder.findAnnotatedMethods(annClazz)) {
+                                scan.getClassname().add(clazz.getDeclaringClass().getName());
+                            }
+                        } else {
+                            for (Annotated<Method> clazz : finder.findMetaAnnotatedMethods(annClazz)) {
+                                scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                            }
                         }
                     }
                 }
-            }
 
-            if (subclasses != null) {
-                for (String subclass : subclasses) {
-                    for (Class<?> clazz : finder.findSubclasses(load(loader, subclass))) {
-                        scan.getClassname().add(clazz.getName());
+                if (profile.getSubclasses() != null) {
+                    for (String subclass : profile.getSubclasses()) {
+                        try {
+                            for (Class<?> clazz : finder.findSubclasses(load(loader, subclass))) {
+                                scan.getClassname().add(clazz.getName());
+                            }
+                        } catch (MojoFailureException mfe) {
+                            getLog().warn("can't find " + subclass);
+                        }
                     }
                 }
-            }
 
-            if (implementations != null) {
-                for (String implementation : implementations) {
-                    for (Class<?> clazz : finder.findImplementations(load(loader, implementation))) {
-                        scan.getClassname().add(clazz.getName());
+                if (profile.getImplementations() != null) {
+                    for (String implementation : profile.getImplementations()) {
+                        try {
+                            for (Class<?> clazz : finder.findImplementations(load(loader, implementation))) {
+                                scan.getClassname().add(clazz.getName());
+                            }
+                        } catch (MojoFailureException mfe) {
+                            getLog().warn("can't find " + implementation);
+                        }
                     }
                 }
             }
@@ -187,5 +252,29 @@ public class SpiMojo extends AbstractMojo {
             getLog().warn("can't find " + module.getPath());
         }
         return new URLClassLoader(urls.toArray(new URL[urls.size()]), Thread.currentThread().getContextClassLoader());
+    }
+
+    public static final class Profile {
+        private List<String> annotations;
+        private List<String> subclasses;
+        private List<String> implementations;
+
+        public Profile(final List<String> annotations, final List<String> subclasses, final List<String> implementations) {
+            this.annotations = annotations;
+            this.subclasses = subclasses;
+            this.implementations = implementations;
+        }
+
+        public List<String> getAnnotations() {
+            return annotations;
+        }
+
+        public List<String> getSubclasses() {
+            return subclasses;
+        }
+
+        public List<String> getImplementations() {
+            return implementations;
+        }
     }
 }
