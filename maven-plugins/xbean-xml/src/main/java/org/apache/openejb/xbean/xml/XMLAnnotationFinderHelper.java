@@ -52,6 +52,23 @@ public final class XMLAnnotationFinderHelper {
         return new AnnotationFinder(archive); // don't link here
     }
 
+    public static IAnnotationFinder finderFromXml(final InputStream is, final ClassLoader loader, final Iterable<URL> urls) throws JAXBException {
+        final Scan scan = (Scan) JAXB_CONTEXT.createUnmarshaller().unmarshal(new BufferedInputStream(is));
+
+        final Archive packageArchive = packageArchive(scan.getPackagename(), loader, urls, null);
+        final Archive classesArchive = classesArchive(scan, loader);
+
+        final Archive archive;
+        if (packageArchive != null && classesArchive != null) {
+            archive = new CompositeArchive(classesArchive, packageArchive);
+        } else if (packageArchive != null) {
+            archive = packageArchive;
+        } else {
+            archive = classesArchive;
+        }
+        return new AnnotationFinder(archive); // don't link here
+    }
+
     public static Archive classesArchive(final Scan scan, final ClassLoader loader) {
         Class<?>[] classes = new Class<?>[scan.getClassname().size()];
         int i = 0;
