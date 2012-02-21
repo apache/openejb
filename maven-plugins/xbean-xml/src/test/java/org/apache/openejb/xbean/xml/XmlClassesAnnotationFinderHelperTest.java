@@ -11,7 +11,7 @@ public class XmlClassesAnnotationFinderHelperTest extends AbstractXmlAnnotationF
     @BeforeClass
     public static void initFinder() throws JAXBException {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        finder = XMLAnnotationFinderHelper.finderFromXml(loader.getResourceAsStream("test-scan.xml"), loader, null, null);
+        finder = XMLAnnotationFinderHelper.finderFromXml(loader.getResourceAsStream("test-scan.xml"), loader, null);
     }
 
     @Override
