@@ -40,6 +40,7 @@
     <module>maven-util</module>
     <module>spi-helper-maven-plugin</module>
     <module>xbean-xml</module>
+    <module>spi-helper-jee6-profile</module>
   </modules>
 
   <dependencyManagement>
