@@ -83,33 +83,11 @@ public class EjbJarMerger extends Merger<EjbJar> {
         }
 
         for (ContainerTransaction tx : descriptor.getContainerTransaction()) {
-            boolean found = false;
-            for (ContainerTransaction refTx : reference.getContainerTransaction()) {
-                if (refTx.getId().equals(tx.getId())) { // is id the good test?
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                log.warn("container transaction " + tx.getId() + " already defined");
-            } else {
-                reference.getContainerTransaction().add(tx);
-            }
+            reference.getContainerTransaction().add(tx);
         }
 
         for (ContainerConcurrency concurrency : descriptor.getContainerConcurrency()) {
-            boolean found = false;
-            for (ContainerConcurrency refConcurrency : reference.getContainerConcurrency()) {
-                if (refConcurrency.getId().equals(concurrency.getId())) { // is id the good test?
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                log.warn("container concurrency " + concurrency.getId() + " already defined");
-            } else {
-                reference.getContainerConcurrency().add(concurrency);
-            }
+            reference.getContainerConcurrency().add(concurrency);
         }
 
         for (InterceptorBinding interceptorBinding : descriptor.getInterceptorBinding()) {
