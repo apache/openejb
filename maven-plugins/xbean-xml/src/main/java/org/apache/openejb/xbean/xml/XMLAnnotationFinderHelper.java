@@ -49,7 +49,7 @@ public final class XMLAnnotationFinderHelper {
         } else {
             archive = classesArchive;
         }
-        return new AnnotationFinder(archive); // don't link here
+        return new AnnotationFinder(archive).link();
     }
 
     public static IAnnotationFinder finderFromXml(final InputStream is, final ClassLoader loader, final Iterable<URL> urls) throws JAXBException {
