@@ -21,7 +21,14 @@ public class ValidationMerger extends Merger<ValidationConfigType> {
     @Override
     public ValidationConfigType merge(final ValidationConfigType reference, final ValidationConfigType toMerge) {
         for (PropertyType property : toMerge.getProperty()) {
-            if (reference.getProperty().contains(property)) {
+            boolean found = false;
+            for (PropertyType refProperty : reference.getProperty()) {
+                if (refProperty.getName().contains(property.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
                 log.warn("property " + property.getName() + " already present");
             } else {
                 reference.getProperty().add(property);
