@@ -14,24 +14,17 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.apache.openejb.xbean.xml.Scan;
 import org.apache.xbean.finder.Annotated;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -46,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @goal generate
@@ -179,7 +173,7 @@ public class SpiMojo extends AbstractMojo {
         }
 
         // the result
-        final Scan scan = new Scan();
+        final Set<String> classes = new TreeSet<String>();
         try {
             final AnnotationFinder finder = new AnnotationFinder(archive);
             finder.link();
@@ -201,31 +195,31 @@ public class SpiMojo extends AbstractMojo {
 
                         if (!useMeta) {
                             for (Class<?> clazz : finder.findAnnotatedClasses(annClazz)) {
-                                scan.getClassname().add(clazz.getName());
+                                classes.add(clazz.getName());
                             }
                         } else {
                             for (Annotated<Class<?>> clazz : finder.findMetaAnnotatedClasses(annClazz)) {
-                                scan.getClassname().add(clazz.get().getName());
+                                classes.add(clazz.get().getName());
                             }
                         }
 
                         if (!useMeta) {
                             for (Field clazz : finder.findAnnotatedFields(annClazz)) {
-                                scan.getClassname().add(clazz.getDeclaringClass().getName());
+                                classes.add(clazz.getDeclaringClass().getName());
                             }
                         } else {
                             for (Annotated<Field> clazz : finder.findMetaAnnotatedFields(annClazz)) {
-                                scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                                classes.add(clazz.get().getDeclaringClass().getName());
                             }
                         }
 
                         if (!useMeta) {
                             for (Method clazz : finder.findAnnotatedMethods(annClazz)) {
-                                scan.getClassname().add(clazz.getDeclaringClass().getName());
+                                classes.add(clazz.getDeclaringClass().getName());
                             }
                         } else {
                             for (Annotated<Method> clazz : finder.findMetaAnnotatedMethods(annClazz)) {
-                                scan.getClassname().add(clazz.get().getDeclaringClass().getName());
+                                classes.add(clazz.get().getDeclaringClass().getName());
                             }
                         }
                     }
@@ -235,7 +229,7 @@ public class SpiMojo extends AbstractMojo {
                     for (String subclass : profile.getSubclasses()) {
                         try {
                             for (Class<?> clazz : finder.findSubclasses(load(loader, subclass))) {
-                                scan.getClassname().add(clazz.getName());
+                                classes.add(clazz.getName());
                             }
                         } catch (MojoFailureException mfe) {
                             getLog().warn("can't find " + subclass);
@@ -247,7 +241,7 @@ public class SpiMojo extends AbstractMojo {
                     for (String implementation : profile.getImplementations()) {
                         try {
                             for (Class<?> clazz : finder.findImplementations(load(loader, implementation))) {
-                                scan.getClassname().add(clazz.getName());
+                                classes.add(clazz.getName());
                             }
                         } catch (MojoFailureException mfe) {
                             getLog().warn("can't find " + implementation);
@@ -266,21 +260,39 @@ public class SpiMojo extends AbstractMojo {
                 return;
             }
 
-            final FileWriter writer = new FileWriter(output);
+            final XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(new FileWriter(outputFilename));
             try {
-                final JAXBContext context = JAXBContext.newInstance(Scan.class);
-                final TransformerFactory factory = TransformerFactory.newInstance();
-                final Transformer transformer = factory.newTransformer();
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                out.writeStartDocument();
+                out.writeStartElement("scan");
+                out.writeCharacters("\n");
 
-                final StringWriter tempWriter = new StringWriter();
-                context.createMarshaller().marshal(scan, tempWriter);
+                    out.writeCharacters("  ");
+                    out.writeStartElement("classes");
+                    out.writeCharacters("\n");
 
-                final StreamResult result = new StreamResult(writer);
-                transformer.transform(new StreamSource(new StringReader(tempWriter.toString())), result);
+                    for (String clazz : classes) {
+                        out.writeCharacters("    ");
+                        out.writeStartElement("class");
+                            out.writeCharacters(clazz);
+                        out.writeEndElement();
+                        out.writeCharacters("\n");
+                    }
+
+                    out.writeCharacters("  ");
+                    out.writeEndElement();
+                    out.writeCharacters("\n");
+
+                    out.writeCharacters("  ");
+                    out.writeStartElement("packages");
+                    out.writeCharacters("\n  ");
+                    out.writeEndElement();
+                    out.writeCharacters("\n");
+
+                out.writeEndElement();
+                out.writeEndDocument();
             } finally {
-                writer.close();
+                out.flush();
+                out.close();
             }
 
             getLog().info("generated " + output.getPath());

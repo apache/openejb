@@ -26,11 +26,6 @@
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-finder-shaded</artifactId>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>xbean-xml</artifactId>
-      <version>${project.version}</version>
-    </dependency>
   </dependencies>
 
   <properties>
