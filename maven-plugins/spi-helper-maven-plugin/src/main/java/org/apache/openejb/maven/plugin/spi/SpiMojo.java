@@ -83,9 +83,9 @@ public class SpiMojo extends AbstractMojo {
     private List<String> profiles;
 
     /**
-     * @parameter expression="${spi.output}" default-value="${project.build.outputDirectory}/META-INF/org/apache/xbean/scan.xml"
+     * @parameter expression="${spi.output}" default-value="${project.build.outputDirectory}/META-INF/scan.xml"
      *
-     * for webapp: ${project.build.directory}/${project.build.finalName}/WEB-INF/org/apache/xbean/scan.xml
+     * for webapp: ${project.build.directory}/${project.build.finalName}/WEB-INF/classes/META-INF/scan.xml
      */
     private String outputFilename;
 
@@ -169,7 +169,7 @@ public class SpiMojo extends AbstractMojo {
             getLog().info("using an aggregated archive");
         } else {
             archive = new FileArchive(loader, module);
-            getLog().info("using an file archive");
+            getLog().info("using a file archive");
         }
 
         // the result
