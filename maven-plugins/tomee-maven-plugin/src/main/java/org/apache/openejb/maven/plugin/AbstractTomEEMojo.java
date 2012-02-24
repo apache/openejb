@@ -27,6 +27,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.openejb.config.RemoteServer;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -213,8 +215,8 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     }
 
     private void copyLib(final String lib, final File destParent, final String defaultType) {
-        FileInputStream is = null;
-        FileOutputStream os = null;
+        InputStream is = null;
+        OutputStream os = null;
         final String[] infos = lib.split(":");
         final String classifier;
         final String type;
@@ -236,8 +238,8 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
             final Artifact artifact = factory.createDependencyArtifact(infos[0], infos[1], createFromVersion(infos[2]), type, classifier, SCOPE_COMPILE);
             resolver.resolve(artifact, remoteRepos, local);
             final File file = artifact.getFile();
-            is = new FileInputStream(file);
-            os = new FileOutputStream(new File(destParent, file.getName()));
+            is = new BufferedInputStream(new FileInputStream(file));
+            os = new BufferedOutputStream(new FileOutputStream(new File(destParent, file.getName())));
             copy(is, os);
         } catch (Exception e) {
             getLog().error(e.getMessage(), e);
