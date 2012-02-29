@@ -30,7 +30,7 @@
   <artifactId>javaee-api</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: JavaEE Full API (zip and jar files)</name>
-  <version>6.0-3-SNAPSHOT</version>
+  <version>6.0-4-SNAPSHOT</version>
 
   <build>
     <resources>
@@ -338,16 +338,16 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-      <version>${geronimo-jaxb_2.2_spec.version}</version>
-      <classifier>sources</classifier>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>${jaxb-api.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-      <version>${geronimo-jaxb_2.2_spec.version}</version>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>${jaxb-api.version}</version>
+      <classifier>sources</classifier>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -575,7 +575,7 @@
     <geronimo-jaspic_1.0_spec.version>1.1</geronimo-jaspic_1.0_spec.version>
     <geronimo-jcdi_1.0_spec.version>1.0</geronimo-jcdi_1.0_spec.version>
     <geronimo-jaxws_2.2_spec.version>1.1</geronimo-jaxws_2.2_spec.version>
-    <geronimo-jaxb_2.2_spec.version>1.0.1</geronimo-jaxb_2.2_spec.version>
     <geronimo-osgi.version>1.0</geronimo-osgi.version>
+    <jaxb-api.version>2.2.5</jaxb-api.version>
   </properties>
 </project>
