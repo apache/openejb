@@ -18,7 +18,6 @@ package org.apache.openejb.client;
 
 import static org.apache.openejb.client.Exceptions.newIOException;
 
-import javax.ejb.ConcurrentAccessTimeoutException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,18 +38,21 @@ import java.net.URI;
 
 public class Client {
     private static final Logger logger = Logger.getLogger("OpenEJB.client");
+    private static final boolean FINEST = logger.isLoggable(Level.FINEST);
+    private static final boolean FINER = logger.isLoggable(Level.FINER);
+    private static final boolean FINE = logger.isLoggable(Level.FINE);
 
     public static final ThreadLocal<Set<URI>> failed = new ThreadLocal<Set<URI>>();
 
     private static final ProtocolMetaData PROTOCOL_VERSION = new ProtocolMetaData("3.1");
 
-    private List<Class<? extends Throwable>> retryConditions = new CopyOnWriteArrayList();
+    private List<Class<? extends Throwable>> retryConditions = new CopyOnWriteArrayList<Class<? extends Throwable>>();
     private static Client client = new Client();
     private boolean retry = false;
 
     public Client() {
         String retryValue = System.getProperty("openejb.client.requestretry", getRetry() + "");
-        retry = new Boolean(retryValue);
+        retry = Boolean.valueOf(retryValue);
     }
 
     public static boolean addRetryCondition(Class<? extends Throwable> throwable) {
@@ -75,22 +77,27 @@ public class Client {
     }
 
     protected Response processRequest(Request req, Response res, ServerMetaData server) throws RemoteException {
-//        System.out.println("req = " + req);
-        if (server == null)
+        if (server == null){
             throw new IllegalArgumentException("Server instance cannot be null");
+        }
 
-        ClusterMetaData cluster = getClusterMetaData(server);
+        final long start = System.nanoTime();
+
+        final ClusterMetaData cluster = getClusterMetaData(server);
 
         /*----------------------------*/
         /* Get a connection to server */
         /*----------------------------*/
 
-        Connection conn = null;
+        final Connection conn;
         try {
             conn = ConnectionManager.getConnection(cluster, server, req);
         } catch (IOException e) {
-            throw new RemoteException("Unable to connect",e);
+            throw new RemoteException("Unable to connect", e);
         }
+
+        OutputStream out = null;
+        InputStream in = null;
 
         try {
 
@@ -98,7 +105,6 @@ public class Client {
             /*----------------------------------*/
             /* Get output streams */
             /*----------------------------------*/
-            OutputStream out;
             try {
 
                 out = conn.getOuputStream();
@@ -186,11 +192,10 @@ public class Client {
             /*----------------------------------*/
             /* Get input streams               */
             /*----------------------------------*/
-            InputStream in;
+
             try {
 
                 in = conn.getInputStream();
-
 
             } catch (IOException e) {
                 throw newIOException("Cannot open input stream to server: ", e);
@@ -272,11 +277,23 @@ public class Client {
                     }
                 }
             }
+
+            if (FINEST) {
+                final long time = System.nanoTime() - start;
+                final String message = String.format("Invocation %sns - %s - Request(%s) - Response(%s)", time, conn.getURI(), req, res);
+                logger.log(Level.FINEST, message);
+            }
+
         } catch (RemoteException e) {
             throw e;
         } catch (IOException e){
-            Set<URI> failed = getFailed();
-            failed.add(conn.getURI());
+            final URI uri = conn.getURI();
+            final Set<URI> failed = getFailed();
+
+            if (FINER) {
+                logger.log(Level.FINER, "Add Failed " + uri.toString());
+            }
+            failed.add(uri);
             conn.discard();
             if (e instanceof RetryException || getRetry()){
                 try {
@@ -294,13 +311,31 @@ public class Client {
             throw new RemoteException("Error while communicating with server: ", error);
 
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
+
+            if(null != out){
+                try {
+                    out.close();
+                } catch (Throwable e) {
+                    //Ignore
                 }
-            } catch (Throwable t) {
-                logger.log(Level.WARNING, "Error closing connection with server: " + t.getMessage(), t);
             }
+
+            if(null != in){
+                try {
+                    in.close();
+                } catch (Throwable e) {
+                    //Ignore
+                }
+            }
+
+            if (null != conn) {
+                try {
+                    conn.close();
+                } catch (Throwable t) {
+                    logger.log(Level.WARNING, "Error closing connection with server: " + t.getMessage(), t);
+                }
+            }
+
         }
         return res;
     }
@@ -317,6 +352,19 @@ public class Client {
     private static final Map<ServerMetaData, ClusterMetaData> clusters = new ConcurrentHashMap<ServerMetaData, ClusterMetaData>();
 
     private static void setClusterMetaData(ServerMetaData server, ClusterMetaData cluster) {
+
+        if (FINE) {
+            logger.log(Level.FINE, "Update ClusterMetaData(version=" + cluster.getVersion() + ", uris=" + cluster.getLocations().length);
+        }
+
+        if (FINER) {
+            int i = 0;
+            for (URI uri : cluster.getLocations()) {
+                final String format = String.format("ClusterMetaData(version=%s) - URI #%s %s", cluster.getVersion(), ++i, uri.toASCIIString());
+                logger.log(Level.FINER, format);
+            }
+        }
+
         clusters.put(server, cluster);
     }
 
@@ -331,6 +379,6 @@ public class Client {
     }
 
     private boolean getRetry() {
-        return retry = new Boolean(System.getProperty("openejb.client.requestretry", retry + ""));
+        return retry = Boolean.valueOf(System.getProperty("openejb.client.requestretry", retry + ""));
     }
 }
