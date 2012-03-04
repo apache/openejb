@@ -28,6 +28,12 @@
       <version>2.0.1</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.6.1.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -38,6 +44,7 @@
         <version>2.1.1</version>
         <configuration>
           <packagingExcludes>WEB-INF/classes/org/apache/openejb/colossus/generator/ejb/Main.class</packagingExcludes>
+          <outputFileNameMapping>remapped-@{artifactId}@.@{extension}@</outputFileNameMapping>
         </configuration>
       </plugin>
       <plugin>
