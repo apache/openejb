@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.client;
 
+import org.apache.openejb.client.event.*;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.BufferedInputStream;
@@ -190,6 +191,7 @@ public class SocketConnectionFactory implements ConnectionFactory {
                 }
 
                 socket.setTcpNoDelay(true);
+                Client.fireEvent(new ConnectionOpened(uri));
             } catch (ConnectException e) {
                 throw new ConnectException("Cannot connect to server '" + uri.toString() + "'.  Check that the server is started and that the specified serverURL is correct.");
 

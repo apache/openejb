@@ -16,33 +16,36 @@
  */
 package org.apache.openejb.client;
 
+import org.apache.openejb.client.event.RemoteInitialContextCreated;
 import org.omg.CORBA.ORB;
 
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.ConnectException;
-import java.rmi.RemoteException;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.ArrayList;
-import java.util.List;
-import java.lang.reflect.Constructor;
 import javax.naming.AuthenticationException;
+import javax.naming.Binding;
+import javax.naming.CompoundName;
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
+import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.Reference;
 import javax.naming.ServiceUnavailableException;
-import javax.naming.NameClassPair;
-import javax.naming.Binding;
 import javax.naming.spi.InitialContextFactory;
+import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
+import java.lang.reflect.Constructor;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Properties;
 
 /** 
  * @version $Rev$ $Date$
@@ -100,7 +103,7 @@ public class JNDIContext implements InitialContextFactory, Context {
         String providerUrl = (String) env.get(Context.PROVIDER_URL);
         moduleId = (String) env.get("openejb.client.moduleId");
 
-        URI location;
+        final URI location;
         try {
             providerUrl = addMissingParts(providerUrl);
             location = new URI(providerUrl);
@@ -108,6 +111,15 @@ public class JNDIContext implements InitialContextFactory, Context {
             throw (ConfigurationException) new ConfigurationException("Property value for " + Context.PROVIDER_URL + " invalid: " + providerUrl + " - " + e.getMessage()).initCause(e);
         }
         this.server = new ServerMetaData(location);
+
+        final Client.Context context = Client.getContext(this.server);
+        context.getProperties().putAll(environment);
+
+        final String strategy = context.getOptions().get("openejb.client.connection.strategy", "default");
+        context.getClusterMetaData().setConnectionStrategy(strategy);
+
+        Client.fireEvent(new RemoteInitialContextCreated(location));
+
         //TODO:1: Either aggressively initiate authentication or wait for the
         //        server to send us an authentication challange.
         if (userID != null) {
@@ -274,7 +286,7 @@ public class JNDIContext implements InitialContextFactory, Context {
                 throw (Error) res.getResult();
 
             default:
-                throw new RuntimeException("Invalid response from server: " + res.getResponseCode());
+                throw new ClientRuntimeException("Invalid response from server: " + res.getResponseCode());
         }
     }
 
@@ -381,7 +393,7 @@ public class JNDIContext implements InitialContextFactory, Context {
                 throw (Error) res.getResult();
 
             default:
-                throw new RuntimeException("Invalid response from server :" + res.getResponseCode());
+                throw new ClientRuntimeException("Invalid response from server :" + res.getResponseCode());
         }
 
     }
@@ -426,7 +438,7 @@ public class JNDIContext implements InitialContextFactory, Context {
                 try {
                     super.setObject(context.lookup(getName()));
                 } catch (NamingException e) {
-                    throw failed = new RuntimeException("Failed to lazily fetch the binding '"+getName()+"'", e);
+                    throw failed = new ClientRuntimeException("Failed to lazily fetch the binding '"+getName()+"'", e);
                 }
             }
             return super.getObject();
@@ -446,11 +458,11 @@ public class JNDIContext implements InitialContextFactory, Context {
     }
 
     public NameParser getNameParser(String name) throws NamingException {
-        throw new OperationNotSupportedException("TODO: Needs to be implemented");
+        return new SimpleNameParser();
     }
 
     public NameParser getNameParser(Name name) throws NamingException {
-        return getNameParser(name.toString());
+        return new SimpleNameParser();
     }
 
     public String composeName(String name, String prefix) throws NamingException {
@@ -527,6 +539,24 @@ public class JNDIContext implements InitialContextFactory, Context {
     public Context createSubcontext(Name name) throws NamingException {
         return createSubcontext(name.toString());
     }
+
+    private static final class SimpleNameParser implements NameParser {
+         private static final Properties PARSER_PROPERTIES = new Properties();
+
+         static {
+             PARSER_PROPERTIES.put("jndi.syntax.direction", "left_to_right");
+             PARSER_PROPERTIES.put("jndi.syntax.separator", "/");
+         }
+
+
+         private SimpleNameParser() {
+         }
+
+         public Name parse(String name) throws NamingException {
+             return new CompoundName(name, PARSER_PROPERTIES);
+         }
+     }
+
 
 }
 

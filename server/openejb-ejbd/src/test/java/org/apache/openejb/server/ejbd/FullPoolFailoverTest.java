@@ -89,7 +89,7 @@ public class FullPoolFailoverTest extends TestCase {
         }
 
         // Wait for the beans to reach the start line
-        assertTrue("expected 10 invocations", paused.await(3000, TimeUnit.MILLISECONDS));
+        assertTrue("expected 10 invocations: got " + paused.getCount(), paused.await(30, TimeUnit.SECONDS));
 
         assertEquals(10, CounterBean.instances.get());
         assertEquals(10, hits.size());
@@ -159,7 +159,7 @@ public class FullPoolFailoverTest extends TestCase {
         }
 
         // Wait for the beans to reach the start line
-        assertTrue("expected 10 invocations", paused.await(3000, TimeUnit.MILLISECONDS));
+        assertTrue("expected 10 invocations: got " + paused.getCount(), paused.await(30, TimeUnit.SECONDS));
 
         assertEquals(10, CounterBean.instances.get());
         assertEquals(10, hits.size());
@@ -184,7 +184,7 @@ public class FullPoolFailoverTest extends TestCase {
         }
 
         // Wait for the beans to reach the start line
-        assertTrue("expected 20 invocations", paused.await(3000, TimeUnit.MILLISECONDS));
+        assertTrue("expected 20 invocations: got "+paused.getCount(), paused.await(30, TimeUnit.SECONDS));
 
         // The extra 10 invocations should all have been on the "blue" server
         assertEquals(expected, hits);
