@@ -16,17 +16,6 @@ package org.apache.openejb.maven.plugin;
  *   limitations under the License.
  */
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.DefaultArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.openejb.config.RemoteServer;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -45,6 +34,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.DefaultArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.openejb.config.RemoteServer;
 
 import static org.apache.maven.artifact.Artifact.SCOPE_COMPILE;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.CHECKSUM_POLICY_WARN;
@@ -53,6 +52,7 @@ import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDA
 import static org.apache.maven.artifact.versioning.VersionRange.createFromVersion;
 import static org.apache.openejb.util.JarExtractor.delete;
 import static org.codehaus.plexus.util.FileUtils.copyDirectory;
+import static org.codehaus.plexus.util.FileUtils.deleteDirectory;
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.IOUtil.copy;
 
@@ -191,6 +191,11 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
      */
     protected File warFile;
 
+    /**
+     * @parameter expression="${tomee-plugin.remove-default-webapps}" default-value="true"
+     */
+    private boolean removeDefaultWebapps;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         unzip(resolve(), catalinaBase);
@@ -200,8 +205,27 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         overrideConf(bin);
         overrideConf(lib);
         overrideAddresses();
+        if (removeDefaultWebapps) {
+            removeDefaultWebapps();
+        }
         copyWar();
         run();
+    }
+
+    private void removeDefaultWebapps() {
+        final File webapps = new File(catalinaBase, "webapps");
+        if (webapps.isDirectory()) {
+            for (File webapp : webapps.listFiles()) {
+                final String name = webapp.getName();
+                if (webapp.isDirectory() && !name.equals("openejb") && !name.equals("tomee")) {
+                    try {
+                        deleteDirectory(webapp);
+                    } catch (IOException ignored) {
+                        // no-op
+                    }
+                }
+            }
+        }
     }
 
     private void copyLibs(final List<String> files, final File destParent, final String defaultType) {
