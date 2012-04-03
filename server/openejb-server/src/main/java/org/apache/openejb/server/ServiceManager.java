@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +31,15 @@ import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
 import org.apache.openejb.assembler.classic.ServiceInfo;
 import org.apache.openejb.loader.FileUtils;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.monitoring.ManagedMBean;
+import org.apache.openejb.monitoring.ObjectNameBuilder;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /**
  * @version $Rev$ $Date$
@@ -150,6 +156,19 @@ public abstract class ServiceManager {
                 if (service instanceof DiscoveryAgent){
                     DiscoveryAgent agent = (DiscoveryAgent) service;
                     registry.addDiscoveryAgent(agent);
+                }
+
+                MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+
+                final ObjectNameBuilder jmxName = new ObjectNameBuilder("openejb");
+                jmxName.set("type", "ServerService");
+                jmxName.set("name", serviceName);
+
+                try {
+                    final ObjectName objectName = jmxName.build();
+                    server.registerMBean(new ManagedMBean(service), objectName);
+                } catch (Exception e) {
+                    logger.error("Unable to register MBean ", e);
                 }
 
                 return service;

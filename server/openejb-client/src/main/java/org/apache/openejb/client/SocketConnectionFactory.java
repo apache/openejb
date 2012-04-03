@@ -309,6 +309,8 @@ public class SocketConnectionFactory implements ConnectionFactory {
             for (int i = 0; i < objects.length; i++) {
                 pool.push(null);
             }
+
+            Client.fireEvent(new ConnectionPoolCreated(uri, size, timeout, timeUnit));
         }
 
         public SocketConnection get() throws IOException{
@@ -320,7 +322,10 @@ public class SocketConnectionFactory implements ConnectionFactory {
                 Thread.interrupted();
             }
 
-            throw new ConnectionPoolTimeoutException("No connections available in pool (size " + size + ").  Waited for " + timeout + " seconds for a connection.");
+            ConnectionPoolTimeoutException exception = new ConnectionPoolTimeoutException("No connections available in pool (size " + size + ").  Waited for " + timeout + " " + timeUnit.name().toLowerCase() + " for a connection.");
+            exception.fillInStackTrace();
+            Client.fireEvent(new ConnectionPoolTimeout(uri, size, timeout, timeUnit, exception));
+            throw exception;
         }
 
         public void put(SocketConnection connection) {

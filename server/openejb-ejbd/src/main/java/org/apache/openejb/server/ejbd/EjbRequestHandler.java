@@ -47,7 +47,7 @@ class EjbRequestHandler {
 
     EjbRequestHandler(EjbDaemon daemon) {
         this.daemon = daemon;
-        
+
         clusterableRequestHandler = newClusterableRequestHandler();
     }
 
@@ -63,6 +63,8 @@ class EjbRequestHandler {
 
         EJBRequest req = new EJBRequest();
         EJBResponse res = new EJBResponse();
+
+        res.start(EJBResponse.Time.TOTAL);
 
         try {
             req.readExternal(in);
@@ -98,7 +100,11 @@ class EjbRequestHandler {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
+            res.start(EJBResponse.Time.DESERIALIZATION);
+
             req.getBody().readExternal(in);
+
+            res.stop(EJBResponse.Time.DESERIALIZATION);
         } catch (Throwable t) {
             replyWithFatalError(out, t, "Error caught during request processing");
             return;
@@ -122,6 +128,7 @@ class EjbRequestHandler {
             return;
         }
 
+        res.start(EJBResponse.Time.CONTAINER);
         try {
             switch (req.getRequestMethod()) {
             // Remote interface methods
@@ -192,6 +199,8 @@ class EjbRequestHandler {
                     break;
             }
 
+            res.stop(EJBResponse.Time.CONTAINER);
+
         } catch (org.apache.openejb.InvalidateReferenceException e) {
             res.setResponse(ResponseCodes.EJB_SYS_EXCEPTION, new ThrowableArtifact(e.getRootCause()));
         } catch (org.apache.openejb.ApplicationException e) {
@@ -240,7 +249,7 @@ class EjbRequestHandler {
                 req.getMethodParameters(),
                 req.getPrimaryKey()
         );
-        
+
         res.setResponse(ResponseCodes.EJB_OK, result);
     }
 
