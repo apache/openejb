@@ -35,7 +35,7 @@ public class Binaries {
         final NexusClient client = new NexusClient();
 
         final File dir = Files.file(Release.builddir, "staging-" + Release.build, Release.openejbVersionName);
-        final URI repo = URI.create("https://repository.apache.org/content/groups/public/org/apache/openejb");
+        final URI repo = URI.create(Release.staging);
 
         System.out.println("Downloads: " + dir.getAbsolutePath());
 
@@ -48,7 +48,7 @@ public class Binaries {
         binaries = binaries.exclude(".*\\.asc\\.(sha1|md5)");
 
 
-        for (URI uri : binaries.include(".*\\/(openejb-standalone|openejb-tomcat|apache-tomee|examples)-.*|.*source-release.*")) {
+        for (URI uri : binaries.include(".*\\/(openejb-standalone|tomee|openejb-tomcat|apache-tomee|examples)-.*|.*source-release.*")) {
             final File file = new File(dir, uri.getPath().replaceAll(".*/", ""));
             System.out.println("Downloading " + file.getName());
             client.download(uri, file);
