@@ -1,0 +1,13 @@
+#set( $void = $params.required( "username" , ".+", "the jira username" ) )
+#set( $void = $params.required( "password" , ".+", "the jira password" ) )
+#set( $void = $params.required( "project" , ".+", "the project key" ) )
+#set( $void = $params.validate() )
+##
+#set( $rpc = $xmlrpc.connect("${username}:${password}","http://issues.apache.org/jira/rpc/xmlrpc") )
+#set( $projectId = $rpc.getProject("${project}").id )
+#set ( $jira = $rss.fetch("http://issues.apache.org/jira/secure/IssueNavigator.jspa?view=rss&&pid=${projectId}&tempMax=50&reset=true&decorator=none") )
+#set( $issues = $jira.issues.ascending("updated") )
+
+#foreach( $issue in $issues )
+$issue.key: $issue.summary
+#end

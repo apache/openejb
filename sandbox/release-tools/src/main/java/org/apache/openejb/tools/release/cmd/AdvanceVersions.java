@@ -102,6 +102,7 @@ public class AdvanceVersions {
             in = new ReplaceStringInputStream(in, "1.0.0-beta-2-SNAPSHOT", "1.0.0-beta-3-SNAPSHOT");
             in = new ReplaceStringInputStream(in, "6.0-3-SNAPSHOT", "6.0-3");
             in = new ReplaceStringInputStream(in, "1.3-SNAPSHOT", "1.2");
+            in = new ReplaceStringInputStream(in, "1.1.2-SNAPSHOT", "1.1.3");
             in = new ReplaceStringInputStream(in, "2.5.1-SNAPSHOT", "2.5.1");
 
             update(file, in);

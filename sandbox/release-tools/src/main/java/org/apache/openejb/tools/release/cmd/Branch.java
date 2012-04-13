@@ -18,39 +18,26 @@ package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Release;
-import org.apache.openejb.tools.release.util.Exec;
-import org.apache.openejb.tools.release.util.Files;
-
-import java.io.File;
 
 import static java.lang.String.format;
+import static org.apache.openejb.tools.release.util.Exec.exec;
 
 /**
  * @version $Rev$ $Date$
  */
 @Command
-public class Deploy {
+public class Branch {
 
     public static void main(String... args) throws Exception {
 
-        // TODO Look for gpg on the path, report error if not found
+        final String branch = Release.branches + Release.openejbVersionName;
+        final String trunk = Release.trunk;
 
-//        final String tag = Release.tags + Release.openejbVersionName;
-        final String tag = Release.branches + Release.openejbVersionName;
+        if (exec("svn", "info", branch) == 0) {
+            exec("svn", "-m", format("[release-tools] recreating branch for %s", Release.openejbVersionName), "rm", branch);
+        }
 
-        final File dir = new File(Release.workdir);
-        Files.mkdir(dir);
-        Exec.cd(dir);
-
-        Exec.exec("svn", "co", tag);
-
-        Exec.cd(new File(dir + File.separator + Release.openejbVersionName));
-
-        Exec.export("MAVEN_OPTS", Release.mavenOpts);
-        Exec.exec("mvn",
-                "-Darguments=-Dmaven.test.skip=true -DfailIfNoTests=false",
-                "release:perform",
-                format("-DconnectionUrl=scm:svn:%s", tag)
-        );
+        exec("svn", "-m", format("[release-tools] creating branch for %s", Release.openejbVersionName), "cp", trunk, branch);
     }
+
 }

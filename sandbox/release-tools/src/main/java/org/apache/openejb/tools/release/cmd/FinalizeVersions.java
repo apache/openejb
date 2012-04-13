@@ -36,8 +36,8 @@ import static org.apache.openejb.tools.release.util.Files.collect;
 /**
  * @version $Rev$ $Date$
  */
-@Command(dependsOn = Close.class)
-public class UpdateVersions {
+@Command(dependsOn = {Branch.class})
+public class FinalizeVersions {
 
     public static void main(String... args) throws Exception {
 
@@ -48,23 +48,36 @@ public class UpdateVersions {
 
         final String branch = Release.branches + Release.openejbVersionName;
 
-        // Make the branch
-        if (exec("svn", "info", branch) != 0) {
-
-            exec("svn", "-m", format("[release-tools] tck branch for %s", Release.openejbVersionName), "cp", Release.trunk, branch);
-        }
-
         // Checkout the branch
         exec("svn", "co", branch);
 
         final File workingCopy = cd(new File(dir + "/" + Release.openejbVersionName));
 
         updateVersions(workingCopy);
+        updateExamplesVersions(Files.file(workingCopy, "examples"));
 
-        exec("svn", "-m", "[release-tools] update staging repo for " + Release.openejbVersionName, "ci");
+//        exec("svn", "-m", "[release-tools] finalizing versions for " + Release.openejbVersionName, "ci");
+        exec("svn", "-m", "finalizing versions in arquillian.xml files", "ci");
     }
 
     private static void updateVersions(File workingCopy) throws IOException {
+
+        final List<File> files = collect(workingCopy, ".*pom.xml");
+        files.addAll(collect(workingCopy, ".*build.xml"));
+        files.addAll(collect(workingCopy, ".*arquillian.xml"));
+
+        for (File file : files) {
+            InputStream in = IO.read(file);
+
+            in = new ReplaceStringInputStream(in, "1.0.0-beta-3-SNAPSHOT", "1.0.0");
+            in = new ReplaceStringInputStream(in, "4.0.0-beta-3-SNAPSHOT", "4.0.0");
+
+            update(file, in);
+        }
+
+    }
+
+    private static void updateExamplesVersions(File workingCopy) throws IOException {
 
         final List<File> files = collect(workingCopy, ".*pom.xml");
         files.addAll(collect(workingCopy, ".*build.xml"));
@@ -72,8 +85,9 @@ public class UpdateVersions {
         for (File file : files) {
             InputStream in = IO.read(file);
 
-            in = new ReplaceStringInputStream(in, "1.0.0-beta-2-SNAPSHOT", "1.0.0-beta-3-SNAPSHOT");
-            in = new ReplaceStringInputStream(in, "4.0.0-beta-2-SNAPSHOT", "4.0.0-beta-3-SNAPSHOT");
+            in = new ReplaceStringInputStream(in, "1.1-SNAPSHOT", "1.0");
+            in = new ReplaceStringInputStream(in, "1.1-SNAPSHOT", "1.0");
+            in = new ReplaceStringInputStream(in, "0.0.1-SNAPSHOT", "1.0");
 
             update(file, in);
         }

@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  */
 public class Release {
 
-    public static String openejbVersion = "4.0.0-beta-2";
-    public static String tomeeVersion = "1.0.0-beta-2";
+    public static String openejbVersion = "4.0.0";
+    public static String tomeeVersion = "1.0.0";
 
     public static String openejbVersionName = "openejb-${openejbVersion}";
     public static String tomeeVersionName = "tomee-${tomeeVersion}";
@@ -44,7 +44,7 @@ public class Release {
     public static String tckTrunk = "https://svn.apache.org/repos/tck/openejb-tck/trunk";
 
     public static String staging = "https://repository.apache.org/content/repositories/orgapacheopenejb-${build}";
-    public static String build = "075";
+    public static String build = "041";
 
 
     public static String builddir = "/tmp/downloads";

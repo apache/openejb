@@ -35,7 +35,7 @@ public class Binaries {
         final NexusClient client = new NexusClient();
 
         final File dir = Files.file(Release.builddir, "staging-" + Release.build, Release.openejbVersionName);
-        final URI repo = URI.create(Release.staging);
+        final URI repo = URI.create("https://repository.apache.org/content/groups/public/org/apache/openejb");
 
         System.out.println("Downloads: " + dir.getAbsolutePath());
 

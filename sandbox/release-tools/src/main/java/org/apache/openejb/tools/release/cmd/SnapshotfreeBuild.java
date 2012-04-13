@@ -16,41 +16,49 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
-import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
 import org.apache.openejb.tools.release.util.Files;
 
 import java.io.File;
-
-import static java.lang.String.format;
+import java.util.List;
 
 /**
  * @version $Rev$ $Date$
  */
-@Command
-public class Deploy {
+public class SnapshotfreeBuild {
 
     public static void main(String... args) throws Exception {
 
         // TODO Look for gpg on the path, report error if not found
 
-//        final String tag = Release.tags + Release.openejbVersionName;
-        final String tag = Release.branches + Release.openejbVersionName;
+        final File home = new File(System.getProperty("user.home"));
+        final File repository = Files.file(home, ".m2", "repository", "org", "apache", "openejb");
+
+        final List<File> snapshots = Files.collect(repository, ".*SNAPSHOT.*");
+        for (File snapshot : snapshots) {
+            if (!snapshot.isFile()) continue;
+            if (!snapshot.delete()) {
+                System.out.println("Cannot delete snapshot: " + snapshot.getAbsolutePath());
+            }
+        }
+
+        final String branch = Release.branches + Release.openejbVersionName;
 
         final File dir = new File(Release.workdir);
         Files.mkdir(dir);
         Exec.cd(dir);
 
-        Exec.exec("svn", "co", tag);
+        Exec.exec("svn", "co", branch);
 
         Exec.cd(new File(dir + File.separator + Release.openejbVersionName));
 
         Exec.export("MAVEN_OPTS", Release.mavenOpts);
         Exec.exec("mvn",
-                "-Darguments=-Dmaven.test.skip=true -DfailIfNoTests=false",
-                "release:perform",
-                format("-DconnectionUrl=scm:svn:%s", tag)
+                "-Dmaven.test.skip=true",
+                "-DfailIfNoTests=false",
+                "clean",
+                "install"
         );
     }
 }
