@@ -37,9 +37,9 @@
   </scm>
 
   <modules>
-    <module>bval-patched</module>
+    <!--module>bval-patched</module-->
     <module>jstl-patched</module>
-    <module>openwebbeans-jsf-patched</module>
+    <!--module>openwebbeans-jsf-patched</module-->
     <module>cxf-bundle-patched</module>
   </modules>
 
