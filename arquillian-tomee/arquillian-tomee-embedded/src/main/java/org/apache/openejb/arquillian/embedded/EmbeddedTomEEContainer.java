@@ -44,9 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfiguration> {
 
-    public static final String TOMEE_ARQUILLIAN_HTTP_PORT = "tomee.arquillian.http";
-    public static final String TOMEE_ARQUILLIAN_STOP_PORT = "tomee.arquillian.stop";
-
     @Inject
     @ContainerScoped
     private InstanceProducer<Context> contextInstance;
@@ -115,7 +112,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfigur
 
             AppContext appContext = container.deploy(name, file);
 
-            HTTPContext httpContext = new HTTPContext("0.0.0.0", configuration.getHttpPort());
+            HTTPContext httpContext = new HTTPContext("localhost", configuration.getHttpPort());
             httpContext.add(new Servlet("ArquillianServletRunner", "/" + getArchiveNameWithoutExtension(archive)));
             beanManagerInstance.set(appContext.getBeanManager());
             return new ProtocolMetaData().addContext(httpContext);
