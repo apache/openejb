@@ -42,9 +42,9 @@ class ContextFinder {
             osgiLocator = Thread.currentThread().getContextClassLoader().loadClass("org.apache.geronimo.osgi.locator.ProviderLocator");
             getServiceClassMethod = osgiLocator.getMethod("getServiceClass", String.class, Class.class, ClassLoader.class);
             loadClassMethod = osgiLocator.getMethod("loadClass", String.class, Class.class, ClassLoader.class);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             osgiLocator = null;
-        } catch (NoSuchMethodException e) {
+        } catch (NoClassDefFoundError ncdfe) {
             osgiLocator = null;
         }
     }
