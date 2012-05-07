@@ -113,6 +113,7 @@
                   <excludes>
                     <exclude>META-INF/*.txt</exclude>
                     <exclude>javax/xml/bind/ContextFinder.class</exclude>
+                    <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
                   </excludes>
                 </filter>
                 <filter>
@@ -156,6 +157,7 @@
                   <excludes>
                     <exclude>META-INF/*.txt</exclude>
                     <exclude>javax/xml/bind/ContextFinder.class</exclude>
+                    <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
                   </excludes>
                 </filter>
                 <filter>
