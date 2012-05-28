@@ -16,8 +16,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.apache</groupId>
@@ -30,7 +29,7 @@
   <artifactId>javaee-api</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: JavaEE Full API (zip and jar files)</name>
-  <version>6.0-4-SNAPSHOT</version>
+  <version>6.0-4</version>
 
   <build>
     <resources>
@@ -590,4 +589,10 @@
     <geronimo-osgi.version>1.0</geronimo-osgi.version>
     <geronimo-jaxb_2.2_spec.version>1.0.1</geronimo-jaxb_2.2_spec.version>
   </properties>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/maven/pom/tags/javaee-api-6.0-4</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/maven/pom/tags/javaee-api-6.0-4</developerConnection>
+    <url>http://svn.apache.org/viewvc/maven/pom/tags/javaee-api-6.0-4</url>
+  </scm>
 </project>
