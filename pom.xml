@@ -32,6 +32,12 @@
   <name>OpenEJB :: JavaEE Full API (zip and jar files)</name>
   <version>6.0-4-SNAPSHOT</version>
 
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunk/javaee-api</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/javaee-api</developerConnection>
+    <url>http://svn.apache.org/viewvc/openejb/trunk/javaee-api</url>
+  </scm>
+
   <build>
     <resources>
       <resource>
@@ -194,6 +200,15 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <tagBase>https://svn.apache.org/repos/asf/openejb/tags/</tagBase>
+        </configuration>
       </plugin>
     </plugins>
   </build>
