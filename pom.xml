@@ -111,6 +111,9 @@
                     <Bundle-Activator>org.apache.openejb.javaee.api.activator.MultiActivator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                  <resource>META-INF/LICENSE</resource>
+                </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/LICENSE</resource>
                   <file>${project.basedir}/src/main/resources/META-INF/LICENSE-tomcat</file>
@@ -160,6 +163,9 @@
                     </Private-Package>
                     <Bundle-Activator>org.apache.openejb.javaee.api.activator.MultiActivator</Bundle-Activator>
                   </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                  <resource>META-INF/LICENSE</resource>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/LICENSE</resource>
