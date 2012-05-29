@@ -31,11 +31,17 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README.txt</include>
-        <include>LICENSE</include>
         <include>NOTICE</include>
       </includes>
     </fileSet>
   </fileSets>
+  <files>
+    <file>
+      <source>${basedir}/src/main/resources/META-INF/LICENCE-all</source>
+      <outputDirectory>/</outputDirectory>
+      <destName>LICENCE</destName>
+    </file>
+  </files>
   <dependencySets>
     <dependencySet>
       <outputDirectory>/</outputDirectory>
