@@ -188,6 +188,8 @@
                   <resource>META-INF/NOTICE</resource>
                   <file>${project.basedir}/src/main/resources/META-INF/all/NOTICE</file>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                </transformer>
               </transformers>
               <filters>
                 <filter>
