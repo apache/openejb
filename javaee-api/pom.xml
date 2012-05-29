@@ -81,7 +81,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>1.4</version>
+        <version>1.6</version>
         <executions>
           <execution>
             <id>javaee-api-tomcat</id>
@@ -111,12 +111,17 @@
                     <Bundle-Activator>org.apache.openejb.javaee.api.activator.MultiActivator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>META-INF/LICENCE-tomcat</resource>
+                  <file>META-INF/LICENCE</file>
+                </transformer>
               </transformers>
               <filters>
                 <filter>
                   <artifact>org.apache.geronimo.specs:*</artifact>
                   <excludes>
                     <exclude>META-INF/*.txt</exclude>
+                    <exclude>META-INF/LICENCE</exclude>
                     <exclude>javax/xml/bind/ContextFinder.class</exclude>
                     <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
                   </excludes>
@@ -124,6 +129,7 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
+                    <exclude>META-INF/LICENCE-*</exclude>
                     <exclude>META-INF/README.txt</exclude>
                   </excludes>
                 </filter>
@@ -155,12 +161,17 @@
                     <Bundle-Activator>org.apache.openejb.javaee.api.activator.MultiActivator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>META-INF/LICENCE-all</resource>
+                  <file>META-INF/LICENCE</file>
+                </transformer>
               </transformers>
               <filters>
                 <filter>
                   <artifact>org.apache.geronimo.specs:*</artifact>
                   <excludes>
                     <exclude>META-INF/*.txt</exclude>
+                    <exclude>META-INF/LICENCE*</exclude>
                     <exclude>javax/xml/bind/ContextFinder.class</exclude>
                     <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
                   </excludes>
@@ -168,6 +179,7 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
+                    <exclude>META-INF/LICENCE*</exclude>
                     <exclude>META-INF/README.txt</exclude>
                   </excludes>
                 </filter>
