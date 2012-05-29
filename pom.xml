@@ -32,9 +32,9 @@
   <version>6.0-4</version>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/trunkags/javaee-api</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/trunk/javaee-api</developerConnection>
-    <url>http://svn.apache.org/viewvc/openejb/trunk/javaee-api</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/openejb/tags/javaee-api-6.0-4</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/openejb/tags/javaee-api-6.0-4</developerConnection>
+    <url>http://svn.apache.org/viewvc/openejb/tags/javaee-api-6.0-4</url>
   </scm>
 
   <build>
