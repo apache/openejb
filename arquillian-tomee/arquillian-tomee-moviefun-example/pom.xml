@@ -18,12 +18,11 @@
   <parent>
     <groupId>org.apache.openejb</groupId>
     <artifactId>arquillian-tomee</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.openejb</groupId>
   <artifactId>arquillian-tomee-moviefun-example</artifactId>
   <packaging>war</packaging>
-  <version>1.0.0</version>
   <name>OpenEJB :: TomEE Arquillian Adaptor :: Sample :: Moviefun</name>
 
   <properties>
@@ -188,7 +187,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>tomee-embedded</artifactId>
-      <version>1.0.0</version>
+      <version>${tomee.version}</version>
       <type>jar</type>
       <!--<classifier>uber</classifier>-->
       <scope>test</scope>
@@ -224,7 +223,7 @@
         <dependency>
           <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-embedded</artifactId>
-          <version>1.0.0</version>
+          <version>${tomee.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -235,7 +234,7 @@
         <dependency>
           <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-remote</artifactId>
-          <version>1.0.0</version>
+          <version>${tomee.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

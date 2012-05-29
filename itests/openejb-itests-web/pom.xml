@@ -23,7 +23,7 @@
   <parent>
     <artifactId>itests</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openejb-itests-web</artifactId>
@@ -33,13 +33,13 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-itests-beans</artifactId>
-      <version>${project.version}</version>
+      <version>${openejb.version}</version>
       <type>ejb</type>
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-itests-servlets</artifactId>
-      <version>${project.version}</version>
+      <version>${openejb.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

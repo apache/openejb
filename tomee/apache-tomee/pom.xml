@@ -22,7 +22,7 @@
   <parent>
     <artifactId>tomee</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>4.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>apache-tomee</artifactId>
@@ -69,14 +69,14 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>tomee-common</artifactId>
-      <version>${openejb.version}</version>
+      <version>${tomee.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency> <!-- to be sure to have it -->
       <groupId>${project.groupId}</groupId>
       <artifactId>tomee-plus-webapp</artifactId>
-      <version>${openejb.version}</version>
+      <version>${tomee.version}</version>
       <type>war</type>
       <scope>provided</scope>
     </dependency>

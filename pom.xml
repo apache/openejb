@@ -33,7 +33,7 @@
   <artifactId>openejb</artifactId>
   <packaging>pom</packaging>
 
-  <version>4.0.0</version>
+  <version>4.0.1-SNAPSHOT</version>
 
   <name>Apache OpenEJB</name>
   <description>Apache OpenEJB is an open source, modular, configurable and extendable EJB Container System and EJB
@@ -90,11 +90,13 @@
 
   <properties>
 
+    <openejb.version>4.0.1-SNAPSHOT</openejb.version>
+    <tomee.version>1.0.1-SNAPSHOT</tomee.version>
     <!-- Maven module versions -->
     <maven-bundle-plugin.version>2.3.7</maven-bundle-plugin.version>
 
     <!-- This is used by a manifest classpath entry -->
-    <xbeanVersion>3.10</xbeanVersion>
+    <xbean.version>3.11</xbean.version>
 
     <!-- OSGi bundles properties -->
     <openejb.bundle.activator/>
@@ -1173,37 +1175,37 @@
         <version>2.2.5</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.openejb.patch</groupId>
+        <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder-shaded</artifactId>
-        <version>${xbeanVersion}</version>
+        <version>${xbean.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-asm-shaded</artifactId>
-        <version>${xbeanVersion}</version>
+        <version>${xbean.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-naming</artifactId>
-        <version>${xbeanVersion}</version>
+        <version>${xbean.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-bundleutils</artifactId>
-        <version>${xbeanVersion}</version>
+        <version>${xbean.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-spring</artifactId>
-        <version>${xbeanVersion}</version>
+        <version>${xbean.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-reflect</artifactId>
-        <version>${xbeanVersion}</version>
+        <version>${xbean.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>mx4j</groupId>
+            <groupId>org.apache.xbean</groupId>
             <artifactId>mx4j</artifactId>
           </exclusion>
         </exclusions>
@@ -1216,7 +1218,7 @@
       <!--  <dependency>
        <groupId>org.apache.openejb</groupId>
        <artifactId>commons-dbcp-all</artifactId>
-       <version>1.3-r699049</version>
+       <version>${openejb.version}</version>
      </dependency> -->
       <dependency>
         <groupId>axis</groupId>

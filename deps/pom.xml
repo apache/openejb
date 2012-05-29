@@ -20,7 +20,7 @@
   <parent>
     <artifactId>openejb</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>deps</artifactId>
@@ -29,9 +29,6 @@
 
   <modules>
     <module>mbean-annotation-api</module>
-    <module>cxf-bundle-patched</module>
     <module>openwebbeans-jsf-patched</module>
-    <module>openjpa-asm-shaded</module>
-    <module>xbean-finder-shaded</module>
   </modules>
 </project>

@@ -22,11 +22,10 @@
   <parent>
     <artifactId>arquillian-tomee</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.openejb</groupId>
   <artifactId>arquillian-tomee-webapp-remote</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <name>OpenEJB :: TomEE Arquillian Adaptor :: Webapp Remote</name>
@@ -103,67 +102,67 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-client</artifactId>
-      <version>${version.openejb}</version>
+      <version>${openejb.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.openejb</groupId>
+      <groupId>org.apache.xbean</groupId>
       <artifactId>openejb-core</artifactId>
-      <version>${version.openejb}</version>
+      <version>${xbean.version}</version>
       <type>jar</type>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>mbean-annotation-api</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-lang3</artifactId>
-          <groupId>org.apache.commons</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>javaee-api-embedded</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openejb-api</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openejb-javaagent</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openejb-jee</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-cli</artifactId>
-          <groupId>commons-cli</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>activemq-ra</artifactId>
-          <groupId>org.apache.activemq</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>activemq-core</artifactId>
-          <groupId>org.apache.activemq</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>geronimo-connector</artifactId>
-          <groupId>org.apache.geronimo.components</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>geronimo-transaction</artifactId>
-          <groupId>org.apache.geronimo.components</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>howl</artifactId>
-          <groupId>org.objectweb.howl</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>geronimo-javamail_1.4_mail</artifactId>
-          <groupId>org.apache.geronimo.javamail</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>xbean-asm-shaded</artifactId>
@@ -171,7 +170,7 @@
         </exclusion>
         <exclusion>
           <artifactId>xbean-finder-shaded</artifactId>
-          <groupId>org.apache.openejb.patch</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>xbean-reflect</artifactId>
@@ -187,93 +186,93 @@
         </exclusion>
         <exclusion>
           <artifactId>hsqldb</artifactId>
-          <groupId>hsqldb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>bval-core</artifactId>
-          <groupId>org.apache.bval</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>bval-jsr303</artifactId>
-          <groupId>org.apache.bval</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openjpa</artifactId>
-          <groupId>org.apache.openjpa</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openjpa-asm-shaded</artifactId>
-          <groupId>org.apache.openejb.patch</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openwebbeans-web</artifactId>
-          <groupId>org.apache.openwebbeans</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-dbcp</artifactId>
-          <groupId>commons-dbcp</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-pool</artifactId>
-          <groupId>commons-pool</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>swizzle-stream</artifactId>
-          <groupId>org.codehaus.swizzle</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>wsdl4j</artifactId>
-          <groupId>wsdl4j</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>quartz</artifactId>
-          <groupId>org.quartz-scheduler</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <!-- <exclusion>
           <artifactId>openwebbeans-impl</artifactId>
-          <groupId>org.apache.openwebbeans</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>-->
         <exclusion>
           <artifactId>openwebbeans-ee-common</artifactId>
-          <groupId>org.apache.openwebbeans</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openwebbeans-spi</artifactId>
-          <groupId>org.apache.openwebbeans</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openwebbeans-ejb</artifactId>
-          <groupId>org.apache.openwebbeans</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openwebbeans-ee</artifactId>
-          <groupId>org.apache.openwebbeans</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>javaee-api</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>openejb-bval</artifactId>
-          <groupId>org.apache.openejb.patch</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
         <exclusion>
           <artifactId>mbean-annotation-api</artifactId>
-          <groupId>org.apache.openejb</groupId>
+          <groupId>org.apache.xbean</groupId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>arquillian-tomee-common</artifactId>
-      <version>1.0.0</version>
+      <version>${tomee.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>tomee-common</artifactId>
-      <version>${version.openejb}</version>
+      <version>${tomee.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>

@@ -22,7 +22,7 @@
   <parent>
     <artifactId>utils</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -107,15 +107,15 @@
       <version>${plexus.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>junit</groupId>
+          <groupId>org.apache.xbean</groupId>
           <artifactId>junit</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>log4j</groupId>
+          <groupId>org.apache.xbean</groupId>
           <artifactId>log4j</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>commons-logging</groupId>
+          <groupId>org.apache.xbean</groupId>
           <artifactId>commons-logging-api</artifactId>
         </exclusion>
         <exclusion>

@@ -27,14 +27,14 @@
   <parent>
     <artifactId>utils</artifactId>
     <groupId>org.apache.openejb</groupId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
   <packaging>jar</packaging>
   <dependencies>
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>tomee-catalina</artifactId>
-      <version>4.0.0</version>
+      <version>${tomee.version}</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
