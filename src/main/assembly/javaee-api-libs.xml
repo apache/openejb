@@ -37,9 +37,9 @@
   </fileSets>
   <files>
     <file>
-      <source>${basedir}/src/main/resources/META-INF/LICENCE-all</source>
+      <source>${basedir}/src/main/resources/META-INF/LICENSE-all</source>
       <outputDirectory>/</outputDirectory>
-      <destName>LICENCE</destName>
+      <destName>LICENSE</destName>
     </file>
   </files>
   <dependencySets>
