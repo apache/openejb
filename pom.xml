@@ -112,11 +112,18 @@
                   </manifestEntries>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>META-INF/LICENSE</resource>
+                  <resource>META-INF/all/*</resource>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                  <resource>META-INF/tomcat/*</resource>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/LICENSE</resource>
-                  <file>${project.basedir}/src/main/resources/META-INF/LICENSE-tomcat</file>
+                  <file>${project.basedir}/src/main/resources/META-INF/tomcat/LICENSE</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>META-INF/NOTICE</resource>
+                  <file>${project.basedir}/src/main/resources/META-INF/tomcat/NOTICE</file>
                 </transformer>
               </transformers>
               <filters>
@@ -124,7 +131,7 @@
                   <artifact>org.apache.geronimo.specs:*</artifact>
                   <excludes>
                     <exclude>META-INF/*.txt</exclude>
-                    <exclude>META-INF/LICENCE</exclude>
+                    <exclude>META-INF/LICENSE</exclude>
                     <exclude>javax/xml/bind/ContextFinder.class</exclude>
                     <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
                   </excludes>
@@ -132,7 +139,10 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>META-INF/LICENSE*</exclude>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/NOTICE</exclude>
+                    <exclude>META-INF/all/*</exclude>
+                    <exclude>META-INF/plus/*</exclude>
                     <exclude>META-INF/README.txt</exclude>
                   </excludes>
                 </filter>
@@ -165,11 +175,18 @@
                   </manifestEntries>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>META-INF/LICENSE</resource>
+                  <resource>META-INF/all/*</resource>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                  <resource>META-INF/tomcat/*</resource>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/LICENSE</resource>
-                  <file>${project.basedir}/src/main/resources/META-INF/LICENSE-all</file>
+                  <file>${project.basedir}/src/main/resources/META-INF/all/LICENSE</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>META-INF/NOTICE</resource>
+                  <file>${project.basedir}/src/main/resources/META-INF/all/NOTICE</file>
                 </transformer>
               </transformers>
               <filters>
@@ -177,7 +194,8 @@
                   <artifact>org.apache.geronimo.specs:*</artifact>
                   <excludes>
                     <exclude>META-INF/*.txt</exclude>
-                    <exclude>META-INF/LICENCE*</exclude>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/NOTICE</exclude>
                     <exclude>javax/xml/bind/ContextFinder.class</exclude>
                     <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
                   </excludes>
@@ -185,7 +203,8 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>META-INF/LICENSE*</exclude>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/NOTICE</exclude>
                     <exclude>META-INF/README.txt</exclude>
                   </excludes>
                 </filter>
