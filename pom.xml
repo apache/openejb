@@ -111,19 +111,13 @@
                     <Bundle-Activator>org.apache.openejb.javaee.api.activator.MultiActivator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>META-INF/all/*</resource>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>META-INF/tomcat/*</resource>
-                </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/LICENSE</resource>
-                  <file>${project.basedir}/src/main/resources/META-INF/tomcat/LICENSE</file>
+                  <file>${project.basedir}/src/main/legal/META-INF/tomcat/LICENSE</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/NOTICE</resource>
-                  <file>${project.basedir}/src/main/resources/META-INF/tomcat/NOTICE</file>
+                  <file>${project.basedir}/src/main/legal/META-INF/tomcat/NOTICE</file>
                 </transformer>
               </transformers>
               <filters>
@@ -141,8 +135,6 @@
                   <excludes>
                     <exclude>META-INF/LICENSE</exclude>
                     <exclude>META-INF/NOTICE</exclude>
-                    <exclude>META-INF/all/*</exclude>
-                    <exclude>META-INF/plus/*</exclude>
                     <exclude>META-INF/README.txt</exclude>
                   </excludes>
                 </filter>
@@ -174,19 +166,13 @@
                     <Bundle-Activator>org.apache.openejb.javaee.api.activator.MultiActivator</Bundle-Activator>
                   </manifestEntries>
                 </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>META-INF/all/*</resource>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>META-INF/tomcat/*</resource>
-                </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/LICENSE</resource>
-                  <file>${project.basedir}/src/main/resources/META-INF/all/LICENSE</file>
+                  <file>${project.basedir}/src/main/legal/META-INF/all/LICENSE</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>META-INF/NOTICE</resource>
-                  <file>${project.basedir}/src/main/resources/META-INF/all/NOTICE</file>
+                  <file>${project.basedir}/src/main/legal/META-INF/all/NOTICE</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
                 </transformer>

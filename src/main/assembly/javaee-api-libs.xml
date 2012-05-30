@@ -31,7 +31,6 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README.txt</include>
-        <include>NOTICE</include>
       </includes>
       <excludes>
         <exclude>all</exclude>
@@ -41,12 +40,12 @@
   </fileSets>
   <files>
     <file>
-      <source>${basedir}/src/main/resources/META-INF/all/LICENSE</source>
+      <source>${project.basedir}/src/main/legal/META-INF/all/LICENSE</source>
       <outputDirectory>/</outputDirectory>
       <destName>LICENSE</destName>
     </file>
     <file>
-      <source>${basedir}/src/main/resources/META-INF/all/NOTICE</source>
+      <source>${project.basedir}/src/main/legal/META-INF/all/NOTICE</source>
       <outputDirectory>/</outputDirectory>
       <destName>NOTICE</destName>
     </file>
