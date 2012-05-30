@@ -106,9 +106,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.xbean</groupId>
+      <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
-      <version>${xbean.version}</version>
+      <version>${openejb.version}</version>
       <type>jar</type>
       <scope>compile</scope>
       <exclusions>

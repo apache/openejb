@@ -36,12 +36,12 @@
     <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
   </feature>
 
-  <feature name="xbean" version="${xbeanVersion}">
-    <bundle>mvn:org.apache.xbean/xbean-asm-shaded/${xbeanVersion}</bundle>
-    <bundle>mvn:org.apache.xbean/xbean-finder-shaded/${xbeanVersion}</bundle>
-    <bundle>mvn:org.apache.xbean/xbean-naming/${xbeanVersion}</bundle>
-    <bundle>mvn:org.apache.xbean/xbean-reflect/${xbeanVersion}</bundle>
-    <bundle>mvn:org.apache.xbean/xbean-bundleutils/${xbeanVersion}</bundle>
+  <feature name="xbean" version="${xbean.version}">
+    <bundle>mvn:org.apache.xbean/xbean-asm-shaded/${xbean.version}</bundle>
+    <bundle>mvn:org.apache.xbean/xbean-finder-shaded/${xbean.version}</bundle>
+    <bundle>mvn:org.apache.xbean/xbean-naming/${xbean.version}</bundle>
+    <bundle>mvn:org.apache.xbean/xbean-reflect/${xbean.version}</bundle>
+    <bundle>mvn:org.apache.xbean/xbean-bundleutils/${xbean.version}</bundle>
   </feature>
 
   <feature name="org.apache.openwebbeans" version="${org.apache.openwebbeans.version}">

@@ -28,7 +28,6 @@
   <artifactId>apache-tomee</artifactId>
   <packaging>pom</packaging>
   <name>OpenEJB :: TomEE :: Apache TomEE</name>
-  <version>1.0.0</version>
 
   <dependencies>
     <dependency>

@@ -20,16 +20,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.openejb</groupId>
-  <artifactId>webdeployer</artifactId>
-  <version>4.0.0</version>
-  <name>OpenEJB :: Utils :: TomEE Webapps-based Deployer EJB</name>
   <parent>
-    <artifactId>utils</artifactId>
     <groupId>org.apache.openejb</groupId>
+    <artifactId>utils</artifactId>
     <version>4.0.1-SNAPSHOT</version>
   </parent>
+  <artifactId>webdeployer</artifactId>
   <packaging>jar</packaging>
+
+  <name>OpenEJB :: Utils :: TomEE Webapps-based Deployer EJB</name>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.openejb</groupId>

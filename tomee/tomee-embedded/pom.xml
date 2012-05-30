@@ -29,7 +29,6 @@
   <artifactId>tomee-embedded</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: TomEE :: TomEE Embedded</name>
-  <version>1.0.0</version>
   <build>
     <plugins>
       <plugin>

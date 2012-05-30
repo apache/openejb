@@ -21,12 +21,12 @@
 <!-- $Rev: 685052 $ $Date: 2008-08-11 23:31:13 -0700 (Mon, 11 Aug 2008) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>utils</artifactId>
     <groupId>org.apache.openejb</groupId>
     <version>4.0.1-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>openejb-spring</artifactId>
   <packaging>jar</packaging>
   <name>OpenEJB :: Utils :: Spring</name>

@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>ziplock</artifactId>
-      <version>${openejb.version}</version>
+      <version>${tomee.version}</version>
       <type>jar</type>
     </dependency>
 
@@ -65,7 +65,7 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.openejb</groupId>
       <artifactId>tomee-webservices</artifactId>
       <version>${tomee.version}</version>
     </dependency>
@@ -154,7 +154,7 @@
       </activation>
       <dependencies>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-embedded</artifactId>
           <version>${tomee.version}</version>
         </dependency>
@@ -183,7 +183,7 @@
       </build>
       <dependencies>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-remote</artifactId>
           <version>${tomee.version}</version>
         </dependency>
@@ -221,7 +221,7 @@
       </build>
       <dependencies>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-remote</artifactId>
           <version>${tomee.version}</version>
         </dependency>
@@ -264,7 +264,7 @@
       </build>
       <dependencies>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-webapp-remote</artifactId>
           <version>${tomee.version}</version>
         </dependency>
@@ -275,7 +275,7 @@
           <type>war</type>
         </dependency>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>apache-tomcat</artifactId>
           <version>${tomcat.bundle.version}</version>
           <type>zip</type>
@@ -309,7 +309,7 @@
       </build>
       <dependencies>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>arquillian-tomee-webapp-remote</artifactId>
           <version>${tomee.version}</version>
         </dependency>
@@ -320,7 +320,7 @@
           <type>war</type>
         </dependency>
         <dependency>
-          <groupId>${project.groupId}</groupId>
+          <groupId>org.apache.openejb</groupId>
           <artifactId>apache-tomcat</artifactId>
           <version>${tomcat.bundle.version}</version>
           <type>zip</type>
