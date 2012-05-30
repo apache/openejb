@@ -135,8 +135,6 @@
                   <excludes>
                     <exclude>META-INF/LICENSE</exclude>
                     <exclude>META-INF/NOTICE</exclude>
-                    <exclude>META-INF/all/*</exclude>
-                    <exclude>META-INF/plus/*</exclude>
                     <exclude>META-INF/README.txt</exclude>
                   </excludes>
                 </filter>
@@ -193,8 +191,6 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>META-INF/all/*</exclude>
-                    <exclude>META-INF/tomcat/*</exclude>
                     <exclude>META-INF/LICENSE</exclude>
                     <exclude>META-INF/NOTICE</exclude>
                     <exclude>META-INF/README.txt</exclude>
