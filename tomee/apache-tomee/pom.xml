@@ -246,7 +246,7 @@
               </descriptors>
               <attach>false</attach>
               <appendAssemblyId>false</appendAssemblyId>
-              <finalName>apache-tomee-webprofile-${project.version}</finalName>
+              <finalName>apache-tomee-webprofile-${tomee.version}</finalName>
             </configuration>
             <goals>
               <goal>single</goal>
@@ -261,7 +261,7 @@
               </descriptors>
               <attach>false</attach>
               <appendAssemblyId>false</appendAssemblyId>
-              <finalName>apache-tomee-plus-${project.version}</finalName>
+              <finalName>apache-tomee-plus-${tomee.version}</finalName>
             </configuration>
             <goals>
               <goal>single</goal>
@@ -284,22 +284,22 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>${project.build.directory}/apache-tomee-webprofile-${project.version}.zip</file>
+                  <file>${project.build.directory}/apache-tomee-webprofile-${tomee.version}.zip</file>
                   <type>zip</type>
                   <classifier>webprofile</classifier>
                 </artifact>
                 <artifact>
-                  <file>${project.build.directory}/apache-tomee-webprofile-${project.version}.tar.gz</file>
+                  <file>${project.build.directory}/apache-tomee-webprofile-${tomee.version}.tar.gz</file>
                   <type>tar.gz</type>
                   <classifier>webprofile</classifier>
                 </artifact>
                 <artifact>
-                  <file>${project.build.directory}/apache-tomee-plus-${project.version}.zip</file>
+                  <file>${project.build.directory}/apache-tomee-plus-${tomee.version}.zip</file>
                   <type>zip</type>
                   <classifier>plus</classifier>
                 </artifact>
                 <artifact>
-                  <file>${project.build.directory}/apache-tomee-plus-${project.version}.tar.gz</file>
+                  <file>${project.build.directory}/apache-tomee-plus-${tomee.version}.tar.gz</file>
                   <type>tar.gz</type>
                   <classifier>plus</classifier>
                 </artifact>

@@ -65,7 +65,7 @@
       <plugin>
         <groupId>org.apache.openejb.maven</groupId>
         <artifactId>tomee-maven-plugin</artifactId>
-        <version>1.0-alpha-1</version>
+        <version>1.0-alpha-2-SNAPSHOT</version>
         <configuration>
           <tomeeClassifier>plus</tomeeClassifier>
           <args>-Xmx512m -XX:PermSize=256m</args>

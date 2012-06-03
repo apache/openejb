@@ -41,6 +41,6 @@
 
   <properties>
     <karaf.version>2.2.6</karaf.version>
-    <karafee.version>1.0.0</karafee.version>
+    <karafee.version>1.0.1-SNAPSHOT</karafee.version>
   </properties>
 </project>
