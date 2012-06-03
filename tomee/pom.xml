@@ -40,7 +40,6 @@
     <module>tomee-webservices</module>
     <module>tomee-embedded</module>
     <module>apache-tomee</module>
-    <module>apache-tomcat</module>
   </modules>
 
   <repositories>
