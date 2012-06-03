@@ -176,8 +176,5 @@
     </profile>
   </profiles>
 
-  <properties>
-    <openejb.version>4.0.0</openejb.version>
-  </properties>
 </project>
 
