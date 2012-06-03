@@ -92,7 +92,7 @@
     <bundle>mvn:org.apache.geronimo.bundles/jaxb-impl/2.2.3-1_1</bundle>
 
     <feature>org.apache.commons</feature>
-    <feature version="${xbeanVersion}">xbean</feature>
+    <feature version="${xbean.version}">xbean</feature>
     <feature version="${geronimo-osgi.version}">geronimo-osgi</feature>
     <feature version="${org.apache.openwebbeans.version}">org.apache.openwebbeans</feature>
     <feature version="${openjpa.version}">openjpa</feature>
