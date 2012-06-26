@@ -44,7 +44,7 @@ public class RoundRobinConnectionStrategy extends AbstractConnectionStrategy {
             return index();
         }
 
-        @Override
+        
         public Iterator<URI> iterator() {
             return new RoundRobinIterator();
         }
@@ -52,12 +52,12 @@ public class RoundRobinConnectionStrategy extends AbstractConnectionStrategy {
         private class RoundRobinIterator implements Iterator<URI> {
             private final Set<URI> seen = new HashSet<URI>();
 
-            @Override
+            
             public boolean hasNext() {
                 return seen.size() < locations.length;
             }
 
-            @Override
+            
             public URI next() {
                 if (!hasNext()) throw new NoSuchElementException();
 
@@ -67,7 +67,7 @@ public class RoundRobinConnectionStrategy extends AbstractConnectionStrategy {
                 return location;
             }
 
-            @Override
+            
             public void remove() {
             }
         }

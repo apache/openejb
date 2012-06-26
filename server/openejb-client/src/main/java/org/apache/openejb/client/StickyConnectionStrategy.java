@@ -61,7 +61,7 @@ public class StickyConnectionStrategy extends AbstractConnectionStrategy {
             this.iterable = secondaryConnectionStrategy.createIterable(cluster);
         }
 
-        @Override
+        
         public Iterator<URI> iterator() {
             return new StickyIterator();
         }
@@ -79,12 +79,12 @@ public class StickyConnectionStrategy extends AbstractConnectionStrategy {
                 last = lastLocation;
             }
 
-            @Override
+            
             public boolean hasNext() {
                 return first && last != null || getIterator().hasNext();
             }
 
-            @Override
+            
 
             public URI next() {
                 if (!hasNext()) throw new NoSuchElementException();
@@ -106,7 +106,7 @@ public class StickyConnectionStrategy extends AbstractConnectionStrategy {
                 return iterator;
             }
 
-            @Override
+           
             public void remove() {
             }
         }

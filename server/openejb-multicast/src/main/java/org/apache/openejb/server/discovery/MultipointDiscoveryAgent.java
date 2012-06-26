@@ -129,7 +129,7 @@ public class MultipointDiscoveryAgent implements DiscoveryAgent, ServerService, 
         return host;
     }
 
-    @Override
+    
     public String getName() {
         return "multipoint";
     }

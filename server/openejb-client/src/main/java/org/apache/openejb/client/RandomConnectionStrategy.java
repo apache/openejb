@@ -45,7 +45,7 @@ public class RandomConnectionStrategy extends AbstractConnectionStrategy {
             this.locations = clusterMetaData.getLocations();
         }
 
-        @Override
+        
         public Iterator<URI> iterator() {
             return new RandomIterator<URI>(locations);
         }
@@ -57,16 +57,17 @@ public class RandomConnectionStrategy extends AbstractConnectionStrategy {
         private int size;
 
         public RandomIterator(T[] items) {
-            this.items = Arrays.copyOf(items, items.length);
+            this.items = (T[]) new Object[items.length];
+            System.arraycopy(items, 0, this.items, 0, items.length);
             this.size = items.length;
         }
 
-        @Override
+        
         public boolean hasNext() {
             return size > 0;
         }
 
-        @Override
+        
         public T next() {
             if (!hasNext()) throw new NoSuchElementException();
 
@@ -84,7 +85,7 @@ public class RandomConnectionStrategy extends AbstractConnectionStrategy {
             return selectedObject;
         }
 
-        @Override
+        
         public void remove() {
             throw new UnsupportedOperationException("remove");
         }

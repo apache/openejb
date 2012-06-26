@@ -943,7 +943,7 @@ public class MultipointServer {
                 if (!sessions[0].client && !sessions[1].client) {
                     // Case 1 -- Client is calling back
                     Arrays.sort(sessions, new Comparator<Session>() {
-                        @Override
+                        
                         public int compare(Session a, Session b) {
                             return (int) (b.created - a.created);
                         }
