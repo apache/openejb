@@ -11,36 +11,52 @@ Apache TomEE $version
 
 $date
 
-Upgrades:
+<h2>Upgrades</h2>
 
+<ul>
 #foreach ( $issue in $issues.equals("type", "Dependency upgrade") )
-  * [$issue.key] $issue.summary
+    <li><a href="https://issues.apache.org/jira/browse/$issue.key">$issue.key</a> $issue.summary</li>
 #end
+</ul>
 
-New Features:
+<h2>New Features</h2>
+
+<ul>
 
 #foreach ( $issue in $issues.equals("type", "New Feature") )
-  * [$issue.key] $issue.summary
+<li><a href="https://issues.apache.org/jira/browse/$issue.key">$issue.key</a> $issue.summary</li>
 #end
+</ul>
 
-Improvements:
+<h2>Improvements</h2>
+
+<ul>
 
 #foreach ( $issue in $issues.equals("type", "Improvement") )
-  * [$issue.key] $issue.summary
+<li><a href="https://issues.apache.org/jira/browse/$issue.key">$issue.key</a> $issue.summary</li>
 #end
+</ul>
 
-Bugs:
+<h2>Bugs</h2>
+
+<ul>
 
 #foreach ( $issue in $issues.equals("type", "Bug") )
-  * [$issue.key] $issue.summary
+<li><a href="https://issues.apache.org/jira/browse/$issue.key">$issue.key</a> $issue.summary</li>
 #end
+</ul>
 
-Tasks & Sub-Tasks:
+<h2>Tasks & Sub-Tasks</h2>
+
+<ul>
+
+
 
 #foreach ( $issue in $issues.equals("type", "Task") )
-  * [$issue.key] $issue.summary
+<li><a href="https://issues.apache.org/jira/browse/$issue.key">$issue.key</a> $issue.summary</li>
 #end
 #foreach ( $issue in $issues.equals("type", "Sub-task") )
-  * [$issue.key] $issue.summary
+<li><a href="https://issues.apache.org/jira/browse/$issue.key">$issue.key</a> $issue.summary</li>
 #end
 
+</ul>

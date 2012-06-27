@@ -19,11 +19,18 @@ package org.apache.openejb.tools.release.cmd;
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Files;
+import org.apache.openejb.tools.release.util.IO;
 import org.apache.rat.tentacles.NexusClient;
 import org.apache.xbean.finder.UriSet;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Little utility that downloads the binaries into
@@ -48,10 +55,28 @@ public class Binaries {
         binaries = binaries.exclude(".*\\.asc\\.(sha1|md5)");
 
 
-        for (URI uri : binaries.include(".*\\/(openejb-standalone|tomee|openejb-tomcat|apache-tomee|examples)-.*|.*source-release.*")) {
+        for (URI uri : binaries.include(".*\\/(openejb-provisionning|tomee|openejb-tomcat|apache-tomee|examples)-.*|.*source-release.*")) {
             final File file = new File(dir, uri.getPath().replaceAll(".*/", ""));
             System.out.println("Downloading " + file.getName());
             client.download(uri, file);
+
+            if (file.getName().endsWith(".zip")) {
+                final PrintStream out = new PrintStream(IO.write(new File(file.getAbsolutePath() + ".txt")));
+
+                list(file, out);
+                out.close();
+            }
+        }
+    }
+
+    private static void list(File file, PrintStream out) throws IOException {
+        final SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+        final ZipFile zip = new ZipFile(file);
+        final Enumeration<? extends ZipEntry> enumeration = zip.entries();
+        while (enumeration.hasMoreElements()) {
+            ZipEntry entry = enumeration.nextElement();
+            out.printf("%1$7s %2$2s %3$2s", entry.getSize(), format.format(entry.getTime()), entry.getName() );
+            out.println();
         }
     }
 

@@ -16,15 +16,14 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
-import org.apache.openejb.tools.release.Command;
-
 /**
  * @version $Rev$ $Date$
  */
-@Command
-public class ReleaseNotes {
+public class Roll {
 
-    public static void main(String[] args) throws Throwable {
-        org.codehaus.swizzle.jirareport.Main.main(new String[]{"release-notes-html.vm"});
+    public static void main(String[] args) throws Exception {
+        Deploy.main();
+        Close.main();
+        Tck.main();
     }
 }

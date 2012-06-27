@@ -39,6 +39,12 @@ import static org.apache.openejb.tools.release.util.Exec.exec;
 @Command(dependsOn = Close.class)
 public class Tck {
 
+    public static void redo() throws Exception {
+        final String branch = Release.tckBranches + Release.tomeeVersionName;
+
+        exec("svn", "-m", format("[release-tools] redo tck branch for %s", Release.tomeeVersionName), "rm", branch);
+    }
+
     public static void main(String... args) throws Exception {
 
         // https://svn.apache.org/repos/tck/openejb-tck/branches/tomee-1.0.0-beta-2

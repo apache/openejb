@@ -44,7 +44,10 @@ public class Release {
     public static String tckTrunk = "https://svn.apache.org/repos/tck/openejb-tck/trunk";
 
     public static String staging = "https://repository.apache.org/content/repositories/orgapacheopenejb-${build}";
-    public static String build = "041";
+    public static String build = "001";
+
+    public static String ciBuilder = "openejb-4-empty-repo";
+    public static String ciBuildNumber = "39";
 
 
     public static String builddir = "/tmp/downloads";
@@ -56,7 +59,7 @@ public class Release {
     public static String to = "dev@openejb.apache.org";
     public static String from = "${user}@apache.org";
 
-    public static String lastReleaseDate = "2011-10-05";
+    public static String lastReleaseDate = "2012-01-25";
 
     private static final Pattern PATTERN = Pattern.compile("(\\$\\{)(\\w+)(})");
 

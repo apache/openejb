@@ -33,7 +33,7 @@ import java.io.File;
 @Command(dependsOn = Deploy.class)
 public class Close {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String... args) throws Exception {
 
         final File settingsXml = Files.file(System.getProperty("user.home"), ".m2", "settings.xml");
         final StreamLexer lexer = new StreamLexer(IO.read(settingsXml));
@@ -67,6 +67,7 @@ public class Close {
         System.out.println(repository.getRepositoryURI());
 
         Release.staging = repository.getRepositoryURI().toString();
+        Release.build = Release.staging.replaceAll(".*-", "");
     }
 
 }

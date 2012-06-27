@@ -4,6 +4,20 @@ From: $from
 
 [generated email]
 
+Changes since last vote:
+
+#foreach( $commit in $commits )
+  - r$commit.revision | $commit.author | $commit.date | $commit.paths.size()
+    http://svn.apache.org/viewvc?view=revision&revision=$commit.revision
+
+$commit.message
+
+#end
+
+Successful Build:
+
+ http://ci.apache.org/builders/$ciBuilder/builds/$ciBuildNumber
+
 SVN Tag:
 
  $tags$openejbVersionName/
