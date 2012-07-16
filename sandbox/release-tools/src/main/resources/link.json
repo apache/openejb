@@ -1,0 +1,10 @@
+{
+    "type":{
+        "name":"Blocker"
+    },
+    "inwardIssue":{
+        "key":"TOMEE-320"
+    },
+    "outwardIssue":{
+        "key":"TOMEE-326"
+    }}

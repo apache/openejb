@@ -14,14 +14,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.openejb.tools.release.cmd;
+package org.apache.openejb.tools.release.util;
 
-import org.apache.openejb.tools.release.Command;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * TODO Close the Jira Version for this release
- * @version $Rev$ $Date$
- */
-@Command
-public class CloseVersion {
+public class ListAdapter extends XmlAdapter<String, List<String>> {
+    public List<String> unmarshal(String s) {
+        String[] strings = s.split(", *");
+        return new ArrayList<String>(Arrays.asList(strings));
+    }
+
+    public String marshal(List<String> list) {
+        return Join.join(", ", list);
+    }
 }

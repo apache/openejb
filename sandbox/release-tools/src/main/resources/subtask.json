@@ -1,0 +1,19 @@
+{
+    "fields":
+    {
+        "project":
+        {
+            "key": "TOMEE"
+        },
+        "parent":
+        {
+            "key": "$parentKey"
+        },
+        "summary": "$summary",
+        "description": "$description",
+        "issuetype":
+        {
+            "id": "7"
+        }
+    }
+}

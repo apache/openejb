@@ -1,0 +1,22 @@
+Subject: [preview] OpenEJB $openejbVersion/TomEE $tomeeVersion (staging-$build)
+To: $to
+From: $from
+
+[generated email]
+
+SVN Tag:
+
+ $tags$openejbVersionName/
+
+Maven Repo:
+
+ $staging
+
+Binaries & Source:
+
+ http://people.apache.org/~$user/staging-$build/$openejbVersionName/
+
+Legal:
+
+ http://people.apache.org/~$user/staging-$build/legal/archives.html
+

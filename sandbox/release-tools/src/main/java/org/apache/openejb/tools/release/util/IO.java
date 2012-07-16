@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -33,7 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -60,6 +63,21 @@ public class IO {
         } finally {
             close(in);
         }
+    }
+
+    public static Properties readProperties(InputStream in) throws IOException {
+        return readProperties(in, new Properties());
+    }
+
+    public static Properties readProperties(InputStream in, Properties properties) throws IOException {
+        if (in == null) throw new NullPointerException("InputStream is null");
+        if (properties == null) throw new NullPointerException("Properties is null");
+        try {
+            properties.load(in);
+        } finally{
+            close(in);
+        }
+        return properties;
     }
 
     public static String slurp(String fileName) throws IOException {
@@ -182,5 +200,21 @@ public class IO {
     public static InputStream read(File source) throws FileNotFoundException {
         final InputStream in = new FileInputStream(source);
         return new BufferedInputStream(in, 32768);
+    }
+
+    public static InputStream read(String content) {
+        return read(content.getBytes());
+    }
+
+    public static InputStream read(String content, String encoding) throws UnsupportedEncodingException {
+        return read(content.getBytes(encoding));
+    }
+
+    public static InputStream read(byte[] content) {
+        return new ByteArrayInputStream(content);
+    }
+
+    public static InputStream read(URL url) throws IOException {
+        return url.openStream();
     }
 }

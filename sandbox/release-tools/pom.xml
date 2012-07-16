@@ -106,6 +106,12 @@
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-jirareport</artifactId>
       <version>1.6.2-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>velocity</groupId>
+          <artifactId>velocity</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -143,6 +149,11 @@
       <version>4.1.2</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.7</version>
+    </dependency>
 
   </dependencies>
 

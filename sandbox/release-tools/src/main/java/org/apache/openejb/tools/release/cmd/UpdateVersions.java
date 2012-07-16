@@ -107,7 +107,7 @@ public class UpdateVersions {
         }
 
     }
-`
+
     private static void updateVersions2(File workingCopy) throws IOException {
 
         final List<File> files = collect(workingCopy, ".*pom.xml");

@@ -1,0 +1,79 @@
+<tasks>
+
+  <!-- preparing to branch -->
+
+  <task summary="Ensure TCK is passing"/>
+  <task summary="Ensure Build is passing" />
+  <task summary="Ensure JIRAs have been filed for commits" commands="ReviewCommits"/>
+  <task summary="Update fixVersions for JIRAs used in svn commits" commands="UpdateJiras" />
+  <task summary="Review and Close JIRAs for version"  commands=""/>
+  <task summary="Publish report of changed binaries"  commands="CompareLibraries"/>
+  <task summary="Publish release notes preview"/>
+  <task summary="Publish RAT report" >
+    There is a rat scan file in the root of the trunk source:
+
+      http://svn.apache.org/repos/asf/openejb/trunk/openejb/rat.xml
+
+    ant -f rat.xml
+  </task>
+  <task summary="Add missing license headers" >
+    The rat.xml file may not be up to date. Use caution when it indicates
+    a file does not have an ASL header.
+
+    All java files should have headers without exception, however some
+    files should not have headers and some do not need them.
+
+    Do not add headers to any user configuration files such as 'ejbd.properties'
+    or the default 'tomee.xml'. Simply add these to the excludes section of
+    the rat.xml file if a new one is added and not put in the excludes.
+
+    Any files that are just one or two lines are generated from trivial
+    source do not need headers. Headers are only required for files
+    that represent unique IP. Trivial files do not need headers. Headers
+    can be added or the file can be added to the excludes. Either one.
+  </task>
+  <task summary="Update LICENSE and README of changed binaries" />
+  <task summary="Create LICENSE and README for new binaries" />
+
+  <!-- finalizing -->
+
+  <task summary="Create SVN Branch of trunk" commands="Branch"/>
+  <task summary="Create buildbot CI setup for branch" commands="">
+    All ASF committers have access to:
+    https://svn.apache.org/repos/infra/infrastructure/buildbot/aegis/buildmaster/master1/projects
+    The file is openejb.conf
+    Can be done by any ASF committer willing to help.
+
+    An svn trigger must be added afterwards.  This can only be done by
+    someone with svn admin permissions, such as any PMC chair or an Infra team member.
+  </task>
+  <task summary="Create SVN Branch of openejb-tck/trunk/ " commands="Tck" />
+  <task summary="Ensure tck branch works"/>
+  <task summary="Update branch versions" commands=""/>
+  <task summary="Update trunk versions" commands="" />
+  <task summary="Create next versions in JIRA" commands=""/>
+  <task summary="Resolve SNAPSHOT dependencies in branch" commands=""/>
+  <task summary="Check for missed SNAPSHOT refs in files in branch" commands=""/>
+
+  <!-- preview rolling (usually repeated several times)  -->
+
+  <task summary="Publish Preview" commands="Roll,Binaries,Legal,ReleaseNotes,Preview"/>
+  <task summary="Ensure TCK passes with preview" commands=""/>
+  <task summary="Ensure Build passes with preview" commands=""/>
+  <task summary="TCK test preview binaries"/>
+  <task summary="Prepare blog announcement" commands=""/>
+
+  <!-- vote rolling (usually repeated several times)  -->
+
+  <task summary="Publish Vote" commands="Roll,Binaries,Legal,ReleaseNotes,Vote"/>
+  <task summary="TCK test vote binaries"/>
+
+  <!-- passed vote  -->
+
+  <task summary="Tally vote and send [RESULT]" commands=""/>
+  <task summary="Release binaries in Nexus" commands=""/>
+  <task summary="Copy binaries dir to /www/www.apache.org/dist/openejb/" commands=""/>
+  <task summary="Publish blog announcement" commands=""/>
+  <task summary="Mark versions as released in JIRA" commands=""/>
+
+</tasks>

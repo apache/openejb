@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  */
 public class Release {
 
-    public static String openejbVersion = "4.0.0";
-    public static String tomeeVersion = "1.0.0";
+    public static String openejbVersion = "4.1.0";
+    public static String tomeeVersion = "1.1.0";
 
     public static String openejbVersionName = "openejb-${openejbVersion}";
     public static String tomeeVersionName = "tomee-${tomeeVersion}";
@@ -59,7 +59,7 @@ public class Release {
     public static String to = "dev@openejb.apache.org";
     public static String from = "${user}@apache.org";
 
-    public static String lastReleaseDate = "2012-01-25";
+    public static String lastReleaseDate = "2012-04-25";
 
     private static final Pattern PATTERN = Pattern.compile("(\\$\\{)(\\w+)(})");
 

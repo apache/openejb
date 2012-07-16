@@ -46,7 +46,7 @@ import java.util.Vector;
  * @version $Rev$ $Date$
  */
 @Command
-public class CloseJiras {
+public class UpdateJiras {
 
     private static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     private static SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");

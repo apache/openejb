@@ -1,0 +1,13 @@
+{
+    "fields": {
+       "project":
+       {
+          "key": "TOMEE"
+       },
+       "summary": "Release TomEE $version",
+       "description": "",
+       "issuetype": {
+          "name": "Task"
+       }
+   }
+}
