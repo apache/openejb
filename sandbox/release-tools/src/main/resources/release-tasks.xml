@@ -1,9 +1,20 @@
 <tasks>
 
+  <!--
+  Tasks with (NDA) require an Apache NDA to complete due to TCK restrictions
+  Tasks with (RM) must be performed by the Release Manager
+  -->
+
   <!-- preparing to branch -->
 
-  <task summary="Ensure TCK is passing"/>
-  <task summary="Ensure Build is passing" />
+  <task summary="Ensure TCK is passing (NDA)">
+    A signed NDA is required for this step.
+    This can be done either by viewing the latest results in EC2 or running the TCK locally (several hours)
+  </task>
+
+  <task summary="Ensure Build is passing">
+    http://ci.apache.org/builders/openejb-trunk-ubuntu
+  </task>
   <task summary="Ensure JIRAs have been filed for commits" commands="ReviewCommits"/>
   <task summary="Update fixVersions for JIRAs used in svn commits" commands="UpdateJiras" />
   <task summary="Review and Close JIRAs for version"  commands=""/>
@@ -32,8 +43,10 @@
     that represent unique IP. Trivial files do not need headers. Headers
     can be added or the file can be added to the excludes. Either one.
   </task>
-  <task summary="Update LICENSE and README of changed binaries" />
-  <task summary="Create LICENSE and README for new binaries" />
+  <task summary="Update LICENSE and NOTICE of changed binaries">
+    Compelete 'Publish report of changed binaries' prior to doing this step.
+  </task>
+  <task summary="Create LICENSE and NOTICE for new binaries" />
 
   <!-- finalizing -->
 
@@ -47,8 +60,8 @@
     An svn trigger must be added afterwards.  This can only be done by
     someone with svn admin permissions, such as any PMC chair or an Infra team member.
   </task>
-  <task summary="Create SVN Branch of openejb-tck/trunk/ " commands="Tck" />
-  <task summary="Ensure tck branch works"/>
+  <task summary="Create SVN Branch of openejb-tck/trunk/ (NDA)" commands="Tck" />
+  <task summary="Ensure tck branch works (NDA)"/>
   <task summary="Update branch versions" commands=""/>
   <task summary="Update trunk versions" commands="" />
   <task summary="Create next versions in JIRA" commands=""/>
@@ -57,22 +70,32 @@
 
   <!-- preview rolling (usually repeated several times)  -->
 
-  <task summary="Publish Preview" commands="Roll,Binaries,Legal,ReleaseNotes,Preview"/>
-  <task summary="Ensure TCK passes with preview" commands=""/>
+  <task summary="Publish Preview" commands="Roll,Binaries,Legal,ReleaseNotes,Preview">
+    Can be performed by any committer as often as desired once versions are final in branch
+  </task>
+  <task summary="Ensure TCK passes with preview (NDA)" commands=""/>
   <task summary="Ensure Build passes with preview" commands=""/>
-  <task summary="TCK test preview binaries"/>
+  <task summary="TCK test preview binaries (NDA)"/>
   <task summary="Prepare blog announcement" commands=""/>
 
   <!-- vote rolling (usually repeated several times)  -->
 
-  <task summary="Publish Vote" commands="Roll,Binaries,Legal,ReleaseNotes,Vote"/>
-  <task summary="TCK test vote binaries"/>
+  <task summary="Publish Vote (RM)" commands="Roll,Binaries,Legal,ReleaseNotes,Vote">
+    Performed by Release Manager (RM)
+  </task>
+  <task summary="TCK test vote binaries (NDA)"/>
 
   <!-- passed vote  -->
 
-  <task summary="Tally vote and send [RESULT]" commands=""/>
-  <task summary="Release binaries in Nexus" commands=""/>
-  <task summary="Copy binaries dir to /www/www.apache.org/dist/openejb/" commands=""/>
+  <task summary="Tally vote and send [RESULT] (RM)" commands="">
+    Performed by Release Manager (RM)
+  </task>
+  <task summary="Release binaries in Nexus (RM)" commands="">
+    Performed by Release Manager (RM)
+  </task>
+  <task summary="Copy binaries dir to /www/www.apache.org/dist/openejb/ (RM)" commands="">
+    Performed by Release Manager (RM)
+  </task>
   <task summary="Publish blog announcement" commands=""/>
   <task summary="Mark versions as released in JIRA" commands=""/>
 
