@@ -1,0 +1,14 @@
+#set ( $tomee = $rss.fetch("https://issues.apache.org/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?assignee=Unassigned&&pid=TOMEE&status=Open&tempMax=100&reset=true&decorator=none") )
+#set ( $openejb = $rss.fetch("https://issues.apache.org/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?assignee=Unassigned&pid=OPENEJB&status=Open&tempMax=100&reset=true&decorator=none") )
+
+#set( $issues = $tomee.issues.union( $openejb.issues ) )
+#set( $priorities = $issues.collect("priority").unique("id").sort("id"))
+
+#foreach( $p in $priorities )
+#$p
+
+#foreach( $issue in $issues.equals("priority", $p.name).sort("id", true) )
+ - [$issue.key](https://issues.apache.org/jira/browse/$issue.key): $issue.type : $issue.summary
+#end
+
+#end
