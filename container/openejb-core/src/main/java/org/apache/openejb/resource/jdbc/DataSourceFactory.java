@@ -34,9 +34,6 @@ public class DataSourceFactory {
     public static final String POOL_PROPERTY = "openejb.datasource.pool";
 
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
-
-        final DataSource ds;
-
         final Properties properties = asProperties(definition);
         final DataSourceCreator creator = SystemInstance.get().getComponent(DataSourceCreator.class);
 
@@ -49,35 +46,33 @@ public class DataSourceFactory {
             recipe.allow(Option.NAMED_PARAMETERS);
             recipe.setAllProperties(properties);
 
-            DataSource dataSource = (DataSource) recipe.create();
+            final DataSource dataSource = (DataSource) recipe.create();
 
             if (managed) {
                 if (useDbcp(properties)) {
-                    ds = creator.poolManaged(name, dataSource);
+                    return creator.poolManaged(name, dataSource);
                 } else {
-                    ds = creator.managed(name, dataSource);
+                    return creator.managed(name, dataSource);
                 }
             } else {
                 if (useDbcp(properties)) {
-                    ds = creator.pool(name, dataSource);
+                    return creator.pool(name, dataSource);
                 } else {
-                    ds = dataSource;
+                    return dataSource;
                 }
             }
-        } else {
+        } else { // by driver
             if (managed) {
-                XAResourceWrapper xaResourceWrapper = SystemInstance.get().getComponent(XAResourceWrapper.class);
+                final XAResourceWrapper xaResourceWrapper = SystemInstance.get().getComponent(XAResourceWrapper.class);
                 if (xaResourceWrapper != null) {
-                    ds = creator.poolManagedWithRecovery(name, xaResourceWrapper, impl.getName(), properties);
+                    return creator.poolManagedWithRecovery(name, xaResourceWrapper, impl.getName(), properties);
                 } else {
-                    ds = creator.poolManaged(name, impl.getName(), properties);
+                    return creator.poolManaged(name, impl.getName(), properties);
                 }
             } else {
-                ds = creator.pool(name, impl.getName(), properties);
+                return creator.pool(name, impl.getName(), properties);
             }
         }
-
-        return ds;
     }
 
     private static boolean createDataSourceFromClass(final Class<?> impl) {

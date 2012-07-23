@@ -3,9 +3,9 @@ package org.apache.openejb.resource.jdbc.pool;
 import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.resource.jdbc.dbcp.BasicDataSource;
 import org.apache.openejb.resource.jdbc.dbcp.BasicManagedDataSource;
-import org.apache.openejb.resource.jdbc.dbcp.ManagedDataSourceWithRecovery;
 import org.apache.openejb.resource.jdbc.dbcp.DbcpDataSource;
 import org.apache.openejb.resource.jdbc.dbcp.DbcpManagedDataSource;
+import org.apache.openejb.resource.jdbc.dbcp.ManagedDataSourceWithRecovery;
 
 import javax.sql.DataSource;
 import java.util.Properties;

@@ -16,19 +16,20 @@
  */
 package org.apache.openejb.resource.jdbc.dbcp;
 
+import org.apache.openejb.assembler.monitoring.JMXBasicDataSource;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.resource.jdbc.BasicDataSourceUtil;
+import org.apache.openejb.resource.jdbc.IsolationLevels;
+import org.apache.openejb.resource.jdbc.cipher.PasswordCipher;
+import org.apache.openejb.resource.jdbc.plugin.DataSourcePlugin;
+
+import javax.sql.DataSource;
 import java.io.File;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
-import javax.sql.DataSource;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.assembler.monitoring.JMXBasicDataSource;
-import org.apache.openejb.resource.jdbc.BasicDataSourceUtil;
-import org.apache.openejb.resource.jdbc.plugin.DataSourcePlugin;
-import org.apache.openejb.resource.jdbc.IsolationLevels;
-import org.apache.openejb.resource.jdbc.cipher.PasswordCipher;
 
 @SuppressWarnings({"UnusedDeclaration"})
 public class BasicManagedDataSource extends org.apache.commons.dbcp.managed.BasicManagedDataSource {

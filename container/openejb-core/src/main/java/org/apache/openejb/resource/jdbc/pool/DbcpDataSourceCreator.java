@@ -8,6 +8,8 @@ import org.apache.xbean.recipe.Option;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+// just a sample showing how to implement a datasourcecreator
+// this one will probably not be used since dbcp has already the integration we need
 public class DbcpDataSourceCreator extends PoolDataSourceCreator {
     @Override
     public DataSource pool(final String name, final DataSource ds) {

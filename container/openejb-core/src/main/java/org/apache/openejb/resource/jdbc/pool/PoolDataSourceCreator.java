@@ -1,25 +1,34 @@
 package org.apache.openejb.resource.jdbc.pool;
 
+import org.apache.openejb.OpenEJB;
+import org.apache.openejb.resource.TransactionManagerWrapper;
 import org.apache.openejb.resource.XAResourceWrapper;
-import org.apache.openejb.resource.jdbc.managed.ManagedDataSource;
-import org.apache.openejb.resource.jdbc.managed.ManagedXADataSource;
+import org.apache.openejb.resource.jdbc.managed.local.ManagedDataSource;
+import org.apache.openejb.resource.jdbc.managed.xa.ManagedXADataSource;
 
 import javax.sql.DataSource;
 import javax.sql.XADataSource;
+import javax.transaction.TransactionManager;
 import java.util.Properties;
 
 public abstract class PoolDataSourceCreator implements DataSourceCreator {
     @Override
     public DataSource managed(final String name, final DataSource ds) {
+        final TransactionManager transactionManager = OpenEJB.getTransactionManager();
         if (ds instanceof XADataSource) {
-            return new ManagedXADataSource(ds);
+            return new ManagedXADataSource(ds, transactionManager);
         }
-        return new ManagedDataSource(ds);
+        return new ManagedDataSource(ds, transactionManager);
     }
 
-    @Override // TODO: manage recovery
+    @Override
     public DataSource poolManagedWithRecovery(final String name, final XAResourceWrapper xaResourceWrapper, final String driver, final Properties properties) {
-        throw new UnsupportedOperationException("TODO: implement it");
+        final TransactionManager transactionManager = new TransactionManagerWrapper(OpenEJB.getTransactionManager(), name, xaResourceWrapper);
+        final DataSource ds = pool(name, driver, properties);
+        if (ds instanceof XADataSource) {
+            return new ManagedXADataSource(ds, transactionManager);
+        }
+        return new ManagedDataSource(ds, transactionManager);
     }
 
     @Override

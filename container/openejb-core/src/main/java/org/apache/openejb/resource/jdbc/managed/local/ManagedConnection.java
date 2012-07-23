@@ -1,7 +1,6 @@
-package org.apache.openejb.resource.jdbc.managed;
+package org.apache.openejb.resource.jdbc.managed.local;
 
 import org.apache.openejb.OpenEJB;
-import org.apache.openejb.resource.jdbc.managed.local.LocalXAResource;
 
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
@@ -22,17 +21,16 @@ public class ManagedConnection implements InvocationHandler {
     private static final Map<Transaction, Connection> CONNECTION_BY_TX = new ConcurrentHashMap<Transaction, Connection>();
 
     protected Connection delegate;
-    protected XAResource xaResource;
-
+    private final TransactionManager transactionManager;
     private Transaction currentTransaction;
 
-    protected ManagedConnection(final Connection connection, final XAResource resource) {
+    public ManagedConnection(final Connection connection, final TransactionManager txMgr) {
         delegate = connection;
-        xaResource = resource;
+        transactionManager = txMgr;
     }
 
-    public ManagedConnection(final Connection connection) {
-        this(connection, new LocalXAResource(connection));
+    public XAResource getXAResource() throws SQLException {
+        return new LocalXAResource(delegate);
     }
 
     @Override
@@ -40,7 +38,7 @@ public class ManagedConnection implements InvocationHandler {
         // first some Object method management
         final String mtdName = method.getName();
         if ("toString".equals(mtdName)) {
-            return "ManagedConnection{" + delegate.toString() + "}";
+            return "ManagedConnection{" + delegate + "}";
         }
         if ("hashCode".equals(mtdName)) {
             return delegate.hashCode();
@@ -51,7 +49,6 @@ public class ManagedConnection implements InvocationHandler {
 
         // here the real logic starts
         try {
-            final TransactionManager transactionManager = OpenEJB.getTransactionManager();
             final Transaction transaction = transactionManager.getTransaction();
 
             if (transaction == null) { // shouldn't be possible
@@ -83,7 +80,7 @@ public class ManagedConnection implements InvocationHandler {
                         CONNECTION_BY_TX.put(transaction, delegate);
                         currentTransaction = transaction;
                         try {
-                            transaction.enlistResource(xaResource);
+                            transaction.enlistResource(getXAResource());
                         } catch (RollbackException ignored) {
                             // no-op
                         } catch (SystemException e) {

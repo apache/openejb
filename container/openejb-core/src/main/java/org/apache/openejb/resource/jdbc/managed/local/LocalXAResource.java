@@ -6,13 +6,16 @@ import javax.transaction.xa.Xid;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+// seems synchronized is faster than java.util.concurrent for 1 or 2 threads
+// so should be fine here
+// moreover all operations are very short so synchronized is faster
 public class LocalXAResource implements XAResource {
     private final Connection connection;
     private Xid currentXid;
     private boolean originalAutoCommit;
 
     public LocalXAResource(final Connection localTransaction) {
-        this.connection = localTransaction;
+        connection = localTransaction;
     }
 
     public synchronized Xid getXid() {
@@ -22,7 +25,7 @@ public class LocalXAResource implements XAResource {
     @Override
     public synchronized void start(final Xid xid, int flag) throws XAException {
         if (flag == XAResource.TMNOFLAGS) {
-            if (this.currentXid != null) {
+            if (currentXid != null) {
                 throw new XAException("Already enlisted in another transaction with xid " + xid);
             }
 
@@ -41,8 +44,8 @@ public class LocalXAResource implements XAResource {
 
             this.currentXid = xid;
         } else if (flag == XAResource.TMRESUME) {
-            if (xid != this.currentXid) {
-                throw new XAException("Attempting to resume in different transaction: expected " + this.currentXid + ", but was " + xid);
+            if (xid != currentXid) {
+                throw new XAException("Attempting to resume in different transaction: expected " + currentXid + ", but was " + xid);
             }
         } else {
             throw new XAException("Unknown start flag " + flag);
@@ -78,8 +81,8 @@ public class LocalXAResource implements XAResource {
         if (xid == null) {
             throw new NullPointerException("xid is null");
         }
-        if (!this.currentXid.equals(xid)) {
-            throw new XAException("Invalid Xid: expected " + this.currentXid + ", but was " + xid);
+        if (!currentXid.equals(xid)) {
+            throw new XAException("Invalid Xid: expected " + currentXid + ", but was " + xid);
         }
 
         try {
@@ -98,7 +101,7 @@ public class LocalXAResource implements XAResource {
             } catch (SQLException e) {
                 // no-op
             }
-            this.currentXid = null;
+            currentXid = null;
         }
     }
 
@@ -107,8 +110,8 @@ public class LocalXAResource implements XAResource {
         if (xid == null) {
             throw new NullPointerException("xid is null");
         }
-        if (!this.currentXid.equals(xid)) {
-            throw new XAException("Invalid Xid: expected " + this.currentXid + ", but was " + xid);
+        if (!currentXid.equals(xid)) {
+            throw new XAException("Invalid Xid: expected " + currentXid + ", but was " + xid);
         }
 
         try {
@@ -132,8 +135,8 @@ public class LocalXAResource implements XAResource {
 
     @Override
     public synchronized void forget(final Xid xid) {
-        if (xid != null && this.currentXid.equals(xid)) {
-            this.currentXid = null;
+        if (xid != null && currentXid.equals(xid)) {
+            currentXid = null;
         }
     }
 
