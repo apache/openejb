@@ -1,4 +1,4 @@
-package org.apache.tomee.dbcp;
+package org.apache.tomee.jdbc;
 
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.SingletonBean;

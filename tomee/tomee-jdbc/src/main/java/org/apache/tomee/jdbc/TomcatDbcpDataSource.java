@@ -1,4 +1,4 @@
-package org.apache.tomee.dbcp;
+package org.apache.tomee.jdbc;
 
 import org.apache.openejb.resource.jdbc.DataSourceHelper;
 import org.apache.openejb.util.reflection.Reflections;

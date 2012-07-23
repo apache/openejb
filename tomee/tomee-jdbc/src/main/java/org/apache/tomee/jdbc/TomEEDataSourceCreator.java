@@ -1,13 +1,11 @@
-package org.apache.tomee.dbcp;
+package org.apache.tomee.jdbc;
 
 import org.apache.openejb.monitoring.LocalMBeanServer;
 import org.apache.openejb.resource.jdbc.pool.PoolDataSourceCreator;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.apache.tomcat.jdbc.pool.DataSourceFactory;
 
 import javax.management.ObjectName;
 import javax.sql.DataSource;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
