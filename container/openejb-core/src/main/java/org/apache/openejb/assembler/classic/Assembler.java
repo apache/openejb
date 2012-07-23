@@ -119,7 +119,6 @@ import org.apache.openejb.core.transaction.TransactionPolicyFactory;
 import org.apache.openejb.core.transaction.TransactionType;
 import org.apache.openejb.javaagent.Agent;
 import org.apache.openejb.jpa.integration.MakeTxLookup;
-import org.apache.openejb.loader.IO;
 import org.apache.openejb.loader.JarLocation;
 import org.apache.openejb.loader.Options;
 import org.apache.openejb.loader.ProvisioningUtil;
