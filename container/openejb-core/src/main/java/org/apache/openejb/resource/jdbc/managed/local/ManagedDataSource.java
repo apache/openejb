@@ -70,4 +70,8 @@ public class ManagedDataSource implements DataSource {
     private Connection managed(final Connection connection) {
         return (Connection) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), CONNECTION_CLASS, new ManagedConnection(connection, transactionManager));
     }
+
+    public DataSource getDelegate() {
+        return delegate;
+    }
 }

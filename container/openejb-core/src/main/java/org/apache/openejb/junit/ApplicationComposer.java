@@ -19,6 +19,7 @@ package org.apache.openejb.junit;
 import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.InjectionProcessor;
+import org.apache.openejb.OpenEJB;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.config.AppModule;
@@ -333,6 +334,7 @@ public class ApplicationComposer extends BlockJUnit4ClassRunner {
                     assembler.destroyApplication(appInfo.path);
                 }
             } finally {
+                OpenEJB.destroy();
                 SystemInstance.reset();
             }
         }

@@ -40,4 +40,22 @@ public abstract class PoolDataSourceCreator implements DataSourceCreator {
     public DataSource poolManaged(final String name, final String driver, final Properties properties) {
         return managed(name, pool(name, driver, properties));
     }
+
+    @Override
+    public boolean hasCreated(final Object object) {
+        return hasReallyCreated(object) || object instanceof ManagedDataSource;
+    }
+
+    protected abstract boolean hasReallyCreated(final Object object);
+
+    @Override
+    public void destroy(final Object object) throws Throwable {
+        if (object instanceof ManagedDataSource) {
+            doDestroy(((ManagedDataSource) object).getDelegate());
+        } else {
+            doDestroy((DataSource) object);
+        }
+    }
+
+    protected abstract void doDestroy(DataSource dataSource) throws Throwable;
 }
