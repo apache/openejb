@@ -44,6 +44,7 @@
     <module>tomee-jaxrs-webapp</module>
     <module>apache-tomee</module>
     <module>apache-tomcat</module>
+    <module>tomee-dbcp</module>
   </modules>
 
   <repositories>
