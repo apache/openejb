@@ -37,6 +37,19 @@ public class ManagedConnection implements InvocationHandler {
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+        // first some Object method management
+        final String mtdName = method.getName();
+        if ("toString".equals(mtdName)) {
+            return "ManagedConnection{" + delegate.toString() + "}";
+        }
+        if ("hashCode".equals(mtdName)) {
+            return delegate.hashCode();
+        }
+        if ("equals".equals(mtdName)) {
+            return delegate.equals(args[0]);
+        }
+
+        // here the real logic starts
         try {
             final TransactionManager transactionManager = OpenEJB.getTransactionManager();
             final Transaction transaction = transactionManager.getTransaction();
@@ -45,6 +58,7 @@ public class ManagedConnection implements InvocationHandler {
                 return method.invoke(delegate, args);
             }
 
+            // if we have a tx check it is the same this connection is linked to
             if (currentTransaction != null) {
                 if (isUnderTransaction(currentTransaction.getStatus())) {
                     if (currentTransaction != transaction) {
@@ -52,36 +66,38 @@ public class ManagedConnection implements InvocationHandler {
                     }
                     return invokeUnderTransaction(delegate, method, args);
                 } else {
-                    System.out.println("no tx close");
                     close(delegate);
                 }
             }
 
+            // get the already bound connection to the current transaction
+            // or enlist this one in the tx
             int status = transaction.getStatus();
             if (isUnderTransaction(status)) {
                 final Connection connection = CONNECTION_BY_TX.get(transaction);
-                if (connection != null) { // shared one
-                    System.out.println("conn != null close");
-                    delegate.close(); // return to pool
-                    delegate = connection;
-                } else {
-                    CONNECTION_BY_TX.put(transaction, delegate);
-                    currentTransaction = transaction;
-                    try {
-                        transaction.enlistResource(xaResource);
-                    } catch (RollbackException ignored) {
-                        // no-op
-                    } catch (SystemException e) {
-                        throw new SQLException("Unable to enlist connection the transaction", e);
+                if (connection != delegate) {
+                    if (connection != null) { // use already existing one
+                        delegate.close(); // return to pool
+                        delegate = connection;
+                    } else {
+                        CONNECTION_BY_TX.put(transaction, delegate);
+                        currentTransaction = transaction;
+                        try {
+                            transaction.enlistResource(xaResource);
+                        } catch (RollbackException ignored) {
+                            // no-op
+                        } catch (SystemException e) {
+                            throw new SQLException("Unable to enlist connection the transaction", e);
+                        }
+
+                        transaction.registerSynchronization(new ClosingSynchronization(delegate));
+
+                        delegate.setAutoCommit(false);
                     }
                 }
-                transaction.registerSynchronization(new ClosingSynchronization(delegate));
-
-                delegate.setAutoCommit(false); // TODO: previous value?
 
                 return invokeUnderTransaction(delegate, method, args);
             }
-
 
             return method.invoke(delegate, args);
         } catch (InvocationTargetException ite) {
@@ -89,7 +105,7 @@ public class ManagedConnection implements InvocationHandler {
         }
     }
 
-    private static Object invokeUnderTransaction(final Connection delegate, final Method method, final Object[] args) throws Exception, IllegalAccessException {
+    private static Object invokeUnderTransaction(final Connection delegate, final Method method, final Object[] args) throws Exception {
         final String mtdName = method.getName();
         if ("setAutoCommit".equals(mtdName)
                 || "commit".equals(mtdName)
@@ -100,10 +116,15 @@ public class ManagedConnection implements InvocationHandler {
         }
         if ("close".equals(mtdName)) {
             // will be done later
-            // we need to differ it in case of rollback
-            return null;
+            // we need to delay it in case of rollback
+            return noop();
         }
         return method.invoke(delegate, args);
+    }
+
+    // just to give a better semantiv to a trivial operation
+    private static Object noop() {
+        return null;
     }
 
     private static boolean isUnderTransaction(int status) {
