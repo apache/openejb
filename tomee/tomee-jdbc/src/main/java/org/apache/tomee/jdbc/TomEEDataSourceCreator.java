@@ -61,12 +61,9 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
             converted.setProperty("username", properties.getProperty("user"));
         }
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            for (String key : PropertiesReader.KEYS) {
-                final String thisKey = entry.getKey().toString();
-                final String value = entry.getValue().toString().trim();
-                if (key.equalsIgnoreCase(thisKey) && !value.isEmpty()) {
-                    converted.put(key, entry.getValue());
-                }
+            final String value = entry.getValue().toString().trim();
+            if (!value.isEmpty()) {
+                converted.put(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -76,10 +73,6 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
         org.apache.tomcat.jdbc.pool.DataSource ds = (org.apache.tomcat.jdbc.pool.DataSource) object;
         ds.close(true);
         ds.postDeregister();
-    }
-
-    private static class PropertiesReader extends DataSourceFactory {
-        public static final String[] KEYS = ALL_PROPERTIES;
     }
 
     public static class TomEEDataSource extends org.apache.tomcat.jdbc.pool.DataSource {
