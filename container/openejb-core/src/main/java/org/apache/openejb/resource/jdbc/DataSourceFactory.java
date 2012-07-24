@@ -36,6 +36,7 @@ public class DataSourceFactory {
     private static final Logger LOGGER = Logger.getInstance(LogCategory.OPENEJB, DataSourceFactory.class);
 
     public static final String POOL_PROPERTY = "openejb.datasource.pool";
+    public static final String DATA_SOURCE_CREATOR_PROP = "DataSourceCreator";
 
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
         final Properties properties = asProperties(definition);
@@ -82,7 +83,7 @@ public class DataSourceFactory {
 
     private static DataSourceCreator creator(final Properties properties) {
         final DataSourceCreator defaultCreator = SystemInstance.get().getComponent(DataSourceCreator.class);
-        Object creatorName = properties.remove("DataSourceCreator");
+        Object creatorName = properties.remove(DATA_SOURCE_CREATOR_PROP);
         if (creatorName != null && creatorName instanceof String && !creatorName.equals(defaultCreator.getClass().getName())) {
             try {
                 return (DataSourceCreator) Thread.currentThread().getContextClassLoader().loadClass((String) creatorName).newInstance();
