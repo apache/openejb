@@ -232,12 +232,6 @@
       <groupId>org.codehaus.swizzle</groupId>
       <artifactId>swizzle-stream</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>tomee-jdbc</artifactId>
-      <version>${tomee.version}</version>
-      <scope>runtime</scope>
-    </dependency>
   </dependencies>
 </project>
 

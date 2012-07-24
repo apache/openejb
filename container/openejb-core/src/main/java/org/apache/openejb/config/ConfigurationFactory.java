@@ -110,6 +110,7 @@ import static org.apache.openejb.config.DeploymentsResolver.DEPLOYMENTS_CLASSPAT
 import static org.apache.openejb.config.ServiceUtils.implies;
 
 public class ConfigurationFactory implements OpenEjbConfigurationFactory {
+    public static final String OPENEJB_JDBC_DATASOURCE_CREATOR = "openejb.jdbc.datasource-creator";
 
     public static final String ADDITIONAL_DEPLOYMENTS = "conf/deployments.xml";
     static final String CONFIGURATION_PROPERTY = "openejb.configuration";
@@ -145,7 +146,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory {
 
         final Options options = SystemInstance.get().getOptions();
         if (SystemInstance.get().getComponent(DataSourceCreator.class) == null) {
-            final String creator = SystemInstance.get().getOptions().get("openejb.jdbc.datasource-creator", (String) null);
+            final String creator = SystemInstance.get().getOptions().get(OPENEJB_JDBC_DATASOURCE_CREATOR, (String) null);
             if (creator == null) {
                 SystemInstance.get().setComponent(DataSourceCreator.class, new DefaultDataSourceCreator());
             } else {

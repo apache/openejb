@@ -28,9 +28,9 @@ import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.startup.Bootstrap;
 import org.apache.catalina.startup.Catalina;
 import org.apache.openejb.OpenEJB;
-import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
 import org.apache.openejb.assembler.classic.WebAppBuilder;
+import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.NewLoaderLogic;
 import org.apache.openejb.config.sys.Tomee;
 import org.apache.openejb.core.ServerFederation;
@@ -42,7 +42,6 @@ import org.apache.openejb.server.ServerService;
 import org.apache.openejb.server.ServiceException;
 import org.apache.openejb.server.ServiceManager;
 import org.apache.openejb.server.ejbd.EjbServer;
-import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.Service;
 import org.apache.openejb.util.Join;
 import org.apache.openejb.util.LogCategory;
@@ -51,6 +50,7 @@ import org.apache.openejb.util.OptionsLog;
 import org.apache.tomcat.util.scan.Constants;
 import org.apache.tomee.installer.Installer;
 import org.apache.tomee.installer.Paths;
+import org.apache.tomee.jdbc.TomEEDataSourceCreator;
 import org.apache.tomee.loader.TomcatHelper;
 
 import java.io.File;
@@ -168,6 +168,10 @@ public class TomcatLoader implements Loader {
             SystemInstance.get().setProperty("openejb.configuration", tomeeXml.getAbsolutePath());
             SystemInstance.get().setProperty("openejb.configuration.class", Tomee.class.getName());
         }
+
+        // set tomcat pool
+        // TODO: valid it works
+        SystemInstance.get().setProperty(ConfigurationFactory.OPENEJB_JDBC_DATASOURCE_CREATOR, TomEEDataSourceCreator.class.getName());
 
         // tomcat default behavior is webapp, simply keep it, it is overridable by system property too
         SystemInstance.get().setProperty("openejb.default.deployment-module", System.getProperty("openejb.default.deployment-module", "org.apache.openejb.config.WebModule"));
