@@ -20,6 +20,8 @@ import org.apache.openejb.loader.IO;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.resource.jdbc.pool.DataSourceCreator;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 
@@ -31,11 +33,14 @@ import java.util.Properties;
  * @version $Rev$ $Date$
  */
 public class DataSourceFactory {
+    private static final Logger LOGGER = Logger.getInstance(LogCategory.OPENEJB, DataSourceFactory.class);
+
     public static final String POOL_PROPERTY = "openejb.datasource.pool";
 
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
         final Properties properties = asProperties(definition);
-        final DataSourceCreator creator = SystemInstance.get().getComponent(DataSourceCreator.class);
+        final DataSourceCreator creator = creator(properties);
+
 
         if (createDataSourceFromClass(impl)) { // opposed to "by driver"
             trimNotSupportedDataSourceProperties(properties);
@@ -73,6 +78,19 @@ public class DataSourceFactory {
                 return creator.pool(name, impl.getName(), properties);
             }
         }
+    }
+
+    private static DataSourceCreator creator(final Properties properties) {
+        final DataSourceCreator defaultCreator = SystemInstance.get().getComponent(DataSourceCreator.class);
+        Object creatorName = properties.remove("DataSourceCreator");
+        if (creatorName != null && creatorName instanceof String && !creatorName.equals(defaultCreator.getClass().getName())) {
+            try {
+                return (DataSourceCreator) Thread.currentThread().getContextClassLoader().loadClass((String) creatorName).newInstance();
+            } catch (Throwable e) {
+                LOGGER.error("can't create '" + creatorName + "', the default one will be used: " + defaultCreator, e);
+            }
+        }
+        return defaultCreator;
     }
 
     private static boolean createDataSourceFromClass(final Class<?> impl) {
