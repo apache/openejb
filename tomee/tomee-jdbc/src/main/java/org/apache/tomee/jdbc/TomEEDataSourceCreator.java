@@ -29,7 +29,8 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             for (String key : PropertiesReader.KEYS) {
                 final String thisKey = entry.getKey().toString();
-                if (key.equalsIgnoreCase(thisKey)) {
+                final String value = entry.getValue().toString().trim();
+                if (key.equalsIgnoreCase(thisKey) && !value.isEmpty()) {
                     converted.put(key, entry.getValue());
                 }
             }
