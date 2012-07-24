@@ -63,11 +63,7 @@ public abstract class PoolDataSourceCreator implements DataSourceCreator {
     }
 
     protected <T> T build(final Class<T> clazz, final Object instance, final Properties properties) {
-        final ObjectRecipe recipe = new ObjectRecipe(PassthroughFactory.class);
-        final String param = "instance" + recipe.hashCode();
-        recipe.setFactoryMethod("create");
-        recipe.setConstructorArgNames(new String[]{ param });
-        recipe.setProperty(param, instance);
+        final ObjectRecipe recipe = PassthroughFactory.recipe(instance);
         recipeOptions(recipe);
         recipe.setAllProperties(properties);
         return (T) recipe.create();

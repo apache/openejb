@@ -16,7 +16,11 @@ import java.util.Properties;
 public class TomEEDataSourceCreator extends PoolDataSourceCreator {
     @Override
     public DataSource pool(final String name, final DataSource ds, Properties properties) {
-        final PoolConfiguration config = build(PoolProperties.class, properties);
+        final Properties converted = new Properties();
+        updateProperties(properties, converted, null);
+
+        final PoolConfiguration config = build(PoolProperties.class, converted);
+        config.setDataSource(ds);
         final ConnectionPool pool;
         try {
             pool = new ConnectionPool(config);
@@ -31,21 +35,7 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
         final Properties converted = new Properties();
         converted.setProperty("name", name);
         // some compatibility with old dbcp style
-        if (properties.containsKey("JdbcDriver")) {
-            converted.setProperty("driverClassName", driver);
-        }
-        if (properties.containsKey("JdbcUrl")) {
-            converted.setProperty("url", properties.getProperty("JdbcUrl"));
-        }
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            for (String key : PropertiesReader.KEYS) {
-                final String thisKey = entry.getKey().toString();
-                final String value = entry.getValue().toString().trim();
-                if (key.equalsIgnoreCase(thisKey) && !value.isEmpty()) {
-                    converted.put(key, entry.getValue());
-                }
-            }
-        }
+        updateProperties(properties, converted, driver);
         final org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource(DataSourceFactory.parsePoolProperties(converted));
         try { // just to force the pool to be created
             ds.getConnection().close();
@@ -58,6 +48,27 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
             // ignored
         }
         return ds;
+    }
+
+    private void updateProperties(final Properties properties, final Properties converted, final String driver) {
+        if (driver != null) {
+            converted.setProperty("driverClassName", driver);
+        }
+        if (properties.containsKey("JdbcUrl")) {
+            converted.setProperty("url", properties.getProperty("JdbcUrl"));
+        }
+        if (properties.containsKey("user")) {
+            converted.setProperty("username", properties.getProperty("user"));
+        }
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            for (String key : PropertiesReader.KEYS) {
+                final String thisKey = entry.getKey().toString();
+                final String value = entry.getValue().toString().trim();
+                if (key.equalsIgnoreCase(thisKey) && !value.isEmpty()) {
+                    converted.put(key, entry.getValue());
+                }
+            }
+        }
     }
 
     @Override
