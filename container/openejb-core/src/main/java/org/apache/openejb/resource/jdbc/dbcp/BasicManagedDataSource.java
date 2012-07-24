@@ -16,7 +16,6 @@
  */
 package org.apache.openejb.resource.jdbc.dbcp;
 
-import org.apache.openejb.assembler.monitoring.JMXBasicDataSource;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.resource.jdbc.BasicDataSourceUtil;
 import org.apache.openejb.resource.jdbc.IsolationLevels;
