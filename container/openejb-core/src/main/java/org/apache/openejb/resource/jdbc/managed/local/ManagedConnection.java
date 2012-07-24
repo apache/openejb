@@ -23,10 +23,16 @@ public class ManagedConnection implements InvocationHandler {
     protected Connection delegate;
     private final TransactionManager transactionManager;
     private Transaction currentTransaction;
+    private int hashCode = -1;
 
     public ManagedConnection(final Connection connection, final TransactionManager txMgr) {
         delegate = connection;
         transactionManager = txMgr;
+        try { // do it now since if used after close that's often too late
+            hashCode = delegate.hashCode();
+        } catch (RuntimeException ignored) {
+            hashCode = (int) System.nanoTime(); // well try to put something not constant, shouldn't occur btw
+        }
     }
 
     public XAResource getXAResource() throws SQLException {
@@ -41,7 +47,7 @@ public class ManagedConnection implements InvocationHandler {
             return "ManagedConnection{" + delegate + "}";
         }
         if ("hashCode".equals(mtdName)) {
-            return delegate.hashCode();
+            return hashCode;
         }
         if ("equals".equals(mtdName)) {
             return delegate.equals(args[0]);
@@ -100,6 +106,8 @@ public class ManagedConnection implements InvocationHandler {
         } catch (InvocationTargetException ite) {
             throw ite.getTargetException();
         }
+
+
     }
 
     private static Object invokeUnderTransaction(final Connection delegate, final Method method, final Object[] args) throws Exception {
