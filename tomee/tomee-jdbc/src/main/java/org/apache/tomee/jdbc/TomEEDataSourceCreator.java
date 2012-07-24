@@ -49,12 +49,6 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
     }
 
     @Override
-    public boolean hasReallyCreated(final Object object) {
-        return object instanceof org.apache.tomcat.jdbc.pool.DataSource
-                || object instanceof TomcatDbcpDataSource;
-    }
-
-    @Override
     public void doDestroy(final DataSource object) throws Throwable {
         if (object instanceof TomcatDbcpDataSource) {
             ((TomcatDbcpDataSource) object).close();

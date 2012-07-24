@@ -1,40 +1,22 @@
 package org.apache.openejb.resource.jdbc;
 
 import org.apache.openejb.jee.EjbJar;
-import org.apache.openejb.jee.SingletonBean;
 import org.apache.openejb.junit.ApplicationComposer;
 import org.apache.openejb.junit.Configuration;
 import org.apache.openejb.junit.Module;
-import org.apache.openejb.resource.jdbc.managed.local.ManagedConnection;
-import org.apache.openejb.resource.jdbc.pool.DbcpDataSourceCreator;
 import org.apache.openejb.resource.jdbc.pool.PoolDataSourceCreator;
-import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.EJBContext;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -68,11 +50,6 @@ public class CustomPoolDataSourceTest {
     }
 
     public static class CustomCreator extends PoolDataSourceCreator {
-        @Override
-        protected boolean hasReallyCreated(final Object object) {
-            return false; // no need
-        }
-
         @Override
         protected void doDestroy(final DataSource dataSource) throws Throwable {
             throw new UnsupportedOperationException();

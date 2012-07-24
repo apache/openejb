@@ -48,11 +48,6 @@ public class DefaultDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    public boolean hasCreated(final Object object) {
-        return object instanceof org.apache.commons.dbcp.BasicDataSource;
-    }
-
-    @Override
     public void destroy(final Object object) throws Throwable {
         ((org.apache.commons.dbcp.BasicDataSource) object).close();
     }

@@ -42,13 +42,6 @@ public abstract class PoolDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    public boolean hasCreated(final Object object) {
-        return hasReallyCreated(object) || object instanceof ManagedDataSource;
-    }
-
-    protected abstract boolean hasReallyCreated(final Object object);
-
-    @Override
     public void destroy(final Object object) throws Throwable {
         if (object instanceof ManagedDataSource) {
             doDestroy(((ManagedDataSource) object).getDelegate());

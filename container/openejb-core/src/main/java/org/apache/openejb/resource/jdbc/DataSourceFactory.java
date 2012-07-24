@@ -27,6 +27,8 @@ import org.apache.xbean.recipe.Option;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -38,11 +40,14 @@ public class DataSourceFactory {
     public static final String POOL_PROPERTY = "openejb.datasource.pool";
     public static final String DATA_SOURCE_CREATOR_PROP = "DataSourceCreator";
 
+    private static final Map<DataSource, DataSourceCreator> creatorByDataSource = new HashMap<DataSource, DataSourceCreator>();
+
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
         final Properties properties = asProperties(definition);
         final DataSourceCreator creator = creator(properties);
 
 
+        final DataSource ds;
         if (createDataSourceFromClass(impl)) { // opposed to "by driver"
             trimNotSupportedDataSourceProperties(properties);
 
@@ -56,29 +61,32 @@ public class DataSourceFactory {
 
             if (managed) {
                 if (useDbcp(properties)) {
-                    return creator.poolManaged(name, dataSource);
+                    ds = creator.poolManaged(name, dataSource);
                 } else {
-                    return creator.managed(name, dataSource);
+                    ds = creator.managed(name, dataSource);
                 }
             } else {
                 if (useDbcp(properties)) {
-                    return creator.pool(name, dataSource);
+                    ds = creator.pool(name, dataSource);
                 } else {
-                    return dataSource;
+                    ds = dataSource;
                 }
             }
         } else { // by driver
             if (managed) {
                 final XAResourceWrapper xaResourceWrapper = SystemInstance.get().getComponent(XAResourceWrapper.class);
                 if (xaResourceWrapper != null) {
-                    return creator.poolManagedWithRecovery(name, xaResourceWrapper, impl.getName(), properties);
+                    ds = creator.poolManagedWithRecovery(name, xaResourceWrapper, impl.getName(), properties);
                 } else {
-                    return creator.poolManaged(name, impl.getName(), properties);
+                    ds = creator.poolManaged(name, impl.getName(), properties);
                 }
             } else {
-                return creator.pool(name, impl.getName(), properties);
+                ds = creator.pool(name, impl.getName(), properties);
             }
         }
+
+        creatorByDataSource.put(ds, creator);
+        return ds;
     }
 
     private static DataSourceCreator creator(final Properties properties) {
@@ -108,5 +116,16 @@ public class DataSourceFactory {
 
     public static void trimNotSupportedDataSourceProperties(Properties properties) {
         properties.remove("LoginTimeout");
+    }
+
+    public static boolean canBeDestroyed(final Object object) {
+        if (!(object instanceof DataSource)) {
+            return false;
+        }
+        return creatorByDataSource.containsKey(object);
+    }
+
+    public static void destroy(final Object o) throws Throwable {
+        creatorByDataSource.remove(o).destroy(o);
     }
 }

@@ -18,6 +18,5 @@ public interface DataSourceCreator {
     DataSource poolManaged(String name, String driver, Properties properties);
     DataSource pool(String name, String driver, Properties properties);
 
-    boolean hasCreated(Object object);
     void destroy(Object object) throws Throwable;
 }

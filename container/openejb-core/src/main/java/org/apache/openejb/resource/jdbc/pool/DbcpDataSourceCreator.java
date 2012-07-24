@@ -33,11 +33,6 @@ public class DbcpDataSourceCreator extends PoolDataSourceCreator {
     }
 
     @Override
-    protected boolean hasReallyCreated(Object object) {
-        return object instanceof org.apache.commons.dbcp.BasicDataSource;
-    }
-
-    @Override
     protected void doDestroy(DataSource dataSource) throws Throwable {
         ((org.apache.commons.dbcp.BasicDataSource) dataSource).close();
     }
