@@ -170,8 +170,12 @@ public class TomcatLoader implements Loader {
         }
 
         // set tomcat pool
-        // TODO: valid it works
-        SystemInstance.get().setProperty(ConfigurationFactory.OPENEJB_JDBC_DATASOURCE_CREATOR, TomEEDataSourceCreator.class.getName());
+        try {// in embedded mode we can easily remove it so check we can use it before setting it
+            final Class<?> creatorClass = TomcatLoader.class.getClassLoader().loadClass("org.apache.tomee.jdbc.TomEEDataSourceCreator");
+            SystemInstance.get().setProperty(ConfigurationFactory.OPENEJB_JDBC_DATASOURCE_CREATOR, creatorClass.getName());
+        } catch (Throwable ignored) {
+            // will use the defaul tone
+        }
 
         // tomcat default behavior is webapp, simply keep it, it is overridable by system property too
         SystemInstance.get().setProperty("openejb.default.deployment-module", System.getProperty("openejb.default.deployment-module", "org.apache.openejb.config.WebModule"));
