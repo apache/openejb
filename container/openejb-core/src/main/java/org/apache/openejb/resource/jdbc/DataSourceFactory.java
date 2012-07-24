@@ -118,7 +118,7 @@ public class DataSourceFactory {
         properties.remove("LoginTimeout");
     }
 
-    public static boolean canBeDestroyed(final Object object) {
+    public static boolean knows(final Object object) {
         if (!(object instanceof DataSource)) {
             return false;
         }

@@ -1113,7 +1113,7 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
             } catch (Throwable t) {
                 logger.fatal("ResourceAdapter Shutdown Failed: " + name, t);
             }
-        } else if (DataSourceFactory.canBeDestroyed(object)) {
+        } else if (DataSourceFactory.knows(object)) {
             logger.info("Closing DataSource: " + name);
 
             try {
