@@ -18,6 +18,10 @@ public class BoneCPDataSourceCreator extends PoolDataSourceCreator {
 
     @Override
     public DataSource pool(final String name, final DataSource ds, final Properties properties) {
+        if (properties.containsKey("url")) {
+            properties.setProperty("jdbcUrl", properties.getProperty("url"));
+        }
+
         final BoneCPConfig config;
         final BoneCP pool;
         try {
@@ -46,6 +50,7 @@ public class BoneCPDataSourceCreator extends PoolDataSourceCreator {
         static {
             try {
                 POOL_FIELD = BoneCPDataSource.class.getDeclaredField("pool");
+                POOL_FIELD.setAccessible(true);
             } catch (NoSuchFieldException e) {
                 throw new OpenEJBRuntimeException(e);
             }
