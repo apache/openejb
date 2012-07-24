@@ -25,7 +25,7 @@ public class HsqldbDataSourcePlugin implements DataSourcePlugin {
     private static final String HSQL_FILE_URL = "jdbc:hsqldb:file:";
 
 
-    public static String toAbsolutePath(String url) {
+    public static String toAbsolutePath(final String url) {
         // is this a hsql file url?
         if (url == null || !url.startsWith(HSQL_FILE_URL)) {
             return url;
@@ -46,10 +46,9 @@ public class HsqldbDataSourcePlugin implements DataSourcePlugin {
         return HSQL_FILE_URL + path;
     }
 
-    public void configure(BasicDataSource dataSource) {
-        String url = dataSource.getUrl();
-        url = toAbsolutePath(url);
-        dataSource.setUrl(url);
+    @Override
+    public String updatedUrl(final String dataSourceUrl) {
+        return toAbsolutePath(dataSourceUrl);
     }
 
     public boolean enableUserDirHack() {

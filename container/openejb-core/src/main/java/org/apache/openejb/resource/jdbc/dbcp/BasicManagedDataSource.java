@@ -198,7 +198,11 @@ public class BasicManagedDataSource extends org.apache.commons.dbcp.managed.Basi
 
             // configure this
             if (helper != null) {
-                helper.configure(this);
+                final String currentUrl = getUrl();
+                final String newUrl = helper.updatedUrl(currentUrl);
+                if (!currentUrl.equals(newUrl)) {
+                    setUrl(newUrl);
+                }
             }
 
             wrapTransactionManager();

@@ -204,7 +204,11 @@ public class BasicDataSource extends org.apache.commons.dbcp.BasicDataSource {
 
             // configure this
             if (helper != null) {
-                helper.configure(this);
+                final String currentUrl = getUrl();
+                final String newUrl = helper.updatedUrl(currentUrl);
+                if (!currentUrl.equals(newUrl)) {
+                    setUrl(newUrl);
+                }
             }
 
             // create the data source

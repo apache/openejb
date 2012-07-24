@@ -20,8 +20,10 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.commons.dbcp.BasicDataSource;
 
 public class DerbyDataSourcePlugin implements DataSourcePlugin {
-    public void configure(BasicDataSource dataSource) {
+    @Override
+    public String updatedUrl(String dataSourceUrl) {
         System.setProperty("derby.system.home", SystemInstance.get().getBase().getDirectory().getAbsolutePath());
+        return dataSourceUrl;
     }
 
     public boolean enableUserDirHack() {
