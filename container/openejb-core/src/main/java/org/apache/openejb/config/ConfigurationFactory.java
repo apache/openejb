@@ -93,6 +93,7 @@ import org.apache.openejb.loader.FileUtils;
 import org.apache.openejb.loader.IO;
 import org.apache.openejb.loader.Options;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.resource.jdbc.DataSourceFactory;
 import org.apache.openejb.resource.jdbc.pool.DataSourceCreator;
 import org.apache.openejb.resource.jdbc.pool.DefaultDataSourceCreator;
 import org.apache.openejb.util.EventHelper;
@@ -151,9 +152,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory {
                 SystemInstance.get().setComponent(DataSourceCreator.class, new DefaultDataSourceCreator());
             } else {
                 try {
-                    SystemInstance.get().setComponent(DataSourceCreator.class,
-                            (DataSourceCreator) Thread.currentThread().getContextClassLoader().loadClass(creator)
-                                    .newInstance());
+                    SystemInstance.get().setComponent(DataSourceCreator.class, DataSourceFactory.creator(creator));
                 } catch (Exception e) {
                     logger.error("can't load " + creator + " will use the default creator", e);
                     SystemInstance.get().setComponent(DataSourceCreator.class, new DefaultDataSourceCreator());

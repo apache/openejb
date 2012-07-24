@@ -1,7 +1,6 @@
-package org.apache.openejb.resource.jdbc.pool;
+package org.apache.openejb.resource.jdbc.dbcp;
 
-import org.apache.openejb.resource.jdbc.dbcp.BasicDataSource;
-import org.apache.openejb.resource.jdbc.dbcp.DbcpDataSource;
+import org.apache.openejb.resource.jdbc.pool.PoolDataSourceCreator;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 

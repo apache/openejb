@@ -6,7 +6,6 @@ import org.apache.openejb.junit.ApplicationComposer;
 import org.apache.openejb.junit.Configuration;
 import org.apache.openejb.junit.Module;
 import org.apache.openejb.resource.jdbc.managed.local.ManagedConnection;
-import org.apache.openejb.resource.jdbc.pool.DbcpDataSourceCreator;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,7 +57,7 @@ public class ManagedDataSourceTest {
     @Configuration
     public Properties config() {
         final Properties p = new Properties();
-        p.put("openejb.jdbc.datasource-creator", DbcpDataSourceCreator.class.getName());
+        p.put("openejb.jdbc.datasource-creator", "dbcp-alternative");
 
         p.put("managed", "new://Resource?type=DataSource");
         p.put("managed.JdbcDriver", "org.hsqldb.jdbcDriver");

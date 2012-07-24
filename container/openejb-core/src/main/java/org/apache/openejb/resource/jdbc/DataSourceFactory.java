@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 /**
  * @version $Rev$ $Date$
@@ -41,10 +42,15 @@ public class DataSourceFactory {
     public static final String DATA_SOURCE_CREATOR_PROP = "DataSourceCreator";
 
     private static final Map<DataSource, DataSourceCreator> creatorByDataSource = new HashMap<DataSource, DataSourceCreator>();
+    private static final Map<String, String> KNOWN_CREATORS = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER){{
+        put("dbcp", "org.apache.openejb.resource.jdbc.pool.DefaultDataSourceCreator"); // the original one
+        put("dbcp-alternative", "org.apache.openejb.resource.jdbc.dbcp.DbcpDataSourceCreator"); // dbcp for the ds pool only
+        put("tomcat", "org.apache.tomee.jdbc.TomEEDataSourceCreator"); // tomee
+    }};
 
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
         final Properties properties = asProperties(definition);
-        final DataSourceCreator creator = creator(properties);
+        final DataSourceCreator creator = creator(properties.remove(DATA_SOURCE_CREATOR_PROP));
 
 
         final DataSource ds;
@@ -89,12 +95,16 @@ public class DataSourceFactory {
         return ds;
     }
 
-    private static DataSourceCreator creator(final Properties properties) {
+    public static DataSourceCreator creator(final Object creatorName) {
         final DataSourceCreator defaultCreator = SystemInstance.get().getComponent(DataSourceCreator.class);
-        Object creatorName = properties.remove(DATA_SOURCE_CREATOR_PROP);
-        if (creatorName != null && creatorName instanceof String && !creatorName.equals(defaultCreator.getClass().getName())) {
+        if (creatorName != null && creatorName instanceof String
+                && (defaultCreator == null || !creatorName.equals(defaultCreator.getClass().getName()))) {
+            String clazz = KNOWN_CREATORS.get(creatorName);
+            if (clazz == null) {
+                clazz = (String) creatorName;
+            }
             try {
-                return (DataSourceCreator) Thread.currentThread().getContextClassLoader().loadClass((String) creatorName).newInstance();
+                return (DataSourceCreator) Thread.currentThread().getContextClassLoader().loadClass(clazz).newInstance();
             } catch (Throwable e) {
                 LOGGER.error("can't create '" + creatorName + "', the default one will be used: " + defaultCreator, e);
             }
