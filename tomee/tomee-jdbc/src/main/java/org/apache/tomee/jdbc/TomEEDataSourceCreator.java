@@ -2,17 +2,28 @@ package org.apache.tomee.jdbc;
 
 import org.apache.openejb.monitoring.LocalMBeanServer;
 import org.apache.openejb.resource.jdbc.pool.PoolDataSourceCreator;
+import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.DataSourceFactory;
+import org.apache.tomcat.jdbc.pool.PoolConfiguration;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 import javax.management.ObjectName;
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
 public class TomEEDataSourceCreator extends PoolDataSourceCreator {
     @Override
-    public DataSource pool(final String name, final DataSource ds) {
-        return new TomcatDbcpDataSource(ds);
+    public DataSource pool(final String name, final DataSource ds, Properties properties) {
+        final PoolConfiguration config = build(PoolProperties.class, properties);
+        final ConnectionPool pool;
+        try {
+            pool = new ConnectionPool(config);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        return build(TomEEDataSource.class, new TomEEDataSource(pool), properties);
     }
 
     @Override
@@ -51,16 +62,18 @@ public class TomEEDataSourceCreator extends PoolDataSourceCreator {
 
     @Override
     public void doDestroy(final DataSource object) throws Throwable {
-        if (object instanceof TomcatDbcpDataSource) {
-            ((TomcatDbcpDataSource) object).close();
-        } else {
-            org.apache.tomcat.jdbc.pool.DataSource ds = (org.apache.tomcat.jdbc.pool.DataSource) object;
-            ds.close(true);
-            ds.postDeregister();
-        }
+        org.apache.tomcat.jdbc.pool.DataSource ds = (org.apache.tomcat.jdbc.pool.DataSource) object;
+        ds.close(true);
+        ds.postDeregister();
     }
 
     private static class PropertiesReader extends DataSourceFactory {
         public static final String[] KEYS = ALL_PROPERTIES;
+    }
+
+    public static class TomEEDataSource extends org.apache.tomcat.jdbc.pool.DataSource {
+        public TomEEDataSource(final ConnectionPool pool) {
+            this.pool = pool;
+        }
     }
 }

@@ -1,8 +1,6 @@
 package org.apache.openejb.resource.jdbc.dbcp;
 
 import org.apache.openejb.resource.jdbc.pool.PoolDataSourceCreator;
-import org.apache.xbean.recipe.ObjectRecipe;
-import org.apache.xbean.recipe.Option;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -11,22 +9,18 @@ import java.util.Properties;
 // this one will probably not be used since dbcp has already the integration we need
 public class DbcpDataSourceCreator extends PoolDataSourceCreator {
     @Override
-    public DataSource pool(final String name, final DataSource ds) {
-        return new DbcpDataSource(name, ds);
+    public DataSource pool(final String name, final DataSource ds, Properties properties) {
+        return build(DbcpDataSource.class, new DbcpDataSource(name, ds), properties);
     }
 
     @Override
     public DataSource pool(final String name, final String driver, final Properties properties) {
-        final ObjectRecipe serviceRecipe = new ObjectRecipe(BasicDataSource.class.getName());
-        serviceRecipe.allow(Option.CASE_INSENSITIVE_PROPERTIES);
-        serviceRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
-        serviceRecipe.setProperty("name", name);
         if (!properties.containsKey("JdbcDriver")) {
             properties.setProperty("driverClassName", driver);
         }
-        serviceRecipe.setAllProperties(properties);
+        properties.setProperty("name", name);
 
-        final BasicDataSource ds = (BasicDataSource) serviceRecipe.create(); // new BasicDataSource(name);
+        final BasicDataSource ds = build(BasicDataSource.class, properties);
         ds.setDriverClassName(driver);
         return ds;
     }

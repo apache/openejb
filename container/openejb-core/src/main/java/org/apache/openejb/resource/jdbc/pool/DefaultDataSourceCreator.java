@@ -11,13 +11,13 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 public class DefaultDataSourceCreator implements DataSourceCreator {
-    @Override // TODO: remove dbcp from here
+    @Override
     public DataSource managed(final String name, final DataSource ds) {
         return new DbcpManagedDataSource(name, ds);
     }
 
     @Override
-    public DataSource poolManaged(final String name, final DataSource ds) {
+    public DataSource poolManaged(final String name, final DataSource ds, Properties properties) {
         return new DbcpManagedDataSource(name, ds);
     }
 
@@ -36,7 +36,7 @@ public class DefaultDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    public DataSource pool(final String name, final DataSource ds) {
+    public DataSource pool(final String name, final DataSource ds, Properties properties) {
         return new DbcpDataSource(name, ds);
     }
 

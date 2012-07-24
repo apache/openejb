@@ -56,7 +56,7 @@ public class CustomPoolDataSourceTest {
         }
 
         @Override
-        public DataSource pool(String name, DataSource ds) {
+        public DataSource pool(String name, DataSource ds, Properties properties) {
             throw new UnsupportedOperationException();
         }
 

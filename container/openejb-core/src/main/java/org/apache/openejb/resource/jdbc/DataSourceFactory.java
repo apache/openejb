@@ -67,13 +67,13 @@ public class DataSourceFactory {
 
             if (managed) {
                 if (useDbcp(properties)) {
-                    ds = creator.poolManaged(name, dataSource);
+                    ds = creator.poolManaged(name, dataSource, properties);
                 } else {
-                    ds = creator.managed(name, dataSource);
+                    ds = creator.managed(name, dataSource, properties);
                 }
             } else {
                 if (useDbcp(properties)) {
-                    ds = creator.pool(name, dataSource);
+                    ds = creator.pool(name, dataSource, properties);
                 } else {
                     ds = dataSource;
                 }

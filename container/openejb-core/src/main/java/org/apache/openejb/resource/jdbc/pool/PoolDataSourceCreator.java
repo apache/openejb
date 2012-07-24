@@ -5,6 +5,9 @@ import org.apache.openejb.resource.TransactionManagerWrapper;
 import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.resource.jdbc.managed.local.ManagedDataSource;
 import org.apache.openejb.resource.jdbc.managed.xa.ManagedXADataSource;
+import org.apache.openejb.util.PassthroughFactory;
+import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
 
 import javax.sql.DataSource;
 import javax.sql.XADataSource;
@@ -32,8 +35,8 @@ public abstract class PoolDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    public DataSource poolManaged(final String name, final DataSource ds) {
-        return managed(name, pool(name, ds));
+    public DataSource poolManaged(final String name, final DataSource ds, final Properties properties) {
+        return managed(name, pool(name, ds, properties));
     }
 
     @Override
@@ -51,4 +54,27 @@ public abstract class PoolDataSourceCreator implements DataSourceCreator {
     }
 
     protected abstract void doDestroy(DataSource dataSource) throws Throwable;
+
+    protected <T> T build(final Class<T> clazz, final Properties properties) {
+        final ObjectRecipe serviceRecipe = new ObjectRecipe(clazz);
+        recipeOptions(serviceRecipe);
+        serviceRecipe.setAllProperties(properties);
+        return (T) serviceRecipe.create();
+    }
+
+    protected <T> T build(final Class<T> clazz, final Object instance, final Properties properties) {
+        final ObjectRecipe recipe = new ObjectRecipe(PassthroughFactory.class);
+        final String param = "instance" + recipe.hashCode();
+        recipe.setFactoryMethod("create");
+        recipe.setConstructorArgNames(new String[]{ param });
+        recipe.setProperty(param, instance);
+        recipeOptions(recipe);
+        recipe.setAllProperties(properties);
+        return (T) recipe.create();
+    }
+
+    private void recipeOptions(final ObjectRecipe recipe) {
+        recipe.allow(Option.CASE_INSENSITIVE_PROPERTIES);
+        recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+    }
 }
