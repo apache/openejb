@@ -17,7 +17,6 @@
 package org.apache.openejb.resource.jdbc.plugin;
 
 import org.apache.openejb.loader.SystemInstance;
-import org.apache.commons.dbcp.BasicDataSource;
 
 import java.io.File;
 
