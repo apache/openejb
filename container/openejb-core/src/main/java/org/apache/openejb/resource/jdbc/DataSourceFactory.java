@@ -46,6 +46,7 @@ public class DataSourceFactory {
         put("dbcp", "org.apache.openejb.resource.jdbc.pool.DefaultDataSourceCreator"); // the original one
         put("dbcp-alternative", "org.apache.openejb.resource.jdbc.dbcp.DbcpDataSourceCreator"); // dbcp for the ds pool only
         put("tomcat", "org.apache.tomee.jdbc.TomEEDataSourceCreator"); // tomee
+        put("bonecp", "org.apache.openejb.bonecp.BoneCPDataSourceCreator"); // bonecp
     }};
 
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
@@ -69,7 +70,7 @@ public class DataSourceFactory {
                 if (useDbcp(properties)) {
                     ds = creator.poolManaged(name, dataSource, properties);
                 } else {
-                    ds = creator.managed(name, dataSource, properties);
+                    ds = creator.managed(name, dataSource);
                 }
             } else {
                 if (useDbcp(properties)) {
@@ -129,10 +130,7 @@ public class DataSourceFactory {
     }
 
     public static boolean knows(final Object object) {
-        if (!(object instanceof DataSource)) {
-            return false;
-        }
-        return creatorByDataSource.containsKey(object);
+        return object instanceof DataSource && creatorByDataSource.containsKey(object);
     }
 
     public static void destroy(final Object o) throws Throwable {
