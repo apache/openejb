@@ -70,6 +70,9 @@ public class CustomPoolDataSourceTest {
                             if (method.getName().equals("name")) {
                                 return properties.getProperty("Name");
                             }
+                            if ("hashCode".equals(method.getName())) {
+                                return properties.hashCode(); // don't care
+                            }
                             return null;
                         }
                     });
