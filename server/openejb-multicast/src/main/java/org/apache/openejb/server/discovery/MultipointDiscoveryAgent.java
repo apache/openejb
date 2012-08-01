@@ -70,6 +70,7 @@ public class MultipointDiscoveryAgent implements DiscoveryAgent, ServerService, 
     private String discoveryHost;
     private Set<URI> roots;
     private Duration reconnectDelay;
+    private Options options;
 
     @Managed
     private final Event restarts = new Event();
@@ -84,7 +85,7 @@ public class MultipointDiscoveryAgent implements DiscoveryAgent, ServerService, 
 
     public void init(Properties props) {
 
-        final Options options = new Options(props);
+        options = new Options(props);
         options.setLogger(new OptionsLog(log));
 
         host = props.getProperty("bind", host);
@@ -171,7 +172,8 @@ public class MultipointDiscoveryAgent implements DiscoveryAgent, ServerService, 
         try {
             if (running.compareAndSet(false, true)) {
                 log.info("MultipointDiscoveryAgent Starting");
-                multipointServer = new MultipointServer(host, discoveryHost, port, tracker, name, debug, roots, reconnectDelay).start();
+                final boolean broadcast = options.get("broadcast", true);
+                multipointServer = new MultipointServer(host, discoveryHost, port, tracker, name, debug, roots, reconnectDelay, broadcast).start();
                 log.info("MultipointDiscoveryAgent Started");
 
                 this.port = multipointServer.getPort();
@@ -306,4 +308,13 @@ public class MultipointDiscoveryAgent implements DiscoveryAgent, ServerService, 
         return multipointServer.getReconnectDelay();
     }
 
+    @Managed
+    public boolean getBroadcast() {
+        return multipointServer.getBroadcast();
+    }
+
+    @Managed
+    public void setBroadcast(boolean broadcast) {
+        multipointServer.setBroadcast(broadcast);
+    }
 }

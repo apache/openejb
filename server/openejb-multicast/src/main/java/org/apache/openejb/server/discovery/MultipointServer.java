@@ -100,18 +100,19 @@ public class MultipointServer {
     private final Lock lock = new ReentrantLock();
     private final Condition started = lock.newCondition();
     private final Condition stopped = lock.newCondition();
+    private final AtomicBoolean broadcast = new AtomicBoolean(true);
 
     public MultipointServer(int port, Tracker tracker) throws IOException {
-        this("localhost", "localhost", port, tracker, randomColor(), true, Collections.EMPTY_SET, new Duration(30, TimeUnit.SECONDS));
+        this("localhost", "localhost", port, tracker, randomColor(), true, Collections.EMPTY_SET, new Duration(30, TimeUnit.SECONDS), true);
     }
 
-    public MultipointServer(String bindHost, String broadcastHost, int port, Tracker tracker, String name, boolean debug, Set<URI> roots, Duration reconnectDelay) throws IOException {
+    public MultipointServer(String bindHost, String broadcastHost, int port, Tracker tracker, String name, boolean debug, Set<URI> roots, Duration reconnectDelay, final boolean broadcast) throws IOException {
         if (tracker == null) throw new NullPointerException("tracker cannot be null");
         if (bindHost == null) throw new NullPointerException("host cannot be null");
 
         if (broadcastHost == null) broadcastHost = bindHost;
         if (reconnectDelay == null) reconnectDelay = new Duration(30, TimeUnit.SECONDS);
-
+        this.broadcast.set(broadcast);
         this.tracker = tracker;
         this.name = name;
 
@@ -207,6 +208,15 @@ public class MultipointServer {
     public int getPort() {
         return port;
     }
+
+    public boolean getBroadcast() {
+        return broadcast.get();
+    }
+
+    public void setBroadcast(boolean broadcast) {
+        this.broadcast.set(broadcast);
+    }
+
 
     /**
      * Attempt to connect back to the network if
@@ -458,12 +468,14 @@ public class MultipointServer {
         private void heartbeat() throws IOException {
             heartbeats.record();
 
-            final Set<String> strings = tracker.getRegisteredServices();
+            if (broadcast.get()) {
+                final Set<String> strings = tracker.getRegisteredServices();
 //            for (String string : strings) {
 //                trace(string);
 //            }
-            write(strings);
-            state(SelectionKey.OP_READ | SelectionKey.OP_WRITE, State.HEARTBEAT);
+                write(strings);
+                state(SelectionKey.OP_READ | SelectionKey.OP_WRITE, State.HEARTBEAT);
+            }
         }
     }
 
