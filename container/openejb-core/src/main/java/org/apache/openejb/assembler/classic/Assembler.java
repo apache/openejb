@@ -132,7 +132,6 @@ import org.apache.openejb.persistence.JtaEntityManagerRegistry;
 import org.apache.openejb.persistence.PersistenceClassLoaderHandler;
 import org.apache.openejb.resource.GeronimoConnectionManagerFactory;
 import org.apache.openejb.resource.jdbc.DataSourceFactory;
-import org.apache.openejb.resource.jdbc.pool.DataSourceCreator;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.SecurityService;
@@ -1678,19 +1677,19 @@ public class Assembler extends AssemblerTool implements org.apache.openejb.spi.A
 
             // service becomes a ConnectorReference which merges connection manager and mcf
             service = new ConnectorReference(connectionManager, managedConnectionFactory);
-        } else {
-            if (service instanceof DataSource) {
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                if (classLoader == null) {
-                    classLoader = getClass().getClassLoader();
-                }
-
-                final ImportSql importer = new ImportSql(classLoader, serviceInfo.id, (DataSource) service);
-                if (importer.hasSomethingToImport()) {
-                    importer.doImport();
-                }
+        } else if (service instanceof DataSource) {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            if (classLoader == null) {
+                classLoader = getClass().getClassLoader();
             }
 
+            final ImportSql importer = new ImportSql(classLoader, serviceInfo.id, (DataSource) service);
+            if (importer.hasSomethingToImport()) {
+                importer.doImport();
+            }
+
+            logUnusedProperties(DataSourceFactory.forgetRecipe(service, serviceRecipe), serviceInfo);
+        } else {
             logUnusedProperties(serviceRecipe, serviceInfo);
         }
 

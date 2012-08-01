@@ -6,6 +6,7 @@ import org.apache.openejb.resource.jdbc.dbcp.BasicManagedDataSource;
 import org.apache.openejb.resource.jdbc.dbcp.DbcpDataSource;
 import org.apache.openejb.resource.jdbc.dbcp.DbcpManagedDataSource;
 import org.apache.openejb.resource.jdbc.dbcp.ManagedDataSourceWithRecovery;
+import org.apache.xbean.recipe.ObjectRecipe;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -50,5 +51,10 @@ public class DefaultDataSourceCreator implements DataSourceCreator {
     @Override
     public void destroy(final Object object) throws Throwable {
         ((org.apache.commons.dbcp.BasicDataSource) object).close();
+    }
+
+    @Override
+    public ObjectRecipe clearRecipe(final Object object) {
+        return null; // no recipe here
     }
 }

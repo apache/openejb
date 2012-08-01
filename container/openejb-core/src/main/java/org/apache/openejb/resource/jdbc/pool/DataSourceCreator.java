@@ -1,6 +1,7 @@
 package org.apache.openejb.resource.jdbc.pool;
 
 import org.apache.openejb.resource.XAResourceWrapper;
+import org.apache.xbean.recipe.ObjectRecipe;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -19,4 +20,5 @@ public interface DataSourceCreator {
     DataSource pool(String name, String driver, Properties properties);
 
     void destroy(Object object) throws Throwable;
+    ObjectRecipe clearRecipe(Object object);
 }

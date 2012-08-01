@@ -51,6 +51,12 @@ public class DataSourceFactory {
 
     public static DataSource create(final String name, final boolean managed, final Class impl, final String definition) throws IllegalAccessException, InstantiationException, IOException {
         final Properties properties = asProperties(definition);
+
+        // these can be added and are managed by OpenEJB and not the DataSource itself
+        properties.remove("Definition");
+        properties.remove("JtaManaged");
+        properties.remove("ServiceId");
+
         final DataSourceCreator creator = creator(properties.remove(DATA_SOURCE_CREATOR_PROP));
 
 
@@ -131,6 +137,19 @@ public class DataSourceFactory {
 
     public static boolean knows(final Object object) {
         return object instanceof DataSource && creatorByDataSource.containsKey(object);
+    }
+
+    // TODO: should we get a get and a clear method instead of a single one?
+    public static ObjectRecipe forgetRecipe(final Object object, final ObjectRecipe defaultValue) {
+        final DataSourceCreator creator = creatorByDataSource.get(object);
+        ObjectRecipe recipe = null;
+        if (creator != null) {
+            recipe = creator.clearRecipe(object);
+        }
+        if (recipe == null) {
+            return defaultValue;
+        }
+        return recipe;
     }
 
     public static void destroy(final Object o) throws Throwable {

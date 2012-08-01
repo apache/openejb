@@ -12,9 +12,13 @@ import org.apache.xbean.recipe.Option;
 import javax.sql.DataSource;
 import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public abstract class PoolDataSourceCreator implements DataSourceCreator {
+    private final Map<Object, ObjectRecipe> recipes = new HashMap<Object, ObjectRecipe>();
+
     @Override
     public DataSource managed(final String name, final DataSource ds) {
         final TransactionManager transactionManager = OpenEJB.getTransactionManager();
@@ -59,18 +63,31 @@ public abstract class PoolDataSourceCreator implements DataSourceCreator {
         final ObjectRecipe serviceRecipe = new ObjectRecipe(clazz);
         recipeOptions(serviceRecipe);
         serviceRecipe.setAllProperties(properties);
-        return (T) serviceRecipe.create();
+        final T value = (T) serviceRecipe.create();
+        recipes.put(value, serviceRecipe);
+        return value;
     }
 
     protected <T> T build(final Class<T> clazz, final Object instance, final Properties properties) {
         final ObjectRecipe recipe = PassthroughFactory.recipe(instance);
         recipeOptions(recipe);
         recipe.setAllProperties(properties);
-        return (T) recipe.create();
+        final T value = (T) recipe.create();
+        recipes.put(value, recipe);
+        return value;
     }
 
     private void recipeOptions(final ObjectRecipe recipe) {
         recipe.allow(Option.CASE_INSENSITIVE_PROPERTIES);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+    }
+
+    @Override
+    public ObjectRecipe clearRecipe(final Object object) {
+        if (object instanceof ManagedDataSource) {
+            return recipes.remove(((ManagedDataSource) object).getDelegate());
+        } else {
+            return recipes.remove(object);
+        }
     }
 }
