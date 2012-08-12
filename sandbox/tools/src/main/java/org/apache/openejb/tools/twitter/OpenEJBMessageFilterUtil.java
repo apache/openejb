@@ -20,11 +20,7 @@ import org.apache.log4j.Logger;
 import org.apache.openejb.tools.twitter.util.RetweetAppUtil;
 import org.apache.openejb.tools.twitter.vo.ValidStatusesOfUser;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -32,7 +28,6 @@ import java.util.regex.Pattern;
 
 public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 
-    static SimpleDateFormat dateFormat = new SimpleDateFormat(TWITTER_DATE_FORMAT, TWITTER_LOCALE);
     private static Logger logger = Logger.getLogger(OpenEJBMessageFilterUtil.class);
 
     /**
@@ -64,7 +59,7 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
 
 
         String tweet = (String) keyValue.get("text");
-        if (!isOlderThanAnHour(keyValue) & isTomEETweet(tweet) & !isRetweeted(keyValue)) {
+        if (isTomEETweet(tweet) & !isRetweeted(keyValue)) {
             addAcceptedTweetIDs(tweetIDsForTomEETwitterAcount, keyValue, tweet);
         } else {
             logWhyTweetWasRejectedForTomEEAccount(keyValue, tweet);
@@ -95,7 +90,7 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
     @SuppressWarnings("rawtypes")
     static void addValidTweetsForOpenEJBAccount(List<String> openEJBStatusIDs, Map keyValue) {
         String tweet = (String) keyValue.get("text");
-        if (!isOlderThanAnHour(keyValue) & isOpenEJBTweet(tweet) & !isRetweeted(keyValue)) {
+        if (isOpenEJBTweet(tweet) & !isRetweeted(keyValue)) {
             addAcceptedTweetIDs(openEJBStatusIDs, keyValue, tweet);
         } else {
             logWhyTweetWasRejectedForOpenEJBAccount(keyValue, tweet);
@@ -117,23 +112,6 @@ public class OpenEJBMessageFilterUtil implements RetweetAppConstants {
         logger.info("Tweet Not Considered:" + keyValue.get("text"));
     }
 
-    @SuppressWarnings("rawtypes")
-    private static boolean isOlderThanAnHour(Map keyValue) {
-        String dateAsString = (String) keyValue.get("created_at");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR_OF_DAY, -1);
-
-        Date tweetDate;
-        try {
-            tweetDate = dateFormat.parse(dateAsString);
-        } catch (ParseException e) {
-            logger.error("can't parse date " + dateAsString, e);
-            return false;
-        }
-
-        logger.debug("Older than an hour?: " + tweetDate.before(calendar.getTime()));
-        return tweetDate.before(calendar.getTime());
-    }
 
     @SuppressWarnings("rawtypes")
     private static boolean isRetweeted(Map keyValue) {
