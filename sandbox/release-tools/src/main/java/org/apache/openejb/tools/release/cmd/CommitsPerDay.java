@@ -18,31 +18,15 @@ package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Commit;
-import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
-import org.apache.openejb.tools.release.util.Join;
 import org.apache.openejb.tools.release.util.ObjectList;
-import org.apache.openejb.tools.release.util.Options;
-import org.codehaus.swizzle.jira.Issue;
-import org.codehaus.swizzle.jira.IssueType;
-import org.codehaus.swizzle.jira.Jira;
-import org.codehaus.swizzle.jira.MapObject;
-import org.codehaus.swizzle.jira.Version;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**

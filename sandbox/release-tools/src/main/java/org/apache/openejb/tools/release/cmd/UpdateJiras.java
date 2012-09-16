@@ -28,9 +28,7 @@ import org.codehaus.swizzle.jira.Version;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -48,14 +46,21 @@ import java.util.Vector;
 @Command
 public class UpdateJiras {
 
-    private static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     private static SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 
-    public static void main(String... args) throws Exception {
+    public static void _main(String... args) throws Exception {
 
         final String tag = Release.tags + Release.openejbVersionName;
 
-        final InputStream in = Exec.read("svn", "log", "--verbose", "--xml", "-rHEAD:{" + Release.lastReleaseDate + "}", tag);
+        updateJiraFixVersions(tag, "HEAD", "{" + Release.lastReleaseDate + "}", Release.tomeeVersion, Release.openejbVersion);
+    }
+
+    public static void main(String[] args) throws Exception {
+        updateJiraFixVersions("http://svn.apache.org/repos/asf/openejb/trunk/openejb/", "1364034","1364034", "1.1.0" ,"4.1.0");
+    }
+
+    private static void updateJiraFixVersions(String repo, final String start, final String end, final String tomeeVersion, final String openejbVersion) throws Exception {
+        final InputStream in = Exec.read("svn", "log", "--verbose", "--xml", "-r" + start + ":" + end, repo);
 
         final JAXBContext context = JAXBContext.newInstance(Commit.Log.class);
         final Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -96,7 +101,7 @@ public class UpdateJiras {
             try {
                 System.out.println("\n\n" + comment);
                 System.out.printf("Adding comment to %s\n", issue.getKey());
-                state.jira.addComment(issue.getKey(), comment.toString());
+//                state.jira.addComment(issue.getKey(), comment.toString());
             } catch (Exception e) {
                 synchronized (System.out) {
                     e.printStackTrace();
@@ -110,9 +115,9 @@ public class UpdateJiras {
 
             final Version version;
             if (issue.getKey().startsWith("TOMEE-")) {
-                version = state.jira.getVersion("TOMEE", Release.tomeeVersion);
+                version = state.jira.getVersion("TOMEE", tomeeVersion);
             } else if (issue.getKey().startsWith("OPENEJB-")) {
-                version = state.jira.getVersion("OPENEJB", Release.openejbVersion);
+                version = state.jira.getVersion("OPENEJB", openejbVersion);
             } else {
                 continue;
             }
@@ -137,19 +142,6 @@ public class UpdateJiras {
                 }
             }
         }
-    }
-
-    public static void updateIssue(Jira jira, Issue i) throws Exception {
-        Hashtable issue = new Hashtable();
-        Vector v = new Vector();
-
-        v = new Vector();
-        for (Version version : i.getFixVersions()) {
-            v.add(version.getId() + ""); // version's ID
-        }
-        issue.put("fixVersions", v);
-
-        call(jira, "updateIssue", i.getKey(), issue);
     }
 
     private static void call(Jira jira, String command, Object... args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {

@@ -21,11 +21,10 @@ import org.apache.openejb.tools.release.Commit;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
 import org.apache.openejb.tools.release.util.ObjectList;
-import org.apache.rat.tentacles.Templates;
+import org.apache.creadur.tentacles.Templates;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;

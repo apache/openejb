@@ -27,12 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.String.format;
 import static org.apache.openejb.tools.release.util.Exec.cd;
 import static org.apache.openejb.tools.release.util.Exec.exec;
 import static org.apache.openejb.tools.release.util.Files.collect;

@@ -20,7 +20,7 @@ import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Files;
 import org.apache.openejb.tools.release.util.IO;
-import org.apache.rat.tentacles.NexusClient;
+import org.apache.creadur.tentacles.NexusClient;
 import org.apache.xbean.finder.UriSet;
 
 import java.io.File;

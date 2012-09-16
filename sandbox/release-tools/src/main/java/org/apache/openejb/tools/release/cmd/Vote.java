@@ -19,7 +19,7 @@ package org.apache.openejb.tools.release.cmd;
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
-import org.apache.rat.tentacles.Templates;
+import org.apache.creadur.tentacles.Templates;
 
 import java.io.IOException;
 import java.io.OutputStream;

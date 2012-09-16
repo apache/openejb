@@ -17,25 +17,18 @@
 package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
-import org.apache.openejb.tools.release.Release;
-import org.apache.openejb.tools.release.util.Files;
 import org.apache.openejb.tools.release.util.IO;
 import org.codehaus.swizzle.stream.DelimitedTokenReplacementInputStream;
-import org.codehaus.swizzle.stream.FixedTokenReplacementInputStream;
 import org.codehaus.swizzle.stream.ReplaceStringInputStream;
-import org.codehaus.swizzle.stream.StreamLexer;
 import org.codehaus.swizzle.stream.StringTokenHandler;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.apache.openejb.tools.release.util.Exec.cd;
-import static org.apache.openejb.tools.release.util.Exec.exec;
 import static org.apache.openejb.tools.release.util.Files.collect;
 
 /**

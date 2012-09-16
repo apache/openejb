@@ -115,15 +115,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.rat.tentacles</groupId>
-      <artifactId>apache-rat-tentacles</artifactId>
+      <groupId>org.apache.tentacles</groupId>
+      <artifactId>apache-tentacles</artifactId>
       <version>0.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-finder</artifactId>
-      <version>3.10-SNAPSHOT</version>
+      <version>3.11</version>
     </dependency>
 
     <dependency>
