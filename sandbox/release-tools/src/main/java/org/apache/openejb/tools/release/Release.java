@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  */
 public class Release {
 
-    public static String openejbVersion = "4.1.0";
-    public static String tomeeVersion = "1.1.0";
+    public static String openejbVersion = "4.5.0";
+    public static String tomeeVersion = "1.5.0";
 
     public static String openejbVersionName = "openejb-${openejbVersion}";
     public static String tomeeVersionName = "tomee-${tomeeVersion}";
@@ -46,7 +46,7 @@ public class Release {
     public static String staging = "https://repository.apache.org/content/repositories/orgapacheopenejb-${build}";
     public static String build = "001";
 
-    public static String ciBuilder = "openejb-4-empty-repo";
+    public static String ciBuilder = "openejb-4.5.0";
     public static String ciBuildNumber = "39";
 
 
