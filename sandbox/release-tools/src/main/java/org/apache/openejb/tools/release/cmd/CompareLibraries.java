@@ -113,13 +113,29 @@ public class CompareLibraries {
             artifact = "-Dartifact=" + String.format("org.apache.openejb:%s:%s:%s", artifactId, version, "zip");
         }
 
-        final int i = Exec.exec("mvn", "-X", "org.apache.maven.plugins:maven-dependency-plugin:2.4:get", "-DrepoUrl=http://repo1.maven.apache.org/maven2", artifact);
+        final int i = Exec.exec(mvn(), "-X", "org.apache.maven.plugins:maven-dependency-plugin:2.4:get", "-DrepoUrl=http://repo1.maven.apache.org/maven2", artifact);
 
         if (i != 0) {
             throw new IllegalStateException("Download failed: " + i);
         }
 
         return artifact(repository, artifactId, version, classifier);
+    }
+
+    private static String mvn() {
+        String m2 = System.getenv("M2_HOME");
+        if (m2 == null) {
+            m2 = System.getenv("MAVEN_HOME");
+        }
+        if (m2 == null) {
+            m2 = System.getProperty("M2_HOME");
+        }
+
+        if (m2 == null) {
+            return "mvn";
+        } else {
+            return m2 + "/bin/mvn";
+        }
     }
 
     private static List<File> list(File previousFile) throws IOException {
