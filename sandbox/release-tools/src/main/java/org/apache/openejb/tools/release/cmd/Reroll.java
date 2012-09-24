@@ -16,9 +16,12 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
+import org.apache.openejb.tools.release.Command;
+
 /**
  * @version $Rev$ $Date$
  */
+@Command
 public class Reroll {
 
     public static void main(String[] args) throws Exception {
