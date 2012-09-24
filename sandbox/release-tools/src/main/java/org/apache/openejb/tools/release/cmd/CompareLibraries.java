@@ -56,8 +56,8 @@ public class CompareLibraries {
         final File previous = artifact(repository, artifactId, versionA, classifier);
         final File current = artifact(repository, artifactId, versionB, classifier);
 
-        final Map<String, File> a = libraries(previous);
-        final Map<String, File> b = libraries(current);
+        final Map<String, FileData> a = libraries(previous);
+        final Map<String, FileData> b = libraries(current);
 
         for (String key : a.keySet()) {
             if (b.containsKey(key)) continue;
@@ -80,16 +80,17 @@ public class CompareLibraries {
         return length / 1024 / 1024;
     }
 
-    private static String path(Map<String, File> b, String key) {
-        return b.get(key).getName();
+    private static String path(Map<String, FileData> b, String key) {
+        final FileData value = b.get(key);
+        return value.file.getName() + " [" + value.size + " ko]";
 //        return b.get(key).getAbsolutePath().replace(new File("").getAbsolutePath(),"");
     }
 
-    private static Map<String, File> libraries(final File file) throws IOException {
+    private static Map<String, FileData> libraries(final File file) throws IOException {
 
-        final Map<String, File> map = new TreeMap<String, File>();
-        for (File jar : list(file)) {
-            final String name = jar.getName().replaceFirst("-[0-9].+", "");
+        final Map<String, FileData> map = new TreeMap<String, FileData>();
+        for (FileData jar : list(file)) {
+            final String name = jar.file.getName().replaceFirst("-[0-9].+", "");
             map.put(name, jar);
         }
 
@@ -138,16 +139,26 @@ public class CompareLibraries {
         }
     }
 
-    private static List<File> list(File previousFile) throws IOException {
-        final List<File> files = new ArrayList<File>();
+    private static List<FileData> list(File previousFile) throws IOException {
+        final List<FileData> files = new ArrayList<FileData>();
 
         final ZipFile previousZip = new ZipFile(previousFile);
         final ArrayList<? extends ZipEntry> list = Collections.list(previousZip.entries());
         for (ZipEntry entry : list) {
             if (entry.isDirectory()) continue;
             if (!entry.getName().endsWith(".jar")) continue;
-            files.add(new File(entry.getName()));
+            files.add(new FileData(new File(entry.getName()), entry.getSize() * 0.001 ));
         }
         return files;
+    }
+
+    public static class FileData {
+        public File file;
+        public double size;
+
+        private FileData(final File file, final double size) {
+            this.file = file;
+            this.size = size;
+        }
     }
 }
