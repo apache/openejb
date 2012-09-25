@@ -132,7 +132,18 @@ public class Tck {
         in = new ReplaceStringInputStream(in, "<repositories>", "<repositories>" + n + repositoryDefinition);
 
         // Yank SNAPSHOT
-        in = new ReplaceStringInputStream(in, "-SNAPSHOT", "");
+        in = new DelimitedTokenReplacementInputStream(in, "<openejb.version>", "</openejb.version>", new StringTokenHandler() {
+            @Override
+            public String handleToken(String s) throws IOException {
+                return "<openejb.version>" + Release.openejbVersion + "</openejb.version>";
+            }
+        });
+        in = new DelimitedTokenReplacementInputStream(in, "<tomee.version>", "</tomee.version>", new StringTokenHandler() {
+            @Override
+            public String handleToken(String s) throws IOException {
+                return "<tomee.version>" + Release.tomeeVersion + "</tomee.version>";
+            }
+        });
 
         update(pom, in);
     }
