@@ -69,7 +69,7 @@ public class Tck {
 
         updatePom(Release.staging, new File(tck, "pom.xml"));
 
-        updateWebProfile(branch, tck, Release.tomeeVersionName);
+        updateWebProfile(branch, tck, Release.tomeeVersion);
 
         exec("svn", "-m", "[release-tools] update staging repo for " + Release.tomeeVersionName, "ci");
     }
@@ -80,6 +80,7 @@ public class Tck {
         InputStream in = IO.read(properties);
         in = replaceProperty(in, "project.scmUrl", String.format("scm:svn:%s", branch));
         in = replaceProperty(in, "project.version", version);
+        in = replaceProperty(in, "project.id", "10");
 
         update(properties, in);
     }
