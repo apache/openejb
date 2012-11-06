@@ -31,7 +31,7 @@ import java.lang.reflect.Field;
 @Command(dependsOn = {Legal.class, Binaries.class})
 public class Preview {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String... args) throws IOException {
 
         final Templates.Builder template = Templates.template("preview.vm");
 
