@@ -47,7 +47,7 @@ public class Upgrades {
     public List<Issue> getIssues() throws Exception {
 
         final Options options = new Options(System.getProperties());
-        Jira jira = new Jira("http://issues.apache.org/jira/rpc/xmlrpc");
+        Jira jira = new Jira("https://issues.apache.org/jira/rpc/xmlrpc");
         jira.login(options.get("username", ""), options.get("password", ""));
 
         final List<String> missing = new ArrayList<String>();
@@ -70,7 +70,7 @@ public class Upgrades {
                         continue;
                     }
 
-                    urls.add(String.format("http://issues.apache.org/jira/secure/IssueNavigator.jspa?view=rss&&pid=%s&status=5&status=6&fixfor=%s&tempMax=1000&reset=true&decorator=none", project.getId(), ver.getId()));
+                    urls.add(String.format("https://issues.apache.org/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=%s&status=5&status=6&fixfor=%s&tempMax=1000&reset=true&decorator=none", project.getId(), ver.getId()));
                 } catch (Exception e) {
                 }
             }
