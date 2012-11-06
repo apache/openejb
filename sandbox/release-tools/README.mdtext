@@ -1,0 +1,19 @@
+# Get Swizzle
+
+Compile swizzle
+
+    svn co https://svn.codehaus.org/swizzle/trunk swizzle
+    cd swizzle
+    mvn clean install -DskipTests -DfailIfNoTests=false
+
+
+# Get Tentacles
+
+Compile Tentacles
+
+    svn co https://svn.apache.org/repos/asf/creadur/tentacles/trunk tentacles
+    cd tentacles
+    mvn clean install -DskipTests -DfailIfNoTests=false
+
+
+
