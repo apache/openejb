@@ -48,14 +48,14 @@ public class UpdateJiras {
 
     private static SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 
-    public static void _main(String... args) throws Exception {
+    public static void main(String... args) throws Exception {
 
         final String tag = Release.tags + Release.openejbVersionName;
 
         updateJiraFixVersions(tag, "HEAD", "{" + Release.lastReleaseDate + "}", Release.tomeeVersion, Release.openejbVersion);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void _main(String[] args) throws Exception {
         updateJiraFixVersions("http://svn.apache.org/repos/asf/openejb/trunk/openejb/", "1364034","1364034", "1.1.0" ,"4.1.0");
     }
 
