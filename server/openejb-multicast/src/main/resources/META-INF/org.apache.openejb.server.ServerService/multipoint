@@ -8,4 +8,4 @@ group                  = default
 heart_rate             = 500
 loopback_mode          = false
 max_missed_heartbeats  = 10
-broadcast              = true
+broadcast              = false

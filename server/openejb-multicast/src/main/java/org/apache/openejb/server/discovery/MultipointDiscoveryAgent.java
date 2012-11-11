@@ -172,7 +172,7 @@ public class MultipointDiscoveryAgent implements DiscoveryAgent, ServerService, 
         try {
             if (running.compareAndSet(false, true)) {
                 log.info("MultipointDiscoveryAgent Starting");
-                final boolean broadcast = options.get("broadcast", true);
+                final boolean broadcast = options.get("broadcast", false);
                 multipointServer = new MultipointServer(host, discoveryHost, port, tracker, name, debug, roots, reconnectDelay, broadcast).start();
                 log.info("MultipointDiscoveryAgent Started");
 
