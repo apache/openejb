@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  */
 public class Release {
 
-    public static String openejbVersion = "4.5.0";
-    public static String tomeeVersion = "1.5.0";
+    public static String openejbVersion = "4.5.1";
+    public static String tomeeVersion = "1.5.1";
 
     public static String openejbVersionName = "openejb-${openejbVersion}";
     public static String tomeeVersionName = "tomee-${tomeeVersion}";
@@ -46,8 +46,8 @@ public class Release {
     public static String staging = "https://repository.apache.org/content/repositories/orgapacheopenejb-${build}";
     public static String build = "001";
 
-    public static String ciBuilder = "openejb-4.5.0";
-    public static String ciBuildNumber = "39";
+    public static String ciBuilder = "openejb-4.5.1";
+    public static String ciBuildNumber = "1";
 
 
     public static String builddir = "/tmp/downloads";
@@ -59,7 +59,7 @@ public class Release {
     public static String to = "dev@openejb.apache.org";
     public static String from = "${user}@apache.org";
 
-    public static String lastReleaseDate = "2012-04-25";
+    public static String lastReleaseDate = "2012-09-28";
 
     private static final Pattern PATTERN = Pattern.compile("(\\$\\{)(\\w+)(})");
 
