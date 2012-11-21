@@ -214,6 +214,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -243,6 +244,7 @@ public class AnnotationDeployer implements DynamicDeployer {
     public static final Logger startupLogger = Logger.getInstance(LogCategory.OPENEJB_STARTUP_CONFIG, "org.apache.openejb.util.resources");
 
     public static final String OPENEJB_JPA_AUTO_SCAN = "openejb.jpa.auto-scan";
+    public static final String OPENEJB_JPA_AUTO_SCAN_PACKAGE = "openejb.jpa.auto-scan.package";
 
     private static final ThreadLocal<DeploymentModule> currentModule = new ThreadLocal<DeploymentModule>();
     private static final Set<String> lookupMissing = new HashSet<String>(2);
@@ -1127,6 +1129,8 @@ public class AnnotationDeployer implements DynamicDeployer {
             /*
              * Servlet, Filter, Listener
              */
+
+            Map<URL, List<String>> urlByClasses = null;
             for (String apiClassName : WEB_CLASSES) {
                 final Class<? extends Annotation> clazz;
                 try {
@@ -1135,8 +1139,20 @@ public class AnnotationDeployer implements DynamicDeployer {
                     continue;
                 }
 
+                if (urlByClasses == null) { // try to reuse scanning info, maybe some better indexing can be a nice idea
+                    if (finder instanceof FinderFactory.ModuleLimitedFinder) {
+                        final IAnnotationFinder limitedFinder = ((FinderFactory.ModuleLimitedFinder) finder).getDelegate();
+                        if (limitedFinder instanceof AnnotationFinder) {
+                            final Archive archive = ((AnnotationFinder) limitedFinder).getArchive();
+                            if (archive instanceof WebappAggregatedArchive) {
+                                urlByClasses = ((WebappAggregatedArchive) archive).getClassesMap();
+                            }
+                        }
+                    }
+                }
+
                 final List<Annotated<Class<?>>> found = finder.findMetaAnnotatedClasses(clazz);
-                addWebAnnotatedClassInfo(webModule.getWebAnnotatedClasses(), found);
+                addWebAnnotatedClassInfo(urlByClasses, webModule.getWebAnnotatedClasses(), found);
             }
 
             return webModule;
@@ -1482,12 +1498,14 @@ public class AnnotationDeployer implements DynamicDeployer {
                     for (org.apache.openejb.jee.jpa.unit.PersistenceUnit pu : pm.getPersistence().getPersistenceUnit()) {
                         if ((pu.isExcludeUnlistedClasses() == null || !pu.isExcludeUnlistedClasses())
                                 && "true".equalsIgnoreCase(pu.getProperties().getProperty(OPENEJB_JPA_AUTO_SCAN))) {
+                            final String packageName = pu.getProperties().getProperty(OPENEJB_JPA_AUTO_SCAN_PACKAGE);
+
                             // no need of meta currently since JPA providers doesn't support it
                             final List<Class<?>> classes = finder.findAnnotatedClasses(Entity.class);
                             final List<String> existingClasses = pu.getClazz();
                             for (Class<?> clazz : classes) {
                                 final String name = clazz.getName();
-                                if (!existingClasses.contains(name)) {
+                                if ((packageName == null || name.startsWith(packageName)) && !existingClasses.contains(name)) {
                                     pu.getClazz().add(name);
                                 }
                             }
@@ -5206,17 +5224,31 @@ public class AnnotationDeployer implements DynamicDeployer {
         return classes;
     }
 
-    private static Map<String, Set<String>> addWebAnnotatedClassInfo(final Map<String, Set<String>> classes, final List<Annotated<Class<?>>> found) {
+    private static Map<String, Set<String>> addWebAnnotatedClassInfo(final Map<URL, List<String>> urlByClasses, final Map<String, Set<String>> classes, final List<Annotated<Class<?>>> found) {
         for (Annotated<Class<?>> clazz : found) {
             final Class<?> loadedClass = clazz.get();
+            final String name = loadedClass.getName();
 
             // url of the jar/folder containing the class
-            String url;
-            try {
-                url = JarLocation.jarLocation(loadedClass).toURI().toURL().toExternalForm();
-            } catch (MalformedURLException e) {
-                url = classLocation(loadedClass).toExternalForm();
+            String url = null;
+            if (urlByClasses != null) {
+                for (Map.Entry<URL, List<String>> entry : urlByClasses.entrySet()) {
+                    for (String current : entry.getValue()) {
+                        if (name.equals(current)) {
+                            url = entry.getKey().toExternalForm();
+                        }
+                    }
+                }
             }
+
+            if (url == null) {
+                try {
+                    url = JarLocation.jarLocation(loadedClass).toURI().toURL().toExternalForm();
+                } catch (MalformedURLException e) {
+                    url = classLocation(loadedClass).toExternalForm();
+                }
+            }
+
             Set<String> list = classes.get(url);
             if (list == null) {
                 list = new HashSet<String>();
@@ -5224,7 +5256,20 @@ public class AnnotationDeployer implements DynamicDeployer {
             }
 
             // saving class url
-            list.add(classLocation(loadedClass).toExternalForm());
+            // first try the file approach (if the same class is in several classloaders it avoids weird errors)
+            try {
+                final File dir = new File(new URL(url).toURI());
+                if (dir.isDirectory()) {
+                    final File fileClazz = new File(dir, name.replace('.', '/') + ".class");
+                    if (fileClazz.exists()) {
+                        list.add(fileClazz.toURI().toURL().toExternalForm());
+                    } else {
+                        list.add(classLocation(loadedClass).toExternalForm());
+                    }
+                }
+            } catch (Exception e) {
+                list.add(classLocation(loadedClass).toExternalForm());
+            }
         }
         return classes;
     }

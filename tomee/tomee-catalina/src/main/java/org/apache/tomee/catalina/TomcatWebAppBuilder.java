@@ -50,8 +50,11 @@ import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.startup.Constants;
 import org.apache.catalina.startup.ContextConfig;
+import org.apache.catalina.startup.ContextRuleSet;
 import org.apache.catalina.startup.HostConfig;
 import org.apache.catalina.startup.RealmRuleSet;
+import org.apache.catalina.startup.SetAllPropertiesRule;
+import org.apache.catalina.startup.SetNextNamingRule;
 import org.apache.catalina.users.MemoryUserDatabase;
 import org.apache.naming.ContextAccessController;
 import org.apache.naming.ContextBindings;
@@ -92,6 +95,7 @@ import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.util.digester.Digester;
+import org.apache.tomcat.util.digester.RuleSet;
 import org.apache.tomee.catalina.cluster.ClusterObserver;
 import org.apache.tomee.catalina.cluster.TomEEClusterListener;
 import org.apache.tomee.catalina.event.AfterApplicationCreated;
@@ -124,6 +128,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -359,6 +364,9 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
         digester.addSetNext("Context/Manager/Store", "setStore", "org.apache.catalina.Store");
         digester.addRuleSet(new RealmRuleSet("Context/"));
         digester.addCallMethod("Context/WatchedResource", "addWatchedResource", 0);
+        digester.addObjectCreate("Context/Resource","org.apache.catalina.deploy.ContextResource");
+        digester.addRule("Context/Resource", new SetAllPropertiesRule());
+        digester.addRule("Context/Resource", new SetNextNamingRule("addResource", "org.apache.catalina.deploy.ContextResource"));
 
         return digester;
     }
@@ -904,11 +912,21 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
         //Look for context info, maybe context is already scanned
         ContextInfo contextInfo = getContextInfo(standardContext);
         ClassLoader classLoader = standardContext.getLoader().getClassLoader();
-        if (contextInfo == null) {
-            final Collection<String> tomcatResources = getResourcesNames(standardContext.getNamingResources());
-            AutoConfig.PROVIDED_RESOURCES.set(tomcatResources);
-            AutoConfig.PROVIDED_RESOURCES_PREFIX.set("java:/comp/env/");
 
+        final LifecycleListener[] listeners = standardContext.findLifecycleListeners();
+        if (listeners != null) { // force init of tomcat resources
+            for (LifecycleListener listener : listeners) {
+                if (OpenEJBContextConfig.class.isInstance(listener)) {
+                    ((OpenEJBContextConfig) listener).configureStart();
+                }
+            }
+        }
+
+        final Collection<String> tomcatResources = getResourcesNames(standardContext.getNamingResources());
+        AutoConfig.PROVIDED_RESOURCES.set(tomcatResources);
+        AutoConfig.PROVIDED_RESOURCES_PREFIX.set("java:/comp/env/");
+
+        if (contextInfo == null) {
             final AppModule appModule = loadApplication(standardContext);
             if (appModule != null) {
                 try {
@@ -941,6 +959,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
         } else {
             contextInfo.standardContext = standardContext;
         }
+        contextInfo.resourceNames = tomcatResources;
 
 
         final String id = getId(standardContext);
@@ -1000,7 +1019,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
                 final TomcatJndiBuilder jndiBuilder = new TomcatJndiBuilder(standardContext, webAppInfo, injections);
                 NamingUtil.setCurrentContext(standardContext);
                 try {
-                    jndiBuilder.mergeJndi();
+                    jndiBuilder.mergeJndi(tomcatResources);
                 } finally {
                     NamingUtil.setCurrentContext(null);
                 }
@@ -1878,6 +1897,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
         public HostConfig deployer;
         public Host host;
         public LinkResolver<EntityManagerFactory> emfLinkResolver;
+        public Collection<String> resourceNames = Collections.emptyList();
 
         @Override
         public String toString() {
