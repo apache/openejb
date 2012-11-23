@@ -16,8 +16,10 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
+import org.apache.maven.settings.Server;
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Commit;
+import org.apache.openejb.tools.release.Maven;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
 import org.apache.openejb.tools.release.util.Join;
@@ -140,11 +142,15 @@ public class ReviewCommits {
     private static List<IssueType> issueTypes = new ArrayList<IssueType>();
 
     public static Jira getJira() {
+        Server server = Maven.settings.getServer("apache.jira");
+        final String username = server.getUsername();
+        final String password = server.getPassword();
+
         if (jira == null) {
             try {
                 final Options options = new Options(System.getProperties());
                 Jira jira = new Jira("http://issues.apache.org/jira/rpc/xmlrpc");
-                jira.login(options.get("username", ""), options.get("password", ""));
+                jira.login(username, password);
                 ReviewCommits.jira = jira;
 
                 issueTypes.add(jira.getIssueType("Improvement"));
@@ -219,9 +225,9 @@ public class ReviewCommits {
                     final Jira jira = getJira();
 
                     final String summary = prompt("summary");
-                    final String project = prompt("TOMEE");
+                    final String project = prompt("TOMEE ('o' for OPENEJB else TOMEE)");
                     final String version = prompt("TOMEE".equals(project) ? Release.tomeeVersion : Release.openejbVersion);
-                    final String type = prompt("Improvement").toLowerCase();
+                    final String type = prompt("Improvement (type first letters)").toLowerCase();
 
                     Issue issue = new Issue();
 
@@ -245,7 +251,7 @@ public class ReviewCommits {
                     issue.getFixVersions().add(v);
 
                     System.out.printf("%s %s\n%s %s\n", issue.getProject(), issue.getSummary(), issue.getType(), Join.join(",", issue.getFixVersions()));
-                    final String prompt = prompt("create?");
+                    final String prompt = prompt("create? (yes or no)");
 
                     if (prompt.equals("create?") || prompt.equals("yes")) {
                         try {

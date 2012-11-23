@@ -16,8 +16,10 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
+import org.apache.maven.settings.Server;
 import org.apache.openejb.tools.release.Command;
 import org.apache.openejb.tools.release.Commit;
+import org.apache.openejb.tools.release.Maven;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
 import org.apache.openejb.tools.release.util.ObjectList;
@@ -156,9 +158,13 @@ public class UpdateJiras {
         private Map<String, IssueCommits> map = new HashMap<String, IssueCommits>();
 
         public State() throws Exception {
+            Server server = Maven.settings.getServer("apache.jira");
+            final String username = server.getUsername();
+            final String password = server.getPassword();
+
             final Options options = new Options(System.getProperties());
             jira = new Jira("http://issues.apache.org/jira/rpc/xmlrpc");
-            jira.login(options.get("username", ""), options.get("password", ""));
+            jira.login(username, password);
         }
 
         public IssueCommits get(String key) {

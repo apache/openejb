@@ -20,11 +20,14 @@ package org.apache.openejb.tools.release.cmd;
  * @version $Rev$ $Date$
  */
 
+import org.apache.commons.lang.Validate;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.maven.settings.Server;
 import org.apache.openejb.tools.release.Command;
+import org.apache.openejb.tools.release.Maven;
 import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.Templates;
 import org.apache.openejb.tools.release.util.Base64;
@@ -53,8 +56,10 @@ public class ReleaseTasks {
 
     public static void main(String... args) throws Exception {
         final Options options = new Options(System.getProperties());
-        final String username = options.get("username", "");
-        final String password = options.get("password", "");
+
+        Server server = Maven.settings.getServer("apache.jira");
+        final String username = server.getUsername();
+        final String password = server.getPassword();
 
         final ReleaseTasks tasks = new ReleaseTasks(username, password);
         tasks.run();
@@ -64,6 +69,10 @@ public class ReleaseTasks {
     private final DefaultHttpClient client;
 
     public ReleaseTasks(String user, String pass) {
+        // sanity checks
+        Validate.notEmpty(user);
+        Validate.notEmpty(pass);
+
         final String s = user + ":" + pass;
         final byte[] bytes = Base64.encodeBase64(s.getBytes());
 

@@ -16,6 +16,7 @@
  */
 package org.apache.openejb.tools.release;
 
+import org.apache.maven.settings.Server;
 import org.apache.openejb.tools.release.util.Options;
 import org.codehaus.swizzle.jira.Issue;
 import org.codehaus.swizzle.jira.Jira;
@@ -46,9 +47,13 @@ public class Upgrades {
 
     public List<Issue> getIssues() throws Exception {
 
+        Server server = Maven.settings.getServer("apache.jira");
+        final String username = server.getUsername();
+        final String password = server.getPassword();
+
         final Options options = new Options(System.getProperties());
         Jira jira = new Jira("https://issues.apache.org/jira/rpc/xmlrpc");
-        jira.login(options.get("username", ""), options.get("password", ""));
+        jira.login(username, password);
 
         final List<String> missing = new ArrayList<String>();
         final List<String> urls = new ArrayList<String>();

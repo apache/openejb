@@ -16,10 +16,9 @@
  */
 package org.apache.openejb.tools.release.cmd;
 
-import org.apache.openejb.tools.release.Command;
-import org.apache.openejb.tools.release.Nexus;
-import org.apache.openejb.tools.release.Release;
-import org.apache.openejb.tools.release.Repository;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
+import org.apache.openejb.tools.release.*;
 import org.apache.openejb.tools.release.util.Files;
 import org.apache.openejb.tools.release.util.IO;
 import org.apache.openejb.tools.release.util.ObjectList;
@@ -35,16 +34,9 @@ public class Close {
 
     public static void main(String... args) throws Exception {
 
-        final File settingsXml = Files.file(System.getProperty("user.home"), ".m2", "settings.xml");
-        final StreamLexer lexer = new StreamLexer(IO.read(settingsXml));
-
-        while (lexer.readAndMark("<server>", "</server>")) {
-            if (lexer.peek("<id>apache.releases.https</id>") != null) break;
-            lexer.unmark();
-        }
-
-        final String user = lexer.peek("<username>", "</");
-        final String pass = lexer.peek("<password>", "</");
+        Server server = Maven.settings.getServer("apache.releases.https");
+        final String user = server.getUsername();
+        final String pass = server.getPassword();
 
         final Nexus nexus = new Nexus(user, pass);
 

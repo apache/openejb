@@ -29,6 +29,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,20 +60,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        final ArrayList<String> list = new ArrayList<String>();
-
-        // Read in and apply the properties specified on the command line
-        for (String arg : args) {
-            if (arg.startsWith("-D")) {
-
-                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
-                final String value = arg.substring(arg.indexOf("=") + 1);
-
-                System.setProperty(name, value);
-            } else {
-                list.add(arg);
-            }
-        }
+        final List<String> list = processSystemProperties(args);
 
         final String command = (list.size() == 0) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
@@ -83,8 +71,8 @@ public class Main {
 
     }
 
-    public static String[] processSystemProperties(String[] args) {
-        final ArrayList<String> list = new ArrayList<String>();
+    public static List<String> processSystemProperties(String[] args) {
+        final List<String> list = new ArrayList<String>();
 
         // Read in and apply the properties specified on the command line
         for (String arg : args) {
@@ -99,7 +87,7 @@ public class Main {
             }
         }
 
-        return (String[]) list.toArray(new String[list.size()]);
+        return list;
     }
 
 }

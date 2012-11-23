@@ -17,6 +17,11 @@
 package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
+import org.apache.openejb.tools.release.Release;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @version $Rev$ $Date$
@@ -25,6 +30,20 @@ import org.apache.openejb.tools.release.Command;
 public class ReleaseNotes {
 
     public static void main(String[] args) throws Throwable {
-        org.codehaus.swizzle.jirareport.Main.main(new String[]{"release-notes-html.vm"});
+        List<String> argsList = new ArrayList<String>();
+
+        // lets add the template as the parameter
+        argsList.add("release-notes-html.vm");
+
+        // then add system properties to get values replaced in the template
+        for (Field field : Release.class.getFields()) {
+            try {
+                argsList.add("-D" + field.getName() + "=" + field.get(null));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        org.codehaus.swizzle.jirareport.Main.main((String[]) argsList.toArray(new String[] {}));
     }
 }
