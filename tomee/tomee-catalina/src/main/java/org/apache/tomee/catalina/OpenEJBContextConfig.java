@@ -35,6 +35,7 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
 import org.apache.openejb.util.URLs;
+import org.apache.tomcat.util.digester.Digester;
 import org.apache.tomee.common.NamingUtil;
 import org.apache.tomee.common.ResourceFactory;
 
@@ -60,7 +61,6 @@ public class OpenEJBContextConfig extends ContextConfig {
     private static final String ADJUST_DATASOURCE_JNDI_NAMES = SystemInstance.get().getProperty("tomee.resources.adjust-web-xml-jndi-name", "true");
 
     private TomcatWebAppBuilder.StandardContextInfo info;
-    private boolean configureStartOk = false;
 
     // processAnnotationXXX is called for each folder of WEB-INF
     // since we store all classes in WEB-INF we will do it only once so use this boolean to avoid multiple processing
@@ -73,14 +73,26 @@ public class OpenEJBContextConfig extends ContextConfig {
 
     @Override
     public void configureStart() {
-        if (configureStartOk) {
-            return;
-        }
         super.configureStart();
-
         adjustDataSourceNameIfNecessary(); // doing it here to potentially factorize resource id resolution
+    }
 
-        configureStartOk = true;
+    @Override
+    protected void contextConfig(final Digester digester) {
+        final NamingResources resources;
+        if (context != null) {
+            resources = context.getNamingResources();
+        } else {
+            resources = null;
+        }
+
+        if (resources instanceof OpenEJBNamingResource) {
+            ((OpenEJBNamingResource) resources).setTomcatResource(true);
+        }
+        super.contextConfig(digester);
+        if (resources instanceof OpenEJBNamingResource) {
+            ((OpenEJBNamingResource) resources).setTomcatResource(false);
+        }
     }
 
     private void adjustDataSourceNameIfNecessary() {
@@ -225,7 +237,6 @@ public class OpenEJBContextConfig extends ContextConfig {
         webInfClassesAnnotationsProcessed = false;
         super.processAnnotations(fragments, handlesTypesOnly);
     }
-
 
     @Override
     protected void processAnnotationsFile(File file, WebXml fragment, boolean handlesTypesOnly) {
