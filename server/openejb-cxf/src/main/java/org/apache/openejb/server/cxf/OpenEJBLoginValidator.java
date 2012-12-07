@@ -25,12 +25,13 @@ import org.apache.ws.security.message.token.UsernameToken;
 import org.apache.ws.security.validate.UsernameTokenValidator;
 
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 
 public class OpenEJBLoginValidator extends UsernameTokenValidator {
-    @Override
-    protected void verifyDigestPassword(UsernameToken usernameToken,
-                                        RequestData data) throws WSSecurityException {
+    @Override protected void verifyDigestPassword(UsernameToken usernameToken,
+                                           RequestData data) throws WSSecurityException {
         // check password
         super.verifyDigestPassword(usernameToken, data);
 

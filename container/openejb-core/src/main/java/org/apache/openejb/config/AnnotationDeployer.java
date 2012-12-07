@@ -214,6 +214,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -1129,7 +1130,7 @@ public class AnnotationDeployer implements DynamicDeployer {
              * Servlet, Filter, Listener
              */
 
-            Map<String, String> urlByClasses = null;
+            Map<URL, List<String>> urlByClasses = null;
             for (String apiClassName : WEB_CLASSES) {
                 final Class<? extends Annotation> clazz;
                 try {
@@ -1144,14 +1145,7 @@ public class AnnotationDeployer implements DynamicDeployer {
                         if (limitedFinder instanceof AnnotationFinder) {
                             final Archive archive = ((AnnotationFinder) limitedFinder).getArchive();
                             if (archive instanceof WebappAggregatedArchive) {
-                                final Map<URL, List<String>> index = ((WebappAggregatedArchive) archive).getClassesMap();
-                                urlByClasses = new HashMap<String, String>();
-                                for (Map.Entry<URL, List<String>> entry : index.entrySet()) {
-                                    final String url = entry.getKey().toExternalForm();
-                                    for (String current : entry.getValue()) {
-                                        urlByClasses.put(current,  url);
-                                    }
-                                }
+                                urlByClasses = ((WebappAggregatedArchive) archive).getClassesMap();
                             }
                         }
                     }
@@ -1159,10 +1153,6 @@ public class AnnotationDeployer implements DynamicDeployer {
 
                 final List<Annotated<Class<?>>> found = finder.findMetaAnnotatedClasses(clazz);
                 addWebAnnotatedClassInfo(urlByClasses, webModule.getWebAnnotatedClasses(), found);
-            }
-
-            if (urlByClasses != null) {
-                urlByClasses.clear();
             }
 
             return webModule;
@@ -4051,10 +4041,6 @@ public class AnnotationDeployer implements DynamicDeployer {
                         consumer.getResourceRef().add(resourceRef);
                     }
 
-                    if (member != null) {
-                        resourceRef.setOrigin(member.getDeclaringClass() + "#" + member.getName());
-                    } // TODO: else @Resource on a class
-
                     if (resourceRef.getResAuth() == null) {
                         if (resource.authenticationType() == Resource.AuthenticationType.APPLICATION) {
                             resourceRef.setResAuth(ResAuth.APPLICATION);
@@ -5238,7 +5224,7 @@ public class AnnotationDeployer implements DynamicDeployer {
         return classes;
     }
 
-    private static Map<String, Set<String>> addWebAnnotatedClassInfo(final Map<String, String> urlByClasses, final Map<String, Set<String>> classes, final List<Annotated<Class<?>>> found) {
+    private static Map<String, Set<String>> addWebAnnotatedClassInfo(final Map<URL, List<String>> urlByClasses, final Map<String, Set<String>> classes, final List<Annotated<Class<?>>> found) {
         for (Annotated<Class<?>> clazz : found) {
             final Class<?> loadedClass = clazz.get();
             final String name = loadedClass.getName();
@@ -5246,7 +5232,13 @@ public class AnnotationDeployer implements DynamicDeployer {
             // url of the jar/folder containing the class
             String url = null;
             if (urlByClasses != null) {
-                url = urlByClasses.get(name);
+                for (Map.Entry<URL, List<String>> entry : urlByClasses.entrySet()) {
+                    for (String current : entry.getValue()) {
+                        if (name.equals(current)) {
+                            url = entry.getKey().toExternalForm();
+                        }
+                    }
+                }
             }
 
             if (url == null) {
@@ -5274,8 +5266,6 @@ public class AnnotationDeployer implements DynamicDeployer {
                     } else {
                         list.add(classLocation(loadedClass).toExternalForm());
                     }
-                } else {
-                    list.add(classLocation(loadedClass).toExternalForm());
                 }
             } catch (Exception e) {
                 list.add(classLocation(loadedClass).toExternalForm());

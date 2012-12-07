@@ -147,8 +147,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
             delegatingClassloaders = classLoaders;
         }
 
-        @Override
-        public Class<?> loadClass(String name) throws ClassNotFoundException {
+        @Override public Class<?> loadClass(String name) throws ClassNotFoundException {
             ClassNotFoundException ex = null;
             for (ClassLoader cl : delegatingClassloaders) {
                 try {

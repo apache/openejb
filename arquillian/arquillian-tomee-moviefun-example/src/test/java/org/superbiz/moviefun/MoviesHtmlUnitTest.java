@@ -16,28 +16,29 @@
  */
 package org.superbiz.moviefun;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.ejb.embeddable.EJBContainer;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.tomee.embedded.EmbeddedTomEEContainer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.ejb.embeddable.EJBContainer;
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-
-import static org.junit.Assert.assertTrue;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class MoviesHtmlUnitTest {
-
-    private static EJBContainer container;
+	
+	private static EJBContainer container;
     private static File webApp;
 
-    @BeforeClass
-    public static void start() throws IOException {
+    @BeforeClass public static void start() throws IOException {
         webApp = createWebApp();
         Properties p = new Properties();
         p.setProperty(EJBContainer.APP_NAME, "moviefun");
@@ -47,8 +48,7 @@ public class MoviesHtmlUnitTest {
         container = EJBContainer.createEJBContainer(p);
     }
 
-    @AfterClass
-    public static void stop() {
+    @AfterClass public static void stop() {
         if (container != null) {
             container.close();
         }
@@ -60,7 +60,7 @@ public class MoviesHtmlUnitTest {
             }
         }
     }
-
+    
     private static File createWebApp() throws IOException {
         File file = new File(System.getProperty("java.io.tmpdir") + "/tomee-" + Math.random());
         if (!file.mkdirs() && !file.exists()) {
@@ -68,13 +68,13 @@ public class MoviesHtmlUnitTest {
         }
 
         FileUtils.copyDirectory(new File("target/classes"), new File(file, "WEB-INF/classes"));
-        FileUtils.copyDirectory(new File("target/test-libs"), new File(file, "WEB-INF/lib"));
+	    FileUtils.copyDirectory(new File("target/test-libs"), new File(file, "WEB-INF/lib"));
         FileUtils.copyDirectory(new File("src/main/webapp"), file);
 
         return file;
     }
 
-    @Test
+	@Test
     public void testShouldMakeSureWebappIsWorking() throws Exception {
         WebClient webClient = new WebClient();
         HtmlPage page = webClient.getPage("http://localhost:9999/moviefun/setup");

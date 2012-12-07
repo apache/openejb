@@ -33,18 +33,17 @@ import java.util.Properties;
 
 public class EjbServer implements org.apache.openejb.server.ServerService, org.apache.openejb.spi.ApplicationServer {
 
-    protected KeepAliveServer keepAlive;
-    protected EjbDaemon server;
+    private final KeepAliveServer keepAlive;
+    private EjbDaemon server;
 
     public EjbServer() {
-
+        keepAlive = new KeepAliveServer(this);
     }
 
     @Override
     public void init(final Properties props) throws Exception {
         server = EjbDaemon.getEjbDaemon();
         server.init(props);
-        keepAlive = new KeepAliveServer(this, server.isGzip());
     }
 
     @Override

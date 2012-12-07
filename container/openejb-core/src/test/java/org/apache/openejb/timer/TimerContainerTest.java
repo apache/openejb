@@ -17,7 +17,14 @@
  */
 package org.apache.openejb.timer;
 
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateless;
+import javax.ejb.TimerService;
+import javax.naming.InitialContext;
+
 import junit.framework.TestCase;
+
 import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
@@ -28,18 +35,12 @@ import org.apache.openejb.core.ivm.naming.InitContextFactory;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.StatelessBean;
 
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TimerService;
-import javax.naming.InitialContext;
-
 /**
  * @version $Revision$ $Date$
  */
 public class TimerContainerTest extends TestCase {
 
-    public void testTimerServiceInjection() throws Exception {
+    public void testTimerServiceInjection() throws Exception {       
         InitialContext ctx = new InitialContext();
 
         Object object = ctx.lookup("WidgetBeanLocal");
@@ -49,7 +50,7 @@ public class TimerContainerTest extends TestCase {
         Widget widget = (Widget) object;
 
         // Do a business method...
-        assertTrue("Timer was not injected", widget.isTimerSet());
+        assertTrue("Timer was not injected", widget.isTimerSet());        
     }
 
     protected void setUp() throws Exception {
@@ -94,10 +95,9 @@ public class TimerContainerTest extends TestCase {
     @Stateless
     public static class WidgetBean implements Widget, RemoteWidget {
 
-        @Resource
-        TimerService timer;
+        @Resource TimerService timer;
 
-        public WidgetBean() {
+        public WidgetBean() {           
         }
 
         @Resource

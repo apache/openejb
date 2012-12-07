@@ -70,8 +70,7 @@ public class AutoConfigPersistenceUnitsTest extends TestCase {
         resources = configuration.facilities.resources;
     }
 
-    @Override
-    public void tearDown() {
+    @Override public void tearDown() {
         System.getProperties().remove(LocalMBeanServer.OPENEJB_JMX_ACTIVE);
     }
 

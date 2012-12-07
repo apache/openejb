@@ -23,8 +23,7 @@ TOMEE.ApplicationView = function () {
         panelMap = {
             'home':TOMEE.ApplicationTabHome(),
             'console':TOMEE.ApplicationTabConsole(),
-            'log':TOMEE.ApplicationTabLog(),
-            'status': TOMEE.ApplicationTabStatus()
+            'log':TOMEE.ApplicationTabLog()
         },
         selected = null,
         container = $(TOMEE.ApplicationTemplates.getValue('application', {})),

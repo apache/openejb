@@ -19,7 +19,6 @@ package org.apache.openejb.test.mdb;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -35,56 +34,37 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class MdbInvoker implements MessageListener {
-
     private final Map<String, Method> signatures = new TreeMap<String, Method>();
-    private final ConnectionFactory connectionFactory;
     private final Object target;
-
     private Connection connection;
     private Session session;
-    private MessageProducer replyProducer = null;
+    private ConnectionFactory connectionFactory;
 
-    public MdbInvoker(final ConnectionFactory connectionFactory, final Object target) throws JMSException {
-
-        this.connectionFactory = connectionFactory;
+    public MdbInvoker(ConnectionFactory connectionFactory, Object target) throws JMSException {
         this.target = target;
-
-        for (final Method method : target.getClass().getMethods()) {
-            final String signature = MdbUtil.getSignature(method);
+        this.connectionFactory = connectionFactory;
+        for (Method method : target.getClass().getMethods()) {
+            String signature = MdbUtil.getSignature(method);
             signatures.put(signature, method);
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-
-        try {
-            this.destroy();
-        } finally {
-            super.finalize();
-        }
-    }
-
     public synchronized void destroy() {
-        MdbUtil.close(replyProducer);
         MdbUtil.close(session);
         session = null;
         MdbUtil.close(connection);
         connection = null;
     }
 
-    private synchronized Session getSession() throws JMSException {
-
-        this.connection = this.connectionFactory.createConnection();
-        this.connection.start();
-
+    private synchronized Session getSession() throws JMSException{
+        connection = connectionFactory.createConnection();
+        connection.start();
         boolean isBeanManagedTransaction = false;
 
         try {
             new InitialContext().lookup("java:comp/UserTransaction");
             isBeanManagedTransaction = true;
         } catch (NamingException e) {
-            //Ignore - Not transacted
         }
 
         if (isBeanManagedTransaction) {
@@ -92,43 +72,34 @@ public class MdbInvoker implements MessageListener {
         } else {
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
         }
-
-        this.replyProducer = this.session.createProducer(null);
-        this.replyProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-
         return session;
     }
 
-    @Override
-    public void onMessage(final Message message) {
+    public void onMessage(Message message) {
+        if (!(message instanceof ObjectMessage)) return;
 
         try {
-
-            if (!(message instanceof ObjectMessage)) {
-                return;
-            }
-
-            final Session session = getSession();
+            Session session = getSession();
             if (session == null) throw new IllegalStateException("Invoker has been destroyed");
 
             if (message == null) throw new NullPointerException("request message is null");
             if (!(message instanceof ObjectMessage)) throw new IllegalArgumentException("Expected a ObjectMessage request but got a " + message.getClass().getName());
-            final Serializable object = ((ObjectMessage) message).getObject();
+            ObjectMessage responseMessage = (ObjectMessage) message;
+            Serializable object = responseMessage.getObject();
             if (object == null) throw new NullPointerException("object in ObjectMessage is null");
             if (!(object instanceof Map)) {
-                if (message instanceof ObjectMessage)
-                    throw new IllegalArgumentException("Expected a Map contained in the ObjectMessage request but got a " + object.getClass().getName());
+                if (message instanceof ObjectMessage) throw new IllegalArgumentException("Expected a Map contained in the ObjectMessage request but got a " + object.getClass().getName());
             }
-            final Map request = (Map) object;
+            Map request = (Map) object;
 
-            final String signature = (String) request.get("method");
+            String signature = (String) request.get("method");
             if (signature == null) throw new NullPointerException("method property is null");
-            final Method method = signatures.get(signature);
+            Method method = signatures.get(signature);
             if (method == null) throw new IllegalArgumentException("no such method " + signature + "; known methods are " + signatures.keySet());
-            final Object[] args = (Object[]) request.get("args");
+            Object[] args = (Object[]) request.get("args");
 
             boolean exception = false;
-            Object result;
+            Object result = null;
             try {
                 result = method.invoke(target, args);
             } catch (IllegalAccessException e) {
@@ -138,35 +109,39 @@ public class MdbInvoker implements MessageListener {
                 result = e.getCause();
                 if (result == null) result = e;
                 exception = true;
-            } catch (Exception e) {
-                result = e.getCause();
-                if (result == null) result = e;
-                exception = true;
             }
 
+            MessageProducer producer = null;
             try {
                 // create response
-                final Map<String, Object> response = new TreeMap<String, Object>();
+                Map<String, Object> response = new TreeMap<String, Object>();
                 if (exception) {
                     response.put("exception", "true");
                 }
                 response.put("return", result);
 
                 // create response message
-                final ObjectMessage resMessage = session.createObjectMessage();
-                resMessage.setJMSCorrelationID(message.getJMSCorrelationID());
+                ObjectMessage resMessage = session.createObjectMessage();
+                resMessage.setJMSCorrelationID(responseMessage.getJMSCorrelationID());
                 resMessage.setObject((Serializable) response);
 
                 // send response message
-                replyProducer.send(message.getJMSReplyTo(), resMessage);
-
+                producer = session.createProducer(responseMessage.getJMSReplyTo());
+                producer.send(resMessage);
+//                System.out.println("\n" +
+//                        "***************************************\n" +
+//                        "Sent response message: " + responseMessage + "\n" +
+//                        "         response map: " + response + "\n" +
+//                        "             to queue: " + message.getJMSReplyTo() + "\n" +
+//                        "***************************************\n\n");
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                MdbUtil.close(producer);
+                destroy();
             }
         } catch (Throwable e) {
             e.printStackTrace();
-        } finally {
-            this.destroy();
         }
     }
 }

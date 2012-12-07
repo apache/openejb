@@ -23,6 +23,7 @@ import org.apache.openejb.config.*;
 import org.apache.openejb.config.sys.AdditionalDeployments;
 import org.apache.openejb.config.sys.Deployments;
 import org.apache.openejb.config.sys.JaxbOpenejb;
+import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.loader.IO;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.LogCategory;
@@ -224,7 +225,7 @@ public class DeployerEjb implements Deployer {
         if (file.isDirectory()) {
             deps.setDir(file.getAbsolutePath());
         } else {
-            deps.setFile(file.getAbsolutePath());
+            deps.setJar(file.getAbsolutePath());
         }
 
         File config;
@@ -264,11 +265,11 @@ public class DeployerEjb implements Deployer {
                     if (deps.getDir() != null && deps.getDir().equals(current.getDir())) {
                         it.remove();
                         break;
-                    } else if (deps.getFile() != null && deps.getFile().equals(current.getFile())) {
+                    } else if (deps.getJar() != null && deps.getJar().equals(current.getJar())) {
                         it.remove();
                         break;
                     } else { // exploded dirs
-                        String jar = deps.getFile();
+                        String jar = deps.getJar();
                         if (jar != null && jar.length() > 3 && jar.substring(0, jar.length() - 4).equals(deps.getDir())) {
                             it.remove();
                             break;

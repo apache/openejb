@@ -19,7 +19,6 @@ package org.apache.openejb.cdi;
 import org.apache.webbeans.component.BeanManagerBean;
 import org.apache.webbeans.component.BuildInOwbBean;
 import org.apache.webbeans.component.ConversationBean;
-import org.apache.webbeans.component.InjectionPointBean;
 import org.apache.webbeans.container.BeanManagerImpl;
 
 import javax.el.ELResolver;
@@ -372,12 +371,6 @@ public class WebappBeanManager extends BeanManagerImpl {
 
     @Override
     public Set<Bean<?>> getComponents() {
-        if (deploymentBeans.isEmpty()) {
-            // probably not yet merged (afterStart())
-            // so reuse parent beans
-            // this can happen for validations
-            return super.getBeans();
-        }
         return deploymentBeans;
     }
 
@@ -390,7 +383,7 @@ public class WebappBeanManager extends BeanManagerImpl {
         deploymentBeans.clear();
         for (Bean<?> bean : getParentBm().getBeans()) {
             if (bean instanceof BeanManagerBean || bean instanceof BuildInOwbBean
-                    || bean instanceof ConversationBean || bean instanceof InjectionPointBean) {
+                    || bean instanceof ConversationBean) {
                 continue;
             }
             deploymentBeans.add(bean);

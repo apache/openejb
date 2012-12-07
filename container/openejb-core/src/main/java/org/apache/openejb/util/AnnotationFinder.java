@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-import java.util.logging.*;
 
 /**
  * ClassFinder searches the classpath of the specified classloader for
@@ -79,7 +78,7 @@ public class AnnotationFinder {
      * @param classLoader source of classes to scan
      * @throws Exception if something goes wrong
      */
-    public AnnotationFinder(final ClassLoader classLoader) throws Exception {
+    public AnnotationFinder(ClassLoader classLoader) throws Exception {
         this(classLoader, true);
     }
 
@@ -90,7 +89,7 @@ public class AnnotationFinder {
      * @param excludeParent Allegedly excludes classes from parent classloader, whatever that might mean
      * @throws Exception if something goes wrong.
      */
-    public AnnotationFinder(final ClassLoader classLoader, final boolean excludeParent) throws Exception {
+    public AnnotationFinder(ClassLoader classLoader, boolean excludeParent) throws Exception {
         this(classLoader, AnnotationFinder.getUrls(classLoader, excludeParent));
     }
 
@@ -102,19 +101,19 @@ public class AnnotationFinder {
      * @param exclude source of classes to exclude from scanning
      * @throws Exception if something goes wrong
      */
-    public AnnotationFinder(final ClassLoader classLoader, final ClassLoader exclude) throws Exception {
+    public AnnotationFinder(ClassLoader classLoader, ClassLoader exclude) throws Exception {
         this(classLoader, AnnotationFinder.getUrls(classLoader, exclude));
     }
 
-    public AnnotationFinder(final ClassLoader classLoader, final URL url) {
+    public AnnotationFinder(ClassLoader classLoader, URL url) {
         this(classLoader, Arrays.asList(url));
     }
 
-    public AnnotationFinder(final ClassLoader classLoader, final Collection<URL> urls) {
+    public AnnotationFinder(ClassLoader classLoader, Collection<URL> urls) {
         this.classLoader = classLoader;
         this.urls = urls;
         classNames = new ArrayList<String>();
-        for (final URL location : urls) {
+        for (URL location : urls) {
             if (location == null) {
                 continue;
             }
@@ -125,8 +124,8 @@ public class AnnotationFinder {
                 } else if (location.getProtocol().equals("file")) {
                     try {
                         // See if it's actually a jar
-                        final URL jarUrl = new URL("jar", "", location.toExternalForm() + "!/");
-                        final JarURLConnection juc = (JarURLConnection) jarUrl.openConnection();
+                        URL jarUrl = new URL("jar", "", location.toExternalForm() + "!/");
+                        JarURLConnection juc = (JarURLConnection) jarUrl.openConnection();
                         juc.getJarFile();
                         classNames.addAll(jar(jarUrl));
                     } catch (IOException e) {
@@ -155,10 +154,10 @@ public class AnnotationFinder {
         return Collections.unmodifiableList(classesNotLoaded);
     }
 
-    public boolean find(final Filter filter){
-        final Visitor annotationVisitor = new Visitor(filter);
+    public boolean find(Filter filter){
+        Visitor annotationVisitor = new Visitor(filter);
 
-        for (final String className : classNames) {
+        for (String className : classNames) {
             try {
                 readClassDef(className, annotationVisitor);
             } catch (NotFoundException e) {
@@ -173,11 +172,11 @@ public class AnnotationFinder {
         boolean accept(String annotationName);
     }
 
-    private static Collection<URL> getUrls(final ClassLoader classLoader, final boolean excludeParent) throws IOException {
+    private static Collection<URL> getUrls(ClassLoader classLoader, boolean excludeParent) throws IOException {
         return AnnotationFinder.getUrls(classLoader, excludeParent? classLoader.getParent() : null);
     }
 
-    private static Collection<URL> getUrls(final ClassLoader classLoader, final ClassLoader excludeParent) throws IOException {
+    private static Collection<URL> getUrls(ClassLoader classLoader, ClassLoader excludeParent) throws IOException {
         UrlSet urlSet = new UrlSet(classLoader);
         if (excludeParent != null){
             urlSet = urlSet.exclude(excludeParent);
@@ -185,14 +184,9 @@ public class AnnotationFinder {
         return urlSet.getUrls();
     }
 
-    private List<String> file(final URL location) {
-        final List<String> classNames = new ArrayList<String>();
-        File dir = null;
-        try {
-            dir = new File(URLDecoder.decode(location.getPath(),"UTF-8"));
-        } catch (Exception e) {
-            dir = new File(URLDecoder.decode(location.getPath()));
-        }
+    private List<String> file(URL location) {
+        List<String> classNames = new ArrayList<String>();
+        File dir = new File(URLDecoder.decode(location.getPath()));
         if (dir.getName().equals("META-INF")) {
             dir = dir.getParentFile(); // Scrape "META-INF" off
         }
@@ -202,10 +196,10 @@ public class AnnotationFinder {
         return classNames;
     }
 
-    private void scanDir(final File dir, final List<String> classNames, final String packageName) {
-        final File[] files = dir.listFiles();
+    private void scanDir(File dir, List<String> classNames, String packageName) {
+        File[] files = dir.listFiles();
         if (files != null) {
-            for (final File file : files) {
+            for (File file : files) {
                 if (file.isDirectory()) {
                     scanDir(file, classNames, packageName + file.getName() + ".");
                 } else if (file.getName().endsWith(".class")) {
@@ -218,20 +212,20 @@ public class AnnotationFinder {
         }
     }
 
-    private List<String> jar(final URL location) throws IOException {
+    private List<String> jar(URL location) throws IOException {
         String jarPath = location.getFile();
         if (jarPath.indexOf("!") > -1){
             jarPath = jarPath.substring(0, jarPath.indexOf("!"));
         }
-        final URL url = new URL(jarPath);
+        URL url = new URL(jarPath);
         if ("file".equals(url.getProtocol())) { // ZipFile is faster than ZipInputStream
-            final JarFile jarFile = new JarFile(url.getFile().replace("%20", " "));
+            JarFile jarFile = new JarFile(url.getFile().replace("%20", " "));
             return jar(jarFile);
         } else {
             InputStream in = url.openStream();
             in = new BufferedInputStream(in);
             try {
-                final JarInputStream jarStream = new JarInputStream(in);
+                JarInputStream jarStream = new JarInputStream(in);
                 return jar(jarStream);
             } finally {
                 in.close();
@@ -239,20 +233,20 @@ public class AnnotationFinder {
         }
     }
 
-    private List<String> jar(final JarFile jarFile) {
-        final List<String> classNames = new ArrayList<String>();
+    private List<String> jar(JarFile jarFile) {
+        List<String> classNames = new ArrayList<String>();
 
-        final Enumeration<? extends JarEntry> jarEntries =jarFile.entries();
+        Enumeration<? extends JarEntry> jarEntries =jarFile.entries();
         while (jarEntries.hasMoreElements()) {
-            final JarEntry entry = jarEntries.nextElement();
+            JarEntry entry = jarEntries.nextElement();
             addClassName(classNames, entry);
         }
 
         return classNames;
     }
 
-    private List<String> jar(final JarInputStream jarStream) throws IOException {
-        final List<String> classNames = new ArrayList<String>();
+    private List<String> jar(JarInputStream jarStream) throws IOException {
+        List<String> classNames = new ArrayList<String>();
 
         JarEntry entry;
         while ((entry = jarStream.getNextJarEntry()) != null) {
@@ -262,7 +256,7 @@ public class AnnotationFinder {
         return classNames;
     }
 
-    private void addClassName(final List<String> classNames, final JarEntry entry) {
+    private void addClassName(List<String> classNames, JarEntry entry) {
         if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
             return;
         }
@@ -275,18 +269,18 @@ public class AnnotationFinder {
         classNames.add(className);
     }
 
-    private void readClassDef(String className, final ClassVisitor visitor) {
+    private void readClassDef(String className, ClassVisitor visitor) {
         classes++;
         if (!className.endsWith(".class")) {
             className = className.replace('.', '/') + ".class";
         }
         try {
-            final URL resource = classLoader.getResource(className);
+            URL resource = classLoader.getResource(className);
             if (resource != null) {
                 InputStream in = resource.openStream();
                 in = new BufferedInputStream(in);
                 try {
-                    final ClassReader classReader = new ClassReader(in);
+                    ClassReader classReader = new ClassReader(in);
                     classReader.accept(visitor, ASM_FLAGS);
                 } finally {
                     in.close();
@@ -314,7 +308,7 @@ public class AnnotationFinder {
         private FoundException foundException;
         private final Filter filter;
 
-        public Visitor(final Filter filter) {
+        public Visitor(Filter filter) {
             this.filter = filter;
 
             try {
@@ -330,12 +324,11 @@ public class AnnotationFinder {
             }
         }
 
-        @Override
-        public AnnotationVisitor visitAnnotation(String name, final boolean visible) {
+        public AnnotationVisitor visitAnnotation(String name, boolean visible) {
             // annotation names show up as
             // Ljavax.ejb.Stateless;
             // so we hack of the first and last chars and replace the slashes
-            final StringBuilder sb = new StringBuilder(name);
+            StringBuilder sb = new StringBuilder(name);
             sb.deleteCharAt(0);
             sb.deleteCharAt(sb.length()-1);
             for (int i = 0; i < sb.length(); i++) {
@@ -353,39 +346,31 @@ public class AnnotationFinder {
         }
 
 
-        @Override
-        public void visit(final int i, final int i1, final String string, final String string1, final String string2, final String[] strings) {
+        public void visit(int i, int i1, String string, String string1, String string2, String[] strings) {
         }
 
-        @Override
-        public void visitSource(final String string, final String string1) {
+        public void visitSource(String string, String string1) {
         }
 
-        @Override
-        public void visitOuterClass(final String string, final String string1, final String string2) {
+        public void visitOuterClass(String string, String string1, String string2) {
         }
 
-        @Override
-        public void visitAttribute(final Attribute attribute) {
+        public void visitAttribute(Attribute attribute) {
             throw notFoundException;
         }
 
-        @Override
-        public void visitInnerClass(final String string, final String string1, final String string2, final int i) {
+        public void visitInnerClass(String string, String string1, String string2, int i) {
             throw notFoundException;
         }
 
-        @Override
-        public FieldVisitor visitField(final int i, final String string, final String string1, final String string2, final Object object) {
+        public FieldVisitor visitField(int i, String string, String string1, String string2, Object object) {
             throw notFoundException;
         }
 
-        @Override
-        public MethodVisitor visitMethod(final int i, final String string, final String string1, final String string2, final String[] strings) {
+        public MethodVisitor visitMethod(int i, String string, String string1, String string2, String[] strings) {
             throw notFoundException;
         }
 
-        @Override
         public void visitEnd() {
             throw notFoundException;
         }

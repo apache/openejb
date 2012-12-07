@@ -71,10 +71,10 @@ public class ProvisioningUtil {
 
     public static InputStream inputStreamTryingProxies(final URI source) throws Exception {
         final URL url = source.toURL();
-        for (final Proxy proxy : ProxySelector.getDefault().select(source)) {
+        for (Proxy proxy : ProxySelector.getDefault().select(source)) {
             // try to connect
             try {
-                final URLConnection urlConnection = url.openConnection(proxy);
+                URLConnection urlConnection = url.openConnection(proxy);
                 urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
                 return new BufferedInputStream(urlConnection.getInputStream());
             } catch (IOException e) {
@@ -92,7 +92,7 @@ public class ProvisioningUtil {
         return location.substring(idx + 1, location.length());
     }
 
-    public static String realLocation(final String rawLocation) {
+    public static String realLocation(String rawLocation) {
         if (rawLocation.startsWith(HTTP_PREFIX)) {
             final File file = cacheFile(lastPart(rawLocation));
 
@@ -117,7 +117,7 @@ public class ProvisioningUtil {
     }
 
     public static void addAdditionalLibraries() throws IOException {
-        final File conf = SystemInstance.get().getConf(ADDITIONAL_LIB_CONFIG);
+        File conf = SystemInstance.get().getConf(ADDITIONAL_LIB_CONFIG);
         if (conf == null || !conf.exists()) {
             return;
         }
@@ -127,18 +127,18 @@ public class ProvisioningUtil {
         final List<String> libToCopy = new ArrayList<String>();
         final String toCopy = additionalLibProperties.getProperty(JAR_KEY);
         if (toCopy != null) {
-            for (final String lib : toCopy.split(",")) {
+            for (String lib : toCopy.split(",")) {
                 libToCopy.add(realLocation(lib.trim()));
             }
         }
         final String toExtract = additionalLibProperties.getProperty(ZIP_KEY);
         if (toExtract != null) {
-            for (final String zip : toExtract.split(",")) {
+            for (String zip : toExtract.split(",")) {
                 libToCopy.addAll(extract(realLocation(zip)));
             }
         }
 
-        final File destination;
+        File destination;
         if (additionalLibProperties.containsKey(DESTINATION_KEY)) {
             destination = new File(additionalLibProperties.getProperty(DESTINATION_KEY));
         } else {
@@ -148,7 +148,7 @@ public class ProvisioningUtil {
             Files.mkdirs(destination);
         }
 
-        for (final String lib : libToCopy) {
+        for (String lib : libToCopy) {
             copy(new File(lib), destination);
         }
     }
@@ -194,7 +194,7 @@ public class ProvisioningUtil {
             return Collections.emptyList();
         }
 
-        for (final File file : files) {
+        for (File file : files) {
             if (file.isDirectory()) {
                 libs.addAll(list(file));
             } else {

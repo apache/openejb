@@ -31,15 +31,6 @@ public class CommandExecutorServlet extends HttpServlet {
 
     @Override
     protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-        execute(req, resp);
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        execute(req, resp);
-    }
-
-    private void execute(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         JsonExecutor.execute(req, resp, new JsonExecutor.Executor() {
             @Override
             public void call(Map<String, Object> json) throws Exception {
@@ -49,5 +40,4 @@ public class CommandExecutorServlet extends HttpServlet {
             }
         });
     }
-
 }

@@ -19,46 +19,30 @@
 TOMEE.ApplicationTabConsole = function () {
     "use strict";
 
-    var channel = TOMEE.ApplicationChannel;
-    var container = $(TOMEE.ApplicationTemplates.getValue('application-tab-console', {}));
-    var innerPanels = {
-        webservices:TOMEE.ApplicationTabWebservices(),
-        jndi:TOMEE.ApplicationTabJndi()
-    };
+    var channel = TOMEE.ApplicationChannel,
+        container = $(TOMEE.ApplicationTemplates.getValue('application-tab-console', {})),
+        innerPanels = {
+            webservices:TOMEE.ApplicationTabWebservices(),
+            jndi:TOMEE.ApplicationTabJndi()
+        },
 
-    var codeArea = null;
-    var active = false;
-    var locked = true;
-    var delayedContainerResize = TOMEE.DelayedTask();
-    var userName = null;
-
-    channel.bind('server-command-callback-success', 'Login', function (params) {
-        userName = params.params.user;
-    });
-    channel.bind('server-command-callback-success', 'session', function (params) {
-        userName = params.data.userName;
-    });
-
-    function setLocked(value) {
-        locked = value;
-        channel.send('ui-actions', 'locked-change', {
-            locked: value,
-            panel:'console'
-        });
-    }
+        codeArea = null,
+        active = false,
+        locked = true,
+        delayedContainerResize = TOMEE.DelayedTask();
 
     container.find('.webservices-div').append(innerPanels.webservices.getEl());
     container.find('.jndi-div').append(innerPanels.jndi.getEl());
 
     container.find('.dropdown-toggle').on('click', function (ev) {
-        var button = $(ev.currentTarget);
-        var customAttr = 'tab-name';
-        var group = button.parent('.btn-group');
-        var tab = group.attr(customAttr);
+        var button = $(ev.currentTarget),
+            customAttr = 'tab-name',
+            group = button.parent('.btn-group'),
+            tab = group.attr(customAttr);
 
         container.find('.btn-group').each(function (index, grpHtmlEl) {
-            var grpEl = $(grpHtmlEl);
-            var grpTabName = grpEl.attr(customAttr);
+            var grpEl = $(grpHtmlEl),
+                grpTabName = grpEl.attr(customAttr);
             if (tab === grpTabName) {
                 return;
             }
@@ -126,17 +110,17 @@ TOMEE.ApplicationTabConsole = function () {
 
     channel.bind('server-command-callback-success', 'Login', function (params) {
         if (params.output.loginSuccess) {
-            setLocked(false);
+            locked = false;
         } else {
-            setLocked(true);
+            locked = true;
         }
     });
 
     channel.bind('server-command-callback-success', 'session', function (params) {
         if (params.data.userName) {
-            setLocked(false);
+            locked = false;
         } else {
-            setLocked(true);
+            locked = true;
         }
     });
 
@@ -171,16 +155,7 @@ TOMEE.ApplicationTabConsole = function () {
             if (!codeArea) {
                 codeArea = CodeMirror(container.children('.tomee-code').get(0), {
                     lineNumbers:true,
-                    value:TOMEE.ApplicationTemplates.getValue('application-tab-console-sample', {
-                        port:window.location.port,
-                        protocol: (function() {
-                            var protocol = window.location.protocol;
-                            protocol = protocol.replace(':', '');
-                            return protocol;
-                        })(),
-                        name: userName,
-                        password:TOMEE.I18N.get('application.console.password')
-                    })
+                    value:TOMEE.ApplicationTemplates.getValue('application-tab-console-sample', {})
                 });
             }
             codeArea.focus();

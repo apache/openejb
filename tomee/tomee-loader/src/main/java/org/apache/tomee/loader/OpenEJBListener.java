@@ -41,16 +41,16 @@ import java.util.logging.Logger;
 
 /**
  * The sole purpose of this class is to call the {@link TomcatEmbedder#embed} method
- * <p/>
+ *
  * This is an alternate way to load the Tomcat integration
  * This approach is mutually exclussive to the {@link LoaderServlet}
- * <p/>
+ *
  * This class does nothing more than scrape around in
  * Tomcat and look for the tomee.war so it can call the embedder
- * <p/>
+ *
  * This class can be installed in the Tomcat server.xml as an alternate
  * way to bootstrap OpenEJB into Tomcat.  The benefit of this is that
- * OpenEJB is guaranteed to start before all webapps.
+ * OpenEJB is guaranteed to start before all webapps. 
  */
 public class OpenEJBListener implements LifecycleListener {
     private static final Logger LOGGER = Logger.getLogger(OpenEJBListener.class.getName());
@@ -62,19 +62,18 @@ public class OpenEJBListener implements LifecycleListener {
         return listenerInstalled;
     }
 
-    @Override
-    public void lifecycleEvent(final LifecycleEvent event) {
+    public void lifecycleEvent(LifecycleEvent event) {
         // only install once
         if (listenerInstalled || !Lifecycle.AFTER_INIT_EVENT.equals(event.getType())) return;
-
+        
         try {
-            File webappDir = findOpenEjbWar();
+	        File webappDir = findOpenEjbWar();
             if (webappDir == null && event.getSource() instanceof StandardServer) {
                 final StandardServer server = (StandardServer) event.getSource();
                 webappDir = tryToFindAndExtractWar(server);
                 if (webappDir != null) { // we are using webapp startup
                     final File exploded = extractDirectory(webappDir);
-                    if (exploded != null) {
+                    if (webappDir != null) {
                         extract(webappDir, exploded);
                     }
                     webappDir = exploded;
@@ -85,7 +84,7 @@ public class OpenEJBListener implements LifecycleListener {
                 LOGGER.info("found the tomee webapp on " + webappDir.getPath());
                 final Properties properties = new Properties();
                 properties.setProperty("tomee.war", webappDir.getAbsolutePath());
-                properties.setProperty("openejb.embedder.source", OpenEJBListener.class.getSimpleName());
+                properties.setProperty("openejb.embedder.source", getClass().getSimpleName());
                 TomcatEmbedder.embed(properties, StandardServer.class.getClassLoader());
                 listenerInstalled = true;
             } else if (logWebappNotFound) {
@@ -112,18 +111,18 @@ public class OpenEJBListener implements LifecycleListener {
             return new File(System.getProperty("openejb.war"));
         }
 
-        for (final Service service : source.findServices()) {
+        for (Service service : source.findServices()) {
             final Container container = service.getContainer();
             if (container instanceof StandardEngine) {
                 final StandardEngine engine = (StandardEngine) container;
-                for (final Container child : engine.findChildren()) {
+                for (Container child : engine.findChildren()) {
                     if (child instanceof StandardHost) {
                         final StandardHost host = (StandardHost) child;
                         final File base = hostDir(System.getProperty("catalina.base"), host.getAppBase());
 
                         final File[] files = base.listFiles();
                         if (files != null) {
-                            for (final File file : files) {
+                            for (File file : files) {
                                 if (isTomEEWar(file)) {
                                     return file;
                                 }
@@ -151,40 +150,39 @@ public class OpenEJBListener implements LifecycleListener {
 
     private static File findOpenEjbWar() {
         // in Tomcat 5.5 the OpenEjb war is in the server/webapps director
-        final String catalinaBase = System.getProperty("catalina.base");
-        final File serverWebapps = new File(catalinaBase, "server/webapps");
+        String catalinaBase = System.getProperty("catalina.base");
+        File serverWebapps = new File(catalinaBase, "server/webapps");
         File openEjbWar = findOpenEjbWar(serverWebapps);
         if (openEjbWar != null) {
             return openEjbWar;
         }
+		        
+		try {
+			// in Tomcat 6 the OpenEjb war is normally in webapps, but we just
+			// scan all hosts directories
+			for (Service service : TomcatHelper.getServer().findServices()) {
+				Container container = service.getContainer();
+				if (container instanceof StandardEngine) {
+					StandardEngine engine = (StandardEngine) container;
+					for (Container child : engine.findChildren()) {
+						if (child instanceof StandardHost) {
+							StandardHost host = (StandardHost) child;
+							final File hostDir = hostDir(catalinaBase, host.getAppBase());
 
-        try {
-            // in Tomcat 6 the OpenEjb war is normally in webapps, but we just
-            // scan all hosts directories
-            for (final Service service : TomcatHelper.getServer().findServices()) {
-                final Container container = service.getContainer();
-                if (container instanceof StandardEngine) {
-                    final StandardEngine engine = (StandardEngine) container;
-                    for (final Container child : engine.findChildren()) {
-                        if (child instanceof StandardHost) {
-                            final StandardHost host = (StandardHost) child;
-                            final File hostDir = hostDir(catalinaBase, host.getAppBase());
-
-                            openEjbWar = findOpenEjbWar(hostDir);
-                            if (openEjbWar != null) {
-                                return openEjbWar;
-                            } else {
-                                return findOpenEjbWar(host);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "OpenEJBListener.findOpenEjbWar: " + e.getMessage());
-        }
-
-        return null;
+							openEjbWar = findOpenEjbWar(hostDir);
+							if (openEjbWar != null) {
+								return openEjbWar;
+							} else {
+								return findOpenEjbWar(host);
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+		}      
+		
+		return null;
     }
 
     private static File hostDir(final String catalinaBase, final String appBase) {
@@ -195,43 +193,42 @@ public class OpenEJBListener implements LifecycleListener {
         return hostDir;
     }
 
-    private static File findOpenEjbWar(final StandardHost standardHost) {
-        //look for openejb war in a Tomcat context
-        for (final Container container : standardHost.findChildren()) {
-            if (container instanceof StandardContext) {
-                final StandardContext standardContext = (StandardContext) container;
-                File contextDocBase = new File(standardContext.getDocBase());
+    private static File findOpenEjbWar(StandardHost standardHost) {
+    	//look for openejb war in a Tomcat context
+    	for(Container container : standardHost.findChildren()) {
+    		if(container instanceof StandardContext) {
+    			StandardContext standardContext = (StandardContext)container;
+    			File contextDocBase = new File(standardContext.getDocBase());
                 if (!contextDocBase.isDirectory() && standardContext.getOriginalDocBase() != null) {
                     contextDocBase = new File(standardContext.getOriginalDocBase());
                 }
-                if (contextDocBase.isDirectory()) {
-                    final File openEjbWar = findOpenEjbWarInContext(contextDocBase);
-                    if (openEjbWar != null) {
-                        return openEjbWar;
-                    }
-                }
-            }
-        }
-        return null;
+    			if(contextDocBase.isDirectory()) {
+	    			File openEjbWar = findOpenEjbWarInContext(contextDocBase);
+	    	        if (openEjbWar != null) {
+	    	            return openEjbWar;
+	    	        }
+    			}
+    		}
+    	}
+    	return null;
     }
 
-    private static File findOpenEjbWar(final File hostDir) {
+    private static File findOpenEjbWar(File hostDir) {
         if (!hostDir.isDirectory()) {
             return null;
         }
 
         // iterate over the contexts
-        final File[] files = hostDir.listFiles();
-        if (null != files) for (final File contextDir : files) {
-            final File foundContextDir = findOpenEjbWarInContext(contextDir);
-            if (foundContextDir != null) {
-                return foundContextDir;
-            }
+        for (File contextDir : hostDir.listFiles()) {
+        	File foundContextDir = findOpenEjbWarInContext(contextDir);
+        	if(foundContextDir != null) {
+        		return foundContextDir;
+        	}
         }
         return null;
     }
-
-    private static File findOpenEjbWarInContext(final File contextDir) {
+     
+    private static File findOpenEjbWarInContext(File contextDir) {
         // this should be a webapp
         if (!new File(contextDir, "WEB-INF").exists()) {
             return null;
@@ -239,14 +236,14 @@ public class OpenEJBListener implements LifecycleListener {
 
         // this should be the openejb war...
         // make sure it has a lib directory
-        final File webInfLib = new File(contextDir, "lib");
+        File webInfLib = new File(contextDir, "lib");
         if (!webInfLib.isDirectory()) {
-            return null;
+             return null;
         }
         // iterate over the libs looking for the openejb-loader-*.jar
         final File[] files = webInfLib.listFiles();
         if (files != null) {
-            for (final File file : files) {
+            for (File file : files) {
                 if (file.getName().startsWith("tomee-catalina-") && file.getName().endsWith(".jar")) {
                     return contextDir;
                 }
@@ -263,24 +260,20 @@ public class OpenEJBListener implements LifecycleListener {
 
         LOGGER.info("Extracting openejb webapp from " + src.getAbsolutePath() + " to " + dest.getAbsolutePath());
 
-        if (!dest.mkdirs()) {
-            throw new IOException("Failed to create: " + dest);
-        }
+        dest.mkdirs();
 
         JarFile jarFile = null;
         InputStream input = null;
         try {
             jarFile = new JarFile(src);
-            final Enumeration jarEntries = jarFile.entries();
+            Enumeration jarEntries = jarFile.entries();
             while (jarEntries.hasMoreElements()) {
-                final JarEntry jarEntry = (JarEntry) jarEntries.nextElement();
-                final String name = jarEntry.getName();
-                final int last = name.lastIndexOf('/');
+                JarEntry jarEntry = (JarEntry) jarEntries.nextElement();
+                String name = jarEntry.getName();
+                int last = name.lastIndexOf('/');
                 if (last >= 0) {
-                    final File parent = new File(dest, name.substring(0, last));
-                    if (!parent.mkdirs()) {
-                        throw new IOException("Failed to create: " + parent);
-                    }
+                    File parent = new File(dest, name.substring(0, last));
+                    parent.mkdirs();
                 }
                 if (name.endsWith("/")) {
                     continue;
@@ -291,9 +284,9 @@ public class OpenEJBListener implements LifecycleListener {
                 BufferedOutputStream output = null;
                 try {
                     output = new BufferedOutputStream(new FileOutputStream(file));
-                    final byte[] buffer = new byte[2048];
+                    byte buffer[] = new byte[2048];
                     while (true) {
-                        final int n = input.read(buffer);
+                        int n = input.read(buffer);
                         if (n <= 0)
                             break;
                         output.write(buffer, 0, n);
@@ -308,11 +301,9 @@ public class OpenEJBListener implements LifecycleListener {
                     }
                 }
 
-                final long lastModified = jarEntry.getTime();
+                long lastModified = jarEntry.getTime();
                 if (lastModified != -1 && lastModified != 0 && file != null) {
-                    if (!file.setLastModified(lastModified)) {
-                        LOGGER.log(Level.WARNING, "Failed to set last modified time on: " + file.getAbsolutePath());
-                    }
+                    file.setLastModified(lastModified);
                 }
 
                 input.close();

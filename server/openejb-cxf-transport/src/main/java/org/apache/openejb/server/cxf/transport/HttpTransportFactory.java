@@ -26,16 +26,15 @@ import java.io.IOException;
 
 public class HttpTransportFactory extends HTTPTransportFactory {
     public HttpTransportFactory() {
-        // no-op
+    	// no-op
     }
-
+  
     public HttpTransportFactory(Bus bus) {
         setBus(bus);
 
     }
 
-    @Override
-    public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
+    @Override public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
         return new HttpDestination(getBus(), getRegistry(), endpointInfo, endpointInfo.getAddress());
     }
 }

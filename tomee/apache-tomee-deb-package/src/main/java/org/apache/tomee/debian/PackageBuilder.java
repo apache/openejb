@@ -146,7 +146,7 @@ public class PackageBuilder {
 
         if (file.isDirectory()) {
             final File[] children = file.listFiles();
-            if (null != children) for (File child : children) {
+            for (File child : children) {
                 tar(baseDir, checksumWriter, child, os, modeMappings);
             }
         }
@@ -231,7 +231,7 @@ public class PackageBuilder {
 
         final int baseDirLength = baseDir.getAbsolutePath().length();
         final File[] files = baseDir.listFiles();
-        if (null != files) for (File entry : files) {
+        for (File entry : files) {
             final String basePath = entry.getAbsolutePath().substring(baseDirLength).replaceAll("\\\\", "/");
 
             final String dest = dirMappings.get(basePath);
@@ -314,9 +314,7 @@ public class PackageBuilder {
     ) {
         final File expandedTarGz = expandTarGz(sourceTarGz);
 
-        final File[] files = expandedTarGz.listFiles();
-        final File root = (null != files ? files[0] : expandedTarGz);
-        final File dataTarGzFolder = buildDataTarGzFolder(files[0], dirMapping);
+        final File dataTarGzFolder = buildDataTarGzFolder(expandedTarGz.listFiles()[0], dirMapping);
 
         final File md5sums = new File(sourceTarGz.getParent(), "md5sums");
         final File data = compressTarGz(

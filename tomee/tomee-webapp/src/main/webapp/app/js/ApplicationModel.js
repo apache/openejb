@@ -24,15 +24,10 @@
 TOMEE.ApplicationModel = function () {
     "use strict";
 
-    var channel = TOMEE.ApplicationChannel;
-    var appSocket = null;
-    var reconnectTask = TOMEE.DelayedTask();
-    var reconnectDelay = 5000;
-    var urlBase = window.document.URL;
-
-    urlBase = urlBase.replace(new RegExp('^' + window.location.protocol + '//'), '');
-    urlBase = urlBase.replace(new RegExp('^' + window.document.location.host), '');
-    urlBase = urlBase.replace('#', '');
+    var channel = TOMEE.ApplicationChannel,
+        appSocket = null,
+        reconnectTask = TOMEE.DelayedTask(),
+        reconnectDelay = 5000;
 
     channel.bind('server-callback', 'socket-connection-message-received', function (data) {
         var bean = $.parseJSON(data);
@@ -71,16 +66,16 @@ TOMEE.ApplicationModel = function () {
     }
 
     function createSocket() {
-        var isFake = false;
-        var socket = null;
-        var host = (function () {
-            var suffix = urlBase + 'socket';
-            var path = window.document.location.host + suffix;
-            if (window.location.protocol == 'http:') {
-                return 'ws://' + path;
-            }
-            return 'wss://' + path;
-        })();
+        var isFake = false,
+            socket = null,
+            host = (function () {
+                var suffix = '/tomee/socket';
+                var path = window.document.location.host + suffix;
+                if (window.location.protocol == 'http:') {
+                    return 'ws://' + path;
+                }
+                return 'wss://' + path;
+            })();
 
         if ('WebSocket' in window) {
             socket = new WebSocket(host);
@@ -96,7 +91,7 @@ TOMEE.ApplicationModel = function () {
 
                 function send(str) {
                     $.ajax({
-                            url:urlBase + 'command',
+                            url:'/tomee/command',
                             type:'POST',
                             dataType:'text',
                             data:{
@@ -180,7 +175,7 @@ TOMEE.ApplicationModel = function () {
 
     function sendRequest(bean) {
         $.ajax({
-                url:urlBase + bean.servlet,
+                url:'/tomee/' + bean.servlet,
                 method:'POST',
                 dataType:'json',
                 data:bean.params,

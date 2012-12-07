@@ -17,6 +17,7 @@
 package org.apache.openejb.config.sys;
 
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.util.Join;
 import org.apache.openejb.util.Saxs;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -96,10 +98,8 @@ class SaxOpenejb extends StackHandler {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             deployments.setDir(attributes.getValue("dir"));
-            deployments.setFile(attributes.getValue("jar"));
-            deployments.setFile(attributes.getValue("file"));
-            deployments.setAutoDeploy("true".equals(attributes.getValue("autoDeploy")));
-            checkAttributes(attributes, "dir", "jar", "file", "autoDeploy");
+            deployments.setJar(attributes.getValue("jar"));
+            checkAttributes(attributes, "dir", "jar");
         }
 
         @Override

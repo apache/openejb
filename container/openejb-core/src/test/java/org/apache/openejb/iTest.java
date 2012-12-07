@@ -38,7 +38,6 @@ public class iTest extends org.apache.openejb.test.TestSuite {
      * To run this from your ide, set -Dopenejb.home=target/test-classes/
      * @throws Exception
      */
-    @Override
     protected void setUp() throws Exception {
         try {
             OpenEJB.destroy();
@@ -70,7 +69,6 @@ public class iTest extends org.apache.openejb.test.TestSuite {
         TestManager.start();
     }
 
-    @Override
     protected void tearDown() throws Exception {
         TestManager.stop();
         OpenEJB.destroy();

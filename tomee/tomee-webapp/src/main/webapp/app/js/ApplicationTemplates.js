@@ -45,8 +45,6 @@ TOMEE.ApplicationTemplates = (function (paths) {
     };
 })([
     'application',
-    'application-growl',
-    'application-growl-message',
     'application-disabled',
     'application-toolbar',
     'application-toolbar-logout-btn',
@@ -57,8 +55,6 @@ TOMEE.ApplicationTemplates = (function (paths) {
     'application-tab-log',
     'application-tab-log-file',
     'application-tab-log-lines',
-    'application-tab-status',
-    'application-tab-status-lines',
     'application-disconnected-popup',
     'application-tab-webservices',
     'application-tab-webservices-table',

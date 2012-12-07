@@ -20,7 +20,6 @@ import org.apache.openejb.BeanContext;
 import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.client.EJBRequest;
 import org.apache.openejb.client.EjbObjectInputStream;
-import org.apache.openejb.client.FlushableGZIPOutputStream;
 import org.apache.openejb.client.ProtocolMetaData;
 import org.apache.openejb.client.RequestType;
 import org.apache.openejb.client.ServerMetaData;
@@ -29,9 +28,8 @@ import org.apache.openejb.server.DiscoveryAgent;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.util.LogCategory;
 import org.apache.openejb.util.Logger;
+import org.apache.openejb.util.Messages;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -40,12 +38,12 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.Properties;
-import java.util.zip.GZIPInputStream;
 
 public class EjbDaemon implements org.apache.openejb.spi.ApplicationServer {
 
     private static final ProtocolMetaData PROTOCOL_VERSION = new ProtocolMetaData("3.1");
 
+    private static final Messages _messages = new Messages("org.apache.openejb.server.util.resources");
     static final Logger logger = Logger.getInstance(LogCategory.OPENEJB_SERVER_REMOTE, "org.apache.openejb.server.util.resources");
 
     private ClientObjectFactory clientObjectFactory;
@@ -55,10 +53,10 @@ public class EjbDaemon implements org.apache.openejb.spi.ApplicationServer {
     private AuthRequestHandler authHandler;
     private ClusterRequestHandler clusterHandler;
 
-    static EjbDaemon instance;
+    boolean stop = false;
 
+    static EjbDaemon instance;
     private ContainerSystem containerSystem;
-    private boolean gzip;
 
     private EjbDaemon() {
     }
@@ -80,7 +78,6 @@ public class EjbDaemon implements org.apache.openejb.spi.ApplicationServer {
         jndiHandler = new JndiRequestHandler(this);
         authHandler = new AuthRequestHandler(this);
         clusterHandler = new ClusterRequestHandler(this);
-        gzip = "true".equalsIgnoreCase(props.getProperty("gzip", "false"));
 
         DiscoveryAgent discovery = SystemInstance.get().getComponent(DiscoveryAgent.class);
         if (discovery != null) {
@@ -99,12 +96,8 @@ public class EjbDaemon implements org.apache.openejb.spi.ApplicationServer {
                 return;
             }
 
-            in = new BufferedInputStream(socket.getInputStream());
-            out = new BufferedOutputStream(socket.getOutputStream());
-            if (gzip) {
-                in = new GZIPInputStream(new BufferedInputStream(socket.getInputStream()));
-                out = new BufferedOutputStream(new FlushableGZIPOutputStream(socket.getOutputStream()));
-            }
+            in = socket.getInputStream();
+            out = socket.getOutputStream();
 
             service(in, out);
         } finally {
@@ -299,8 +292,5 @@ public class EjbDaemon implements org.apache.openejb.spi.ApplicationServer {
         return clientObjectFactory.getEJBHome(info);
     }
 
-    public boolean isGzip() {
-        return gzip;
-    }
 }
 

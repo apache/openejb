@@ -37,69 +37,59 @@ public class CheckRestMethodArePublic implements ValidationRule {
     public void validate(final AppModule appModule) {
         // valid standalone classes
         final Collection<String> standAloneClasses = new ArrayList<String>();
+        for (EjbModule ejb : appModule.getEjbModules()) {
+            for (EnterpriseBean bean : ejb.getEjbJar().getEnterpriseBeans()) {
+                if (bean instanceof SessionBean && ((SessionBean) bean).isRestService()) {
+                    standAloneClasses.add(bean.getEjbClass());
+                    valid(ejb.getValidation(), ejb.getClassLoader(), bean.getEjbClass());
+                }
+            }
+        }
 
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try {
-            for (EjbModule ejb : appModule.getEjbModules()) {
-                Thread.currentThread().setContextClassLoader(ejb.getClassLoader());
+        for (WebModule web : appModule.getWebModules()) {
+            // build the list of classes to validate
+            final Collection<String> classes = new ArrayList<String>();
+            classes.addAll(web.getRestClasses());
+            classes.addAll(web.getEjbRestServices());
 
-                for (EnterpriseBean bean : ejb.getEjbJar().getEnterpriseBeans()) {
-                    if (bean instanceof SessionBean && ((SessionBean) bean).isRestService()) {
-                        standAloneClasses.add(bean.getEjbClass());
-                        valid(ejb.getValidation(), ejb.getClassLoader(), bean.getEjbClass());
-                    }
+            for (String app : web.getRestApplications()) {
+                Class<?> clazz;
+                try {
+                    clazz = web.getClassLoader().loadClass(app);
+                } catch (ClassNotFoundException e) {
+                    continue; // managed elsewhere, here we just check methods
+                }
+
+                final Application appInstance;
+                try {
+                    appInstance = (Application) clazz.newInstance();
+                } catch (Exception e) {
+                    continue; // managed elsewhere
+                }
+
+                for (Class<?> rsClass : appInstance.getClasses()) {
+                    classes.add(rsClass.getName());
+                }
+                for (Object rsSingleton : appInstance.getSingletons()) {
+                    classes.add(rsSingleton.getClass().getName());
                 }
             }
 
-            for (WebModule web : appModule.getWebModules()) {
-                Thread.currentThread().setContextClassLoader(web.getClassLoader());
-
-                // build the list of classes to validate
-                final Collection<String> classes = new ArrayList<String>();
-                classes.addAll(web.getRestClasses());
-                classes.addAll(web.getEjbRestServices());
-
-                for (String app : web.getRestApplications()) {
-                    Class<?> clazz;
-                    try {
-                        clazz = web.getClassLoader().loadClass(app);
-                    } catch (ClassNotFoundException e) {
-                        continue; // managed elsewhere, here we just check methods
-                    }
-
-                    final Application appInstance;
-                    try {
-                        appInstance = (Application) clazz.newInstance();
-                    } catch (Exception e) {
-                        continue; // managed elsewhere
-                    }
-
-                    for (Class<?> rsClass : appInstance.getClasses()) {
-                        classes.add(rsClass.getName());
-                    }
-                    for (Object rsSingleton : appInstance.getSingletons()) {
-                        classes.add(rsSingleton.getClass().getName());
-                    }
+            // try to avoid to valid twice the same classes
+            final Iterator<String> it = classes.iterator();
+            while (it.hasNext()) {
+                final String current = it.next();
+                if (standAloneClasses.contains(current)) {
+                    it.remove();
                 }
-
-                // try to avoid to valid twice the same classes
-                final Iterator<String> it = classes.iterator();
-                while (it.hasNext()) {
-                    final String current = it.next();
-                    if (standAloneClasses.contains(current)) {
-                        it.remove();
-                    }
-                }
-
-                // valid
-                for (String classname : classes) {
-                    valid(web.getValidation(), web.getClassLoader(), classname);
-                }
-
-                classes.clear();
             }
-        } finally {
-            Thread.currentThread().setContextClassLoader(loader);
+
+            // valid
+            for (String classname : classes) {
+                valid(web.getValidation(), web.getClassLoader(), classname);
+            }
+
+            classes.clear();
         }
 
         standAloneClasses.clear();

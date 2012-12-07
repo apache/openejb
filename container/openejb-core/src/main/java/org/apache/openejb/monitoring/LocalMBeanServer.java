@@ -55,7 +55,7 @@ public class LocalMBeanServer implements MBeanServer {
     }
 
     public static void reset() {
-        active = SystemInstance.get().getOptions().get(OPENEJB_JMX_ACTIVE, true);
+        active = SystemInstance.get().getOptions().get(OPENEJB_JMX_ACTIVE, false);
     }
 
     public static MBeanServer get() {
