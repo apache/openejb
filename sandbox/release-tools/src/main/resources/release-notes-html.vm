@@ -3,8 +3,9 @@
 #set( $upgrades = $upgrades.add("TOMEE", [$tomeeVersion]) )
 #set( $upgrades = $upgrades.add("OPENEJB", [$openejbVersion]) )
 #set( $upgrades = $upgrades.add("OWB", ["1.1.7"]) )
-###set( $upgrades = $upgrades.add("AMQ", ["5.4.3", "5.5.0", "5.5.1"]) )
-###set( $upgrades = $upgrades.add("CXF", ["2.4.2", "2.4.3", "2.4.4", "2.4.5", "2.5", "2.5.1"]) )
+#set( $upgrades = $upgrades.add("AMQ", ["5.7.0"]) )
+#set( $upgrades = $upgrades.add("CXF", ["2.6.3"]) )
+#set( $upgrades = $upgrades.add("MYFACES", ["2.1.10"]) )
 #set( $issues = $upgrades.issues.unique("key") )
 
 Apache TomEE $version
