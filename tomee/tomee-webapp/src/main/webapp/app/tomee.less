@@ -17,25 +17,9 @@
 
 body {
     overflow: hidden;
-
-    .growl-container {
-        position: absolute;
-        bottom: 40px;
-        left: 20px;
-        z-index: 5000;
-
-        .growl {
-            display: none;
-            width: 300px;
-        }
-    }
 }
 
 .tomee {
-    .hidden {
-        display: none;
-    }
-
     overflow: hidden;
 
     .splitter {
@@ -93,10 +77,6 @@ body {
     }
 
     .tomee-console {
-        .dropdown-menu {
-            overflow: auto;
-        }
-
         .tomee-console-output {
             background-color: #F7F7F9;
             border: 1px solid #E1E1E8;
@@ -115,10 +95,6 @@ body {
             overflow: auto;
             background-color: #E5E5E5;
             border-bottom: 1px solid white;
-        }
-
-        .navbar-inner {
-            position: relative;
         }
 
         .tomee-execute-webservices-group {
@@ -172,40 +148,8 @@ body {
         }
     }
 
-    .tomee-status {
-        .navbar-inner {
-            position: relative;
-
-            .buttons {
-                position: absolute;
-                right: 10px;
-                top: 0px;
-            }
-        }
-
-        .tomee-status-output {
-            overflow: auto;
-            margin-bottom: 0px;
-            padding-top: 5px;
-
-            input {
-                width: 500px;
-            }
-
-            .alert {
-                margin-bottom: 5px;
-                margin-left: 5px;
-                margin-right: 5px;
-            }
-
-            .messages {
-                list-style: none;
-                margin-left: 5px;
-            }
-        }
-    }
-
     .tomee-webservices {
         padding: 5px;
     }
+
 }

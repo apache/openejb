@@ -40,14 +40,13 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/src/main/webapp</directory>
+      <directory>${basedir}/src/main/webapp</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/target/classes</directory>
+      <directory>${basedir}/target/classes</directory>
       <outputDirectory>/</outputDirectory>
       <excludes>
-        <exclude>META-INF/org.apache.tomee/**</exclude>
         <exclude>org/**</exclude>
         <exclude>**/LICENSE</exclude>
         <exclude>**/NOTICE</exclude>
@@ -59,7 +58,6 @@
       <directory>${basedir}/target/classes</directory>
       <outputDirectory>WEB-INF/classes</outputDirectory>
       <excludes>
-        <exclude>**/META-INF/org.apache.tomee/service-jar.xml</exclude>
         <exclude>**/LICENSE</exclude>
         <exclude>**/NOTICE</exclude>
         <exclude>**/LICENSE.txt</exclude>

@@ -23,10 +23,9 @@
 TOMEE.ApplicationController = function () {
     "use strict";
 
-    var channel = TOMEE.ApplicationChannel;
-    var model = TOMEE.ApplicationModel();
-    var view = TOMEE.ApplicationView();
-    var growl = TOMEE.GrowlNotification();
+    var channel = TOMEE.ApplicationChannel,
+        model = TOMEE.ApplicationModel(),
+        view = TOMEE.ApplicationView();
 
     view.render();
 
@@ -47,25 +46,13 @@ TOMEE.ApplicationController = function () {
         model.sendMessage({
             cmdName:'Login',
             user:data.user,
-            pass:data.pass,
-            port:window.location.port,
-            protocol: (function() {
-                var protocol = window.location.protocol;
-                protocol = protocol.replace(':', '');
-                return protocol;
-            })()
+            pass:data.pass
         });
     });
 
     channel.bind('ui-actions', 'load-file-names', function () {
         model.sendMessage({
             cmdName:'GetLogFiles'
-        });
-    });
-
-    channel.bind('ui-actions', 'load-status', function () {
-        model.sendMessage({
-            cmdName:'GetStatus'
         });
     });
 
@@ -88,17 +75,8 @@ TOMEE.ApplicationController = function () {
         });
     });
 
-    channel.bind('ui-actions', 'openejb-installer-clicked', function (data) {
-        data.cmdName = 'RunInstaller';
-        model.sendMessage(data);
-    });
-
-    channel.bind('server-command-callback-error', 'RunScript', function (data) {
-        growl.showNotification(TOMEE.I18N.get('application.console.run.error'), 'error');
-    });
-
-    channel.bind('ui-actions', 'show-notification', function (data) {
-        growl.showNotification(data.message, data.messageType);
+    channel.bind('server-command-callback', 'RunScript', function (data) {
+        //TODO: add growl notification
     });
 
     channel.bind('server-command-callback', 'Logout', function (data) {
@@ -107,20 +85,6 @@ TOMEE.ApplicationController = function () {
 
     channel.bind('server-connection', 'session-ready', function () {
         model.connectSocket();
-    });
-
-    channel.bind('server-command-callback-success', 'Login', function (params) {
-        if (params.output.loginSuccess) {
-            growl.showNotification(TOMEE.I18N.get('application.log.hello', {
-                userName:params.params.user
-            }), 'success');
-        } else {
-            growl.showNotification(TOMEE.I18N.get('application.log.bad'), 'error');
-        }
-    });
-
-    channel.bind('server-command-callback-error', 'Login', function (params) {
-        growl.showNotification(TOMEE.I18N.get('application.log.error'), 'error');
     });
 
     return {

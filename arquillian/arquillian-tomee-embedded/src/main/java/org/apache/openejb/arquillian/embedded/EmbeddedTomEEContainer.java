@@ -43,24 +43,23 @@ public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfigur
 
     private Container container;
 
-    @Override
     public Class<EmbeddedTomEEConfiguration> getConfigurationClass() {
         return EmbeddedTomEEConfiguration.class;
     }
 
     @Override
-    public void setup(final EmbeddedTomEEConfiguration configuration) {
+    public void setup(EmbeddedTomEEConfiguration configuration) {
         super.setup(configuration);
-        this.container = new Container();
-        this.container.setup(this.convertConfiguration(configuration));
+        container = new Container();
+        container.setup(convertConfiguration(configuration));
     }
 
     /*
      * Not exactly as elegant as I'd like. Maybe we could have the EmbeddedServer configuration in openejb-core so all the adapters can use it.
      * Depending on tomee-embedded is fine in this adapter, but less desirable in the others, as we'd get loads of stuff in the classpath we don't need.
      */
-    private Configuration convertConfiguration(final EmbeddedTomEEConfiguration tomeeConfiguration) {
-    	final Configuration configuration = new Configuration();
+    private Configuration convertConfiguration(EmbeddedTomEEConfiguration tomeeConfiguration) {
+    	Configuration configuration = new Configuration();
     	configuration.setDir(tomeeConfiguration.getDir());
     	configuration.setHttpPort(tomeeConfiguration.getHttpPort());
     	configuration.setStopPort(tomeeConfiguration.getStopPort());
@@ -74,7 +73,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfigur
     @Override
     public void start() throws LifecycleException {
         try {
-            this.container.start();
+            container.start();
             SystemInstance.get().setComponent(AdditionalBeanDiscoverer.class, new TestClassDiscoverer());
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,7 +84,7 @@ public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfigur
     @Override
     public void stop() throws LifecycleException {
         try {
-            this.container.stop();
+            container.stop();
         } catch (Exception e) {
             throw new LifecycleException("Unable to stop server", e);
         }
@@ -97,24 +96,21 @@ public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfigur
     }
 
     @Override
-    public ProtocolMetaData deploy(final Archive<?> archive) throws DeploymentException {
+    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
     	try {
-            /* don't do it since it should be configurable
             final File tempDir = Files.createTempDir();
-            final File file = new File(tempDir, name);
-            */
             final String name = archive.getName();
-            final File file = this.dumpFile(archive);
+            final File file = new File(tempDir, name);
             ARCHIVES.put(archive, file);
-            this.archiveWithTestInfo(archive).as(ZipExporter.class).exportTo(file, true);
+            archiveWithTestInfo(archive).as(ZipExporter.class).exportTo(file, true);
 
-            this.container.deploy(name, file);
-            final AppInfo info = this.container.getInfo(name);
-            final String context = this.getArchiveNameWithoutExtension(archive);
+            container.deploy(name, file);
+            final AppInfo info = container.getInfo(name);
+            final String context = getArchiveNameWithoutExtension(archive);
 
-            final HTTPContext httpContext = new HTTPContext(this.configuration.getHost(), this.configuration.getHttpPort());
+            final HTTPContext httpContext = new HTTPContext(configuration.getHost(), configuration.getHttpPort());
             httpContext.add(new Servlet("ArquillianServletRunner", "/" + context));
-            this.addServlets(httpContext, info);
+            addServlets(httpContext, info);
 
             return new ProtocolMetaData().addContext(httpContext);
         } catch (Exception e) {
@@ -124,16 +120,16 @@ public class EmbeddedTomEEContainer extends TomEEContainer<EmbeddedTomEEConfigur
     }
 
     @Override
-    public void undeploy(final Archive<?> archive) throws DeploymentException {
+    public void undeploy(Archive<?> archive) throws DeploymentException {
     	try {
             final String name = archive.getName();
-            this.container.undeploy(name);
+            container.undeploy(name);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DeploymentException("Unable to undeploy", e);
         }
-        final File file = ARCHIVES.remove(archive);
-        final File folder = new File(file.getParentFile(), file.getName().substring(0, file.getName().length() - 5));
+        File file = ARCHIVES.remove(archive);
+        File folder = new File(file.getParentFile(), file.getName().substring(0, file.getName().length() - 5));
         if (folder.exists()) {
             Files.delete(folder);
         }

@@ -66,21 +66,10 @@ public class StartupObject {
         return webContext;
     }
 
-    public WebBeansContext getWebBeansContext() {
-        if (isFromWebApp()) {
-            return webContext.getWebbeansContext();
-        }
-        return appContext.getWebBeansContext();
-    }
-
     public ClassLoader getClassLoader() {
-        if (isFromWebApp()) {
+        if (webContext != null) {
             return webContext.getClassLoader();
         }
         return appContext.getClassLoader();
-    }
-
-    public boolean isFromWebApp() {
-        return webContext != null;
     }
 }

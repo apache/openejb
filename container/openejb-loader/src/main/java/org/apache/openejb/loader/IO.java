@@ -16,7 +16,25 @@
  */
 package org.apache.openejb.loader;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URI;
@@ -25,8 +43,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -38,11 +54,11 @@ public class IO {
 
     public static String readFileAsString(final URI uri) throws IOException {
         final StringBuilder builder = new StringBuilder("");
-        for (final Proxy proxy : ProxySelector.getDefault().select(uri)) {
-            final InputStream is;
+        for (Proxy proxy : ProxySelector.getDefault().select(uri)) {
+            InputStream is;
 
             try {
-                final URLConnection urlConnection = uri.toURL().openConnection(proxy);
+                URLConnection urlConnection = uri.toURL().openConnection(proxy);
                 urlConnection.setConnectTimeout(MAX_TIMEOUT);
                 is = urlConnection.getInputStream();
             } catch (IOException e) {
@@ -63,11 +79,11 @@ public class IO {
         return builder.toString();
     }
 
-    public static Properties readProperties(final URL resource) throws IOException {
+    public static Properties readProperties(URL resource) throws IOException {
         return readProperties(resource, new Properties());
     }
 
-    public static Properties readProperties(final URL resource, final Properties properties) throws IOException {
+    public static Properties readProperties(URL resource, Properties properties) throws IOException {
         return readProperties(read(resource), properties);
     }
 
@@ -75,65 +91,64 @@ public class IO {
         return readProperties(resource, new Properties());
     }
 
-    public static Properties readProperties(final File resource, final Properties properties) throws IOException {
+    public static Properties readProperties(File resource, Properties properties) throws IOException {
         return readProperties(read(resource), properties);
     }
 
     /**
      * Reads and closes the input stream
-     *
-     * @param in         InputStream
-     * @param properties Properties
-     * @return Properties
+     * @param in
+     * @param properties
+     * @return
      * @throws IOException
      */
-    public static Properties readProperties(final InputStream in, final Properties properties) throws IOException {
+    public static Properties readProperties(InputStream in, Properties properties) throws IOException {
         if (in == null) throw new NullPointerException("InputStream is null");
         if (properties == null) throw new NullPointerException("Properties is null");
         try {
             properties.load(in);
-        } finally {
+        } finally{
             close(in);
         }
         return properties;
     }
 
-    public static String readString(final URL url) throws IOException {
+    public static String readString(URL url) throws IOException {
         final InputStream in = url.openStream();
         try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             return reader.readLine();
         } finally {
             close(in);
         }
     }
 
-    public static String readString(final File file) throws IOException {
+    public static String readString(File file) throws IOException {
         final FileReader in = new FileReader(file);
         try {
-            final BufferedReader reader = new BufferedReader(in);
+            BufferedReader reader = new BufferedReader(in);
             return reader.readLine();
         } finally {
             close(in);
         }
     }
 
-    public static String slurp(final File file) throws IOException {
+    public static String slurp(File file) throws IOException {
         return slurp(read(file));
     }
 
 
-    public static String slurp(final URL url) throws IOException {
+    public static String slurp(URL url) throws IOException {
         return slurp(url.openStream());
     }
 
-    public static String slurp(final InputStream in) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    public static String slurp(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
         copy(in, out);
         return new String(out.toByteArray());
     }
 
-    public static void writeString(final File file, final String string) throws IOException {
+    public static void writeString(File file, String string) throws IOException {
         final FileWriter out = new FileWriter(file);
         try {
             final BufferedWriter bufferedWriter = new BufferedWriter(out);
@@ -168,10 +183,10 @@ public class IO {
         if (destDir == null) {
             throw new NullPointerException("Destination must not be null");
         }
-        if (!srcDir.exists()) {
+        if (srcDir.exists() == false) {
             throw new FileNotFoundException("Source '" + srcDir + "' does not exist");
         }
-        if (!srcDir.isDirectory()) {
+        if (srcDir.isDirectory() == false) {
             throw new IOException("Source '" + srcDir + "' exists but is not a directory");
         }
         if (srcDir.getCanonicalPath().equals(destDir.getCanonicalPath())) {
@@ -181,11 +196,11 @@ public class IO {
         // Cater for destination being directory within the source directory (see IO-141)
         List<String> exclusionList = null;
         if (destDir.getCanonicalPath().startsWith(srcDir.getCanonicalPath())) {
-            final File[] srcFiles = srcDir.listFiles();
+            File[] srcFiles = srcDir.listFiles();
             if (srcFiles != null && srcFiles.length > 0) {
                 exclusionList = new ArrayList<String>(srcFiles.length);
-                for (final File srcFile : srcFiles) {
-                    final File copiedFile = new File(destDir, srcFile.getName());
+                for (File srcFile : srcFiles) {
+                    File copiedFile = new File(destDir, srcFile.getName());
                     exclusionList.add(copiedFile.getCanonicalPath());
                 }
             }
@@ -199,18 +214,18 @@ public class IO {
             throw new IOException("Failed to list contents of " + srcDir);
         }
         if (destDir.exists()) {
-            if (!destDir.isDirectory()) {
+            if (destDir.isDirectory() == false) {
                 throw new IOException("Destination '" + destDir + "' exists but is not a directory");
             }
         } else {
-            if (!destDir.mkdirs()) {
+            if (destDir.mkdirs() == false) {
                 throw new IOException("Destination '" + destDir + "' directory cannot be created");
             }
         }
-        if (!destDir.canWrite()) {
+        if (destDir.canWrite() == false) {
             throw new IOException("Destination '" + destDir + "' cannot be written to");
         }
-        for (final File file : files) {
+        for (File file : files) {
             final File copiedFile = new File(destDir, file.getName());
             if (exclusionList == null || !exclusionList.contains(file.getCanonicalPath())) {
                 if (file.isDirectory()) {
@@ -222,7 +237,7 @@ public class IO {
         }
     }
 
-    public static void copy(final File from, final OutputStream to) throws IOException {
+    public static void copy(File from, OutputStream to) throws IOException {
         final InputStream read = read(from);
         try {
             copy(read, to);
@@ -231,7 +246,7 @@ public class IO {
         }
     }
 
-    public static void copy(final URL from, final OutputStream to) throws IOException {
+    public static void copy(URL from, OutputStream to) throws IOException {
         final InputStream read = read(from);
         try {
             copy(read, to);
@@ -240,7 +255,7 @@ public class IO {
         }
     }
 
-    public static void copy(final InputStream from, final File to) throws IOException {
+    public static void copy(InputStream from, File to) throws IOException {
         final OutputStream write = write(to);
         try {
             copy(from, write);
@@ -249,7 +264,7 @@ public class IO {
         }
     }
 
-    public static void copy(final InputStream from, final File to, final boolean append) throws IOException {
+    public static void copy(InputStream from, File to, boolean append) throws IOException {
         final OutputStream write = write(to, append);
         try {
             copy(from, write);
@@ -258,8 +273,8 @@ public class IO {
         }
     }
 
-    public static void copy(final InputStream from, final OutputStream to) throws IOException {
-        final byte[] buffer = new byte[1024];
+    public static void copy(InputStream from, OutputStream to) throws IOException {
+        byte[] buffer = new byte[1024];
         int length;
         while ((length = from.read(buffer)) != -1) {
             to.write(buffer, 0, length);
@@ -267,78 +282,76 @@ public class IO {
         to.flush();
     }
 
-    public static void copy(final byte[] from, final File to) throws IOException {
+    public static void copy(byte[] from, File to) throws IOException {
         copy(new ByteArrayInputStream(from), to);
     }
 
-    public static void copy(final byte[] from, final OutputStream to) throws IOException {
+    public static void copy(byte[] from, OutputStream to) throws IOException {
         copy(new ByteArrayInputStream(from), to);
     }
 
-    public static ZipOutputStream zip(final File file) throws IOException {
+    public static ZipOutputStream zip(File file) throws IOException {
         final OutputStream write = write(file);
         return new ZipOutputStream(write);
     }
 
-    public static ZipInputStream unzip(final File file) throws IOException {
+    public static ZipInputStream unzip(File file) throws IOException {
         final InputStream read = read(file);
         return new ZipInputStream(read);
     }
 
-    public static void close(final Closeable closeable) {
+    public static void close(Closeable closeable) {
         if (closeable == null) return;
         try {
-            if (Flushable.class.isInstance(closeable)) {
+            if (closeable instanceof Flushable) {
                 ((Flushable) closeable).flush();
             }
-        } catch (Throwable e) {
-            //Ignore
+        } catch (IOException e) {
         }
         try {
             closeable.close();
-        } catch (Throwable e) {
-            //Ignore
+        } catch (IOException e) {
         }
     }
 
-    public static boolean delete(final File file) {
+    public static boolean delete(File file) {
         if (file == null) return false;
         if (!file.delete()) {
-            Logger.getLogger(IO.class.getName()).log(Level.WARNING, "Delete failed on: " + file.getAbsolutePath());
+            System.err.println("Delete failed " + file.getAbsolutePath());
             return false;
         }
 
         return true;
     }
 
-    public static OutputStream write(final File destination) throws FileNotFoundException {
+    public static OutputStream write(File destination) throws FileNotFoundException {
         final OutputStream out = new FileOutputStream(destination);
         return new BufferedOutputStream(out, 32768);
     }
 
-    public static OutputStream write(final File destination, final boolean append) throws FileNotFoundException {
+    public static OutputStream write(File destination, boolean append) throws FileNotFoundException {
         final OutputStream out = new FileOutputStream(destination, append);
         return new BufferedOutputStream(out, 32768);
     }
 
-    public static InputStream read(final File source) throws FileNotFoundException {
+    public static InputStream read(File source) throws FileNotFoundException {
         final InputStream in = new FileInputStream(source);
         return new BufferedInputStream(in, 32768);
     }
 
-    public static InputStream read(final String content) {
+    public static InputStream read(String content) {
         return read(content.getBytes());
     }
 
-    public static InputStream read(final String content, final String encoding) throws UnsupportedEncodingException {
+    public static InputStream read(String content, String encoding) throws UnsupportedEncodingException {
         return read(content.getBytes(encoding));
     }
 
-    public static InputStream read(final byte[] content) {
+    public static InputStream read(byte[] content) {
         return new ByteArrayInputStream(content);
     }
 
-    public static InputStream read(final URL url) throws IOException {
+    public static InputStream read(URL url) throws IOException {
         return url.openStream();
     }
 }

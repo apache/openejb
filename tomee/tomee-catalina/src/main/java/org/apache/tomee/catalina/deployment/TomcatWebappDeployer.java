@@ -79,9 +79,7 @@ public class TomcatWebappDeployer implements WebAppDeployer {
         if (info == null || info.standardContext == null) { // error
             LOGGER.warning("Can't find " + path);
         } else {
-            if (info.standardContext.getReloadable()) {
-                info.standardContext.reload();
-            }
+            info.standardContext.reload();
         }
     }
 

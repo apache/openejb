@@ -147,14 +147,14 @@ public final class CxfUtil {
         }
     }
 
-    private static List<AbstractFeature> createFeatures(final Collection<ServiceInfo> availableServices, final String featuresIds) {
+    private static List<Feature> createFeatures(final Collection<ServiceInfo> availableServices, final String featuresIds) {
         final List<?> features = ServiceInfos.resolve(availableServices, featuresIds.split(","));
         for (Object instance : features) {
-            if (!AbstractFeature.class.isInstance(instance)) {
+            if (!Feature.class.isInstance(instance)) {
                 throw new OpenEJBRuntimeException("feature should inherit from " + AbstractFeature.class.getName());
             }
         }
-        return (List<AbstractFeature>) features;
+        return (List<Feature>) features;
     }
 
     private static List<Interceptor<? extends Message>> createInterceptors(final Collection<ServiceInfo> availableServices, final String ids) {
@@ -186,7 +186,7 @@ public final class CxfUtil {
 
             final String featuresIds = properties.getProperty(BUS_PREFIX + FEATURES);
             if (featuresIds != null) {
-                final List<AbstractFeature> features = createFeatures(serviceInfos, featuresIds);
+                final List<Feature> features = createFeatures(serviceInfos, featuresIds);
                 if (features != null) {
                     features.addAll(busImpl.getFeatures());
                     busImpl.setFeatures(features);

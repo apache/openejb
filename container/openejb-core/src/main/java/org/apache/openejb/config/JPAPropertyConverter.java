@@ -42,8 +42,7 @@ public final class JPAPropertyConverter {
             return value;
         }
 
-        @Override
-        public String toString() {
+        @Override public String toString() {
             return key + '=' + value;
         }
     }

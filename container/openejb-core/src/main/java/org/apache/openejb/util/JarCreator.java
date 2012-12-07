@@ -41,8 +41,8 @@ public final class JarCreator {
             prefix += File.separator;
         }
 
-        for (final String entry : entries) {
-            final File f = new File(dir, entry);
+        for (String entry : entries) {
+            File f = new File(dir, entry);
             jarFile(out, f, prefix);
         }
         IO.close(out);
@@ -50,8 +50,7 @@ public final class JarCreator {
 
     private static void jarFile(final JarOutputStream out, final File f, final String prefix) throws IOException {
         if (f.isDirectory()) {
-            final File[] files = f.listFiles();
-            if (null != files) for (final File child : files) {
+            for (File child : f.listFiles()) {
                 jarFile(out, child, prefix);
             }
         } else {

@@ -46,31 +46,26 @@ import java.util.Set;
  */
 // Note: this class is a fork from OpenJPA
 public class TempClassLoader extends URLClassLoader {
-
     private final Set<Skip> skip;
     private final ClassLoader system;
     private final boolean embedded;
 
-    // 80% of class files are smaller then 6k
-    private final ByteArrayOutputStream bout = new ByteArrayOutputStream(6 * 1024);
-
-    public TempClassLoader(final ClassLoader parent) {
+    public TempClassLoader(ClassLoader parent) {
         super(new URL[0], parent);
-        this.skip = SystemInstance.get().getOptions().getAll("openejb.tempclassloader.skip", Skip.NONE);
-        this.system = ClassLoader.getSystemClassLoader();
-        this.embedded = this.getClass().getClassLoader() == this.system;
+        skip = SystemInstance.get().getOptions().getAll("openejb.tempclassloader.skip", Skip.NONE);
+        system = ClassLoader.getSystemClassLoader();
+        embedded = getClass().getClassLoader() == system;
     }
 
     /*
      * Needed for testing
      */
-    public void skip(final Skip s) {
+    public void skip(Skip s) {
         this.skip.add(s);
     }
 
-    @Override
-    public Class loadClass(final String name) throws ClassNotFoundException {
-        return this.loadClass(name, false);
+    public Class loadClass(String name) throws ClassNotFoundException {
+        return loadClass(name, false);
     }
 
     @Override
@@ -78,12 +73,11 @@ public class TempClassLoader extends URLClassLoader {
         return URLClassLoaderFirst.filterResources(name, super.getResources(name));
     }
 
-    @Override
-    protected synchronized Class loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+    protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         if (name == null) throw new NullPointerException("name cannot be null");
-
+        
         // see if we've already loaded it
-        Class c = this.findLoadedClass(name);
+        Class c = findLoadedClass(name);
         if (c != null) {
             return c;
         }
@@ -102,16 +96,16 @@ public class TempClassLoader extends URLClassLoader {
          * 2. Since this class loader uses Class.forName to load classes starting with java, javax or sun, it cannot load javax.faces.FacesServlet
          * 3. Result is , AnnotationDeployer throws a ClassNotFoundException
          */
-        if (this.skip(name)) {
-            return Class.forName(name, resolve, this.getClass().getClassLoader());
+        if (skip(name)) {
+            return Class.forName(name, resolve, getClass().getClassLoader());
         }
 
         // don't load classes from app classloader
         // we do it after the previous one since it will probably result to the same
         // Class and the previous one is faster than this one
-        if (!this.embedded && URLClassLoaderFirst.canBeLoadedFromSystem(name)) {
+        if (!embedded && URLClassLoaderFirst.canBeLoadedFromSystem(name)) {
             try {
-                c = this.system.loadClass(name);
+                c = system.loadClass(name);
                 if (c != null) {
                     return c;
                 }
@@ -121,28 +115,23 @@ public class TempClassLoader extends URLClassLoader {
         }
 
 //        ( && !name.startsWith("javax.faces.") )||
-        final String resourceName = name.replace('.', '/') + ".class";
+        String resourceName = name.replace('.', '/') + ".class";
+        InputStream in = getResourceAsStream(resourceName);
+        if (in != null && !(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
+        if (in == null) {
+            throw new ClassNotFoundException(name);
+        }
 
-        //Copy the input stream into a byte array
-        final byte[] bytes;
-        this.bout.reset();
-        InputStream in = null;
+        // 80% of class files are smaller then 6k
+        ByteArrayOutputStream bout = new ByteArrayOutputStream(8 * 1024);
 
+        // copy the input stream into a byte array
+        byte[] bytes;
         try {
-
-            in = this.getResourceAsStream(resourceName);
-
-            if (in != null && !(in instanceof BufferedInputStream)) {
-                in = new BufferedInputStream(in);
-            }
-
-            if (in == null) {
-                throw new ClassNotFoundException(name);
-            }
-
-            IO.copy(in, this.bout);
-            bytes = this.bout.toByteArray();
-
+            IO.copy(in, bout);
+            bytes = bout.toByteArray();
         } catch (IOException e) {
             throw new ClassNotFoundException(name, e);
         } finally {
@@ -151,26 +140,26 @@ public class TempClassLoader extends URLClassLoader {
 
         // Annotation classes must be loaded by the normal classloader
         // So must Enum classes to prevent problems with the sun jdk.
-        if (this.skip.contains(Skip.ANNOTATIONS) && isAnnotationClass(bytes)) {
-            return Class.forName(name, resolve, this.getClass().getClassLoader());
+        if (skip.contains(Skip.ANNOTATIONS) && isAnnotationClass(bytes)) {
+            return Class.forName(name, resolve, getClass().getClassLoader());
         }
 
-        if (this.skip.contains(Skip.ENUMS) && isEnum(bytes)) {
-            return Class.forName(name, resolve, this.getClass().getClassLoader());
+        if (skip.contains(Skip.ENUMS) && isEnum(bytes)) {
+            return Class.forName(name, resolve, getClass().getClassLoader());
         }
 
         // define the package
-        final int packageEndIndex = name.lastIndexOf('.');
+        int packageEndIndex = name.lastIndexOf('.');
         if (packageEndIndex != -1) {
-            final String packageName = name.substring(0, packageEndIndex);
-            if (this.getPackage(packageName) == null) {
-                this.definePackage(packageName, null, null, null, null, null, null, null);
+            String packageName = name.substring(0, packageEndIndex);
+            if (getPackage(packageName) == null) {
+                definePackage(packageName, null, null, null, null, null, null, null);
             }
         }
 
         // define the class
         try {
-            return this.defineClass(name, bytes, 0, bytes.length);
+            return defineClass(name, bytes, 0, bytes.length);
         } catch (SecurityException e) {
             // possible prohibited package: defer to the parent
             return super.loadClass(name, resolve);
@@ -181,8 +170,8 @@ public class TempClassLoader extends URLClassLoader {
     }
 
     // TODO: for jsf it can be useful to include commons-logging and openwebbeans...
-    private boolean skip(final String name) {
-        return this.skip.contains(Skip.ALL) || URLClassLoaderFirst.shouldSkip(name);
+    private boolean skip(String name) {
+        return skip.contains(Skip.ALL) || URLClassLoaderFirst.shouldSkip(name);
     }
 
     public static enum Skip {
@@ -193,9 +182,9 @@ public class TempClassLoader extends URLClassLoader {
      * Fast-parse the given class bytecode to determine if it is an
      * enum class.
      */
-    private static boolean isEnum(final byte[] bytes) {
-        final IsEnumVisitor isEnumVisitor = new IsEnumVisitor();
-        final ClassReader classReader = new ClassReader(bytes);
+    private static boolean isEnum(byte[] bytes) {
+        IsEnumVisitor isEnumVisitor = new IsEnumVisitor();
+        ClassReader classReader = new ClassReader(bytes);
         classReader.accept(isEnumVisitor, ClassReader.SKIP_DEBUG);
         return isEnumVisitor.isEnum;
     }
@@ -204,9 +193,9 @@ public class TempClassLoader extends URLClassLoader {
      * Fast-parse the given class bytecode to determine if it is an
      * annotation class.
      */
-    private static boolean isAnnotationClass(final byte[] bytes) {
-        final IsAnnotationVisitor isAnnotationVisitor = new IsAnnotationVisitor();
-        final ClassReader classReader = new ClassReader(bytes);
+    private static boolean isAnnotationClass(byte[] bytes) {
+        IsAnnotationVisitor isAnnotationVisitor = new IsAnnotationVisitor();
+        ClassReader classReader = new ClassReader(bytes);
         classReader.accept(isAnnotationVisitor, ClassReader.SKIP_DEBUG);
         return isAnnotationVisitor.isAnnotation;
     }
@@ -214,19 +203,17 @@ public class TempClassLoader extends URLClassLoader {
     public static class IsAnnotationVisitor extends EmptyVisitor {
         public boolean isAnnotation = false;
 
-        @Override
-        public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-            this.isAnnotation = (access & Opcodes.ACC_ANNOTATION) != 0;
+        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            isAnnotation = (access & Opcodes.ACC_ANNOTATION) != 0;
         }
 
     }
-
+    
     public static class IsEnumVisitor extends EmptyVisitor {
         public boolean isEnum = false;
 
-        @Override
-        public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-            this.isEnum = (access & Opcodes.ACC_ENUM) != 0;
+        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            isEnum = (access & Opcodes.ACC_ENUM) != 0;
         }
 
     }

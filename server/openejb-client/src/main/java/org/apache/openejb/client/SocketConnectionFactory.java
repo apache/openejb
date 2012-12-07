@@ -40,7 +40,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.zip.GZIPInputStream;
 
 public class SocketConnectionFactory implements ConnectionFactory {
 
@@ -199,8 +198,7 @@ public class SocketConnectionFactory implements ConnectionFactory {
         private final Pool pool;
         private final Lock lock = new ReentrantLock();
         private OutputStream out;
-        private InputStream in;
-        private boolean gzip = false;
+        private BufferedInputStream in;
 
         public SocketConnection(final URI uri, final Pool pool) {
             this.uri = uri;
@@ -253,18 +251,13 @@ public class SocketConnectionFactory implements ConnectionFactory {
             final InetSocketAddress address = new InetSocketAddress(uri.getHost(), uri.getPort());
 
             try {
-                final String scheme = uri.getScheme();
-                if (scheme.equalsIgnoreCase("ejbds") || scheme.equalsIgnoreCase("zejbds")) {
+                if (uri.getScheme().equalsIgnoreCase("ejbds")) {
                     final SSLSocket sslSocket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
                     sslSocket.setEnabledCipherSuites(enabledCipherSuites);
                     this.socket = sslSocket;
 
                 } else {
                     this.socket = new Socket();
-                }
-
-                if (scheme.startsWith("z")) {
-                    gzip = true;
                 }
 
                 this.socket.setTcpNoDelay(true);
@@ -326,11 +319,7 @@ public class SocketConnectionFactory implements ConnectionFactory {
             /*----------------------------------*/
             try {
                 if (in == null) {
-                    if (!gzip) {
-                        in = new BufferedInputStream(socket.getInputStream());
-                    } else {
-                        in = new GZIPInputStream(new BufferedInputStream(socket.getInputStream()));
-                    }
+                    in = new BufferedInputStream(socket.getInputStream());
                 }
 
                 return new Input(in);
@@ -352,11 +341,7 @@ public class SocketConnectionFactory implements ConnectionFactory {
             try {
 
                 if (out == null) {
-                    if (!gzip) {
-                        out = new BufferedOutputStream(socket.getOutputStream());
-                    } else {
-                        out = new BufferedOutputStream(new FlushableGZIPOutputStream(socket.getOutputStream()));
-                    }
+                    out = new BufferedOutputStream(socket.getOutputStream());
                 }
 
                 return new Output(out);

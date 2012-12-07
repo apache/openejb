@@ -89,7 +89,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     @Parameter(property = "tomee-plugin.skipCurrentProject", defaultValue = "false")
     protected boolean skipCurrentProject;
 
-    @Parameter(property = "tomee-plugin.version", defaultValue = "1.5.1")
+    @Parameter(property = "tomee-plugin.version", defaultValue = "1.5.1-SNAPSHOT")
     protected String tomeeVersion;
 
     @Parameter(property = "tomee-plugin.groupId", defaultValue = "org.apache.openejb")
@@ -235,8 +235,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
     private void removeDefaultWebapps(final boolean removeTomee) {
         final File webapps = new File(catalinaBase, webappDir);
         if (webapps.isDirectory()) {
-            final File[] files = webapps.listFiles();
-            if (null != files) for (File webapp : files) {
+            for (File webapp : webapps.listFiles()) {
                 final String name = webapp.getName();
                 if (webapp.isDirectory() && (removeTomee || !name.equals("tomee"))) {
                     try {
@@ -530,8 +529,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
 
         if (getNoShutdownHook()) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
+                @Override public void run() {
                     server.stop();
                 }
             });
@@ -560,7 +558,7 @@ public abstract class AbstractTomEEMojo extends AbstractAddressMojo {
         // no-op
     }
 
-    protected int getConnectAttempts() {
+    protected  int getConnectAttempts() {
         return Integer.MAX_VALUE;
     }
 

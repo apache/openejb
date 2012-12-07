@@ -20,7 +20,6 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.persistence.PersistenceUnitInfoImpl;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceProvider;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,9 +48,7 @@ public class EntityManagerFactoryCallable implements Callable<EntityManagerFacto
 
             // Create entity manager factories with the validator factory
             final Map<String, Object> properties = new HashMap<String, Object>();
-            if (!ValidationMode.NONE.equals(unitInfo.getValidationMode())) {
-                properties.put("javax.persistence.validator.ValidatorFactory", new ValidatorFactoryWrapper());
-            }
+            properties.put("javax.persistence.validator.ValidatorFactory", new ValidatorFactoryWrapper());
             EntityManagerFactory emf = persistenceProvider.createContainerEntityManagerFactory(unitInfo, properties);
 
             if ((unitInfo.getProperties() != null

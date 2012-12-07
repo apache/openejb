@@ -6,13 +6,24 @@ OpenEJB ${pom.version}      http://openejb.apache.org/
 ___________________
 Installation
 ===================
+ 
+ The OpenEJB Plugin for Tomcat installation process is fairly simple, so if
+ you are comfortable with the command line and Tomcat, the following
+ instructions will get you going ASAP; otherwise, please visit the OpenEJB
+ Tomcat site for detailed instructions with examples.
 
- Assuming you have a normal working Tomcat 7.x installation:
+   http://openejb.apache.org/tomcat.html
+
+
+ Assuming you have a normal working Tomcat 5.5 or 6.x installation:
 
  1. Copy tomee.war to ${catalina.base}/webapps/tomee.war
         (Note: the file must be named tomee.war)
  2. Start Tomcat if it is not already running
+ 3. (optional) Visit http://localhost:8080/openejb/installer and click the 'install' button
 
+___________________
+___________________
 Support
 ===================
  
@@ -20,6 +31,9 @@ Support
  mailing list at users@openejb.apache.org 
  Follow this link for other subscription and list information:
  http://openejb.apache.org/mailing-lists.html
+
+
+
 
 =========================================================================
 ==  Cryptographic Software Notice                                      ==

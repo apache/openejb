@@ -17,43 +17,44 @@
  */
 package org.apache.openejb.test.mdb;
 
-import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
-import org.apache.openejb.test.TestFailureException;
 import org.apache.openejb.test.entity.bmp.BasicBmpHome;
+import org.apache.openejb.test.stateful.BasicStatefulHome;
 import org.apache.openejb.test.stateful.BasicStatefulBusinessLocal;
 import org.apache.openejb.test.stateful.BasicStatefulBusinessRemote;
-import org.apache.openejb.test.stateful.BasicStatefulHome;
+import org.apache.openejb.test.stateless.BasicStatelessHome;
 import org.apache.openejb.test.stateless.BasicStatelessBusinessLocal;
 import org.apache.openejb.test.stateless.BasicStatelessBusinessRemote;
-import org.apache.openejb.test.stateless.BasicStatelessHome;
+import org.apache.openejb.test.TestFailureException;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
-import javax.ejb.EJBException;
 import javax.ejb.MessageDriven;
 import javax.ejb.MessageDrivenContext;
+import javax.ejb.EJBException;
+import javax.ejb.ActivationConfigProperty;
+import javax.annotation.Resource;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
 import javax.jms.QueueConnectionFactory;
+import javax.jms.TopicConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.Topic;
-import javax.jms.TopicConnectionFactory;
-import javax.persistence.EntityManager;
+import javax.jms.MessageProducer;
+import javax.jms.MessageListener;
+import javax.jms.Message;
+import javax.persistence.PersistenceUnit;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
+
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "AnnotatedFieldInjectionMdb")})
+        @ActivationConfigProperty(propertyName="destinationType", propertyValue = "javax.jms.Queue"),
+        @ActivationConfigProperty(propertyName="destination", propertyValue = "AnnotatedFieldInjectionMdb")})
 public class AnnotatedFieldInjectionMdbBean implements MessageListener {
     @Resource
     private MessageDrivenContext mdbContext;
@@ -74,11 +75,11 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
     @Resource
     private Integer inteeger = 1;
     @Resource
-    private Short shoort = (short) 1;
+    private Short shoort = (short)1;
     @Resource
     private Boolean booolean = true;
     @Resource
-    private Byte byyte = (byte) 1;
+    private Byte byyte = (byte)1;
     @Resource
     private Character chaaracter = 'D';
     @Resource
@@ -113,19 +114,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
         }
     }
 
-    @PreDestroy
-    public void preDestroy() {
-        if (null != mdbInvoker) {
-            try {
-                mdbInvoker.destroy();
-            } catch (Throwable e) {
-                //Ignore
-            }
-        }
-    }
-
-    @Override
-    public void onMessage(final Message message) {
+    public void onMessage(Message message) {
         try {
 //            System.out.println("\n" +
 //                    "***************************************\n" +
@@ -200,7 +189,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupStringEntry() throws TestFailureException {
         try {
-            final String expected = "1";
+            String expected = new String("1");
             Assert.assertNotNull("The String looked up is null", striing);
             Assert.assertEquals(expected, striing);
         } catch (AssertionFailedError afe) {
@@ -210,7 +199,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupDoubleEntry() throws TestFailureException {
         try {
-            final Double expected = 1.0D;
+            Double expected = new Double(1.0D);
 
             Assert.assertNotNull("The Double looked up is null", doouble);
             Assert.assertEquals(expected, doouble);
@@ -222,7 +211,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupLongEntry() throws TestFailureException {
         try {
-            final Long expected = 1L;
+            Long expected = new Long(1L);
 
             Assert.assertNotNull("The Long looked up is null", loong);
             Assert.assertEquals(expected, loong);
@@ -233,7 +222,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupFloatEntry() throws TestFailureException {
         try {
-            final Float expected = 1.0F;
+            Float expected = new Float(1.0F);
 
             Assert.assertNotNull("The Float looked up is null", flooat);
             Assert.assertEquals(expected, flooat);
@@ -244,7 +233,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupIntegerEntry() throws TestFailureException {
         try {
-            final Integer expected = 1;
+            Integer expected = new Integer(1);
 
             Assert.assertNotNull("The Integer looked up is null", inteeger);
             Assert.assertEquals(expected, inteeger);
@@ -256,7 +245,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupShortEntry() throws TestFailureException {
         try {
-            final Short expected = (short) 1;
+            Short expected = new Short((short) 1);
 
             Assert.assertNotNull("The Short looked up is null", shoort);
             Assert.assertEquals(expected, shoort);
@@ -267,7 +256,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupBooleanEntry() throws TestFailureException {
         try {
-            final Boolean expected = true;
+            Boolean expected = new Boolean(true);
 
             Assert.assertNotNull("The Boolean looked up is null", booolean);
             Assert.assertEquals(expected, booolean);
@@ -278,7 +267,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupByteEntry() throws TestFailureException {
         try {
-            final Byte expected = (byte) 1;
+            Byte expected = new Byte((byte) 1);
 
             Assert.assertNotNull("The Byte looked up is null", byyte);
             Assert.assertEquals(expected, byyte);
@@ -289,7 +278,7 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
 
     public void lookupCharacterEntry() throws TestFailureException {
         try {
-            final Character expected = 'D';
+            Character expected = new Character('D');
 
             Assert.assertNotNull("The Character looked up is null", chaaracter);
             Assert.assertEquals(expected, chaaracter);
@@ -306,25 +295,25 @@ public class AnnotatedFieldInjectionMdbBean implements MessageListener {
         }
     }
 
-    public void lookupJMSConnectionFactory() throws TestFailureException {
-        try {
-            try {
+    public void lookupJMSConnectionFactory() throws TestFailureException{
+        try{
+            try{
                 testJmsConnection(coonnectionFactory.createConnection());
                 testJmsConnection(queueCoonnectionFactory.createConnection());
                 testJmsConnection(topicCoonnectionFactory.createConnection());
-            } catch (Exception e) {
+            } catch (Exception e){
                 e.printStackTrace();
-                Assert.fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+                Assert.fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
             }
-        } catch (AssertionFailedError afe) {
+        } catch (AssertionFailedError afe){
             throw new TestFailureException(afe);
         }
     }
 
-    private void testJmsConnection(final javax.jms.Connection connection) throws JMSException {
-        final Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-        final Topic topic = session.createTopic("test");
-        final MessageProducer producer = session.createProducer(topic);
+    private void testJmsConnection(javax.jms.Connection connection) throws JMSException {
+        Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+        Topic topic = session.createTopic("test");
+        MessageProducer producer = session.createProducer(topic);
         producer.send(session.createMessage());
         producer.close();
         session.close();

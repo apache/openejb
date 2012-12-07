@@ -135,7 +135,7 @@ public class Archives {
             out.closeEntry();
         }
 
-        if (entries != null) for (Map.Entry<String, ?> entry : entries.entrySet()) {
+        for (Map.Entry<String, ?> entry : entries.entrySet()) {
 
             out.putNextEntry(new ZipEntry(entry.getKey()));
 

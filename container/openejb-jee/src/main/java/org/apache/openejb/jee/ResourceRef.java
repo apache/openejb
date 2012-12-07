@@ -93,8 +93,6 @@ public class ResourceRef implements JndiReference {
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
-    @XmlTransient
-    protected String origin;
 
     public ResourceRef() {
     }
@@ -251,14 +249,6 @@ public class ResourceRef implements JndiReference {
 
     public void setId(String value) {
         this.id = value;
-    }
-
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
     }
 
     @Override

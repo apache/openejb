@@ -166,14 +166,18 @@ public class URLClassLoaderFirst extends URLClassLoader {
 
     // making all these call inline if far more costly than factorizing packages
     public static boolean shouldSkip(final String name) {
-        for (String prefix : FORCED_SKIP) {
-            if (name.startsWith(prefix)) {
-                return true;
+        if (FORCED_SKIP != null) {
+            for (String prefix : FORCED_SKIP) {
+                if (name.startsWith(prefix)) {
+                    return true;
+                }
             }
         }
-        for (String prefix : FORCED_LOAD) {
-            if (name.startsWith(prefix)) {
-                return false;
+        if (FORCED_LOAD != null) {
+            for (String prefix : FORCED_LOAD) {
+                if (name.startsWith(prefix)) {
+                    return false;
+                }
             }
         }
 
@@ -317,8 +321,7 @@ public class URLClassLoaderFirst extends URLClassLoader {
     // in org.apache.openejb.
     private static boolean isWebAppEnrichment(final String openejb) {
         return openejb.startsWith("hibernate.") || openejb.startsWith("jpa.integration.")
-                || openejb.startsWith("toplink.") || openejb.startsWith("eclipselink.")
-                || openejb.startsWith("arquillian.");
+                || openejb.startsWith("toplink.") || openejb.startsWith("eclipselink.");
     }
 
     @Override

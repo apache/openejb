@@ -33,8 +33,7 @@ public class PojoSessionScoped implements Serializable {
         ms = System.currentTimeMillis();
     }
 
-    @PostConstruct
-    public void initId() {
+    @PostConstruct public void initId() {
         id = ID.incrementAndGet();
     }
 

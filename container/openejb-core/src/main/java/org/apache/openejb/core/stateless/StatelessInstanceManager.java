@@ -16,6 +16,30 @@
  */
 package org.apache.openejb.core.stateless;
 
+import java.io.Flushable;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import javax.ejb.ConcurrentAccessTimeoutException;
+import javax.ejb.EJBContext;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.NamingException;
 import org.apache.openejb.ApplicationException;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.OpenEJBException;
@@ -23,6 +47,7 @@ import org.apache.openejb.SystemException;
 import org.apache.openejb.core.InstanceContext;
 import org.apache.openejb.core.Operation;
 import org.apache.openejb.core.ThreadContext;
+import org.apache.openejb.core.interceptor.Interceptor;
 import org.apache.openejb.core.interceptor.InterceptorData;
 import org.apache.openejb.core.interceptor.InterceptorInstance;
 import org.apache.openejb.core.interceptor.InterceptorStack;
@@ -42,35 +67,9 @@ import org.apache.openejb.util.SafeToolkit;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 
-import javax.ejb.ConcurrentAccessTimeoutException;
-import javax.ejb.EJBContext;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import java.io.Flushable;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 public class StatelessInstanceManager {
     private static final Logger logger = Logger.getInstance(LogCategory.OPENEJB, "org.apache.openejb.util.resources");
     private static final Method removeSessionBeanMethod;
-
     static { // initialize it only once
         Method foundRemoveMethod;
         try {
@@ -98,15 +97,15 @@ public class StatelessInstanceManager {
 
         if (accessTimeout.getUnit() == null) accessTimeout.setUnit(TimeUnit.MILLISECONDS);
 
-        executor = new ThreadPoolExecutor(callbackThreads, callbackThreads * 2,
+        executor = new ThreadPoolExecutor(callbackThreads, callbackThreads*2,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
-            public Thread newThread(Runnable runable) {
-                Thread t = new Thread(runable, "StatelessPool");
-                t.setDaemon(true);
-                return t;
-            }
-        });
+                    public Thread newThread(Runnable runable) {
+                        Thread t = new Thread(runable, "StatelessPool");
+                        t.setDaemon(true);
+                        return t;
+                    }
+                });
 
 
     }
@@ -124,7 +123,7 @@ public class StatelessInstanceManager {
             try {
                 freeInstance(ctx, instance);
             } finally {
-                ThreadContext.exit(oldCallContext);
+                 ThreadContext.exit(oldCallContext);
             }
         }
 
@@ -136,13 +135,12 @@ public class StatelessInstanceManager {
             } catch (OpenEJBException e) {
                 logger.error("Unable to fill pool: for deployment '" + beanContext.getDeploymentID() + "'", e);
             } finally {
-                ThreadContext.exit(oldCallContext);
+                 ThreadContext.exit(oldCallContext);
             }
 
             return null;
         }
     }
-
     /**
      * Removes an instance from the pool and returns it for use
      * by the container in business methods.
@@ -166,7 +164,7 @@ public class StatelessInstanceManager {
         try {
             final Pool<Instance>.Entry entry = data.poolPop();
 
-            if (entry != null) {
+            if (entry != null){
                 instance = entry.get();
                 instance.setPoolEntry(entry);
             }
@@ -191,7 +189,7 @@ public class StatelessInstanceManager {
 
             final InstanceContext context = beanContext.newInstance();
 
-            if (context.getBean() instanceof SessionBean) {
+            if (context.getBean() instanceof SessionBean){
 
                 final Operation originalOperation = callContext.getCurrentOperation();
                 try {
@@ -238,7 +236,7 @@ public class StatelessInstanceManager {
 
         Pool<Instance> pool = data.getPool();
 
-        if (instance.getPoolEntry() != null) {
+        if (instance.getPoolEntry() != null){
             pool.push(instance.getPoolEntry());
         } else {
             pool.push(instance);
@@ -270,7 +268,7 @@ public class StatelessInstanceManager {
             callContext.setCurrentOperation(Operation.PRE_DESTROY);
             BeanContext beanContext = callContext.getBeanContext();
 
-            Method remove = instance.bean instanceof SessionBean ? removeSessionBeanMethod : null;
+            Method remove = instance.bean instanceof SessionBean? removeSessionBeanMethod : null;
 
             List<InterceptorData> callbackInterceptors = beanContext.getCallbackInterceptors();
             InterceptorStack interceptorStack = new InterceptorStack(instance.bean, remove, Operation.PRE_DESTROY, callbackInterceptors, instance.interceptors);
@@ -376,7 +374,7 @@ public class StatelessInstanceManager {
         }
 
         // Finally, fill the pool and start it
-        if (!options.get("BackgroundStartup", false) && min > 0) {
+        if (!options.get("BackgroundStartup", false) && min > 0)  {
             ExecutorService es = Executors.newFixedThreadPool(min);
             for (int i = 0; i < min; i++) {
                 es.submit(new InstanceCreatorRunnable(maxAge, i, min, maxAgeOffset, data, supplier));
@@ -412,7 +410,7 @@ public class StatelessInstanceManager {
             try {
                 server.unregisterMBean(objectName);
             } catch (Exception e) {
-                logger.error("Unable to unregister MBean " + objectName);
+                logger.error("Unable to unregister MBean "+objectName);
             }
         }
 
@@ -484,8 +482,7 @@ public class StatelessInstanceManager {
             this.supplier = supplier;
         }
 
-        @Override
-        public void run() {
+        @Override public void run() {
             final Instance obj = supplier.create();
             if (obj != null) {
                 long offset = maxAge > 0 ? (long) (maxAge / maxAgeOffset * min * iteration) % maxAge : 0l;

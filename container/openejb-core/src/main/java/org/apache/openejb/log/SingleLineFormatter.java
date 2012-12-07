@@ -16,16 +16,14 @@
  */
 package org.apache.openejb.log;
 
-import org.fusesource.jansi.Ansi;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+import org.fusesource.jansi.Ansi;
 
 public class SingleLineFormatter extends Formatter {
-    @Override
-    public synchronized String format(LogRecord record) {
+    @Override public synchronized String format(LogRecord record) {
         final boolean exception = record.getThrown() != null;
         final Ansi sbuf = prefix(record);
         sbuf.a(record.getLevel().getLocalizedName());
@@ -43,7 +41,7 @@ public class SingleLineFormatter extends Formatter {
                 pw.close();
                 sbuf.a(sw.toString());
             } catch (Exception ex) {
-                // no-op
+                 // no-op
             } finally {
                 suffix(sbuf, record);
             }
