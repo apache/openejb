@@ -23,6 +23,7 @@ import org.apache.openejb.tools.release.util.Options;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,9 +72,9 @@ public class Release {
             builddir = public_html.getAbsolutePath();
         }
 
+        final Map<String, Object> map = map();
         final Options options = new Options(System.getProperties());
 
-        final Map<String, Object> map = map();
 
         boolean interpolating = true;
         while (interpolating) {
@@ -82,7 +83,7 @@ public class Release {
                 final Object value = options.get(entry.getKey(), entry.getValue());
 
                 final String raw = value.toString();
-                final String formatted = format(raw, map);
+                final String formatted = format(raw, map, options);
                 if (!raw.equals(formatted)) interpolating = true;
 
                 entry.setValue(formatted);
@@ -96,12 +97,12 @@ public class Release {
         }
     }
 
-    static String format(String input, Map<String, Object> map) {
+    static String format(String input, Map<String, Object> map, Options options) {
         Matcher matcher = PATTERN.matcher(input);
         StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
             String key = matcher.group(2);
-            Object value = map.get(key);
+            Object value = options.get(key, map.get(key));
             if (value != null) {
                 try {
                     matcher.appendReplacement(buf, value.toString());
