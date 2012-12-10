@@ -17,6 +17,7 @@
 package org.apache.openejb.tools.release.cmd;
 
 import org.apache.openejb.tools.release.Command;
+import org.apache.openejb.tools.release.Release;
 import org.apache.openejb.tools.release.util.Exec;
 import org.apache.openejb.tools.release.util.Files;
 
@@ -52,10 +53,12 @@ public class CompareLibraries {
     }
 
     private static void diff(File repository, final String artifactId, final String versionA, final String versionB, final String classifier) throws IOException {
+        final String repo1Url = "http://repo1.maven.apache.org/maven2";
+        final String stagingUrl = Release.staging;
         System.out.printf("\n%s %s %s\n\n", artifactId, versionB, (classifier == null) ? "" : classifier);
 
-        final File previous = artifact(repository, artifactId, versionA, classifier);
-        final File current = artifact(repository, artifactId, versionB, classifier);
+        final File previous = artifact(repository, artifactId, versionA, classifier, repo1Url);
+        final File current = artifact(repository, artifactId, versionB, classifier, stagingUrl);
 
         final Map<String, FileData> a = libraries(previous);
         final Map<String, FileData> b = libraries(current);
@@ -98,7 +101,7 @@ public class CompareLibraries {
         return map;
     }
 
-    private static File artifact(File repository, String artifactId, String version, String classifier) {
+    private static File artifact(File repository, String artifactId, String version, String classifier, String repoUrl) {
 
         final String zip = classifier != null ? artifactId + "-" + version + "-" + classifier + ".zip" : artifactId + "-" + version + ".zip";
 
@@ -115,13 +118,13 @@ public class CompareLibraries {
             artifact = "-Dartifact=" + String.format("org.apache.openejb:%s:%s:%s", artifactId, version, "zip");
         }
 
-        final int i = Exec.exec(mvn(), "-X", "org.apache.maven.plugins:maven-dependency-plugin:2.4:get", "-DrepoUrl=http://repo1.maven.apache.org/maven2", artifact);
+        final int i = Exec.exec(mvn(), "-X", "org.apache.maven.plugins:maven-dependency-plugin:2.4:get", "-DrepoUrl=" + repoUrl, artifact);
 
         if (i != 0) {
             throw new IllegalStateException("Download failed: " + i);
         }
 
-        return artifact(repository, artifactId, version, classifier);
+        return artifact(repository, artifactId, version, classifier, repoUrl);
     }
 
     private static String mvn() {
