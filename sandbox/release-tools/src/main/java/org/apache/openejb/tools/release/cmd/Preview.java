@@ -47,7 +47,7 @@ public class Preview {
 
         System.out.println(email);
 
-        final OutputStream out = Exec.write("ssh", "people.apache.org", "/usr/sbin/sendmail -it");
+        final OutputStream out = Exec.write("ssh", Release.user + "@people.apache.org", "/usr/sbin/sendmail -it");
         out.write(email.getBytes());
         out.flush();
         out.close();
