@@ -497,18 +497,22 @@ public class DeploymentsElementTest extends Assert {
 
     @Test
     public void invalidDir_notReadable() throws Exception {
-        exceptions.expect(RuntimeException.class);
-        exceptions.expectMessage("Deployments dir=");
-        exceptions.expectMessage("Not readable");
-        exceptions.expectMessage("myapps");
-        final Server server = new Server();
+        if (!System.getProperty("os.name", "unknown").toLowerCase().startsWith("win")) {
 
-        final File dir = server.deploymentsDir("myapps");
-        assertTrue(dir.setReadable(false));
+            //File.setReadable(false) does nothing on win platforms
 
-        final OpenEjbConfiguration configuration = server.init();
+            exceptions.expect(RuntimeException.class);
+            exceptions.expectMessage("Deployments dir=");
+            exceptions.expectMessage("Not readable");
+            exceptions.expectMessage("myapps");
+            final Server server = new Server();
 
-        assertEquals(0, configuration.containerSystem.applications.size());
+            final File dir = server.deploymentsDir("myapps");
+
+            assertTrue(dir.setReadable(false));
+            final OpenEjbConfiguration configuration = server.init();
+            assertEquals(0, configuration.containerSystem.applications.size());
+        }
     }
 
     @Test
@@ -548,20 +552,24 @@ public class DeploymentsElementTest extends Assert {
 
     @Test
     public void invalidFile_notReadable() throws Exception {
-        exceptions.expect(RuntimeException.class);
-        exceptions.expectMessage("Deployments file=");
-        exceptions.expectMessage("Not readable");
-        exceptions.expectMessage("myapp.jar");
+        if (!System.getProperty("os.name", "unknown").toLowerCase().startsWith("win")) {
 
-        final Server server = new Server();
+            //File.setReadable(false) does nothing on win platforms
 
-        final File file = server.deploymentsFile("myapp.jar");
-        assertTrue(file.createNewFile());
-        assertTrue(file.setReadable(false));
+            exceptions.expect(RuntimeException.class);
+            exceptions.expectMessage("Deployments file=");
+            exceptions.expectMessage("Not readable");
+            exceptions.expectMessage("myapp.jar");
 
-        final OpenEjbConfiguration configuration = server.init();
+            final Server server = new Server();
 
-        assertEquals(0, configuration.containerSystem.applications.size());
+            final File file = server.deploymentsFile("myapp.jar");
+            assertTrue(file.createNewFile());
+            assertTrue(file.setReadable(false));
+
+            final OpenEjbConfiguration configuration = server.init();
+            assertEquals(0, configuration.containerSystem.applications.size());
+        }
     }
 
     /**
