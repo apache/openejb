@@ -185,6 +185,8 @@
                     <exclude>META-INF/LICENSE</exclude>
                     <exclude>META-INF/NOTICE</exclude>
                     <exclude>javax/ws/rs/core/UriBuilder.class</exclude>
+                    <exclude>javax/xml/bind/ContextFinder.class</exclude>
+                    <exclude>javax/xml/bind/DatatypeConverter.class</exclude>
                   </excludes>
                 </filter>
                 <filter>
