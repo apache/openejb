@@ -167,7 +167,7 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
-      <version>4.1.1</version>
+      <version>5.6.0</version>
       <exclusions>
         <exclusion>
           <artifactId>backport-util-concurrent</artifactId>
