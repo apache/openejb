@@ -170,7 +170,7 @@
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-lang.version>2.6</commons-lang.version>
     <commons-io.version>1.4</commons-io.version>
-    <commons-net.version>3.2</commons-net.version>
+    <commons-net.version>3.9.0</commons-net.version>
   </properties>
 
   <build>
