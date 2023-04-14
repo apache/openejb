@@ -48,7 +48,7 @@
   </dependencies>
 
   <properties>
-    <camel.version>2.9.0</camel.version>
+    <camel.version>3.2.0</camel.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
